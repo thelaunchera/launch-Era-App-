@@ -80,6 +80,13 @@ function formatDateTime(value){
   if(!value) return "—";
   return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
 }
+function setAuthStatus(message="",type=""){
+  const el=$("#authStatus");
+  if(!el) return;
+  el.textContent=message;
+  el.dataset.type=type||"";
+}
+
 function showToast(message){
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -214,30 +221,54 @@ function prepareAdminShortcut(){
   if(last && !$("#authEmail").value) $("#authEmail").value=last;
 }
 
-async function continueAsAdmin(){
-  const email=String($("#authEmail").value||"").trim().toLowerCase();
-  if(!email){ showToast("Enter your admin email first"); return; }
-
-  const button=$("#rememberedAdminBtn");
-  setBusy(button,true,"Opening…");
+async function tryTrustedAdminSignIn(email){
+  const clean=String(email||"").trim().toLowerCase();
+  if(!clean) return false;
   try{
     const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
-      body:{email,visitor_id:getVisitorId()}
+      body:{email:clean,visitor_id:getVisitorId()}
     });
-    if(error) throw error;
-    if(!data?.token_hash) throw new Error(data?.error||"This device is not approved for admin access.");
+    if(error || !data?.token_hash) return false;
 
     const {error:verifyError}=await supabase.auth.verifyOtp({
       token_hash:data.token_hash,
       type:"magiclink"
     });
-    if(verifyError) throw verifyError;
+    if(verifyError) return false;
 
     localStorage.setItem("tle_internal_admin_device","1");
-    localStorage.setItem("tle_last_admin_email",email);
-    showToast("Welcome back");
-    await initialize();
+    localStorage.setItem("tle_last_admin_email",clean);
+    return true;
+  }catch{
+    return false;
+  }
+}
+
+async function continueAsAdmin(){
+  const email=String($("#authEmail").value||localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+  if(!email){
+    setAuthStatus("Enter your admin email first.","error");
+    $("#authEmail").focus();
+    return;
+  }
+
+  const button=$("#rememberedAdminBtn");
+  setBusy(button,true,"Opening…");
+  setAuthStatus("Opening your admin workspace…","loading");
+  try{
+    const {data:{session}}=await supabase.auth.getSession();
+    if(session){
+      state.session=session;
+      await enterAuthenticatedApp();
+      return;
+    }
+
+    const ok=await tryTrustedAdminSignIn(email);
+    if(!ok) throw new Error("This device is not approved for passwordless admin access.");
+    setAuthStatus("Admin access confirmed.","success");
+    await enterAuthenticatedApp();
   }catch(err){
+    setAuthStatus(err.message||"Admin access is not available on this device","error");
     showToast(err.message||"Admin access is not available on this device");
   }finally{
     setBusy(button,false);
@@ -305,6 +336,7 @@ authForm.addEventListener("submit", async (e)=>{
   try{
     const email = $("#authEmail").value.trim();
     const password = $("#authPassword").value;
+    setAuthStatus(state.authMode==="signup"?"Creating your account…":"Signing you in…","loading");
     if(state.authMode === "recovery"){
       const { error } = await supabase.auth.updateUser({password});
       if(error) throw error;
@@ -320,17 +352,23 @@ authForm.addEventListener("submit", async (e)=>{
       });
       if(error) throw error;
       if(data.session){
-        await initialize();
+        state.session=data.session;
+        setAuthStatus("Account created.","success");
+        await enterAuthenticatedApp();
       }else{
         setAuthMode("signin");
+        setAuthStatus("Account created. Check your email to verify it, then sign in.","success");
         showToast("Account created. Check your email to verify it, then sign in.");
       }
     }else{
-      const { error } = await supabase.auth.signInWithPassword({email,password});
+      const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
-      await initialize();
+      state.session=data.session||null;
+      setAuthStatus("Signed in.","success");
+      await enterAuthenticatedApp();
     }
   }catch(err){
+    setAuthStatus(err.message || "Could not continue","error");
     showToast(err.message || "Could not continue");
   }finally{
     setBusy(button,false);
@@ -489,6 +527,18 @@ async function createWorkerLink(teamMemberId){
   modal.hidden=false;
 }
 
+async function enterAuthenticatedApp(){
+  if(window.__tleEnterAppPromise) return window.__tleEnterAppPromise;
+  window.__tleEnterAppPromise=(async()=>{
+    try{
+      await initialize();
+    }finally{
+      window.__tleEnterAppPromise=null;
+    }
+  })();
+  return window.__tleEnterAppPromise;
+}
+
 async function initialize(){
   const params=new URLSearchParams(window.location.search);
   const publicMode=params.get("public");
@@ -513,16 +563,22 @@ async function initialize(){
   state.session = session;
   if(!session){
     const lastAdminEmail=localStorage.getItem("tle_last_admin_email");
-    if(lastAdminEmail && !window.__tleTrustedAutoLogin){
+    const trustedDevice=localStorage.getItem("tle_internal_admin_device")==="1";
+    if(lastAdminEmail && trustedDevice && !window.__tleTrustedAutoLogin){
       window.__tleTrustedAutoLogin=true;
       try{
         const trusted=await tryTrustedAdminSignIn(lastAdminEmail);
-        if(trusted) return;
+        if(trusted){
+          const fresh=await supabase.auth.getSession();
+          state.session=fresh.data.session;
+          if(state.session) return initialize();
+        }
       }finally{
         window.__tleTrustedAutoLogin=false;
       }
     }
     showAuth();
+    setAuthStatus("");
     return;
   }
 
@@ -577,10 +633,10 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
-    if(appShell.hidden && !window.__tleAuthInitializing){
-      window.__tleAuthInitializing=true;
-      try{ await initialize(); }
-      finally{ window.__tleAuthInitializing=false; }
+    if(appShell.hidden){
+      enterAuthenticatedApp().catch(err=>{
+        setAuthStatus(err.message||"Could not open workspace","error");
+      });
     }
     return;
   }
@@ -2196,18 +2252,13 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;s
 if("serviceWorker" in navigator){
   window.addEventListener("load",async ()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
-      await registration.update();
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
     }catch{}
   });
 }
-
-const APP_BUILD="2026-09-26-ios-v2";
-if(localStorage.getItem("tle_app_build")!==APP_BUILD){
-  localStorage.setItem("tle_app_build",APP_BUILD);
-  if("caches" in window){
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("tle-cleaning-app-")).map(k=>caches.delete(k)))).catch(()=>{});
-  }
+if("caches" in window){
+  caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
 }
 
 setAuthMode("signin");
