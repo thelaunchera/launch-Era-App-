@@ -1684,12 +1684,23 @@ function openQuickAdd(){
 
 function openGeneric(type){
   state.modalType=type; state.modalId=null;
-  modalHeader("QUICK ADD",type==="invoice"?"Invoice":"Quick action","This module will be connected after the core Clients → Services → Jobs → Quotes workflow.");
-  entityForm.innerHTML=`<div class="empty-inline"><strong>Core workflow first.</strong><span>Nothing here will touch the live Sites app.</span></div><div class="form-footer"><button type="button" class="primary-btn" data-modal-cancel>Close</button></div>`;
+  modalHeader("ADD NEW","Coming next","This action is not available from this screen yet.");
+  entityForm.innerHTML=`<div class="empty-inline"><strong>Use the matching section for this action.</strong><span>Your existing data is safe.</span></div><div class="form-footer"><button type="button" class="primary-btn" data-modal-cancel>Close</button></div>`;
   modal.hidden=false;
 }
 
 document.addEventListener("change",async e=>{
+  const platformStatus=e.target.closest("[data-platform-status]");
+  if(platformStatus){
+    const {error}=await supabase.rpc("platform_set_subscription_status",{
+      p_business_id:platformStatus.dataset.platformStatus,
+      p_status:platformStatus.value
+    });
+    if(error) showToast(error.message);
+    else {await loadPlatformAdmin();showToast("Subscription status updated");}
+    return;
+  }
+
   const memberRole=e.target.closest("[data-member-role]");
   if(!memberRole) return;
   const {error}=await supabase.from("business_members")
@@ -1733,6 +1744,13 @@ async function copyText(text){
 }
 $$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
 $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textContent.trim()));
+
+document.addEventListener("click",e=>{
+  const publicOpen=e.target.closest("[data-open-public]");
+  if(!publicOpen) return;
+  const link=publicOpen.dataset.openPublic==="book" ? $("#bookingUrl")?.href : $("#quoteUrl")?.href;
+  if(link) window.open(link,"_blank","noopener");
+});
 
 let spanish=false;
 $("#languageBtn").addEventListener("click",()=>{spanish=!spanish;showToast(spanish?"Spanish interface comes next":"English active");});
