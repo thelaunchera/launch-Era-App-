@@ -1797,7 +1797,8 @@ entityForm.addEventListener("submit",async e=>{
   try{
     const fd=new FormData(entityForm);
     if(state.modalType==="lead") await saveLead(fd);
-    if(state.modalType==="invoice") await saveInvoice(fd);
+    let invoiceResult=null;
+    if(state.modalType==="invoice") invoiceResult=await saveInvoice(fd);
     if(state.modalType==="payment") await savePayment(fd);
     if(state.modalType==="client") await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
@@ -1812,7 +1813,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="startTimer") await saveStartTimer(fd);
     modal.hidden=true;
     await loadCoreData();
-    showToast("Saved");
+    showToast(invoiceResult?.sent ? "Invoice emailed to client" : "Saved");
   }catch(err){
     showToast(err.message || "Could not save");
   }finally{
@@ -1845,14 +1846,22 @@ async function saveLead(fd){
 
 async function saveInvoice(fd){
   const amount=Number(fd.get("amount")||0);
+  if(!Number.isFinite(amount) || amount<=0) throw new Error("Invoice amount must be greater than $0.");
+
+  const requestedStatus=String(fd.get("status")||"draft");
+  const existing=state.modalId ? state.invoices.find(i=>i.id===state.modalId) : null;
+  const shouldSend=requestedStatus==="sent" && existing?.status!=="sent";
+
+  // Never mark a new invoice as sent until the email workflow succeeds.
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id"),
-    status:fd.get("status"),
+    status:shouldSend?"draft":requestedStatus,
     subtotal:amount,total:amount,
     due_at:fd.get("due_date")?new Date(fd.get("due_date")+"T23:59:59").toISOString():null,
     updated_at:new Date().toISOString()
   };
+
   let invoiceId=state.modalId;
   if(invoiceId){
     const {error}=await supabase.from("invoices").update(payload).eq("id",invoiceId);
@@ -1871,10 +1880,26 @@ async function saveInvoice(fd){
     if(error) throw error;
     invoiceId=data.id;
     const {error:itemErr}=await supabase.from("invoice_items").insert({
-      invoice_id:invoiceId,description:String(fd.get("description")).trim(),quantity:1,unit_price:amount,line_total:amount
+      invoice_id:invoiceId,
+      description:String(fd.get("description")).trim(),
+      quantity:1,
+      unit_price:amount,
+      line_total:amount
     });
     if(itemErr) throw itemErr;
   }
+
+  if(shouldSend){
+    const base=window.location.origin+window.location.pathname;
+    const {data,error}=await supabase.rpc("send_invoice_to_client",{
+      p_invoice_id:invoiceId,
+      p_public_base_url:base
+    });
+    if(error) throw error;
+    return {sent:true,url:data?.url||null};
+  }
+
+  return {sent:false};
 }
 
 function openPaymentForm(invoiceId){
