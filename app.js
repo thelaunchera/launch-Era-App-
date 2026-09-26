@@ -30,6 +30,7 @@ const state = {
   supplies: [],
   jobs: [],
   quotes: [],
+  disputes: [],
   teamMembers: [],
   members: [],
   invites: [],
@@ -793,16 +794,18 @@ async function loadCoreData(){
   renderBookingServices();
   renderAvailabilityEditor();
 
-  const [jobs,quotes,team,supplies]=await Promise.all([
+  const [jobs,quotes,team,supplies,disputes]=await Promise.all([
     safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true})),
     safe("quotes",supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false})),
     safe("team",supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")),
-    safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"))
+    safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
+    safe("customer disputes",supabase.from("customer_disputes").select("*").eq("business_id",businessId).order("created_at",{ascending:false}))
   ]);
   state.jobs=jobs;
   state.quotes=quotes;
   state.teamMembers=team;
   state.supplies=supplies;
+  state.disputes=disputes;
   renderJobs();
   renderQuotes();
   renderTeam();
@@ -936,15 +939,17 @@ function renderInvoices(){
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
     const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle"}[chosenMethod]||"";
+    const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
     return `<div class="table-row">
       <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
       <span>${escapeHtml(inv.clients?.name||"No client")}</span>
       <span><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" paid":""}</small></span>
-      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i>${methodLabel?`<small class="payment-choice-note">Customer chose ${escapeHtml(methodLabel)}</small>`:""}</span>
+      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i>${methodLabel?`<small class="payment-choice-note">Customer chose ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions">
         <button data-edit-invoice="${inv.id}">Edit</button>
+        ${dispute?`<button data-resolve-dispute="${dispute.id}">Resolve dispute</button>`:""}
         ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
         ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":methodLabel?"Confirm payment":"Record payment"}</button>`:""}
       </span>
@@ -1255,6 +1260,7 @@ function quoteColumn(status,label){
     ${items.length?items.map(q=>{
       const service=state.services.find(s=>s.id===q.quote_items?.[0]?.service_id);
       const total=Number(q.total||0);
+      const dispute=state.disputes.find(d=>d.resource_type==="quote"&&d.quote_id===q.id&&d.status==="open");
       const stateCopy=status==="accepted"
         ? "Client + job + invoice created"
         : status==="sent"
@@ -1266,7 +1272,9 @@ function quoteColumn(status,label){
         <strong>${escapeHtml(q.customer_name)}</strong>
         <small>${escapeHtml(service?.name || "Cleaning service")} · ${money(total)}</small>
         <b>${stateCopy}</b>
+        ${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}
         <div class="card-actions">
+          ${dispute?`<button data-resolve-dispute="${dispute.id}">Resolve dispute</button>`:""}
           ${!["accepted"].includes(status)?`<button data-edit="quote" data-id="${q.id}">Edit</button>`:""}
           ${["requested","draft","declined"].includes(status)?`<button class="accept-btn" data-send-customer-quote="${q.id}">Send quote</button>`:""}
           ${status==="sent"?`<button data-send-customer-quote="${q.id}">Resend quote</button>`:""}
@@ -2394,6 +2402,16 @@ document.addEventListener("click",async e=>{
     setTimeout(()=>{
       [["customer_name",lead?.name],["customer_email",lead?.email],["customer_phone",lead?.phone],["service_address",lead?.address]].forEach(([n,v])=>{const el=entityForm.querySelector(`[name="${n}"]`);if(el&&v)el.value=v;});
     },0);
+    return;
+  }
+
+  const resolveDispute=e.target.closest("[data-resolve-dispute]");
+  if(resolveDispute){
+    const {error}=await supabase.from("customer_disputes")
+      .update({status:"resolved",resolved_at:new Date().toISOString(),updated_at:new Date().toISOString()})
+      .eq("id",resolveDispute.dataset.resolveDispute);
+    if(error) showToast(error.message);
+    else {await loadCoreData();showToast("Dispute resolved");}
     return;
   }
 
