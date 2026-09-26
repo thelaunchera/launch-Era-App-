@@ -655,3 +655,59 @@ button,a,input,select,textarea,[role="button"]{
   .calendar-range-head h3{font-size:18px}
   .calendar-jobs-heading{align-items:flex-start;flex-direction:column;gap:3px}
 }
+
+
+/* Customer disputes */
+.dispute-btn{
+  min-height:46px;
+  border:1px solid #191919;
+  background:#FFF8D7;
+  color:#191919;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:900;
+}
+.public-dispute-block{display:grid;gap:10px}
+.public-dispute-form{
+  display:grid;
+  gap:12px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#FCFBF8;
+}
+.public-dispute-form label{
+  display:grid;
+  gap:7px;
+  font-size:12px;
+  font-weight:850;
+  color:#5D5952;
+}
+.public-dispute-form textarea{
+  width:100%;
+  resize:vertical;
+  min-height:96px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:11px 12px;
+  background:#fff;
+  color:var(--ink);
+}
+.public-dispute-actions{display:flex;gap:8px;justify-content:flex-end}
+.dispute-status{margin:0!important}
+.dispute-alert{
+  display:block;
+  margin-top:6px;
+  padding:7px 9px;
+  border-radius:10px;
+  background:#FFF3C4;
+  color:#5F4A00!important;
+  font-size:10px!important;
+  font-weight:850;
+  line-height:1.4;
+}
+.quote-review-actions{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:520px){
+  .quote-review-actions{grid-template-columns:1fr}
+  .public-dispute-actions{display:grid;grid-template-columns:1fr 1fr}
+}
