@@ -418,6 +418,10 @@ $("#forgotPassword").addEventListener("click", async ()=>{
 });
 
 async function signOutCurrentUser(){
+  if(window.__tleInvoiceRealtime){
+    try{await supabase.removeChannel(window.__tleInvoiceRealtime);}catch{}
+    window.__tleInvoiceRealtime=null;
+  }
   await supabase.auth.signOut();
   state.session=null;
   state.business=null;
@@ -457,6 +461,7 @@ businessForm.addEventListener("submit", async (e)=>{
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
     state.publicLinks=linkSettings||null;
     showApp();
+    setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
     showToast("Workspace created");
@@ -678,6 +683,7 @@ async function initialize(){
   state.publicLinks=linkSettings||null;
 
   showApp();
+  setupInvoiceRealtime();
   showToast("Loading your workspace…");
   loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
@@ -730,6 +736,27 @@ async function withTimeout(promise,label,ms=9000){
   }finally{
     clearTimeout(timer);
   }
+}
+
+function setupInvoiceRealtime(){
+  if(!state.business?.id) return;
+
+  if(window.__tleInvoiceRealtime){
+    try{supabase.removeChannel(window.__tleInvoiceRealtime);}catch{}
+    window.__tleInvoiceRealtime=null;
+  }
+
+  window.__tleInvoiceRealtime=supabase
+    .channel("invoice-updates-"+state.business.id)
+    .on("postgres_changes",{
+      event:"UPDATE",
+      schema:"public",
+      table:"invoices",
+      filter:"business_id=eq."+state.business.id
+    },()=>{
+      loadCoreData().catch(err=>console.warn("[TLE] realtime invoice refresh",err));
+    })
+    .subscribe();
 }
 
 async function loadCoreData(){
@@ -907,13 +934,15 @@ function renderInvoices(){
   table.innerHTML=state.invoices.map(inv=>{
     const paid=invoicePaidAmount(inv);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
+    const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
+    const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle"}[chosenMethod]||"";
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
     return `<div class="table-row">
       <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
       <span>${escapeHtml(inv.clients?.name||"No client")}</span>
       <span><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" paid":""}</small></span>
-      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i></span>
+      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i>${methodLabel?`<small class="payment-choice-note">Customer chose ${escapeHtml(methodLabel)}</small>`:""}</span>
       <span class="record-actions">
         <button data-edit-invoice="${inv.id}">Edit</button>
         ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
@@ -1828,8 +1857,9 @@ entityForm.addEventListener("submit",async e=>{
     const fd=new FormData(entityForm);
     if(state.modalType==="lead") await saveLead(fd);
     let invoiceResult=null;
+    let paymentResult=null;
     if(state.modalType==="invoice") invoiceResult=await saveInvoice(fd);
-    if(state.modalType==="payment") await savePayment(fd);
+    if(state.modalType==="payment") paymentResult=await savePayment(fd);
     if(state.modalType==="client") await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
     if(state.modalType==="addon") await saveAddon(fd);
@@ -1843,7 +1873,15 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="startTimer") await saveStartTimer(fd);
     modal.hidden=true;
     await loadCoreData();
-    showToast(invoiceResult?.sent ? "Invoice emailed to client" : "Saved");
+    showToast(
+      invoiceResult?.sent
+        ? "Invoice emailed to client"
+        : paymentResult?.status==="paid" && paymentResult?.confirmation_queued
+          ? "Payment confirmed · confirmation email queued"
+          : paymentResult
+            ? "Payment recorded"
+            : "Saved"
+    );
   }catch(err){
     showToast(err.message || "Could not save");
   }finally{
@@ -1936,24 +1974,32 @@ function openPaymentForm(invoiceId){
   const inv=state.invoices.find(i=>i.id===invoiceId);
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
+  const chosen=String(inv.customer_payment_method||"").toLowerCase();
+  const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle"}[chosen]||"";
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
+    ${methodLabel?`<p class="helper"><strong>Customer chose: ${escapeHtml(methodLabel)}</strong></p>`:""}
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
-      <label>Method<select name="method"><option value="cash">Cash</option><option value="check">Check</option><option value="zelle">Zelle</option></select></label>
+      <label>Method<select name="method">
+        <option value="cash" ${chosen==="cash"?"selected":""}>Cash</option>
+        <option value="check" ${chosen==="check"?"selected":""}>Check</option>
+        <option value="zelle" ${chosen==="zelle"?"selected":""}>Zelle</option>
+      </select></label>
       <label class="full">Note / reference<textarea name="note" placeholder="Check number, Zelle note, or cash note"></textarea></label>
-    </div>${formSubmit("Record payment")}`;
+    </div>${formSubmit("Confirm payment")}`;
   modal.hidden=false;
 }
 async function savePayment(fd){
-  const {error}=await supabase.rpc("record_invoice_payment",{
+  const {data,error}=await supabase.rpc("record_invoice_payment",{
     p_invoice_id:state.modalId,
     p_amount:Number(fd.get("amount")),
     p_method:fd.get("method"),
     p_note:String(fd.get("note")||"").trim()||null
   });
   if(error) throw error;
+  return data||null;
 }
 
 async function saveClient(fd){
