@@ -37,7 +37,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons", team:"Team", settings:"Settings", admin:"Owner Admin"
+  reports:"Owner Reports", services:"Services + Add-ons", team:"Team", settings:"Settings", admin:"Owner Admin", help:"Help & FAQ"
 };
 
 function escapeHtml(value=""){
@@ -857,6 +857,21 @@ document.addEventListener("click",async e=>{
   }
 });
 
+function openQuickAdd(){
+  state.modalType="quick"; state.modalId=null;
+  modalHeader("ADD NEW","What do you want to add?","Choose an item and open the right form.");
+  entityForm.innerHTML=`
+    <div class="quick-add-menu">
+      <button type="button" data-action="client"><span>◌</span><strong>Client</strong><small>Add contact + address</small></button>
+      <button type="button" data-action="job"><span>□</span><strong>Job</strong><small>Schedule a cleaning</small></button>
+      <button type="button" data-action="quote"><span>◫</span><strong>Quote</strong><small>Create a quote</small></button>
+      <button type="button" data-action="service"><span>＋</span><strong>Service</strong><small>Add price + duration</small></button>
+      <button type="button" data-team-create><span>◉</span><strong>Team Profile</strong><small>Add a cleaner for assignments</small></button>
+    </div>
+    <div class="form-footer"><button type="button" class="ghost-btn" data-modal-cancel>Cancel</button></div>`;
+  modal.hidden=false;
+}
+
 function openGeneric(type){
   state.modalType=type; state.modalId=null;
   modalHeader("QUICK ADD",type==="invoice"?"Invoice":"Quick action","This module will be connected after the core Clients → Services → Jobs → Quotes workflow.");
@@ -872,6 +887,26 @@ document.addEventListener("change",async e=>{
     .eq("id",memberRole.dataset.memberRole);
   if(error) showToast(error.message);
   else {await loadOwnerAdmin();showToast("Access updated");}
+});
+
+const quickAddBtn=$("#quickAddBtn");
+if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    showToast("Add New is owner/admin only");
+    return;
+  }
+  openQuickAdd();
+});
+
+["#shareAppAccessBtn","#shareAccessCardBtn","#helpInviteBtn"].forEach(selector=>{
+  const button=$(selector);
+  if(button) button.addEventListener("click",()=>{
+    if(state.business?.role!=="owner"){
+      showToast("Only the owner can share app access");
+      return;
+    }
+    openInviteForm();
+  });
 });
 
 const inviteMemberBtn=$("#inviteMemberBtn");
@@ -892,6 +927,10 @@ $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textCon
 let spanish=false;
 $("#languageBtn").addEventListener("click",()=>{spanish=!spanish;showToast(spanish?"Spanish interface comes next":"English active");});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+}
 
 setAuthMode("signin");
 initialize();
