@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#FAF8F3" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -29,9 +29,11 @@
         <p class="auth-copy" id="authCopy">Open your cleaning business workspace.</p>
         <form id="authForm" class="auth-form">
           <label>Email<input id="authEmail" type="email" required autocomplete="email"></label>
-          <label>Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
+          <label id="passwordField">Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
           <button class="primary-btn" type="submit" id="authSubmit">Sign in</button>
         </form>
+        <button class="passwordless-btn" type="button" id="emailLinkBtn">Sign in without password</button>
+        <button class="passwordless-btn admin-shortcut" type="button" id="rememberedAdminBtn" hidden>Continue as Admin</button>
         <div class="auth-links">
           <button type="button" id="authSwitch">Create account</button>
           <button type="button" id="forgotPassword">Forgot password?</button>
