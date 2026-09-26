@@ -141,25 +141,121 @@ function showApp(){
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
 }
+function subscriptionNeedsPayment(){
+  if(!state.business) return false;
+  const status=String(state.business.subscription_status||"").toLowerCase();
+  if(status==="active") return false;
+  if(["past_due","canceled","expired"].includes(status)) return true;
+
+  const end=state.business.trial_ends_at ? new Date(state.business.trial_ends_at) : null;
+  return !!(end && !Number.isNaN(end.getTime()) && end.getTime()<=Date.now());
+}
+
+async function startSubscriptionCheckout(button){
+  setBusy(button,true,"Opening secure checkout…");
+  try{
+    const {data,error}=await supabase.functions.invoke("create-stripe-checkout",{body:{}});
+    if(error) throw error;
+    if(data?.active){
+      state.business.subscription_status="active";
+      renderTrialStatus();
+      if(state.modalType==="subscriptionGate"){
+        modal.hidden=true;
+        modalClose.hidden=false;
+      }
+      showToast("Your subscription is active");
+      return;
+    }
+    if(!data?.url) throw new Error(data?.error||"Checkout is not available yet");
+    window.location.assign(data.url);
+  }catch(err){
+    console.error("[TLE] Stripe checkout",err);
+    showToast(err?.message||"Could not open checkout");
+  }finally{
+    setBusy(button,false);
+  }
+}
+
+function showSubscriptionGate(){
+  if(!state.business || !subscriptionNeedsPayment()){
+    if(state.modalType==="subscriptionGate"){
+      modal.hidden=true;
+      modalClose.hidden=false;
+    }
+    return;
+  }
+
+  state.modalType="subscriptionGate";
+  state.modalId=null;
+  modalClose.hidden=true;
+
+  const owner=state.business.role==="owner";
+  modalHeader(
+    "PLAN + BILLING",
+    owner ? "Your 30-day free trial has ended." : "This workspace needs an active subscription.",
+    owner
+      ? "Continue your full access for $5.99/month. You can cancel anytime."
+      : "Ask the business owner to renew the $5.99/month subscription."
+  );
+
+  entityForm.innerHTML=owner
+    ? `<div class="empty-inline"><strong>Keep everything you already set up.</strong><span>Your clients, jobs, quotes, invoices and settings stay in place.</span></div><div class="form-footer"><button class="ghost-btn" type="button" id="billingGateLogout">Log out</button><button class="primary-btn" type="button" id="billingContinueBtn">Continue for $5.99/month</button></div>`
+    : `<div class="empty-inline"><strong>Owner action required.</strong><span>No business data has been deleted.</span></div><div class="form-footer"><button class="primary-btn" type="button" id="billingGateLogout">Log out</button></div>`;
+
+  modal.hidden=false;
+
+  const continueBtn=$("#billingContinueBtn");
+  if(continueBtn) continueBtn.onclick=()=>startSubscriptionCheckout(continueBtn);
+
+  const logoutBtn=$("#billingGateLogout");
+  if(logoutBtn) logoutBtn.onclick=async ()=>{
+    await supabase.auth.signOut({scope:"local"});
+    window.location.reload();
+  };
+}
+
 function renderTrialStatus(){
   const pill=$("#trialDaysPill");
   if(!pill || !state.business) return;
 
   const status=String(state.business.subscription_status||"").toLowerCase();
+  const trialCard=pill.closest(".trial-card");
+  let payBtn=$("#trialSubscribeBtn");
+
   if(status==="active"){
     pill.textContent="Active plan";
+    if(payBtn) payBtn.remove();
+    showSubscriptionGate();
     return;
   }
 
   const end=state.business.trial_ends_at ? new Date(state.business.trial_ends_at) : null;
   if(!end || Number.isNaN(end.getTime())){
     pill.textContent="30-day trial";
+    showSubscriptionGate();
     return;
   }
 
   const ms=end.getTime()-Date.now();
   const days=Math.max(0,Math.ceil(ms/86400000));
-  pill.textContent=days===1 ? "1 day left" : days+" days left";
+
+  if(subscriptionNeedsPayment()){
+    pill.textContent=status==="past_due" ? "Payment needed" : "Trial ended";
+    if(state.business.role==="owner" && trialCard && !payBtn){
+      payBtn=document.createElement("button");
+      payBtn.id="trialSubscribeBtn";
+      payBtn.type="button";
+      payBtn.className="primary-btn";
+      payBtn.textContent="Continue for $5.99/month";
+      payBtn.addEventListener("click",()=>startSubscriptionCheckout(payBtn));
+      trialCard.appendChild(payBtn);
+    }
+  }else{
+    pill.textContent=days===1 ? "1 day left" : days+" days left";
+    if(payBtn) payBtn.remove();
+  }
+
+  showSubscriptionGate();
 }
 
 function applyRolePermissions(){
