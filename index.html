@@ -156,6 +156,19 @@
             <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option. This does not mark the invoice as paid.</p>
           </div>
           <p class="helper">The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.</p>
+          <div class="public-dispute-block">
+            <button class="dispute-btn" type="button" id="invoiceDisputeBtn">Dispute invoice</button>
+            <form class="public-dispute-form" id="invoiceDisputeForm" hidden>
+              <label>What would you like the business to review?
+                <textarea id="invoiceDisputeReason" rows="4" maxlength="2000" required placeholder="Explain the issue with this invoice."></textarea>
+              </label>
+              <div class="public-dispute-actions">
+                <button class="ghost-btn" type="button" id="cancelInvoiceDisputeBtn">Cancel</button>
+                <button class="primary-btn" type="submit">Send dispute</button>
+              </div>
+            </form>
+            <p class="helper dispute-status" id="invoiceDisputeStatus"></p>
+          </div>
         </div>
 
         <div class="public-quote-review" id="publicQuoteReview" hidden>
@@ -168,8 +181,18 @@
           <div class="quote-review-total"><span>Total</span><strong id="quoteReviewTotal">$0</strong></div>
           <div class="quote-review-actions" id="quoteReviewActions">
             <button class="ghost-btn" type="button" id="declineQuoteBtn">Decline</button>
+            <button class="dispute-btn" type="button" id="quoteDisputeBtn">Dispute</button>
             <button class="primary-btn" type="button" id="acceptQuoteBtn">Accept quote</button>
           </div>
+          <form class="public-dispute-form" id="quoteDisputeForm" hidden>
+            <label>What would you like the business to review?
+              <textarea id="quoteDisputeReason" rows="4" maxlength="2000" required placeholder="Explain the issue with this quote."></textarea>
+            </label>
+            <div class="public-dispute-actions">
+              <button class="ghost-btn" type="button" id="cancelQuoteDisputeBtn">Cancel</button>
+              <button class="primary-btn" type="submit">Send dispute</button>
+            </div>
+          </form>
           <p class="helper" id="quoteReviewStatus"></p>
         </div>
 
