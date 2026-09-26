@@ -190,7 +190,7 @@ Authentication secrets/password hashes should remain inside the chosen auth prov
 - status: draft | sent | paid | overdue | canceled
 - subtotal
 - total
-- payment_method: cash | zelle | stripe | other
+- payment_method: cash | check | zelle
 - sent_at
 - due_at
 - paid_at
@@ -249,10 +249,10 @@ Authentication secrets/password hashes should remain inside the chosen auth prov
 - id
 - business_id
 - cash_enabled
+- check_enabled
+- check_payable_to nullable
 - zelle_enabled
 - zelle_instructions nullable
-- stripe_enabled
-- stripe_connected_account_id nullable
 
 ## audit_log
 Later phase:
