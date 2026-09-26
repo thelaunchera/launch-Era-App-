@@ -922,7 +922,10 @@ function renderBookingRequests(){
   list.innerHTML=state.bookingRequests.slice(0,20).map(b=>`
     <div class="booking-request-row">
       <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(b.service_address)}</small></div>
-      <span class="status ${b.status==="requested"?"warning":b.status==="approved"?"success":"neutral"}">${escapeHtml(b.status)}</span>
+      <div class="record-actions">
+        <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
+        ${b.status==="requested"?`<button data-approve-booking="${b.id}">Approve</button><button class="danger-link" data-decline-booking="${b.id}">Decline</button>`:""}
+      </div>
     </div>`).join("");
 }
 
@@ -961,7 +964,7 @@ async function loadPlatformAdmin(){
       <div class="platform-customer-row">
         <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))}</small></div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
-        <div><small>Trial ends</small><strong>${x.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
+        <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
         <select data-platform-status="${x.business_id}">
           ${["trial","active","past_due","canceled","expired"].map(s=>`<option value="${s}" ${x.status===s?"selected":""}>${s}</option>`).join("")}
         </select>
@@ -1666,6 +1669,22 @@ document.addEventListener("click",async e=>{
   if(revokeInvite){
     const {error}=await supabase.from("business_invites").update({revoked_at:new Date().toISOString()}).eq("id",revokeInvite.dataset.revokeInvite);
     if(error) showToast(error.message); else {await loadOwnerAdmin();showToast("Invite revoked");}
+    return;
+  }
+
+  const approveBooking=e.target.closest("[data-approve-booking]");
+  if(approveBooking){
+    approveBooking.disabled=true;
+    const {error}=await supabase.rpc("approve_booking_request",{p_request_id:approveBooking.dataset.approveBooking});
+    approveBooking.disabled=false;
+    if(error) showToast(error.message); else {await loadCoreData();showToast("Booking approved · client, job and invoice created");}
+    return;
+  }
+
+  const declineBooking=e.target.closest("[data-decline-booking]");
+  if(declineBooking){
+    const {error}=await supabase.rpc("decline_booking_request",{p_request_id:declineBooking.dataset.declineBooking});
+    if(error) showToast(error.message); else {await loadCoreData();showToast("Booking request declined");}
     return;
   }
 
