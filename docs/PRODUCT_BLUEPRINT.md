@@ -73,7 +73,7 @@ Team members, availability, assignments and work hours.
 - Payroll/HR
 - Heavy inventory
 - Enterprise dispatch complexity
-- Stripe Connect
+- Card-payment integrations (Cash, Check and Zelle only for now)
 
 ## Brand
 - Warm Ivory #FAF8F3
