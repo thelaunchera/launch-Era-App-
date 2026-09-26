@@ -386,8 +386,16 @@
       <section class="view" data-page="calendar">
         <div class="section-intro"><div><p class="eyebrow">CALENDAR + JOBS</p><h2>Your schedule with travel time built in.</h2></div><button class="primary-btn" data-action="job">+ Add job</button></div>
         <div class="calendar-layout">
-          <article class="panel">
-            <div class="week-row" id="calendarWeekRow"></div>
+          <article class="panel calendar-panel">
+            <div class="calendar-range-head">
+              <div>
+                <p class="eyebrow">NEXT 2 WEEKS</p>
+                <h3 id="calendarRangeLabel">14-day schedule</h3>
+              </div>
+              <span class="calendar-range-pill">14 days</span>
+            </div>
+            <div class="week-row two-week-calendar" id="calendarWeekRow"></div>
+            <div class="calendar-jobs-heading"><strong>Upcoming jobs</strong><span>Tap Edit to change a job.</span></div>
             <div id="jobsList" class="jobs-list"></div>
           </article>
           <article class="panel">
