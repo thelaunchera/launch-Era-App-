@@ -268,11 +268,19 @@ function renderTrialStatus(){
 
   const status=String(state.business.subscription_status||"").toLowerCase();
   const trialCard=pill.closest(".trial-card");
+  const warning=$("#trialExpiryBanner");
+  const warningTitle=$("#trialExpiryTitle");
+  const warningCopy=$("#trialExpiryCopy");
   let payBtn=$("#trialSubscribeBtn");
+
+  const hideWarning=()=>{
+    if(warning) warning.hidden=true;
+  };
 
   if(status==="active"){
     pill.textContent="Active plan";
     if(payBtn) payBtn.remove();
+    hideWarning();
     showSubscriptionGate();
     return;
   }
@@ -280,6 +288,7 @@ function renderTrialStatus(){
   const end=state.business.trial_ends_at ? new Date(state.business.trial_ends_at) : null;
   if(!end || Number.isNaN(end.getTime())){
     pill.textContent="30-day trial";
+    hideWarning();
     showSubscriptionGate();
     return;
   }
@@ -289,6 +298,7 @@ function renderTrialStatus(){
 
   if(subscriptionNeedsPayment()){
     pill.textContent=status==="past_due" ? "Payment needed" : "Trial ended";
+    hideWarning();
     if(state.business.role==="owner" && trialCard && !payBtn){
       payBtn=document.createElement("button");
       payBtn.id="trialSubscribeBtn";
@@ -301,6 +311,20 @@ function renderTrialStatus(){
   }else{
     pill.textContent=days===1 ? "1 day left" : days+" days left";
     if(payBtn) payBtn.remove();
+
+    if(warning && state.business.role==="owner" && days>0 && days<=3){
+      warning.hidden=false;
+      if(warningTitle){
+        warningTitle.textContent=days===1
+          ? "Your free access ends tomorrow"
+          : `Your free access ends in ${days} days`;
+      }
+      if(warningCopy){
+        warningCopy.textContent="You still have full access. When your free period ends, you can continue for $5.99/month.";
+      }
+    }else{
+      hideWarning();
+    }
   }
 
   showSubscriptionGate();
