@@ -1,4 +1,4 @@
-const CACHE_NAME = "tle-cleaning-app-v8";
+const CACHE_NAME = "tle-cleaning-app-v9";
 const STATIC_ASSETS = ["./manifest.webmanifest","./app-icon.svg"];
 
 self.addEventListener("install",event=>{
