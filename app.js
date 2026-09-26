@@ -1,4 +1,8 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+if(!window.supabase){
+  document.documentElement.dataset.appError="supabase-load-failed";
+  throw new Error("Supabase browser library failed to load");
+}
+const { createClient } = window.supabase;
 
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
