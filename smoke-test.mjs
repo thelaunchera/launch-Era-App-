@@ -16,12 +16,15 @@ window.confirm=()=>true;
 window.prompt=()=>null;
 window.navigator.clipboard={writeText:async()=>{}};
 
+let signInCalls=0;
+let signUpCalls=0;
+let currentSession=null;
 const auth={
-  getSession:async()=>({data:{session:null},error:null}),
+  getSession:async()=>({data:{session:currentSession},error:null}),
   onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),
   signInWithOtp:async()=>({data:{},error:null}),
-  signInWithPassword:async()=>({data:{session:null},error:null}),
-  signUp:async()=>({data:{session:null},error:null}),
+  signInWithPassword:async()=>{signInCalls++; return {data:{session:null},error:{message:"Invalid login credentials"}};},
+  signUp:async()=>{signUpCalls++; return {data:{session:null},error:null};},
   resetPasswordForEmail:async()=>({data:{},error:null}),
   updateUser:async()=>({data:{},error:null}),
   signOut:async()=>({error:null})
@@ -49,5 +52,20 @@ if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidde
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
 if(!$("#rememberedAdminBtn")) throw new Error("Admin passwordless button is missing");
+
+$("#authEmail").value="nobody@example.invalid";
+$("#authPassword").value="NotARealPassword123!";
+$("#authForm").dispatchEvent(new window.Event("submit",{bubbles:true,cancelable:true}));
+await new Promise(r=>setTimeout(r,20));
+if(signInCalls!==1) throw new Error("Sign in submit handler did not call auth");
+console.log("SIGNIN_SUBMIT_OK");
+
+click("#authSwitch");
+$("#authEmail").value="new@example.invalid";
+$("#authPassword").value="CreateAccount123!";
+$("#authForm").dispatchEvent(new window.Event("submit",{bubbles:true,cancelable:true}));
+await new Promise(r=>setTimeout(r,20));
+if(signUpCalls!==1) throw new Error("Create account submit handler did not call auth");
+console.log("SIGNUP_SUBMIT_OK");
 
 console.log("LOGIN_SMOKE_OK");
