@@ -1147,14 +1147,22 @@ function quoteColumn(status,label){
   return `<div class="kanban-col"><h3>${label} <span>${items.length}</span></h3>
     ${items.length?items.map(q=>{
       const service=state.services.find(s=>s.id===q.quote_items?.[0]?.service_id);
+      const total=Number(q.total||0);
+      const stateCopy=status==="accepted"
+        ? "Client + job + invoice created"
+        : status==="sent"
+          ? "Waiting for customer"
+          : status==="declined"
+            ? "Declined by customer"
+            : escapeHtml(status);
       return `<article class="${status==="accepted"?"accepted":""}">
         <strong>${escapeHtml(q.customer_name)}</strong>
-        <small>${escapeHtml(service?.name || "Cleaning service")} · ${money(q.total)}</small>
-        <b>${status==="accepted"?"Client + job + invoice created":escapeHtml(status)}</b>
+        <small>${escapeHtml(service?.name || "Cleaning service")} · ${money(total)}</small>
+        <b>${stateCopy}</b>
         <div class="card-actions">
-          ${status!=="accepted"?`<button data-edit="quote" data-id="${q.id}">Edit</button>`:""}
-          ${status==="requested"||status==="draft"?`<button data-mark-sent="${q.id}">Mark sent</button>`:""}
-          ${status==="sent"?`<button class="accept-btn" data-accept-quote="${q.id}">Accept</button>`:""}
+          ${!["accepted"].includes(status)?`<button data-edit="quote" data-id="${q.id}">Edit</button>`:""}
+          ${["requested","draft","declined"].includes(status)?`<button class="accept-btn" data-send-customer-quote="${q.id}">Send quote</button>`:""}
+          ${status==="sent"?`<button data-send-customer-quote="${q.id}">Resend quote</button>`:""}
         </div>
       </article>`;
     }).join(""):`<div class="kanban-empty">Nothing here</div>`}
@@ -1167,7 +1175,8 @@ function renderQuotes(){
     quoteColumn("requested","Requested"),
     quoteColumn("draft","Draft"),
     quoteColumn("sent","Sent"),
-    quoteColumn("accepted","Accepted")
+    quoteColumn("accepted","Accepted"),
+    quoteColumn("declined","Declined")
   ].join("");
 }
 
@@ -2188,10 +2197,25 @@ document.addEventListener("click",async e=>{
     if(error) showToast(error.message); else {await loadCoreData();showToast("Job canceled");}
     return;
   }
-  const sent=e.target.closest("[data-mark-sent]");
-  if(sent){
-    const {error}=await supabase.from("quotes").update({status:"sent"}).eq("id",sent.dataset.markSent);
-    if(error) showToast(error.message); else {await loadCoreData();showToast("Quote marked sent");}
+  const sendCustomerQuote=e.target.closest("[data-send-customer-quote]");
+  if(sendCustomerQuote){
+    sendCustomerQuote.disabled=true;
+    const original=sendCustomerQuote.textContent;
+    sendCustomerQuote.textContent="Sending…";
+    const base=window.location.origin+window.location.pathname;
+    const {data,error}=await supabase.rpc("create_quote_customer_link",{
+      p_quote_id:sendCustomerQuote.dataset.sendCustomerQuote,
+      p_public_base_url:base
+    });
+    if(error){
+      showToast(error.message);
+      sendCustomerQuote.disabled=false;
+      sendCustomerQuote.textContent=original;
+    }else{
+      if(data?.url) await copyText(data.url);
+      await loadCoreData();
+      showToast("Quote emailed to customer · approval link copied");
+    }
     return;
   }
   const coworkerStatus=e.target.closest("[data-coworker-status]");
@@ -2238,13 +2262,10 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const accept=e.target.closest("[data-accept-quote]");
-  if(accept){
-    if(!confirm("Accept this quote? This will create/update the client, schedule the job and create a draft invoice.")) return;
-    accept.disabled=true;
-    const {error}=await supabase.rpc("accept_quote",{p_quote_id:accept.dataset.acceptQuote});
-    accept.disabled=false;
-    if(error) showToast(error.message); else {await loadCoreData();showToast("Quote accepted · job and invoice created");}
+  const legacyAccept=e.target.closest("[data-accept-quote]");
+  if(legacyAccept){
+    showToast("Customer approval is required. Send the quote instead.");
+    return;
   }
 });
 
