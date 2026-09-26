@@ -826,13 +826,6 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const memberRole=e.target.closest("[data-member-role]");
-  if(memberRole){
-    const {error}=await supabase.from("business_members").update({role:memberRole.value,updated_at:new Date().toISOString()}).eq("id",memberRole.dataset.memberRole);
-    if(error) showToast(error.message); else {await loadOwnerAdmin();showToast("Access updated");}
-    return;
-  }
-
   const removeMember=e.target.closest("[data-remove-member]");
   if(removeMember){
     if(!confirm("Remove this person's app access? Their operational records will remain.")) return;
@@ -870,6 +863,16 @@ function openGeneric(type){
   entityForm.innerHTML=`<div class="empty-inline"><strong>Core workflow first.</strong><span>Nothing here will touch the live Sites app.</span></div><div class="form-footer"><button type="button" class="primary-btn" data-modal-cancel>Close</button></div>`;
   modal.hidden=false;
 }
+
+document.addEventListener("change",async e=>{
+  const memberRole=e.target.closest("[data-member-role]");
+  if(!memberRole) return;
+  const {error}=await supabase.from("business_members")
+    .update({role:memberRole.value,updated_at:new Date().toISOString()})
+    .eq("id",memberRole.dataset.memberRole);
+  if(error) showToast(error.message);
+  else {await loadOwnerAdmin();showToast("Access updated");}
+});
 
 const inviteMemberBtn=$("#inviteMemberBtn");
 if(inviteMemberBtn) inviteMemberBtn.addEventListener("click",openInviteForm);
