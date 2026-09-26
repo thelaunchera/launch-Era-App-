@@ -44,7 +44,7 @@ Purpose: make customer acquisition and scheduling self-service without forcing c
 - Preferred contact: Email / Text / WhatsApp
 - Email always required
 - Text / WhatsApp also require phone
-- Payment methods: Cash on Spot / Zelle / Stripe-ready
+- Payment methods: Cash / Check / Zelle
 - Booking requests and quote requests stay distinct
 
 ### 3. Leads
@@ -107,9 +107,9 @@ Statuses:
 Payment-method tracking:
 - Cash on Spot
 - Zelle
-- Stripe-ready
+- Cash / Check / Zelle
 
-Do not make Stripe Connect a requirement for the initial build.
+Do not add card-payment or Stripe integrations. Customer payment tracking is Cash, Check and Zelle only.
 
 ## Cleaning-operations layer
 
