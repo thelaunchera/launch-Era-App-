@@ -117,7 +117,7 @@ function showApp(){
   applyRolePermissions();
   const chip = $(".workspace-chip");
   if(chip && state.business){
-    const roleLabel = state.business.role==="owner" ? "Owner workspace" : state.business.role==="admin" ? "Admin access" : "Coworker access";
+    const roleLabel = state.business.role==="owner" ? "Owner workspace" : state.business.role==="admin" ? "Admin access" : "Worker access";
     chip.innerHTML = `
       <span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
