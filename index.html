@@ -146,10 +146,16 @@
             <div class="invoice-balance"><span>Balance due</span><strong id="invoiceViewBalance">$0</strong></div>
           </div>
           <div class="invoice-payment-note">
-            <strong>Payment methods</strong>
+            <strong>How would you like to pay?</strong>
             <span id="invoiceViewMethods">Cash · Check · Zelle</span>
+            <div class="invoice-payment-choices" id="invoicePaymentChoices">
+              <button type="button" data-invoice-payment="cash">Cash</button>
+              <button type="button" data-invoice-payment="check">Check</button>
+              <button type="button" data-invoice-payment="zelle">Zelle</button>
+            </div>
+            <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option. This does not mark the invoice as paid.</p>
           </div>
-          <p class="helper">Payment is arranged directly with the cleaning business. No card payment is collected on this page.</p>
+          <p class="helper">The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.</p>
         </div>
 
         <div class="public-quote-review" id="publicQuoteReview" hidden>
