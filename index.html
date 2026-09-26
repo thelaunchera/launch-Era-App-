@@ -221,9 +221,9 @@
           <article class="panel">
             <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share anywhere</h3></div></div>
             <label class="field-label">Booking link</label>
-            <div class="link-box"><span id="bookingUrl">app.thelaunchera.com/book/sample-cleaning-co</span><button data-copy-target="bookingUrl">Copy</button></div>
+            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
             <label class="field-label">Quote request link</label>
-            <div class="link-box"><span id="quoteUrl">app.thelaunchera.com/quote/sample-cleaning-co</span><button data-copy-target="quoteUrl">Copy</button></div>
+            <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy</button></div>
           </article>
 
           <article class="panel">
@@ -231,6 +231,11 @@
             <div class="setting-row"><span><strong>Travel buffer</strong><small>Block drive time between jobs</small></span><span class="control-chip">30 min</span></div>
             <div class="setting-row"><span><strong>Booking notice</strong><small>Minimum notice before appointment</small></span><span class="control-chip">24 hrs</span></div>
             <div class="setting-row"><span><strong>Service duration</strong><small>Use each service’s expected duration</small></span><span class="status success">On</span></div>
+          </article>
+
+          <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Requests waiting for review</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
+            <div id="bookingRequestsList" class="booking-requests-list"></div>
           </article>
 
           <article class="panel full">
