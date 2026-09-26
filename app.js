@@ -8,6 +8,8 @@ const state = {
   session: null,
   business: null,
   clients: [],
+  leads: [],
+  invoices: [],
   services: [],
   serviceAddons: [],
   supplies: [],
@@ -299,8 +301,10 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
 async function loadCoreData(){
   if(!state.business) return;
   const businessId = state.business.id;
-  const [clientsRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
+  const [clientsRes,leadsRes,invoicesRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
     supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
+    supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
+    supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false}),
     supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
     supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
     supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
@@ -308,9 +312,11 @@ async function loadCoreData(){
     supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),
     supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")
   ]);
-  const errors=[clientsRes.error,servicesRes.error,addonsRes.error,suppliesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
+  const errors=[clientsRes.error,leadsRes.error,invoicesRes.error,servicesRes.error,addonsRes.error,suppliesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
   if(errors.length) showToast(errors[0].message);
   state.clients=clientsRes.data||[];
+  state.leads=leadsRes.data||[];
+  state.invoices=invoicesRes.data||[];
   state.services=servicesRes.data||[];
   state.serviceAddons=addonsRes.data||[];
   state.supplies=suppliesRes.data||[];
@@ -318,7 +324,10 @@ async function loadCoreData(){
   state.quotes=quotesRes.data||[];
   state.teamMembers=teamRes.data||[];
   renderClients();
+  renderLeads();
+  renderInvoices();
   renderServices();
+  renderBookingServices();
   renderSupplies();
   renderJobs();
   renderQuotes();
@@ -394,6 +403,79 @@ async function saveInvite(fd){
   await copyText(link.toString());
   await loadOwnerAdmin();
   showToast("Invite link copied");
+}
+
+function renderLeads(){
+  const table=$("#leadsTable");
+  if(!table) return;
+  if(!state.leads.length){
+    table.innerHTML=`<div class="empty-table"><strong>No leads yet.</strong><span>Add an inquiry or wait for booking/quote requests.</span><button class="text-btn" data-action="lead">+ Add lead</button></div>`;
+    return;
+  }
+  table.innerHTML=state.leads.map(l=>`
+    <div class="table-row">
+      <span><strong>${escapeHtml(l.name)}</strong><small>${escapeHtml(l.email)}</small></span>
+      <span>${escapeHtml(l.source||"—")}</span>
+      <span>${escapeHtml(l.service_interest||"—")}</span>
+      <span><i class="status ${l.status==="new"?"blue":l.status==="booked"?"success":l.status==="lost"?"danger":"neutral"}">${escapeHtml(l.status)}</i></span>
+      <span class="record-actions"><button data-edit-lead="${l.id}">Edit</button><button data-lead-to-quote="${l.id}">Quote</button><button class="danger-link" data-archive-lead="${l.id}">Archive</button></span>
+    </div>`).join("");
+}
+
+function invoicePaidAmount(inv){
+  return (inv.payments||[]).filter(p=>p.status==="confirmed").reduce((sum,p)=>sum+Number(p.amount||0),0);
+}
+function renderInvoices(){
+  const table=$("#invoicesTable");
+  if(!table) return;
+  const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-invoicePaidAmount(i)),0);
+  const paidThisMonth=state.invoices.flatMap(i=>i.payments||[]).filter(p=>{
+    if(p.status!=="confirmed"||!p.paid_at) return false;
+    const d=new Date(p.paid_at), now=new Date();
+    return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+  }).reduce((sum,p)=>sum+Number(p.amount||0),0);
+  const open=state.invoices.filter(i=>!["paid","void"].includes(i.status)).length;
+  const a=$("#invoiceOutstanding"),b=$("#invoicePaid"),d=$("#invoiceOpen");
+  if(a) a.textContent=money(outstanding); if(b) b.textContent=money(paidThisMonth); if(d) d.textContent=open;
+
+  if(!state.invoices.length){
+    table.innerHTML=`<div class="empty-table"><strong>No invoices yet.</strong><span>Create one manually or accept a quote to prepare a draft invoice.</span><button class="text-btn" data-action="invoice">+ New invoice</button></div>`;
+    return;
+  }
+  table.innerHTML=state.invoices.map(inv=>{
+    const paid=invoicePaidAmount(inv);
+    const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
+    const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
+    const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
+    return `<div class="table-row">
+      <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
+      <span>${escapeHtml(inv.clients?.name||"No client")}</span>
+      <span><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" paid":""}</small></span>
+      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i></span>
+      <span class="record-actions">
+        <button data-edit-invoice="${inv.id}">Edit</button>
+        ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Mark sent</button>`:""}
+        ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":"Record payment"}</button>`:""}
+      </span>
+    </div>`;
+  }).join("");
+}
+
+function renderBookingServices(){
+  const list=$("#bookingServicesList");
+  if(!list) return;
+  const active=state.services.filter(s=>s.active);
+  if(!active.length){
+    list.innerHTML=`<div class="empty-inline"><strong>No active services yet.</strong><span>Add a service before public booking goes live.</span></div>`;
+    return;
+  }
+  list.innerHTML=active.map(s=>{
+    const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
+    return `<div class="booking-service-row">
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${s.pricing_type==="quote"?"Quote required":money(s.base_price)}</small></span>
+      <span class="booking-addon-chips">${addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>"}</span>
+    </div>`;
+  }).join("");
 }
 
 function renderTeam(){
@@ -606,11 +688,47 @@ function openEntityForm(type,id=null){
   state.modalType=type; state.modalId=id;
   let record=null;
   if(type==="client") record=state.clients.find(x=>x.id===id);
+  if(type==="lead") record=state.leads.find(x=>x.id===id);
+  if(type==="invoice") record=state.invoices.find(x=>x.id===id);
   if(type==="service") record=state.services.find(x=>x.id===id);
   if(type==="addon") record=state.serviceAddons.find(x=>x.id===id);
   if(type==="supply") record=state.supplies.find(x=>x.id===id);
   if(type==="job") record=state.jobs.find(x=>x.id===id);
   if(type==="quote") record=state.quotes.find(x=>x.id===id);
+
+  if(type==="lead"){
+    modalHeader("LEAD",record?"Edit lead":"Add lead","Capture the inquiry and the next step without losing it in texts or DMs.");
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+        <label>Email<input name="email" type="email" required value="${escapeHtml(record?.email||"")}"></label>
+        <label>Phone<input name="phone" value="${escapeHtml(record?.phone||"")}"></label>
+        <label>Preferred contact<select name="preferred_contact">
+          <option value="email" ${record?.preferred_contact==="email"?"selected":""}>Email</option>
+          <option value="text" ${record?.preferred_contact==="text"?"selected":""}>Text</option>
+          <option value="whatsapp" ${record?.preferred_contact==="whatsapp"?"selected":""}>WhatsApp</option>
+        </select></label>
+        <label>Source<input name="source" value="${escapeHtml(record?.source||"")}" placeholder="Instagram, referral, website…"></label>
+        <label>Status<select name="status">${["new","contacted","qualified","quoted","booked","lost"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v}</option>`).join("")}</select></label>
+        <label class="full">Service interest<input name="service_interest" value="${escapeHtml(record?.service_interest||"")}"></label>
+        <label class="full">Address<input name="address" value="${escapeHtml(record?.address||"")}"></label>
+        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
+      </div>${formSubmit(record?"Save changes":"Add lead")}`;
+  }
+
+  if(type==="invoice"){
+    const item=record?.invoice_items?.[0];
+    const due=record?.due_at?new Date(record.due_at).toLocaleDateString("en-CA"):"";
+    modalHeader("INVOICE",record?"Edit invoice":"New invoice","Track payment manually with Cash, Check or Zelle.");
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label>Client<select name="client_id" required><option value="">Choose client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
+        <label>Status<select name="status">${["draft","sent","void"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v}</option>`).join("")}</select></label>
+        <label class="full">Description<input name="description" required value="${escapeHtml(item?.description||"Cleaning service")}"></label>
+        <label>Amount<input name="amount" type="number" min="0" step="0.01" required value="${item?.line_total??record?.total??""}"></label>
+        <label>Due date<input name="due_date" type="date" value="${due}"></label>
+      </div>${formSubmit(record?"Save changes":"Create invoice")}`;
+  }
 
   if(type==="client"){
     modalHeader("CLIENT",record?"Edit client":"Add client","Keep contact, service address and preferences in one place.");
@@ -727,6 +845,9 @@ entityForm.addEventListener("submit",async e=>{
   setBusy(button,true,"Saving…");
   try{
     const fd=new FormData(entityForm);
+    if(state.modalType==="lead") await saveLead(fd);
+    if(state.modalType==="invoice") await saveInvoice(fd);
+    if(state.modalType==="payment") await savePayment(fd);
     if(state.modalType==="client") await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
     if(state.modalType==="addon") await saveAddon(fd);
@@ -745,6 +866,87 @@ entityForm.addEventListener("submit",async e=>{
     setBusy(button,false);
   }
 });
+
+async function saveLead(fd){
+  const preferred=fd.get("preferred_contact");
+  const phone=String(fd.get("phone")||"").trim();
+  if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
+  const payload={
+    business_id:state.business.id,
+    name:String(fd.get("name")).trim(),
+    email:String(fd.get("email")).trim(),
+    phone:phone||null,
+    preferred_contact:preferred,
+    source:String(fd.get("source")||"").trim()||null,
+    status:fd.get("status"),
+    service_interest:String(fd.get("service_interest")||"").trim()||null,
+    address:String(fd.get("address")||"").trim()||null,
+    notes:String(fd.get("notes")||"").trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  const query=state.modalId
+    ? supabase.from("leads").update(payload).eq("id",state.modalId)
+    : supabase.from("leads").insert(payload);
+  const {error}=await query; if(error) throw error;
+}
+
+async function saveInvoice(fd){
+  const amount=Number(fd.get("amount")||0);
+  const payload={
+    business_id:state.business.id,
+    client_id:fd.get("client_id"),
+    status:fd.get("status"),
+    subtotal:amount,total:amount,
+    due_at:fd.get("due_date")?new Date(fd.get("due_date")+"T23:59:59").toISOString():null,
+    updated_at:new Date().toISOString()
+  };
+  let invoiceId=state.modalId;
+  if(invoiceId){
+    const {error}=await supabase.from("invoices").update(payload).eq("id",invoiceId);
+    if(error) throw error;
+    const item=state.invoices.find(i=>i.id===invoiceId)?.invoice_items?.[0];
+    const itemPayload={description:String(fd.get("description")).trim(),quantity:1,unit_price:amount,line_total:amount};
+    if(item){
+      const {error:itemErr}=await supabase.from("invoice_items").update(itemPayload).eq("id",item.id);
+      if(itemErr) throw itemErr;
+    }else{
+      const {error:itemErr}=await supabase.from("invoice_items").insert({invoice_id:invoiceId,...itemPayload});
+      if(itemErr) throw itemErr;
+    }
+  }else{
+    const {data,error}=await supabase.from("invoices").insert(payload).select("id").single();
+    if(error) throw error;
+    invoiceId=data.id;
+    const {error:itemErr}=await supabase.from("invoice_items").insert({
+      invoice_id:invoiceId,description:String(fd.get("description")).trim(),quantity:1,unit_price:amount,line_total:amount
+    });
+    if(itemErr) throw itemErr;
+  }
+}
+
+function openPaymentForm(invoiceId){
+  const inv=state.invoices.find(i=>i.id===invoiceId);
+  if(!inv) return;
+  const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
+  state.modalType="payment";state.modalId=invoiceId;
+  modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
+      <label>Method<select name="method"><option value="cash">Cash</option><option value="check">Check</option><option value="zelle">Zelle</option></select></label>
+      <label class="full">Note / reference<textarea name="note" placeholder="Check number, Zelle note, or cash note"></textarea></label>
+    </div>${formSubmit("Record payment")}`;
+  modal.hidden=false;
+}
+async function savePayment(fd){
+  const {error}=await supabase.rpc("record_invoice_payment",{
+    p_invoice_id:state.modalId,
+    p_amount:Number(fd.get("amount")),
+    p_method:fd.get("method"),
+    p_note:String(fd.get("note")||"").trim()||null
+  });
+  if(error) throw error;
+}
 
 async function saveClient(fd){
   const preferred=fd.get("preferred_contact");
@@ -936,11 +1138,40 @@ document.addEventListener("click",async e=>{
   if(action){
     const type=action.dataset.action;
     if(state.business.role==="coworker"){ showToast("This action is owner/admin only"); return; }
-    if(["client","service","addon","supply","job","quote"].includes(type)) openEntityForm(type);
+    if(["lead","client","service","addon","supply","job","quote","invoice"].includes(type)) openEntityForm(type);
     else openGeneric(type);
     return;
   }
   if(edit){ openEntityForm(edit.dataset.edit,edit.dataset.id); return; }
+
+  const editLead=e.target.closest("[data-edit-lead]");
+  if(editLead){ openEntityForm("lead",editLead.dataset.editLead); return; }
+  const archiveLead=e.target.closest("[data-archive-lead]");
+  if(archiveLead){
+    const {error}=await supabase.from("leads").update({archived_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",archiveLead.dataset.archiveLead);
+    if(error) showToast(error.message); else {await loadCoreData();showToast("Lead archived");}
+    return;
+  }
+  const leadQuote=e.target.closest("[data-lead-to-quote]");
+  if(leadQuote){
+    const lead=state.leads.find(l=>l.id===leadQuote.dataset.leadToQuote);
+    openEntityForm("quote");
+    setTimeout(()=>{
+      [["customer_name",lead?.name],["customer_email",lead?.email],["customer_phone",lead?.phone],["service_address",lead?.address]].forEach(([n,v])=>{const el=entityForm.querySelector(`[name="${n}"]`);if(el&&v)el.value=v;});
+    },0);
+    return;
+  }
+
+  const editInvoice=e.target.closest("[data-edit-invoice]");
+  if(editInvoice){ openEntityForm("invoice",editInvoice.dataset.editInvoice); return; }
+  const sendInvoice=e.target.closest("[data-send-invoice]");
+  if(sendInvoice){
+    const {error}=await supabase.from("invoices").update({status:"sent",updated_at:new Date().toISOString()}).eq("id",sendInvoice.dataset.sendInvoice);
+    if(error) showToast(error.message); else {await loadCoreData();showToast("Invoice marked sent");}
+    return;
+  }
+  const recordPayment=e.target.closest("[data-record-payment]");
+  if(recordPayment){ openPaymentForm(recordPayment.dataset.recordPayment); return; }
 
   const addAddon=e.target.closest("[data-add-addon-for]");
   if(addAddon){
@@ -1048,9 +1279,11 @@ function openQuickAdd(){
   modalHeader("ADD NEW","What do you want to add?","Choose an item and open the right form.");
   entityForm.innerHTML=`
     <div class="quick-add-menu">
+      <button type="button" data-action="lead"><span>◎</span><strong>Lead</strong><small>Capture a new inquiry</small></button>
       <button type="button" data-action="client"><span>◌</span><strong>Client</strong><small>Add contact + address</small></button>
       <button type="button" data-action="job"><span>□</span><strong>Job</strong><small>Schedule a cleaning</small></button>
       <button type="button" data-action="quote"><span>◫</span><strong>Quote</strong><small>Create a quote</small></button>
+      <button type="button" data-action="invoice"><span>$</span><strong>Invoice</strong><small>Create + track payment</small></button>
       <button type="button" data-action="service"><span>＋</span><strong>Service</strong><small>Add price + duration</small></button>
       <button type="button" data-action="addon"><span>＋</span><strong>Add-on</strong><small>Extra price + time</small></button>
       <button type="button" data-action="supply"><span>▣</span><strong>Supply</strong><small>Track stock + reorder level</small></button>
