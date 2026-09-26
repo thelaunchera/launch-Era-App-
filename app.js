@@ -585,6 +585,10 @@ async function initialize(){
   const workerActivation=params.get("worker");
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
+  // public.js owns all customer-facing public routes (booking, quote,
+  // quote review and invoice view). Never let Auth overwrite that shell.
+  if(window.__tlePublicHandled) return;
+
   if(workerActivation || workerDevice){
     await initializeWorkerPortal(workerActivation);
     return;
