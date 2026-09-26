@@ -711,3 +711,23 @@ button,a,input,select,textarea,[role="button"]{
   .quote-review-actions{grid-template-columns:1fr}
   .public-dispute-actions{display:grid;grid-template-columns:1fr 1fr}
 }
+
+
+/* Google review setting */
+.review-settings-card{display:grid;gap:14px}
+.settings-link-field{display:grid;gap:7px}
+.settings-link-field>span{font-size:11px;font-weight:850;color:#5D5952}
+.settings-link-field input{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:12px;
+  padding:11px 12px;
+  font-size:13px;
+}
+.settings-link-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:520px){
+  .settings-link-actions{display:grid;grid-template-columns:1fr}
+  .settings-link-actions button{width:100%}
+}
