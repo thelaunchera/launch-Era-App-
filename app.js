@@ -148,14 +148,14 @@ function openView(id,options={}){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
   $$(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
-  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  $$$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
 }
-$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
