@@ -40,17 +40,14 @@ click("#authSwitch");
 if($("#authTitle")?.textContent!=="Create account") throw new Error("Create account button is not wired");
 if($("#passwordField")?.hidden) throw new Error("Create account did not show password field");
 
+if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
+if($("#authSubmit")?.textContent!=="Create account") throw new Error("Create account submit label is wrong");
+
 click("#authSwitch");
 if($("#authTitle")?.textContent!=="Sign in") throw new Error("Return to sign-in failed");
-
-click("#usePasswordBtn");
-if($("#passwordField")?.hidden) throw new Error("Use password instead did not reveal password");
-if($("#authSubmit")?.hidden) throw new Error("Password sign-in submit stayed hidden");
-
-window.document.querySelector("#authEmail").value="";
-window.document.querySelector("#emailLinkBtn").hidden=false;
-click("#emailLinkBtn");
-await new Promise(r=>setTimeout(r,10));
-if(!$("#toast")?.textContent.includes("Enter your email")) throw new Error("Continue with email handler is not wired");
+if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
+if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
+if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
+if(!$("#rememberedAdminBtn")) throw new Error("Admin passwordless button is missing");
 
 console.log("LOGIN_SMOKE_OK");
