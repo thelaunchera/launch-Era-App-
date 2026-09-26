@@ -11,6 +11,7 @@ const state = {
   services: [],
   jobs: [],
   quotes: [],
+  teamMembers: [],
   members: [],
   invites: [],
   authMode: "signin",
