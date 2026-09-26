@@ -2,7 +2,11 @@
   const params = new URLSearchParams(window.location.search);
   const mode = params.get("public");
   const slug = params.get("slug");
-  if (!["book","quote"].includes(mode) || !slug) return;
+  const token = params.get("token");
+
+  const validRequestMode = ["book","quote"].includes(mode) && Boolean(slug);
+  const validQuoteReview = mode === "quote-review" && Boolean(token);
+  if(!validRequestMode && !validQuoteReview) return;
 
   window.__tlePublicHandled = true;
 
@@ -10,11 +14,15 @@
   const KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
   const $ = (s,root=document) => root.querySelector(s);
   const $$ = (s,root=document) => [...root.querySelectorAll(s)];
-  const money = v => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(Number(v||0));
-  const esc = v => String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+  const money = v => new Intl.NumberFormat("en-US",{
+    style:"currency",currency:"USD",maximumFractionDigits:2
+  }).format(Number(v||0));
+  const esc = v => String(v??"").replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[ch]));
 
   async function rpc(name,body={}){
-    const res = await fetch(`${URL}/rest/v1/rpc/${name}`,{
+    const res = await fetch(URL+"/rest/v1/rpc/"+name,{
       method:"POST",
       headers:{"apikey":KEY,"Content-Type":"application/json"},
       body:JSON.stringify(body)
@@ -46,19 +54,107 @@
     }catch{}
   }
 
-  async function boot(){
-    const auth=$("#authShell"), app=$("#appShell"), pub=$("#publicShell");
+  function showPublicShell(){
+    const auth=$("#authShell"), app=$("#appShell"), worker=$("#workerShell"), pub=$("#publicShell");
     if(auth) auth.hidden=true;
     if(app) app.hidden=true;
+    if(worker) worker.hidden=true;
     if(pub) pub.hidden=false;
+  }
 
-    await track();
+  function formatDate(value){
+    if(!value) return "";
+    const d=new Date(value+"T12:00:00");
+    return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(d);
+  }
 
+  function formatTime(value){
+    if(!value) return "";
+    const parts=String(value).split(":");
+    const d=new Date();
+    d.setHours(Number(parts[0]||0),Number(parts[1]||0),0,0);
+    return new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(d);
+  }
+
+  async function bootQuoteReview(){
+    const form=$("#publicRequestForm");
+    const success=$("#publicSuccess");
+    const review=$("#publicQuoteReview");
+    if(form) form.hidden=true;
+    if(success) success.hidden=true;
+    if(review) review.hidden=false;
+
+    try{
+      const data=await rpc("get_public_quote_context",{p_token:token});
+      $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
+      $("#publicModeLabel").textContent="QUOTE";
+      $("#publicIntro").textContent="Review the details below and choose Accept or Decline.";
+
+      $("#quoteReviewTitle").textContent="Quote for "+(data?.customer_name||"your cleaning");
+      const meta=[
+        data?.preferred_date ? formatDate(data.preferred_date) : "",
+        data?.preferred_time ? formatTime(data.preferred_time) : "",
+        data?.service_address || ""
+      ].filter(Boolean).join(" · ");
+      $("#quoteReviewMeta").textContent=meta;
+
+      const items=data?.items||[];
+      $("#quoteReviewItems").innerHTML=items.length
+        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||"Cleaning service")+'</strong><small>Qty '+esc(item.quantity||1)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
+        : '<div class="empty-inline"><strong>No quote items found.</strong></div>';
+      $("#quoteReviewTotal").textContent=money(data?.total);
+
+      const status=String(data?.status||"");
+      const actions=$("#quoteReviewActions");
+      const statusEl=$("#quoteReviewStatus");
+      if(status==="accepted"){
+        if(actions) actions.hidden=true;
+        statusEl.textContent="Accepted. Your service is confirmed.";
+      }else if(status==="declined"){
+        if(actions) actions.hidden=true;
+        statusEl.textContent="This quote was declined.";
+      }else if(status!=="sent"){
+        if(actions) actions.hidden=true;
+        statusEl.textContent="This quote is not currently awaiting a response.";
+      }
+
+      async function respond(action){
+        const accept=$("#acceptQuoteBtn"), decline=$("#declineQuoteBtn");
+        if(accept) accept.disabled=true;
+        if(decline) decline.disabled=true;
+        statusEl.textContent=action==="accept"?"Confirming your service…":"Declining quote…";
+        try{
+          const result=await rpc("respond_public_quote",{p_token:token,p_action:action});
+          if(actions) actions.hidden=true;
+          statusEl.textContent=action==="accept"
+            ?"Accepted. Your service is confirmed and a confirmation email is on the way."
+            :"Quote declined. The cleaning business can now follow up with you.";
+          return result;
+        }catch(err){
+          statusEl.textContent=err.message||"Could not update quote.";
+          if(accept) accept.disabled=false;
+          if(decline) decline.disabled=false;
+        }
+      }
+
+      $("#acceptQuoteBtn")?.addEventListener("click",()=>respond("accept"));
+      $("#declineQuoteBtn")?.addEventListener("click",()=>respond("decline"));
+    }catch(err){
+      $("#publicBusinessName").textContent="Quote unavailable";
+      $("#publicIntro").textContent=err.message||"This quote link is invalid or expired.";
+      if(review) review.hidden=true;
+    }
+  }
+
+  async function bootRequest(){
     try{
       const data=await rpc("get_public_booking_config",{p_slug:slug});
       const allServices=data?.services||[];
-      const services=allServices.filter(s=>mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0));
+      const services=allServices.filter(s=>
+        mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0)
+      );
       const addons=data?.addons||[];
+
       const business=$("#publicBusinessName");
       const label=$("#publicModeLabel");
       const intro=$("#publicIntro");
@@ -68,22 +164,29 @@
       const addonBox=$("#publicAddons");
       const summary=$("#publicSummary");
       const form=$("#publicRequestForm");
-
-      if(business) business.textContent=data?.business?.name||"Cleaning service";
-      if(label) label.textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
-      if(intro) intro.textContent=mode==="quote"?"Tell us what you need and the business will review your request.":"Choose a service, date, and one of the real available times below.";
-      if(submit) submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
-      if(addWrap) addWrap.hidden=mode==="quote";
       const quoteTimeWrap=$("#publicQuoteTimeWrap");
       const slotsWrap=$("#publicSlotsWrap");
       const slotsBox=$("#publicSlots");
       const slotInput=$("#publicSlotStart");
+
+      if(business) business.textContent=data?.business?.name||"Cleaning service";
+      if(label) label.textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
+      if(intro) intro.textContent=mode==="quote"
+        ?"Tell us what you need and the business will review your request."
+        :"Choose a service, date, and one of the real available times below.";
+      if(submit) submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
+      if(addWrap) addWrap.hidden=mode==="quote";
       if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
       if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
+      const quoteTimeInput=form?.querySelector('[name="time"]');
+      if(quoteTimeInput) quoteTimeInput.required=mode==="quote";
+
       if(!services.length){
         if(select){
-          select.innerHTML=`<option value="">${mode==="quote"?"No services available yet":"No priced services available for online booking"}</option>`;
+          select.innerHTML='<option value="">'+(mode==="quote"
+            ?"No services available yet"
+            :"No priced services available for online booking")+'</option>';
           select.disabled=true;
         }
         if(submit) submit.disabled=true;
@@ -91,34 +194,41 @@
           ? '<span>No services are available yet. Please contact the cleaning business directly.</span>'
           : '<span>No instant-booking services are available yet. Services without a price are Quote Required.</span>';
       }else if(select){
-        select.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${s.id}">${esc(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+        select.innerHTML='<option value="">Choose a service</option>'+services.map(s=>
+          '<option value="'+esc(s.id)+'">'+esc(s.name)+
+          (s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):"")+
+          '</option>'
+        ).join("");
       }
 
-      function renderAddons(){
-        const selected=services.find(s=>s.id===select?.value);
-        if(!addonBox) return;
-        const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
-        addonBox.innerHTML=available.length?available.map(a=>`
-          <label class="addon-choice">
-            <input type="checkbox" name="addon" value="${a.id}">
-            <span><strong>${esc(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span>
-          </label>`).join(""):'<span class="muted-line">No add-ons for this service.</span>';
-        updateSummary();
+      function chosenAddonIds(){
+        return addonBox ? $$('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
       }
 
       function updateSummary(){
         const selected=services.find(s=>s.id===select?.value);
         if(!summary) return;
         if(!selected){ summary.innerHTML=""; return; }
-        const chosenIds=$$('input[name="addon"]:checked',addonBox).map(x=>x.value);
+        const chosenIds=chosenAddonIds();
         const chosen=addons.filter(a=>chosenIds.includes(a.id));
         const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
         const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
-        summary.innerHTML=`<strong>${esc(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total)}</span>`;
+        summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
+          (selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total))+
+          '</span>';
       }
 
-      function chosenAddonIds(){
-        return addonBox ? $('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
+      function renderAddons(){
+        const selected=services.find(s=>s.id===select?.value);
+        if(!addonBox) return;
+        const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
+        addonBox.innerHTML=available.length?available.map(a=>
+          '<label class="addon-choice">'+
+          '<input type="checkbox" name="addon" value="'+esc(a.id)+'">'+
+          '<span><strong>'+esc(a.name)+'</strong><small>+'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min</small></span>'+
+          '</label>'
+        ).join(""):'<span class="muted-line">No add-ons for this service.</span>';
+        updateSummary();
       }
 
       function formatSlot(iso){
@@ -151,10 +261,9 @@
             slotsBox.innerHTML='<span class="muted-line">No openings on this date. Try another day.</span>';
             return;
           }
-          slotsBox.innerHTML=slots.map(row=>{
-            const iso=row.slot_start;
-            return '<button type="button" class="slot-btn" data-slot="'+esc(iso)+'">'+esc(formatSlot(iso))+'</button>';
-          }).join("");
+          slotsBox.innerHTML=slots.map(row=>
+            '<button type="button" class="slot-btn" data-slot="'+esc(row.slot_start)+'">'+esc(formatSlot(row.slot_start))+'</button>'
+          ).join("");
         }catch(err){
           slotsBox.innerHTML='<span class="muted-line">'+esc(err.message||"Could not load availability")+'</span>';
         }
@@ -238,15 +347,24 @@
           }
         });
       }
-
-      $("#publicBackBtn")?.addEventListener("click",()=>{
-        window.location.href=window.location.origin+window.location.pathname;
-      });
     }catch(err){
       $("#publicBusinessName").textContent="Page unavailable";
-      $("#publicIntro").textContent="This booking page is not available.";
+      $("#publicIntro").textContent=err.message||"This page is not available.";
       $("#publicRequestForm").hidden=true;
     }
+  }
+
+  async function boot(){
+    showPublicShell();
+    await track();
+
+    if(validQuoteReview) await bootQuoteReview();
+    else await bootRequest();
+
+    $("#publicBackBtn")?.addEventListener("click",()=>{
+      if(history.length>1) history.back();
+      else window.location.href=window.location.origin+window.location.pathname;
+    });
   }
 
   boot();
