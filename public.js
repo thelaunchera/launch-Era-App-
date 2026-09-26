@@ -160,6 +160,45 @@
           if(!isPaid) choices.querySelectorAll("button").forEach(x=>x.disabled=false);
         }
       });
+
+      const invoiceDisputeBtn=$("#invoiceDisputeBtn");
+      const invoiceDisputeForm=$("#invoiceDisputeForm");
+      const invoiceDisputeReason=$("#invoiceDisputeReason");
+      const invoiceDisputeStatus=$("#invoiceDisputeStatus");
+
+      invoiceDisputeBtn?.addEventListener("click",()=>{
+        invoiceDisputeForm.hidden=false;
+        invoiceDisputeBtn.hidden=true;
+        invoiceDisputeStatus.textContent="";
+        invoiceDisputeReason?.focus();
+      });
+
+      $("#cancelInvoiceDisputeBtn")?.addEventListener("click",()=>{
+        invoiceDisputeForm.hidden=true;
+        invoiceDisputeBtn.hidden=false;
+        if(invoiceDisputeStatus) invoiceDisputeStatus.textContent="";
+      });
+
+      invoiceDisputeForm?.addEventListener("submit",async e=>{
+        e.preventDefault();
+        const reason=String(invoiceDisputeReason?.value||"").trim();
+        const submit=invoiceDisputeForm.querySelector('button[type="submit"]');
+        if(reason.length<3){
+          invoiceDisputeStatus.textContent="Please explain what you would like reviewed.";
+          return;
+        }
+        submit.disabled=true;
+        invoiceDisputeStatus.textContent="Sending dispute…";
+        try{
+          await rpc("submit_invoice_dispute",{p_token:token,p_reason:reason});
+          invoiceDisputeForm.hidden=true;
+          invoiceDisputeBtn.hidden=true;
+          invoiceDisputeStatus.textContent="Dispute sent. The cleaning business can now review your message.";
+        }catch(err){
+          invoiceDisputeStatus.textContent=err.message||"Could not send dispute.";
+          submit.disabled=false;
+        }
+      });
     }catch(err){
       $("#publicBusinessName").textContent="Invoice unavailable";
       $("#publicIntro").textContent=err.message||"This invoice link is invalid or expired.";
@@ -230,6 +269,44 @@
 
       $("#acceptQuoteBtn")?.addEventListener("click",()=>respond("accept"));
       $("#declineQuoteBtn")?.addEventListener("click",()=>respond("decline"));
+
+      const quoteDisputeBtn=$("#quoteDisputeBtn");
+      const quoteDisputeForm=$("#quoteDisputeForm");
+      const quoteDisputeReason=$("#quoteDisputeReason");
+
+      quoteDisputeBtn?.addEventListener("click",()=>{
+        quoteDisputeForm.hidden=false;
+        quoteDisputeBtn.hidden=true;
+        statusEl.textContent="";
+        quoteDisputeReason?.focus();
+      });
+
+      $("#cancelQuoteDisputeBtn")?.addEventListener("click",()=>{
+        quoteDisputeForm.hidden=true;
+        quoteDisputeBtn.hidden=false;
+        statusEl.textContent="";
+      });
+
+      quoteDisputeForm?.addEventListener("submit",async e=>{
+        e.preventDefault();
+        const reason=String(quoteDisputeReason?.value||"").trim();
+        const submit=quoteDisputeForm.querySelector('button[type="submit"]');
+        if(reason.length<3){
+          statusEl.textContent="Please explain what you would like reviewed.";
+          return;
+        }
+        submit.disabled=true;
+        statusEl.textContent="Sending dispute…";
+        try{
+          await rpc("submit_quote_dispute",{p_token:token,p_reason:reason});
+          quoteDisputeForm.hidden=true;
+          if(actions) actions.hidden=true;
+          statusEl.textContent="Dispute sent. The cleaning business can now review your message.";
+        }catch(err){
+          statusEl.textContent=err.message||"Could not send dispute.";
+          submit.disabled=false;
+        }
+      });
     }catch(err){
       $("#publicBusinessName").textContent="Quote unavailable";
       $("#publicIntro").textContent=err.message||"This quote link is invalid or expired.";
