@@ -238,17 +238,24 @@ function showSubscriptionGate(){
   modalClose.hidden=true;
 
   const owner=state.business.role==="owner";
+  const billingStatus=String(state.business.subscription_status||"").toLowerCase();
+  const returningCustomer=["canceled","past_due"].includes(billingStatus);
+
   modalHeader(
     "PLAN + BILLING",
-    owner ? "Your free access has ended." : "This workspace needs an active subscription.",
     owner
-      ? "Continue your full access for $5.99/month. You can cancel anytime."
+      ? (returningCustomer ? "Your subscription is paused." : "Your free access has ended.")
+      : "This workspace needs an active subscription.",
+    owner
+      ? (returningCustomer
+          ? "Reactivate for $5.99/month and pick up where you left off."
+          : "Continue your full access for $5.99/month. You can cancel anytime.")
       : "Ask the business owner to renew the $5.99/month subscription."
   );
 
   entityForm.innerHTML=owner
-    ? `<div class="empty-inline"><strong>Keep everything you already set up.</strong><span>Your clients, jobs, quotes, invoices and settings stay in place.</span></div><div class="form-footer"><button class="ghost-btn" type="button" id="billingGateLogout">Log out</button><button class="primary-btn" type="button" id="billingContinueBtn">Continue for $5.99/month</button></div>`
-    : `<div class="empty-inline"><strong>Owner action required.</strong><span>No business data has been deleted.</span></div><div class="form-footer"><button class="primary-btn" type="button" id="billingGateLogout">Log out</button></div>`;
+    ? `<div class="empty-inline"><strong>Your business data stays saved.</strong><span>We keep your clients, contacts, jobs, quotes, invoices and settings for 3 months after your subscription ends. Reactivate during that window and continue where you left off.</span></div><div class="form-footer"><button class="ghost-btn" type="button" id="billingGateLogout">Log out</button><button class="primary-btn" type="button" id="billingContinueBtn">Continue for $5.99/month</button></div>`
+    : `<div class="empty-inline"><strong>Owner action required.</strong><span>Business data is kept for 3 months while the subscription is paused.</span></div><div class="form-footer"><button class="primary-btn" type="button" id="billingGateLogout">Log out</button></div>`;
 
   modal.hidden=false;
 
@@ -837,6 +844,12 @@ async function initialize(){
       history.replaceState({}, "", clean.pathname + clean.hash);
       showToast("Workspace access accepted");
     }
+  }
+
+  try{
+    await supabase.functions.invoke("sync-stripe-subscription-status",{body:{}});
+  }catch(err){
+    console.warn("[TLE] subscription status sync",err);
   }
 
   const {data:contexts,error}=await supabase.rpc("get_my_business_context");
