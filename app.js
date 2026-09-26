@@ -718,10 +718,20 @@ async function saveJob(fd){
     travel_buffer_after_minutes:Number(fd.get("travel_buffer")||0),
     notes:String(fd.get("notes")||"").trim()||null
   };
-  const query=state.modalId
-    ? supabase.from("jobs").update(payload).eq("id",state.modalId)
-    : supabase.from("jobs").insert(payload);
-  const {error}=await query; if(error) throw error;
+
+  let result;
+  if(state.modalId){
+    result=await supabase.from("jobs").update(payload).eq("id",state.modalId).select("id").single();
+  }else{
+    result=await supabase.from("jobs").insert(payload).select("id").single();
+  }
+  if(result.error) throw result.error;
+
+  const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+    p_job_id:result.data.id,
+    p_team_member_id:fd.get("team_member_id")||null
+  });
+  if(assignmentError) throw assignmentError;
 }
 
 async function saveQuote(fd){
