@@ -297,22 +297,25 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
 async function loadCoreData(){
   if(!state.business) return;
   const businessId = state.business.id;
-  const [clientsRes,servicesRes,jobsRes,quotesRes] = await Promise.all([
+  const [clientsRes,servicesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
     supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
     supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
-    supabase.from("jobs").select("*, clients(name,email), services(name)").eq("business_id",businessId).order("starts_at",{ascending:true}),
-    supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false})
+    supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),
+    supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),
+    supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")
   ]);
-  const errors=[clientsRes.error,servicesRes.error,jobsRes.error,quotesRes.error].filter(Boolean);
+  const errors=[clientsRes.error,servicesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
   if(errors.length) showToast(errors[0].message);
   state.clients=clientsRes.data||[];
   state.services=servicesRes.data||[];
   state.jobs=jobsRes.data||[];
   state.quotes=quotesRes.data||[];
+  state.teamMembers=teamRes.data||[];
   renderClients();
   renderServices();
   renderJobs();
   renderQuotes();
+  renderTeam();
   renderTodaySummary();
   if(state.business.role==="owner") await loadOwnerAdmin();
 }
