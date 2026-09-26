@@ -389,6 +389,55 @@ async function saveInvite(fd){
   showToast("Invite link copied");
 }
 
+function renderTeam(){
+  const grid=$("#teamGrid");
+  if(!grid) return;
+  if(!state.teamMembers.length){
+    grid.innerHTML=`<article class="empty-card"><strong>No team profiles yet.</strong><span>Add a cleaner before assigning jobs.</span><button class="primary-btn" data-team-create>+ Add team profile</button></article>`;
+    return;
+  }
+  grid.innerHTML=state.teamMembers.map(tm=>`
+    <article class="client-card">
+      <div class="client-avatar">${escapeHtml(initials(tm.name))}</div>
+      <strong>${escapeHtml(tm.name)}</strong>
+      <span>${escapeHtml(tm.role||"cleaner")}</span>
+      <small>${escapeHtml(tm.email||tm.phone||"No contact saved")}</small>
+      <div class="card-actions"><button data-team-edit="${tm.id}">Edit</button></div>
+    </article>
+  `).join("")+`<article class="client-card add-card" data-team-create><div>＋</div><strong>Add team profile</strong><span>Assign jobs and track time.</span></article>`;
+}
+
+function openTeamForm(id=null){
+  state.modalType="team"; state.modalId=id;
+  const record=state.teamMembers.find(x=>x.id===id);
+  modalHeader("TEAM",record?"Edit team profile":"Add team profile","This profile is used for job assignment. App access is managed separately in Owner Admin.");
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+      <label>Email<input name="email" type="email" value="${escapeHtml(record?.email||"")}"></label>
+      <label>Phone<input name="phone" value="${escapeHtml(record?.phone||"")}"></label>
+      <label>Role<input name="role" value="${escapeHtml(record?.role||"cleaner")}"></label>
+    </div>
+    ${formSubmit(record?"Save changes":"Add team profile")}`;
+  modal.hidden=false;
+}
+
+async function saveTeam(fd){
+  const payload={
+    business_id:state.business.id,
+    name:String(fd.get("name")).trim(),
+    email:String(fd.get("email")||"").trim()||null,
+    phone:String(fd.get("phone")||"").trim()||null,
+    role:String(fd.get("role")||"cleaner").trim()||"cleaner",
+    active:true
+  };
+  const query=state.modalId
+    ? supabase.from("team_members").update(payload).eq("id",state.modalId)
+    : supabase.from("team_members").insert(payload);
+  const {error}=await query;
+  if(error) throw error;
+}
+
 function renderClients(){
   const grid=$("#clientsGrid");
   if(!grid) return;
