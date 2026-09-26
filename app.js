@@ -2155,14 +2155,19 @@ document.addEventListener("click",async e=>{
     sendInvoice.disabled=true;
     const original=sendInvoice.textContent;
     sendInvoice.textContent="Sending…";
-    const {error}=await supabase.rpc("send_invoice_to_client",{p_invoice_id:sendInvoice.dataset.sendInvoice});
+    const base=window.location.origin+window.location.pathname;
+    const {data,error}=await supabase.rpc("send_invoice_to_client",{
+      p_invoice_id:sendInvoice.dataset.sendInvoice,
+      p_public_base_url:base
+    });
     if(error){
       showToast(error.message);
       sendInvoice.disabled=false;
       sendInvoice.textContent=original;
     }else{
+      if(data?.url) await copyText(data.url);
       await loadCoreData();
-      showToast("Invoice emailed to client");
+      showToast("Invoice emailed to client · view link copied");
     }
     return;
   }
