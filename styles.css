@@ -25,6 +25,24 @@ button{cursor:pointer}
 .trial-card{margin-top:24px;padding:16px;background:var(--ink);color:white;border-radius:18px}
 .trial-card strong{display:block;margin:10px 0 6px}
 .trial-card p{margin:0;color:#D9D6D0;font-size:13px;line-height:1.45}
+.trial-days-pill{
+  background:var(--yellow);
+  color:var(--ink);
+  border:1px solid #D9BF32;
+  box-shadow:0 2px 0 rgba(255,255,255,.08);
+}
+.sidebar-logout-btn{
+  width:100%;
+  margin-top:14px;
+  border:1px solid rgba(255,255,255,.32);
+  background:#FFFFFF;
+  color:var(--ink);
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:12px;
+  font-weight:900;
+}
+.sidebar-logout-btn:active{transform:translateY(1px)}
 .main{padding:0 34px 64px;min-width:0}
 .topbar{position:sticky;top:0;z-index:20;background:rgba(250,248,243,.94);backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;padding:24px 0 18px;border-bottom:1px solid rgba(229,224,215,.8);margin-bottom:26px}
 .topbar h1{margin:2px 0 0;font-size:30px;letter-spacing:-.035em}
