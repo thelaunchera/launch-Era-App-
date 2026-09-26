@@ -56,7 +56,8 @@
 
     try{
       const data=await rpc("get_public_booking_config",{p_slug:slug});
-      const services=(data?.services||[]).filter(s=>mode==="quote"||s.pricing_type!=="quote");
+      const allServices=data?.services||[];
+      const services=allServices.filter(s=>mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0));
       const addons=data?.addons||[];
       const business=$("#publicBusinessName");
       const label=$("#publicModeLabel");
@@ -70,17 +71,25 @@
 
       if(business) business.textContent=data?.business?.name||"Cleaning service";
       if(label) label.textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
-      if(intro) intro.textContent=mode==="quote"?"Tell us what you need and the business will review your request.":"Choose a service and request your preferred time.";
+      if(intro) intro.textContent=mode==="quote"?"Tell us what you need and the business will review your request.":"Choose a service, date, and one of the real available times below.";
       if(submit) submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
       if(addWrap) addWrap.hidden=mode==="quote";
+      const quoteTimeWrap=$("#publicQuoteTimeWrap");
+      const slotsWrap=$("#publicSlotsWrap");
+      const slotsBox=$("#publicSlots");
+      const slotInput=$("#publicSlotStart");
+      if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
+      if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
       if(!services.length){
         if(select){
-          select.innerHTML='<option value="">No online services available yet</option>';
+          select.innerHTML=`<option value="">${mode==="quote"?"No services available yet":"No priced services available for online booking"}</option>`;
           select.disabled=true;
         }
         if(submit) submit.disabled=true;
-        if(summary) summary.innerHTML='<span>No services are available online yet. Please contact the cleaning business directly.</span>';
+        if(summary) summary.innerHTML=mode==="quote"
+          ? '<span>No services are available yet. Please contact the cleaning business directly.</span>'
+          : '<span>No instant-booking services are available yet. Services without a price are Quote Required.</span>';
       }else if(select){
         select.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${s.id}">${esc(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
       }
@@ -108,12 +117,70 @@
         summary.innerHTML=`<strong>${esc(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total)}</span>`;
       }
 
-      select?.addEventListener("change",renderAddons);
-      addonBox?.addEventListener("change",updateSummary);
+      function chosenAddonIds(){
+        return addonBox ? $('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
+      }
+
+      function formatSlot(iso){
+        const tz=data?.business?.timezone||"America/New_York";
+        return new Intl.DateTimeFormat("en-US",{
+          timeZone:tz,hour:"numeric",minute:"2-digit"
+        }).format(new Date(iso));
+      }
+
+      async function refreshSlots(){
+        if(mode==="quote" || !slotsBox || !slotInput) return;
+        slotInput.value="";
+        const serviceId=select?.value;
+        const dateValue=form?.querySelector('[name="date"]')?.value;
+        if(!serviceId || !dateValue){
+          slotsBox.innerHTML='<span class="muted-line">Choose a service and date first.</span>';
+          return;
+        }
+
+        slotsBox.innerHTML='<span class="muted-line">Checking availability…</span>';
+        try{
+          const rows=await rpc("get_public_available_slots",{
+            p_slug:slug,
+            p_service_id:serviceId,
+            p_date:dateValue,
+            p_addon_ids:chosenAddonIds()
+          });
+          const slots=Array.isArray(rows)?rows:[];
+          if(!slots.length){
+            slotsBox.innerHTML='<span class="muted-line">No openings on this date. Try another day.</span>';
+            return;
+          }
+          slotsBox.innerHTML=slots.map(row=>{
+            const iso=row.slot_start;
+            return '<button type="button" class="slot-btn" data-slot="'+esc(iso)+'">'+esc(formatSlot(iso))+'</button>';
+          }).join("");
+        }catch(err){
+          slotsBox.innerHTML='<span class="muted-line">'+esc(err.message||"Could not load availability")+'</span>';
+        }
+      }
+
+      select?.addEventListener("change",()=>{
+        renderAddons();
+        refreshSlots();
+      });
+      addonBox?.addEventListener("change",()=>{
+        updateSummary();
+        refreshSlots();
+      });
+      slotsBox?.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-slot]");
+        if(!btn) return;
+        slotsBox.querySelectorAll("[data-slot]").forEach(x=>x.classList.toggle("selected",x===btn));
+        slotInput.value=btn.dataset.slot;
+      });
       renderAddons();
 
       const dateInput=form?.querySelector('[name="date"]');
-      if(dateInput) dateInput.min=new Date().toLocaleDateString("en-CA");
+      if(dateInput){
+        dateInput.min=new Date().toLocaleDateString("en-CA");
+        dateInput.addEventListener("change",refreshSlots);
+      }
 
       if(form){
         form.addEventListener("submit",async e=>{
@@ -144,7 +211,8 @@
                 p_notes:String(fd.get("notes")||"").trim()||null
               });
             }else{
-              const start=new Date(`${fd.get("date")}T${fd.get("time")}:00`);
+              const selectedSlot=String(fd.get("slot_start")||"").trim();
+              if(!selectedSlot) throw new Error("Choose one of the available times.");
               await rpc("submit_public_booking_request",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
@@ -154,7 +222,7 @@
                 p_customer_phone:phone||null,
                 p_preferred_contact:preferred,
                 p_service_address:String(fd.get("address")).trim(),
-                p_requested_start_at:start.toISOString(),
+                p_requested_start_at:selectedSlot,
                 p_notes:String(fd.get("notes")||"").trim()||null
               });
             }
