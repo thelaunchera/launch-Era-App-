@@ -283,3 +283,52 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .back-btn:hover{background:#F4F1EA}
 @media(max-width:860px){.back-btn{display:inline-flex;align-items:center}.topbar{gap:8px}}
 @media(min-width:861px){.back-btn{margin-left:4px}}
+
+
+/* Production public request pages + Platform Admin */
+.platform-admin-link{background:#F1E9FF!important;border:1px solid #D8C5F5!important}
+.platform-table,.platform-visits,.booking-requests-list{display:grid;gap:8px}
+.platform-customer-row{display:grid;grid-template-columns:minmax(220px,1.4fr) .8fr .7fr auto auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#FCFBF8}
+.platform-customer-row>div{display:grid;gap:3px}.platform-customer-row small{color:var(--muted);font-size:10px}
+.platform-customer-row select{border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px;font-size:11px;font-weight:800}
+.visit-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.visit-row:first-child{border-top:0}.visit-row>span{display:grid;gap:3px}.visit-row small,.visit-row time{font-size:10px;color:var(--muted)}
+.booking-request-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#FCFBF8}
+.booking-request-row>div{display:grid;gap:3px}.booking-request-row small{color:var(--muted);font-size:10px}
+.link-box{grid-template-columns:minmax(0,1fr) auto auto}
+.link-box a{color:var(--ink);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.link-box button{border:0;background:var(--ink);color:#fff;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:800}
+.route-map-empty{min-height:260px;display:grid;place-items:center;position:relative;background:#F5F3EE}
+.route-visual-empty{color:var(--muted);font-size:13px;text-align:center;max-width:280px}
+.timer-empty{margin-bottom:18px}
+
+.public-shell{min-height:100vh;background:var(--ivory)}
+.public-header{display:flex;justify-content:space-between;align-items:center;padding:20px max(18px,calc((100vw - 920px)/2));border-bottom:1px solid var(--line);background:rgba(250,248,243,.96);position:sticky;top:0;z-index:10}
+.public-main{width:min(760px,calc(100% - 28px));margin:0 auto;padding:26px 0 60px}
+.public-back{margin-bottom:16px}
+.public-card{background:#fff;border:1px solid var(--line);border-radius:30px;padding:clamp(22px,5vw,38px);box-shadow:var(--shadow)}
+.public-card h1{font-size:clamp(32px,6vw,48px);letter-spacing:-.045em;margin:5px 0 8px}
+.public-copy{color:var(--muted);margin:0 0 24px;line-height:1.55}
+.public-addons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:7px}
+.addon-choice{display:flex!important;grid-template-columns:auto 1fr!important;align-items:center;gap:9px!important;border:1px solid var(--line);border-radius:13px;padding:10px;background:#FCFBF8}
+.addon-choice input{width:auto!important;margin:0}
+.addon-choice span{display:grid;gap:2px}.addon-choice small{color:var(--muted);font-size:10px}
+.public-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--blue);border-radius:15px;padding:13px;margin:17px 0}
+.public-summary span{font-size:11px;color:#526270}
+.public-submit{width:100%;border-radius:14px;padding:13px}
+.public-success{text-align:center;padding:30px 0 10px}.public-success h2{font-size:30px;margin:12px 0 7px}.public-success p{color:var(--muted)}
+.success-mark{width:56px;height:56px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:26px;font-weight:900;margin:0 auto}
+.field-label{font-size:12px;font-weight:800;color:#5D5952}
+
+@media(max-width:900px){
+  .platform-customer-row{grid-template-columns:1fr 1fr}
+  .platform-customer-row>div:first-child{grid-column:1/-1}
+}
+@media(max-width:620px){
+  .public-addons{grid-template-columns:1fr}
+  .platform-customer-row{grid-template-columns:1fr}
+  .platform-customer-row>div:first-child{grid-column:auto}
+  .booking-request-row{align-items:flex-start;flex-direction:column}
+  .link-box{grid-template-columns:minmax(0,1fr) auto}
+  .link-box button:first-of-type{display:none}
+}
