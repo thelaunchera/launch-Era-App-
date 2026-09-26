@@ -232,7 +232,10 @@
         if(submit) submit.disabled=true;
         if(summary) summary.innerHTML=mode==="quote"
           ? '<span>No services are available yet. Please contact the cleaning business directly.</span>'
-          : '<span>No instant-booking services are available yet. Services without a price are Quote Required.</span>';
+          : '<span>No instant-booking services are available yet. Services without a fixed price require a quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
+        $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
+          window.location.href=window.location.origin+window.location.pathname+"?public=quote&slug="+encodeURIComponent(slug);
+        });
       }else if(select){
         select.innerHTML='<option value="">Choose a service</option>'+services.map(s=>
           '<option value="'+esc(s.id)+'">'+esc(s.name)+
