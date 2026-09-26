@@ -602,23 +602,12 @@ async function initialize(){
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
   if(!session){
-    const lastAdminEmail=localStorage.getItem("tle_last_admin_email");
-    const trustedDevice=localStorage.getItem("tle_internal_admin_device")==="1";
-    if(lastAdminEmail && trustedDevice && !window.__tleTrustedAutoLogin){
-      window.__tleTrustedAutoLogin=true;
-      try{
-        const trusted=await tryTrustedAdminSignIn(lastAdminEmail);
-        if(trusted){
-          const fresh=await supabase.auth.getSession();
-          state.session=fresh.data.session;
-          if(state.session) return initialize();
-        }
-      }finally{
-        window.__tleTrustedAutoLogin=false;
-      }
-    }
+    // No session: show the access screen immediately.
+    // Platform admins can use the remembered "Continue as Admin" passwordless flow.
+    // Do not call auth APIs from an auth-state callback or attempt silent admin auth here.
     showAuth();
     setAuthStatus("");
+    prepareAdminShortcut();
     return;
   }
 
@@ -664,20 +653,28 @@ async function initialize(){
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
   await trackVisit("/app/today");
 }
-supabase.auth.onAuthStateChange(async (event, session)=>{
+supabase.auth.onAuthStateChange((event, session)=>{
+  // IMPORTANT: keep this callback synchronous.
+  // Awaiting Supabase calls from onAuthStateChange can deadlock supabase-js.
   if(event === "PASSWORD_RECOVERY"){
     state.session=session;
-    showAuth();
-    setAuthMode("recovery");
+    setTimeout(()=>{
+      showAuth();
+      setAuthMode("recovery");
+    },0);
     return;
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
-    if(appShell.hidden){
-      enterAuthenticatedApp().catch(err=>{
-        setAuthStatus(err.message||"Could not open workspace","error");
-      });
-    }
+    setTimeout(()=>{
+      if(appShell.hidden){
+        enterAuthenticatedApp().catch(err=>{
+          console.error("[TLE] post-auth initialize failed",err);
+          showAuth();
+          setAuthStatus(err?.message||"Could not open workspace","error");
+        });
+      }
+    },0);
     return;
   }
   if(event === "TOKEN_REFRESHED" && session){
@@ -687,7 +684,7 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
   if(event === "SIGNED_OUT"){
     state.session=null;
     state.business=null;
-    showAuth();
+    setTimeout(()=>showAuth(),0);
   }
 });
 
@@ -2444,4 +2441,8 @@ if("caches" in window){
 
 window.__tleAppReady=true;
 setAuthMode("signin");
-initialize();
+initialize().catch(err=>{
+  console.error("[TLE] initialize failed",err);
+  showAuth();
+  setAuthStatus(err?.message||"The app could not finish loading. Please refresh.","error");
+});
