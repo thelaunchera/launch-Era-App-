@@ -116,9 +116,9 @@ function initials(name=""){
 }
 function applyRolePermissions(){
   const role=state.business?.role||"coworker";
-  $("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
-  $("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
-  $("[data-platform-admin-only]").forEach(el=>el.hidden=!state.isPlatformAdmin);
+  $$("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
+  $$("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
+  $$("[data-platform-admin-only]").forEach(el=>el.hidden=!state.isPlatformAdmin);
   if(role==="coworker"){
     const active=$(".nav-item.active");
     if(active && active.hidden) openView("today");
@@ -130,15 +130,15 @@ function openView(id,options={}){
   if(!options.fromBack && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
-  $(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  $$(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
+  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
 }
-$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+$$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
