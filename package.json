@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check app.js"
+    "check": "node --check app.js",
+    "smoke": "node smoke-test.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^27.0.0"
   }
 }
