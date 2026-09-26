@@ -701,29 +701,45 @@ function renderSupplies(){
 
 function renderJobs(){
   const list=$("#jobsList");
-  if(!list) return;
-  const visible=state.jobs.filter(j=>j.status!=="canceled");
-  if(!visible.length){
-    list.innerHTML=`<div class="empty-inline"><strong>No jobs scheduled.</strong><button class="text-btn" data-create="job">Add the first job →</button></div>`;
-    return;
-  }
-  list.innerHTML=visible.slice(0,12).map(j=>`
-    <div class="job-block">
-      <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
-      <div>
-        <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
-        <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
-      </div>
-      <div class="record-actions">
-        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
-        ${state.business.role==="coworker"
-          ? `<button data-coworker-status="${j.id}" data-status="on_the_way">On my way</button><button data-coworker-status="${j.id}" data-status="in_progress">Start</button><button data-coworker-status="${j.id}" data-status="completed">Complete</button>`
-          : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
-      </div>
-    </div>
-  `).join("");
-}
+  const visible=state.jobs.filter(j=>j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
 
+  if(list){
+    list.innerHTML=visible.length?visible.slice(0,20).map(j=>`
+      <div class="job-block">
+        <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
+        <div>
+          <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
+          <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
+        </div>
+        <div class="record-actions">
+          <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
+          ${state.business.role==="coworker"
+            ? `<button data-coworker-status="${j.id}" data-status="on_the_way">On my way</button><button data-coworker-status="${j.id}" data-status="in_progress">Start</button><button data-coworker-status="${j.id}" data-status="completed">Complete</button>`
+            : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
+        </div>
+      </div>
+    `).join(""):`<div class="empty-inline"><strong>No jobs scheduled.</strong><button class="text-btn" data-create="job">Add the first job →</button></div>`;
+  }
+
+  const week=$("#calendarWeekRow");
+  if(week){
+    const now=new Date();
+    const start=startOfWeek(now);
+    week.innerHTML=Array.from({length:7},(_,i)=>{
+      const d=new Date(start); d.setDate(start.getDate()+i);
+      const selected=sameLocalDay(d,now)?"selected":"";
+      return `<span class="${selected}">${new Intl.DateTimeFormat("en-US",{weekday:"short"}).format(d).toUpperCase()}<strong>${d.getDate()}</strong></span>`;
+    }).join("");
+  }
+
+  const recurring=$("#recurringJobsList");
+  if(recurring){
+    const upcoming=visible.filter(j=>j.recurrence_rule_id&&new Date(j.starts_at)>=new Date()).slice(0,8);
+    recurring.innerHTML=upcoming.length?upcoming.map(j=>`
+      <div class="recurring-item"><strong>${escapeHtml(j.clients?.name||"Recurring job")}</strong><span>${escapeHtml(j.services?.name||"Cleaning")} · ${formatDateTime(j.starts_at)}</span></div>
+    `).join(""):`<div class="empty-inline"><strong>No recurring jobs yet.</strong><span>Recurring appointments will appear here.</span></div>`;
+  }
+}
 function quoteColumn(status,label){
   const items=state.quotes.filter(q=>q.status===status);
   return `<div class="kanban-col"><h3>${label} <span>${items.length}</span></h3>
