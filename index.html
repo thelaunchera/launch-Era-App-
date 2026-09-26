@@ -11,7 +11,17 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for residential cleaning businesses." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <link rel="stylesheet" href="./styles.css?v=20260926-2105" />
+  <link rel="stylesheet" href="./styles.css?v=20260926-2112" />
+  <script>
+    window.__tleBootErrorHandler = true;
+    window.addEventListener("error", function(event){
+      var status=document.getElementById("authStatus");
+      if(status && !window.__tleAppReady){
+        status.textContent="App loading failed. Refreshing…";
+        status.dataset.type="error";
+      }
+    });
+  </script>
 </head>
 <body>
   <div class="auth-shell" id="authShell">
@@ -659,8 +669,8 @@
       caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./public.js?v=20260926-2105"></script>
-  <script src="./app.js?v=20260926-2105"></script>
+  <script src="./vendor/supabase.js?v=20260926-2112"></script>
+  <script src="./public.js?v=20260926-2112"></script>
+  <script src="./app.js?v=20260926-2112"></script>
 </body>
 </html>
