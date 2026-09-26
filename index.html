@@ -52,6 +52,39 @@
       </div>
     </div>
   </div>
+  <div class="worker-shell" id="workerShell" hidden>
+    <header class="worker-header">
+      <div class="brand-row">
+        <div class="brand-mark">TL</div>
+        <div><div class="brand-name" id="workerBusinessName">The Launch Era</div><div class="brand-sub">Worker Access</div></div>
+      </div>
+      <button class="ghost-btn" id="exitWorkerBtn" type="button">Exit</button>
+    </header>
+    <main class="worker-main">
+      <div class="worker-hero">
+        <p class="eyebrow">MY WORK</p>
+        <h1 id="workerWelcome">Today</h1>
+        <p id="workerCopy">Only your assigned jobs appear here.</p>
+      </div>
+      <div class="metric-grid compact worker-metrics">
+        <article class="metric-card"><span>Assigned jobs</span><strong id="workerJobCount">0</strong></article>
+        <article class="metric-card"><span>Today</span><strong id="workerTodayCount">0</strong></article>
+        <article class="metric-card"><span>Timer</span><strong id="workerTimerState">Off</strong></article>
+      </div>
+      <section class="panel worker-panel">
+        <div class="panel-head"><div><p class="eyebrow">TODAY + UPCOMING</p><h3>My assigned jobs</h3></div></div>
+        <div id="workerJobsList" class="worker-jobs-list"></div>
+      </section>
+      <section class="panel worker-panel">
+        <div class="panel-head"><div><p class="eyebrow">LIMITED ACCESS</p><h3>What you can use</h3></div></div>
+        <div class="worker-permissions">
+          <span>✓ Assigned jobs</span><span>✓ Route + address</span><span>✓ Job status</span><span>✓ Time tracking</span><span>✓ Mileage</span>
+          <small>You cannot see leads, quotes, invoices, pricing, reports, billing, settings or other clients.</small>
+        </div>
+      </section>
+    </main>
+  </div>
+
   <div class="public-shell" id="publicShell" hidden>
     <header class="public-header">
       <div class="brand-row">
@@ -394,9 +427,9 @@
 
       <section class="view" data-page="team" data-admin-only>
         <div class="section-intro">
-          <div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2><p>Team profiles handle scheduling. App access is controlled separately by the owner.</p></div>
+          <div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2><p>Workers use a private no-password link. Admin access stays separate.</p></div>
           <div class="section-actions">
-            <button class="primary-btn" id="shareAppAccessBtn" data-owner-only>Share App Access</button>
+            <button class="primary-btn" id="shareAppAccessBtn" data-owner-only>Invite Admin</button>
             <button class="ghost-btn" data-jump="admin" data-owner-only>Owner Admin</button>
             <button class="primary-btn" id="addTeamProfileBtn">+ Add team profile</button>
           </div>
@@ -404,10 +437,10 @@
         <div class="share-access-card" data-owner-only>
           <div>
             <span class="pill yellow">OWNER ONLY</span>
-            <h3>Let a coworker use the app</h3>
-            <p>Invite them by email, choose Admin or Coworker access, then copy the private invite link and send it by text or WhatsApp.</p>
+            <h3>Workers do not need passwords</h3>
+            <p>Create the worker profile, assign jobs, then use <strong>Share worker link</strong> on that person’s card. The link only opens their assigned work.</p>
           </div>
-          <button class="dark-btn" id="shareAccessCardBtn">Invite someone →</button>
+          <button class="dark-btn" id="shareAccessCardBtn">Invite an Admin →</button>
         </div>
         <div class="client-grid" id="teamGrid"></div>
       </section>
@@ -468,14 +501,14 @@
 
           <article class="panel full-help" data-owner-only>
             <div class="panel-head">
-              <div><p class="eyebrow">SHARE ACCESS</p><h3>Invite a coworker or admin</h3></div>
-              <button class="primary-btn" id="helpInviteBtn">Invite teammate</button>
+              <div><p class="eyebrow">SHARE ACCESS</p><h3>Worker link or Admin invite</h3></div>
+              <button class="primary-btn" id="helpInviteBtn">Invite Admin</button>
             </div>
             <div class="share-steps">
-              <div><b>1</b><span><strong>Enter their email</strong><small>Use the email they will sign in with.</small></span></div>
-              <div><b>2</b><span><strong>Choose access</strong><small>Admin runs operations. Coworker sees assigned work only.</small></span></div>
-              <div><b>3</b><span><strong>Copy the invite link</strong><small>Send it by text, email or WhatsApp.</small></span></div>
-              <div><b>4</b><span><strong>They sign in</strong><small>The invite only works for the invited email.</small></span></div>
+              <div><b>1</b><span><strong>Add the worker</strong><small>Create their Team profile.</small></span></div>
+              <div><b>2</b><span><strong>Assign jobs</strong><small>Only assigned jobs will be visible.</small></span></div>
+              <div><b>3</b><span><strong>Share worker link</strong><small>Send the private link by text or WhatsApp.</small></span></div>
+              <div><b>4</b><span><strong>No password</strong><small>The link opens their limited worker portal directly.</small></span></div>
             </div>
           </article>
 
@@ -495,7 +528,7 @@
             <div class="faq-list">
               <details>
                 <summary>How do I share the app with a coworker?</summary>
-                <p>Go to <strong>Team → Share App Access</strong>. Enter their email, choose Admin or Coworker, then send them the invite link.</p>
+                <p>Go to <strong>Team</strong>, add the worker, then tap <strong>Share worker link</strong> on their card. Workers do not need a password.</p>
               </details>
               <details>
                 <summary>Can a coworker see my revenue or billing?</summary>
