@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#FAF8F3" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Launch Era" />
+  <link rel="manifest" href="./manifest.webmanifest" />
   <meta name="description" content="The Launch Era Cleaning App — simple operations for residential cleaning businesses." />
   <title>The Launch Era Cleaning App</title>
   <link rel="stylesheet" href="./styles.css" />
@@ -83,6 +87,7 @@
         <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
         <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
         <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner Admin <span>🔒</span></button>
+        <button class="nav-item" data-view="help">Help & FAQ <span>?</span></button>
       </nav>
 
       <div class="trial-card" data-owner-only>
@@ -367,9 +372,18 @@
         <div class="section-intro">
           <div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2><p>Team profiles handle scheduling. App access is controlled separately by the owner.</p></div>
           <div class="section-actions">
-            <button class="ghost-btn" data-jump="admin" data-owner-only>Manage app access</button>
+            <button class="primary-btn" id="shareAppAccessBtn" data-owner-only>Share App Access</button>
+            <button class="ghost-btn" data-jump="admin" data-owner-only>Owner Admin</button>
             <button class="primary-btn" id="addTeamProfileBtn">+ Add team profile</button>
           </div>
+        </div>
+        <div class="share-access-card" data-owner-only>
+          <div>
+            <span class="pill yellow">OWNER ONLY</span>
+            <h3>Let a coworker use the app</h3>
+            <p>Invite them by email, choose Admin or Coworker access, then copy the private invite link and send it by text or WhatsApp.</p>
+          </div>
+          <button class="dark-btn" id="shareAccessCardBtn">Invite someone →</button>
         </div>
         <div class="client-grid" id="teamGrid"></div>
       </section>
@@ -381,6 +395,96 @@
           <article class="panel"><h3>Booking rules</h3><div class="setting-row"><span><strong>Travel buffer</strong><small>30 minutes</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Minimum notice</strong><small>24 hours</small></span><button>Edit</button></div></article>
           <article class="panel"><h3>Contact + payments</h3><div class="setting-row"><span><strong>Preferred contact</strong><small>Email</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Payments</strong><small>Zelle · Cash on Spot</small></span><button>Edit</button></div></article>
           
+        </div>
+      </section>
+
+
+      <section class="view" data-page="help">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">HELP & FAQ</p>
+            <h2>Quick help without the guesswork.</h2>
+            <p>Install the app on your phone, share access with your team, and find answers to the most common questions.</p>
+          </div>
+        </div>
+
+        <div class="help-grid">
+          <article class="panel install-card">
+            <span class="pill blue">IPHONE</span>
+            <h3>Put the app on your Home Screen</h3>
+            <ol class="steps-list">
+              <li>Open the app in <strong>Safari</strong>.</li>
+              <li>Tap the <strong>Share</strong> button.</li>
+              <li>Scroll and tap <strong>Add to Home Screen</strong>.</li>
+              <li>Tap <strong>Add</strong>.</li>
+            </ol>
+            <p class="helper">It will open from your Home Screen like an app.</p>
+          </article>
+
+          <article class="panel install-card">
+            <span class="pill yellow">ANDROID</span>
+            <h3>Add the app to your phone</h3>
+            <ol class="steps-list">
+              <li>Open the app in <strong>Chrome</strong>.</li>
+              <li>Tap the <strong>⋮</strong> menu.</li>
+              <li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+              <li>Confirm <strong>Install</strong>.</li>
+            </ol>
+          </article>
+
+          <article class="panel full-help" data-owner-only>
+            <div class="panel-head">
+              <div><p class="eyebrow">SHARE ACCESS</p><h3>Invite a coworker or admin</h3></div>
+              <button class="primary-btn" id="helpInviteBtn">Invite teammate</button>
+            </div>
+            <div class="share-steps">
+              <div><b>1</b><span><strong>Enter their email</strong><small>Use the email they will sign in with.</small></span></div>
+              <div><b>2</b><span><strong>Choose access</strong><small>Admin runs operations. Coworker sees assigned work only.</small></span></div>
+              <div><b>3</b><span><strong>Copy the invite link</strong><small>Send it by text, email or WhatsApp.</small></span></div>
+              <div><b>4</b><span><strong>They sign in</strong><small>The invite only works for the invited email.</small></span></div>
+            </div>
+          </article>
+
+          <article class="panel full-help">
+            <p class="eyebrow">ACCESS LEVELS</p>
+            <h3>Who can see what?</h3>
+            <div class="role-legend">
+              <div><strong>Owner</strong><span>Everything, including billing, permissions, reports, integrations and Owner Admin.</span></div>
+              <div><strong>Admin</strong><span>Clients, jobs, quotes, invoices, services and day-to-day business operations.</span></div>
+              <div><strong>Coworker</strong><span>Assigned jobs, route, time tracking, mileage and only the client details needed for their work.</span></div>
+            </div>
+          </article>
+
+          <article class="panel full-help">
+            <p class="eyebrow">FAQ</p>
+            <h3>Common questions</h3>
+            <div class="faq-list">
+              <details>
+                <summary>How do I share the app with a coworker?</summary>
+                <p>Go to <strong>Team → Share App Access</strong>. Enter their email, choose Admin or Coworker, then send them the invite link.</p>
+              </details>
+              <details>
+                <summary>Can a coworker see my revenue or billing?</summary>
+                <p>No. Coworkers do not see owner reports, invoices, pricing, billing, permissions or integrations.</p>
+              </details>
+              <details>
+                <summary>What happens when a quote is accepted?</summary>
+                <p>The app creates or updates the client, schedules the job and prepares a draft invoice automatically.</p>
+              </details>
+              <details>
+                <summary>Can clients book without creating an account?</summary>
+                <p>Yes. The public booking and quote-request flow is designed for clients to use without an account.</p>
+              </details>
+              <details>
+                <summary>How do I remove someone’s access?</summary>
+                <p>Open <strong>Owner Admin → Access & Permissions</strong> and remove their app access. Their job history stays in the business records.</p>
+              </details>
+              <details>
+                <summary>I forgot my password. What do I do?</summary>
+                <p>Use <strong>Forgot password?</strong> on the sign-in screen and follow the email reset link.</p>
+              </details>
+            </div>
+          </article>
         </div>
       </section>
 
