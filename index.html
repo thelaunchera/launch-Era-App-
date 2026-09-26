@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#FAF8F3" />
+  <meta name="description" content="The Launch Era Cleaning App — simple operations for residential cleaning businesses." />
+  <title>The Launch Era Cleaning App</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="brand-mark">TL</div>
+        <div>
+          <div class="brand-name">The Launch Era</div>
+          <div class="brand-sub">Cleaning App</div>
+        </div>
+      </div>
+
+      <button class="workspace-chip" type="button">
+        <span class="workspace-avatar">SC</span>
+        <span>
+          <strong>Sample Cleaning Co.</strong>
+          <small>Demo workspace</small>
+        </span>
+      </button>
+
+      <nav class="nav-list" aria-label="App navigation">
+        <button class="nav-item active" data-view="today">Today <span>⌂</span></button>
+        <button class="nav-item" data-view="booking">Booking Center <span>↗</span></button>
+        <button class="nav-item" data-view="leads">Leads <span>◎</span></button>
+        <button class="nav-item" data-view="clients">Clients <span>◌</span></button>
+        <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
+        <button class="nav-item" data-view="quotes">Quotes <span>◫</span></button>
+        <button class="nav-item" data-view="invoices">Invoices <span>$</span></button>
+
+        <div class="nav-label">Operations</div>
+        <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
+        <button class="nav-item" data-view="mileage">Mileage <span>mi</span></button>
+        <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
+        <button class="nav-item" data-view="reports">Reports <span>↗</span></button>
+
+        <div class="nav-label">Business</div>
+        <button class="nav-item" data-view="services">Services + Add-ons <span>＋</span></button>
+        <button class="nav-item" data-view="team">Team <span>◉</span></button>
+        <button class="nav-item" data-view="settings">Settings <span>⚙</span></button>
+      </nav>
+
+      <div class="trial-card">
+        <span class="pill blue">30-day trial</span>
+        <strong>Full access</strong>
+        <p>Later: $5.99/month. No card required to start.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
+        <div>
+          <p class="eyebrow">THE LAUNCH ERA CLEANING APP</p>
+          <h1 id="pageTitle">Today</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="languageBtn">EN / ES</button>
+          <button class="primary-btn" id="quickAddBtn">+ Quick add</button>
+        </div>
+      </header>
+
+      <section class="view active" data-page="today">
+        <div class="hero-card">
+          <div>
+            <span class="pill yellow">Friday · Demo</span>
+            <h2>Good afternoon 👋</h2>
+            <p>Here’s what needs your attention before your next cleaning.</p>
+          </div>
+          <button class="dark-btn" data-jump="route">Open today’s route →</button>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <span>Today’s jobs</span>
+            <strong>4</strong>
+            <small>1 completed · 3 remaining</small>
+          </article>
+          <article class="metric-card">
+            <span>This week revenue</span>
+            <strong>$1,285</strong>
+            <small>5 invoices paid</small>
+          </article>
+          <article class="metric-card">
+            <span>Open quotes</span>
+            <strong>3</strong>
+            <small>1 waiting 3+ days</small>
+          </article>
+          <article class="metric-card">
+            <span>Unpaid invoices</span>
+            <strong>$420</strong>
+            <small>2 need follow-up</small>
+          </article>
+          <article class="metric-card">
+            <span>Booking requests</span>
+            <strong>2</strong>
+            <small>Review before confirming</small>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">TODAY</p>
+                <h3>Schedule + route</h3>
+              </div>
+              <button class="text-btn" data-jump="calendar">Full calendar →</button>
+            </div>
+            <div class="timeline">
+              <div class="timeline-item done">
+                <time>8:00 AM</time>
+                <div>
+                  <strong>Lopez Residence</strong>
+                  <span>Recurring clean · 2h</span>
+                </div>
+                <span class="status success">Done</span>
+              </div>
+              <div class="travel-row">18 min travel · 7.2 mi</div>
+              <div class="timeline-item">
+                <time>10:30 AM</time>
+                <div>
+                  <strong>Anderson Home</strong>
+                  <span>Deep clean · 3h</span>
+                </div>
+                <span class="status warning">Next</span>
+              </div>
+              <div class="travel-row">24 min travel · 10.1 mi</div>
+              <div class="timeline-item">
+                <time>2:15 PM</time>
+                <div>
+                  <strong>Rivera Condo</strong>
+                  <span>Move-out · 2h 30m</span>
+                </div>
+                <span class="status neutral">Scheduled</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">QUICK ACTIONS</p>
+                <h3>Move work forward</h3>
+              </div>
+            </div>
+            <div class="quick-grid">
+              <button class="quick-card" data-action="client">＋<span>Add client</span></button>
+              <button class="quick-card" data-action="quote">◫<span>Create quote</span></button>
+              <button class="quick-card" data-jump="booking">↗<span>Booking link</span></button>
+              <button class="quick-card" data-action="invoice">$<span>Send invoice</span></button>
+              <button class="quick-card" data-jump="mileage">mi<span>Log mileage</span></button>
+              <button class="quick-card" data-jump="time">◷<span>Track time</span></button>
+            </div>
+          </article>
+        </div>
+
+        <div class="dashboard-grid lower">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Don’t let these slip</h3></div></div>
+            <div class="attention-list">
+              <button><span class="dot red"></span><strong>Invoice #1048</strong><small>$220 · due yesterday</small></button>
+              <button><span class="dot yellow"></span><strong>Quote for Kim B.</strong><small>Waiting 3 days</small></button>
+              <button><span class="dot blue"></span><strong>2 booking requests</strong><small>Need review</small></button>
+            </div>
+          </article>
+
+          <article class="panel accent-panel">
+            <p class="eyebrow">THIS WEEK</p>
+            <h3>18.4 hours cleaned</h3>
+            <p>42.7 business miles logged · 6 completed jobs.</p>
+            <button class="dark-btn" data-jump="reports">See reports →</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-page="booking">
+        <div class="section-intro">
+          <div><p class="eyebrow">BOOKING CENTER</p><h2>Your public front door.</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
+          <button class="primary-btn" id="copyBooking">Copy booking link</button>
+        </div>
+
+        <div class="booking-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share anywhere</h3></div></div>
+            <label class="field-label">Booking link</label>
+            <div class="link-box"><span id="bookingUrl">app.thelaunchera.com/book/sample-cleaning-co</span><button data-copy-target="bookingUrl">Copy</button></div>
+            <label class="field-label">Quote request link</label>
+            <div class="link-box"><span id="quoteUrl">app.thelaunchera.com/quote/sample-cleaning-co</span><button data-copy-target="quoteUrl">Copy</button></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div></div>
+            <div class="setting-row"><span><strong>Travel buffer</strong><small>Block drive time between jobs</small></span><span class="control-chip">30 min</span></div>
+            <div class="setting-row"><span><strong>Booking notice</strong><small>Minimum notice before appointment</small></span><span class="control-chip">24 hrs</span></div>
+            <div class="setting-row"><span><strong>Service duration</strong><small>Use each service’s expected duration</small></span><span class="status success">On</span></div>
+          </article>
+
+          <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">CLIENT EXPERIENCE</p><h3>What the customer sees</h3></div><span class="pill blue">No account required</span></div>
+            <div class="flow-row">
+              <span>Choose service</span><b>→</b><span>Pick available time</span><b>→</b><span>Enter details</span><b>→</b><span>Review</span><b>→</b><span>Booking / Quote</span>
+            </div>
+            <div class="mini-settings">
+              <div><strong>Preferred contact</strong><span>Email · Text · WhatsApp</span></div>
+              <div><strong>Payment methods</strong><span>Zelle · Cash on Spot · Stripe-ready</span></div>
+              <div><strong>Quote behavior</strong><span>Request stays in Quotes until accepted</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-page="leads">
+        <div class="section-intro"><div><p class="eyebrow">LEADS</p><h2>Know who needs a next step.</h2></div><button class="primary-btn" data-action="lead">+ Add lead</button></div>
+        <div class="table-card">
+          <div class="table-row table-head"><span>Name</span><span>Source</span><span>Service</span><span>Status</span><span>Next step</span></div>
+          <div class="table-row"><span>Kim B.</span><span>Instagram</span><span>Deep Clean</span><span><i class="status warning">Quoted</i></span><span>Follow up today</span></div>
+          <div class="table-row"><span>Jamie R.</span><span>Booking link</span><span>Recurring</span><span><i class="status blue">New</i></span><span>Review request</span></div>
+          <div class="table-row"><span>Nadia P.</span><span>Referral</span><span>Move-out</span><span><i class="status neutral">Contacted</i></span><span>Send quote</span></div>
+        </div>
+      </section>
+
+      <section class="view" data-page="clients">
+        <div class="section-intro"><div><p class="eyebrow">CLIENTS</p><h2>Every client, without the scattered notes.</h2></div><button class="primary-btn" data-action="client">+ Add client</button></div>
+        <div class="client-grid">
+          <article class="client-card"><div class="client-avatar">JL</div><strong>Jessica Lopez</strong><span>Recurring · every 2 weeks</span><small>Next: Oct 2 · 8:00 AM</small></article>
+          <article class="client-card"><div class="client-avatar">MA</div><strong>Mark Anderson</strong><span>Deep cleaning</span><small>Today · 10:30 AM</small></article>
+          <article class="client-card"><div class="client-avatar">CR</div><strong>Carla Rivera</strong><span>Move-out cleaning</span><small>Today · 2:15 PM</small></article>
+          <article class="client-card add-card" data-action="client"><div>＋</div><strong>Add a client</strong><span>Start with the basics.</span></article>
+        </div>
+      </section>
+
+      <section class="view" data-page="calendar">
+        <div class="section-intro"><div><p class="eyebrow">CALENDAR + JOBS</p><h2>Your schedule with travel time built in.</h2></div><button class="primary-btn" data-action="job">+ Add job</button></div>
+        <div class="calendar-layout">
+          <article class="panel">
+            <div class="week-row"><span>MON<strong>28</strong></span><span>TUE<strong>29</strong></span><span>WED<strong>30</strong></span><span>THU<strong>1</strong></span><span class="selected">FRI<strong>2</strong></span><span>SAT<strong>3</strong></span></div>
+            <div class="job-block"><time>8:00</time><div><strong>Lopez Residence</strong><span>Recurring · 2h</span></div><span class="status success">Done</span></div>
+            <div class="buffer-block">Travel buffer · 18 min</div>
+            <div class="job-block"><time>10:30</time><div><strong>Anderson Home</strong><span>Deep clean · 3h</span></div><span class="status warning">Next</span></div>
+            <div class="buffer-block">Travel buffer · 24 min</div>
+            <div class="job-block"><time>2:15</time><div><strong>Rivera Condo</strong><span>Move-out · 2h 30m</span></div><span class="status neutral">Scheduled</span></div>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">RECURRING</p><h3>Upcoming recurring jobs</h3>
+            <div class="recurring-item"><strong>Lopez Residence</strong><span>Every 2 weeks · Friday 8 AM</span></div>
+            <div class="recurring-item"><strong>Green Family</strong><span>Weekly · Tuesday 9 AM</span></div>
+            <div class="recurring-item"><strong>Patel Home</strong><span>Monthly · first Monday</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-page="quotes">
+        <div class="section-intro"><div><p class="eyebrow">QUOTES</p><h2>Quote first. Create the job after acceptance.</h2><p>Quote requests stay here until the customer accepts.</p></div><button class="primary-btn" data-action="quote">+ New quote</button></div>
+        <div class="kanban">
+          <div class="kanban-col"><h3>Requested <span>2</span></h3><article><strong>Jamie R.</strong><small>Recurring cleaning</small><b>Needs review</b></article><article><strong>Paula S.</strong><small>Move-out</small><b>Needs review</b></article></div>
+          <div class="kanban-col"><h3>Sent <span>2</span></h3><article><strong>Kim B.</strong><small>$180 · Deep clean</small><b>Sent 3 days ago</b></article><article><strong>Andre M.</strong><small>$145 · Standard clean</small><b>Sent yesterday</b></article></div>
+          <div class="kanban-col"><h3>Accepted <span>1</span></h3><article class="accepted"><strong>Lisa T.</strong><small>$210 · Move-out</small><b>Client + job + invoice ready</b></article></div>
+        </div>
+      </section>
+
+      <section class="view" data-page="invoices">
+        <div class="section-intro"><div><p class="eyebrow">INVOICES</p><h2>See what’s paid and what needs follow-up.</h2></div><button class="primary-btn" data-action="invoice">+ New invoice</button></div>
+        <div class="metric-grid compact">
+          <article class="metric-card"><span>Outstanding</span><strong>$420</strong></article>
+          <article class="metric-card"><span>Paid this month</span><strong>$3,140</strong></article>
+          <article class="metric-card"><span>Overdue</span><strong>1</strong></article>
+        </div>
+        <div class="table-card">
+          <div class="table-row table-head"><span>Invoice</span><span>Client</span><span>Amount</span><span>Status</span><span>Method</span></div>
+          <div class="table-row"><span>#1048</span><span>Anderson</span><span>$220</span><span><i class="status danger">Overdue</i></span><span>Zelle</span></div>
+          <div class="table-row"><span>#1047</span><span>Lopez</span><span>$120</span><span><i class="status success">Paid</i></span><span>Cash</span></div>
+          <div class="table-row"><span>#1046</span><span>Rivera</span><span>$200</span><span><i class="status warning">Sent</i></span><span>Stripe-ready</span></div>
+        </div>
+      </section>
+
+      <section class="view" data-page="route">
+        <div class="section-intro"><div><p class="eyebrow">TODAY'S ROUTE</p><h2>Know where you’re going before you leave.</h2></div><span class="pill blue">42.7 mi this week</span></div>
+        <div class="route-layout">
+          <article class="panel map-placeholder">
+            <div class="route-line"></div>
+            <div class="route-pin p1">1</div><div class="route-pin p2">2</div><div class="route-pin p3">3</div>
+            <div class="map-label">Route map preview</div>
+          </article>
+          <article class="panel">
+            <div class="route-stop"><b>1</b><div><strong>Lopez Residence</strong><span>8:00 AM · 2h</span><small>123 Sample Ave</small></div><em>Done</em></div>
+            <div class="route-drive">18 min · 7.2 mi</div>
+            <div class="route-stop"><b>2</b><div><strong>Anderson Home</strong><span>10:30 AM · 3h</span><small>418 Palm Way</small></div><em>Next</em></div>
+            <div class="route-drive">24 min · 10.1 mi</div>
+            <div class="route-stop"><b>3</b><div><strong>Rivera Condo</strong><span>2:15 PM · 2h 30m</span><small>8 Ocean Blvd</small></div><em>Later</em></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-page="mileage">
+        <div class="section-intro"><div><p class="eyebrow">MILEAGE</p><h2>Stop forgetting business miles.</h2></div><button class="primary-btn">+ Log drive</button></div>
+        <div class="metric-grid compact">
+          <article class="metric-card"><span>Today</span><strong>17.3 mi</strong></article>
+          <article class="metric-card"><span>This week</span><strong>42.7 mi</strong></article>
+          <article class="metric-card"><span>This month</span><strong>168.2 mi</strong></article>
+        </div>
+        <div class="table-card">
+          <div class="table-row table-head"><span>Date</span><span>From → To</span><span>Miles</span><span>Job</span><span>Type</span></div>
+          <div class="table-row"><span>Sep 26</span><span>Lopez → Anderson</span><span>7.2</span><span>Anderson Home</span><span>Business</span></div>
+          <div class="table-row"><span>Sep 26</span><span>Anderson → Rivera</span><span>10.1</span><span>Rivera Condo</span><span>Business</span></div>
+        </div>
+      </section>
+
+      <section class="view" data-page="time">
+        <div class="section-intro"><div><p class="eyebrow">TIME TRACKING</p><h2>See how long jobs actually take.</h2></div><button class="primary-btn">Start timer</button></div>
+        <article class="timer-card"><span>Current job</span><h3>Anderson Home · Deep Clean</h3><strong>00:42:18</strong><div><button class="dark-btn">Pause</button><button class="ghost-btn">Finish job</button></div></article>
+        <div class="table-card">
+          <div class="table-row table-head"><span>Job</span><span>Team member</span><span>Planned</span><span>Actual</span><span>Status</span></div>
+          <div class="table-row"><span>Lopez Residence</span><span>Owner</span><span>2h</span><span>1h 52m</span><span><i class="status success">Complete</i></span></div>
+          <div class="table-row"><span>Anderson Home</span><span>Owner</span><span>3h</span><span>42m</span><span><i class="status warning">Running</i></span></div>
+        </div>
+      </section>
+
+      <section class="view" data-page="reports">
+        <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Simple numbers that help you run the business.</h2></div><button class="ghost-btn">Export later</button></div>
+        <div class="report-grid">
+          <article class="panel"><span>Revenue this month</span><strong>$3,140</strong><div class="bar-chart"><i style="height:34%"></i><i style="height:52%"></i><i style="height:47%"></i><i style="height:76%"></i><i style="height:88%"></i><i style="height:72%"></i></div></article>
+          <article class="panel"><span>Jobs completed</span><strong>24</strong><p>18 recurring · 6 one-time</p></article>
+          <article class="panel"><span>Business miles</span><strong>168.2</strong><p>Tracked across completed jobs.</p></article>
+          <article class="panel"><span>Work hours</span><strong>61.4h</strong><p>Average job: 2h 33m.</p></article>
+        </div>
+      </section>
+
+      <section class="view" data-page="services">
+        <div class="section-intro"><div><p class="eyebrow">SERVICES + ADD-ONS</p><h2>Set pricing and duration once.</h2></div><button class="primary-btn">+ Add service</button></div>
+        <div class="service-grid">
+          <article><strong>Standard Cleaning</strong><span>2h · Fixed price</span><b>$120+</b></article>
+          <article><strong>Deep Cleaning</strong><span>3h · Fixed price</span><b>$180+</b></article>
+          <article><strong>Move-Out Cleaning</strong><span>3h · Quote required</span><b>Custom</b></article>
+          <article class="add-card"><div>＋</div><strong>Add service</strong><span>Create duration, price and add-ons.</span></article>
+        </div>
+      </section>
+
+      <section class="view" data-page="team">
+        <div class="section-intro"><div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2></div><button class="primary-btn">+ Add team member</button></div>
+        <div class="client-grid">
+          <article class="client-card"><div class="client-avatar">DS</div><strong>Owner</strong><span>Admin · Full access</span><small>4 jobs this week</small></article>
+          <article class="client-card"><div class="client-avatar">AM</div><strong>Ana M.</strong><span>Cleaner</span><small>3 jobs this week</small></article>
+          <article class="client-card add-card"><div>＋</div><strong>Add cleaner</strong><span>Assign jobs and track time.</span></article>
+        </div>
+      </section>
+
+      <section class="view" data-page="settings">
+        <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Your business rules live here.</h2></div></div>
+        <div class="settings-grid">
+          <article class="panel"><h3>Business profile</h3><div class="setting-row"><span><strong>Business name</strong><small>Sample Cleaning Co.</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Service area</strong><small>Palm Beach County</small></span><button>Edit</button></div></article>
+          <article class="panel"><h3>Booking rules</h3><div class="setting-row"><span><strong>Travel buffer</strong><small>30 minutes</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Minimum notice</strong><small>24 hours</small></span><button>Edit</button></div></article>
+          <article class="panel"><h3>Contact + payments</h3><div class="setting-row"><span><strong>Preferred contact</strong><small>Email</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Payments</strong><small>Zelle · Cash on Spot</small></span><button>Edit</button></div></article>
+          <article class="panel"><h3>Plan</h3><div class="setting-row"><span><strong>Trial</strong><small>30 days free · no card</small></span><span class="status success">Active</span></div><div class="setting-row"><span><strong>After trial</strong><small>$5.99/month</small></span><span>—</span></div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose">×</button>
+      <p class="eyebrow">QUICK ADD</p>
+      <h2 id="modalTitle">Add something</h2>
+      <p id="modalCopy">This demo shows where fast actions will live. Data will connect to the new backend during the migration build.</p>
+      <div class="modal-actions">
+        <button class="primary-btn" id="modalDone">Looks good</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied</div>
+  <script src="./app.js"></script>
+</body>
+</html>
