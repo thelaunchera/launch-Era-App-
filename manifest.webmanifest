@@ -2,7 +2,7 @@
   "name": "The Launch Era Cleaning App",
   "short_name": "Launch Era",
   "description": "Operations app for residential cleaning businesses.",
-  "start_url": "./",
+  "start_url": "./?app=20260926-2112",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FAF8F3",
