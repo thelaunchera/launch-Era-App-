@@ -174,3 +174,33 @@ button:disabled{opacity:.55;cursor:not-allowed}
   .form-footer{position:sticky;bottom:-1px;background:var(--ivory);padding-bottom:4px}
   .record-actions{grid-column:2;justify-content:flex-start}
 }
+
+
+/* Owner Admin + team access */
+.owner-admin-link{margin-top:8px;background:#FFF8D7!important;border:1px solid #E8DCA1!important}
+.admin-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+.admin-grid>.panel:first-child{grid-row:span 2}
+.role-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 18px}
+.role-legend div{background:#F8F6F1;border:1px solid var(--line);border-radius:14px;padding:12px}
+.role-legend strong,.role-legend span{display:block}
+.role-legend span{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
+.members-list{display:grid;gap:8px}
+.member-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#FCFBF8}
+.member-row.pending{background:#FFFDF2}
+.member-avatar{width:38px;height:38px;border-radius:12px;background:var(--blue);display:grid;place-items:center;font-weight:900;font-size:11px}
+.member-row>div:nth-child(2){display:grid;gap:3px;min-width:0}
+.member-row small{color:var(--muted);font-size:10px;overflow:hidden;text-overflow:ellipsis}
+.member-row select{border:1px solid var(--line);border-radius:10px;background:white;padding:7px 9px;font-size:11px;font-weight:800}
+.member-row button{border:0;background:#F1EEE8;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900}
+.permission-note{margin-top:14px;background:#FFF8D7;border:1px solid #E8DCA1;border-radius:14px;padding:12px;font-size:11px;line-height:1.5;color:#5F5835}
+.workspace-chip small{text-transform:capitalize}
+
+@media(max-width:900px){
+  .admin-grid{grid-template-columns:1fr}
+  .admin-grid>.panel:first-child{grid-row:auto}
+}
+@media(max-width:620px){
+  .role-legend{grid-template-columns:1fr}
+  .member-row{grid-template-columns:38px 1fr}
+  .member-row>select,.member-row>button,.member-row>.status{grid-column:2}
+}
