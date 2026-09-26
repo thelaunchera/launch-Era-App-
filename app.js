@@ -127,6 +127,7 @@ function showApp(){
   authShell.hidden = true;
   appShell.hidden = false;
   applyRolePermissions();
+  renderTrialStatus();
   const chip = $(".workspace-chip");
   if(chip && state.business){
     const roleLabel = state.business.role==="owner" ? "Owner workspace" : state.business.role==="admin" ? "Admin access" : "Worker access";
@@ -139,6 +140,27 @@ function showApp(){
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
 }
+function renderTrialStatus(){
+  const pill=$("#trialDaysPill");
+  if(!pill || !state.business) return;
+
+  const status=String(state.business.subscription_status||"").toLowerCase();
+  if(status==="active"){
+    pill.textContent="Active plan";
+    return;
+  }
+
+  const end=state.business.trial_ends_at ? new Date(state.business.trial_ends_at) : null;
+  if(!end || Number.isNaN(end.getTime())){
+    pill.textContent="30-day trial";
+    return;
+  }
+
+  const ms=end.getTime()-Date.now();
+  const days=Math.max(0,Math.ceil(ms/86400000));
+  pill.textContent=days===1 ? "1 day left" : days+" days left";
+}
+
 function applyRolePermissions(){
   const role=state.business?.role||"coworker";
   $$("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
@@ -395,11 +417,15 @@ $("#forgotPassword").addEventListener("click", async ()=>{
   showToast(error ? error.message : "Password reset email sent");
 });
 
-$("#signOutBtn").addEventListener("click", async ()=>{
+async function signOutCurrentUser(){
   await supabase.auth.signOut();
-  state.session=null; state.business=null;
+  state.session=null;
+  state.business=null;
   showAuth();
-});
+}
+
+$("#signOutBtn")?.addEventListener("click",signOutCurrentUser);
+$("#sidebarSignOutBtn")?.addEventListener("click",signOutCurrentUser);
 
 businessForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
