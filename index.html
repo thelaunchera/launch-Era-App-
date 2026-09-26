@@ -133,6 +133,21 @@
           <div class="public-summary" id="publicSummary"></div>
           <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
         </form>
+        <div class="public-quote-review" id="publicQuoteReview" hidden>
+          <div class="quote-review-head">
+            <span class="pill blue">QUOTE</span>
+            <h2 id="quoteReviewTitle">Review your quote</h2>
+            <p id="quoteReviewMeta"></p>
+          </div>
+          <div id="quoteReviewItems" class="quote-review-items"></div>
+          <div class="quote-review-total"><span>Total</span><strong id="quoteReviewTotal">$0</strong></div>
+          <div class="quote-review-actions" id="quoteReviewActions">
+            <button class="ghost-btn" type="button" id="declineQuoteBtn">Decline</button>
+            <button class="primary-btn" type="button" id="acceptQuoteBtn">Accept quote</button>
+          </div>
+          <p class="helper" id="quoteReviewStatus"></p>
+        </div>
+
         <div class="public-success" id="publicSuccess" hidden>
           <div class="success-mark">✓</div>
           <h2>Request received</h2>
