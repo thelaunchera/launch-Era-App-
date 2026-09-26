@@ -205,31 +205,16 @@ function rememberedAdminEmails(){
 function prepareAdminShortcut(){
   const last=localStorage.getItem("tle_last_admin_email");
   const shortcut=$("#rememberedAdminBtn");
-  const internal=localStorage.getItem("tle_internal_admin_device")==="1";
-  const passwordField=$("#passwordField");
-  const password=$("#authPassword");
-  const submit=$("#authSubmit");
   if(!shortcut) return;
-
-  const usePasswordlessAdmin=Boolean(last&&internal&&state.authMode==="signin");
-  shortcut.hidden=!usePasswordlessAdmin;
-  if(usePasswordlessAdmin){
+  const internal=localStorage.getItem("tle_internal_admin_device")==="1";
+  const useShortcut=Boolean(last&&internal&&state.authMode==="signin");
+  shortcut.hidden=!useShortcut;
+  if(useShortcut){
     $("#authEmail").value=last;
-    passwordField.hidden=true;
-    password.required=false;
-    submit.hidden=true;
-    $("#forgotPassword").hidden=true;
-    $("#authCopy").textContent="Admin device recognized. Continue without a password.";
     shortcut.textContent="Continue as Admin";
-  }else{
-    submit.hidden=false;
-    if(state.authMode==="signin"){
-      passwordField.hidden=false;
-      password.required=true;
-      $("#forgotPassword").hidden=false;
-    }
   }
 }
+
 async function sendPasswordlessLink(email){
   const cleanEmail=String(email||"").trim().toLowerCase();
   if(!cleanEmail){ showToast("Enter your email first"); return; }
@@ -239,55 +224,84 @@ async function sendPasswordlessLink(email){
     options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
   });
   if(error) throw error;
-  showToast("Sign-in link sent to your email");
+  showToast("Check your email for the secure sign-in link");
 }
+
 function setAuthMode(mode){
-  state.authMode = mode;
-  const title = $("#authTitle");
-  const copy = $("#authCopy");
-  const submit = $("#authSubmit");
-  const switchBtn = $("#authSwitch");
-  const password = $("#authPassword");
+  state.authMode=mode;
+  const title=$("#authTitle");
+  const copy=$("#authCopy");
+  const submit=$("#authSubmit");
+  const switchBtn=$("#authSwitch");
+  const password=$("#authPassword");
   const passwordField=$("#passwordField");
   const passwordless=$("#emailLinkBtn");
-  if(mode === "signup"){
-    title.textContent = "Create account";
-    copy.textContent = "Start your private cleaning business workspace.";
-    submit.textContent = "Create account";
-    switchBtn.textContent = "Already have an account? Sign in";
+  const usePassword=$("#usePasswordBtn");
+
+  if(mode==="signup"){
+    title.textContent="Create account";
+    copy.textContent="Start your private cleaning business workspace.";
+    submit.textContent="Create account";
+    submit.hidden=false;
+    switchBtn.textContent="Already have an account? Sign in";
+    switchBtn.hidden=false;
     passwordField.hidden=false;
     password.required=true;
-    password.autocomplete = "new-password";
-    if(passwordless) passwordless.hidden=true;
-  }else if(mode === "recovery"){
-    title.textContent = "Choose a new password";
-    copy.textContent = "Enter the new password you want to use.";
-    submit.textContent = "Update password";
-    switchBtn.hidden = true;
-    $("#forgotPassword").hidden = true;
-    $("#authEmail").closest("label").hidden = true;
+    password.autocomplete="new-password";
+    passwordless.hidden=true;
+    if(usePassword) usePassword.hidden=true;
+    $("#forgotPassword").hidden=true;
+    $("#authEmail").closest("label").hidden=false;
+  }else if(mode==="recovery"){
+    title.textContent="Choose a new password";
+    copy.textContent="Enter the new password you want to use.";
+    submit.textContent="Update password";
+    submit.hidden=false;
+    switchBtn.hidden=true;
+    $("#forgotPassword").hidden=true;
+    $("#authEmail").closest("label").hidden=true;
     passwordField.hidden=false;
     password.required=true;
-    password.autocomplete = "new-password";
-    if(passwordless) passwordless.hidden=true;
+    password.autocomplete="new-password";
+    passwordless.hidden=true;
+    if(usePassword) usePassword.hidden=true;
   }else{
-    title.textContent = "Sign in";
-    copy.textContent = "Your session stays signed in on this device. You can also use a secure email link instead of a password.";
-    submit.textContent = "Sign in";
-    switchBtn.textContent = "Create account";
-    switchBtn.hidden = false;
-    $("#forgotPassword").hidden = false;
-    $("#authEmail").closest("label").hidden = false;
-    passwordField.hidden=false;
-    password.required=true;
-    password.autocomplete = "current-password";
-    if(passwordless) passwordless.hidden=false;
+    title.textContent="Sign in";
+    copy.textContent="Enter your email. No password is required.";
+    switchBtn.textContent="Create account";
+    switchBtn.hidden=false;
+    $("#forgotPassword").hidden=true;
+    $("#authEmail").closest("label").hidden=false;
+    passwordField.hidden=true;
+    password.required=false;
+    submit.hidden=true;
+    passwordless.hidden=false;
+    if(usePassword){
+      usePassword.hidden=false;
+      usePassword.textContent="Use password instead";
+    }
     const last=localStorage.getItem("tle_last_admin_email");
     if(last && !$("#authEmail").value) $("#authEmail").value=last;
   }
   prepareAdminShortcut();
 }
+
+function enablePasswordFallback(){
+  state.authMode="signin";
+  $("#passwordField").hidden=false;
+  $("#authPassword").required=true;
+  $("#authPassword").autocomplete="current-password";
+  $("#authSubmit").hidden=false;
+  $("#authSubmit").textContent="Sign in";
+  $("#emailLinkBtn").hidden=true;
+  $("#forgotPassword").hidden=false;
+  const btn=$("#usePasswordBtn");
+  if(btn) btn.hidden=true;
+  $("#rememberedAdminBtn").hidden=true;
+  $("#authCopy").textContent="Sign in with your email and password.";
+}
 $("#authSwitch").addEventListener("click",()=>setAuthMode(state.authMode==="signup"?"signin":"signup"));
+$("#usePasswordBtn").addEventListener("click",enablePasswordFallback);
 $("#emailLinkBtn").addEventListener("click",async ()=>{
   try{ await sendPasswordlessLink($("#authEmail").value); }
   catch(err){ showToast(err.message||"Could not send sign-in link"); }
