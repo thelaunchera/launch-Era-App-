@@ -199,9 +199,26 @@ function rememberedAdminEmails(){
 function prepareAdminShortcut(){
   const last=localStorage.getItem("tle_last_admin_email");
   const shortcut=$("#rememberedAdminBtn");
+  const internal=localStorage.getItem("tle_internal_admin_device")==="1";
+  const passwordField=$("#passwordField");
+  const password=$("#authPassword");
+  const submit=$("#authSubmit");
   if(!shortcut) return;
-  shortcut.hidden=!last || state.authMode!=="signin";
-  if(last) shortcut.textContent="Continue as Admin";
+
+  const usePasswordlessAdmin=Boolean(last&&internal&&state.authMode==="signin");
+  shortcut.hidden=!usePasswordlessAdmin;
+  if(usePasswordlessAdmin){
+    $("#authEmail").value=last;
+    passwordField.hidden=true;
+    password.required=false;
+    submit.hidden=true;
+    $("#authCopy").textContent="Admin device recognized. Continue without a password.";
+    shortcut.textContent="Continue as Admin";
+  }else if(state.authMode==="signin"){
+    passwordField.hidden=false;
+    password.required=true;
+    submit.hidden=false;
+  }
 }
 async function sendPasswordlessLink(email){
   const cleanEmail=String(email||"").trim().toLowerCase();
