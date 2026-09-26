@@ -148,7 +148,7 @@ function openView(id,options={}){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
   $$(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
-  $$$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  $(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
