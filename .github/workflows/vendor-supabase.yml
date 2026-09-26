@@ -1,0 +1,37 @@
+name: Vendor Supabase Browser Bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "package.json"
+      - ".github/workflows/vendor-supabase.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --no-audit --no-fund
+      - name: Copy browser bundle into repository
+        run: |
+          mkdir -p vendor
+          cp node_modules/@supabase/supabase-js/dist/umd/supabase.js vendor/supabase.js
+      - name: Commit vendored bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/supabase.js package-lock.json
+          if git diff --cached --quiet; then
+            echo "No vendor changes"
+          else
+            git commit -m "Vendor Supabase browser bundle"
+            git push
+          fi
