@@ -10,6 +10,9 @@ const state = {
   clients: [],
   leads: [],
   invoices: [],
+  bookingRequests: [],
+  mileageLogs: [],
+  timeEntries: [],
   services: [],
   serviceAddons: [],
   supplies: [],
@@ -18,6 +21,9 @@ const state = {
   teamMembers: [],
   members: [],
   invites: [],
+  publicLinks: null,
+  isPlatformAdmin: false,
+  platformAdminData: null,
   authMode: "signin",
   modalType: null,
   modalId: null
@@ -26,6 +32,7 @@ const state = {
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const authShell = $("#authShell");
+const publicShell = $("#publicShell");
 const appShell = $("#appShell");
 const authPanel = $("#authPanel");
 const businessSetup = $("#businessSetup");
@@ -43,7 +50,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", help:"Help & FAQ"
+  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Platform Admin", help:"Help & FAQ"
 };
 
 function escapeHtml(value=""){
@@ -77,18 +84,21 @@ function setBusy(button,busy,label="Working…"){
   }
 }
 function showAuth(){
+  if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
   appShell.hidden = true;
   authPanel.hidden = false;
   businessSetup.hidden = true;
 }
 function showSetup(){
+  if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
   appShell.hidden = true;
   authPanel.hidden = true;
   businessSetup.hidden = false;
 }
 function showApp(){
+  if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
   applyRolePermissions();
@@ -108,6 +118,7 @@ function applyRolePermissions(){
   const role=state.business?.role||"coworker";
   $("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
   $("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
+  $("[data-platform-admin-only]").forEach(el=>el.hidden=!state.isPlatformAdmin);
   if(role==="coworker"){
     const active=$(".nav-item.active");
     if(active && active.hidden) openView("today");
@@ -125,6 +136,7 @@ function openView(id,options={}){
   if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
+  trackVisit("/app/"+id).catch(()=>{});
 }
 $$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
@@ -134,6 +146,37 @@ if(backBtn) backBtn.addEventListener("click",()=>{
   while(previous && previous===$(".view.active")?.dataset.page) previous=navHistory.pop();
   openView(previous||"today",{fromBack:true});
 });
+
+function getVisitorId(){
+  let id=localStorage.getItem("tle_visitor_id");
+  if(!id){
+    id=(crypto.randomUUID ? crypto.randomUUID() : "v-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+    localStorage.setItem("tle_visitor_id",id);
+  }
+  return id;
+}
+
+async function trackVisit(page=window.location.pathname+window.location.search){
+  try{
+    await supabase.rpc("track_app_visit",{
+      p_visitor_id:getVisitorId(),
+      p_page:page,
+      p_referrer:document.referrer||null,
+      p_user_agent:navigator.userAgent||null
+    });
+  }catch{}
+}
+
+async function identifyPlatformAdmin(){
+  const {data,error}=await supabase.rpc("get_platform_admin_status");
+  if(error){ state.isPlatformAdmin=false; return false; }
+  state.isPlatformAdmin=Boolean(data);
+  if(state.isPlatformAdmin){
+    await supabase.rpc("mark_platform_admin_device",{p_visitor_id:getVisitorId()});
+    localStorage.setItem("tle_internal_admin_device","1");
+  }
+  return state.isPlatformAdmin;
+}
 
 function setAuthMode(mode){
   state.authMode = mode;
@@ -249,7 +292,11 @@ businessForm.addEventListener("submit", async (e)=>{
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
       trial_ends_at:data.trial_ends_at,subscription_status:data.subscription_status
     };
+    await identifyPlatformAdmin();
+    const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
+    state.publicLinks=linkSettings||null;
     await loadCoreData();
+    if(state.isPlatformAdmin) await loadPlatformAdmin();
     showApp();
     showToast("Workspace created");
   }catch(err){
@@ -260,11 +307,25 @@ businessForm.addEventListener("submit", async (e)=>{
 });
 
 async function initialize(){
+  const params=new URLSearchParams(window.location.search);
+  const publicMode=params.get("public");
+  const publicSlug=params.get("slug");
+
+  if((publicMode==="book"||publicMode==="quote") && publicSlug){
+    await trackVisit("/public/"+publicMode);
+    await initializePublicRequest(publicMode,publicSlug);
+    return;
+  }
+
+  await trackVisit("/login");
+
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
   if(!session){ showAuth(); return; }
 
-  const inviteToken=new URLSearchParams(window.location.search).get("invite");
+  await identifyPlatformAdmin();
+
+  const inviteToken=params.get("invite");
   if(inviteToken){
     const {error:claimError}=await supabase.rpc("claim_business_invite",{p_token:inviteToken});
     if(claimError){
@@ -294,10 +355,15 @@ async function initialize(){
     trial_ends_at:context.trial_ends_at,
     subscription_status:context.subscription_status
   };
-  await loadCoreData();
-  showApp();
-}
 
+  const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
+  state.publicLinks=linkSettings||null;
+
+  await loadCoreData();
+  if(state.isPlatformAdmin) await loadPlatformAdmin();
+  showApp();
+  await trackVisit("/app/today");
+}
 supabase.auth.onAuthStateChange(async (event, session)=>{
   if(event === "PASSWORD_RECOVERY"){
     state.session=session;
