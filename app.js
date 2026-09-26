@@ -951,7 +951,7 @@ async function saveAvailabilitySettings(){
   const notice=Number($("#bookingNoticeHours")?.value||0);
   const rows=[];
 
-  $(".availability-day").forEach(day=>{
+  $$(".availability-day").forEach(day=>{
     const enabled=day.querySelector("[data-day-enabled]")?.checked;
     if(!enabled) return;
     const start=day.querySelector("[data-day-start]")?.value;
