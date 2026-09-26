@@ -9,6 +9,8 @@ const state = {
   business: null,
   clients: [],
   services: [],
+  serviceAddons: [],
+  supplies: [],
   jobs: [],
   quotes: [],
   teamMembers: [],
@@ -37,7 +39,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons", team:"Team", settings:"Settings", admin:"Owner Admin", help:"Help & FAQ"
+  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", help:"Help & FAQ"
 };
 
 function escapeHtml(value=""){
@@ -297,22 +299,27 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
 async function loadCoreData(){
   if(!state.business) return;
   const businessId = state.business.id;
-  const [clientsRes,servicesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
+  const [clientsRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
     supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
     supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
+    supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
+    supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
     supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),
     supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),
     supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")
   ]);
-  const errors=[clientsRes.error,servicesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
+  const errors=[clientsRes.error,servicesRes.error,addonsRes.error,suppliesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
   if(errors.length) showToast(errors[0].message);
   state.clients=clientsRes.data||[];
   state.services=servicesRes.data||[];
+  state.serviceAddons=addonsRes.data||[];
+  state.supplies=suppliesRes.data||[];
   state.jobs=jobsRes.data||[];
   state.quotes=quotesRes.data||[];
   state.teamMembers=teamRes.data||[];
   renderClients();
   renderServices();
+  renderSupplies();
   renderJobs();
   renderQuotes();
   renderTeam();
@@ -462,18 +469,61 @@ function renderClients(){
 function renderServices(){
   const grid=$("#servicesGrid");
   if(!grid) return;
-  const cards=state.services.map(s=>`
-    <article class="${s.active?"":"inactive-card"}">
-      <strong>${escapeHtml(s.name)}</strong>
-      <span>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${escapeHtml(s.pricing_type)}</span>
-      <b>${s.pricing_type==="quote"?"Quote":money(s.base_price)}</b>
+  const cards=state.services.map(s=>{
+    const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
+    return `
+      <article class="service-card ${s.active?"":"inactive-card"}">
+        <strong>${escapeHtml(s.name)}</strong>
+        <span>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${escapeHtml(s.pricing_type)}</span>
+        <b>${s.pricing_type==="quote"?"Quote":money(s.base_price)}</b>
+        <div class="addon-list">
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
+        </div>
+        <div class="card-actions">
+          <button data-edit="service" data-id="${s.id}">Edit service</button>
+          <button data-add-addon-for="${s.id}">+ Add-on</button>
+          <button data-toggle-service="${s.id}">${s.active?"Deactivate":"Activate"}</button>
+        </div>
+      </article>`;
+  }).join("");
+
+  const unassigned=state.serviceAddons.filter(a=>!a.service_id);
+  const globalCard=unassigned.length?`<article class="service-card"><strong>General add-ons</strong><span>Available across services</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
+
+  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>Add service</strong><span>Set price, duration and booking basics.</span></article>`;
+}
+
+function renderSupplies(){
+  const grid=$("#suppliesGrid");
+  if(!grid) return;
+  const active=state.supplies.filter(s=>s.active);
+  const low=active.filter(s=>Number(s.quantity)<=Number(s.reorder_level));
+  const value=active.reduce((sum,s)=>sum+(Number(s.quantity||0)*Number(s.cost_per_unit||0)),0);
+  const activeEl=$("#suppliesActiveCount"), lowEl=$("#suppliesLowCount"), valueEl=$("#suppliesValue");
+  if(activeEl) activeEl.textContent=active.length;
+  if(lowEl) lowEl.textContent=low.length;
+  if(valueEl) valueEl.textContent=money(value);
+
+  if(!state.supplies.length){
+    grid.innerHTML=`<article class="empty-card"><strong>No supplies yet.</strong><span>Add products you want to track and set a reorder level.</span><button class="primary-btn" data-action="supply">+ Add supply</button></article>`;
+    return;
+  }
+
+  grid.innerHTML=state.supplies.map(s=>{
+    const isLow=s.active && Number(s.quantity)<=Number(s.reorder_level);
+    return `<article class="supply-card ${s.active?"":"inactive-card"}">
+      <div class="supply-head"><span><strong>${escapeHtml(s.name)}</strong><small>${escapeHtml(s.category||"Uncategorized")}</small></span><span class="status ${isLow?"danger":"success"}">${isLow?"Low stock":"In stock"}</span></div>
+      <div class="supply-qty"><strong>${Number(s.quantity)}</strong><span>${escapeHtml(s.unit)}</span></div>
+      <div class="supply-meta"><span>Reorder at <b>${Number(s.reorder_level)}</b></span><span>Cost <b>${s.cost_per_unit==null?"—":money(s.cost_per_unit)}</b></span></div>
+      ${s.preferred_vendor?`<small class="muted-line">Vendor: ${escapeHtml(s.preferred_vendor)}</small>`:""}
       <div class="card-actions">
-        <button data-edit="service" data-id="${s.id}">Edit</button>
-        <button data-toggle-service="${s.id}">${s.active?"Deactivate":"Activate"}</button>
+        <button data-supply-adjust="${s.id}" data-mode="usage">- Used</button>
+        <button data-supply-adjust="${s.id}" data-mode="restock">+ Restock</button>
+        <button data-edit-supply="${s.id}">Edit</button>
+        <button data-toggle-supply="${s.id}">${s.active?"Archive":"Restore"}</button>
       </div>
-    </article>
-  `).join("");
-  grid.innerHTML=(cards||"")+`<article class="add-card" data-create="service"><div>＋</div><strong>Add service</strong><span>Set price, duration and booking basics.</span></article>`;
+    </article>`;
+  }).join("");
 }
 
 function renderJobs(){
@@ -557,6 +607,8 @@ function openEntityForm(type,id=null){
   let record=null;
   if(type==="client") record=state.clients.find(x=>x.id===id);
   if(type==="service") record=state.services.find(x=>x.id===id);
+  if(type==="addon") record=state.serviceAddons.find(x=>x.id===id);
+  if(type==="supply") record=state.supplies.find(x=>x.id===id);
   if(type==="job") record=state.jobs.find(x=>x.id===id);
   if(type==="quote") record=state.quotes.find(x=>x.id===id);
 
@@ -593,6 +645,34 @@ function openEntityForm(type,id=null){
         <label class="full">Description<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
         <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active service</label>
       </div>${formSubmit(record?"Save changes":"Add service")}`;
+  }
+
+  if(type==="addon"){
+    modalHeader("ADD-ON",record?"Edit add-on":"Add add-on","Set the extra price and extra time this option adds to a cleaning.");
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label>Service<select name="service_id"><option value="">General / all services</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
+        <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+        <label>Extra price<input name="price" type="number" min="0" step="0.01" required value="${record?.price??0}"></label>
+        <label>Extra time (minutes)<input name="extra_duration_minutes" type="number" min="0" step="5" required value="${record?.extra_duration_minutes??0}"></label>
+        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
+      </div>${formSubmit(record?"Save changes":"Add add-on")}`;
+  }
+
+  if(type==="supply"){
+    modalHeader("SUPPLY",record?"Edit supply":"Add supply","Track quantity, reorder level and cost without turning this into a heavy inventory system.");
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+        <label>Category<input name="category" value="${escapeHtml(record?.category||"")}" placeholder="Chemicals, cloths, bags…"></label>
+        <label>Quantity<input name="quantity" type="number" min="0" step="0.01" required value="${record?.quantity??0}"></label>
+        <label>Unit<input name="unit" required value="${escapeHtml(record?.unit||"item")}" placeholder="bottles, boxes, rolls"></label>
+        <label>Reorder level<input name="reorder_level" type="number" min="0" step="0.01" required value="${record?.reorder_level??0}"></label>
+        <label>Cost per unit<input name="cost_per_unit" type="number" min="0" step="0.01" value="${record?.cost_per_unit??""}"></label>
+        <label class="full">Preferred vendor<input name="preferred_vendor" value="${escapeHtml(record?.preferred_vendor||"")}"></label>
+        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
+        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active supply</label>
+      </div>${formSubmit(record?"Save changes":"Add supply")}`;
   }
 
   if(type==="job"){
@@ -649,6 +729,9 @@ entityForm.addEventListener("submit",async e=>{
     const fd=new FormData(entityForm);
     if(state.modalType==="client") await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
+    if(state.modalType==="addon") await saveAddon(fd);
+    if(state.modalType==="supply") await saveSupply(fd);
+    if(state.modalType==="supplyAdjust") await saveSupplyAdjust(fd);
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="quote") await saveQuote(fd);
     if(state.modalType==="team") await saveTeam(fd);
@@ -701,6 +784,74 @@ async function saveService(fd){
     ? supabase.from("services").update(payload).eq("id",state.modalId)
     : supabase.from("services").insert(payload);
   const {error}=await query; if(error) throw error;
+}
+
+async function saveAddon(fd){
+  const payload={
+    business_id:state.business.id,
+    service_id:fd.get("service_id")||null,
+    name:String(fd.get("name")).trim(),
+    price:Number(fd.get("price")||0),
+    extra_duration_minutes:Number(fd.get("extra_duration_minutes")||0),
+    active:fd.get("active")==="on",
+    updated_at:new Date().toISOString()
+  };
+  const query=state.modalId
+    ? supabase.from("service_addons").update(payload).eq("id",state.modalId)
+    : supabase.from("service_addons").insert(payload);
+  const {error}=await query;
+  if(error) throw error;
+}
+
+async function saveSupply(fd){
+  const payload={
+    business_id:state.business.id,
+    name:String(fd.get("name")).trim(),
+    category:String(fd.get("category")||"").trim()||null,
+    unit:String(fd.get("unit")||"item").trim()||"item",
+    quantity:Number(fd.get("quantity")||0),
+    reorder_level:Number(fd.get("reorder_level")||0),
+    cost_per_unit:String(fd.get("cost_per_unit")||"").trim()===""?null:Number(fd.get("cost_per_unit")),
+    preferred_vendor:String(fd.get("preferred_vendor")||"").trim()||null,
+    notes:String(fd.get("notes")||"").trim()||null,
+    active:fd.get("active")==="on",
+    updated_at:new Date().toISOString()
+  };
+  const query=state.modalId
+    ? supabase.from("supplies").update(payload).eq("id",state.modalId)
+    : supabase.from("supplies").insert(payload);
+  const {error}=await query;
+  if(error) throw error;
+}
+
+function openSupplyAdjustForm(id,mode){
+  const record=state.supplies.find(x=>x.id===id);
+  if(!record) return;
+  state.modalType="supplyAdjust";
+  state.modalId=id;
+  const restock=mode==="restock";
+  modalHeader("SUPPLIES",restock?"Restock supply":"Record supply used",`${record.name} · current quantity: ${record.quantity} ${record.unit}`);
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label>Amount<input name="amount" type="number" min="0.01" step="0.01" required></label>
+      <input type="hidden" name="mode" value="${restock?"restock":"usage"}">
+      <label class="full">Note<textarea name="note" placeholder="${restock?"Purchased / restocked":"Optional job or usage note"}"></textarea></label>
+    </div>${formSubmit(restock?"Add stock":"Record usage")}`;
+  modal.hidden=false;
+}
+
+async function saveSupplyAdjust(fd){
+  const amount=Math.abs(Number(fd.get("amount")||0));
+  if(!amount) throw new Error("Enter an amount greater than 0.");
+  const mode=fd.get("mode");
+  const {error}=await supabase.rpc("adjust_supply_quantity",{
+    p_supply_id:state.modalId,
+    p_change:mode==="restock"?amount:-amount,
+    p_reason:mode,
+    p_note:String(fd.get("note")||"").trim()||null,
+    p_job_id:null
+  });
+  if(error) throw error;
 }
 
 async function saveJob(fd){
@@ -785,11 +936,46 @@ document.addEventListener("click",async e=>{
   if(action){
     const type=action.dataset.action;
     if(state.business.role==="coworker"){ showToast("This action is owner/admin only"); return; }
-    if(["client","service","job","quote"].includes(type)) openEntityForm(type);
+    if(["client","service","addon","supply","job","quote"].includes(type)) openEntityForm(type);
     else openGeneric(type);
     return;
   }
   if(edit){ openEntityForm(edit.dataset.edit,edit.dataset.id); return; }
+
+  const addAddon=e.target.closest("[data-add-addon-for]");
+  if(addAddon){
+    openEntityForm("addon");
+    setTimeout(()=>{
+      const select=entityForm.querySelector('[name="service_id"]');
+      if(select) select.value=addAddon.dataset.addAddonFor;
+    },0);
+    return;
+  }
+
+  const editAddon=e.target.closest("[data-edit-addon]");
+  if(editAddon){ openEntityForm("addon",editAddon.dataset.editAddon); return; }
+
+  const toggleAddon=e.target.closest("[data-toggle-addon]");
+  if(toggleAddon){
+    const addon=state.serviceAddons.find(a=>a.id===toggleAddon.dataset.toggleAddon);
+    const {error}=await supabase.from("service_addons").update({active:!addon.active,updated_at:new Date().toISOString()}).eq("id",addon.id);
+    if(error) showToast(error.message); else {await loadCoreData();showToast(addon.active?"Add-on turned off":"Add-on turned on");}
+    return;
+  }
+
+  const editSupply=e.target.closest("[data-edit-supply]");
+  if(editSupply){ openEntityForm("supply",editSupply.dataset.editSupply); return; }
+
+  const adjustSupply=e.target.closest("[data-supply-adjust]");
+  if(adjustSupply){ openSupplyAdjustForm(adjustSupply.dataset.supplyAdjust,adjustSupply.dataset.mode); return; }
+
+  const toggleSupply=e.target.closest("[data-toggle-supply]");
+  if(toggleSupply){
+    const supply=state.supplies.find(s=>s.id===toggleSupply.dataset.toggleSupply);
+    const {error}=await supabase.from("supplies").update({active:!supply.active,updated_at:new Date().toISOString()}).eq("id",supply.id);
+    if(error) showToast(error.message); else {await loadCoreData();showToast(supply.active?"Supply archived":"Supply restored");}
+    return;
+  }
   if(e.target.closest("[data-modal-cancel]")){ modal.hidden=true; return; }
 
   const archive=e.target.closest("[data-archive-client]");
@@ -866,6 +1052,8 @@ function openQuickAdd(){
       <button type="button" data-action="job"><span>□</span><strong>Job</strong><small>Schedule a cleaning</small></button>
       <button type="button" data-action="quote"><span>◫</span><strong>Quote</strong><small>Create a quote</small></button>
       <button type="button" data-action="service"><span>＋</span><strong>Service</strong><small>Add price + duration</small></button>
+      <button type="button" data-action="addon"><span>＋</span><strong>Add-on</strong><small>Extra price + time</small></button>
+      <button type="button" data-action="supply"><span>▣</span><strong>Supply</strong><small>Track stock + reorder level</small></button>
       <button type="button" data-team-create><span>◉</span><strong>Team Profile</strong><small>Add a cleaner for assignments</small></button>
     </div>
     <div class="form-footer"><button type="button" class="ghost-btn" data-modal-cancel>Cancel</button></div>`;
