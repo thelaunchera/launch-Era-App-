@@ -650,6 +650,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="service") await saveService(fd);
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="quote") await saveQuote(fd);
+    if(state.modalType==="team") await saveTeam(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     modal.hidden=true;
     await loadCoreData();
@@ -765,6 +766,10 @@ document.addEventListener("click",async e=>{
   const create=e.target.closest("[data-create]");
   const action=e.target.closest("[data-action]");
   const edit=e.target.closest("[data-edit]");
+  const teamCreate=e.target.closest("[data-team-create]");
+  const teamEdit=e.target.closest("[data-team-edit]");
+  if(teamCreate){ openTeamForm(); return; }
+  if(teamEdit){ openTeamForm(teamEdit.dataset.teamEdit); return; }
   if(create){ openEntityForm(create.dataset.create); return; }
   if(action){
     const type=action.dataset.action;
@@ -857,6 +862,8 @@ function openGeneric(type){
 
 const inviteMemberBtn=$("#inviteMemberBtn");
 if(inviteMemberBtn) inviteMemberBtn.addEventListener("click",openInviteForm);
+const addTeamProfileBtn=$("#addTeamProfileBtn");
+if(addTeamProfileBtn) addTeamProfileBtn.addEventListener("click",()=>openTeamForm());
 
 $("#modalClose").addEventListener("click",()=>modal.hidden=true);
 modal.addEventListener("click",e=>{if(e.target===modal) modal.hidden=true});
