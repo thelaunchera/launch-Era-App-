@@ -103,10 +103,10 @@
       </div>
 
       <button class="workspace-chip" type="button">
-        <span class="workspace-avatar">SC</span>
+        <span class="workspace-avatar">TL</span>
         <span>
-          <strong>Sample Cleaning Co.</strong>
-          <small>Demo workspace</small>
+          <strong>Business workspace</strong>
+          <small>Loading…</small>
         </span>
       </button>
 
@@ -274,14 +274,12 @@
         <div class="section-intro"><div><p class="eyebrow">CALENDAR + JOBS</p><h2>Your schedule with travel time built in.</h2></div><button class="primary-btn" data-action="job">+ Add job</button></div>
         <div class="calendar-layout">
           <article class="panel">
-            <div class="week-row"><span>MON<strong>28</strong></span><span>TUE<strong>29</strong></span><span>WED<strong>30</strong></span><span>THU<strong>1</strong></span><span class="selected">FRI<strong>2</strong></span><span>SAT<strong>3</strong></span></div>
+            <div class="week-row" id="calendarWeekRow"></div>
             <div id="jobsList" class="jobs-list"></div>
           </article>
           <article class="panel">
             <p class="eyebrow">RECURRING</p><h3>Upcoming recurring jobs</h3>
-            <div class="recurring-item"><strong>Lopez Residence</strong><span>Every 2 weeks · Friday 8 AM</span></div>
-            <div class="recurring-item"><strong>Green Family</strong><span>Weekly · Tuesday 9 AM</span></div>
-            <div class="recurring-item"><strong>Patel Home</strong><span>Monthly · first Monday</span></div>
+            <div id="recurringJobsList"></div>
           </article>
         </div>
       </section>
@@ -589,7 +587,7 @@
             <h3>Protected controls</h3>
             <div class="setting-row"><span><strong>Workspace ownership</strong><small>Cannot be changed by Admin or Coworker.</small></span><span>Owner</span></div>
             <div class="setting-row"><span><strong>Permissions</strong><small>Only the owner can promote, demote or remove access.</small></span><span>Locked</span></div>
-            <div class="setting-row"><span><strong>Data migration</strong><small>Sites production data remains separate until cutover QA.</small></span><span>Protected</span></div>
+            <div class="setting-row"><span><strong>Data protection</strong><small>Business records are isolated by account permissions.</small></span><span>Protected</span></div>
           </article>
 
           <article class="panel">
