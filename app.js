@@ -441,31 +441,58 @@ businessForm.addEventListener("submit", async (e)=>{
   }
 });
 
-async function initializeWorkerPortal(token){
-  if(!token){ showAuth(); return; }
+async function initializeWorkerPortal(activationToken=null){
   authShell.hidden=true;
   appShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
   workerShell.hidden=false;
 
-  const {data,error}=await supabase.rpc("worker_portal_context",{p_token:token});
-  if(error){
-    localStorage.removeItem("tle_worker_token");
+  let deviceToken=localStorage.getItem("tle_worker_device_token");
+
+  if(activationToken){
+    const {data:activation,error:activationError}=await supabase.rpc("activate_worker_device",{p_token:activationToken});
+    if(activationError){
+      workerShell.hidden=true;
+      showAuth();
+      showToast(activationError.message||"Worker activation link is invalid or already used");
+      return;
+    }
+    deviceToken=activation?.device_token||null;
+    if(!deviceToken){
+      workerShell.hidden=true;
+      showAuth();
+      showToast("Could not activate this device");
+      return;
+    }
+    localStorage.setItem("tle_worker_device_token",deviceToken);
+    localStorage.removeItem("tle_worker_device_token");
+  localStorage.removeItem("tle_worker_token");
+
+    const clean=new URL(window.location.href);
+    clean.searchParams.delete("worker");
+    history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
+    showToast("This device is now activated");
+  }
+
+  if(!deviceToken){
     workerShell.hidden=true;
     showAuth();
-    showToast(error.message||"Worker link is no longer active");
     return;
   }
 
-  localStorage.setItem("tle_worker_token",token);
+  const {data,error}=await supabase.rpc("worker_portal_context",{p_token:deviceToken});
+  if(error){
+    localStorage.removeItem("tle_worker_device_token");
+    localStorage.removeItem("tle_worker_device_token");
+  localStorage.removeItem("tle_worker_token");
+    workerShell.hidden=true;
+    showAuth();
+    showToast(error.message||"Worker access is no longer active");
+    return;
+  }
+
   state.workerPortal=data;
   renderWorkerPortal();
-
-  const clean=new URL(window.location.href);
-  if(clean.searchParams.has("worker")){
-    clean.searchParams.delete("worker");
-    history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
-  }
 }
 
 function renderWorkerPortal(){
@@ -512,10 +539,11 @@ function renderWorkerPortal(){
 }
 
 async function refreshWorkerPortal(){
-  const token=localStorage.getItem("tle_worker_token");
+  const token=localStorage.getItem("tle_worker_device_token");
   if(!token) return;
   const {data,error}=await supabase.rpc("worker_portal_context",{p_token:token});
-  if(error){ localStorage.removeItem("tle_worker_token"); showAuth(); showToast(error.message); return; }
+  if(error){ localStorage.removeItem("tle_worker_device_token");
+  localStorage.removeItem("tle_worker_token"); showAuth(); showToast(error.message); return; }
   state.workerPortal=data;
   renderWorkerPortal();
 }
@@ -530,10 +558,10 @@ async function createWorkerLink(teamMemberId){
   state.currentWorkerLink=link;
   state.modalType="workerLink";
   state.modalId=teamMemberId;
-  modalHeader("WORKER ACCESS","Private worker link",`Send this link to ${data.worker_name||"the worker"}. No password or full app account is required.`);
+  modalHeader("WORKER ACCESS","Activate worker device",`Send this one-time link to ${data.worker_name||"the worker"}. It expires in 48 hours and no password is required.`);
   entityForm.innerHTML=`
     <div class="worker-link-box"><input id="workerLinkValue" readonly value="${escapeHtml(link)}"><button type="button" class="primary-btn" data-copy-worker-link>Copy link</button></div>
-    <div class="permission-note">This link only opens assigned jobs, route details, job status, time tracking and mileage. It does not expose clients lists, leads, quotes, invoices, pricing, reports, billing or settings.</div>
+    <div class="permission-note">This activation link works once. After activation, only that device keeps access to assigned jobs, route details, job status, time tracking and mileage. It does not expose client lists, leads, quotes, invoices, pricing, reports, billing or settings.</div>
     <div class="form-footer"><button type="button" class="ghost-btn" data-native-share-worker-link>Share</button><button type="button" class="primary-btn" data-modal-cancel>Done</button></div>`;
   modal.hidden=false;
 }
@@ -554,10 +582,11 @@ async function initialize(){
   const params=new URLSearchParams(window.location.search);
   const publicMode=params.get("public");
   const publicSlug=params.get("slug");
-  const workerToken=params.get("worker") || localStorage.getItem("tle_worker_token");
+  const workerActivation=params.get("worker");
+  const workerDevice=localStorage.getItem("tle_worker_device_token");
 
-  if(workerToken){
-    await initializeWorkerPortal(workerToken);
+  if(workerActivation || workerDevice){
+    await initializeWorkerPortal(workerActivation);
     return;
   }
 
@@ -2042,7 +2071,7 @@ document.addEventListener("click",async e=>{
 
   const workerStatus=e.target.closest("[data-worker-status-link]");
   if(workerStatus){
-    const token=localStorage.getItem("tle_worker_token");
+    const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_set_job_status",{p_token:token,p_job_id:workerStatus.dataset.workerStatusLink,p_status:workerStatus.dataset.status});
     if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Job updated");}
     return;
@@ -2050,7 +2079,7 @@ document.addEventListener("click",async e=>{
 
   const workerTimeStart=e.target.closest("[data-worker-time-start]");
   if(workerTimeStart){
-    const token=localStorage.getItem("tle_worker_token");
+    const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_start_time",{p_token:token,p_job_id:workerTimeStart.dataset.workerTimeStart});
     if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer started");}
     return;
@@ -2058,7 +2087,7 @@ document.addEventListener("click",async e=>{
 
   const workerTimeStop=e.target.closest("[data-worker-time-stop]");
   if(workerTimeStop){
-    const token=localStorage.getItem("tle_worker_token");
+    const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop});
     if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer finished");}
     return;
@@ -2070,7 +2099,7 @@ document.addEventListener("click",async e=>{
     if(raw===null) return;
     const miles=Number(raw);
     if(!Number.isFinite(miles)||miles<=0){showToast("Enter valid miles");return;}
-    const token=localStorage.getItem("tle_worker_token");
+    const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_log_mileage",{p_token:token,p_job_id:workerMileage.dataset.workerMileage,p_miles:miles,p_notes:null});
     if(error) showToast(error.message); else showToast("Mileage saved");
     return;
@@ -2362,6 +2391,7 @@ if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
 
 const exitWorkerBtn=$("#exitWorkerBtn");
 if(exitWorkerBtn) exitWorkerBtn.addEventListener("click",()=>{
+  localStorage.removeItem("tle_worker_device_token");
   localStorage.removeItem("tle_worker_token");
   state.workerPortal=null;
   window.location.href=window.location.origin+window.location.pathname;
