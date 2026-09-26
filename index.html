@@ -50,6 +50,48 @@
       </div>
     </div>
   </div>
+  <div class="public-shell" id="publicShell" hidden>
+    <header class="public-header">
+      <div class="brand-row">
+        <div class="brand-mark">TL</div>
+        <div><div class="brand-name">The Launch Era</div><div class="brand-sub">Cleaning App</div></div>
+      </div>
+      <span class="pill blue">Secure request</span>
+    </header>
+    <main class="public-main">
+      <button class="back-btn public-back" id="publicBackBtn" type="button">← Back</button>
+      <div class="public-card">
+        <p class="eyebrow" id="publicModeLabel">BOOK A CLEANING</p>
+        <h1 id="publicBusinessName">Cleaning service</h1>
+        <p class="public-copy" id="publicIntro">Choose your service and send your request.</p>
+        <form id="publicRequestForm" class="entity-form">
+          <div class="form-grid">
+            <label class="full">Service<select name="service_id" id="publicService" required><option value="">Choose a service</option></select></label>
+            <div class="full" id="publicAddonsWrap">
+              <span class="field-label">Add-ons</span>
+              <div id="publicAddons" class="public-addons"></div>
+            </div>
+            <label>Date<input name="date" type="date" required></label>
+            <label>Time<input name="time" type="time" required></label>
+            <label>Name<input name="name" required></label>
+            <label>Email<input name="email" type="email" required></label>
+            <label>Phone<input name="phone"></label>
+            <label>Preferred contact<select name="preferred_contact"><option value="email">Email</option><option value="text">Text</option><option value="whatsapp">WhatsApp</option></select></label>
+            <label class="full">Service address<input name="address" required></label>
+            <label class="full">Notes<textarea name="notes" placeholder="Anything the cleaning business should know?"></textarea></label>
+          </div>
+          <div class="public-summary" id="publicSummary"></div>
+          <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
+        </form>
+        <div class="public-success" id="publicSuccess" hidden>
+          <div class="success-mark">✓</div>
+          <h2>Request received</h2>
+          <p id="publicSuccessCopy">The cleaning business received your request and will follow up with you.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
   <div class="app-shell" id="appShell" hidden>
     <aside class="sidebar" id="sidebar">
       <div class="brand-row">
@@ -89,6 +131,7 @@
         <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
         <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
         <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner Admin <span>🔒</span></button>
+        <button class="nav-item platform-admin-link" data-view="platform-admin" data-platform-admin-only>Platform Admin <span>◆</span></button>
         <button class="nav-item" data-view="help">Help & FAQ <span>?</span></button>
       </nav>
 
@@ -116,92 +159,37 @@
       <section class="view active" data-page="today">
         <div class="hero-card">
           <div>
-            <span class="pill yellow">Friday · Demo</span>
-            <h2>Good afternoon 👋</h2>
-            <p>Here’s what needs your attention before your next cleaning.</p>
+            <span class="pill yellow" id="todayDatePill">Today</span>
+            <h2 id="todayGreeting">Good afternoon 👋</h2>
+            <p>Here’s what needs your attention today.</p>
           </div>
           <button class="dark-btn" data-jump="route">Open today’s route →</button>
         </div>
 
         <div class="metric-grid">
-          <article class="metric-card">
-            <span>Today’s jobs</span>
-            <strong>4</strong>
-            <small>1 completed · 3 remaining</small>
-          </article>
-          <article class="metric-card">
-            <span>This week revenue</span>
-            <strong>$1,285</strong>
-            <small>5 invoices paid</small>
-          </article>
-          <article class="metric-card">
-            <span>Open quotes</span>
-            <strong>3</strong>
-            <small>1 waiting 3+ days</small>
-          </article>
-          <article class="metric-card">
-            <span>Unpaid invoices</span>
-            <strong>$420</strong>
-            <small>2 need follow-up</small>
-          </article>
-          <article class="metric-card">
-            <span>Booking requests</span>
-            <strong>2</strong>
-            <small>Review before confirming</small>
-          </article>
+          <article class="metric-card"><span>Today’s jobs</span><strong>0</strong><small>Scheduled today</small></article>
+          <article class="metric-card"><span>Active clients</span><strong>0</strong><small>Current client records</small></article>
+          <article class="metric-card"><span>Open quotes</span><strong>0</strong><small>Requested, draft or sent</small></article>
+          <article class="metric-card"><span>Outstanding invoices</span><strong id="todayOutstanding">$0</strong><small>Still to collect</small></article>
+          <article class="metric-card"><span>Booking requests</span><strong id="todayBookingRequests">0</strong><small>Waiting for review</small></article>
         </div>
 
         <div class="dashboard-grid">
           <article class="panel">
             <div class="panel-head">
-              <div>
-                <p class="eyebrow">TODAY</p>
-                <h3>Schedule + route</h3>
-              </div>
+              <div><p class="eyebrow">TODAY</p><h3>Schedule + route</h3></div>
               <button class="text-btn" data-jump="calendar">Full calendar →</button>
             </div>
-            <div class="timeline">
-              <div class="timeline-item done">
-                <time>8:00 AM</time>
-                <div>
-                  <strong>Lopez Residence</strong>
-                  <span>Recurring clean · 2h</span>
-                </div>
-                <span class="status success">Done</span>
-              </div>
-              <div class="travel-row">18 min travel · 7.2 mi</div>
-              <div class="timeline-item">
-                <time>10:30 AM</time>
-                <div>
-                  <strong>Anderson Home</strong>
-                  <span>Deep clean · 3h</span>
-                </div>
-                <span class="status warning">Next</span>
-              </div>
-              <div class="travel-row">24 min travel · 10.1 mi</div>
-              <div class="timeline-item">
-                <time>2:15 PM</time>
-                <div>
-                  <strong>Rivera Condo</strong>
-                  <span>Move-out · 2h 30m</span>
-                </div>
-                <span class="status neutral">Scheduled</span>
-              </div>
-            </div>
+            <div class="timeline" id="todayTimeline"></div>
           </article>
 
           <article class="panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">QUICK ACTIONS</p>
-                <h3>Move work forward</h3>
-              </div>
-            </div>
+            <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Move work forward</h3></div></div>
             <div class="quick-grid">
               <button class="quick-card" data-action="client" data-admin-only>＋<span>Add client</span></button>
               <button class="quick-card" data-action="quote" data-admin-only>◫<span>Create quote</span></button>
               <button class="quick-card" data-jump="booking" data-admin-only>↗<span>Booking link</span></button>
-              <button class="quick-card" data-action="invoice" data-admin-only>$<span>Send invoice</span></button>
+              <button class="quick-card" data-action="invoice" data-admin-only>$<span>Create invoice</span></button>
               <button class="quick-card" data-jump="mileage">mi<span>Log mileage</span></button>
               <button class="quick-card" data-jump="time">◷<span>Track time</span></button>
             </div>
@@ -211,17 +199,13 @@
         <div class="dashboard-grid lower">
           <article class="panel" data-admin-only>
             <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Don’t let these slip</h3></div></div>
-            <div class="attention-list">
-              <button><span class="dot red"></span><strong>Invoice #1048</strong><small>$220 · due yesterday</small></button>
-              <button><span class="dot yellow"></span><strong>Quote for Kim B.</strong><small>Waiting 3 days</small></button>
-              <button><span class="dot blue"></span><strong>2 booking requests</strong><small>Need review</small></button>
-            </div>
+            <div class="attention-list" id="attentionList"></div>
           </article>
 
           <article class="panel accent-panel" data-owner-only>
             <p class="eyebrow">THIS WEEK</p>
-            <h3>18.4 hours cleaned</h3>
-            <p>42.7 business miles logged · 6 completed jobs.</p>
+            <h3 id="weekHours">0 work hours</h3>
+            <p id="weekSummary">No completed work logged yet.</p>
             <button class="dark-btn" data-jump="reports">See reports →</button>
           </article>
         </div>
@@ -316,47 +300,46 @@
       </section>
 
       <section class="view" data-page="route">
-        <div class="section-intro"><div><p class="eyebrow">TODAY'S ROUTE</p><h2>Know where you’re going before you leave.</h2></div><span class="pill blue">42.7 mi this week</span></div>
+        <div class="section-intro">
+          <div><p class="eyebrow">TODAY'S ROUTE</p><h2>Know where you’re going before you leave.</h2></div>
+          <span class="pill blue" id="routeMileagePill">0 mi today</span>
+        </div>
         <div class="route-layout">
-          <article class="panel map-placeholder">
-            <div class="route-line"></div>
-            <div class="route-pin p1">1</div><div class="route-pin p2">2</div><div class="route-pin p3">3</div>
-            <div class="map-label">Route map preview</div>
+          <article class="panel route-map-empty">
+            <div class="map-label">Today’s ordered stops</div>
+            <div id="routeVisual" class="route-visual-empty">Your route appears here when jobs are scheduled.</div>
           </article>
-          <article class="panel">
-            <div class="route-stop"><b>1</b><div><strong>Lopez Residence</strong><span>8:00 AM · 2h</span><small>123 Sample Ave</small></div><em>Done</em></div>
-            <div class="route-drive">18 min · 7.2 mi</div>
-            <div class="route-stop"><b>2</b><div><strong>Anderson Home</strong><span>10:30 AM · 3h</span><small>418 Palm Way</small></div><em>Next</em></div>
-            <div class="route-drive">24 min · 10.1 mi</div>
-            <div class="route-stop"><b>3</b><div><strong>Rivera Condo</strong><span>2:15 PM · 2h 30m</span><small>8 Ocean Blvd</small></div><em>Later</em></div>
-          </article>
+          <article class="panel" id="routeStops"></article>
         </div>
       </section>
 
       <section class="view" data-page="mileage">
-        <div class="section-intro"><div><p class="eyebrow">MILEAGE</p><h2>Stop forgetting business miles.</h2></div><button class="primary-btn">+ Log drive</button></div>
+        <div class="section-intro">
+          <div><p class="eyebrow">MILEAGE</p><h2>Keep business miles organized.</h2></div>
+          <button class="primary-btn" data-action="mileage">+ Log drive</button>
+        </div>
         <div class="metric-grid compact">
-          <article class="metric-card"><span>Today</span><strong>17.3 mi</strong></article>
-          <article class="metric-card"><span>This week</span><strong>42.7 mi</strong></article>
-          <article class="metric-card"><span>This month</span><strong>168.2 mi</strong></article>
+          <article class="metric-card"><span>Today</span><strong id="mileageToday">0 mi</strong></article>
+          <article class="metric-card"><span>This week</span><strong id="mileageWeek">0 mi</strong></article>
+          <article class="metric-card"><span>This month</span><strong id="mileageMonth">0 mi</strong></article>
         </div>
         <div class="table-card">
           <div class="table-row table-head"><span>Date</span><span>From → To</span><span>Miles</span><span>Job</span><span>Type</span></div>
-          <div class="table-row"><span>Sep 26</span><span>Lopez → Anderson</span><span>7.2</span><span>Anderson Home</span><span>Business</span></div>
-          <div class="table-row"><span>Sep 26</span><span>Anderson → Rivera</span><span>10.1</span><span>Rivera Condo</span><span>Business</span></div>
+          <div id="mileageTable"></div>
         </div>
       </section>
 
       <section class="view" data-page="time">
-        <div class="section-intro"><div><p class="eyebrow">TIME TRACKING</p><h2>See how long jobs actually take.</h2></div><button class="primary-btn">Start timer</button></div>
-        <article class="timer-card"><span>Current job</span><h3>Anderson Home · Deep Clean</h3><strong>00:42:18</strong><div><button class="dark-btn">Pause</button><button class="ghost-btn">Finish job</button></div></article>
+        <div class="section-intro">
+          <div><p class="eyebrow">TIME TRACKING</p><h2>See how long jobs actually take.</h2></div>
+          <button class="primary-btn" id="startTimerBtn">Start timer</button>
+        </div>
+        <div id="activeTimerWrap"></div>
         <div class="table-card">
           <div class="table-row table-head"><span>Job</span><span>Team member</span><span>Planned</span><span>Actual</span><span>Status</span></div>
-          <div class="table-row"><span>Lopez Residence</span><span>Owner</span><span>2h</span><span>1h 52m</span><span><i class="status success">Complete</i></span></div>
-          <div class="table-row"><span>Anderson Home</span><span>Owner</span><span>3h</span><span>42m</span><span><i class="status warning">Running</i></span></div>
+          <div id="timeEntriesTable"></div>
         </div>
       </section>
-
 
       <section class="view" data-page="supplies" data-admin-only>
         <div class="section-intro">
@@ -390,12 +373,12 @@
       </section>
 
       <section class="view" data-page="reports" data-owner-only>
-        <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Simple numbers that help you run the business.</h2></div><button class="ghost-btn">Export later</button></div>
+        <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Simple numbers that help you run the business.</h2></div></div>
         <div class="report-grid">
-          <article class="panel"><span>Revenue this month</span><strong>$3,140</strong><div class="bar-chart"><i style="height:34%"></i><i style="height:52%"></i><i style="height:47%"></i><i style="height:76%"></i><i style="height:88%"></i><i style="height:72%"></i></div></article>
-          <article class="panel"><span>Jobs completed</span><strong>24</strong><p>18 recurring · 6 one-time</p></article>
-          <article class="panel"><span>Business miles</span><strong>168.2</strong><p>Tracked across completed jobs.</p></article>
-          <article class="panel"><span>Work hours</span><strong>61.4h</strong><p>Average job: 2h 33m.</p></article>
+          <article class="panel"><span>Revenue this month</span><strong id="reportRevenue">$0</strong><p>Confirmed payments recorded this month.</p></article>
+          <article class="panel"><span>Jobs completed</span><strong id="reportJobs">0</strong><p id="reportJobsCopy">No completed jobs yet.</p></article>
+          <article class="panel"><span>Business miles</span><strong id="reportMiles">0</strong><p>Tracked mileage this month.</p></article>
+          <article class="panel"><span>Work hours</span><strong id="reportHours">0h</strong><p id="reportHoursCopy">Tracked team time this month.</p></article>
         </div>
       </section>
 
@@ -427,13 +410,23 @@
       <section class="view" data-page="settings" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Your business rules live here.</h2></div></div>
         <div class="settings-grid">
-          <article class="panel"><h3>Business profile</h3><div class="setting-row"><span><strong>Business name</strong><small>Sample Cleaning Co.</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Service area</strong><small>Palm Beach County</small></span><button>Edit</button></div></article>
-          <article class="panel"><h3>Booking rules</h3><div class="setting-row"><span><strong>Travel buffer</strong><small>30 minutes</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Minimum notice</strong><small>24 hours</small></span><button>Edit</button></div></article>
-          <article class="panel"><h3>Contact + payments</h3><div class="setting-row"><span><strong>Preferred contact</strong><small>Email</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Payments</strong><small>Cash · Check · Zelle</small></span><button>Edit</button></div></article>
-          
+          <article class="panel">
+            <h3>Business profile</h3>
+            <div class="setting-row"><span><strong>Business name</strong><small id="settingsBusinessName">—</small></span></div>
+            <div class="setting-row"><span><strong>Service area</strong><small id="settingsServiceArea">—</small></span></div>
+          </article>
+          <article class="panel">
+            <h3>Booking rules</h3>
+            <div class="setting-row"><span><strong>Travel buffer</strong><small id="settingsTravelBuffer">—</small></span></div>
+            <div class="setting-row"><span><strong>Minimum notice</strong><small id="settingsBookingNotice">—</small></span></div>
+          </article>
+          <article class="panel">
+            <h3>Contact + payments</h3>
+            <div class="setting-row"><span><strong>Client payment methods</strong><small>Cash · Check · Zelle</small></span></div>
+            <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner Admin.</small></span></div>
+          </article>
         </div>
       </section>
-
 
       <section class="view" data-page="help">
         <div class="section-intro">
@@ -520,6 +513,36 @@
                 <p>Use <strong>Forgot password?</strong> on the sign-in screen and follow the email reset link.</p>
               </details>
             </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-page="platform-admin" data-platform-admin-only>
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">PLATFORM ADMIN</p>
+            <h2>Launch Era App Admin Hub</h2>
+            <p>Customers, subscriptions and product visits. Internal admin activity is excluded.</p>
+          </div>
+          <span class="pill yellow">Internal only</span>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card"><span>Customers</span><strong id="platformCustomers">0</strong><small>Excludes internal admin accounts</small></article>
+          <article class="metric-card"><span>Trials</span><strong id="platformTrials">0</strong><small>Currently evaluating the app</small></article>
+          <article class="metric-card"><span>Active subscribers</span><strong id="platformActive">0</strong><small>Active / purchased access</small></article>
+          <article class="metric-card"><span>Visits · 30 days</span><strong id="platformVisits">0</strong><small>Internal admin visits excluded</small></article>
+          <article class="metric-card"><span>Unique visitors · 30 days</span><strong id="platformUnique">0</strong><small>Browser-level unique visitors</small></article>
+        </div>
+
+        <div class="admin-grid">
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">APP CUSTOMERS</p><h3>Who signed up / bought</h3></div></div>
+            <div class="platform-table" id="platformCustomersTable"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h3>App visits</h3></div></div>
+            <div class="platform-visits" id="platformRecentVisits"></div>
           </article>
         </div>
       </section>
