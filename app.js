@@ -379,10 +379,13 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
 async function loadCoreData(){
   if(!state.business) return;
   const businessId = state.business.id;
-  const [clientsRes,leadsRes,invoicesRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
+  const [clientsRes,leadsRes,invoicesRes,bookingRes,mileageRes,timeRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
     supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
     supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
     supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false}),
+    supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),
+    supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),
+    supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),
     supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
     supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
     supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
@@ -390,17 +393,24 @@ async function loadCoreData(){
     supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),
     supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")
   ]);
-  const errors=[clientsRes.error,leadsRes.error,invoicesRes.error,servicesRes.error,addonsRes.error,suppliesRes.error,jobsRes.error,quotesRes.error,teamRes.error].filter(Boolean);
-  if(errors.length) showToast(errors[0].message);
+
+  const results=[clientsRes,leadsRes,invoicesRes,bookingRes,mileageRes,timeRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes];
+  const firstError=results.map(r=>r.error).find(Boolean);
+  if(firstError) showToast(firstError.message);
+
   state.clients=clientsRes.data||[];
   state.leads=leadsRes.data||[];
   state.invoices=invoicesRes.data||[];
+  state.bookingRequests=bookingRes.data||[];
+  state.mileageLogs=mileageRes.data||[];
+  state.timeEntries=timeRes.data||[];
   state.services=servicesRes.data||[];
   state.serviceAddons=addonsRes.data||[];
   state.supplies=suppliesRes.data||[];
   state.jobs=jobsRes.data||[];
   state.quotes=quotesRes.data||[];
   state.teamMembers=teamRes.data||[];
+
   renderClients();
   renderLeads();
   renderInvoices();
@@ -411,9 +421,12 @@ async function loadCoreData(){
   renderQuotes();
   renderTeam();
   renderTodaySummary();
+  renderOperations();
+  renderSettings();
+  renderPublicLinks();
+
   if(state.business.role==="owner") await loadOwnerAdmin();
 }
-
 
 async function loadOwnerAdmin(){
   const [membersRes,invitesRes]=await Promise.all([
