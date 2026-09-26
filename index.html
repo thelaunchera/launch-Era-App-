@@ -190,10 +190,10 @@
               </div>
             </div>
             <div class="quick-grid">
-              <button class="quick-card" data-action="client">＋<span>Add client</span></button>
-              <button class="quick-card" data-action="quote">◫<span>Create quote</span></button>
-              <button class="quick-card" data-jump="booking">↗<span>Booking link</span></button>
-              <button class="quick-card" data-action="invoice">$<span>Send invoice</span></button>
+              <button class="quick-card" data-action="client" data-admin-only>＋<span>Add client</span></button>
+              <button class="quick-card" data-action="quote" data-admin-only>◫<span>Create quote</span></button>
+              <button class="quick-card" data-jump="booking" data-admin-only>↗<span>Booking link</span></button>
+              <button class="quick-card" data-action="invoice" data-admin-only>$<span>Send invoice</span></button>
               <button class="quick-card" data-jump="mileage">mi<span>Log mileage</span></button>
               <button class="quick-card" data-jump="time">◷<span>Track time</span></button>
             </div>
@@ -201,7 +201,7 @@
         </div>
 
         <div class="dashboard-grid lower">
-          <article class="panel">
+          <article class="panel" data-admin-only>
             <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Don’t let these slip</h3></div></div>
             <div class="attention-list">
               <button><span class="dot red"></span><strong>Invoice #1048</strong><small>$220 · due yesterday</small></button>
@@ -210,7 +210,7 @@
             </div>
           </article>
 
-          <article class="panel accent-panel">
+          <article class="panel accent-panel" data-owner-only>
             <p class="eyebrow">THIS WEEK</p>
             <h3>18.4 hours cleaned</h3>
             <p>42.7 business miles logged · 6 completed jobs.</p>
@@ -219,7 +219,7 @@
         </div>
       </section>
 
-      <section class="view" data-page="booking">
+      <section class="view" data-page="booking" data-admin-only>
         <div class="section-intro">
           <div><p class="eyebrow">BOOKING CENTER</p><h2>Your public front door.</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
           <button class="primary-btn" id="copyBooking">Copy booking link</button>
@@ -255,7 +255,7 @@
         </div>
       </section>
 
-      <section class="view" data-page="leads">
+      <section class="view" data-page="leads" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">LEADS</p><h2>Know who needs a next step.</h2></div><button class="primary-btn" data-action="lead">+ Add lead</button></div>
         <div class="table-card">
           <div class="table-row table-head"><span>Name</span><span>Source</span><span>Service</span><span>Status</span><span>Next step</span></div>
@@ -265,7 +265,7 @@
         </div>
       </section>
 
-      <section class="view" data-page="clients">
+      <section class="view" data-page="clients" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">CLIENTS</p><h2>Every client, without the scattered notes.</h2></div><button class="primary-btn" data-action="client">+ Add client</button></div>
         <div class="client-grid" id="clientsGrid"></div>
       </section>
@@ -286,12 +286,12 @@
         </div>
       </section>
 
-      <section class="view" data-page="quotes">
+      <section class="view" data-page="quotes" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">QUOTES</p><h2>Quote first. Create the job after acceptance.</h2><p>Quote requests stay here until the customer accepts.</p></div><button class="primary-btn" data-action="quote">+ New quote</button></div>
         <div class="kanban" id="quotesBoard"></div>
       </section>
 
-      <section class="view" data-page="invoices">
+      <section class="view" data-page="invoices" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">INVOICES</p><h2>See what’s paid and what needs follow-up.</h2></div><button class="primary-btn" data-action="invoice">+ New invoice</button></div>
         <div class="metric-grid compact">
           <article class="metric-card"><span>Outstanding</span><strong>$420</strong></article>
@@ -348,7 +348,7 @@
         </div>
       </section>
 
-      <section class="view" data-page="reports">
+      <section class="view" data-page="reports" data-owner-only>
         <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Simple numbers that help you run the business.</h2></div><button class="ghost-btn">Export later</button></div>
         <div class="report-grid">
           <article class="panel"><span>Revenue this month</span><strong>$3,140</strong><div class="bar-chart"><i style="height:34%"></i><i style="height:52%"></i><i style="height:47%"></i><i style="height:76%"></i><i style="height:88%"></i><i style="height:72%"></i></div></article>
@@ -358,12 +358,12 @@
         </div>
       </section>
 
-      <section class="view" data-page="services">
+      <section class="view" data-page="services" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">SERVICES + ADD-ONS</p><h2>Set pricing and duration once.</h2></div><button class="primary-btn" data-action="service">+ Add service</button></div>
         <div class="service-grid" id="servicesGrid"></div>
       </section>
 
-      <section class="view" data-page="team">
+      <section class="view" data-page="team" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2></div><button class="primary-btn">+ Add team member</button></div>
         <div class="client-grid">
           <article class="client-card"><div class="client-avatar">DS</div><strong>Owner</strong><span>Admin · Full access</span><small>4 jobs this week</small></article>
@@ -372,7 +372,7 @@
         </div>
       </section>
 
-      <section class="view" data-page="settings">
+      <section class="view" data-page="settings" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Your business rules live here.</h2></div></div>
         <div class="settings-grid">
           <article class="panel"><h3>Business profile</h3><div class="setting-row"><span><strong>Business name</strong><small>Sample Cleaning Co.</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Service area</strong><small>Palm Beach County</small></span><button>Edit</button></div></article>
