@@ -604,6 +604,7 @@ function openEntityForm(type,id=null){
       <div class="form-grid">
         <label>Client<select name="client_id"><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
         <label>Service<select name="service_id"><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
+        <label>Assigned teammate<select name="team_member_id"><option value="">Unassigned</option>${optionList(state.teamMembers,"id","name",record?.job_assignments?.[0]?.team_member_id)}</select></label>
         <label>Date<input name="date" type="date" required value="${date}"></label>
         <label>Time<input name="time" type="time" required value="${time}"></label>
         <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||120}"></label>
