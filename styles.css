@@ -518,3 +518,18 @@ button,a,input,select,textarea,[role="button"]{
   .availability-settings{grid-template-columns:1fr}
   .availability-day{grid-template-columns:95px 1fr 1fr}
 }
+
+
+/* Customer quote review */
+.public-quote-review{display:grid;gap:18px}
+.quote-review-head h2{font-size:clamp(28px,5vw,40px);letter-spacing:-.04em;margin:10px 0 6px}
+.quote-review-head p{margin:0;color:var(--muted);line-height:1.5}
+.quote-review-items{display:grid;gap:8px}
+.quote-review-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#FCFBF8}
+.quote-review-item>span{display:grid;gap:3px}
+.quote-review-item small{font-size:10px;color:var(--muted)}
+.quote-review-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.quote-review-total strong{font-size:30px;letter-spacing:-.04em}
+.quote-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quote-review-actions button{min-height:46px}
+@media(max-width:520px){.quote-review-actions{grid-template-columns:1fr}}
