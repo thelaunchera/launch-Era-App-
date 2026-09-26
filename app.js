@@ -1233,11 +1233,12 @@ function renderBookingRequests(){
 }
 
 function renderSettings(){
-  const n=$("#settingsBusinessName"),a=$("#settingsServiceArea"),b=$("#settingsTravelBuffer"),m=$("#settingsBookingNotice");
+  const n=$("#settingsBusinessName"),a=$("#settingsServiceArea"),b=$("#settingsTravelBuffer"),m=$("#settingsBookingNotice"),r=$("#settingsReplyEmail");
   if(n) n.textContent=state.business?.name||"—";
   if(a) a.textContent=state.business?.service_area||"Not set";
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
+  if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
 }
 
 function renderPublicLinks(){
