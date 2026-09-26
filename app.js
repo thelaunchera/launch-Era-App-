@@ -1212,10 +1212,32 @@ function renderJobs(){
   if(week){
     const now=new Date();
     const start=startOfWeek(now);
-    week.innerHTML=Array.from({length:7},(_,i)=>{
-      const d=new Date(start); d.setDate(start.getDate()+i);
+    const end=new Date(start);
+    end.setDate(start.getDate()+13);
+
+    const range=$("#calendarRangeLabel");
+    if(range){
+      const sameMonth=start.getMonth()===end.getMonth();
+      range.textContent=sameMonth
+        ? new Intl.DateTimeFormat("en-US",{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
+        : new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(end);
+    }
+
+    week.innerHTML=Array.from({length:14},(_,i)=>{
+      const d=new Date(start);
+      d.setDate(start.getDate()+i);
+      const dayJobs=visible.filter(j=>sameLocalDay(j.starts_at,d));
       const selected=sameLocalDay(d,now)?"selected":"";
-      return `<span class="${selected}">${new Intl.DateTimeFormat("en-US",{weekday:"short"}).format(d).toUpperCase()}<strong>${d.getDate()}</strong></span>`;
+      const hasJobs=dayJobs.length?" has-jobs":"";
+      const count=dayJobs.length
+        ? `<small class="calendar-job-count">${dayJobs.length} ${dayJobs.length===1?"job":"jobs"}</small>`
+        : `<small class="calendar-job-count empty">—</small>`;
+
+      return `<span class="${selected}${hasJobs}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
+        <em>${new Intl.DateTimeFormat("en-US",{weekday:"short"}).format(d).toUpperCase()}</em>
+        <strong>${d.getDate()}</strong>
+        ${count}
+      </span>`;
     }).join("");
   }
 
