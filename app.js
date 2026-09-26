@@ -489,7 +489,7 @@ function renderJobs(){
       <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
       <div>
         <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
-        <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h</span>
+        <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
       </div>
       <div class="record-actions">
         <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
