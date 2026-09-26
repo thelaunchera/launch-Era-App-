@@ -248,6 +248,11 @@
           </article>
 
           <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>Services + add-ons shown to clients</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
+            <div id="bookingServicesList" class="booking-services-list"></div>
+          </article>
+
+          <article class="panel full">
             <div class="panel-head"><div><p class="eyebrow">CLIENT EXPERIENCE</p><h3>What the customer sees</h3></div><span class="pill blue">No account required</span></div>
             <div class="flow-row">
               <span>Choose service</span><b>→</b><span>Pick available time</span><b>→</b><span>Enter details</span><b>→</b><span>Review</span><b>→</b><span>Booking / Quote</span>
@@ -264,10 +269,8 @@
       <section class="view" data-page="leads" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">LEADS</p><h2>Know who needs a next step.</h2></div><button class="primary-btn" data-action="lead">+ Add lead</button></div>
         <div class="table-card">
-          <div class="table-row table-head"><span>Name</span><span>Source</span><span>Service</span><span>Status</span><span>Next step</span></div>
-          <div class="table-row"><span>Kim B.</span><span>Instagram</span><span>Deep Clean</span><span><i class="status warning">Quoted</i></span><span>Follow up today</span></div>
-          <div class="table-row"><span>Jamie R.</span><span>Booking link</span><span>Recurring</span><span><i class="status blue">New</i></span><span>Review request</span></div>
-          <div class="table-row"><span>Nadia P.</span><span>Referral</span><span>Move-out</span><span><i class="status neutral">Contacted</i></span><span>Send quote</span></div>
+          <div class="table-row table-head"><span>Name</span><span>Source</span><span>Service</span><span>Status</span><span>Actions</span></div>
+          <div id="leadsTable"></div>
         </div>
       </section>
 
@@ -300,15 +303,13 @@
       <section class="view" data-page="invoices" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">INVOICES</p><h2>See what’s paid and what needs follow-up.</h2></div><button class="primary-btn" data-action="invoice">+ New invoice</button></div>
         <div class="metric-grid compact">
-          <article class="metric-card"><span>Outstanding</span><strong>$420</strong></article>
-          <article class="metric-card"><span>Paid this month</span><strong>$3,140</strong></article>
-          <article class="metric-card"><span>Overdue</span><strong>1</strong></article>
+          <article class="metric-card"><span>Outstanding</span><strong id="invoiceOutstanding">$0</strong></article>
+          <article class="metric-card"><span>Paid this month</span><strong id="invoicePaid">$0</strong></article>
+          <article class="metric-card"><span>Open invoices</span><strong id="invoiceOpen">0</strong></article>
         </div>
         <div class="table-card">
-          <div class="table-row table-head"><span>Invoice</span><span>Client</span><span>Amount</span><span>Status</span><span>Method</span></div>
-          <div class="table-row"><span>#1048</span><span>Anderson</span><span>$220</span><span><i class="status danger">Overdue</i></span><span>Zelle</span></div>
-          <div class="table-row"><span>#1047</span><span>Lopez</span><span>$120</span><span><i class="status success">Paid</i></span><span>Cash</span></div>
-          <div class="table-row"><span>#1046</span><span>Rivera</span><span>$200</span><span><i class="status warning">Sent</i></span><span>Check</span></div>
+          <div class="table-row table-head"><span>Invoice</span><span>Client</span><span>Amount</span><span>Status</span><span>Actions</span></div>
+          <div id="invoicesTable"></div>
         </div>
       </section>
 
