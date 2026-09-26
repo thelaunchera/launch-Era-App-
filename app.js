@@ -565,7 +565,20 @@ async function initialize(){
 
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
-  if(!session){ showAuth(); return; }
+  if(!session){
+    const lastAdminEmail=localStorage.getItem("tle_last_admin_email");
+    if(lastAdminEmail && !window.__tleTrustedAutoLogin){
+      window.__tleTrustedAutoLogin=true;
+      try{
+        const trusted=await tryTrustedAdminSignIn(lastAdminEmail);
+        if(trusted) return;
+      }finally{
+        window.__tleTrustedAutoLogin=false;
+      }
+    }
+    showAuth();
+    return;
+  }
 
   await identifyPlatformAdmin();
 
