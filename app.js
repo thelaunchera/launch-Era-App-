@@ -1879,8 +1879,10 @@ entityForm.addEventListener("submit",async e=>{
     const fd=new FormData(entityForm);
     if(state.modalType==="lead") await saveLead(fd);
     let invoiceResult=null;
+    let quoteResult=null;
     let paymentResult=null;
     if(state.modalType==="invoice") invoiceResult=await saveInvoice(fd);
+    if(state.modalType==="quote") quoteResult=await saveQuote(fd);
     if(state.modalType==="payment") paymentResult=await savePayment(fd);
     if(state.modalType==="client") await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
@@ -1889,7 +1891,6 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="supplyAdjust") await saveSupplyAdjust(fd);
     if(state.modalType==="mileage") await saveMileage(fd);
     if(state.modalType==="job") await saveJob(fd);
-    if(state.modalType==="quote") await saveQuote(fd);
     if(state.modalType==="team") await saveTeam(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     if(state.modalType==="startTimer") await saveStartTimer(fd);
@@ -1898,7 +1899,9 @@ entityForm.addEventListener("submit",async e=>{
     showToast(
       invoiceResult?.sent
         ? "Invoice emailed to client"
-        : paymentResult?.status==="paid" && paymentResult?.confirmation_queued
+        : quoteResult?.sent
+          ? "Quote emailed to customer"
+          : paymentResult?.status==="paid" && paymentResult?.confirmation_queued
           ? "Payment confirmed · confirmation email queued"
           : paymentResult
             ? "Payment recorded"
@@ -2182,7 +2185,14 @@ async function saveJob(fd){
 }
 
 async function saveQuote(fd){
-  const price=Number(fd.get("price"));
+  const price=Number(fd.get("price")||0);
+  if(!Number.isFinite(price) || price<=0) throw new Error("Quote price must be greater than $0.");
+
+  const requestedStatus=String(fd.get("status")||"draft");
+  const current=state.modalId ? state.quotes.find(q=>q.id===state.modalId) : null;
+  const shouldSend=requestedStatus==="sent" && current?.status!=="sent";
+
+  // Do not label a quote as sent until its customer email workflow succeeds.
   const payload={
     business_id:state.business.id,
     customer_name:String(fd.get("customer_name")).trim(),
@@ -2191,18 +2201,26 @@ async function saveQuote(fd){
     service_address:String(fd.get("service_address")).trim(),
     preferred_date:fd.get("preferred_date"),
     preferred_time:fd.get("preferred_time"),
-    subtotal:price,total:price,
-    status:fd.get("status"),
+    subtotal:price,
+    total:price,
+    status:shouldSend?"draft":requestedStatus,
     notes:String(fd.get("notes")||"").trim()||null
   };
+
   let quoteId=state.modalId;
   if(quoteId){
     const {error}=await supabase.from("quotes").update(payload).eq("id",quoteId);
     if(error) throw error;
-    const existing=state.quotes.find(q=>q.id===quoteId)?.quote_items?.[0];
-    const itemPayload={service_id:fd.get("service_id"),description:state.services.find(s=>s.id===fd.get("service_id"))?.name||"Cleaning service",quantity:1,unit_price:price,line_total:price};
-    if(existing){
-      const {error:itemErr}=await supabase.from("quote_items").update(itemPayload).eq("id",existing.id);
+    const existingItem=state.quotes.find(q=>q.id===quoteId)?.quote_items?.[0];
+    const itemPayload={
+      service_id:fd.get("service_id"),
+      description:state.services.find(s=>s.id===fd.get("service_id"))?.name||"Cleaning service",
+      quantity:1,
+      unit_price:price,
+      line_total:price
+    };
+    if(existingItem){
+      const {error:itemErr}=await supabase.from("quote_items").update(itemPayload).eq("id",existingItem.id);
       if(itemErr) throw itemErr;
     }else{
       const {error:itemErr}=await supabase.from("quote_items").insert({quote_id:quoteId,...itemPayload});
@@ -2214,10 +2232,27 @@ async function saveQuote(fd){
     quoteId=data.id;
     const service=state.services.find(s=>s.id===fd.get("service_id"));
     const {error:itemErr}=await supabase.from("quote_items").insert({
-      quote_id:quoteId,service_id:fd.get("service_id"),description:service?.name||"Cleaning service",quantity:1,unit_price:price,line_total:price
+      quote_id:quoteId,
+      service_id:fd.get("service_id"),
+      description:service?.name||"Cleaning service",
+      quantity:1,
+      unit_price:price,
+      line_total:price
     });
     if(itemErr) throw itemErr;
   }
+
+  if(shouldSend){
+    const base=window.location.origin+window.location.pathname;
+    const {data,error}=await supabase.rpc("create_quote_customer_link",{
+      p_quote_id:quoteId,
+      p_public_base_url:base
+    });
+    if(error) throw error;
+    return {sent:true,url:data?.url||null};
+  }
+
+  return {sent:false};
 }
 
 async function startTimeEntry(){
