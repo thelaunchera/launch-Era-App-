@@ -47,7 +47,6 @@ click("#usePasswordBtn");
 if($("#passwordField")?.hidden) throw new Error("Use password instead did not reveal password");
 if($("#authSubmit")?.hidden) throw new Error("Password sign-in submit stayed hidden");
 
-window.location.reload=()=>{};
 window.document.querySelector("#authEmail").value="";
 window.document.querySelector("#emailLinkBtn").hidden=false;
 click("#emailLinkBtn");
