@@ -11,6 +11,8 @@ const state = {
   services: [],
   jobs: [],
   quotes: [],
+  members: [],
+  invites: [],
   authMode: "signin",
   modalType: null,
   modalId: null
@@ -34,7 +36,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Reports", services:"Services + Add-ons", team:"Team", settings:"Settings"
+  reports:"Owner Reports", services:"Services + Add-ons", team:"Team", settings:"Settings", admin:"Owner Admin"
 };
 
 function escapeHtml(value=""){
@@ -82,16 +84,27 @@ function showSetup(){
 function showApp(){
   authShell.hidden = true;
   appShell.hidden = false;
+  applyRolePermissions();
   const chip = $(".workspace-chip");
   if(chip && state.business){
+    const roleLabel = state.business.role==="owner" ? "Owner workspace" : state.business.role==="admin" ? "Admin access" : "Coworker access";
     chip.innerHTML = `
       <span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
-      <span><strong>${escapeHtml(state.business.name)}</strong><small>Owner workspace</small></span>
+      <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
     `;
   }
 }
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
+}
+function applyRolePermissions(){
+  const role=state.business?.role||"coworker";
+  $("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
+  $("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
+  if(role==="coworker"){
+    const active=$(".nav-item.active");
+    if(active && active.hidden) openView("today");
+  }
 }
 
 function openView(id){
@@ -213,7 +226,12 @@ businessForm.addEventListener("submit", async (e)=>{
     };
     const { data, error } = await supabase.from("businesses").insert(payload).select().single();
     if(error) throw error;
-    state.business=data;
+    state.business={
+      id:data.id,name:data.name,role:"owner",team_member_id:null,
+      timezone:data.timezone,default_language:data.default_language,
+      service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
+      trial_ends_at:data.trial_ends_at,subscription_status:data.subscription_status
+    };
     await loadCoreData();
     showApp();
     showToast("Workspace created");
@@ -229,18 +247,36 @@ async function initialize(){
   state.session = session;
   if(!session){ showAuth(); return; }
 
-  const { data:business, error } = await supabase
-    .from("businesses")
-    .select("*")
-    .eq("owner_user_id",session.user.id)
-    .order("created_at",{ascending:true})
-    .limit(1)
-    .maybeSingle();
+  const inviteToken=new URLSearchParams(window.location.search).get("invite");
+  if(inviteToken){
+    const {error:claimError}=await supabase.rpc("claim_business_invite",{p_token:inviteToken});
+    if(claimError){
+      showToast(claimError.message);
+    }else{
+      const clean=new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      history.replaceState({}, "", clean.pathname + clean.hash);
+      showToast("Workspace access accepted");
+    }
+  }
 
+  const {data:contexts,error}=await supabase.rpc("get_my_business_context");
   if(error){ showToast(error.message); showAuth(); return; }
-  if(!business){ showSetup(); return; }
+  const context=contexts?.[0];
+  if(!context){ showSetup(); return; }
 
-  state.business=business;
+  state.business={
+    id:context.business_id,
+    name:context.business_name,
+    role:context.role,
+    team_member_id:context.team_member_id,
+    timezone:context.timezone,
+    default_language:context.default_language,
+    service_area:context.service_area,
+    default_travel_buffer_minutes:context.default_travel_buffer_minutes,
+    trial_ends_at:context.trial_ends_at,
+    subscription_status:context.subscription_status
+  };
   await loadCoreData();
   showApp();
 }
@@ -277,6 +313,76 @@ async function loadCoreData(){
   renderJobs();
   renderQuotes();
   renderTodaySummary();
+  if(state.business.role==="owner") await loadOwnerAdmin();
+}
+
+
+async function loadOwnerAdmin(){
+  const [membersRes,invitesRes]=await Promise.all([
+    supabase.from("business_members").select("*").eq("business_id",state.business.id).order("created_at"),
+    supabase.from("business_invites").select("*").eq("business_id",state.business.id).is("accepted_at",null).is("revoked_at",null).order("created_at",{ascending:false})
+  ]);
+  state.members=membersRes.data||[];
+  state.invites=invitesRes.data||[];
+  renderMembers();
+  const status=$("#adminPlanStatus");
+  const trial=$("#adminTrialEnds");
+  if(status) status.textContent=state.business.subscription_status||"Trial";
+  if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+}
+
+function renderMembers(){
+  const list=$("#membersList");
+  if(!list) return;
+  const rows=state.members.map(m=>`
+    <div class="member-row">
+      <div class="member-avatar">${escapeHtml(initials(m.display_name||m.email||m.role))}</div>
+      <div><strong>${escapeHtml(m.display_name||m.email||"Team member")}</strong><small>${escapeHtml(m.email||"")} · ${escapeHtml(m.role)}</small></div>
+      ${m.role==="owner"
+        ? `<span class="status success">Owner</span>`
+        : `<select data-member-role="${m.id}"><option value="admin" ${m.role==="admin"?"selected":""}>Admin</option><option value="coworker" ${m.role==="coworker"?"selected":""}>Coworker</option></select><button class="danger-link" data-remove-member="${m.id}">Remove</button>`}
+    </div>
+  `).join("");
+  const pending=state.invites.map(i=>`
+    <div class="member-row pending">
+      <div class="member-avatar">✉</div>
+      <div><strong>${escapeHtml(i.email)}</strong><small>Pending invite · ${escapeHtml(i.role)} · expires ${escapeHtml(formatDateTime(i.expires_at))}</small></div>
+      <button data-copy-invite="${i.token}">Copy invite</button>
+      <button class="danger-link" data-revoke-invite="${i.id}">Revoke</button>
+    </div>
+  `).join("");
+  list.innerHTML=(rows||'<div class="empty-inline">No members yet.</div>')+pending;
+}
+
+function openInviteForm(){
+  state.modalType="invite";state.modalId=null;
+  modalHeader("OWNER ONLY","Invite teammate","Choose exactly what this person should be able to see.");
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label class="full">Email<input name="email" type="email" required placeholder="teammate@email.com"></label>
+      <label class="full">Access level<select name="role">
+        <option value="coworker">Coworker — assigned jobs only</option>
+        <option value="admin">Admin — operate clients, jobs, quotes and invoices</option>
+      </select></label>
+    </div>
+    <div class="permission-note">Owner-only areas stay hidden: billing, subscription, permissions, integrations, migration/security and Owner Reports.</div>
+    ${formSubmit("Create invite link")}`;
+  modal.hidden=false;
+}
+
+async function saveInvite(fd){
+  const email=String(fd.get("email")||"").trim().toLowerCase();
+  const role=fd.get("role");
+  const {data,error}=await supabase.from("business_invites").insert({
+    business_id:state.business.id,email,role,invited_by:state.session.user.id
+  }).select("token").single();
+  if(error) throw error;
+  const link=new URL(window.location.href.split("#")[0]);
+  link.search="";
+  link.searchParams.set("invite",data.token);
+  await copyText(link.toString());
+  await loadOwnerAdmin();
+  showToast("Invite link copied");
 }
 
 function renderClients(){
@@ -334,8 +440,9 @@ function renderJobs(){
       </div>
       <div class="record-actions">
         <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
-        <button data-edit="job" data-id="${j.id}">Edit</button>
-        <button class="danger-link" data-cancel-job="${j.id}">Cancel</button>
+        ${state.business.role==="coworker"
+          ? `<button data-coworker-status="${j.id}" data-status="on_the_way">On my way</button><button data-coworker-status="${j.id}" data-status="in_progress">Start</button><button data-coworker-status="${j.id}" data-status="completed">Complete</button>`
+          : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
       </div>
     </div>
   `).join("");
@@ -490,6 +597,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="service") await saveService(fd);
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="quote") await saveQuote(fd);
+    if(state.modalType==="invite") await saveInvite(fd);
     modal.hidden=true;
     await loadCoreData();
     showToast("Saved");
@@ -607,6 +715,7 @@ document.addEventListener("click",async e=>{
   if(create){ openEntityForm(create.dataset.create); return; }
   if(action){
     const type=action.dataset.action;
+    if(state.business.role==="coworker"){ showToast("This action is owner/admin only"); return; }
     if(["client","service","job","quote"].includes(type)) openEntityForm(type);
     else openGeneric(type);
     return;
@@ -641,6 +750,41 @@ document.addEventListener("click",async e=>{
     if(error) showToast(error.message); else {await loadCoreData();showToast("Quote marked sent");}
     return;
   }
+  const coworkerStatus=e.target.closest("[data-coworker-status]");
+  if(coworkerStatus){
+    const {error}=await supabase.rpc("coworker_set_job_status",{p_job_id:coworkerStatus.dataset.coworkerStatus,p_status:coworkerStatus.dataset.status});
+    if(error) showToast(error.message); else {await loadCoreData();showToast("Job status updated");}
+    return;
+  }
+
+  const memberRole=e.target.closest("[data-member-role]");
+  if(memberRole){
+    const {error}=await supabase.from("business_members").update({role:memberRole.value,updated_at:new Date().toISOString()}).eq("id",memberRole.dataset.memberRole);
+    if(error) showToast(error.message); else {await loadOwnerAdmin();showToast("Access updated");}
+    return;
+  }
+
+  const removeMember=e.target.closest("[data-remove-member]");
+  if(removeMember){
+    if(!confirm("Remove this person's app access? Their operational records will remain.")) return;
+    const {error}=await supabase.from("business_members").delete().eq("id",removeMember.dataset.removeMember);
+    if(error) showToast(error.message); else {await loadOwnerAdmin();showToast("Access removed");}
+    return;
+  }
+
+  const copyInvite=e.target.closest("[data-copy-invite]");
+  if(copyInvite){
+    const link=new URL(window.location.href.split("#")[0]);link.search="";link.searchParams.set("invite",copyInvite.dataset.copyInvite);
+    await copyText(link.toString());return;
+  }
+
+  const revokeInvite=e.target.closest("[data-revoke-invite]");
+  if(revokeInvite){
+    const {error}=await supabase.from("business_invites").update({revoked_at:new Date().toISOString()}).eq("id",revokeInvite.dataset.revokeInvite);
+    if(error) showToast(error.message); else {await loadOwnerAdmin();showToast("Invite revoked");}
+    return;
+  }
+
   const accept=e.target.closest("[data-accept-quote]");
   if(accept){
     if(!confirm("Accept this quote? This will create/update the client, schedule the job and create a draft invoice.")) return;
@@ -657,6 +801,9 @@ function openGeneric(type){
   entityForm.innerHTML=`<div class="empty-inline"><strong>Core workflow first.</strong><span>Nothing here will touch the live Sites app.</span></div><div class="form-footer"><button type="button" class="primary-btn" data-modal-cancel>Close</button></div>`;
   modal.hidden=false;
 }
+
+const inviteMemberBtn=$("#inviteMemberBtn");
+if(inviteMemberBtn) inviteMemberBtn.addEventListener("click",openInviteForm);
 
 $("#modalClose").addEventListener("click",()=>modal.hidden=true);
 modal.addEventListener("click",e=>{if(e.target===modal) modal.hidden=true});
