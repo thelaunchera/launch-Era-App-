@@ -145,7 +145,7 @@ function openView(id,options={}){
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
 }
-$$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
@@ -400,7 +400,7 @@ async function initialize(){
     return;
   }
 
-  await trackVisit("/login");
+  trackVisit("/login").catch(()=>{});
 
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
@@ -455,7 +455,22 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
     setAuthMode("recovery");
     return;
   }
+  if(event === "SIGNED_IN" && session){
+    state.session=session;
+    if(appShell.hidden && !window.__tleAuthInitializing){
+      window.__tleAuthInitializing=true;
+      try{ await initialize(); }
+      finally{ window.__tleAuthInitializing=false; }
+    }
+    return;
+  }
+  if(event === "TOKEN_REFRESHED" && session){
+    state.session=session;
+    return;
+  }
   if(event === "SIGNED_OUT"){
+    state.session=null;
+    state.business=null;
     showAuth();
   }
 });
