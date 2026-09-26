@@ -176,6 +176,54 @@ async function startSubscriptionCheckout(button){
   }
 }
 
+async function handleBillingReturn(params){
+  const billing=params.get("billing");
+  if(!billing) return;
+
+  const cleanBillingParams=()=>{
+    const clean=new URL(window.location.href);
+    clean.searchParams.delete("billing");
+    clean.searchParams.delete("session_id");
+    history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
+  };
+
+  if(billing==="cancel"){
+    cleanBillingParams();
+    showToast("Checkout canceled. No charge was made.");
+    return;
+  }
+
+  if(billing!=="success") return;
+
+  const sessionId=params.get("session_id");
+  if(!sessionId){
+    cleanBillingParams();
+    showToast("Payment return could not be verified");
+    return;
+  }
+
+  try{
+    showToast("Confirming your subscription…");
+    const {data,error}=await supabase.functions.invoke("confirm-stripe-checkout",{
+      body:{session_id:sessionId}
+    });
+    if(error) throw error;
+    if(!data?.active) throw new Error(data?.error||"Payment is not verified");
+
+    state.business.subscription_status="active";
+    cleanBillingParams();
+    renderTrialStatus();
+    if(state.modalType==="subscriptionGate"){
+      modal.hidden=true;
+      modalClose.hidden=false;
+    }
+    showToast("Subscription active");
+  }catch(err){
+    console.error("[TLE] billing confirmation",err);
+    showToast(err?.message||"Could not confirm payment yet");
+  }
+}
+
 function showSubscriptionGate(){
   if(!state.business || !subscriptionNeedsPayment()){
     if(state.modalType==="subscriptionGate"){
@@ -192,7 +240,7 @@ function showSubscriptionGate(){
   const owner=state.business.role==="owner";
   modalHeader(
     "PLAN + BILLING",
-    owner ? "Your 30-day free trial has ended." : "This workspace needs an active subscription.",
+    owner ? "Your free access has ended." : "This workspace needs an active subscription.",
     owner
       ? "Continue your full access for $5.99/month. You can cancel anytime."
       : "Ask the business owner to renew the $5.99/month subscription."
@@ -784,6 +832,8 @@ async function initialize(){
     trial_ends_at:context.trial_ends_at,
     subscription_status:context.subscription_status
   };
+
+  await handleBillingReturn(params);
 
   const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
   state.publicLinks=linkSettings||null;
