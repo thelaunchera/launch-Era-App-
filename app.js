@@ -946,7 +946,7 @@ function renderInvoices(){
       <span class="record-actions">
         <button data-edit-invoice="${inv.id}">Edit</button>
         ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
-        ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":"Record payment"}</button>`:""}
+        ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":methodLabel?"Confirm payment":"Record payment"}</button>`:""}
       </span>
     </div>`;
   }).join("");
