@@ -117,7 +117,12 @@
               <div id="publicAddons" class="public-addons"></div>
             </div>
             <label>Date<input name="date" type="date" required></label>
-            <label>Time<input name="time" type="time" required></label>
+            <label id="publicQuoteTimeWrap">Preferred time<input name="time" type="time"></label>
+            <div class="full public-slots-wrap" id="publicSlotsWrap" hidden>
+              <span class="field-label">Available times</span>
+              <div id="publicSlots" class="public-slots"><span class="muted-line">Choose a service and date first.</span></div>
+              <input type="hidden" name="slot_start" id="publicSlotStart">
+            </div>
             <label>Name<input name="name" required></label>
             <label>Email<input name="email" type="email" required></label>
             <label>Phone<input name="phone"></label>
@@ -272,10 +277,32 @@
           </article>
 
           <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div></div>
-            <div class="setting-row"><span><strong>Travel buffer</strong><small>Block drive time between jobs</small></span><span class="control-chip">30 min</span></div>
-            <div class="setting-row"><span><strong>Booking notice</strong><small>Minimum notice before appointment</small></span><span class="control-chip">24 hrs</span></div>
-            <div class="setting-row"><span><strong>Service duration</strong><small>Use each service’s expected duration</small></span><span class="status success">On</span></div>
+            <div class="panel-head">
+              <div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div>
+              <button class="text-btn" id="saveAvailabilityBtn">Save</button>
+            </div>
+            <div class="availability-settings">
+              <label>Travel buffer
+                <select id="bookingTravelBuffer">
+                  <option value="0">No buffer</option>
+                  <option value="15">15 min</option>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">60 min</option>
+                </select>
+              </label>
+              <label>Minimum booking notice
+                <select id="bookingNoticeHours">
+                  <option value="0">Same-day allowed</option>
+                  <option value="2">2 hours</option>
+                  <option value="12">12 hours</option>
+                  <option value="24">24 hours</option>
+                  <option value="48">48 hours</option>
+                </select>
+              </label>
+            </div>
+            <div class="availability-week" id="availabilityWeek"></div>
+            <p class="helper">If a day is off, clients will never see slots on that day. Service duration, add-ons, travel buffer, scheduled jobs and pending requests are all checked before a time is shown.</p>
           </article>
 
           <article class="panel full">
