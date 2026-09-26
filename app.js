@@ -31,6 +31,8 @@ const state = {
   publicLinks: null,
   isPlatformAdmin: false,
   platformAdminData: null,
+  workerPortal: null,
+  currentWorkerLink: null,
   authMode: "signin",
   modalType: null,
   modalId: null
@@ -39,6 +41,7 @@ const state = {
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const authShell = $("#authShell");
+const workerShell = $("#workerShell");
 const publicShell = $("#publicShell");
 const appShell = $("#appShell");
 const authPanel = $("#authPanel");
@@ -91,6 +94,7 @@ function setBusy(button,busy,label="Working…"){
   }
 }
 function showAuth(){
+  if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
   appShell.hidden = true;
@@ -98,6 +102,7 @@ function showAuth(){
   businessSetup.hidden = true;
 }
 function showSetup(){
+  if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
   appShell.hidden = true;
@@ -105,6 +110,7 @@ function showSetup(){
   businessSetup.hidden = false;
 }
 function showApp(){
+  if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
@@ -388,10 +394,113 @@ businessForm.addEventListener("submit", async (e)=>{
   }
 });
 
+async function initializeWorkerPortal(token){
+  if(!token){ showAuth(); return; }
+  authShell.hidden=true;
+  appShell.hidden=true;
+  if(publicShell) publicShell.hidden=true;
+  workerShell.hidden=false;
+
+  const {data,error}=await supabase.rpc("worker_portal_context",{p_token:token});
+  if(error){
+    localStorage.removeItem("tle_worker_token");
+    workerShell.hidden=true;
+    showAuth();
+    showToast(error.message||"Worker link is no longer active");
+    return;
+  }
+
+  localStorage.setItem("tle_worker_token",token);
+  state.workerPortal=data;
+  renderWorkerPortal();
+
+  const clean=new URL(window.location.href);
+  if(clean.searchParams.has("worker")){
+    clean.searchParams.delete("worker");
+    history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
+  }
+}
+
+function renderWorkerPortal(){
+  const data=state.workerPortal||{};
+  const worker=data.worker||{};
+  const business=data.business||{};
+  const jobs=(data.jobs||[]).slice().sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const active=data.active_time||null;
+  const today=new Date();
+
+  const bn=$("#workerBusinessName"),ww=$("#workerWelcome"),wc=$("#workerCopy");
+  if(bn) bn.textContent=business.name||"Cleaning business";
+  if(ww) ww.textContent="Hi "+(worker.name||"there")+" 👋";
+  if(wc) wc.textContent="Only your assigned jobs are visible here.";
+
+  const jc=$("#workerJobCount"),tc=$("#workerTodayCount"),ts=$("#workerTimerState");
+  if(jc) jc.textContent=jobs.length;
+  if(tc) tc.textContent=jobs.filter(j=>sameLocalDay(j.starts_at,today)).length;
+  if(ts) ts.textContent=active?"Running":"Off";
+
+  const list=$("#workerJobsList");
+  if(!list) return;
+  if(!jobs.length){
+    list.innerHTML=`<div class="empty-inline"><strong>No assigned jobs.</strong><span>Your owner or admin will assign jobs when they are ready.</span></div>`;
+    return;
+  }
+
+  list.innerHTML=jobs.map(j=>`
+    <article class="worker-job-card">
+      <div class="worker-job-top">
+        <span><strong>${escapeHtml(j.client_name||"Cleaning job")}</strong><small>${escapeHtml(j.service_name||"Cleaning")} · ${formatDateTime(j.starts_at)}</small></span>
+        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
+      </div>
+      <div class="worker-job-address">${escapeHtml(j.service_address||"Address not added")}</div>
+      ${j.client_phone?`<a class="worker-phone" href="tel:${escapeHtml(j.client_phone)}">Call client</a>`:""}
+      ${j.notes?`<p class="worker-job-notes">${escapeHtml(j.notes)}</p>`:""}
+      <div class="worker-job-actions">
+        ${j.status!=="completed"?`<button data-worker-status-link="${j.id}" data-status="on_the_way">On my way</button><button data-worker-status-link="${j.id}" data-status="in_progress">Start job</button><button data-worker-status-link="${j.id}" data-status="completed">Complete</button>`:""}
+        ${active?.job_id===j.id?`<button class="primary-btn" data-worker-time-stop="${active.id}">Finish timer</button>`:`<button class="ghost-btn" data-worker-time-start="${j.id}" ${active?"disabled":""}>Start timer</button>`}
+        <button class="ghost-btn" data-worker-mileage="${j.id}">Log mileage</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshWorkerPortal(){
+  const token=localStorage.getItem("tle_worker_token");
+  if(!token) return;
+  const {data,error}=await supabase.rpc("worker_portal_context",{p_token:token});
+  if(error){ localStorage.removeItem("tle_worker_token"); showAuth(); showToast(error.message); return; }
+  state.workerPortal=data;
+  renderWorkerPortal();
+}
+
+async function createWorkerLink(teamMemberId){
+  const {data,error}=await supabase.rpc("create_worker_access_link",{p_team_member_id:teamMemberId});
+  if(error) throw error;
+  const token=data?.token;
+  if(!token) throw new Error("Could not create worker link");
+  const base=window.location.origin+window.location.pathname;
+  const link=`${base}?worker=${encodeURIComponent(token)}`;
+  state.currentWorkerLink=link;
+  state.modalType="workerLink";
+  state.modalId=teamMemberId;
+  modalHeader("WORKER ACCESS","Private worker link",`Send this link to ${data.worker_name||"the worker"}. No password or full app account is required.`);
+  entityForm.innerHTML=`
+    <div class="worker-link-box"><input id="workerLinkValue" readonly value="${escapeHtml(link)}"><button type="button" class="primary-btn" data-copy-worker-link>Copy link</button></div>
+    <div class="permission-note">This link only opens assigned jobs, route details, job status, time tracking and mileage. It does not expose clients lists, leads, quotes, invoices, pricing, reports, billing or settings.</div>
+    <div class="form-footer"><button type="button" class="ghost-btn" data-native-share-worker-link>Share</button><button type="button" class="primary-btn" data-modal-cancel>Done</button></div>`;
+  modal.hidden=false;
+}
+
 async function initialize(){
   const params=new URLSearchParams(window.location.search);
   const publicMode=params.get("public");
   const publicSlug=params.get("slug");
+  const workerToken=params.get("worker") || localStorage.getItem("tle_worker_token");
+
+  if(workerToken){
+    await initializeWorkerPortal(workerToken);
+    return;
+  }
 
   if((publicMode==="book"||publicMode==="quote") && publicSlug){
     if(window.__tlePublicHandled) return;
@@ -595,17 +704,14 @@ function renderMembers(){
 
 function openInviteForm(){
   state.modalType="invite";state.modalId=null;
-  modalHeader("OWNER ONLY","Invite teammate","Choose exactly what this person should be able to see.");
+  modalHeader("OWNER ONLY","Invite Admin","Admins can operate the business. Workers use no-password worker links from Team.");
   entityForm.innerHTML=`
     <div class="form-grid">
-      <label class="full">Email<input name="email" type="email" required placeholder="teammate@email.com"></label>
-      <label class="full">Access level<select name="role">
-        <option value="coworker">Coworker — assigned jobs only</option>
-        <option value="admin">Admin — operate clients, jobs, quotes and invoices</option>
-      </select></label>
+      <label class="full">Admin email<input name="email" type="email" required placeholder="admin@email.com"></label>
+      <input type="hidden" name="role" value="admin">
     </div>
-    <div class="permission-note">Owner-only areas stay hidden: billing, subscription, permissions, integrations, migration/security and Owner Reports.</div>
-    ${formSubmit("Create invite link")}`;
+    <div class="permission-note">Admins can manage day-to-day operations but cannot access owner billing, platform permissions, integrations, migration/security or Owner Reports.</div>
+    ${formSubmit("Create Admin invite link")}`;
   modal.hidden=false;
 }
 
@@ -701,18 +807,22 @@ function renderTeam(){
   const grid=$("#teamGrid");
   if(!grid) return;
   if(!state.teamMembers.length){
-    grid.innerHTML=`<article class="empty-card"><strong>No team profiles yet.</strong><span>Add a cleaner before assigning jobs.</span><button class="primary-btn" data-team-create>+ Add team profile</button></article>`;
+    grid.innerHTML=`<article class="empty-card"><strong>No team profiles yet.</strong><span>Add a worker, assign jobs, then share their private worker link.</span><button class="primary-btn" data-team-create>+ Add worker</button></article>`;
     return;
   }
+  const isOwner=state.business?.role==="owner";
   grid.innerHTML=state.teamMembers.map(tm=>`
     <article class="client-card">
       <div class="client-avatar">${escapeHtml(initials(tm.name))}</div>
       <strong>${escapeHtml(tm.name)}</strong>
       <span>${escapeHtml(tm.role||"cleaner")}</span>
       <small>${escapeHtml(tm.email||tm.phone||"No contact saved")}</small>
-      <div class="card-actions"><button data-team-edit="${tm.id}">Edit</button></div>
+      <div class="card-actions">
+        <button data-team-edit="${tm.id}">Edit</button>
+        ${isOwner?`<button data-worker-link="${tm.id}">Share worker link</button><button class="danger-link" data-worker-revoke="${tm.id}">Revoke link</button>`:""}
+      </div>
     </article>
-  `).join("")+`<article class="client-card add-card" data-team-create><div>＋</div><strong>Add team profile</strong><span>Assign jobs and track time.</span></article>`;
+  `).join("")+`<article class="client-card add-card" data-team-create><div>＋</div><strong>Add worker</strong><span>Assign jobs and share limited access.</span></article>`;
 }
 
 function openTeamForm(id=null){
@@ -1737,6 +1847,71 @@ document.addEventListener("click",async e=>{
   const teamEdit=e.target.closest("[data-team-edit]");
   if(teamCreate){ openTeamForm(); return; }
   if(teamEdit){ openTeamForm(teamEdit.dataset.teamEdit); return; }
+  const workerLinkBtn=e.target.closest("[data-worker-link]");
+  if(workerLinkBtn){
+    try{await createWorkerLink(workerLinkBtn.dataset.workerLink);}
+    catch(err){showToast(err.message||"Could not create worker link");}
+    return;
+  }
+
+  const workerRevoke=e.target.closest("[data-worker-revoke]");
+  if(workerRevoke){
+    const {error}=await supabase.rpc("revoke_worker_access_link",{p_team_member_id:workerRevoke.dataset.workerRevoke});
+    if(error) showToast(error.message); else showToast("Worker link revoked");
+    return;
+  }
+
+  const workerStatus=e.target.closest("[data-worker-status-link]");
+  if(workerStatus){
+    const token=localStorage.getItem("tle_worker_token");
+    const {error}=await supabase.rpc("worker_portal_set_job_status",{p_token:token,p_job_id:workerStatus.dataset.workerStatusLink,p_status:workerStatus.dataset.status});
+    if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Job updated");}
+    return;
+  }
+
+  const workerTimeStart=e.target.closest("[data-worker-time-start]");
+  if(workerTimeStart){
+    const token=localStorage.getItem("tle_worker_token");
+    const {error}=await supabase.rpc("worker_portal_start_time",{p_token:token,p_job_id:workerTimeStart.dataset.workerTimeStart});
+    if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer started");}
+    return;
+  }
+
+  const workerTimeStop=e.target.closest("[data-worker-time-stop]");
+  if(workerTimeStop){
+    const token=localStorage.getItem("tle_worker_token");
+    const {error}=await supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop});
+    if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer finished");}
+    return;
+  }
+
+  const workerMileage=e.target.closest("[data-worker-mileage]");
+  if(workerMileage){
+    const raw=window.prompt("Miles driven for this job:");
+    if(raw===null) return;
+    const miles=Number(raw);
+    if(!Number.isFinite(miles)||miles<=0){showToast("Enter valid miles");return;}
+    const token=localStorage.getItem("tle_worker_token");
+    const {error}=await supabase.rpc("worker_portal_log_mileage",{p_token:token,p_job_id:workerMileage.dataset.workerMileage,p_miles:miles,p_notes:null});
+    if(error) showToast(error.message); else showToast("Mileage saved");
+    return;
+  }
+
+  const copyWorker=e.target.closest("[data-copy-worker-link]");
+  if(copyWorker && state.currentWorkerLink){
+    await copyText(state.currentWorkerLink);
+    return;
+  }
+
+  const nativeShare=e.target.closest("[data-native-share-worker-link]");
+  if(nativeShare && state.currentWorkerLink){
+    if(navigator.share){
+      try{await navigator.share({title:"Worker access",text:"Open your assigned cleaning jobs here.",url:state.currentWorkerLink});}catch{}
+    }else{
+      await copyText(state.currentWorkerLink);
+    }
+    return;
+  }
   if(create){ openEntityForm(create.dataset.create); return; }
   if(action){
     const type=action.dataset.action;
@@ -1958,6 +2133,13 @@ if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
     }
     openInviteForm();
   });
+});
+
+const exitWorkerBtn=$("#exitWorkerBtn");
+if(exitWorkerBtn) exitWorkerBtn.addEventListener("click",()=>{
+  localStorage.removeItem("tle_worker_token");
+  state.workerPortal=null;
+  window.location.href=window.location.origin+window.location.pathname;
 });
 
 const startTimerBtn=$("#startTimerBtn");
