@@ -544,6 +544,8 @@ businessForm.addEventListener("submit", async (e)=>{
       service_area: $("#businessArea").value.trim() || null,
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
+      trial_days:30,
+      trial_promotion:"standard",
       subscription_status:"trial"
     };
     const { data, error } = await supabase.from("businesses").insert(payload).select().single();
@@ -552,7 +554,8 @@ businessForm.addEventListener("submit", async (e)=>{
       id:data.id,name:data.name,role:"owner",team_member_id:null,
       timezone:data.timezone,default_language:data.default_language,
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
-      trial_ends_at:data.trial_ends_at,subscription_status:data.subscription_status
+      trial_ends_at:data.trial_ends_at,trial_days:data.trial_days,trial_promotion:data.trial_promotion,
+      subscription_status:data.subscription_status
     };
     await identifyPlatformAdmin();
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
@@ -561,6 +564,12 @@ businessForm.addEventListener("submit", async (e)=>{
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
+    try{
+      const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:data.id}});
+      if(notifyError) console.warn("[TLE] trial welcome automation",notifyError);
+    }catch(err){
+      console.warn("[TLE] trial welcome automation",err);
+    }
     showToast("Workspace created");
   }catch(err){
     showToast(err.message || "Could not create workspace");
@@ -1596,7 +1605,7 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))}</small></div>
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="landing_setup"?"60-day Landing promo":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-landing-promo="${x.business_id}" ${x.trial_promotion==="landing_setup"?"disabled":""}>${x.trial_promotion==="landing_setup"?"60-day promo active":"Grant 60-day Landing promo"}</button></div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
         <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
         <select data-platform-status="${x.business_id}">
@@ -2419,6 +2428,27 @@ document.addEventListener("click",async e=>{
   const teamEdit=e.target.closest("[data-team-edit]");
   if(teamCreate){ openTeamForm(); return; }
   if(teamEdit){ openTeamForm(teamEdit.dataset.teamEdit); return; }
+
+  const landingPromo=e.target.closest("[data-landing-promo]");
+  if(landingPromo){
+    setBusy(landingPromo,true,"Applying…");
+    try{
+      const businessId=landingPromo.dataset.landingPromo;
+      const {error}=await supabase.rpc("platform_apply_landing_trial_promo",{p_business_id:businessId});
+      if(error) throw error;
+
+      const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:businessId}});
+      if(notifyError) throw notifyError;
+
+      await loadPlatformAdmin();
+      showToast("60-day Landing promo applied");
+    }catch(err){
+      showToast(err?.message||"Could not apply the 60-day promo");
+    }finally{
+      setBusy(landingPromo,false);
+    }
+    return;
+  }
   const workerLinkBtn=e.target.closest("[data-worker-link]");
   if(workerLinkBtn){
     try{await createWorkerLink(workerLinkBtn.dataset.workerLink);}
