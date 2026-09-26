@@ -1425,55 +1425,144 @@ async function initializePublicRequest(mode,slug){
   const {data,error}=await supabase.rpc("get_public_booking_config",{p_slug:slug});
   if(error){
     $("#publicBusinessName").textContent="Page unavailable";
-    $("#publicIntro").textContent="This booking page is not available.";
+    $("#publicIntro").textContent=error.message||"This booking page is not available.";
     $("#publicRequestForm").hidden=true;
     return;
   }
 
-  const services=(data?.services||[]).filter(s=>mode==="quote" || s.pricing_type!=="quote");
+  const allServices=data?.services||[];
+  const services=allServices.filter(s=>mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0));
   const addons=data?.addons||[];
+  const form=$("#publicRequestForm");
+  const serviceSelect=$("#publicService");
+  const addonBox=$("#publicAddons");
+  const summary=$("#publicSummary");
+  const quoteTimeWrap=$("#publicQuoteTimeWrap");
+  const slotsWrap=$("#publicSlotsWrap");
+  const slotsBox=$("#publicSlots");
+  const slotInput=$("#publicSlotStart");
+  const submit=$("#publicSubmitBtn");
+
   $("#publicBusinessName").textContent=data?.business?.name||"Cleaning service";
   $("#publicModeLabel").textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
-  $("#publicIntro").textContent=mode==="quote"?"Tell us what you need and we’ll review your request.":"Choose a service and request an available time.";
-  $("#publicSubmitBtn").textContent=mode==="quote"?"Send quote request":"Send booking request";
+  $("#publicIntro").textContent=mode==="quote"
+    ?"Tell us what you need and the business will review your request."
+    :"Choose a service, date, and one of the real available times below.";
+  submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
   $("#publicAddonsWrap").hidden=mode==="quote";
+  if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
+  if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
-  const serviceSelect=$("#publicService");
-  serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+  const quoteTimeInput=form?.querySelector('[name="time"]');
+  if(quoteTimeInput) quoteTimeInput.required=mode==="quote";
+
+  if(!services.length){
+    serviceSelect.innerHTML='<option value="">'+(mode==="quote"?"No services available yet":"No priced services available for online booking")+'</option>';
+    serviceSelect.disabled=true;
+    submit.disabled=true;
+    summary.innerHTML='<span>'+(mode==="quote"
+      ?"No services are available yet. Please contact the cleaning business directly."
+      :"No instant-booking services are available yet. Services without a price require a quote.")+'</span>';
+  }else{
+    serviceSelect.disabled=false;
+    serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+  }
+
+  const chosenAddonIds=()=>$$('input[name="addon"]:checked',addonBox).map(x=>x.value);
+
+  function updatePublicSummary(){
+    const selected=services.find(s=>s.id===serviceSelect.value);
+    if(!selected){summary.innerHTML="";return;}
+    const chosen=addons.filter(a=>chosenAddonIds().includes(a.id));
+    const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
+    const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
+    summary.innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total)}</span>`;
+  }
 
   function renderPublicAddons(){
     const selected=services.find(s=>s.id===serviceSelect.value);
-    const wrap=$("#publicAddons");
     const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
-    wrap.innerHTML=available.length?available.map(a=>`<label class="addon-choice"><input type="checkbox" name="addon" value="${a.id}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span></label>`).join(""):'<span class="muted-line">No add-ons for this service.</span>';
+    addonBox.innerHTML=available.length?available.map(a=>`<label class="addon-choice"><input type="checkbox" name="addon" value="${escapeHtml(a.id)}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small></span></label>`).join(""):'<span class="muted-line">No add-ons for this service.</span>';
     updatePublicSummary();
   }
-  function updatePublicSummary(){
-    const selected=services.find(s=>s.id===serviceSelect.value);
-    if(!selected){$("#publicSummary").innerHTML="";return;}
-    const checked=$$('input[name="addon"]:checked',$("#publicAddons")).map(x=>x.value);
-    const chosen=addons.filter(a=>checked.includes(a.id));
-    const total=(Number(selected.base_price)||0)+chosen.reduce((s,a)=>s+Number(a.price||0),0);
-    const duration=Number(selected.duration_minutes||0)+chosen.reduce((s,a)=>s+Number(a.extra_duration_minutes||0),0);
-    $("#publicSummary").innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be confirmed by the business":" · Estimated "+money(total)}</span>`;
+
+  function formatSlot(iso){
+    return new Intl.DateTimeFormat("en-US",{
+      timeZone:data?.business?.timezone||"America/New_York",
+      hour:"numeric",
+      minute:"2-digit"
+    }).format(new Date(iso));
   }
 
-  serviceSelect.addEventListener("change",renderPublicAddons);
-  $("#publicAddons").addEventListener("change",updatePublicSummary);
+  async function refreshPublicSlots(){
+    if(mode==="quote" || !slotsBox || !slotInput) return;
+    slotInput.value="";
+    const serviceId=serviceSelect.value;
+    const dateValue=form?.querySelector('[name="date"]')?.value;
+    if(!serviceId || !dateValue){
+      slotsBox.innerHTML='<span class="muted-line">Choose a service and date first.</span>';
+      return;
+    }
+
+    slotsBox.innerHTML='<span class="muted-line">Checking availability…</span>';
+    const {data:rows,error:slotError}=await supabase.rpc("get_public_available_slots",{
+      p_slug:slug,
+      p_service_id:serviceId,
+      p_date:dateValue,
+      p_addon_ids:chosenAddonIds()
+    });
+
+    if(slotError){
+      slotsBox.innerHTML=`<span class="muted-line">${escapeHtml(slotError.message||"Could not load availability")}</span>`;
+      return;
+    }
+
+    const slots=Array.isArray(rows)?rows:[];
+    if(!slots.length){
+      slotsBox.innerHTML='<span class="muted-line">No openings on this date. Try another day.</span>';
+      return;
+    }
+
+    slotsBox.innerHTML=slots.map(row=>`<button type="button" class="slot-btn" data-slot="${escapeHtml(row.slot_start)}">${escapeHtml(formatSlot(row.slot_start))}</button>`).join("");
+  }
+
+  serviceSelect.onchange=()=>{
+    renderPublicAddons();
+    refreshPublicSlots();
+  };
+  addonBox.onchange=()=>{
+    updatePublicSummary();
+    refreshPublicSlots();
+  };
+  if(slotsBox){
+    slotsBox.onclick=e=>{
+      const btn=e.target.closest("[data-slot]");
+      if(!btn) return;
+      slotsBox.querySelectorAll("[data-slot]").forEach(x=>x.classList.toggle("selected",x===btn));
+      slotInput.value=btn.dataset.slot;
+    };
+  }
+
   renderPublicAddons();
 
-  const dateInput=$('#publicRequestForm [name="date"]');
-  dateInput.min=new Date().toLocaleDateString("en-CA");
+  const dateInput=form?.querySelector('[name="date"]');
+  if(dateInput){
+    dateInput.min=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"America/New_York"}).format(new Date());
+    const maxDate=new Date(Date.now()+90*86400000);
+    dateInput.max=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"America/New_York"}).format(maxDate);
+    dateInput.onchange=refreshPublicSlots;
+  }
 
-  $("#publicRequestForm").onsubmit=async e=>{
+  form.onsubmit=async e=>{
     e.preventDefault();
-    const btn=$("#publicSubmitBtn");
-    setBusy(btn,true,"Sending…");
+    if(!services.length) return;
+    const fd=new FormData(form);
+    const preferred=fd.get("preferred_contact");
+    const phone=String(fd.get("phone")||"").trim();
+    setBusy(submit,true,"Sending…");
     try{
-      const fd=new FormData(e.currentTarget);
-      const preferred=fd.get("preferred_contact");
-      const phone=String(fd.get("phone")||"").trim();
       if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
+
       if(mode==="quote"){
         const {error:submitError}=await supabase.rpc("submit_public_quote_request",{
           p_slug:slug,
@@ -1489,38 +1578,40 @@ async function initializePublicRequest(mode,slug){
         });
         if(submitError) throw submitError;
       }else{
-        const start=new Date(`${fd.get("date")}T${fd.get("time")}:00`);
-        const addonIds=fd.getAll("addon");
+        const selectedSlot=String(fd.get("slot_start")||"").trim();
+        if(!selectedSlot) throw new Error("Choose one of the available times.");
         const {error:submitError}=await supabase.rpc("submit_public_booking_request",{
           p_slug:slug,
           p_service_id:fd.get("service_id"),
-          p_addon_ids:addonIds,
+          p_addon_ids:fd.getAll("addon"),
           p_customer_name:String(fd.get("name")).trim(),
           p_customer_email:String(fd.get("email")).trim(),
           p_customer_phone:phone||null,
           p_preferred_contact:preferred,
           p_service_address:String(fd.get("address")).trim(),
-          p_requested_start_at:start.toISOString(),
+          p_requested_start_at:selectedSlot,
           p_notes:String(fd.get("notes")||"").trim()||null
         });
         if(submitError) throw submitError;
       }
-      $("#publicRequestForm").hidden=true;
+
+      form.hidden=true;
       $("#publicSuccess").hidden=false;
-      $("#publicSuccessCopy").textContent=mode==="quote"?"Your quote request was sent. The business will review it and contact you.":"Your booking request was sent. The business will review it and confirm the appointment.";
+      $("#publicSuccessCopy").textContent=mode==="quote"
+        ?"Your quote request was sent. The business will review it and contact you."
+        :"Your booking request was sent. The business will review it and confirm the appointment.";
     }catch(err){
       showToast(err.message||"Could not send request");
     }finally{
-      setBusy(btn,false);
+      setBusy(submit,false);
     }
   };
 
   $("#publicBackBtn").onclick=()=>{
-    window.location.href=window.location.origin+window.location.pathname;
+    if(history.length>1) history.back();
+    else window.location.href=window.location.origin+window.location.pathname;
   };
 }
-
-
 
 function optionList(items,valueKey,labelKey,selected){
   return items.map(item=>`<option value="${escapeHtml(item[valueKey])}" ${item[valueKey]===selected?"selected":""}>${escapeHtml(item[labelKey])}</option>`).join("");
