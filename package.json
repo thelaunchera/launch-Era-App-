@@ -1,0 +1,8 @@
+{
+  "name": "the-launch-era-cleaning-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check app.js"
+  }
+}
