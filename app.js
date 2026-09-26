@@ -215,9 +215,45 @@ function prepareAdminShortcut(){
   }
 }
 
+async function tryTrustedAdminSignIn(email){
+  const cleanEmail=String(email||"").trim().toLowerCase();
+  if(!cleanEmail) return false;
+  try{
+    const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
+      body:{email:cleanEmail,visitor_id:getVisitorId()}
+    });
+    if(error || !data?.token_hash) return false;
+
+    const {error:verifyError}=await supabase.auth.verifyOtp({
+      token_hash:data.token_hash,
+      type:"magiclink"
+    });
+    if(verifyError) throw verifyError;
+
+    localStorage.setItem("tle_internal_admin_device","1");
+    localStorage.setItem("tle_last_admin_email",cleanEmail);
+    const remembered=rememberedAdminEmails();
+    if(!remembered.includes(cleanEmail)){
+      remembered.push(cleanEmail);
+      localStorage.setItem("tle_admin_emails",JSON.stringify(remembered.slice(-4)));
+    }
+    await initialize();
+    return true;
+  }catch(err){
+    console.warn("[TLE] trusted admin sign-in unavailable",err);
+    return false;
+  }
+}
+
 async function sendPasswordlessLink(email){
   const cleanEmail=String(email||"").trim().toLowerCase();
   if(!cleanEmail){ showToast("Enter your email first"); return; }
+
+  if(await tryTrustedAdminSignIn(cleanEmail)){
+    showToast("Welcome back");
+    return;
+  }
+
   const redirectTo=window.location.href.split("#")[0].split("?")[0];
   const {error}=await supabase.auth.signInWithOtp({
     email:cleanEmail,
@@ -307,11 +343,13 @@ $("#emailLinkBtn").addEventListener("click",async ()=>{
   catch(err){ showToast(err.message||"Could not send sign-in link"); }
 });
 $("#rememberedAdminBtn").addEventListener("click",async ()=>{
-  const email=localStorage.getItem("tle_last_admin_email");
+  const email=localStorage.getItem("tle_last_admin_email") || $("#authEmail").value;
   if(!email){ showToast("Enter your email first"); return; }
   $("#authEmail").value=email;
-  try{ await sendPasswordlessLink(email); }
-  catch(err){ showToast(err.message||"Could not send sign-in link"); }
+  try{
+    const trusted=await tryTrustedAdminSignIn(email);
+    if(!trusted) await sendPasswordlessLink(email);
+  }catch(err){ showToast(err.message||"Could not continue"); }
 });
 
 authForm.addEventListener("submit", async (e)=>{
