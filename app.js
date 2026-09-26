@@ -26,6 +26,7 @@ const state = {
   timeEntries: [],
   services: [],
   serviceAddons: [],
+  availabilityRules: [],
   supplies: [],
   jobs: [],
   quotes: [],
@@ -691,20 +692,23 @@ async function loadCoreData(){
   };
 
   // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
-  const [clients,leads,services,addons]=await Promise.all([
+  const [clients,leads,services,addons,availability]=await Promise.all([
     safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
     safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
     safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
-    safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"))
+    safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
+    safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"))
   ]);
   state.clients=clients;
   state.leads=leads;
   state.services=services;
   state.serviceAddons=addons;
+  state.availabilityRules=availability;
   renderClients();
   renderLeads();
   renderServices();
   renderBookingServices();
+  renderAvailabilityEditor();
 
   const [jobs,quotes,team,supplies]=await Promise.all([
     safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true})),
@@ -878,6 +882,89 @@ function renderBookingServices(){
       <span class="booking-addon-chips">${addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>"}</span>
     </div>`;
   }).join("");
+}
+
+function renderAvailabilityEditor(){
+  const wrap=$("#availabilityWeek");
+  if(!wrap) return;
+
+  const days=[
+    {weekday:1,label:"Monday"},
+    {weekday:2,label:"Tuesday"},
+    {weekday:3,label:"Wednesday"},
+    {weekday:4,label:"Thursday"},
+    {weekday:5,label:"Friday"},
+    {weekday:6,label:"Saturday"},
+    {weekday:0,label:"Sunday"}
+  ];
+
+  wrap.innerHTML=days.map(day=>{
+    const rule=state.availabilityRules.find(r=>Number(r.weekday)===day.weekday && r.active);
+    const on=Boolean(rule);
+    const start=(rule?.start_time||"09:00:00").slice(0,5);
+    const end=(rule?.end_time||"17:00:00").slice(0,5);
+    return '<div class="availability-day '+(on?"":"off")+'" data-weekday="'+day.weekday+'">'+
+      '<label class="day-toggle"><input type="checkbox" data-day-enabled '+(on?"checked":"")+'> '+day.label+'</label>'+
+      '<input type="time" data-day-start value="'+start+'" '+(on?"":"disabled")+'>'+
+      '<input type="time" data-day-end value="'+end+'" '+(on?"":"disabled")+'>'+
+    '</div>';
+  }).join("");
+
+  const buffer=$("#bookingTravelBuffer");
+  const notice=$("#bookingNoticeHours");
+  if(buffer) buffer.value=String(state.business?.default_travel_buffer_minutes??state.publicLinks?.travel_buffer_minutes??30);
+  if(notice) notice.value=String(state.publicLinks?.minimum_notice_hours??24);
+}
+
+async function saveAvailabilitySettings(){
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    throw new Error("Owner or Admin access required.");
+  }
+
+  const buffer=Number($("#bookingTravelBuffer")?.value||0);
+  const notice=Number($("#bookingNoticeHours")?.value||0);
+  const rows=[];
+
+  $(".availability-day").forEach(day=>{
+    const enabled=day.querySelector("[data-day-enabled]")?.checked;
+    if(!enabled) return;
+    const start=day.querySelector("[data-day-start]")?.value;
+    const end=day.querySelector("[data-day-end]")?.value;
+    if(!start || !end || start>=end) throw new Error("Each active day needs a valid start and end time.");
+    rows.push({
+      business_id:state.business.id,
+      weekday:Number(day.dataset.weekday),
+      start_time:start,
+      end_time:end,
+      active:true
+    });
+  });
+
+  const {error:businessError}=await supabase.from("businesses").update({
+    default_travel_buffer_minutes:buffer,
+    minimum_booking_notice_hours:notice,
+    updated_at:new Date().toISOString()
+  }).eq("id",state.business.id);
+  if(businessError) throw businessError;
+
+  const {error:deleteError}=await supabase.from("availability_rules").delete().eq("business_id",state.business.id);
+  if(deleteError) throw deleteError;
+
+  if(rows.length){
+    const {error:insertError}=await supabase.from("availability_rules").insert(rows);
+    if(insertError) throw insertError;
+  }
+
+  state.business.default_travel_buffer_minutes=buffer;
+  if(state.publicLinks){
+    state.publicLinks.travel_buffer_minutes=buffer;
+    state.publicLinks.minimum_notice_hours=notice;
+  }
+  const {data,error}=await supabase.from("availability_rules").select("*").eq("business_id",state.business.id).order("weekday").order("start_time");
+  if(error) throw error;
+  state.availabilityRules=data||[];
+  renderAvailabilityEditor();
+  renderSettings();
 }
 
 function renderTeam(){
@@ -1708,14 +1795,19 @@ async function saveClient(fd){
 }
 
 async function saveService(fd){
-  const pricing=fd.get("pricing_type");
-  const price=String(fd.get("base_price")||"").trim();
+  let pricing=fd.get("pricing_type");
+  const priceRaw=String(fd.get("base_price")||"").trim();
+  const numericPrice=priceRaw===""?null:Number(priceRaw);
+  if(pricing!=="quote" && (!Number.isFinite(numericPrice) || numericPrice<=0)){
+    pricing="quote";
+    showToast("No price entered — service saved as Quote Required");
+  }
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
     description:String(fd.get("description")||"").trim()||null,
     pricing_type:pricing,
-    base_price:pricing==="quote"?null:(price?Number(price):null),
+    base_price:pricing==="quote"?null:numericPrice,
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
     active:fd.get("active")==="on"
   };
@@ -2201,6 +2293,30 @@ document.addEventListener("change",async e=>{
     .eq("id",memberRole.dataset.memberRole);
   if(error) showToast(error.message);
   else {await loadOwnerAdmin();showToast("Access updated");}
+});
+
+const saveAvailabilityBtn=$("#saveAvailabilityBtn");
+if(saveAvailabilityBtn) saveAvailabilityBtn.addEventListener("click",async ()=>{
+  try{
+    saveAvailabilityBtn.disabled=true;
+    saveAvailabilityBtn.textContent="Saving…";
+    await saveAvailabilitySettings();
+    showToast("Availability saved");
+  }catch(err){
+    showToast(err.message||"Could not save availability");
+  }finally{
+    saveAvailabilityBtn.disabled=false;
+    saveAvailabilityBtn.textContent="Save";
+  }
+});
+
+const availabilityWeek=$("#availabilityWeek");
+if(availabilityWeek) availabilityWeek.addEventListener("change",e=>{
+  const toggle=e.target.closest("[data-day-enabled]");
+  if(!toggle) return;
+  const row=toggle.closest(".availability-day");
+  row.classList.toggle("off",!toggle.checked);
+  row.querySelectorAll('input[type="time"]').forEach(input=>input.disabled=!toggle.checked);
 });
 
 const quickAddBtn=$("#quickAddBtn");
