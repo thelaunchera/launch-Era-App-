@@ -36,6 +36,8 @@ const modal = $("#modalBackdrop");
 const toastEl = $("#toast");
 const sidebar = $("#sidebar");
 const pageTitle = $("#pageTitle");
+const backBtn = $("#backBtn");
+const navHistory=["today"];
 
 const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
@@ -112,16 +114,26 @@ function applyRolePermissions(){
   }
 }
 
-function openView(id){
-  $$(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
-  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+function openView(id,options={}){
+  const current=$(".view.active")?.dataset.page;
+  if(!options.fromBack && current && current!==id){
+    if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
+  }
+  $(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
+  $(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
+  if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
 }
 $$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
+if(backBtn) backBtn.addEventListener("click",()=>{
+  let previous=navHistory.pop();
+  while(previous && previous===$(".view.active")?.dataset.page) previous=navHistory.pop();
+  openView(previous||"today",{fromBack:true});
+});
 
 function setAuthMode(mode){
   state.authMode = mode;
