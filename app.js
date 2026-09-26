@@ -2427,8 +2427,7 @@ document.addEventListener("click",e=>{
   if(link) window.open(link,"_blank","noopener");
 });
 
-let spanish=false;
-$("#languageBtn").addEventListener("click",()=>{spanish=!spanish;showToast(spanish?"Spanish interface comes next":"English active");});
+$("#languageBtn").addEventListener("click",()=>{ window.TLE_I18N?.toggle(); });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
 
 if("serviceWorker" in navigator){
