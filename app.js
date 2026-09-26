@@ -2271,5 +2271,6 @@ if("caches" in window){
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
 }
 
+window.__tleAppReady=true;
 setAuthMode("signin");
 initialize();
