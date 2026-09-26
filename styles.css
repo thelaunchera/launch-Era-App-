@@ -204,3 +204,45 @@ button:disabled{opacity:.55;cursor:not-allowed}
   .member-row{grid-template-columns:38px 1fr}
   .member-row>select,.member-row>button,.member-row>.status{grid-column:2}
 }
+
+
+/* Sharing, Help & install guidance */
+.section-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.share-access-card{display:flex;justify-content:space-between;gap:20px;align-items:center;background:var(--blue);border:1px solid var(--blue-strong);border-radius:22px;padding:20px;margin-bottom:18px}
+.share-access-card h3{margin:9px 0 5px;font-size:21px}
+.share-access-card p{margin:0;color:#566675;max-width:680px;line-height:1.5}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.help-grid .full-help{grid-column:1/-1}
+.install-card h3{margin:14px 0 10px;font-size:22px}
+.steps-list{margin:0;padding-left:22px;display:grid;gap:10px;color:#4E4A44}
+.steps-list li{padding-left:3px;line-height:1.5}
+.share-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.share-steps>div{display:flex;gap:10px;background:#F8F6F1;border:1px solid var(--line);border-radius:14px;padding:13px}
+.share-steps b{width:26px;height:26px;min-width:26px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:10px}
+.share-steps span{display:grid;gap:3px}
+.share-steps small{color:var(--muted);font-size:10px;line-height:1.4}
+.faq-list{display:grid;margin-top:12px}
+.faq-list details{border-top:1px solid var(--line);padding:14px 0}
+.faq-list details:first-child{border-top:0}
+.faq-list summary{cursor:pointer;font-weight:850;list-style:none}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary:after{content:"＋";float:right;color:var(--muted)}
+.faq-list details[open] summary:after{content:"−"}
+.faq-list p{margin:9px 28px 0 0;color:var(--muted);line-height:1.55}
+.quick-add-menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick-add-menu button{border:1px solid var(--line);background:#FCFBF8;border-radius:16px;padding:14px;text-align:left;display:grid;gap:4px}
+.quick-add-menu button>span{font-size:21px}
+.quick-add-menu button>strong{font-size:13px}
+.quick-add-menu button>small{font-size:10px;color:var(--muted)}
+@media(max-width:760px){
+  .help-grid{grid-template-columns:1fr}
+  .help-grid .full-help{grid-column:auto}
+  .share-steps{grid-template-columns:1fr 1fr}
+  .share-access-card{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:520px){
+  .section-actions{width:100%}
+  .section-actions button{flex:1}
+  .share-steps{grid-template-columns:1fr}
+  .quick-add-menu{grid-template-columns:1fr}
+}
