@@ -212,12 +212,16 @@ function prepareAdminShortcut(){
     passwordField.hidden=true;
     password.required=false;
     submit.hidden=true;
+    $("#forgotPassword").hidden=true;
     $("#authCopy").textContent="Admin device recognized. Continue without a password.";
     shortcut.textContent="Continue as Admin";
-  }else if(state.authMode==="signin"){
-    passwordField.hidden=false;
-    password.required=true;
+  }else{
     submit.hidden=false;
+    if(state.authMode==="signin"){
+      passwordField.hidden=false;
+      password.required=true;
+      $("#forgotPassword").hidden=false;
+    }
   }
 }
 async function sendPasswordlessLink(email){
