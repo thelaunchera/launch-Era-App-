@@ -11,7 +11,7 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for residential cleaning businesses." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <link rel="stylesheet" href="./styles.css?v=20260926-review-link-1" />
+  <link rel="stylesheet" href="./styles.css?v=20260926-trial-warning-1" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -272,6 +272,14 @@
           <button class="ghost-btn" id="signOutBtn">Sign out</button><button class="primary-btn" id="quickAddBtn" data-admin-only>+ Add New</button>
         </div>
       </header>
+
+      <div class="trial-expiry-banner" id="trialExpiryBanner" data-owner-only hidden>
+        <div>
+          <span class="trial-expiry-kicker">FREE ACCESS</span>
+          <strong id="trialExpiryTitle">Your free access ends in 3 days</strong>
+          <p id="trialExpiryCopy">You still have full access. When your free period ends, you can continue for $5.99/month.</p>
+        </div>
+      </div>
 
       <section class="view active" data-page="today">
         <div class="hero-card">
@@ -792,6 +800,6 @@
   <script src="./vendor/supabase.js?v=20260926-2112"></script>
   <script src="./i18n.js?v=20260926-2158"></script>
   <script src="./public.js?v=20260926-disputes-1"></script>
-  <script src="./app.js?v=20260926-2348"></script>
+  <script src="./app.js?v=20260926-trial-warning-1"></script>
 </body>
 </html>
