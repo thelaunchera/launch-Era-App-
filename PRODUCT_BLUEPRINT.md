@@ -238,3 +238,58 @@ The app should feel useful in under 10 seconds:
 2. What needs attention?
 3. What is the next action?
 4. How do I get to it in one tap?
+
+
+## Workspace roles
+
+### Owner
+Owner-only controls:
+- Owner Admin
+- subscription / billing
+- workspace ownership
+- teammate access + permission changes
+- integrations / credentials
+- migration + security controls
+- Owner Reports and business-level financial summaries
+
+Operational access:
+- everything in the app
+
+### Admin
+Can operate the business day to day:
+- Booking Center
+- Leads
+- Clients
+- Calendar + Jobs
+- Quotes
+- Invoices
+- Services + Add-ons
+- Team operations
+- Settings
+
+Cannot access Owner Admin, subscription ownership, permission management, integration credentials or migration/security controls.
+
+### Coworker
+Needs only what is required to perform assigned work:
+- Today
+- assigned Calendar + Jobs
+- Today’s Route
+- Mileage related to assigned jobs
+- Time Tracking
+- necessary client/job details for assigned jobs
+
+Cannot access:
+- all-clients directory
+- Leads
+- Quotes
+- Invoices
+- Services pricing
+- team permission management
+- Owner Reports
+- billing
+- integrations
+- security/migration settings
+
+### Sharing flow
+Owner creates an invite for a specific email and selects **Admin** or **Coworker**.
+The invite token is tied to that email, expires after 14 days, and is claimed only after that email signs in.
