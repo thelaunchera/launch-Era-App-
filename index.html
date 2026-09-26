@@ -9,7 +9,43 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="auth-shell" id="authShell">
+    <div class="auth-card">
+      <div class="brand-row auth-brand">
+        <div class="brand-mark">TL</div>
+        <div>
+          <div class="brand-name">The Launch Era</div>
+          <div class="brand-sub">Cleaning App</div>
+        </div>
+      </div>
+      <div id="authPanel">
+        <p class="eyebrow">OWNER ACCESS</p>
+        <h1 id="authTitle">Sign in</h1>
+        <p class="auth-copy" id="authCopy">Open your cleaning business workspace.</p>
+        <form id="authForm" class="auth-form">
+          <label>Email<input id="authEmail" type="email" required autocomplete="email"></label>
+          <label>Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password"></label>
+          <button class="primary-btn" type="submit" id="authSubmit">Sign in</button>
+        </form>
+        <div class="auth-links">
+          <button type="button" id="authSwitch">Create account</button>
+          <button type="button" id="forgotPassword">Forgot password?</button>
+        </div>
+      </div>
+      <div id="businessSetup" hidden>
+        <p class="eyebrow">FIRST SETUP</p>
+        <h1>Tell me about your business.</h1>
+        <p class="auth-copy">This creates your private workspace and starts the 30-day trial.</p>
+        <form id="businessForm" class="auth-form">
+          <label>Business name<input id="businessName" required placeholder="Bright Home Cleaning"></label>
+          <label>Phone<input id="businessPhone" placeholder="(561) 555-0000"></label>
+          <label>Service area<input id="businessArea" placeholder="Palm Beach County"></label>
+          <button class="primary-btn" type="submit">Create my workspace</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="app-shell" id="appShell" hidden>
     <aside class="sidebar" id="sidebar">
       <div class="brand-row">
         <div class="brand-mark">TL</div>
@@ -64,7 +100,7 @@
         </div>
         <div class="top-actions">
           <button class="ghost-btn" id="languageBtn">EN / ES</button>
-          <button class="primary-btn" id="quickAddBtn">+ Quick add</button>
+          <button class="ghost-btn" id="signOutBtn">Sign out</button><button class="primary-btn" id="quickAddBtn">+ Quick add</button>
         </div>
       </header>
 
@@ -230,12 +266,7 @@
 
       <section class="view" data-page="clients">
         <div class="section-intro"><div><p class="eyebrow">CLIENTS</p><h2>Every client, without the scattered notes.</h2></div><button class="primary-btn" data-action="client">+ Add client</button></div>
-        <div class="client-grid">
-          <article class="client-card"><div class="client-avatar">JL</div><strong>Jessica Lopez</strong><span>Recurring · every 2 weeks</span><small>Next: Oct 2 · 8:00 AM</small></article>
-          <article class="client-card"><div class="client-avatar">MA</div><strong>Mark Anderson</strong><span>Deep cleaning</span><small>Today · 10:30 AM</small></article>
-          <article class="client-card"><div class="client-avatar">CR</div><strong>Carla Rivera</strong><span>Move-out cleaning</span><small>Today · 2:15 PM</small></article>
-          <article class="client-card add-card" data-action="client"><div>＋</div><strong>Add a client</strong><span>Start with the basics.</span></article>
-        </div>
+        <div class="client-grid" id="clientsGrid"></div>
       </section>
 
       <section class="view" data-page="calendar">
@@ -243,11 +274,7 @@
         <div class="calendar-layout">
           <article class="panel">
             <div class="week-row"><span>MON<strong>28</strong></span><span>TUE<strong>29</strong></span><span>WED<strong>30</strong></span><span>THU<strong>1</strong></span><span class="selected">FRI<strong>2</strong></span><span>SAT<strong>3</strong></span></div>
-            <div class="job-block"><time>8:00</time><div><strong>Lopez Residence</strong><span>Recurring · 2h</span></div><span class="status success">Done</span></div>
-            <div class="buffer-block">Travel buffer · 18 min</div>
-            <div class="job-block"><time>10:30</time><div><strong>Anderson Home</strong><span>Deep clean · 3h</span></div><span class="status warning">Next</span></div>
-            <div class="buffer-block">Travel buffer · 24 min</div>
-            <div class="job-block"><time>2:15</time><div><strong>Rivera Condo</strong><span>Move-out · 2h 30m</span></div><span class="status neutral">Scheduled</span></div>
+            <div id="jobsList" class="jobs-list"></div>
           </article>
           <article class="panel">
             <p class="eyebrow">RECURRING</p><h3>Upcoming recurring jobs</h3>
@@ -260,11 +287,7 @@
 
       <section class="view" data-page="quotes">
         <div class="section-intro"><div><p class="eyebrow">QUOTES</p><h2>Quote first. Create the job after acceptance.</h2><p>Quote requests stay here until the customer accepts.</p></div><button class="primary-btn" data-action="quote">+ New quote</button></div>
-        <div class="kanban">
-          <div class="kanban-col"><h3>Requested <span>2</span></h3><article><strong>Jamie R.</strong><small>Recurring cleaning</small><b>Needs review</b></article><article><strong>Paula S.</strong><small>Move-out</small><b>Needs review</b></article></div>
-          <div class="kanban-col"><h3>Sent <span>2</span></h3><article><strong>Kim B.</strong><small>$180 · Deep clean</small><b>Sent 3 days ago</b></article><article><strong>Andre M.</strong><small>$145 · Standard clean</small><b>Sent yesterday</b></article></div>
-          <div class="kanban-col"><h3>Accepted <span>1</span></h3><article class="accepted"><strong>Lisa T.</strong><small>$210 · Move-out</small><b>Client + job + invoice ready</b></article></div>
-        </div>
+        <div class="kanban" id="quotesBoard"></div>
       </section>
 
       <section class="view" data-page="invoices">
@@ -336,12 +359,7 @@
 
       <section class="view" data-page="services">
         <div class="section-intro"><div><p class="eyebrow">SERVICES + ADD-ONS</p><h2>Set pricing and duration once.</h2></div><button class="primary-btn">+ Add service</button></div>
-        <div class="service-grid">
-          <article><strong>Standard Cleaning</strong><span>2h · Fixed price</span><b>$120+</b></article>
-          <article><strong>Deep Cleaning</strong><span>3h · Fixed price</span><b>$180+</b></article>
-          <article><strong>Move-Out Cleaning</strong><span>3h · Quote required</span><b>Custom</b></article>
-          <article class="add-card"><div>＋</div><strong>Add service</strong><span>Create duration, price and add-ons.</span></article>
-        </div>
+        <div class="service-grid" id="servicesGrid"></div>
       </section>
 
       <section class="view" data-page="team">
@@ -368,16 +386,14 @@
   <div class="modal-backdrop" id="modalBackdrop" hidden>
     <div class="modal" role="dialog" aria-modal="true">
       <button class="modal-close" id="modalClose">×</button>
-      <p class="eyebrow">QUICK ADD</p>
+      <p class="eyebrow" id="modalEyebrow">QUICK ADD</p>
       <h2 id="modalTitle">Add something</h2>
-      <p id="modalCopy">This demo shows where fast actions will live. Data will connect to the new backend during the migration build.</p>
-      <div class="modal-actions">
-        <button class="primary-btn" id="modalDone">Looks good</button>
-      </div>
+      <p id="modalCopy">Create or update a business record.</p>
+      <form id="entityForm" class="entity-form"></form>
     </div>
   </div>
 
   <div class="toast" id="toast">Copied</div>
-  <script src="./app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
