@@ -38,6 +38,7 @@ const browser=await puppeteer.launch({
 
 const profiles=[
   {name:"iPhone",viewport:{width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:3}},
+  {name:"Android",viewport:{width:412,height:915,isMobile:true,hasTouch:true,deviceScaleFactor:2.6}},
   {name:"Tablet",viewport:{width:768,height:1024,isMobile:true,hasTouch:true,deviceScaleFactor:2}},
   {name:"Desktop",viewport:{width:1366,height:768,isMobile:false,hasTouch:false,deviceScaleFactor:1}}
 ];
