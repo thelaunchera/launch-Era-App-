@@ -2,7 +2,14 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
+  auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true,
+    storage:window.localStorage
+  }
+});
 
 const state = {
   session: null,
@@ -174,10 +181,39 @@ async function identifyPlatformAdmin(){
   if(state.isPlatformAdmin){
     await supabase.rpc("mark_platform_admin_device",{p_visitor_id:getVisitorId()});
     localStorage.setItem("tle_internal_admin_device","1");
+    const email=state.session?.user?.email;
+    if(email){
+      const remembered=JSON.parse(localStorage.getItem("tle_admin_emails")||"[]");
+      if(!remembered.includes(email)) remembered.push(email);
+      localStorage.setItem("tle_admin_emails",JSON.stringify(remembered.slice(-4)));
+      localStorage.setItem("tle_last_admin_email",email);
+    }
   }
   return state.isPlatformAdmin;
 }
 
+function rememberedAdminEmails(){
+  try{return JSON.parse(localStorage.getItem("tle_admin_emails")||"[]").filter(Boolean);}
+  catch{return [];}
+}
+function prepareAdminShortcut(){
+  const last=localStorage.getItem("tle_last_admin_email");
+  const shortcut=$("#rememberedAdminBtn");
+  if(!shortcut) return;
+  shortcut.hidden=!last || state.authMode!=="signin";
+  if(last) shortcut.textContent="Continue as Admin";
+}
+async function sendPasswordlessLink(email){
+  const cleanEmail=String(email||"").trim().toLowerCase();
+  if(!cleanEmail){ showToast("Enter your email first"); return; }
+  const redirectTo=window.location.href.split("#")[0].split("?")[0];
+  const {error}=await supabase.auth.signInWithOtp({
+    email:cleanEmail,
+    options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
+  });
+  if(error) throw error;
+  showToast("Sign-in link sent to your email");
+}
 function setAuthMode(mode){
   state.authMode = mode;
   const title = $("#authTitle");
@@ -185,12 +221,17 @@ function setAuthMode(mode){
   const submit = $("#authSubmit");
   const switchBtn = $("#authSwitch");
   const password = $("#authPassword");
+  const passwordField=$("#passwordField");
+  const passwordless=$("#emailLinkBtn");
   if(mode === "signup"){
     title.textContent = "Create account";
     copy.textContent = "Start your private cleaning business workspace.";
     submit.textContent = "Create account";
     switchBtn.textContent = "Already have an account? Sign in";
+    passwordField.hidden=false;
+    password.required=true;
     password.autocomplete = "new-password";
+    if(passwordless) passwordless.hidden=true;
   }else if(mode === "recovery"){
     title.textContent = "Choose a new password";
     copy.textContent = "Enter the new password you want to use.";
@@ -198,19 +239,39 @@ function setAuthMode(mode){
     switchBtn.hidden = true;
     $("#forgotPassword").hidden = true;
     $("#authEmail").closest("label").hidden = true;
+    passwordField.hidden=false;
+    password.required=true;
     password.autocomplete = "new-password";
+    if(passwordless) passwordless.hidden=true;
   }else{
     title.textContent = "Sign in";
-    copy.textContent = "Open your cleaning business workspace.";
+    copy.textContent = "Your session stays signed in on this device. You can also use a secure email link instead of a password.";
     submit.textContent = "Sign in";
     switchBtn.textContent = "Create account";
     switchBtn.hidden = false;
     $("#forgotPassword").hidden = false;
     $("#authEmail").closest("label").hidden = false;
+    passwordField.hidden=false;
+    password.required=true;
     password.autocomplete = "current-password";
+    if(passwordless) passwordless.hidden=false;
+    const last=localStorage.getItem("tle_last_admin_email");
+    if(last && !$("#authEmail").value) $("#authEmail").value=last;
   }
+  prepareAdminShortcut();
 }
 $("#authSwitch").addEventListener("click",()=>setAuthMode(state.authMode==="signup"?"signin":"signup"));
+$("#emailLinkBtn").addEventListener("click",async ()=>{
+  try{ await sendPasswordlessLink($("#authEmail").value); }
+  catch(err){ showToast(err.message||"Could not send sign-in link"); }
+});
+$("#rememberedAdminBtn").addEventListener("click",async ()=>{
+  const email=localStorage.getItem("tle_last_admin_email");
+  if(!email){ showToast("Enter your email first"); return; }
+  $("#authEmail").value=email;
+  try{ await sendPasswordlessLink(email); }
+  catch(err){ showToast(err.message||"Could not send sign-in link"); }
+});
 
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
@@ -1202,6 +1263,17 @@ function openEntityForm(type,id=null){
       </div>${formSubmit(record?"Save changes":"Add supply")}`;
   }
 
+  if(type==="mileage"){
+    modalHeader("MILEAGE",record?"Edit drive":"Log drive","Record business miles for a job or business trip.");
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label>Date<input name="log_date" type="date" required value="${new Date().toLocaleDateString("en-CA")}"></label>
+        <label>Miles<input name="miles" type="number" min="0.1" step="0.1" required></label>
+        <label class="full">Job<select name="job_id"><option value="">No specific job</option>${optionList(state.jobs.filter(j=>j.status!=="canceled"),"id","service_address",null)}</select></label>
+        <label class="full">From → To / note<input name="notes" placeholder="Office → client, supply store trip…"></label>
+      </div>${formSubmit("Save mileage")}`;
+  }
+
   if(type==="job"){
     const local=record?.starts_at?new Date(record.starts_at):null;
     const date=local?local.toLocaleDateString("en-CA"):"";
@@ -1262,10 +1334,12 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="addon") await saveAddon(fd);
     if(state.modalType==="supply") await saveSupply(fd);
     if(state.modalType==="supplyAdjust") await saveSupplyAdjust(fd);
+    if(state.modalType==="mileage") await saveMileage(fd);
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="quote") await saveQuote(fd);
     if(state.modalType==="team") await saveTeam(fd);
     if(state.modalType==="invite") await saveInvite(fd);
+    if(state.modalType==="startTimer") await saveStartTimer(fd);
     modal.hidden=true;
     await loadCoreData();
     showToast("Saved");
@@ -1465,6 +1539,19 @@ async function saveSupplyAdjust(fd){
   if(error) throw error;
 }
 
+async function saveMileage(fd){
+  const payload={
+    business_id:state.business.id,
+    job_id:fd.get("job_id")||null,
+    log_date:fd.get("log_date"),
+    miles:Number(fd.get("miles")||0),
+    notes:String(fd.get("notes")||"").trim()||null
+  };
+  if(payload.miles<=0) throw new Error("Enter miles greater than 0.");
+  const {error}=await supabase.from("mileage_logs").insert(payload);
+  if(error) throw error;
+}
+
 async function saveJob(fd){
   const starts=new Date(`${fd.get("date")}T${fd.get("time")}:00`);
   if(Number.isNaN(starts.getTime())) throw new Error("Choose a valid date and time.");
@@ -1535,6 +1622,47 @@ async function saveQuote(fd){
   }
 }
 
+async function startTimeEntry(){
+  if(state.timeEntries.some(t=>!t.clocked_out_at)){ showToast("A timer is already running"); return; }
+  const eligible=state.jobs.filter(j=>!["completed","canceled","no_show"].includes(j.status));
+  if(!eligible.length){ showToast("Schedule a job first"); return; }
+
+  state.modalType="startTimer";state.modalId=null;
+  modalHeader("TIME TRACKING","Start timer","Choose the job you are starting now.");
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label class="full">Job<select name="job_id" required><option value="">Choose a job</option>${eligible.map(j=>`<option value="${j.id}">${escapeHtml(j.clients?.name||j.service_address||"Cleaning job")} · ${escapeHtml(formatDateTime(j.starts_at))}</option>`).join("")}</select></label>
+    </div>${formSubmit("Start timer")}`;
+  modal.hidden=false;
+}
+async function saveStartTimer(fd){
+  const jobId=fd.get("job_id");
+  const {error}=await supabase.from("job_time_entries").insert({
+    business_id:state.business.id,
+    job_id:jobId,
+    team_member_id:state.business.team_member_id||null,
+    clocked_in_at:new Date().toISOString()
+  });
+  if(error) throw error;
+  if(state.business.role==="coworker"){
+    await supabase.rpc("coworker_set_job_status",{p_job_id:jobId,p_status:"in_progress"});
+  }else{
+    await supabase.from("jobs").update({status:"in_progress"}).eq("id",jobId);
+  }
+}
+async function finishTimeEntry(id){
+  const entry=state.timeEntries.find(t=>t.id===id);
+  if(!entry) return;
+  const end=new Date();
+  const start=new Date(entry.clocked_in_at);
+  const minutes=Math.max(1,Math.round((end-start)/60000));
+  const {error}=await supabase.from("job_time_entries").update({
+    clocked_out_at:end.toISOString(),
+    minutes_worked:minutes
+  }).eq("id",id);
+  if(error) throw error;
+}
+
 document.addEventListener("click",async e=>{
   const create=e.target.closest("[data-create]");
   const action=e.target.closest("[data-action]");
@@ -1547,7 +1675,7 @@ document.addEventListener("click",async e=>{
   if(action){
     const type=action.dataset.action;
     if(state.business.role==="coworker"){ showToast("This action is owner/admin only"); return; }
-    if(["lead","client","service","addon","supply","job","quote","invoice"].includes(type)) openEntityForm(type);
+    if(["lead","client","service","addon","supply","mileage","job","quote","invoice"].includes(type)) openEntityForm(type);
     else openGeneric(type);
     return;
   }
@@ -1766,6 +1894,9 @@ if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
   });
 });
 
+const startTimerBtn=$("#startTimerBtn");
+if(startTimerBtn) startTimerBtn.addEventListener("click",startTimeEntry);
+
 const inviteMemberBtn=$("#inviteMemberBtn");
 if(inviteMemberBtn) inviteMemberBtn.addEventListener("click",openInviteForm);
 const addTeamProfileBtn=$("#addTeamProfileBtn");
@@ -1793,7 +1924,20 @@ $("#languageBtn").addEventListener("click",()=>{spanish=!spanish;showToast(spani
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+  window.addEventListener("load",async ()=>{
+    try{
+      const registration=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
+      await registration.update();
+    }catch{}
+  });
+}
+
+const APP_BUILD="2026-09-26-ios-v1";
+if(localStorage.getItem("tle_app_build")!==APP_BUILD){
+  localStorage.setItem("tle_app_build",APP_BUILD);
+  if("caches" in window){
+    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("tle-cleaning-app-")).map(k=>caches.delete(k)))).catch(()=>{});
+  }
 }
 
 setAuthMode("signin");
