@@ -216,32 +216,41 @@ function rememberedAdminEmails(){
 function prepareAdminShortcut(){
   const shortcut=$("#rememberedAdminBtn");
   if(!shortcut) return;
-  shortcut.hidden=state.authMode!=="signin";
   const last=localStorage.getItem("tle_last_admin_email");
-  if(last && !$("#authEmail").value) $("#authEmail").value=last;
+  const passwordField=$("#passwordField");
+  const submit=$("#authSubmit");
+  const forgot=$("#forgotPassword");
+  const recognized=Boolean(last && state.authMode==="signin");
+
+  shortcut.hidden=!recognized;
+  if(recognized){
+    if(!$("#authEmail").value) $("#authEmail").value=last;
+    passwordField.hidden=true;
+    $("#authPassword").required=false;
+    submit.hidden=true;
+    forgot.hidden=true;
+    $("#authCopy").textContent="Continue with your admin email. No password required.";
+  }else if(state.authMode==="signin"){
+    passwordField.hidden=false;
+    $("#authPassword").required=true;
+    submit.hidden=false;
+    forgot.hidden=false;
+  }
 }
 
-async function tryTrustedAdminSignIn(email){
+async function requestAdminSignIn(email){
   const clean=String(email||"").trim().toLowerCase();
-  if(!clean) return false;
-  try{
-    const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
-      body:{email:clean,visitor_id:getVisitorId()}
-    });
-    if(error || !data?.token_hash) return false;
+  if(!clean) throw new Error("Enter your admin email first.");
 
-    const {error:verifyError}=await supabase.auth.verifyOtp({
-      token_hash:data.token_hash,
-      type:"magiclink"
-    });
-    if(verifyError) return false;
+  const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
+    body:{email:clean}
+  });
 
-    localStorage.setItem("tle_internal_admin_device","1");
-    localStorage.setItem("tle_last_admin_email",clean);
-    return true;
-  }catch{
-    return false;
-  }
+  if(error) throw error;
+  if(!data?.sent) throw new Error(data?.error||"Could not send admin sign-in email");
+
+  localStorage.setItem("tle_last_admin_email",clean);
+  return true;
 }
 
 async function continueAsAdmin(){
@@ -253,8 +262,9 @@ async function continueAsAdmin(){
   }
 
   const button=$("#rememberedAdminBtn");
-  setBusy(button,true,"Opening…");
-  setAuthStatus("Opening your admin workspace…","loading");
+  setBusy(button,true,"Sending…");
+  setAuthStatus("Sending your secure sign-in email…","loading");
+
   try{
     const {data:{session}}=await supabase.auth.getSession();
     if(session){
@@ -263,13 +273,13 @@ async function continueAsAdmin(){
       return;
     }
 
-    const ok=await tryTrustedAdminSignIn(email);
-    if(!ok) throw new Error("This device is not approved for passwordless admin access.");
-    setAuthStatus("Admin access confirmed.","success");
-    await enterAuthenticatedApp();
+    await requestAdminSignIn(email);
+    setAuthStatus("Check your email and open the sign-in message. No password is needed.","success");
+    showToast("Sign-in email sent");
   }catch(err){
-    setAuthStatus(err.message||"Admin access is not available on this device","error");
-    showToast(err.message||"Admin access is not available on this device");
+    const message=err?.message||"Could not send sign-in email";
+    setAuthStatus(message,"error");
+    showToast(message);
   }finally{
     setBusy(button,false);
   }
