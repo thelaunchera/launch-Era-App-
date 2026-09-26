@@ -207,26 +207,25 @@ function rememberedAdminEmails(){
   catch{return [];}
 }
 function prepareAdminShortcut(){
-  const last=localStorage.getItem("tle_last_admin_email");
   const shortcut=$("#rememberedAdminBtn");
   if(!shortcut) return;
-  const internal=localStorage.getItem("tle_internal_admin_device")==="1";
-  const useShortcut=Boolean(last&&internal&&state.authMode==="signin");
-  shortcut.hidden=!useShortcut;
-  if(useShortcut){
-    $("#authEmail").value=last;
-    shortcut.textContent="Continue as Admin";
-  }
+  shortcut.hidden=state.authMode!=="signin";
+  const last=localStorage.getItem("tle_last_admin_email");
+  if(last && !$("#authEmail").value) $("#authEmail").value=last;
 }
 
-async function tryTrustedAdminSignIn(email){
-  const cleanEmail=String(email||"").trim().toLowerCase();
-  if(!cleanEmail) return false;
+async function continueAsAdmin(){
+  const email=String($("#authEmail").value||"").trim().toLowerCase();
+  if(!email){ showToast("Enter your admin email first"); return; }
+
+  const button=$("#rememberedAdminBtn");
+  setBusy(button,true,"Opening…");
   try{
     const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
-      body:{email:cleanEmail,visitor_id:getVisitorId()}
+      body:{email,visitor_id:getVisitorId()}
     });
-    if(error || !data?.token_hash) return false;
+    if(error) throw error;
+    if(!data?.token_hash) throw new Error(data?.error||"This device is not approved for admin access.");
 
     const {error:verifyError}=await supabase.auth.verifyOtp({
       token_hash:data.token_hash,
@@ -235,36 +234,14 @@ async function tryTrustedAdminSignIn(email){
     if(verifyError) throw verifyError;
 
     localStorage.setItem("tle_internal_admin_device","1");
-    localStorage.setItem("tle_last_admin_email",cleanEmail);
-    const remembered=rememberedAdminEmails();
-    if(!remembered.includes(cleanEmail)){
-      remembered.push(cleanEmail);
-      localStorage.setItem("tle_admin_emails",JSON.stringify(remembered.slice(-4)));
-    }
-    await initialize();
-    return true;
-  }catch(err){
-    console.warn("[TLE] trusted admin sign-in unavailable",err);
-    return false;
-  }
-}
-
-async function sendPasswordlessLink(email){
-  const cleanEmail=String(email||"").trim().toLowerCase();
-  if(!cleanEmail){ showToast("Enter your email first"); return; }
-
-  if(await tryTrustedAdminSignIn(cleanEmail)){
+    localStorage.setItem("tle_last_admin_email",email);
     showToast("Welcome back");
-    return;
+    await initialize();
+  }catch(err){
+    showToast(err.message||"Admin access is not available on this device");
+  }finally{
+    setBusy(button,false);
   }
-
-  const redirectTo=window.location.href.split("#")[0].split("?")[0];
-  const {error}=await supabase.auth.signInWithOtp({
-    email:cleanEmail,
-    options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
-  });
-  if(error) throw error;
-  showToast("Check your email for the secure sign-in link");
 }
 
 function setAuthMode(mode){
@@ -275,12 +252,12 @@ function setAuthMode(mode){
   const switchBtn=$("#authSwitch");
   const password=$("#authPassword");
   const passwordField=$("#passwordField");
-  const passwordless=$("#emailLinkBtn");
-  const usePassword=$("#usePasswordBtn");
+  const emailField=$("#authEmail").closest("label");
+  const forgot=$("#forgotPassword");
 
   if(mode==="signup"){
     title.textContent="Create account";
-    copy.textContent="Start your private cleaning business workspace.";
+    copy.textContent="Create your cleaning business account.";
     submit.textContent="Create account";
     submit.hidden=false;
     switchBtn.textContent="Already have an account? Sign in";
@@ -288,73 +265,38 @@ function setAuthMode(mode){
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="new-password";
-    passwordless.hidden=true;
-    if(usePassword) usePassword.hidden=true;
-    $("#forgotPassword").hidden=true;
-    $("#authEmail").closest("label").hidden=false;
+    emailField.hidden=false;
+    forgot.hidden=true;
   }else if(mode==="recovery"){
     title.textContent="Choose a new password";
     copy.textContent="Enter the new password you want to use.";
     submit.textContent="Update password";
     submit.hidden=false;
     switchBtn.hidden=true;
-    $("#forgotPassword").hidden=true;
-    $("#authEmail").closest("label").hidden=true;
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="new-password";
-    passwordless.hidden=true;
-    if(usePassword) usePassword.hidden=true;
+    emailField.hidden=true;
+    forgot.hidden=true;
   }else{
     title.textContent="Sign in";
-    copy.textContent="Enter your email. No password is required.";
+    copy.textContent="Open your cleaning business workspace.";
+    submit.textContent="Sign in";
+    submit.hidden=false;
     switchBtn.textContent="Create account";
     switchBtn.hidden=false;
-    $("#forgotPassword").hidden=true;
-    $("#authEmail").closest("label").hidden=false;
-    passwordField.hidden=true;
-    password.required=false;
-    submit.hidden=true;
-    passwordless.hidden=false;
-    if(usePassword){
-      usePassword.hidden=false;
-      usePassword.textContent="Use password instead";
-    }
-    const last=localStorage.getItem("tle_last_admin_email");
-    if(last && !$("#authEmail").value) $("#authEmail").value=last;
+    passwordField.hidden=false;
+    password.required=true;
+    password.autocomplete="current-password";
+    emailField.hidden=false;
+    forgot.hidden=false;
   }
+
   prepareAdminShortcut();
 }
 
-function enablePasswordFallback(){
-  state.authMode="signin";
-  $("#passwordField").hidden=false;
-  $("#authPassword").required=true;
-  $("#authPassword").autocomplete="current-password";
-  $("#authSubmit").hidden=false;
-  $("#authSubmit").textContent="Sign in";
-  $("#emailLinkBtn").hidden=true;
-  $("#forgotPassword").hidden=false;
-  const btn=$("#usePasswordBtn");
-  if(btn) btn.hidden=true;
-  $("#rememberedAdminBtn").hidden=true;
-  $("#authCopy").textContent="Sign in with your email and password.";
-}
 $("#authSwitch").addEventListener("click",()=>setAuthMode(state.authMode==="signup"?"signin":"signup"));
-$("#usePasswordBtn").addEventListener("click",enablePasswordFallback);
-$("#emailLinkBtn").addEventListener("click",async ()=>{
-  try{ await sendPasswordlessLink($("#authEmail").value); }
-  catch(err){ showToast(err.message||"Could not send sign-in link"); }
-});
-$("#rememberedAdminBtn").addEventListener("click",async ()=>{
-  const email=localStorage.getItem("tle_last_admin_email") || $("#authEmail").value;
-  if(!email){ showToast("Enter your email first"); return; }
-  $("#authEmail").value=email;
-  try{
-    const trusted=await tryTrustedAdminSignIn(email);
-    if(!trusted) await sendPasswordlessLink(email);
-  }catch(err){ showToast(err.message||"Could not continue"); }
-});
+$("#rememberedAdminBtn").addEventListener("click",continueAsAdmin);
 
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
@@ -381,7 +323,7 @@ authForm.addEventListener("submit", async (e)=>{
         await initialize();
       }else{
         setAuthMode("signin");
-        showToast("Check your email to verify your account");
+        showToast("Account created. Check your email to verify it, then sign in.");
       }
     }else{
       const { error } = await supabase.auth.signInWithPassword({email,password});
