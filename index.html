@@ -133,6 +133,25 @@
           <div class="public-summary" id="publicSummary"></div>
           <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
         </form>
+        <div class="public-invoice-view" id="publicInvoiceView" hidden>
+          <div class="quote-review-head">
+            <span class="pill blue">INVOICE</span>
+            <h2 id="invoiceViewTitle">Invoice</h2>
+            <p id="invoiceViewMeta"></p>
+          </div>
+          <div id="invoiceViewItems" class="quote-review-items"></div>
+          <div class="invoice-totals">
+            <div><span>Subtotal</span><strong id="invoiceViewSubtotal">$0</strong></div>
+            <div><span>Paid</span><strong id="invoiceViewPaid">$0</strong></div>
+            <div class="invoice-balance"><span>Balance due</span><strong id="invoiceViewBalance">$0</strong></div>
+          </div>
+          <div class="invoice-payment-note">
+            <strong>Payment methods</strong>
+            <span id="invoiceViewMethods">Cash · Check · Zelle</span>
+          </div>
+          <p class="helper">Payment is arranged directly with the cleaning business. No card payment is collected on this page.</p>
+        </div>
+
         <div class="public-quote-review" id="publicQuoteReview" hidden>
           <div class="quote-review-head">
             <span class="pill blue">QUOTE</span>
