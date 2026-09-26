@@ -2245,7 +2245,7 @@ if("serviceWorker" in navigator){
   });
 }
 
-const APP_BUILD="2026-09-26-ios-v1";
+const APP_BUILD="2026-09-26-ios-v2";
 if(localStorage.getItem("tle_app_build")!==APP_BUILD){
   localStorage.setItem("tle_app_build",APP_BUILD);
   if("caches" in window){
