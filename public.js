@@ -109,6 +109,57 @@
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
       $("#invoiceViewMethods").textContent=data?.payment_methods||"Cash · Check · Zelle";
+
+      const choices=$("#invoicePaymentChoices");
+      const choiceStatus=$("#invoicePaymentChoiceStatus");
+      const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle"};
+      let selected=String(data?.customer_payment_method||"").toLowerCase();
+      const isPaid=String(data?.status||"").toLowerCase()==="paid";
+
+      function renderPaymentChoice(){
+        choices?.querySelectorAll("[data-invoice-payment]").forEach(btn=>{
+          const active=btn.dataset.invoicePayment===selected;
+          btn.classList.toggle("selected",active);
+          btn.setAttribute("aria-pressed",active?"true":"false");
+          btn.disabled=isPaid;
+        });
+
+        if(!choiceStatus) return;
+        if(isPaid){
+          choiceStatus.textContent=selected
+            ? "Paid · "+methodLabels[selected]
+            : "Payment confirmed by the cleaning business.";
+        }else if(selected){
+          choiceStatus.textContent="Selected: "+methodLabels[selected]+". The business will confirm it after payment is received.";
+        }else{
+          choiceStatus.textContent="Choose one option. This does not mark the invoice as paid.";
+        }
+      }
+
+      renderPaymentChoice();
+
+      choices?.addEventListener("click",async e=>{
+        const btn=e.target.closest("[data-invoice-payment]");
+        if(!btn || isPaid) return;
+
+        const method=btn.dataset.invoicePayment;
+        const oldText=choiceStatus?.textContent||"";
+        choices.querySelectorAll("button").forEach(x=>x.disabled=true);
+        if(choiceStatus) choiceStatus.textContent="Saving your choice…";
+
+        try{
+          const result=await rpc("select_invoice_payment_method",{
+            p_token:token,
+            p_method:method
+          });
+          selected=String(result?.payment_method||method).toLowerCase();
+          renderPaymentChoice();
+        }catch(err){
+          if(choiceStatus) choiceStatus.textContent=err.message||oldText||"Could not save payment method.";
+        }finally{
+          if(!isPaid) choices.querySelectorAll("button").forEach(x=>x.disabled=false);
+        }
+      });
     }catch(err){
       $("#publicBusinessName").textContent="Invoice unavailable";
       $("#publicIntro").textContent=err.message||"This invoice link is invalid or expired.";
