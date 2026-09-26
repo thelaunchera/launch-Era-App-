@@ -1460,9 +1460,12 @@ async function initializePublicRequest(mode,slug){
     serviceSelect.innerHTML='<option value="">'+(mode==="quote"?"No services available yet":"No priced services available for online booking")+'</option>';
     serviceSelect.disabled=true;
     submit.disabled=true;
-    summary.innerHTML='<span>'+(mode==="quote"
-      ?"No services are available yet. Please contact the cleaning business directly."
-      :"No instant-booking services are available yet. Services without a price require a quote.")+'</span>';
+    summary.innerHTML=mode==="quote"
+      ?'<span>No services are available yet. Please contact the cleaning business directly.</span>'
+      :'<span>No instant-booking services are available yet. Services without a fixed price require a quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
+    $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
+      window.location.href=window.location.origin+window.location.pathname+"?public=quote&slug="+encodeURIComponent(slug);
+    });
   }else{
     serviceSelect.disabled=false;
     serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
