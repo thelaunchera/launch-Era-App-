@@ -80,6 +80,7 @@
         <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
         <button class="nav-item" data-view="mileage">Mileage <span>mi</span></button>
         <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
+        <button class="nav-item" data-view="supplies" data-admin-only>Supplies <span>▣</span></button>
         <button class="nav-item" data-view="reports" data-owner-only>Owner Reports <span>↗</span></button>
 
         <div class="nav-label">Business</div>
@@ -351,6 +352,38 @@
           <div class="table-row"><span>Lopez Residence</span><span>Owner</span><span>2h</span><span>1h 52m</span><span><i class="status success">Complete</i></span></div>
           <div class="table-row"><span>Anderson Home</span><span>Owner</span><span>3h</span><span>42m</span><span><i class="status warning">Running</i></span></div>
         </div>
+      </section>
+
+
+      <section class="view" data-page="supplies" data-admin-only>
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">SUPPLIES</p>
+            <h2>Know what’s running low before the next job.</h2>
+            <p>Keep a lightweight list of cleaning supplies, current quantity, reorder level and cost.</p>
+          </div>
+          <button class="primary-btn" data-action="supply">+ Add supply</button>
+        </div>
+
+        <div class="metric-grid compact">
+          <article class="metric-card">
+            <span>Active supplies</span>
+            <strong id="suppliesActiveCount">0</strong>
+            <small>Items being tracked</small>
+          </article>
+          <article class="metric-card">
+            <span>Low stock</span>
+            <strong id="suppliesLowCount">0</strong>
+            <small>At or below reorder level</small>
+          </article>
+          <article class="metric-card">
+            <span>Inventory value</span>
+            <strong id="suppliesValue">$0</strong>
+            <small>Estimated from unit costs</small>
+          </article>
+        </div>
+
+        <div class="supplies-grid" id="suppliesGrid"></div>
       </section>
 
       <section class="view" data-page="reports" data-owner-only>
