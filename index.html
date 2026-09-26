@@ -65,26 +65,27 @@
 
       <nav class="nav-list" aria-label="App navigation">
         <button class="nav-item active" data-view="today">Today <span>⌂</span></button>
-        <button class="nav-item" data-view="booking">Booking Center <span>↗</span></button>
-        <button class="nav-item" data-view="leads">Leads <span>◎</span></button>
-        <button class="nav-item" data-view="clients">Clients <span>◌</span></button>
+        <button class="nav-item" data-view="booking" data-admin-only>Booking Center <span>↗</span></button>
+        <button class="nav-item" data-view="leads" data-admin-only>Leads <span>◎</span></button>
+        <button class="nav-item" data-view="clients" data-admin-only>Clients <span>◌</span></button>
         <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
-        <button class="nav-item" data-view="quotes">Quotes <span>◫</span></button>
-        <button class="nav-item" data-view="invoices">Invoices <span>$</span></button>
+        <button class="nav-item" data-view="quotes" data-admin-only>Quotes <span>◫</span></button>
+        <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
 
         <div class="nav-label">Operations</div>
         <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
         <button class="nav-item" data-view="mileage">Mileage <span>mi</span></button>
         <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
-        <button class="nav-item" data-view="reports">Reports <span>↗</span></button>
+        <button class="nav-item" data-view="reports" data-owner-only>Owner Reports <span>↗</span></button>
 
         <div class="nav-label">Business</div>
-        <button class="nav-item" data-view="services">Services + Add-ons <span>＋</span></button>
-        <button class="nav-item" data-view="team">Team <span>◉</span></button>
-        <button class="nav-item" data-view="settings">Settings <span>⚙</span></button>
+        <button class="nav-item" data-view="services" data-admin-only>Services + Add-ons <span>＋</span></button>
+        <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
+        <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
+        <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner Admin <span>🔒</span></button>
       </nav>
 
-      <div class="trial-card">
+      <div class="trial-card" data-owner-only>
         <span class="pill blue">30-day trial</span>
         <strong>Full access</strong>
         <p>Later: $5.99/month. No card required to start.</p>
@@ -100,7 +101,7 @@
         </div>
         <div class="top-actions">
           <button class="ghost-btn" id="languageBtn">EN / ES</button>
-          <button class="ghost-btn" id="signOutBtn">Sign out</button><button class="primary-btn" id="quickAddBtn">+ Quick add</button>
+          <button class="ghost-btn" id="signOutBtn">Sign out</button><button class="primary-btn" id="quickAddBtn" data-admin-only>+ Quick add</button>
         </div>
       </header>
 
@@ -377,9 +378,59 @@
           <article class="panel"><h3>Business profile</h3><div class="setting-row"><span><strong>Business name</strong><small>Sample Cleaning Co.</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Service area</strong><small>Palm Beach County</small></span><button>Edit</button></div></article>
           <article class="panel"><h3>Booking rules</h3><div class="setting-row"><span><strong>Travel buffer</strong><small>30 minutes</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Minimum notice</strong><small>24 hours</small></span><button>Edit</button></div></article>
           <article class="panel"><h3>Contact + payments</h3><div class="setting-row"><span><strong>Preferred contact</strong><small>Email</small></span><button>Edit</button></div><div class="setting-row"><span><strong>Payments</strong><small>Zelle · Cash on Spot</small></span><button>Edit</button></div></article>
-          <article class="panel"><h3>Plan</h3><div class="setting-row"><span><strong>Trial</strong><small>30 days free · no card</small></span><span class="status success">Active</span></div><div class="setting-row"><span><strong>After trial</strong><small>$5.99/month</small></span><span>—</span></div></article>
+          
         </div>
       </section>
+
+      <section class="view" data-page="admin" data-owner-only>
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">OWNER ONLY</p>
+            <h2>Owner Admin</h2>
+            <p>Billing, access, permissions, integrations and sensitive business controls stay with the owner.</p>
+          </div>
+          <span class="pill yellow">🔒 Private</span>
+        </div>
+
+        <div class="admin-grid">
+          <article class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">ACCESS + PERMISSIONS</p><h3>Who can enter this workspace</h3></div>
+              <button class="primary-btn" id="inviteMemberBtn">+ Invite teammate</button>
+            </div>
+            <div class="role-legend">
+              <div><strong>Owner</strong><span>Everything + billing, reports, permissions, integrations.</span></div>
+              <div><strong>Admin</strong><span>Runs clients, jobs, quotes, invoices, services and team operations.</span></div>
+              <div><strong>Coworker</strong><span>Only assigned jobs, route, time tracking and needed client details.</span></div>
+            </div>
+            <div id="membersList" class="members-list"></div>
+          </article>
+
+          <article class="panel">
+            <p class="eyebrow">PLAN + BILLING</p>
+            <h3>Subscription</h3>
+            <div class="setting-row"><span><strong>Status</strong><small id="adminPlanStatus">Trial</small></span><span class="status success">Owner only</span></div>
+            <div class="setting-row"><span><strong>Trial ends</strong><small id="adminTrialEnds">—</small></span><span>30 days</span></div>
+            <div class="setting-row"><span><strong>After trial</strong><small>$5.99/month</small></span><span>—</span></div>
+          </article>
+
+          <article class="panel">
+            <p class="eyebrow">SECURITY</p>
+            <h3>Protected controls</h3>
+            <div class="setting-row"><span><strong>Workspace ownership</strong><small>Cannot be changed by Admin or Coworker.</small></span><span>Owner</span></div>
+            <div class="setting-row"><span><strong>Permissions</strong><small>Only the owner can promote, demote or remove access.</small></span><span>Locked</span></div>
+            <div class="setting-row"><span><strong>Data migration</strong><small>Sites production data remains separate until cutover QA.</small></span><span>Protected</span></div>
+          </article>
+
+          <article class="panel">
+            <p class="eyebrow">INTEGRATIONS</p>
+            <h3>Private connections</h3>
+            <div class="setting-row"><span><strong>Stripe / Billing</strong><small>Connect after app QA.</small></span><span>Owner only</span></div>
+            <div class="setting-row"><span><strong>Email + automations</strong><small>Credentials and connection settings stay hidden from teammates.</small></span><span>Owner only</span></div>
+          </article>
+        </div>
+      </section>
+
     </main>
   </div>
 
