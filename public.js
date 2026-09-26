@@ -6,7 +6,8 @@
 
   const validRequestMode = ["book","quote"].includes(mode) && Boolean(slug);
   const validQuoteReview = mode === "quote-review" && Boolean(token);
-  if(!validRequestMode && !validQuoteReview) return;
+  const validInvoiceView = mode === "invoice" && Boolean(token);
+  if(!validRequestMode && !validQuoteReview && !validInvoiceView) return;
 
   window.__tlePublicHandled = true;
 
@@ -74,6 +75,45 @@
     const d=new Date();
     d.setHours(Number(parts[0]||0),Number(parts[1]||0),0,0);
     return new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(d);
+  }
+
+  async function bootInvoiceView(){
+    const form=$("#publicRequestForm");
+    const success=$("#publicSuccess");
+    const quoteReview=$("#publicQuoteReview");
+    const invoiceView=$("#publicInvoiceView");
+    if(form) form.hidden=true;
+    if(success) success.hidden=true;
+    if(quoteReview) quoteReview.hidden=true;
+    if(invoiceView) invoiceView.hidden=false;
+
+    try{
+      const data=await rpc("get_public_invoice_context",{p_token:token});
+      $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
+      $("#publicModeLabel").textContent="INVOICE";
+      $("#publicIntro").textContent="Review your invoice details below.";
+      $("#invoiceViewTitle").textContent="Invoice #"+(data?.invoice_number||"");
+      const meta=[
+        data?.customer_name||"",
+        data?.due_at ? "Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
+        data?.status ? String(data.status).replaceAll("_"," ") : ""
+      ].filter(Boolean).join(" · ");
+      $("#invoiceViewMeta").textContent=meta;
+
+      const items=data?.items||[];
+      $("#invoiceViewItems").innerHTML=items.length
+        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||"Cleaning service")+'</strong><small>'+esc(item.quantity||1)+' × '+money(item.unit_price)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
+        : '<div class="empty-inline"><strong>No invoice items found.</strong></div>';
+
+      $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
+      $("#invoiceViewPaid").textContent=money(data?.paid_total);
+      $("#invoiceViewBalance").textContent=money(data?.balance_due);
+      $("#invoiceViewMethods").textContent=data?.payment_methods||"Cash · Check · Zelle";
+    }catch(err){
+      $("#publicBusinessName").textContent="Invoice unavailable";
+      $("#publicIntro").textContent=err.message||"This invoice link is invalid or expired.";
+      if(invoiceView) invoiceView.hidden=true;
+    }
   }
 
   async function bootQuoteReview(){
@@ -359,6 +399,7 @@
     await track();
 
     if(validQuoteReview) await bootQuoteReview();
+    else if(validInvoiceView) await bootInvoiceView();
     else await bootRequest();
 
     $("#publicBackBtn")?.addEventListener("click",()=>{
