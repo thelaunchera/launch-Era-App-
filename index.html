@@ -364,12 +364,14 @@
       </section>
 
       <section class="view" data-page="team" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2></div><button class="primary-btn">+ Add team member</button></div>
-        <div class="client-grid">
-          <article class="client-card"><div class="client-avatar">DS</div><strong>Owner</strong><span>Admin · Full access</span><small>4 jobs this week</small></article>
-          <article class="client-card"><div class="client-avatar">AM</div><strong>Ana M.</strong><span>Cleaner</span><small>3 jobs this week</small></article>
-          <article class="client-card add-card"><div>＋</div><strong>Add cleaner</strong><span>Assign jobs and track time.</span></article>
+        <div class="section-intro">
+          <div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2><p>Team profiles handle scheduling. App access is controlled separately by the owner.</p></div>
+          <div class="section-actions">
+            <button class="ghost-btn" data-jump="admin" data-owner-only>Manage app access</button>
+            <button class="primary-btn" id="addTeamProfileBtn">+ Add team profile</button>
+          </div>
         </div>
+        <div class="client-grid" id="teamGrid"></div>
       </section>
 
       <section class="view" data-page="settings" data-admin-only>
