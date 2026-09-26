@@ -844,7 +844,7 @@ function renderInvoices(){
       <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i></span>
       <span class="record-actions">
         <button data-edit-invoice="${inv.id}">Edit</button>
-        ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Mark sent</button>`:""}
+        ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
         ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":"Record payment"}</button>`:""}
       </span>
     </div>`;
@@ -2009,8 +2009,18 @@ document.addEventListener("click",async e=>{
   if(editInvoice){ openEntityForm("invoice",editInvoice.dataset.editInvoice); return; }
   const sendInvoice=e.target.closest("[data-send-invoice]");
   if(sendInvoice){
-    const {error}=await supabase.from("invoices").update({status:"sent",updated_at:new Date().toISOString()}).eq("id",sendInvoice.dataset.sendInvoice);
-    if(error) showToast(error.message); else {await loadCoreData();showToast("Invoice marked sent");}
+    sendInvoice.disabled=true;
+    const original=sendInvoice.textContent;
+    sendInvoice.textContent="Sending…";
+    const {error}=await supabase.rpc("send_invoice_to_client",{p_invoice_id:sendInvoice.dataset.sendInvoice});
+    if(error){
+      showToast(error.message);
+      sendInvoice.disabled=false;
+      sendInvoice.textContent=original;
+    }else{
+      await loadCoreData();
+      showToast("Invoice emailed to client");
+    }
     return;
   }
   const recordPayment=e.target.closest("[data-record-payment]");
