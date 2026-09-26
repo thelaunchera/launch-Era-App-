@@ -377,9 +377,9 @@ businessForm.addEventListener("submit", async (e)=>{
     await identifyPlatformAdmin();
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
     state.publicLinks=linkSettings||null;
-    await loadCoreData();
-    if(state.isPlatformAdmin) await loadPlatformAdmin();
     showApp();
+    loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
+    if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
     showToast("Workspace created");
   }catch(err){
     showToast(err.message || "Could not create workspace");
@@ -442,9 +442,10 @@ async function initialize(){
   const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
   state.publicLinks=linkSettings||null;
 
-  await loadCoreData();
-  if(state.isPlatformAdmin) await loadPlatformAdmin();
   showApp();
+  showToast("Loading your workspace…");
+  loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
+  if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
   await trackVisit("/app/today");
 }
 supabase.auth.onAuthStateChange(async (event, session)=>{
@@ -459,56 +460,85 @@ supabase.auth.onAuthStateChange(async (event, session)=>{
   }
 });
 
+async function withTimeout(promise,label,ms=9000){
+  let timer;
+  try{
+    return await Promise.race([
+      promise,
+      new Promise((_,reject)=>{
+        timer=setTimeout(()=>reject(new Error(label+" timed out")),ms);
+      })
+    ]);
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
 async function loadCoreData(){
   if(!state.business) return;
-  const businessId = state.business.id;
-  const [clientsRes,leadsRes,invoicesRes,bookingRes,mileageRes,timeRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes] = await Promise.all([
-    supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
-    supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),
-    supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false}),
-    supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),
-    supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),
-    supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),
-    supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
-    supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
-    supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
-    supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),
-    supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),
-    supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")
+  const businessId=state.business.id;
+
+  const safe=async(label,promise)=>{
+    try{
+      const result=await withTimeout(promise,label);
+      if(result?.error) throw result.error;
+      return result?.data||[];
+    }catch(err){
+      console.warn("[TLE]",label,err);
+      return [];
+    }
+  };
+
+  // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
+  const [clients,leads,services,addons]=await Promise.all([
+    safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
+    safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
+    safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
+    safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"))
   ]);
-
-  const results=[clientsRes,leadsRes,invoicesRes,bookingRes,mileageRes,timeRes,servicesRes,addonsRes,suppliesRes,jobsRes,quotesRes,teamRes];
-  const firstError=results.map(r=>r.error).find(Boolean);
-  if(firstError) showToast(firstError.message);
-
-  state.clients=clientsRes.data||[];
-  state.leads=leadsRes.data||[];
-  state.invoices=invoicesRes.data||[];
-  state.bookingRequests=bookingRes.data||[];
-  state.mileageLogs=mileageRes.data||[];
-  state.timeEntries=timeRes.data||[];
-  state.services=servicesRes.data||[];
-  state.serviceAddons=addonsRes.data||[];
-  state.supplies=suppliesRes.data||[];
-  state.jobs=jobsRes.data||[];
-  state.quotes=quotesRes.data||[];
-  state.teamMembers=teamRes.data||[];
-
+  state.clients=clients;
+  state.leads=leads;
+  state.services=services;
+  state.serviceAddons=addons;
   renderClients();
   renderLeads();
-  renderInvoices();
   renderServices();
   renderBookingServices();
-  renderSupplies();
+
+  const [jobs,quotes,team,supplies]=await Promise.all([
+    safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true})),
+    safe("quotes",supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false})),
+    safe("team",supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")),
+    safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"))
+  ]);
+  state.jobs=jobs;
+  state.quotes=quotes;
+  state.teamMembers=team;
+  state.supplies=supplies;
   renderJobs();
   renderQuotes();
   renderTeam();
+  renderSupplies();
+
+  const [invoices,bookingRequests,mileageLogs,timeEntries]=await Promise.all([
+    safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false})),
+    safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false})),
+    safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false})),
+    safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}))
+  ]);
+  state.invoices=invoices;
+  state.bookingRequests=bookingRequests;
+  state.mileageLogs=mileageLogs;
+  state.timeEntries=timeEntries;
+  renderInvoices();
   renderTodaySummary();
   renderOperations();
   renderSettings();
   renderPublicLinks();
 
-  if(state.business.role==="owner") await loadOwnerAdmin();
+  if(state.business.role==="owner"){
+    loadOwnerAdmin().catch(err=>console.warn("[TLE] owner admin",err));
+  }
 }
 
 async function loadOwnerAdmin(){
