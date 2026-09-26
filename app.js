@@ -312,6 +312,7 @@ async function initialize(){
   const publicSlug=params.get("slug");
 
   if((publicMode==="book"||publicMode==="quote") && publicSlug){
+    if(window.__tlePublicHandled) return;
     await trackVisit("/public/"+publicMode);
     await initializePublicRequest(publicMode,publicSlug);
     return;
