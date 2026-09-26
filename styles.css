@@ -332,3 +332,80 @@ button:disabled{opacity:.55;cursor:not-allowed}
   .link-box{grid-template-columns:minmax(0,1fr) auto}
   .link-box button:first-of-type{display:none}
 }
+
+
+/* iPhone installed-app stability */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overscroll-behavior-x:none;
+  -webkit-overflow-scrolling:touch;
+}
+*{box-sizing:border-box}
+button,a,input,select,textarea,[role="button"]{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.passwordless-btn{
+  width:100%;
+  margin-top:10px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:13px;
+  padding:11px 12px;
+  font-weight:850;
+}
+.passwordless-btn.admin-shortcut{
+  background:#FFF8D7;
+  border-color:#E8DCA1;
+}
+@media(max-width:860px){
+  input,select,textarea{
+    font-size:16px!important;
+    line-height:1.25;
+  }
+  .app-shell,.main,.view,.panel,.hero-card,.table-card,.public-shell,.public-main,.public-card{
+    max-width:100%;
+    min-width:0;
+  }
+  .main{
+    width:100%;
+    overflow-x:hidden;
+    padding-left:max(12px,env(safe-area-inset-left));
+    padding-right:max(12px,env(safe-area-inset-right));
+    padding-bottom:max(30px,env(safe-area-inset-bottom));
+  }
+  .topbar{
+    top:0;
+    padding-top:max(16px,env(safe-area-inset-top));
+    background:var(--ivory);
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  .sidebar{
+    height:100dvh;
+    padding-top:max(24px,calc(env(safe-area-inset-top) + 18px));
+    padding-bottom:max(24px,env(safe-area-inset-bottom));
+  }
+  .modal-backdrop{
+    padding-top:max(12px,env(safe-area-inset-top));
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
+  }
+  .modal{
+    width:min(100%,calc(100vw - 20px));
+    max-width:calc(100vw - 20px);
+  }
+  .table-card{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+}
