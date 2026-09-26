@@ -1462,6 +1462,17 @@ function renderSettings(){
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
+
+  const reviewUrl=String(state.publicLinks?.google_review_url||"");
+  const input=$("#googleReviewUrl");
+  const status=$("#reviewLinkStatus");
+  const test=$("#testGoogleReviewBtn");
+  if(input && document.activeElement!==input) input.value=reviewUrl;
+  if(status){
+    status.textContent=reviewUrl?"Added":"Not added";
+    status.className="status "+(reviewUrl?"success":"neutral");
+  }
+  if(test) test.hidden=!reviewUrl;
 }
 
 function renderPublicLinks(){
@@ -2615,6 +2626,41 @@ document.addEventListener("change",async e=>{
     .eq("id",memberRole.dataset.memberRole);
   if(error) showToast(error.message);
   else {await loadOwnerAdmin();showToast("Access updated");}
+});
+
+const saveGoogleReviewBtn=$("#saveGoogleReviewBtn");
+if(saveGoogleReviewBtn) saveGoogleReviewBtn.addEventListener("click",async ()=>{
+  const input=$("#googleReviewUrl");
+  const raw=String(input?.value||"").trim();
+  if(raw && !/^https:\/\/\S+$/i.test(raw)){
+    showToast("Enter a valid HTTPS Google review link");
+    input?.focus();
+    return;
+  }
+
+  try{
+    saveGoogleReviewBtn.disabled=true;
+    saveGoogleReviewBtn.textContent="Saving…";
+    const {error}=await supabase.rpc("set_google_review_url",{p_url:raw||null});
+    if(error) throw error;
+
+    const {data:linkSettings,error:refreshError}=await supabase.rpc("get_my_public_link_settings");
+    if(refreshError) throw refreshError;
+    state.publicLinks=linkSettings||null;
+    renderSettings();
+    showToast(raw?"Google review link saved":"Review link removed");
+  }catch(err){
+    showToast(err.message||"Could not save review link");
+  }finally{
+    saveGoogleReviewBtn.disabled=false;
+    saveGoogleReviewBtn.textContent="Save review link";
+  }
+});
+
+const testGoogleReviewBtn=$("#testGoogleReviewBtn");
+if(testGoogleReviewBtn) testGoogleReviewBtn.addEventListener("click",()=>{
+  const url=String(state.publicLinks?.google_review_url||"").trim();
+  if(url) window.open(url,"_blank","noopener");
 });
 
 const saveAvailabilityBtn=$("#saveAvailabilityBtn");
