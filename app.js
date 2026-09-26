@@ -753,19 +753,317 @@ function renderQuotes(){
   ].join("");
 }
 
-function renderTodaySummary(){
-  const today=new Date();
-  const sameDay=v=>{
-    const d=new Date(v);
-    return d.getFullYear()===today.getFullYear() && d.getMonth()===today.getMonth() && d.getDate()===today.getDate();
-  };
-  const cards=$$(".metric-card", $('[data-page="today"]'));
-  if(cards[0]){ cards[0].querySelector("strong").textContent=state.jobs.filter(j=>sameDay(j.starts_at)&&j.status!=="canceled").length; cards[0].querySelector("small").textContent="Scheduled today"; }
-  if(cards[1]){ cards[1].querySelector("span").textContent="Active clients"; cards[1].querySelector("strong").textContent=state.clients.length; cards[1].querySelector("small").textContent="Current client records"; }
-  if(cards[2]){ cards[2].querySelector("strong").textContent=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status)).length; cards[2].querySelector("small").textContent="Requested, draft or sent"; }
-  if(cards[3]){ cards[3].querySelector("span").textContent="Active services"; cards[3].querySelector("strong").textContent=state.services.filter(s=>s.active).length; cards[3].querySelector("small").textContent="Available service types"; }
-  if(cards[4]){ cards[4].querySelector("span").textContent="Scheduled jobs"; cards[4].querySelector("strong").textContent=state.jobs.filter(j=>j.status==="scheduled").length; cards[4].querySelector("small").textContent="Upcoming"; }
+function sameLocalDay(value,date=new Date()){
+  if(!value) return false;
+  const d=new Date(value);
+  return d.getFullYear()===date.getFullYear() && d.getMonth()===date.getMonth() && d.getDate()===date.getDate();
 }
+function startOfWeek(date=new Date()){
+  const d=new Date(date); const day=d.getDay();
+  d.setHours(0,0,0,0); d.setDate(d.getDate()-day);
+  return d;
+}
+function startOfMonth(date=new Date()){
+  return new Date(date.getFullYear(),date.getMonth(),1);
+}
+function confirmedPaid(inv){
+  return (inv.payments||[]).filter(p=>p.status==="confirmed").reduce((sum,p)=>sum+Number(p.amount||0),0);
+}
+
+function renderTodaySummary(){
+  const now=new Date();
+  const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const openQuotes=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status));
+  const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-confirmedPaid(i)),0);
+  const pendingBookings=state.bookingRequests.filter(b=>b.status==="requested");
+
+  const cards=$$(".metric-card", $('[data-page="today"]'));
+  if(cards[0]){ cards[0].querySelector("strong").textContent=todayJobs.length; cards[0].querySelector("small").textContent=todayJobs.length?todayJobs.filter(j=>j.status==="completed").length+" completed":"Nothing scheduled"; }
+  if(cards[1]){ cards[1].querySelector("strong").textContent=state.clients.length; }
+  if(cards[2]){ cards[2].querySelector("strong").textContent=openQuotes.length; }
+  const out=$("#todayOutstanding"); if(out) out.textContent=money(outstanding);
+  const br=$("#todayBookingRequests"); if(br) br.textContent=pendingBookings.length;
+
+  const datePill=$("#todayDatePill");
+  if(datePill) datePill.textContent=new Intl.DateTimeFormat("en-US",{weekday:"long",month:"short",day:"numeric"}).format(now);
+  const greet=$("#todayGreeting");
+  if(greet){
+    const hour=now.getHours();
+    greet.textContent=(hour<12?"Good morning":hour<18?"Good afternoon":"Good evening")+" 👋";
+  }
+
+  const timeline=$("#todayTimeline");
+  if(timeline){
+    timeline.innerHTML=todayJobs.length?todayJobs.map(j=>`
+      <div class="timeline-item ${j.status==="completed"?"done":""}">
+        <time>${new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))}</time>
+        <div><strong>${escapeHtml(j.clients?.name||"Cleaning job")}</strong><span>${escapeHtml(j.services?.name||"Service")} · ${Math.round(j.duration_minutes/60*10)/10}h</span></div>
+        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
+      </div>`).join(""):`<div class="empty-inline"><strong>No jobs today.</strong><span>Your scheduled jobs will appear here.</span></div>`;
+  }
+
+  const attention=$("#attentionList");
+  if(attention){
+    const items=[];
+    state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status)).slice(0,2).forEach(i=>{
+      items.push(`<button data-jump="invoices"><span class="dot red"></span><strong>Invoice #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} outstanding</small></button>`);
+    });
+    openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
+      items.push(`<button data-jump="quotes"><span class="dot yellow"></span><strong>Quote for ${escapeHtml(q.customer_name)}</strong><small>Waiting for response</small></button>`);
+    });
+    if(pendingBookings.length) items.push(`<button data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} booking request${pendingBookings.length===1?"":"s"}</strong><small>Waiting for review</small></button>`);
+    attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>Nothing urgent.</strong><span>No overdue invoices, sent quotes, or new booking requests need attention.</span></div>`;
+  }
+
+  const weekStart=startOfWeek(now);
+  const weekEntries=state.timeEntries.filter(t=>new Date(t.clocked_in_at)>=weekStart);
+  const weekMinutes=weekEntries.reduce((sum,t)=>sum+Number(t.minutes_worked||0),0);
+  const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T00:00:00")>=weekStart).reduce((sum,m)=>sum+Number(m.miles||0),0);
+  const weekCompleted=state.jobs.filter(j=>j.status==="completed"&&new Date(j.starts_at)>=weekStart).length;
+  const wh=$("#weekHours"); if(wh) wh.textContent=(weekMinutes/60).toFixed(1).replace(".0","")+" work hours";
+  const ws=$("#weekSummary"); if(ws) ws.textContent=`${weekMiles.toFixed(1)} business miles logged · ${weekCompleted} completed job${weekCompleted===1?"":"s"}.`;
+}
+
+function renderOperations(){
+  const now=new Date();
+  const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const todayMiles=state.mileageLogs.filter(m=>sameLocalDay(m.log_date+"T12:00:00",now)).reduce((s,m)=>s+Number(m.miles||0),0);
+  const weekStart=startOfWeek(now);
+  const monthStart=startOfMonth(now);
+  const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=weekStart).reduce((s,m)=>s+Number(m.miles||0),0);
+  const monthMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=monthStart).reduce((s,m)=>s+Number(m.miles||0),0);
+
+  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=todayMiles.toFixed(1)+" mi today";
+  const routeStops=$("#routeStops");
+  const routeVisual=$("#routeVisual");
+  if(routeStops){
+    routeStops.innerHTML=todayJobs.length?todayJobs.map((j,i)=>`
+      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||"Cleaning job")}</strong><span>${new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||"Address not added")}</small></div><em>${escapeHtml(j.status.replaceAll("_"," "))}</em></div>
+      ${i<todayJobs.length-1?'<div class="route-drive">Next stop</div>':""}
+    `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
+  }
+  if(routeVisual) routeVisual.textContent=todayJobs.length?`${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today`:"Your route appears here when jobs are scheduled.";
+
+  const mt=$("#mileageToday"),mw=$("#mileageWeek"),mm=$("#mileageMonth");
+  if(mt) mt.textContent=todayMiles.toFixed(1)+" mi";
+  if(mw) mw.textContent=weekMiles.toFixed(1)+" mi";
+  if(mm) mm.textContent=monthMiles.toFixed(1)+" mi";
+  const mileageTable=$("#mileageTable");
+  if(mileageTable){
+    mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
+      <div class="table-row">
+        <span>${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</span>
+        <span>${escapeHtml(m.notes||"Business drive")}</span>
+        <span>${Number(m.miles||0).toFixed(1)}</span>
+        <span>${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
+        <span>Business</span>
+      </div>`).join(""):`<div class="empty-table"><strong>No mileage logged yet.</strong><span>Use “Log drive” after a business trip.</span></div>`;
+  }
+
+  const active=state.timeEntries.find(t=>!t.clocked_out_at);
+  const timerWrap=$("#activeTimerWrap");
+  if(timerWrap){
+    timerWrap.innerHTML=active?`<article class="timer-card"><span>Current job</span><h3>${escapeHtml(active.jobs?.clients?.name||active.jobs?.services?.name||"Job")}</h3><strong>Running</strong><div><button class="ghost-btn" data-finish-time="${active.id}">Finish timer</button></div></article>`:`<div class="empty-inline timer-empty"><strong>No timer running.</strong><span>Start time from an assigned job when work begins.</span></div>`;
+  }
+  const timeTable=$("#timeEntriesTable");
+  if(timeTable){
+    timeTable.innerHTML=state.timeEntries.length?state.timeEntries.map(t=>`
+      <div class="table-row">
+        <span>${escapeHtml(t.jobs?.clients?.name||t.jobs?.services?.name||"Job")}</span>
+        <span>${escapeHtml(t.team_members?.name||"Owner")}</span>
+        <span>${t.jobs?.duration_minutes?Math.round(t.jobs.duration_minutes/60*10)/10+"h":"—"}</span>
+        <span>${t.minutes_worked!=null?(Number(t.minutes_worked)/60).toFixed(1).replace(".0","")+"h":t.clocked_out_at?"—":"Running"}</span>
+        <span><i class="status ${t.clocked_out_at?"success":"warning"}">${t.clocked_out_at?"Complete":"Running"}</i></span>
+      </div>`).join(""):`<div class="empty-table"><strong>No time entries yet.</strong><span>Time worked will appear here.</span></div>`;
+  }
+
+  const monthPayments=state.invoices.flatMap(i=>i.payments||[]).filter(p=>p.status==="confirmed"&&p.paid_at&&new Date(p.paid_at)>=monthStart);
+  const revenue=monthPayments.reduce((s,p)=>s+Number(p.amount||0),0);
+  const monthJobs=state.jobs.filter(j=>j.status==="completed"&&new Date(j.starts_at)>=monthStart);
+  const monthEntries=state.timeEntries.filter(t=>new Date(t.clocked_in_at)>=monthStart);
+  const monthMinutes=monthEntries.reduce((s,t)=>s+Number(t.minutes_worked||0),0);
+  const rr=$("#reportRevenue"),rj=$("#reportJobs"),rm=$("#reportMiles"),rh=$("#reportHours");
+  if(rr) rr.textContent=money(revenue);
+  if(rj) rj.textContent=monthJobs.length;
+  if(rm) rm.textContent=monthMiles.toFixed(1);
+  if(rh) rh.textContent=(monthMinutes/60).toFixed(1).replace(".0","")+"h";
+  const rjc=$("#reportJobsCopy"); if(rjc) rjc.textContent=monthJobs.length?"Completed this month.":"No completed jobs yet.";
+  const rhc=$("#reportHoursCopy"); if(rhc) rhc.textContent=monthMinutes?"Tracked team time this month.":"No tracked time yet.";
+
+  renderBookingRequests();
+}
+
+function renderBookingRequests(){
+  const list=$("#bookingRequestsList");
+  const pill=$("#bookingRequestCountPill");
+  const pending=state.bookingRequests.filter(b=>b.status==="requested");
+  if(pill) pill.textContent=pending.length+" new";
+  if(!list) return;
+  if(!state.bookingRequests.length){
+    list.innerHTML=`<div class="empty-inline"><strong>No booking requests yet.</strong><span>Share your booking link to receive requests here.</span></div>`;
+    return;
+  }
+  list.innerHTML=state.bookingRequests.slice(0,20).map(b=>`
+    <div class="booking-request-row">
+      <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(b.service_address)}</small></div>
+      <span class="status ${b.status==="requested"?"warning":b.status==="approved"?"success":"neutral"}">${escapeHtml(b.status)}</span>
+    </div>`).join("");
+}
+
+function renderSettings(){
+  const n=$("#settingsBusinessName"),a=$("#settingsServiceArea"),b=$("#settingsTravelBuffer"),m=$("#settingsBookingNotice");
+  if(n) n.textContent=state.business?.name||"—";
+  if(a) a.textContent=state.business?.service_area||"Not set";
+  if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
+  if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
+}
+
+function renderPublicLinks(){
+  const slug=state.publicLinks?.public_slug;
+  if(!slug) return;
+  const base=window.location.origin+window.location.pathname;
+  const booking=`${base}?public=book&slug=${encodeURIComponent(slug)}`;
+  const quote=`${base}?public=quote&slug=${encodeURIComponent(slug)}`;
+  const be=$("#bookingUrl"),qe=$("#quoteUrl");
+  if(be){be.textContent=booking;be.href=booking;}
+  if(qe){qe.textContent=quote;qe.href=quote;}
+}
+
+async function loadPlatformAdmin(){
+  if(!state.isPlatformAdmin) return;
+  const {data,error}=await supabase.rpc("get_platform_admin_dashboard");
+  if(error){ showToast(error.message); return; }
+  state.platformAdminData=data||{};
+  const m=data?.metrics||{};
+  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
+  ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
+
+  const table=$("#platformCustomersTable");
+  if(table){
+    const customers=data?.customers||[];
+    table.innerHTML=customers.length?customers.map(x=>`
+      <div class="platform-customer-row">
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))}</small></div>
+        <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
+        <div><small>Trial ends</small><strong>${x.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
+        <select data-platform-status="${x.business_id}">
+          ${["trial","active","past_due","canceled","expired"].map(s=>`<option value="${s}" ${x.status===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+        <span class="status ${x.status==="active"?"success":x.status==="trial"?"blue":"neutral"}">${escapeHtml(x.status)}</span>
+      </div>`).join(""):`<div class="empty-inline"><strong>No outside customers yet.</strong><span>Your internal admin accounts are intentionally excluded.</span></div>`;
+  }
+
+  const visits=$("#platformRecentVisits");
+  if(visits){
+    const rows=data?.recent_visits||[];
+    visits.innerHTML=rows.length?rows.map(v=>`<div class="visit-row"><span><strong>${escapeHtml(v.business_name||"Visitor")}</strong><small>${escapeHtml(v.page||"/")}</small></span><time>${formatDateTime(v.created_at)}</time></div>`).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+  }
+}
+
+async function initializePublicRequest(mode,slug){
+  authShell.hidden=true;
+  appShell.hidden=true;
+  publicShell.hidden=false;
+
+  const {data,error}=await supabase.rpc("get_public_booking_config",{p_slug:slug});
+  if(error){
+    $("#publicBusinessName").textContent="Page unavailable";
+    $("#publicIntro").textContent="This booking page is not available.";
+    $("#publicRequestForm").hidden=true;
+    return;
+  }
+
+  const services=(data?.services||[]).filter(s=>mode==="quote" || s.pricing_type!=="quote");
+  const addons=data?.addons||[];
+  $("#publicBusinessName").textContent=data?.business?.name||"Cleaning service";
+  $("#publicModeLabel").textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
+  $("#publicIntro").textContent=mode==="quote"?"Tell us what you need and we’ll review your request.":"Choose a service and request an available time.";
+  $("#publicSubmitBtn").textContent=mode==="quote"?"Send quote request":"Send booking request";
+  $("#publicAddonsWrap").hidden=mode==="quote";
+
+  const serviceSelect=$("#publicService");
+  serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+
+  function renderPublicAddons(){
+    const selected=services.find(s=>s.id===serviceSelect.value);
+    const wrap=$("#publicAddons");
+    const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
+    wrap.innerHTML=available.length?available.map(a=>`<label class="addon-choice"><input type="checkbox" name="addon" value="${a.id}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span></label>`).join(""):'<span class="muted-line">No add-ons for this service.</span>';
+    updatePublicSummary();
+  }
+  function updatePublicSummary(){
+    const selected=services.find(s=>s.id===serviceSelect.value);
+    if(!selected){$("#publicSummary").innerHTML="";return;}
+    const checked=$$('input[name="addon"]:checked',$("#publicAddons")).map(x=>x.value);
+    const chosen=addons.filter(a=>checked.includes(a.id));
+    const total=(Number(selected.base_price)||0)+chosen.reduce((s,a)=>s+Number(a.price||0),0);
+    const duration=Number(selected.duration_minutes||0)+chosen.reduce((s,a)=>s+Number(a.extra_duration_minutes||0),0);
+    $("#publicSummary").innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be confirmed by the business":" · Estimated "+money(total)}</span>`;
+  }
+
+  serviceSelect.addEventListener("change",renderPublicAddons);
+  $("#publicAddons").addEventListener("change",updatePublicSummary);
+  renderPublicAddons();
+
+  const dateInput=$('#publicRequestForm [name="date"]');
+  dateInput.min=new Date().toLocaleDateString("en-CA");
+
+  $("#publicRequestForm").onsubmit=async e=>{
+    e.preventDefault();
+    const btn=$("#publicSubmitBtn");
+    setBusy(btn,true,"Sending…");
+    try{
+      const fd=new FormData(e.currentTarget);
+      const preferred=fd.get("preferred_contact");
+      const phone=String(fd.get("phone")||"").trim();
+      if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
+      if(mode==="quote"){
+        const {error:submitError}=await supabase.rpc("submit_public_quote_request",{
+          p_slug:slug,
+          p_service_id:fd.get("service_id"),
+          p_customer_name:String(fd.get("name")).trim(),
+          p_customer_email:String(fd.get("email")).trim(),
+          p_customer_phone:phone||null,
+          p_preferred_contact:preferred,
+          p_service_address:String(fd.get("address")).trim(),
+          p_preferred_date:fd.get("date"),
+          p_preferred_time:fd.get("time"),
+          p_notes:String(fd.get("notes")||"").trim()||null
+        });
+        if(submitError) throw submitError;
+      }else{
+        const start=new Date(`${fd.get("date")}T${fd.get("time")}:00`);
+        const addonIds=fd.getAll("addon");
+        const {error:submitError}=await supabase.rpc("submit_public_booking_request",{
+          p_slug:slug,
+          p_service_id:fd.get("service_id"),
+          p_addon_ids:addonIds,
+          p_customer_name:String(fd.get("name")).trim(),
+          p_customer_email:String(fd.get("email")).trim(),
+          p_customer_phone:phone||null,
+          p_preferred_contact:preferred,
+          p_service_address:String(fd.get("address")).trim(),
+          p_requested_start_at:start.toISOString(),
+          p_notes:String(fd.get("notes")||"").trim()||null
+        });
+        if(submitError) throw submitError;
+      }
+      $("#publicRequestForm").hidden=true;
+      $("#publicSuccess").hidden=false;
+      $("#publicSuccessCopy").textContent=mode==="quote"?"Your quote request was sent. The business will review it and contact you.":"Your booking request was sent. The business will review it and confirm the appointment.";
+    }catch(err){
+      showToast(err.message||"Could not send request");
+    }finally{
+      setBusy(btn,false);
+    }
+  };
+
+  $("#publicBackBtn").onclick=()=>{
+    window.location.href=window.location.origin+window.location.pathname;
+  };
+}
+
+
 
 function optionList(items,valueKey,labelKey,selected){
   return items.map(item=>`<option value="${escapeHtml(item[valueKey])}" ${item[valueKey]===selected?"selected":""}>${escapeHtml(item[labelKey])}</option>`).join("");
