@@ -5531,32 +5531,49 @@ async function finishTimeEntry(id){
 
 async function deleteBusinessRecord(type,id){
   if(!state.business || !["owner","admin"].includes(state.business.role)){
-    throw new Error(appIsSpanish()?"Solo Owner o Admin puede borrar registros.":"Only Owner or Admin can delete records.");
+    throw new Error(langPick(
+      "Only Owner or Admin can delete records.",
+      "Solo Owner o Admin puede borrar registros.",
+      "Somente Owner ou Admin pode excluir registros.",
+      "Seul le propriétaire ou un administrateur peut supprimer des données."
+    ));
   }
 
   const names={
-    client:appIsSpanish()?"cliente":"client",
-    lead:appIsSpanish()?"lead":"lead",
-    quote:appIsSpanish()?"cotización":"quote",
-    invoice:appIsSpanish()?"factura":"invoice"
+    client:langPick("client","cliente","cliente","client"),
+    lead:langPick("lead","lead","lead","prospect"),
+    quote:langPick("quote","cotización","orçamento","devis"),
+    invoice:langPick("invoice","factura","fatura","facture")
   };
 
-  let message=appIsSpanish()
-    ? "¿Borrar permanentemente este "+names[type]+"? Esta acción no se puede deshacer."
-    : "Permanently delete this "+names[type]+"? This cannot be undone.";
+  let message=langPick(
+    "Permanently delete this "+names[type]+"? This cannot be undone.",
+    "¿Borrar permanentemente este "+names[type]+"? Esta acción no se puede deshacer.",
+    "Excluir permanentemente este "+names[type]+"? Esta ação não pode ser desfeita.",
+    "Supprimer définitivement ce "+names[type]+" ? Cette action est irréversible."
+  );
 
   if(type==="client"){
-    message=appIsSpanish()
-      ? "¿Borrar permanentemente este cliente? También se borrarán sus trabajos y facturas relacionadas. Esta acción no se puede deshacer."
-      : "Permanently delete this client? Related jobs and invoices will also be deleted. This cannot be undone.";
+    message=langPick(
+      "Permanently delete this client? Related jobs and invoices will also be deleted. This cannot be undone.",
+      "¿Borrar permanentemente este cliente? También se borrarán sus trabajos y facturas relacionadas. Esta acción no se puede deshacer.",
+      "Excluir permanentemente este cliente? Os trabalhos e faturas relacionados também serão excluídos. Esta ação não pode ser desfeita.",
+      "Supprimer définitivement ce client ? Les travaux et factures associés seront également supprimés. Cette action est irréversible."
+    );
   }else if(type==="invoice"){
-    message=appIsSpanish()
-      ? "¿Borrar permanentemente esta factura? También se borrarán sus pagos, items, link público y disputas relacionadas."
-      : "Permanently delete this invoice? Its payments, items, public link and related disputes will also be deleted.";
+    message=langPick(
+      "Permanently delete this invoice? Its payments, items, public link and related disputes will also be deleted.",
+      "¿Borrar permanentemente esta factura? También se borrarán sus pagos, items, link público y disputas relacionadas.",
+      "Excluir permanentemente esta fatura? Pagamentos, itens, link público e contestações relacionadas também serão excluídos.",
+      "Supprimer définitivement cette facture ? Ses paiements, éléments, lien public et litiges associés seront également supprimés."
+    );
   }else if(type==="quote"){
-    message=appIsSpanish()
-      ? "¿Borrar permanentemente esta cotización? Sus items, link público y disputas relacionadas también se borrarán."
-      : "Permanently delete this quote? Its items, public link and related disputes will also be deleted.";
+    message=langPick(
+      "Permanently delete this quote? Its items, public link and related disputes will also be deleted.",
+      "¿Borrar permanentemente esta cotización? Sus items, link público y disputas relacionadas también se borrarán.",
+      "Excluir permanentemente este orçamento? Itens, link público e contestações relacionadas também serão excluídos.",
+      "Supprimer définitivement ce devis ? Ses éléments, lien public et litiges associés seront également supprimés."
+    );
   }
 
   if(!window.confirm(message)) return false;
@@ -5568,7 +5585,7 @@ async function deleteBusinessRecord(type,id){
   if(error) throw error;
 
   await loadCoreData();
-  showToast(appIsSpanish()?"Borrado":"Deleted");
+  showToast(langPick("Deleted","Borrado","Excluído","Supprimé"));
   return data||true;
 }
 
@@ -5674,11 +5691,11 @@ document.addEventListener("click",async e=>{
   if(deleteRecordBtn){
     const type=deleteRecordBtn.dataset.deleteRecord;
     const id=deleteRecordBtn.dataset.id;
-    setBusy(deleteRecordBtn,true,appIsSpanish()?"Borrando…":"Deleting…");
+    setBusy(deleteRecordBtn,true,langPick("Deleting…","Borrando…","Excluindo…","Suppression…"));
     try{
       await deleteBusinessRecord(type,id);
     }catch(err){
-      showToast(err?.message||(appIsSpanish()?"No se pudo borrar":"Could not delete"));
+      showToast(err?.message||langPick("Could not delete","No se pudo borrar","Não foi possível excluir","Impossible de supprimer"));
     }finally{
       if(document.body.contains(deleteRecordBtn)) setBusy(deleteRecordBtn,false);
     }
