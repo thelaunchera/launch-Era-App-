@@ -3423,8 +3423,9 @@ function quoteColumn(status,label){
       const service=state.services.find(s=>s.id===q.quote_items?.[0]?.service_id);
       const total=Number(q.total||0);
       const dispute=state.disputes.find(d=>d.resource_type==="quote"&&d.quote_id===q.id&&d.status==="open");
+      const paymentCopy=q.payment_status==="paid"?" · PAID":q.payment_status==="partial"?" · PARTIAL PAYMENT":"";
       const stateCopy=status==="accepted"
-        ? "Client + job + invoice created"
+        ? "Client + job + invoice created"+paymentCopy
         : status==="sent"
           ? "Waiting for customer"
           : status==="declined"
@@ -3797,8 +3798,8 @@ function renderTodaySummary(wakeAssistant=false){
   const ws=$("#weekSummary");
   if(ws){
     ws.textContent=appIsSpanish()
-      ? `${weekMiles.toFixed(1)} mi · ${weekCompleted} trabajo${weekCompleted===1?"":"s"} completado${weekCompleted===1?"":"s"}`
-      : `${weekMiles.toFixed(1)} business miles logged · ${weekCompleted} completed job${weekCompleted===1?"":"s"}.`;
+      ? `${distanceText(weekMiles)} · ${weekCompleted} trabajo${weekCompleted===1?"":"s"} completado${weekCompleted===1?"":"s"}`
+      : `${distanceText(weekMiles)} logged · ${weekCompleted} completed job${weekCompleted===1?"":"s"}.`;
   }
 }
 
@@ -3811,7 +3812,7 @@ function renderOperations(){
   const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=weekStart).reduce((s,m)=>s+Number(m.miles||0),0);
   const monthMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=monthStart).reduce((s,m)=>s+Number(m.miles||0),0);
 
-  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=appIsSpanish()?todayMiles.toFixed(1)+" mi hoy":todayMiles.toFixed(1)+" mi today";
+  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=distanceText(todayMiles)+(appIsSpanish()?" hoy":" today");
   const routeStops=$("#routeStops");
   const routeVisual=$("#routeVisual");
   if(routeStops){
@@ -3823,15 +3824,15 @@ function renderOperations(){
   if(routeVisual) routeVisual.textContent=todayJobs.length?`${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today`:"Your route appears here when jobs are scheduled.";
 
   const mt=$("#mileageToday"),mw=$("#mileageWeek"),mm=$("#mileageMonth");
-  if(mt) mt.textContent=todayMiles.toFixed(1)+" mi";
-  if(mw) mw.textContent=weekMiles.toFixed(1)+" mi";
-  if(mm) mm.textContent=monthMiles.toFixed(1)+" mi";
+  if(mt) mt.textContent=distanceText(todayMiles);
+  if(mw) mw.textContent=distanceText(weekMiles);
+  if(mm) mm.textContent=distanceText(monthMiles);
   const mileageTable=$("#mileageTable");
   if(mileageTable){
     mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
       <div class="table-row mobile-record-card">
         <span class="record-primary"><strong>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</strong><small>${escapeHtml(m.from_location&&m.to_location?m.from_location+" → "+m.to_location:m.notes||tr("Business drive"))}</small>${m.notes&&m.from_location&&m.to_location?'<em class="record-note">'+escapeHtml(m.notes)+'</em>':""}</span>
-        <span class="record-field" data-label="${escapeHtml(tr("Miles"))}">${Number(m.miles||0).toFixed(1)}</span>
+        <span class="record-field" data-label="${escapeHtml(businessDistanceUnit()==="km"?"Kilometers":"Miles")}">${distanceFromStoredMiles(m.miles).toFixed(1)}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Job"))}">${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Type"))}">${escapeHtml(tr("Business"))}</span>
       </div>`).join(""):`<div class="empty-table"><strong>No mileage logged yet.</strong><span>Use “Log drive” after a business trip.</span></div>`;
@@ -4028,7 +4029,7 @@ function renderSettings(){
   if(p) p.textContent=state.business?.phone||"Not set";
   if(a) a.textContent=state.business?.service_area||"Not set";
   if(tz) tz.textContent=state.business?.timezone||"America/New_York";
-  if(lang) lang.textContent=(state.business?.default_language||"en")==="es"?"Español":"English";
+  if(lang) lang.textContent=({en:"English",es:"Español",pt:"Português",fr:"Français"}[state.business?.default_language]||"English");
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
