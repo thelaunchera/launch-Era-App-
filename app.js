@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-hero-weather-ecosystem-1";
+const APP_VERSION = "20260927-password-session-no-code-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1078,12 +1078,6 @@ async function restoreOwnerSessionFromBackup(){
   const remembered=rememberedOwnerEmail();
   if(remembered && backup.email!==remembered) return null;
 
-  const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
-  const anchorTime=lastActivity || Number(backup.saved_at||0);
-  if(!anchorTime || (Date.now()-anchorTime)>=OWNER_IDLE_MS){
-    return null;
-  }
-
   try{
     const {data,error}=await supabase.auth.setSession({
       access_token:backup.access_token,
@@ -1100,24 +1094,17 @@ async function restoreOwnerSessionFromBackup(){
 }
 function markOwnerActivity(){
   if(state.business?.role!=="owner") return;
-  if(localStorage.getItem(OWNER_REAUTH_REQUIRED_KEY)==="1") return;
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
-  const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
-  return last>0 && (Date.now()-last)>=OWNER_IDLE_MS;
+  return false;
 }
 async function expireOwnerSession(){
-  if(window.__tleOwnerLocking) return;
-  window.__tleOwnerLocking=true;
-  const email=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
-
-  // Soft-lock only. Keep the authenticated Supabase session alive.
-  // Reauthentication is required only after 12 hours of real inactivity,
-  // explicit logout or a security/session reset.
-  localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
-  await showOwnerAccess(email,true);
-  window.__tleOwnerLocking=false;
+  // Legacy compatibility only. Owner access no longer uses email codes.
+  // Supabase's persisted session/refresh token determines whether the user stays signed in.
+  localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+  localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
+  markOwnerActivity();
 }
 window.addEventListener("tle:languagechange",()=>{
   if(state.session && state.business?.role==="owner"){
@@ -1131,10 +1118,6 @@ function installOwnerActivityTracker(){
   let lastWrite=0;
   const onActivity=()=>{
     if(!state.session || state.business?.role!=="owner") return;
-    if(ownerIdleExpired()){
-      expireOwnerSession().catch(()=>{});
-      return;
-    }
     const now=Date.now();
     if(now-lastWrite>60000){
       lastWrite=now;
@@ -1145,37 +1128,16 @@ function installOwnerActivityTracker(){
     window.addEventListener(evt,onActivity,{passive:true});
   });
   document.addEventListener("visibilitychange",()=>{
-    if(document.visibilityState==="hidden"){
-      // Closing/backgrounding the iPhone app starts the inactivity clock here,
-      // rather than forcing a new code on the next launch.
-      if(state.session && state.business?.role==="owner" && !ownerIdleExpired()){
-        markOwnerActivity();
-      }
-      return;
-    }
-    if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
-      expireOwnerSession().catch(()=>{});
-    }else{
-      onActivity();
-    }
+    if(state.session && state.business?.role==="owner") markOwnerActivity();
   });
   window.addEventListener("pagehide",()=>{
-    if(state.session && state.business?.role==="owner" && !ownerIdleExpired()){
-      markOwnerActivity();
-    }
+    if(state.session && state.business?.role==="owner") markOwnerActivity();
   },{passive:true});
-  window.setInterval(()=>{
-    if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
-      expireOwnerSession().catch(()=>{});
-    }
-  },60000);
 }
 function prepareAdminShortcut(){
   const shortcut=$("#rememberedAdminBtn");
-  if(!shortcut) return;
   const remembered=rememberedOwnerEmail();
-  shortcut.hidden=state.authMode!=="signin" || !remembered;
-  shortcut.textContent="Continue as Admin";
+  if(shortcut) shortcut.hidden=true;
   if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
 }
 async function requestOwnerAccessCode(email){
@@ -1479,6 +1441,8 @@ authForm.addEventListener("submit", async (e)=>{
       const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
       state.session=data.session||null;
+      localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+      localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
       await enterAuthenticatedApp();
@@ -1531,16 +1495,16 @@ async function signOutCurrentUser(event){
     clearOwnerSessionBackup();
     if(wasOwner && ownerEmail){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
-      localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
-      localStorage.removeItem(OWNER_ACTIVITY_KEY);
-      localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
-      await showOwnerAccess(ownerEmail,false);
-    }else{
-      showAuth();
-      setAuthMode("signin");
-      prepareAdminShortcut();
-      setAuthStatus("");
     }
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
+    localStorage.removeItem(OWNER_ACTIVITY_KEY);
+    showAuth();
+    setAuthMode("signin");
+    const signInEmail=$("#authEmail");
+    if(signInEmail && ownerEmail) signInEmail.value=ownerEmail;
+    prepareAdminShortcut();
+    setAuthStatus("");
 
     if(ownerEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
       localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
@@ -1808,30 +1772,26 @@ async function initialize(){
 
   state.session=session;
   if(!session){
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     const ownerEmail=rememberedOwnerEmail();
-    if(ownerEmail){
-      await showOwnerAccess(ownerEmail,false);
-      setAuthStatus("Tap “Send a new code” to continue.","");
-      return;
-    }
     showAuth();
-    setAuthMode("signup");
+    if(ownerEmail){
+      setAuthMode("signin");
+      const emailInput=$("#authEmail");
+      if(emailInput) emailInput.value=ownerEmail;
+    }else{
+      setAuthMode("signup");
+    }
     setAuthStatus("");
     return;
   }
 
   saveOwnerSessionBackup(session);
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
-  const lastOwnerActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
-  const hasRecentOwnerActivity=!lastOwnerActivity || (Date.now()-lastOwnerActivity)<OWNER_IDLE_MS;
-
-  if(hasRecentOwnerActivity){
-    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    if(!lastOwnerActivity) localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
-  }else if(rememberedOwnerEmail()===signedInEmail){
-    await expireOwnerSession();
-    return;
-  }
+  localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+  localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
+  localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 
   if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
     try{ await supabase.auth.signOut({scope:"local"}); }catch{}
@@ -1926,11 +1886,8 @@ async function initialize(){
 
   if(state.business?.role==="owner"){
     localStorage.setItem(OWNER_EMAIL_KEY,signedInEmail);
-    if(ownerIdleExpired()){
-      await expireOwnerSession();
-      return;
-    }
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     markOwnerActivity();
   }
 
