@@ -98,7 +98,7 @@ async function assertLayout(page,profile){
 
   if(profile.viewport.width<=860){
     await page.evaluate(()=>document.querySelector(".sidebar")?.classList.add("open"));
-    await page.waitForTimeout(40);
+    await page.waitForTimeout(320);
     const nav=await page.evaluate(()=>{
       const sidebar=document.querySelector(".sidebar").getBoundingClientRect();
       const main=document.querySelector(".main").getBoundingClientRect();
