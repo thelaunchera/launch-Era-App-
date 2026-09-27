@@ -2259,7 +2259,7 @@ async function initialize(){
   if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
     const {data:b,error:businessError}=await supabase
       .from("businesses")
-      .select("id,name,timezone,default_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status")
+      .select("id,name,timezone,default_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
       .eq("owner_user_id",session.user.id)
       .order("created_at",{ascending:true})
       .limit(1)
@@ -2273,6 +2273,12 @@ async function initialize(){
         team_member_id:null,
         timezone:b.timezone,
         default_language:b.default_language,
+        country_code:b.country_code,
+        locale_code:b.locale_code,
+        currency_code:b.currency_code,
+        distance_unit:b.distance_unit,
+        temperature_unit:b.temperature_unit,
+        payment_methods:b.payment_methods,
         service_area:b.service_area,
         default_travel_buffer_minutes:b.default_travel_buffer_minutes,
         trial_ends_at:b.trial_ends_at,
@@ -2300,6 +2306,12 @@ async function initialize(){
     team_member_id:context.team_member_id,
     timezone:context.timezone,
     default_language:context.default_language,
+    country_code:context.country_code,
+    locale_code:context.locale_code,
+    currency_code:context.currency_code,
+    distance_unit:context.distance_unit,
+    temperature_unit:context.temperature_unit,
+    payment_methods:context.payment_methods,
     service_area:context.service_area,
     default_travel_buffer_minutes:context.default_travel_buffer_minutes,
     trial_ends_at:context.trial_ends_at,
@@ -2309,7 +2321,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at")
+      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
