@@ -1,6 +1,9 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Could not sign out":"No se pudo cerrar la sesión",
+    "Signing out…":"Cerrando sesión…",
+    "Log out":"Cerrar sesión",
     "Use your current admin email to continue.":"Usa tu correo actual de administrador para continuar.",
     "Back to sign in":"Volver a iniciar sesión",
     "Enter the new password you want to use.":"Escribe la nueva contraseña que quieres usar.",
