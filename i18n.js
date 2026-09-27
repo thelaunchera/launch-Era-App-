@@ -566,6 +566,116 @@
     "expired":"expirado"
   };
 
+
+  const extra={
+    pt:{
+      "Sign in":"Entrar","Create account":"Criar conta","Email":"E-mail","Password":"Senha",
+      "Forgot password?":"Esqueceu a senha?","Already have an account? Sign in":"Já tem uma conta? Entre",
+      "Create your cleaning business account.":"Crie a conta da sua empresa de limpeza.",
+      "Open your cleaning business workspace.":"Abra o espaço de trabalho da sua empresa de limpeza.",
+      "Business name":"Nome da empresa","Phone":"Telefone","Service area":"Área de atendimento",
+      "Create my workspace":"Criar meu espaço","FIRST SETUP":"CONFIGURAÇÃO INICIAL",
+      "Tell me about your business.":"Conte um pouco sobre sua empresa.",
+      "Today":"Hoje","Booking Center":"Reservas","Leads":"Leads","Clients":"Clientes",
+      "Calendar + Jobs":"Calendário + trabalhos","Quotes":"Orçamentos","Invoices":"Faturas",
+      "Today's Route":"Rota de hoje","Mileage":"Quilometragem","Time Tracking":"Controle de tempo",
+      "Supplies":"Materiais","Owner Reports":"Relatórios","Services + Add-ons":"Serviços + extras",
+      "Team":"Equipe","Settings":"Configurações","Owner Admin":"Admin do proprietário",
+      "Help & FAQ":"Ajuda e FAQ","Log out":"Sair","Change language":"Mudar idioma",
+      "Good morning":"Bom dia","Good afternoon":"Boa tarde","Good evening":"Boa noite",
+      "Booking requests":"Solicitações de reserva","Open quotes":"Orçamentos abertos",
+      "Outstanding invoices":"Faturas pendentes","Today's jobs":"Trabalhos de hoje",
+      "Add client":"Adicionar cliente","Create quote":"Criar orçamento","Create invoice":"Criar fatura",
+      "Log mileage":"Registrar quilometragem","Track time":"Registrar tempo",
+      "Nothing urgent.":"Nada urgente.","No jobs today.":"Nenhum trabalho hoje.",
+      "Booking page":"Página de reservas","Open page":"Abrir página","Open profile":"Abrir perfil",
+      "Privacy":"Privacidade","Terms":"Termos","Share this app":"Compartilhar este app",
+      "Feedback":"Feedback","Help":"Ajuda","Restart tour":"Reiniciar tour",
+      "Business email":"E-mail da empresa","Default language":"Idioma padrão","Time zone":"Fuso horário",
+      "Edit business details":"Editar dados da empresa","Save business details":"Salvar dados da empresa",
+      "Client payment methods":"Formas de pagamento do cliente","Cash":"Dinheiro","Check":"Cheque",
+      "Bank transfer":"Transferência bancária","Other":"Outro","Payment methods":"Formas de pagamento",
+      "Guest Employee Access":"Acesso de funcionário convidado","GUEST EMPLOYEE ACCESS":"ACESSO DE FUNCIONÁRIO CONVIDADO",
+      "Welcome, guest 👋":"Bem-vindo, convidado 👋","MY WORK":"MEU TRABALHO",
+      "Assigned jobs":"Trabalhos atribuídos","Route + address":"Rota + endereço","Job status":"Status do trabalho",
+      "Messages":"Mensagens","MESSAGE CENTER":"CENTRAL DE MENSAGENS","Send message":"Enviar mensagem",
+      "Message your admin":"Fale com o administrador","Message employee":"Enviar mensagem ao funcionário",
+      "No messages yet.":"Ainda não há mensagens.","Type a message…":"Digite uma mensagem…",
+      "Worker Access":"Acesso do funcionário","Exit":"Sair","LIMITED ACCESS":"ACESSO LIMITADO",
+      "What you can use":"O que você pode usar",
+      "BOOK A CLEANING":"AGENDAR LIMPEZA","REQUEST A QUOTE":"PEDIR ORÇAMENTO",
+      "Choose your service and send your request.":"Escolha o serviço e envie sua solicitação.",
+      "Cleaning service":"Serviço de limpeza","Service":"Serviço","Choose a service":"Escolha um serviço",
+      "Add-ons":"Extras","Date":"Data","Time":"Hora","Preferred time":"Horário preferido",
+      "Available times":"Horários disponíveis","Name":"Nome","Preferred contact":"Contato preferido",
+      "Text":"SMS","WhatsApp":"WhatsApp","Service address":"Endereço do serviço","Notes":"Observações",
+      "Send booking request":"Enviar solicitação de reserva","Send quote request":"Enviar pedido de orçamento",
+      "Request received":"Solicitação recebida","INVOICE":"FATURA","Invoice":"Fatura",
+      "Subtotal":"Subtotal","Paid":"Pago","Balance due":"Saldo devido","Total":"Total",
+      "Review your quote":"Revise seu orçamento","Decline":"Recusar","Accept quote":"Aceitar orçamento",
+      "Submit quote":"Enviar orçamento","Submit invoice":"Enviar fatura",
+      "Payment is arranged directly with the cleaning business. No card payment is collected on this page.":"O pagamento é combinado diretamente com a empresa de limpeza. Nenhum pagamento com cartão é cobrado nesta página.",
+      "Business drive":"Viagem de trabalho","Miles":"Milhas","Job":"Trabalho","Type":"Tipo",
+      "No mileage logged yet.":"Nenhuma quilometragem registrada ainda.","Save mileage":"Salvar quilometragem",
+      "From":"De","To":"Para","Note (optional)":"Observação (opcional)","Job (optional)":"Trabalho (opcional)",
+      "Português":"Português","Français":"Français","English":"English","Español":"Español",
+      "Try again":"Tentar novamente","Close":"Fechar","Start tour":"Iniciar tour","Got it":"Entendi"
+    },
+    fr:{
+      "Sign in":"Se connecter","Create account":"Créer un compte","Email":"E-mail","Password":"Mot de passe",
+      "Forgot password?":"Mot de passe oublié ?","Already have an account? Sign in":"Vous avez déjà un compte ? Connectez-vous",
+      "Create your cleaning business account.":"Créez le compte de votre entreprise de nettoyage.",
+      "Open your cleaning business workspace.":"Ouvrez l’espace de travail de votre entreprise de nettoyage.",
+      "Business name":"Nom de l’entreprise","Phone":"Téléphone","Service area":"Zone de service",
+      "Create my workspace":"Créer mon espace","FIRST SETUP":"CONFIGURATION INITIALE",
+      "Tell me about your business.":"Parlez-nous de votre entreprise.",
+      "Today":"Aujourd’hui","Booking Center":"Réservations","Leads":"Prospects","Clients":"Clients",
+      "Calendar + Jobs":"Calendrier + travaux","Quotes":"Devis","Invoices":"Factures",
+      "Today's Route":"Itinéraire du jour","Mileage":"Kilométrage","Time Tracking":"Suivi du temps",
+      "Supplies":"Fournitures","Owner Reports":"Rapports","Services + Add-ons":"Services + options",
+      "Team":"Équipe","Settings":"Paramètres","Owner Admin":"Administration propriétaire",
+      "Help & FAQ":"Aide et FAQ","Log out":"Se déconnecter","Change language":"Changer de langue",
+      "Good morning":"Bonjour","Good afternoon":"Bon après-midi","Good evening":"Bonsoir",
+      "Booking requests":"Demandes de réservation","Open quotes":"Devis ouverts",
+      "Outstanding invoices":"Factures impayées","Today's jobs":"Travaux du jour",
+      "Add client":"Ajouter un client","Create quote":"Créer un devis","Create invoice":"Créer une facture",
+      "Log mileage":"Enregistrer le kilométrage","Track time":"Suivre le temps",
+      "Nothing urgent.":"Rien d’urgent.","No jobs today.":"Aucun travail aujourd’hui.",
+      "Booking page":"Page de réservation","Open page":"Ouvrir la page","Open profile":"Ouvrir le profil",
+      "Privacy":"Confidentialité","Terms":"Conditions","Share this app":"Partager l’application",
+      "Feedback":"Avis","Help":"Aide","Restart tour":"Recommencer le guide",
+      "Business email":"E-mail de l’entreprise","Default language":"Langue par défaut","Time zone":"Fuseau horaire",
+      "Edit business details":"Modifier les informations","Save business details":"Enregistrer les informations",
+      "Client payment methods":"Modes de paiement client","Cash":"Espèces","Check":"Chèque",
+      "Bank transfer":"Virement bancaire","Other":"Autre","Payment methods":"Modes de paiement",
+      "Guest Employee Access":"Accès employé invité","GUEST EMPLOYEE ACCESS":"ACCÈS EMPLOYÉ INVITÉ",
+      "Welcome, guest 👋":"Bienvenue, invité 👋","MY WORK":"MON TRAVAIL",
+      "Assigned jobs":"Travaux attribués","Route + address":"Itinéraire + adresse","Job status":"Statut du travail",
+      "Messages":"Messages","MESSAGE CENTER":"CENTRE DE MESSAGES","Send message":"Envoyer le message",
+      "Message your admin":"Écrire à l’administrateur","Message employee":"Écrire à l’employé",
+      "No messages yet.":"Aucun message pour le moment.","Type a message…":"Écrivez un message…",
+      "Worker Access":"Accès employé","Exit":"Quitter","LIMITED ACCESS":"ACCÈS LIMITÉ",
+      "What you can use":"Ce que vous pouvez utiliser",
+      "BOOK A CLEANING":"RÉSERVER UN NETTOYAGE","REQUEST A QUOTE":"DEMANDER UN DEVIS",
+      "Choose your service and send your request.":"Choisissez votre service et envoyez votre demande.",
+      "Cleaning service":"Service de nettoyage","Service":"Service","Choose a service":"Choisissez un service",
+      "Add-ons":"Options","Date":"Date","Time":"Heure","Preferred time":"Heure préférée",
+      "Available times":"Horaires disponibles","Name":"Nom","Preferred contact":"Contact préféré",
+      "Text":"SMS","WhatsApp":"WhatsApp","Service address":"Adresse du service","Notes":"Notes",
+      "Send booking request":"Envoyer la demande de réservation","Send quote request":"Envoyer la demande de devis",
+      "Request received":"Demande reçue","INVOICE":"FACTURE","Invoice":"Facture",
+      "Subtotal":"Sous-total","Paid":"Payé","Balance due":"Solde dû","Total":"Total",
+      "Review your quote":"Vérifiez votre devis","Decline":"Refuser","Accept quote":"Accepter le devis",
+      "Submit quote":"Envoyer le devis","Submit invoice":"Envoyer la facture",
+      "Payment is arranged directly with the cleaning business. No card payment is collected on this page.":"Le paiement est organisé directement avec l’entreprise de nettoyage. Aucun paiement par carte n’est encaissé sur cette page.",
+      "Business drive":"Déplacement professionnel","Miles":"Miles","Job":"Travail","Type":"Type",
+      "No mileage logged yet.":"Aucun kilométrage enregistré.","Save mileage":"Enregistrer le kilométrage",
+      "From":"De","To":"À","Note (optional)":"Note (facultatif)","Job (optional)":"Travail (facultatif)",
+      "Português":"Português","Français":"Français","English":"English","Español":"Español",
+      "Try again":"Réessayer","Close":"Fermer","Start tour":"Commencer le guide","Got it":"Compris"
+    }
+  };
+
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
@@ -580,17 +690,22 @@
   const originals=new WeakMap();
   const attrOriginals=new WeakMap();
   let applying=false;
-  let lang=localStorage.getItem(STORAGE_KEY) || ((navigator.language||"").toLowerCase().startsWith("es") ? "es" : "en");
+  const SUPPORTED=["en","es","pt","fr"];
+  const browserLanguage=String(navigator.language||"en").slice(0,2).toLowerCase();
+  let lang=localStorage.getItem(STORAGE_KEY) || (SUPPORTED.includes(browserLanguage)?browserLanguage:"en");
 
   function translateString(value){
     const key=String(value||"").trim();
-    if(!key) return value;
-    if(exact[key]) return exact[key];
-    for(const [re,fn] of patterns){
-      const match=key.match(re);
-      if(match) return fn(...match);
+    if(!key || lang==="en") return key||value;
+    if(lang==="es"){
+      if(exact[key]) return exact[key];
+      for(const [re,fn] of patterns){
+        const match=key.match(re);
+        if(match) return fn(...match);
+      }
+      return key;
     }
-    return key;
+    return extra[lang]?.[key]||key;
   }
 
   function setTextNode(node){
@@ -614,7 +729,7 @@
     for(const attr of ["placeholder","aria-label","title"]){
       if(!el.hasAttribute(attr)) continue;
       if(!(attr in saved)) saved[attr]=el.getAttribute(attr);
-      el.setAttribute(attr,lang==="es"?translateString(saved[attr]):saved[attr]);
+      el.setAttribute(attr,lang==="en"?saved[attr]:translateString(saved[attr]));
     }
   }
 
@@ -633,21 +748,22 @@
 
   function updateToggles(){
     document.documentElement.lang=lang;
+    const names={en:"English",es:"Español",pt:"Português",fr:"Français"};
     document.querySelectorAll("[data-language-toggle],#languageBtn").forEach(btn=>{
       if(btn.id==="languageBtn" && btn.querySelector(".top-icon")){
         const icon=btn.querySelector(".top-icon");
         const label=btn.querySelector(".top-label");
-        if(icon) icon.textContent=lang==="es"?"EN":"ES";
-        if(label) label.textContent=lang==="es"?"English":"Español";
+        if(icon) icon.textContent=lang.toUpperCase();
+        if(label) label.textContent=names[lang]||"Language";
       }else{
-        btn.textContent=lang==="es"?"EN":"ES";
+        btn.textContent=lang.toUpperCase();
       }
-      btn.setAttribute("aria-label",lang==="es"?"Switch to English":"Cambiar a español");
+      btn.setAttribute("aria-label","Change language");
     });
   }
 
   function applyLanguage(next=lang){
-    lang=next==="es"?"es":"en";
+    lang=SUPPORTED.includes(next)?next:"en";
     localStorage.setItem(STORAGE_KEY,lang);
 
     // Disconnect while we rewrite text so our own translations are never
@@ -666,7 +782,8 @@
   }
 
   function toggle(){
-    applyLanguage(lang==="es"?"en":"es");
+    const index=SUPPORTED.indexOf(lang);
+    applyLanguage(SUPPORTED[(index+1)%SUPPORTED.length]);
   }
 
   document.addEventListener("click",e=>{
@@ -690,7 +807,7 @@
         // counters, modal copy, statuses). Treat that new English value as the
         // fresh source string before translating it.
         originals.set(mutation.target,mutation.target.nodeValue);
-        if(lang==="es") setTextNode(mutation.target);
+        if(lang!=="en") setTextNode(mutation.target);
       }
 
       if(mutation.type==="attributes"){
@@ -701,7 +818,7 @@
           const attr=mutation.attributeName;
           if(["placeholder","aria-label","title"].includes(attr)){
             saved[attr]=el.getAttribute(attr);
-            if(lang==="es") setAttrs(el);
+            if(lang!=="en") setAttrs(el);
           }
         }
       }
@@ -741,6 +858,6 @@
     get language(){return lang;},
     setLanguage:applyLanguage,
     toggle,
-    t(value){return lang==="es"?translateString(value):value;}
+    t(value){return lang==="en"?value:translateString(value);}
   };
 })();
