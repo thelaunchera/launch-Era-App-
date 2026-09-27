@@ -6,6 +6,9 @@ const { createClient } = window.supabase;
 
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
+const PRIMARY_PLATFORM_ADMIN_EMAIL = "dailinsegura17@gmail.com";
+const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
     persistSession:true,
@@ -14,6 +17,14 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
     storage:window.localStorage
   }
 });
+
+try{
+  const lastAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+  if(lastAdmin===LEGACY_PLATFORM_ADMIN_EMAIL){
+    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
+    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+  }
+}catch{}
 
 const state = {
   session: null,
@@ -419,7 +430,7 @@ function prepareAdminShortcut(){
   const passwordField=$("#passwordField");
   const submit=$("#authSubmit");
   const forgot=$("#forgotPassword");
-  const recognized=Boolean(last && state.authMode==="signin");
+  const recognized=Boolean(last && last.trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL && state.authMode==="signin");
 
   shortcut.hidden=!recognized;
   if(recognized){
@@ -440,6 +451,7 @@ function prepareAdminShortcut(){
 async function requestAdminSignIn(email){
   const clean=String(email||"").trim().toLowerCase();
   if(!clean) throw new Error("Enter your admin email first.");
+  if(clean!==PRIMARY_PLATFORM_ADMIN_EMAIL) throw new Error("Admin access is not active for this email.");
 
   const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
     body:{email:clean}
