@@ -2422,6 +2422,7 @@ function renderTodaySummary(){
   }
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
+  if(hero) hero.classList.remove("is-loading");
   const momentIcon=$("#todayMomentIcon");
   const momentCopy=$("#todayMomentCopy");
   const heroAction=$("#todayHeroAction");
@@ -2555,6 +2556,7 @@ function renderTodaySummary(){
     }
     if(momentCopy) momentCopy.textContent=copy;
     if(heroAction){
+      heroAction.disabled=false;
       heroAction.textContent=actionText;
       heroAction.dataset.jump=actionView==="today"?"calendar":actionView;
     }
