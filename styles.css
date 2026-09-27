@@ -3731,3 +3731,13 @@ body.shell-public #publicShell{
   .onboarding-layer.welcome{padding:16px}
   .onboarding-layer.welcome .onboarding-card{border-radius:20px}
 }
+
+/* Mileage route note */
+.record-primary .record-note{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  font-style:normal;
+  line-height:1.4;
+}
