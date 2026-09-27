@@ -42,7 +42,7 @@
     const text = await res.text();
     let data = null;
     try{ data = text ? JSON.parse(text) : null; }catch{ data = text; }
-    if(!res.ok) throw new Error(data?.message || data?.error || "Request failed");
+    if(!res.ok) throw new Error(data?.message || data?.error || tt("Request failed"));
     return data;
   }
 
@@ -105,7 +105,7 @@
     try{
       const data=await rpc("get_public_invoice_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
-      $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
+      $("#publicBusinessName").textContent=data?.business_name||tt("Cleaning business");
       $("#publicModeLabel").textContent=tt("INVOICE");
       $("#publicIntro").textContent=tt("Review your invoice details below.");
       $("#invoiceViewTitle").textContent=tt("Invoice")+" #"+(data?.invoice_number||"");
@@ -193,7 +193,7 @@
           submitInvoiceBtn.disabled=true;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
         }catch(err){
-          if(choiceStatus) choiceStatus.textContent=err.message||"Could not submit invoice.";
+          if(choiceStatus) choiceStatus.textContent=err.message||tt("Could not submit invoice.");
           submitInvoiceBtn.disabled=false;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=false);
         }
@@ -239,7 +239,7 @@
       });
     }catch(err){
       $("#publicBusinessName").textContent=tt("Invoice unavailable");
-      $("#publicIntro").textContent=err.message||"This invoice link is invalid or expired.";
+      $("#publicIntro").textContent=err.message||tt("This invoice link is invalid or expired.");
       if(invoiceView) invoiceView.hidden=true;
     }
   }
@@ -331,7 +331,7 @@
         submitQuoteBtn.disabled=true;
         if(acceptBtn) acceptBtn.disabled=true;
         if(declineBtn) declineBtn.disabled=true;
-        statusEl.textContent=action==="accept"?"Submitting your acceptance…":"Submitting your decline…";
+        statusEl.textContent=action==="accept"?tt("Submitting your acceptance…"):tt("Submitting your decline…");
         try{
           await rpc("respond_public_quote",{p_token:token,p_action:action});
           if(actions) actions.hidden=true;
@@ -340,7 +340,7 @@
             ?"Accepted. Your service is confirmed and a confirmation email is on the way."
             :"Quote declined. The cleaning business can now follow up with you.";
         }catch(err){
-          statusEl.textContent=err.message||"Could not submit quote.";
+          statusEl.textContent=err.message||tt("Could not submit quote.");
           submitQuoteBtn.disabled=false;
           if(acceptBtn) acceptBtn.disabled=false;
           if(declineBtn) declineBtn.disabled=false;
@@ -389,7 +389,7 @@
       });
     }catch(err){
       $("#publicBusinessName").textContent=tt("Quote unavailable");
-      $("#publicIntro").textContent=err.message||"This quote link is invalid or expired.";
+      $("#publicIntro").textContent=err.message||tt("This quote link is invalid or expired.");
       if(review) review.hidden=true;
     }
   }
@@ -418,12 +418,12 @@
       const slotsBox=$("#publicSlots");
       const slotInput=$("#publicSlotStart");
 
-      if(business) business.textContent=data?.business?.name||"Cleaning service";
-      if(label) label.textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
+      if(business) business.textContent=data?.business?.name||tt("Cleaning service");
+      if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
       if(intro) intro.textContent=mode==="quote"
         ?"Tell us what you need and the business will review your request."
         :"Choose a service, date, and one of the real available times below.";
-      if(submit) submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
+      if(submit) submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
       if(addWrap) addWrap.hidden=mode==="quote";
       if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
       if(slotsWrap) slotsWrap.hidden=mode==="quote";
@@ -517,7 +517,7 @@
             '<button type="button" class="slot-btn" data-slot="'+esc(row.slot_start)+'">'+esc(formatSlot(row.slot_start))+'</button>'
           ).join("");
         }catch(err){
-          slotsBox.innerHTML='<span class="muted-line">'+esc(err.message||"Could not load availability")+'</span>';
+          slotsBox.innerHTML='<span class="muted-line">'+esc(err.message||tt("Could not load availability"))+'</span>';
         }
       }
 
@@ -610,7 +610,7 @@
       }
     }catch(err){
       $("#publicBusinessName").textContent=tt("Page unavailable");
-      $("#publicIntro").textContent=err.message||"This page is not available.";
+      $("#publicIntro").textContent=err.message||tt("This page is not available.");
       $("#publicRequestForm").hidden=true;
     }
   }
