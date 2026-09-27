@@ -578,7 +578,7 @@ function installLiveDashboardUpdates(){
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
-    renderTodaySummary();
+    renderTodaySummary(true);
     if(Date.now()-(state.weatherFetchedAt||0)>15*60*1000){
       loadBusinessWeather(true).catch(function(){});
     }
@@ -1539,7 +1539,7 @@ businessForm.addEventListener("submit", async (e)=>{
     localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
     showApp();
-    try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
+    try{ renderTodaySummary(true); }catch(err){ console.warn("[TLE] first dashboard render",err); }
     loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
@@ -2539,7 +2539,7 @@ function confirmedPaid(inv){
   return (inv.payments||[]).filter(p=>p.status==="confirmed").reduce((sum,p)=>sum+Number(p.amount||0),0);
 }
 
-function renderTodaySummary(){
+function renderTodaySummary(wakeAssistant=false){
   const now=new Date();
   const businessTimeZone=state.business?.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone;
   const businessHour=Number(new Intl.DateTimeFormat("en-US",{
@@ -2575,7 +2575,14 @@ function renderTodaySummary(){
   if(assistantLabel) assistantLabel.textContent=appIsSpanish()?"Tu asistente":"Daily assistant";
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
-  if(hero) hero.classList.remove("is-loading");
+  if(hero){
+    hero.classList.remove("is-loading");
+    if(wakeAssistant){
+      hero.classList.remove("assistant-arrival");
+      void hero.offsetWidth;
+      hero.classList.add("assistant-arrival");
+    }
+  }
   const momentIcon=$("#todayMomentIcon");
   const momentCopy=$("#todayMomentCopy");
   const heroAction=$("#todayHeroAction");
