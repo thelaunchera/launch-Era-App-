@@ -15,8 +15,14 @@
   const KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
   const $ = (s,root=document) => root.querySelector(s);
   const $$ = (s,root=document) => [...root.querySelectorAll(s)];
-  const money = v => new Intl.NumberFormat("en-US",{
-    style:"currency",currency:"USD",maximumFractionDigits:2
+  let publicLocale=navigator.language||"en-US";
+  let publicCurrency="USD";
+  function setPublicLocale(locale,currency){
+    publicLocale=String(locale||publicLocale||"en-US");
+    publicCurrency=String(currency||publicCurrency||"USD").toUpperCase();
+  }
+  const money = v => new Intl.NumberFormat(publicLocale,{
+    style:"currency",currency:publicCurrency,maximumFractionDigits:2
   }).format(Number(v||0));
   const esc = v => String(v??"").replace(/[&<>"']/g,ch=>({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -70,7 +76,7 @@
   function formatDate(value){
     if(!value) return "";
     const d=new Date(value+"T12:00:00");
-    return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(d);
+    return new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(d);
   }
 
   function formatTime(value){
@@ -78,7 +84,7 @@
     const parts=String(value).split(":");
     const d=new Date();
     d.setHours(Number(parts[0]||0),Number(parts[1]||0),0,0);
-    return new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(d);
+    return new Intl.DateTimeFormat(publicLocale,{hour:"numeric",minute:"2-digit"}).format(d);
   }
 
   async function bootInvoiceView(){
@@ -93,13 +99,14 @@
 
     try{
       const data=await rpc("get_public_invoice_context",{p_token:token});
+      setPublicLocale(data?.locale_code,data?.currency_code);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
       $("#publicModeLabel").textContent="INVOICE";
       $("#publicIntro").textContent="Review your invoice details below.";
       $("#invoiceViewTitle").textContent="Invoice #"+(data?.invoice_number||"");
       const meta=[
         data?.customer_name||"",
-        data?.due_at ? "Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
+        data?.due_at ? "Due "+new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
         data?.status ? String(data.status).replaceAll("_"," ") : ""
       ].filter(Boolean).join(" · ");
       $("#invoiceViewMeta").textContent=meta;
@@ -112,15 +119,33 @@
       $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
-      $("#invoiceViewMethods").textContent=data?.payment_methods||"Cash · Check · Zelle";
+      const methodLabels={
+        cash:"Cash",
+        check:"Check",
+        other:"Other",
+        bank_transfer:"Bank transfer",
+        card:"Card",
+        paypal:"PayPal",
+        venmo:"Venmo",
+        pix:"Pix"
+      };
+      const enabledMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
+        ? data.payment_methods.map(x=>String(x).toLowerCase())
+        : ["cash","check","other"];
+      $("#invoiceViewMethods").textContent=enabledMethods.map(x=>methodLabels[x]||x).join(" · ");
 
       const choices=$("#invoicePaymentChoices");
       const choiceStatus=$("#invoicePaymentChoiceStatus");
       const submitInvoiceBtn=$("#submitInvoiceBtn");
-      const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle"};
       let selected=String(data?.customer_payment_method||"").toLowerCase();
       const savedMethod=selected;
       const isPaid=String(data?.status||"").toLowerCase()==="paid";
+
+      if(choices){
+        choices.innerHTML=enabledMethods.map(method=>
+          '<button type="button" data-invoice-payment="'+esc(method)+'">'+esc(methodLabels[method]||method)+'</button>'
+        ).join("");
+      }
 
       function renderPaymentChoice(){
         choices?.querySelectorAll("[data-invoice-payment]").forEach(btn=>{
@@ -138,12 +163,12 @@
         if(!choiceStatus) return;
         if(isPaid){
           choiceStatus.textContent=selected
-            ? "Paid · "+methodLabels[selected]
+            ? "Paid · "+((methodLabels[selected]||selected)||selected)
             : "Payment confirmed by the cleaning business.";
         }else if(selected){
-          choiceStatus.textContent="Selected: "+methodLabels[selected]+". Tap Submit invoice to send this choice.";
+          choiceStatus.textContent="Selected: "+((methodLabels[selected]||selected)||selected)+". Tap Submit invoice to send this choice.";
         }else{
-          choiceStatus.textContent="Choose Cash, Check or Zelle, then submit your choice.";
+          choiceStatus.textContent="Choose a payment method, then submit your choice.";
         }
       }
 
@@ -167,7 +192,7 @@
             p_method:selected
           });
           selected=String(result?.payment_method||selected).toLowerCase();
-          if(choiceStatus) choiceStatus.textContent="Submitted: "+methodLabels[selected]+". The business will confirm payment after it is received.";
+          if(choiceStatus) choiceStatus.textContent="Submitted: "+(methodLabels[selected]||selected)+". The business will confirm payment after it is received.";
           submitInvoiceBtn.textContent="Submitted ✓";
           submitInvoiceBtn.disabled=true;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
@@ -233,6 +258,7 @@
 
     try{
       const data=await rpc("get_public_quote_context",{p_token:token});
+      setPublicLocale(data?.locale_code,data?.currency_code);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
       $("#publicModeLabel").textContent="QUOTE";
       $("#publicIntro").textContent="Review the details below and choose Accept or Decline.";
@@ -375,6 +401,7 @@
   async function bootRequest(){
     try{
       const data=await rpc("get_public_booking_config",{p_slug:slug});
+    setPublicLocale(data?.business?.locale_code,data?.business?.currency_code);
       const allServices=data?.services||[];
       const services=allServices.filter(s=>
         mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0)
@@ -462,7 +489,7 @@
 
       function formatSlot(iso){
         const tz=data?.business?.timezone||"America/New_York";
-        return new Intl.DateTimeFormat("en-US",{
+        return new Intl.DateTimeFormat(publicLocale,{
           timeZone:tz,hour:"numeric",minute:"2-digit"
         }).format(new Date(iso));
       }
