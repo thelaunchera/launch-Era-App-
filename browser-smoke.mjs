@@ -53,13 +53,18 @@ try{
     await page.goto("http://127.0.0.1:4173/?browser-smoke=1",{waitUntil:"domcontentloaded",timeout:15000});
     await page.waitForSelector("#authSwitch",{visible:true,timeout:10000});
     const initial=await page.$eval("#authTitle",el=>el.textContent.trim());
-    if(initial!=="Sign in") throw new Error(profile.name+": initial auth screen failed: "+initial);
-    await page.click("#authSwitch");
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
-    const signupButton=await page.$eval("#authSubmit",el=>({text:el.textContent.trim(),hidden:el.hidden,disabled:el.disabled}));
-    if(signupButton.text!=="Create account"||signupButton.hidden||signupButton.disabled){
-      throw new Error(profile.name+": Create account submit is not usable");
+    if(initial!=="Create account") throw new Error(profile.name+": initial auth screen failed: "+initial);
+    const signup=await page.evaluate(()=>({
+      button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
+      emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
+      emailType:document.querySelector("#authEmail")?.type,
+      trialClose:!!document.querySelector("#trialExpiryClose"),
+      staticThreeDay:document.body.textContent.includes("Your free access ends in 3 days")
+    }));
+    if(signup.button.text!=="Create account"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
+      throw new Error(profile.name+": Create account form is not usable");
     }
+    if(!signup.trialClose||signup.staticThreeDay) throw new Error(profile.name+": trial alert markup is stale");
     const layout=await page.evaluate(()=>({
       scrollWidth:document.documentElement.scrollWidth,
       innerWidth:window.innerWidth,
@@ -71,6 +76,8 @@ try{
     if(!layout.ready) throw new Error(profile.name+": app did not finish booting");
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:5000});
+    await page.click("#authSwitch");
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
