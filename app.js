@@ -58,6 +58,9 @@ const state = {
   publicLinks: null,
   isPlatformAdmin: false,
   platformAdminData: null,
+  weather: null,
+  weatherArea: null,
+  weatherFetchedAt: 0,
   workerPortal: null,
   currentWorkerLink: null,
   authMode: "signin",
@@ -335,6 +338,250 @@ function translatedStatus(value=""){
   };
   return tr(map[String(value||"").toLowerCase()]||raw);
 }
+function weatherCodeMeta(code){
+  const n=Number(code);
+  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado"};
+  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado"};
+  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado"};
+  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina"};
+  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna"};
+  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia"};
+  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve"};
+  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas"};
+  return {icon:"🌤️",en:"Weather",es:"Clima"};
+}
+function weatherClockLabel(hour){
+  const h=Number(hour);
+  if(appIsSpanish()){
+    if(h===0) return "12 a. m.";
+    if(h<12) return h+" a. m.";
+    if(h===12) return "12 p. m.";
+    return (h-12)+" p. m.";
+  }
+  if(h===0) return "12 AM";
+  if(h<12) return h+" AM";
+  if(h===12) return "12 PM";
+  return (h-12)+" PM";
+}
+function weatherDayLabel(dateString,currentDateString){
+  if(!dateString) return "";
+  const d=new Date(dateString+"T12:00:00Z");
+  const today=new Date(currentDateString+"T12:00:00Z");
+  const tomorrow=new Date(today); tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
+  if(dateString===currentDateString) return appIsSpanish()?"Hoy":"Today";
+  if(dateString===tomorrow.toISOString().slice(0,10)) return appIsSpanish()?"Mañana":"Tomorrow";
+  return new Intl.DateTimeFormat(appLocale(),{weekday:"short",timeZone:"UTC"}).format(d);
+}
+function nextRainWindow(weather){
+  const times=weather&&weather.hourly&&weather.hourly.time||[];
+  const probs=weather&&weather.hourly&&weather.hourly.precipitation_probability||[];
+  if(!times.length) return null;
+  const current=String(weather&&weather.current&&weather.current.time||"").slice(0,13);
+  let start=Math.max(0,times.findIndex(function(t){return String(t).slice(0,13)>=current;}));
+  if(start<0) start=0;
+  const end=Math.min(times.length,start+72);
+  for(let i=start;i<end;i++){
+    const probability=Number(probs[i]||0);
+    if(probability>=55){
+      const stamp=String(times[i]);
+      return {
+        time:stamp,
+        date:stamp.slice(0,10),
+        hour:Number(stamp.slice(11,13)),
+        probability:probability,
+        hoursAhead:i-start
+      };
+    }
+  }
+  return null;
+}
+function weatherCacheKey(area){
+  return "tle_weather_v1:"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
+}
+async function fetchJsonWithTimeout(url,ms=5500){
+  const controller=new AbortController();
+  const timer=setTimeout(function(){controller.abort();},ms);
+  try{
+    const response=await fetch(url,{signal:controller.signal,headers:{"Accept":"application/json"}});
+    if(!response.ok) throw new Error("Weather request failed");
+    return await response.json();
+  }finally{
+    clearTimeout(timer);
+  }
+}
+async function geocodeBusinessArea(area){
+  const clean=String(area||"").trim();
+  if(!clean) return null;
+  const geoKey="tle_weather_geo:"+clean.toLowerCase();
+  try{
+    const cached=JSON.parse(localStorage.getItem(geoKey)||"null");
+    if(cached&&cached.latitude!=null&&cached.longitude!=null) return cached;
+  }catch(e){}
+
+  const candidates=[clean,clean.split(",")[0].trim()].filter(function(v,i,a){return v&&a.indexOf(v)===i;});
+  for(const query of candidates){
+    try{
+      const url="https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&format=json&name="+encodeURIComponent(query);
+      const data=await fetchJsonWithTimeout(url);
+      const results=Array.isArray(data&&data.results)?data.results:[];
+      const us=results.find(function(x){return String(x.country_code||"").toUpperCase()==="US";})||results[0];
+      if(us){
+        const geo={
+          latitude:Number(us.latitude),
+          longitude:Number(us.longitude),
+          name:us.name||clean,
+          admin1:us.admin1||"",
+          country:us.country||"",
+          timezone:us.timezone||(state.business&&state.business.timezone)||"auto"
+        };
+        localStorage.setItem(geoKey,JSON.stringify(geo));
+        return geo;
+      }
+    }catch(e){}
+  }
+  return null;
+}
+async function loadBusinessWeather(force=false){
+  const area=String(state.business&&state.business.service_area||"").trim();
+  const card=$("#weatherBrief");
+  if(!area){
+    state.weather=null;
+    if(card) card.hidden=true;
+    return;
+  }
+
+  const now=Date.now();
+  const cacheKey=weatherCacheKey(area);
+  if(!force){
+    try{
+      const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
+      if(cached&&cached.weather&&cached.fetchedAt&&now-cached.fetchedAt<15*60*1000){
+        state.weather=cached.weather;
+        state.weatherArea=area;
+        state.weatherFetchedAt=cached.fetchedAt;
+        renderWeatherBrief();
+        renderTodaySummary();
+        return;
+      }
+    }catch(e){}
+  }
+
+  const geo=await geocodeBusinessArea(area);
+  if(!geo){
+    if(card) card.hidden=true;
+    return;
+  }
+
+  try{
+    const params=new URLSearchParams({
+      latitude:String(geo.latitude),
+      longitude:String(geo.longitude),
+      current:"temperature_2m,apparent_temperature,weather_code,precipitation",
+      hourly:"temperature_2m,precipitation_probability,weather_code",
+      daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+      temperature_unit:"fahrenheit",
+      precipitation_unit:"inch",
+      forecast_days:"4",
+      timezone:"auto"
+    });
+    const weather=await fetchJsonWithTimeout("https://api.open-meteo.com/v1/forecast?"+params.toString());
+    weather.location=geo;
+    weather.nextRain=nextRainWindow(weather);
+    state.weather=weather;
+    state.weatherArea=area;
+    state.weatherFetchedAt=Date.now();
+    try{localStorage.setItem(cacheKey,JSON.stringify({weather:weather,fetchedAt:state.weatherFetchedAt}));}catch(e){}
+    renderWeatherBrief();
+    renderTodaySummary();
+  }catch(err){
+    console.warn("[TLE] weather",err);
+    if(card&&!state.weather) card.hidden=true;
+  }
+}
+function renderWeatherBrief(){
+  const card=$("#weatherBrief");
+  const weather=state.weather;
+  if(!card||!weather||!weather.current) return;
+  card.hidden=false;
+
+  const meta=weatherCodeMeta(weather.current.weather_code);
+  const temp=Math.round(Number(weather.current.temperature_2m));
+  const feels=Math.round(Number(weather.current.apparent_temperature));
+  const rain=weather.nextRain;
+  const currentDate=String(weather.current.time||"").slice(0,10);
+  const location=weather.location||{};
+
+  $("#weatherIcon").textContent=meta.icon;
+  $("#weatherTemp").textContent=Number.isFinite(temp)?temp+"°F":"—";
+  $("#weatherCondition").textContent=appIsSpanish()?meta.es:meta.en;
+  $("#weatherFeels").textContent=Number.isFinite(feels)?(appIsSpanish()?"Se siente como "+feels+"°":"Feels like "+feels+"°"):"";
+  $("#weatherLocation").textContent=(appIsSpanish()?"AFUERA · ":"OUTSIDE · ")+(location.name||state.weatherArea||"");
+
+  const note=$("#weatherBusinessNote");
+  if(note){
+    if(rain){
+      const day=weatherDayLabel(rain.date,currentDate).toLowerCase();
+      const time=weatherClockLabel(rain.hour);
+      note.classList.add("rain");
+      note.innerHTML=appIsSpanish()
+        ? "<strong>🌧️ Lluvia probable "+escapeHtml(day)+" cerca de las "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Deja un poco de margen entre paradas y revisa el acceso antes de salir.</span>"
+        : "<strong>🌧️ Rain likely "+escapeHtml(day)+" around "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Leave a little room between stops and double-check access before heading out.</span>";
+    }else if(temp>=88){
+      note.classList.remove("rain");
+      note.innerHTML=appIsSpanish()
+        ? "<strong>💧 Hace calor afuera.</strong><span>Ten agua cerca y deja unos minutos para respirar entre paradas.</span>"
+        : "<strong>💧 It’s hot outside.</strong><span>Keep water close and give yourself a few minutes between stops.</span>";
+    }else{
+      note.classList.remove("rain");
+      note.innerHTML=appIsSpanish()
+        ? "<strong>Todo tranquilo con el clima por ahora.</strong><span>Tu ruta puede seguir sin alertas de lluvia importantes.</span>"
+        : "<strong>Weather looks steady for now.</strong><span>No major rain alert is affecting your route yet.</span>";
+    }
+  }
+
+  const forecast=$("#weatherForecast");
+  if(forecast){
+    const dates=weather.daily&&weather.daily.time||[];
+    const highs=weather.daily&&weather.daily.temperature_2m_max||[];
+    const lows=weather.daily&&weather.daily.temperature_2m_min||[];
+    const probs=weather.daily&&weather.daily.precipitation_probability_max||[];
+    const codes=weather.daily&&weather.daily.weather_code||[];
+    forecast.innerHTML=dates.slice(0,3).map(function(date,i){
+      const day=weatherDayLabel(String(date),currentDate);
+      const m=weatherCodeMeta(codes[i]);
+      const hi=Math.round(Number(highs[i]));
+      const lo=Math.round(Number(lows[i]));
+      const prob=Math.round(Number(probs[i]||0));
+      return '<div class="weather-day"><span>'+escapeHtml(day)+'</span><b>'+m.icon+' '+hi+'°</b><small>'+lo+'° · '+prob+'% '+(appIsSpanish()?"lluvia":"rain")+'</small></div>';
+    }).join("");
+  }
+
+  const updated=$("#weatherUpdated");
+  if(updated){
+    const t=new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(state.weatherFetchedAt||Date.now()));
+    updated.textContent=appIsSpanish()?"Actualizado "+t:"Updated "+t;
+  }
+}
+function installLiveDashboardUpdates(){
+  if(window.__tleLiveDashboardInstalled) return;
+  window.__tleLiveDashboardInstalled=true;
+
+  window.setInterval(function(){
+    if(state.session&&state.business) renderTodaySummary();
+  },60*1000);
+
+  window.setInterval(function(){
+    if(state.session&&state.business) loadBusinessWeather(true).catch(function(){});
+  },15*60*1000);
+
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState!=="visible"||!state.session||!state.business) return;
+    renderTodaySummary();
+    if(Date.now()-(state.weatherFetchedAt||0)>15*60*1000){
+      loadBusinessWeather(true).catch(function(){});
+    }
+  });
+}
 
 function refreshDynamicLanguageContent(){
   if(!state.business || !state.session) return;
@@ -426,6 +673,7 @@ function showApp(){
     `;
   }
   scheduleOnboardingWelcome();
+  installLiveDashboardUpdates();
 }
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
@@ -1542,17 +1790,23 @@ function setupInvoiceRealtime(){
     window.__tleInvoiceRealtime=null;
   }
 
-  window.__tleInvoiceRealtime=supabase
-    .channel("invoice-updates-"+state.business.id)
-    .on("postgres_changes",{
-      event:"UPDATE",
+  const refresh=function(){
+    clearTimeout(window.__tleOperationalRefresh);
+    window.__tleOperationalRefresh=setTimeout(function(){
+      loadCoreData().catch(function(err){console.warn("[TLE] realtime workspace refresh",err);});
+    },700);
+  };
+
+  let channel=supabase.channel("workspace-updates-"+state.business.id);
+  ["invoices","jobs","quotes","booking_requests"].forEach(function(table){
+    channel=channel.on("postgres_changes",{
+      event:"*",
       schema:"public",
-      table:"invoices",
+      table:table,
       filter:"business_id=eq."+state.business.id
-    },()=>{
-      loadCoreData().catch(err=>console.warn("[TLE] realtime invoice refresh",err));
-    })
-    .subscribe();
+    },refresh);
+  });
+  window.__tleInvoiceRealtime=channel.subscribe();
 }
 
 async function loadCoreData(){
@@ -1621,6 +1875,7 @@ async function loadCoreData(){
   renderOperations();
   renderSettings();
   renderPublicLinks();
+  loadBusinessWeather(false).catch(function(err){console.warn("[TLE] weather load",err);});
 
   if(state.business.role==="owner"){
     loadOwnerAdmin().catch(err=>console.warn("[TLE] owner admin",err));
