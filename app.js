@@ -14,10 +14,9 @@ const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
-const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-sidebar-flow-fix-1";
+const APP_VERSION = "20260927-auth-welcome-cleanup-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1199,7 +1198,6 @@ async function expireOwnerSession(){
   // Legacy compatibility only. Owner access no longer uses email codes.
   // Supabase's persisted session/refresh token determines whether the user stays signed in.
   localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-  localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
   markOwnerActivity();
 }
 window.addEventListener("tle:languagechange",()=>{
@@ -1231,117 +1229,9 @@ function installOwnerActivityTracker(){
   },{passive:true});
 }
 function prepareAdminShortcut(){
-  const shortcut=$("#rememberedAdminBtn");
   const remembered=rememberedOwnerEmail();
-  if(shortcut) shortcut.hidden=true;
   if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
 }
-async function requestOwnerAccessCode(email){
-  const clean=String(email||"").trim().toLowerCase();
-  if(!clean || !clean.includes("@")) throw new Error("Enter a valid email.");
-  const {data,error}=await supabase.functions.invoke("request-owner-access-code",{body:{email:clean}});
-  if(error) throw error;
-  if(!data?.sent) throw new Error(data?.error||"Could not send the access code.");
-  localStorage.setItem(OWNER_EMAIL_KEY,clean);
-  localStorage.setItem(OWNER_CODE_REQUEST_KEY,String(Date.now()));
-  return data;
-}
-async function verifyOwnerAccessCode(email,code){
-  const clean=String(email||"").trim().toLowerCase();
-  const token=String(code||"").replace(/\D/g,"").slice(0,6);
-  if(token.length!==6) throw new Error("Enter the 6-digit code.");
-  const {data,error}=await supabase.functions.invoke("verify-owner-access-code",{body:{email:clean,code:token}});
-  if(error) throw error;
-  if(!data?.verified || !data?.access_token || !data?.refresh_token){
-    throw new Error(data?.error||"That code could not be verified.");
-  }
-  window.__tleOwnerCodeLogin=true;
-  try{
-    const {data:{session:existingSession}}=await supabase.auth.getSession();
-    const existingEmail=String(existingSession?.user?.email||"").trim().toLowerCase();
-
-    // Always persist the fresh session returned after code verification.
-    // This is especially important for iOS standalone web apps, where a stale
-    // in-memory session can survive while the newest refresh token is not saved.
-    const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
-      access_token:data.access_token,
-      refresh_token:data.refresh_token
-    });
-    if(sessionError) throw sessionError;
-    state.session=sessionData.session||existingSession||null;
-    if(state.session) saveOwnerSessionBackup(state.session);
-
-    localStorage.setItem(OWNER_EMAIL_KEY,clean);
-    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
-    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
-    await enterAuthenticatedApp();
-  }finally{
-    window.__tleOwnerCodeLogin=false;
-  }
-}
-async function showOwnerAccess(email,autoSend=false){
-  const clean=String(email||rememberedOwnerEmail()).trim().toLowerCase();
-  showAuth();
-  state.authMode="ownerCode";
-  const form=$("#authForm");
-  const shortcut=$("#rememberedAdminBtn");
-  const panel=$("#ownerCodePanel");
-  const links=$(".auth-links");
-  if(form) form.hidden=true;
-  if(shortcut) shortcut.hidden=true;
-  if(links) links.hidden=true;
-  if(panel) panel.hidden=false;
-  $("#authTitle").textContent="Admin";
-  $("#authCopy").textContent="Secure owner access. No password needed.";
-  $("#ownerCodeCopy").textContent=clean
-    ? "Enter the 6-digit code sent to "+maskEmail(clean)+"."
-    : "Enter the 6-digit code sent to your email.";
-  $("#ownerAccessCode").value="";
-  if(autoSend && clean){
-    const requestedAt=Number(localStorage.getItem(OWNER_CODE_REQUEST_KEY)||0);
-    const codeStillFresh=requestedAt>0 && (Date.now()-requestedAt)<9*60*1000;
-    if(codeStillFresh){
-      setAuthStatus("A code was already sent. Check your email.","success");
-      setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
-    }else{
-      setAuthStatus("Sending your access code…","loading");
-      try{
-        const result=await requestOwnerAccessCode(clean);
-        setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
-        setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
-      }catch(err){
-        setAuthStatus(err?.message||"Could not send the access code.","error");
-      }
-    }
-  }else{
-    setAuthStatus("");
-    if(clean) $("#ownerCodeCopy").textContent="Tap “Send a new code” when you need to sign in again.";
-  }
-}
-async function continueAsAdmin(){
-  const email=String($("#authEmail").value||rememberedOwnerEmail()).trim().toLowerCase();
-  if(!email){
-    setAuthStatus("Enter your email first.","error");
-    $("#authEmail").focus();
-    return;
-  }
-  const button=$("#rememberedAdminBtn");
-  setBusy(button,true,"Sending code…");
-  try{
-    await showOwnerAccess(email,false);
-    const result=await requestOwnerAccessCode(email);
-    setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
-    setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
-  }catch(err){
-    showAuth();
-    setAuthMode("signin");
-    setAuthStatus(err?.message||"Could not send the access code.","error");
-  }finally{
-    setBusy(button,false);
-  }
-}
-
 function setAuthMode(mode){
   state.authMode=mode;
   const ownerPanel=$("#ownerCodePanel");
@@ -1427,64 +1317,6 @@ $("#authSwitch").addEventListener("click",()=>{
     });
   }
 });
-$("#rememberedAdminBtn").addEventListener("click",continueAsAdmin);
-
-$("#ownerCodeForm")?.addEventListener("submit",async(e)=>{
-  e.preventDefault();
-  const button=$("#ownerCodeVerifyBtn");
-  const email=rememberedOwnerEmail();
-  setBusy(button,true,"Checking…");
-  setAuthStatus("Checking your code…","loading");
-  try{
-    await verifyOwnerAccessCode(email,$("#ownerAccessCode").value);
-    setAuthStatus("");
-  }catch(err){
-    console.error("[TLE] owner code open failed",err);
-    try{
-      const {data:{session}}=await supabase.auth.getSession();
-      if(session){
-        state.session=session;
-        setAuthStatus("Opening your app…","loading");
-        await enterAuthenticatedApp();
-        setAuthStatus("");
-        return;
-      }
-    }catch(recoveryErr){
-      console.warn("[TLE] owner code recovery",recoveryErr);
-    }
-    const msg=String(err?.message||"");
-    setAuthStatus(
-      /invalid|expired|code|verify/i.test(msg)
-        ? "That code is invalid or expired. Send a new code and try again."
-        : "We couldn’t open the app. Please try again.",
-      "error"
-    );
-  }finally{
-    setBusy(button,false);
-  }
-});
-$("#ownerCodeResendBtn")?.addEventListener("click",async()=>{
-  const button=$("#ownerCodeResendBtn");
-  const email=rememberedOwnerEmail();
-  setBusy(button,true,"Sending…");
-  try{
-    const result=await requestOwnerAccessCode(email);
-    setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"New code sent. Check your email.","success");
-  }catch(err){
-    setAuthStatus(err?.message||"Could not send a new code.","error");
-  }finally{
-    setBusy(button,false);
-  }
-});
-$("#ownerCodeDifferentBtn")?.addEventListener("click",()=>{
-  localStorage.removeItem(OWNER_EMAIL_KEY);
-  setAuthMode("signin");
-  showAuth();
-  $("#authEmail").value="";
-  $("#authEmail").focus();
-  setAuthStatus("");
-});
-
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const button = $("#authSubmit");
@@ -1538,7 +1370,6 @@ authForm.addEventListener("submit", async (e)=>{
       if(error) throw error;
       state.session=data.session||null;
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-      localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
       await enterAuthenticatedApp();
@@ -1593,7 +1424,6 @@ async function signOutCurrentUser(event){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
     }
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     localStorage.removeItem(OWNER_ACTIVITY_KEY);
     showAuth();
     setAuthMode("signin");
@@ -1663,7 +1493,7 @@ businessForm.addEventListener("submit", async (e)=>{
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
     try{
-      const {data:notifyData,error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:data.id}});
+      const {data:notifyData,error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:data.id},headers:{Authorization:`Bearer ${state.session?.access_token||""}`}});
       if(notifyError) console.warn("[TLE] trial welcome automation",notifyError);
       else if(notifyData?.welcome_sent) state.business.trial_welcome_sent_at=new Date().toISOString();
     }catch(err){
@@ -1807,9 +1637,7 @@ async function ensureTrialWelcomeEmail(){
   if(state.business.trial_welcome_sent_at) return;
 
   try{
-    const {data,error}=await supabase.functions.invoke("notify-trial-start",{
-      body:{business_id:state.business.id}
-    });
+    const {data,error}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:state.business.id},headers:{Authorization:`Bearer ${state.session?.access_token||""}`}});
     if(error) throw error;
     if(data?.welcome_sent){
       state.business.trial_welcome_sent_at=new Date().toISOString();
@@ -1870,7 +1698,6 @@ async function initialize(){
   state.session=session;
   if(!session){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     const ownerEmail=rememberedOwnerEmail();
     showAuth();
     if(ownerEmail){
@@ -1887,7 +1714,6 @@ async function initialize(){
   saveOwnerSessionBackup(session);
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
   localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-  localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 
   if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
@@ -1984,7 +1810,6 @@ async function initialize(){
   if(state.business?.role==="owner"){
     localStorage.setItem(OWNER_EMAIL_KEY,signedInEmail);
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     markOwnerActivity();
   }
 
@@ -2050,7 +1875,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   if(event === "SIGNED_IN" && session){
     state.session=session;
     saveOwnerSessionBackup(session);
-    if(window.__tleOwnerCodeLogin || window.__tleEnterAppPromise) return;
+    if(window.__tleEnterAppPromise) return;
     setTimeout(()=>{
       if(appShell.hidden && !window.__tleEnterAppPromise){
         enterAuthenticatedApp().catch(err=>{
@@ -4601,7 +4426,7 @@ document.addEventListener("click",async e=>{
       const {error}=await supabase.rpc("platform_apply_landing_trial_promo",{p_business_id:businessId});
       if(error) throw error;
 
-      const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:businessId}});
+      const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:businessId},headers:{Authorization:`Bearer ${state.session?.access_token||""}`}});
       if(notifyError) throw notifyError;
 
       await loadPlatformAdmin();
