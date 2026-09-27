@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-41";
+const APP_VERSION = "20260927-unified-42";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -611,17 +611,24 @@ function currencyForCountry(code){
   const map={
     US:"USD",CA:"CAD",GB:"GBP",IE:"EUR",FR:"EUR",DE:"EUR",ES:"EUR",PT:"EUR",IT:"EUR",NL:"EUR",BE:"EUR",AT:"EUR",FI:"EUR",GR:"EUR",
     LU:"EUR",CY:"EUR",MT:"EUR",SI:"EUR",SK:"EUR",EE:"EUR",LV:"EUR",LT:"EUR",HR:"EUR",CH:"CHF",SE:"SEK",NO:"NOK",DK:"DKK",
-    PL:"PLN",CZ:"CZK",HU:"HUF",RO:"RON",BG:"BGN",BR:"BRL",CL:"CLP",MX:"MXN",CO:"COP",AR:"ARS",PE:"PEN",UY:"UYU",
-    PY:"PYG",BO:"BOB",CR:"CRC",DO:"DOP",GT:"GTQ",HN:"HNL",NI:"NIO",AU:"AUD",NZ:"NZD",JP:"JPY",CN:"CNY",HK:"HKD",
-    SG:"SGD",KR:"KRW",IN:"INR",AE:"AED",SA:"SAR",IL:"ILS",ZA:"ZAR",TR:"TRY",BY:"BYN",UA:"UAH"
+    PL:"PLN",CZ:"CZK",HU:"HUF",RO:"RON",BG:"BGN",IS:"ISK",RS:"RSD",AL:"ALL",BA:"BAM",MK:"MKD",MD:"MDL",GE:"GEL",
+    BR:"BRL",CL:"CLP",MX:"MXN",CO:"COP",AR:"ARS",PE:"PEN",UY:"UYU",PY:"PYG",BO:"BOB",CR:"CRC",DO:"DOP",GT:"GTQ",
+    HN:"HNL",NI:"NIO",PA:"PAB",EC:"USD",SV:"USD",VE:"VES",JM:"JMD",TT:"TTD",BS:"BSD",BB:"BBD",BZ:"BZD",GY:"GYD",
+    HT:"HTG",CU:"CUP",AW:"AWG",CW:"ANG",KY:"KYD",BM:"BMD",
+    AU:"AUD",NZ:"NZD",JP:"JPY",CN:"CNY",HK:"HKD",SG:"SGD",KR:"KRW",IN:"INR",PK:"PKR",BD:"BDT",LK:"LKR",NP:"NPR",
+    PH:"PHP",ID:"IDR",MY:"MYR",TH:"THB",VN:"VND",KH:"KHR",LA:"LAK",MM:"MMK",TW:"TWD",MN:"MNT",
+    AE:"AED",SA:"SAR",IL:"ILS",TR:"TRY",QA:"QAR",KW:"KWD",BH:"BHD",OM:"OMR",JO:"JOD",LB:"LBP",IQ:"IQD",EG:"EGP",
+    MA:"MAD",DZ:"DZD",TN:"TND",ZA:"ZAR",NG:"NGN",GH:"GHS",KE:"KES",TZ:"TZS",UG:"UGX",RW:"RWF",ET:"ETB",ZM:"ZMW",
+    BW:"BWP",NA:"NAD",MZ:"MZN",AO:"AOA",CV:"CVE",SN:"XOF",CI:"XOF",CM:"XAF",GA:"XAF",CD:"CDF",MU:"MUR",
+    SC:"SCR",MG:"MGA",ZW:"ZWG",BY:"BYN",UA:"UAH",KZ:"KZT",UZ:"UZS",AM:"AMD",AZ:"AZN"
   };
   return map[String(code||"").toUpperCase()]||"USD";
 }
 function languageForCountry(code){
   const country=String(code||"").toUpperCase();
   if(["ES","MX","CL","CO","AR","PE","UY","PY","BO","CR","DO","GT","HN","NI","PA","EC","SV","VE"].includes(country)) return "es";
-  if(["BR","PT"].includes(country)) return "pt";
-  if(["FR","BE","LU","MC","SN","CI","CM","HT"].includes(country)) return "fr";
+  if(["BR","PT","AO","MZ","CV","GW","ST","TL"].includes(country)) return "pt";
+  if(["FR","BE","LU","MC","SN","CI","CM","HT","GA","CD","CG","BJ","TG","ML","NE","BF","GN","DJ","MG"].includes(country)) return "fr";
   const browser=String(navigator.language||"en").slice(0,2).toLowerCase();
   return ["en","es","pt","fr"].includes(browser)?browser:"en";
 }
@@ -642,8 +649,8 @@ function globalDefaultsFromGeo(geo){
     default_language:language,
     locale_code:localeForCountry(country,language),
     currency_code:currencyForCountry(country),
-    distance_unit:["US","GB","LR","MM"].includes(country)?"mi":"km",
-    temperature_unit:["US","LR","MM"].includes(country)?"fahrenheit":"celsius"
+    distance_unit:["US","GB"].includes(country)?"mi":"km",
+    temperature_unit:country==="US"?"fahrenheit":"celsius"
   };
 }
 async function resolveBusinessLocale(area){
