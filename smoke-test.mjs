@@ -43,7 +43,7 @@ const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,ca
 
 if($("#authWelcome")?.hidden) throw new Error("Initial welcome screen is hidden");
 if(!$("#authPanel")?.hidden) throw new Error("Auth form should be hidden before welcome CTA");
-if($("#authWelcomeStart")?.textContent!=="Start 30 days free") throw new Error("Welcome CTA label is wrong");
+if($("#authWelcomeStart")?.textContent!=="Get 30 days free") throw new Error("Welcome CTA label is wrong");
 if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
 if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
 
