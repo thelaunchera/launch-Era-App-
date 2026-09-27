@@ -5349,7 +5349,6 @@ async function finishTimeEntry(id){
 
   entry.clocked_out_at=data.clocked_out_at;
   entry.minutes_worked=data.minutes_worked;
-  renderBusinessOperations();
   return data;
 }
 
