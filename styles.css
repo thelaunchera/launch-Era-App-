@@ -2685,3 +2685,62 @@ html,body{max-width:100%;overflow-x:hidden}
     font-size:14px;
   }
 }
+
+/* Admin activity controls */
+.activity-panel-head{
+  align-items:flex-start;
+  gap:12px;
+}
+.activity-refresh-btn,
+.activity-archive-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:999px;
+  font:900 10px/1 Futura,"Avenir Next",Arial,sans-serif;
+  padding:8px 10px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.activity-refresh-btn{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+.activity-refresh-btn:disabled,
+.activity-archive-btn:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+.activity-row-actions{
+  display:grid;
+  justify-items:end;
+  gap:7px;
+  flex:0 0 auto;
+}
+.activity-row-actions time{
+  white-space:nowrap;
+}
+.visit-group-actions{
+  margin-top:8px;
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.visit-group-actions .visit-group-details{
+  margin-top:0;
+}
+.activity-archive-btn{
+  color:#655F57;
+}
+@media(max-width:620px){
+  .activity-refresh-btn{
+    padding:8px 11px;
+  }
+  .activity-row-actions{
+    gap:6px;
+  }
+}
