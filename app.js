@@ -4263,12 +4263,9 @@ async function openBusinessProfileForm(){
       <label>Temperature<select name="temperature_unit"><option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option><option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option></select></label>
       <fieldset class="full"><legend>Client payment methods</legend>
         <div class="choice-grid compact">
-          <label class="check-field"><input type="checkbox" name="payment_method" value="cash" ${record.payment_methods?.includes("cash")?"checked":""}> Cash</label>
-          <label class="check-field"><input type="checkbox" name="payment_method" value="check" ${record.payment_methods?.includes("check")?"checked":""}> Check</label>
-          ${String(record.country_code||"").toUpperCase()==="US"?`<label class="check-field"><input type="checkbox" name="payment_method" value="zelle" ${record.payment_methods?.includes("zelle")?"checked":""}> Zelle</label>`:""}
-          <label class="check-field"><input type="checkbox" name="payment_method" value="other" ${record.payment_methods?.includes("other")?"checked":""}> Other</label>
+          ${[...new Set([...(record.payment_methods||[]),...paymentMethodsForCountry(record.country_code)])].map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
         </div>
-        <small>No bank details are stored in the app. “Other” is only a payment label/reference.</small>
+        <small>No bank details are stored in the app. These are payment labels only; the client arranges payment directly with the business.</small>
       </fieldset>
       <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
       <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
