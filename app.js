@@ -15,7 +15,8 @@ const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
-const APP_VERSION = "20260927-legal-feedback-1";
+const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
+const APP_VERSION = "20260927-ios-session-persist-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -989,9 +990,11 @@ function maskEmail(email=""){
 }
 function markOwnerActivity(){
   if(state.business?.role!=="owner") return;
+  if(localStorage.getItem(OWNER_REAUTH_REQUIRED_KEY)==="1") return;
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
+  if(localStorage.getItem(OWNER_REAUTH_REQUIRED_KEY)==="1") return true;
   const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
   return last>0 && (Date.now()-last)>=OWNER_IDLE_MS;
 }
@@ -1000,10 +1003,10 @@ async function expireOwnerSession(){
   window.__tleOwnerLocking=true;
   const email=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
 
-  // Soft-lock only. Keep the authenticated Supabase session alive so a UI
-  // refresh, language change or PWA resume can never accidentally sign the
-  // owner out. The email code unlocks the existing session after inactivity.
-  localStorage.removeItem(OWNER_ACTIVITY_KEY);
+  // Soft-lock only. Keep the authenticated Supabase session alive.
+  // Reauthentication is required only after 12 hours of real inactivity,
+  // explicit logout or a security/session reset.
+  localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
   await showOwnerAccess(email,true);
   window.__tleOwnerLocking=false;
 }
@@ -1033,13 +1036,25 @@ function installOwnerActivityTracker(){
     window.addEventListener(evt,onActivity,{passive:true});
   });
   document.addEventListener("visibilitychange",()=>{
-    if(document.visibilityState!=="visible") return;
+    if(document.visibilityState==="hidden"){
+      // Closing/backgrounding the iPhone app starts the inactivity clock here,
+      // rather than forcing a new code on the next launch.
+      if(state.session && state.business?.role==="owner" && !ownerIdleExpired()){
+        markOwnerActivity();
+      }
+      return;
+    }
     if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
       expireOwnerSession().catch(()=>{});
     }else{
       onActivity();
     }
   });
+  window.addEventListener("pagehide",()=>{
+    if(state.session && state.business?.role==="owner" && !ownerIdleExpired()){
+      markOwnerActivity();
+    }
+  },{passive:true});
   window.setInterval(()=>{
     if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
       expireOwnerSession().catch(()=>{});
@@ -1078,18 +1093,18 @@ async function verifyOwnerAccessCode(email,code){
     const {data:{session:existingSession}}=await supabase.auth.getSession();
     const existingEmail=String(existingSession?.user?.email||"").trim().toLowerCase();
 
-    if(existingSession && existingEmail===clean){
-      state.session=existingSession;
-    }else{
-      const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
-        access_token:data.access_token,
-        refresh_token:data.refresh_token
-      });
-      if(sessionError) throw sessionError;
-      state.session=sessionData.session||null;
-    }
+    // Always persist the fresh session returned after code verification.
+    // This is especially important for iOS standalone web apps, where a stale
+    // in-memory session can survive while the newest refresh token is not saved.
+    const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
+      access_token:data.access_token,
+      refresh_token:data.refresh_token
+    });
+    if(sessionError) throw sessionError;
+    state.session=sessionData.session||existingSession||null;
 
     localStorage.setItem(OWNER_EMAIL_KEY,clean);
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
     localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     await enterAuthenticatedApp();
@@ -1343,6 +1358,7 @@ async function signOutCurrentUser(event){
     state.business=null;
     if(wasOwner && ownerEmail){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
+      localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
       localStorage.removeItem(OWNER_ACTIVITY_KEY);
       localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
       await showOwnerAccess(ownerEmail,false);
@@ -1741,9 +1757,9 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
-    if(window.__tleOwnerCodeLogin) return;
+    if(window.__tleOwnerCodeLogin || window.__tleEnterAppPromise) return;
     setTimeout(()=>{
-      if(appShell.hidden){
+      if(appShell.hidden && !window.__tleEnterAppPromise){
         enterAuthenticatedApp().catch(err=>{
           console.error("[TLE] post-auth initialize failed",err);
           showAuth();
@@ -4167,7 +4183,9 @@ if("caches" in window){
 
 window.__tleAppReady=true;
 setAuthMode("signin");
-initialize().catch(err=>{
+// Route every authenticated boot through the same promise so iPhone/PWA
+// startup and Supabase SIGNED_IN cannot initialize the app twice.
+enterAuthenticatedApp().catch(err=>{
   console.error("[TLE] initialize failed",err);
   showAuth();
   setAuthStatus(err?.message||"The app could not finish loading. Please refresh.","error");
