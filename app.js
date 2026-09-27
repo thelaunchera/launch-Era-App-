@@ -1,3 +1,4 @@
+(()=>{
 if(!window.supabase){
   document.documentElement.dataset.appError="supabase-load-failed";
   throw new Error("Supabase browser library failed to load");
@@ -6324,3 +6325,4 @@ enterAuthenticatedApp().catch(err=>{
   showAuth();
   setAuthStatus(err?.message||"The app could not finish loading. Please refresh.","error");
 });
+})();
