@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-7";
+const APP_VERSION = "20260927-unified-8";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3733,21 +3733,18 @@ async function loadPlatformAdmin(){
   const [
     {data,error},
     {data:geoData,error:geoError},
-    {data:activityData,error:activityError},
-    {data:internalActivityData,error:internalActivityError}
+    {data:activityData,error:activityError}
   ]=await Promise.all([
     supabase.rpc("get_platform_admin_dashboard"),
     supabase.rpc("get_platform_visit_geo_dashboard"),
-    supabase.rpc("get_platform_activity_feed"),
-    supabase.rpc("get_platform_internal_activity_feed")
+    supabase.rpc("get_platform_activity_feed")
   ]);
   if(error){ showToast(error.message); return; }
   if(geoError) console.warn("[TLE] visitor geo",geoError);
   if(activityError) console.warn("[TLE] platform activity",activityError);
-  if(internalActivityError) console.warn("[TLE] internal platform activity",internalActivityError);
-  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{}),internalActivity:internalActivityData||{}};
+  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{})};
   const m=data?.metrics||{};
-  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d],["#platformFilteredTraffic",m.filtered_suspected_30d]];
+  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
 
   const table=$("#platformCustomersTable");
