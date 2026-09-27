@@ -1640,8 +1640,7 @@ async function initializeWorkerPortal(activationToken=null){
       return;
     }
     localStorage.setItem("tle_worker_device_token",deviceToken);
-    localStorage.removeItem("tle_worker_device_token");
-  localStorage.removeItem("tle_worker_token");
+    localStorage.removeItem("tle_worker_token");
 
     const clean=new URL(window.location.href);
     clean.searchParams.delete("worker");
@@ -1658,8 +1657,7 @@ async function initializeWorkerPortal(activationToken=null){
   const {data,error}=await supabase.rpc("worker_portal_context",{p_token:deviceToken});
   if(error){
     localStorage.removeItem("tle_worker_device_token");
-    localStorage.removeItem("tle_worker_device_token");
-  localStorage.removeItem("tle_worker_token");
+    localStorage.removeItem("tle_worker_token");
     workerShell.hidden=true;
     showAuth();
     showToast(error.message||"Worker access is no longer active");
