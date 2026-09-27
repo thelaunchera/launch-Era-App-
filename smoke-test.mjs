@@ -69,4 +69,25 @@ await new Promise(r=>setTimeout(r,20));
 if(signUpCalls!==1) throw new Error("Create account submit handler did not call auth");
 console.log("SIGNUP_SUBMIT_OK");
 
+
+if(!app.includes('name="from_location"') || !app.includes('name="to_location"') || !app.includes("data-mileage-job")){
+  throw new Error("Mileage regression: separate From/To workflow is missing");
+}
+if(app.includes("From → To / note")){
+  throw new Error("Mileage regression: legacy combined route field returned");
+}
+if(!app.includes("tle_new_signup:true") || !app.includes("hasAccountSignupWelcomePending")){
+  throw new Error("Onboarding regression: account-level signup welcome marker is missing");
+}
+if(!app.includes('from("app_notification_reads")') || !app.includes('from("app_notification_state")')){
+  throw new Error("Notification regression: persistent read state is missing");
+}
+if(!app.includes("Date.now()-savedAt>OWNER_IDLE_MS") || !app.includes("clearOwnerSessionBackup();")){
+  throw new Error("Session regression: stale iOS backup protection is missing");
+}
+if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
+  throw new Error("Dashboard regression: contextual service-area weather is missing");
+}
+console.log("REGRESSION_GUARDS_OK");
+
 console.log("LOGIN_SMOKE_OK");
