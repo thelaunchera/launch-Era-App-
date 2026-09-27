@@ -4099,3 +4099,20 @@ body.modal-open{
     min-height:48px;
   }
 }
+
+/* Mobile auth tap hardening */
+[data-auth-touch-hardened="true"] #authSubmit,
+[data-auth-touch-hardened="true"] #authSwitch,
+[data-auth-touch-hardened="true"] #forgotPassword,
+[data-auth-touch-hardened="true"] #authRetryButton{
+  position:relative;
+  z-index:2;
+  pointer-events:auto;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+[data-auth-touch-hardened="true"] .auth-form,
+[data-auth-touch-hardened="true"] .auth-links{
+  position:relative;
+  z-index:1;
+}
