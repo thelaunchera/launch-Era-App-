@@ -1,6 +1,17 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Back to sign in":"Volver a iniciar sesión",
+    "Enter the new password you want to use.":"Escribe la nueva contraseña que quieres usar.",
+    "Choose a new password":"Elige una contraseña nueva",
+    "Update password":"Actualizar contraseña",
+    "Sign-in email sent":"Correo de acceso enviado",
+    "Check your email and open the sign-in message. No password is needed.":"Revisa tu correo y abre el mensaje de acceso. No necesitas contraseña.",
+    "Sending your secure sign-in email…":"Enviando tu enlace seguro de acceso…",
+    "Enter your admin email first.":"Primero escribe tu correo de administrador.",
+    "Continue with your admin email. No password required.":"Continúa con tu correo de administrador. No necesitas contraseña.",
+    "Continue as Admin":"Continuar como Admin",
+    "BUSINESS ACCESS":"ACCESO AL NEGOCIO",
     "Sign in":"Iniciar sesión",
     "Create account":"Crear cuenta",
     "Open your cleaning business workspace.":"Abre el espacio de trabajo de tu negocio de limpieza.",
