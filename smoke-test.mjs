@@ -119,6 +119,16 @@ if(!app.includes('data-finish-time="') || !app.includes('e.target.closest("[data
 if(!app.includes('data-worker-time-stop="') || !app.includes('e.target.closest("[data-worker-time-stop]")') || !app.includes("worker_portal_stop_time")){
   throw new Error("Worker time tracking regression: guest Finish timer handler is missing");
 }
+if(!app.includes('select("id,clocked_out_at,minutes_worked")') || !app.includes("await loadCoreData();")){
+  throw new Error("Time tracking regression: Finish timer must verify the persisted stop and refresh workspace data");
+}
+const workerShell=$("#workerShell");
+if(!workerShell?.querySelector("[data-language-toggle]")){
+  throw new Error("Worker localization regression: Guest Employee Access is missing its language selector");
+}
+if(!$("#workerGuestPill")?.textContent.includes("GUEST EMPLOYEE ACCESS")){
+  throw new Error("Worker access regression: guest access identity is not clear");
+}
 const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
 if(spanishOnlyBranches!==1){
   throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
