@@ -3959,6 +3959,9 @@ async function openBusinessProfileForm(){
         <div class="choice-grid compact">
           <label class="check-field"><input type="checkbox" name="payment_method" value="cash" ${record.payment_methods?.includes("cash")?"checked":""}> Cash</label>
           <label class="check-field"><input type="checkbox" name="payment_method" value="check" ${record.payment_methods?.includes("check")?"checked":""}> Check</label>
+          <label class="check-field"><input type="checkbox" name="payment_method" value="bank_transfer" ${record.payment_methods?.includes("bank_transfer")?"checked":""}> Bank transfer</label>
+          <label class="check-field"><input type="checkbox" name="payment_method" value="pix" ${record.payment_methods?.includes("pix")?"checked":""}> Pix</label>
+          <label class="check-field"><input type="checkbox" name="payment_method" value="paypal" ${record.payment_methods?.includes("paypal")?"checked":""}> PayPal</label>
           <label class="check-field"><input type="checkbox" name="payment_method" value="other" ${record.payment_methods?.includes("other")?"checked":""}> Other</label>
         </div>
         <small>No bank details are stored in the app. “Other” is only a payment label/reference.</small>
@@ -4939,7 +4942,7 @@ function openPaymentForm(invoiceId){
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
       <label>Method<select name="method">
-        ${(state.business.payment_methods||["cash","check","other"]).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",other:"Other"}[method]||method)}</option>`).join("")}
+        ${(state.business.payment_methods||["cash","check","other"]).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[method]||method)}</option>`).join("")}
       </select></label>
       <label class="full">Note / reference<textarea name="note" placeholder="Optional reference or payment note"></textarea></label>
     </div>${formSubmit("Confirm payment")}`;
