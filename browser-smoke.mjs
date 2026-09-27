@@ -108,11 +108,11 @@ try{
       scrollWidth:document.documentElement.scrollWidth,
       innerWidth:window.innerWidth,
       appError:document.documentElement.dataset.appError||"",
-      ready:window.__tleAppReady===true
+      authReady:window.__tleAuthUiReady===true
     }));
     if(layout.scrollWidth>layout.innerWidth+4) throw new Error(profile.name+": horizontal overflow "+layout.scrollWidth+" > "+layout.innerWidth);
     if(layout.appError) throw new Error(profile.name+": app boot error "+layout.appError);
-    if(!layout.ready) throw new Error(profile.name+": app did not finish booting");
+    if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:5000});
     await page.click("#authSwitch");
