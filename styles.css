@@ -3990,3 +3990,24 @@ body.shell-public #publicShell{
     border-radius:20px;
   }
 }
+
+/* Auth touch reliability */
+#authSwitch,#forgotPassword{
+  min-height:44px;
+  padding:10px 2px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  touch-action:manipulation;
+  position:relative;
+  z-index:3;
+}
+#authSubmit{
+  min-height:48px;
+  touch-action:manipulation;
+}
+@media(max-width:620px){
+  .auth-links{gap:6px 14px}
+  #authSwitch,#forgotPassword{font-size:13px}
+}
