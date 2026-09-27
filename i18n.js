@@ -1,6 +1,21 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Not set":"Sin configurar",
+    "Owner or Admin access required.":"Se requiere acceso de Dueño o Admin.",
+    "Business email is required.":"El correo del negocio es obligatorio.",
+    "Business name is required.":"El nombre del negocio es obligatorio.",
+    "Save business details":"Guardar detalles del negocio",
+    "Pacific Time":"Hora del Pacífico",
+    "Mountain Time":"Hora de la Montaña",
+    "Central Time":"Hora Central",
+    "Eastern Time":"Hora del Este",
+    "Update the company information used across your workspace and client-facing flows.":"Actualiza la información de la compañía que se usa dentro de la app y en las funciones para clientes.",
+    "Default language":"Idioma predeterminado",
+    "Time zone":"Zona horaria",
+    "Business email":"Correo del negocio",
+    "Edit business details":"Editar detalles del negocio",
+    "COMPANY DETAILS":"DETALLES DE LA COMPAÑÍA",
     "Could not sign out":"No se pudo cerrar la sesión",
     "Signing out…":"Cerrando sesión…",
     "Log out":"Cerrar sesión",
