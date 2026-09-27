@@ -175,6 +175,41 @@ async function assertLayout(page,profile){
     const scrim=page.locator("#sidebarScrim");
     await scrim.click({position:{x:Math.max(10,profile.viewport.width-20),y:Math.floor(profile.viewport.height/2)}});
     await page.waitForFunction(()=>!document.querySelector(".sidebar")?.classList.contains("open"),null,{timeout:2000});
+
+    // Regression guard: long modals must scroll inside the backdrop without
+    // moving the page behind them, and the footer actions must remain reachable.
+    await page.evaluate(()=>{
+      const backdrop=document.querySelector("#modalBackdrop");
+      const form=document.querySelector("#entityForm");
+      if(!backdrop||!form) throw new Error("modal elements missing");
+      form.innerHTML='<div class="form-grid">'+
+        Array.from({length:14},(_,i)=>'<label class="full">Field '+(i+1)+'<input value="test"></label>').join("")+
+        '<div class="form-footer"><button type="button" class="ghost-btn">Cancel</button><button type="button" class="primary-btn" id="smokeModalSave">Save</button></div></div>';
+      backdrop.hidden=false;
+    });
+    await page.waitForFunction(()=>document.body.classList.contains("modal-open"),null,{timeout:2000});
+    const modalState=await page.evaluate(()=>{
+      const backdrop=document.querySelector("#modalBackdrop");
+      const footer=document.querySelector("#entityForm .form-footer");
+      const bodyStyle=getComputedStyle(document.body);
+      const footerStyle=getComputedStyle(footer);
+      backdrop.scrollTop=backdrop.scrollHeight;
+      const save=document.querySelector("#smokeModalSave").getBoundingClientRect();
+      return {
+        bodyPosition:bodyStyle.position,
+        bodyOverflow:bodyStyle.overflow,
+        footerPosition:footerStyle.position,
+        canScroll:backdrop.scrollHeight>backdrop.clientHeight,
+        saveBottom:save.bottom,
+        viewportHeight:innerHeight
+      };
+    });
+    if(modalState.bodyPosition!=="fixed") throw new Error(profile.name+": modal did not lock background "+JSON.stringify(modalState));
+    if(modalState.footerPosition==="sticky"||modalState.footerPosition==="fixed") throw new Error(profile.name+": modal footer overlays content "+JSON.stringify(modalState));
+    if(!modalState.canScroll) throw new Error(profile.name+": long modal is not scrollable "+JSON.stringify(modalState));
+    if(modalState.saveBottom>modalState.viewportHeight+4) throw new Error(profile.name+": modal footer actions are unreachable "+JSON.stringify(modalState));
+    await page.evaluate(()=>{document.querySelector("#modalBackdrop").hidden=true;});
+    await page.waitForFunction(()=>!document.body.classList.contains("modal-open"),null,{timeout:2000});
   }
 
   const rotated={width:profile.viewport.height,height:profile.viewport.width};
