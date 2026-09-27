@@ -5232,7 +5232,7 @@ async function saveJob(fd){
 
 async function saveQuote(fd){
   const price=Number(fd.get("price")||0);
-  if(!Number.isFinite(price) || price<=0) throw new Error("Quote price must be greater than $0.");
+  if(!Number.isFinite(price) || price<=0) throw new Error("Quote price must be greater than 0.");
 
   const requestedStatus=String(fd.get("status")||"draft");
   const current=state.modalId ? state.quotes.find(q=>q.id===state.modalId) : null;
