@@ -3906,8 +3906,14 @@ async function openBusinessProfileForm(){
     email:state.business.email||state.session?.user?.email||"",
     phone:state.business.phone||"",
     service_area:state.business.service_area||"",
-    timezone:state.business.timezone||"America/New_York",
+    timezone:state.business.timezone||"UTC",
     default_language:state.business.default_language||"en",
+    country_code:state.business.country_code||"US",
+    locale_code:state.business.locale_code||"en-US",
+    currency_code:state.business.currency_code||"USD",
+    distance_unit:state.business.distance_unit||"mi",
+    temperature_unit:state.business.temperature_unit||"fahrenheit",
+    payment_methods:Array.isArray(state.business.payment_methods)?state.business.payment_methods:["cash","check","other"],
     instagram_url:state.business.instagram_url||"",
     facebook_url:state.business.facebook_url||""
   };
@@ -3915,7 +3921,7 @@ async function openBusinessProfileForm(){
   try{
     const {data,error}=await supabase
       .from("businesses")
-      .select("name,email,phone,service_area,timezone,default_language,instagram_url,facebook_url")
+      .select("name,email,phone,service_area,timezone,default_language,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,instagram_url,facebook_url")
       .eq("id",state.business.id)
       .single();
     if(error) throw error;
@@ -3930,20 +3936,25 @@ async function openBusinessProfileForm(){
       <label>Business name<input name="name" required value="${escapeHtml(record.name||"")}"></label>
       <label>Business email<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
       <label>Phone<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
-      <label>Service area<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="Miami, FL"></label>
-      <label>Time zone<select name="timezone" required>
-        <option value="America/New_York" ${record.timezone==="America/New_York"?"selected":""}>Eastern Time</option>
-        <option value="America/Chicago" ${record.timezone==="America/Chicago"?"selected":""}>Central Time</option>
-        <option value="America/Denver" ${record.timezone==="America/Denver"?"selected":""}>Mountain Time</option>
-        <option value="America/Los_Angeles" ${record.timezone==="America/Los_Angeles"?"selected":""}>Pacific Time</option>
-        <option value="America/Phoenix" ${record.timezone==="America/Phoenix"?"selected":""}>Arizona Time</option>
-        <option value="America/Anchorage" ${record.timezone==="America/Anchorage"?"selected":""}>Alaska Time</option>
-        <option value="Pacific/Honolulu" ${record.timezone==="Pacific/Honolulu"?"selected":""}>Hawaii Time</option>
-      </select></label>
+      <label>Service area<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="City, region, country"></label>
+      <label>Time zone<input name="timezone_display" value="${escapeHtml(record.timezone||"UTC")}" readonly><small>Detected automatically from your service area.</small></label>
       <label>Default language<select name="default_language" required>
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
+        <option value="pt" ${record.default_language==="pt"?"selected":""}>Português</option>
+        <option value="fr" ${record.default_language==="fr"?"selected":""}>Français</option>
       </select></label>
+      <label>Currency<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
+      <label>Distance<select name="distance_unit"><option value="mi" ${record.distance_unit==="mi"?"selected":""}>Miles</option><option value="km" ${record.distance_unit==="km"?"selected":""}>Kilometers</option></select></label>
+      <label>Temperature<select name="temperature_unit"><option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option><option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option></select></label>
+      <fieldset class="full"><legend>Client payment methods</legend>
+        <div class="choice-grid compact">
+          <label class="check-field"><input type="checkbox" name="payment_method" value="cash" ${record.payment_methods?.includes("cash")?"checked":""}> Cash</label>
+          <label class="check-field"><input type="checkbox" name="payment_method" value="check" ${record.payment_methods?.includes("check")?"checked":""}> Check</label>
+          <label class="check-field"><input type="checkbox" name="payment_method" value="other" ${record.payment_methods?.includes("other")?"checked":""}> Other</label>
+        </div>
+        <small>No bank details are stored in the app. “Other” is only a payment label/reference.</small>
+      </fieldset>
       <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
       <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
     </div>
@@ -3957,13 +3968,25 @@ async function saveBusinessProfile(fd){
     throw new Error("Owner access required.");
   }
 
+  const serviceArea=String(fd.get("service_area")||"").trim();
+  const detected=await resolveBusinessLocale(serviceArea);
+  const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
+  if(!paymentMethods.length) throw new Error("Choose at least one client payment method.");
+  const language=String(fd.get("default_language")||"en");
+  const country=detected.country_code||state.business.country_code||"US";
   const payload={
     name:String(fd.get("name")||"").trim(),
     email:String(fd.get("email")||"").trim().toLowerCase(),
     phone:String(fd.get("phone")||"").trim()||null,
-    service_area:String(fd.get("service_area")||"").trim()||null,
-    timezone:String(fd.get("timezone")||"America/New_York"),
-    default_language:String(fd.get("default_language")||"en"),
+    service_area:serviceArea||null,
+    timezone:detected.timezone||state.business.timezone||"UTC",
+    country_code:country,
+    default_language:language,
+    locale_code:localeForCountry(country,language),
+    currency_code:String(fd.get("currency_code")||detected.currency_code||"USD").trim().toUpperCase(),
+    distance_unit:String(fd.get("distance_unit")||detected.distance_unit||"km"),
+    temperature_unit:String(fd.get("temperature_unit")||detected.temperature_unit||"celsius"),
+    payment_methods:paymentMethods,
     instagram_url:String(fd.get("instagram_url")||"").trim()||null,
     facebook_url:String(fd.get("facebook_url")||"").trim()||null,
     updated_at:new Date().toISOString()
@@ -3977,13 +4000,13 @@ async function saveBusinessProfile(fd){
     .from("businesses")
     .update(payload)
     .eq("id",state.business.id)
-    .select("name,email,phone,service_area,timezone,default_language,instagram_url,facebook_url")
+    .select("name,email,phone,service_area,timezone,default_language,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,instagram_url,facebook_url")
     .single();
 
   if(error) throw error;
 
   state.business={...state.business,...data};
-  if(window.TLE_I18N?.setLanguage && ["en","es"].includes(data.default_language)){
+  if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(data.default_language)){
     window.TLE_I18N.setLanguage(data.default_language);
   }
   renderSettings();
