@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-ios-top-anchor-1";
+const APP_VERSION = "20260927-shell-state-fix-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -711,7 +711,13 @@ function setBusy(button,busy,label="Working…"){
     button.textContent = button.dataset.oldText || button.textContent;
   }
 }
+function setShellState(mode){
+  document.body.classList.remove("shell-auth","shell-app","shell-worker","shell-public");
+  document.body.classList.add("shell-"+mode);
+}
+
 function showAuth(){
+  setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
@@ -720,6 +726,7 @@ function showAuth(){
   businessSetup.hidden = true;
 }
 function showSetup(){
+  setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
@@ -728,6 +735,7 @@ function showSetup(){
   businessSetup.hidden = false;
 }
 function showApp(){
+  setShellState("app");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
@@ -1670,6 +1678,7 @@ businessForm.addEventListener("submit", async (e)=>{
 });
 
 async function initializeWorkerPortal(activationToken=null){
+  setShellState("worker");
   authShell.hidden=true;
   appShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -2011,13 +2020,19 @@ async function initialize(){
 }
 window.addEventListener("pageshow",event=>{
   if(!appShell?.hidden){
+    setShellState("app");
     try{
       if("scrollRestoration" in history) history.scrollRestoration="manual";
       document.documentElement.scrollTop=0;
       document.body.scrollTop=0;
       window.scrollTo(0,0);
-      setTimeout(()=>window.scrollTo(0,0),60);
     }catch{}
+  }else if(!publicShell?.hidden){
+    setShellState("public");
+  }else if(!workerShell?.hidden){
+    setShellState("worker");
+  }else{
+    setShellState("auth");
   }
 });
 
@@ -3574,6 +3589,7 @@ async function loadPlatformAdmin(){
 }
 
 async function initializePublicRequest(mode,slug){
+  setShellState("public");
   authShell.hidden=true;
   appShell.hidden=true;
   publicShell.hidden=false;
