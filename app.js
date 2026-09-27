@@ -141,7 +141,7 @@ const ONBOARDING_COPY={
     es:{title:"Ruta de hoy",text:"Mira las paradas de hoy en orden para que tú y tu equipo sepan cuál sigue."}
   },
   mileage:{
-    en:{title:"Mileage",text:"Log business miles connected to jobs so your driving records stay organized."},
+    en:{title:"Mileage",text:"Log business distance connected to jobs so your driving records stay organized."},
     es:{title:"Millaje",text:"Registra las millas del negocio vinculadas a trabajos para mantener tus recorridos organizados."}
   },
   time:{
