@@ -1257,7 +1257,7 @@ function renderWorkerPortal(){
         <span><strong>${escapeHtml(j.client_name||"Cleaning job")}</strong><small>${escapeHtml(j.service_name||"Cleaning")} · ${formatDateTime(j.starts_at)}</small></span>
         <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
       </div>
-      <div class="worker-job-address">${escapeHtml(j.service_address||"Address not added")}</div>
+      <div class="worker-job-address">${escapeHtml(j.service_address||tr("Address not added"))}</div>
       ${j.client_phone?`<a class="worker-phone" href="tel:${escapeHtml(j.client_phone)}">Call client</a>`:""}
       ${j.notes?`<p class="worker-job-notes">${escapeHtml(j.notes)}</p>`:""}
       <div class="worker-job-actions">
@@ -2151,12 +2151,12 @@ function renderTodaySummary(){
   if(attention){
     const items=[];
     state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status)).slice(0,2).forEach(i=>{
-      items.push(`<button data-jump="invoices"><span class="dot red"></span><strong>Invoice #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} outstanding</small></button>`);
+      items.push(`<button data-jump="invoices"><span class="dot red"></span><strong>${escapeHtml(tr("Invoice"))} #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} ${escapeHtml(tr("outstanding"))}</small></button>`);
     });
     openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
-      items.push(`<button data-jump="quotes"><span class="dot yellow"></span><strong>Quote for ${escapeHtml(q.customer_name)}</strong><small>Waiting for response</small></button>`);
+      items.push(`<button data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(appIsSpanish()?"Cotización para":"Quote for")} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
     });
-    if(pendingBookings.length) items.push(`<button data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} booking request${pendingBookings.length===1?"":"s"}</strong><small>Waiting for review</small></button>`);
+    if(pendingBookings.length) items.push(`<button data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${appIsSpanish()?(pendingBookings.length===1?"solicitud":"solicitudes"):(pendingBookings.length===1?"booking request":"booking requests")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
@@ -2165,8 +2165,17 @@ function renderTodaySummary(){
   const weekMinutes=weekEntries.reduce((sum,t)=>sum+Number(t.minutes_worked||0),0);
   const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T00:00:00")>=weekStart).reduce((sum,m)=>sum+Number(m.miles||0),0);
   const weekCompleted=state.jobs.filter(j=>j.status==="completed"&&new Date(j.starts_at)>=weekStart).length;
-  const wh=$("#weekHours"); if(wh) wh.textContent=(weekMinutes/60).toFixed(1).replace(".0","")+" work hours";
-  const ws=$("#weekSummary"); if(ws) ws.textContent=`${weekMiles.toFixed(1)} business miles logged · ${weekCompleted} completed job${weekCompleted===1?"":"s"}.`;
+  const wh=$("#weekHours");
+  if(wh){
+    const hours=(weekMinutes/60).toFixed(1).replace(".0","");
+    wh.textContent=appIsSpanish()?`${hours} h trabajadas`:`${hours} work hours`;
+  }
+  const ws=$("#weekSummary");
+  if(ws){
+    ws.textContent=appIsSpanish()
+      ? `${weekMiles.toFixed(1)} mi · ${weekCompleted} trabajo${weekCompleted===1?"":"s"} completado${weekCompleted===1?"":"s"}`
+      : `${weekMiles.toFixed(1)} business miles logged · ${weekCompleted} completed job${weekCompleted===1?"":"s"}.`;
+  }
 }
 
 function renderOperations(){
@@ -2178,13 +2187,13 @@ function renderOperations(){
   const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=weekStart).reduce((s,m)=>s+Number(m.miles||0),0);
   const monthMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=monthStart).reduce((s,m)=>s+Number(m.miles||0),0);
 
-  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=todayMiles.toFixed(1)+" mi today";
+  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=appIsSpanish()?todayMiles.toFixed(1)+" mi hoy":todayMiles.toFixed(1)+" mi today";
   const routeStops=$("#routeStops");
   const routeVisual=$("#routeVisual");
   if(routeStops){
     routeStops.innerHTML=todayJobs.length?todayJobs.map((j,i)=>`
-      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||"Address not added")}</small></div><em>${escapeHtml(translatedStatus(j.status))}</em></div>
-      ${i<todayJobs.length-1?'<div class="route-drive">Next stop</div>':""}
+      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||tr("Address not added"))}</small></div><em>${escapeHtml(translatedStatus(j.status))}</em></div>
+      ${i<todayJobs.length-1?`<div class="route-drive">${escapeHtml(tr("Next stop"))}</div>`:""}
     `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
   }
   if(routeVisual) routeVisual.textContent=todayJobs.length?`${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today`:"Your route appears here when jobs are scheduled.";
@@ -2198,7 +2207,7 @@ function renderOperations(){
     mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
       <div class="table-row">
         <span>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</span>
-        <span>${escapeHtml(m.notes||"Business drive")}</span>
+        <span>${escapeHtml(m.notes||tr("Business drive"))}</span>
         <span>${Number(m.miles||0).toFixed(1)}</span>
         <span>${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
         <span>Business</span>
