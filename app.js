@@ -519,7 +519,7 @@ function nextRainWindow(weather){
   return null;
 }
 function weatherCacheKey(area){
-  return "tle_weather_v1:"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
+  return "tle_weather_v2:"+businessTemperatureUnit()+":"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
 }
 async function fetchJsonWithTimeout(url,ms=5500){
   const controller=new AbortController();
@@ -685,7 +685,10 @@ function currentWeatherVisual(weather){
   if([95,96,99].includes(code)) return {kind:"rain",intensity:"heavy"};
   if([61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain",intensity:[65,67,82].includes(code)?"heavy":"normal"};
   if([51,53,55,56,57].includes(code)) return {kind:"rain",intensity:"light"};
-  if(precipitation>0) return {kind:"rain",intensity:precipitation>=0.15?"heavy":"light"};
+  if(precipitation>0){
+    const heavyThreshold=businessTemperatureUnit()==="celsius"?4:0.15;
+    return {kind:"rain",intensity:precipitation>=heavyThreshold?"heavy":"light"};
+  }
   return {kind:"none",intensity:"none"};
 }
 
@@ -774,7 +777,7 @@ function renderWeatherBrief(){
       note.innerHTML=appIsSpanish()
         ? "<strong>🌧️ Lluvia probable "+escapeHtml(day)+" cerca de las "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Deja un poco de margen entre paradas y revisa el acceso antes de salir.</span>"
         : "<strong>🌧️ Rain likely "+escapeHtml(day)+" around "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Leave a little room between stops and double-check access before heading out.</span>";
-    }else if(temp>=88){
+    }else if(temp>=(businessTemperatureUnit()==="celsius"?31:88)){
       note.classList.remove("rain");
       note.innerHTML=appIsSpanish()
         ? "<strong>💧 Hace calor afuera.</strong><span>Ten agua cerca y deja unos minutos para respirar entre paradas.</span>"
