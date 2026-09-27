@@ -3223,11 +3223,10 @@ function renderTodaySummary(wakeAssistant=false){
     });
     const nextJob=remainingJobs[0]||null;
     const nextJobTime=nextJob
-      ? new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(nextJob.starts_at))
+      ? new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit",timeZone:businessTimeZone}).format(new Date(nextJob.starts_at))
       : "";
     const nextJobArea=nextJob?shortJobArea(nextJob.service_address||""):"";
-    const tomorrow=new Date(now);
-    tomorrow.setDate(tomorrow.getDate()+1);
+    const tomorrow=new Date(now.getTime()+24*60*60*1000);
     const tomorrowJobs=state.jobs.filter(function(j){
       return sameLocalDay(j.starts_at,tomorrow)&&j.status!=="canceled";
     });
@@ -3529,7 +3528,7 @@ async function openBusinessProfileForm(){
       <label>Business name<input name="name" required value="${escapeHtml(record.name||"")}"></label>
       <label>Business email<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
       <label>Phone<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
-      <label>Service area<input name="service_area" value="${escapeHtml(record.service_area||"")}" placeholder="City, county or service radius"></label>
+      <label>Service area<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="Miami, FL"></label>
       <label>Time zone<select name="timezone" required>
         <option value="America/New_York" ${record.timezone==="America/New_York"?"selected":""}>Eastern Time</option>
         <option value="America/Chicago" ${record.timezone==="America/Chicago"?"selected":""}>Central Time</option>
@@ -3570,6 +3569,7 @@ async function saveBusinessProfile(fd){
 
   if(!payload.name) throw new Error("Business name is required.");
   if(!payload.email) throw new Error("Business email is required.");
+  if(!payload.service_area) throw new Error("Service area is required for local weather and business-time updates.");
 
   const {data,error}=await supabase
     .from("businesses")
