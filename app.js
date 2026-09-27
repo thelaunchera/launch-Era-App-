@@ -1159,7 +1159,7 @@ function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
   shortcut.hidden=state.authMode!=="signin";
   shortcut.textContent="Continue as Admin";
-  if(remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
+  if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
 }
 async function requestOwnerAccessCode(email){
   const clean=String(email||"").trim().toLowerCase();
@@ -1280,7 +1280,7 @@ function setAuthMode(mode){
   const switchBtn=$("#authSwitch");
   const password=$("#authPassword");
   const passwordField=$("#passwordField");
-  const emailField=$("#authEmail").closest("label");
+  const emailField=$("#emailField")||$("#authEmail").closest("label");
   const forgot=$("#forgotPassword");
   const signupLegalNote=$("#signupLegalNote");
 
@@ -1327,7 +1327,31 @@ function setAuthMode(mode){
   prepareAdminShortcut();
 }
 
-$("#authSwitch").addEventListener("click",()=>setAuthMode(state.authMode==="signup"?"signin":"signup"));
+$("#authSwitch").addEventListener("click",()=>{
+  const enteringSignup=state.authMode!=="signup";
+  setAuthStatus("");
+  setAuthMode(enteringSignup?"signup":"signin");
+  if(enteringSignup){
+    const email=$("#authEmail");
+    const password=$("#authPassword");
+    const emailField=$("#emailField")||email?.closest("label");
+    if(emailField) emailField.hidden=false;
+    if(email){
+      email.required=true;
+      email.disabled=false;
+      email.removeAttribute("aria-hidden");
+    }
+    if(password){
+      password.required=true;
+      password.disabled=false;
+      password.value="";
+    }
+    requestAnimationFrame(()=>{
+      try{ email?.scrollIntoView({block:"center",behavior:"smooth"}); }catch{}
+      setTimeout(()=>email?.focus(),120);
+    });
+  }
+});
 $("#rememberedAdminBtn").addEventListener("click",continueAsAdmin);
 
 $("#ownerCodeForm")?.addEventListener("submit",async(e)=>{
@@ -1391,8 +1415,18 @@ authForm.addEventListener("submit", async (e)=>{
   const button = $("#authSubmit");
   setBusy(button,true);
   try{
-    const email = $("#authEmail").value.trim();
+    const email = $("#authEmail").value.trim().toLowerCase();
     const password = $("#authPassword").value;
+    if(state.authMode!=="recovery" && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
+      setAuthStatus("Enter your email address to continue.","error");
+      $("#authEmail").focus();
+      return;
+    }
+    if(!password || password.length<8){
+      setAuthStatus("Enter a password with at least 8 characters.","error");
+      $("#authPassword").focus();
+      return;
+    }
     setAuthStatus(state.authMode==="signup"?"Creating your account…":"Signing you in…","loading");
     if(state.authMode === "recovery"){
       const { error } = await supabase.auth.updateUser({password});
