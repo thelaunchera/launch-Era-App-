@@ -82,7 +82,14 @@ try{
       return {exists:true,shown,hidden};
     });
     if(!passwordToggle.exists||!passwordToggle.shown||!passwordToggle.hidden){
-      throw new Error(profile.name+": password visibility toggle failed");
+      const debug=await page.evaluate(()=>({
+        type:document.querySelector("#authPassword")?.type,
+        pressed:document.querySelector("#authPasswordToggle")?.getAttribute("aria-pressed"),
+        className:document.querySelector("#authPasswordToggle")?.className,
+        ready:window.__tleAppReady===true,
+        appError:document.documentElement.dataset.appError||""
+      }));
+      throw new Error(profile.name+": password visibility toggle failed "+JSON.stringify({passwordToggle,debug,errors}));
     }
     if(!signup.trialClose||signup.staticThreeDay) throw new Error(profile.name+": trial alert markup is stale");
     const layout=await page.evaluate(()=>({
