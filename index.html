@@ -22,6 +22,18 @@
         var value=localStorage.getItem(key)||"";
         if(value.toLowerCase().indexOf("dailinsegura04@gmail.com")!==-1){
           localStorage.removeItem(key);
+          continue;
+        }
+        if(key==="sb-bowacxhmjvrqixtwaikv-auth-token"){
+          try{
+            var storedSession=JSON.parse(value);
+            var storedAccess=storedSession&&storedSession.access_token;
+            if(storedAccess && String(storedAccess).split(".").length!==3){
+              localStorage.removeItem(key);
+            }
+          }catch(parseError){
+            localStorage.removeItem(key);
+          }
         }
       }
     }catch(e){}
@@ -42,7 +54,7 @@
     gtag("js",new Date());
     gtag("config","G-N5BHMC432Q",{send_page_view:false});
   </script>
-  <link rel="stylesheet" href="./styles.css?v=20260927-unified-25" />
+  <link rel="stylesheet" href="./styles.css?v=20260927-unified-26" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -1012,7 +1024,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260927-unified-25";
+    window.__tleShellVersion="20260927-unified-26";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1034,9 +1046,9 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260927-unified-25"></script>
-  <script src="./i18n.js?v=20260927-unified-25"></script>
-  <script src="./public.js?v=20260927-unified-25"></script>
-  <script src="./app.js?v=20260927-unified-25"></script>
+  <script src="./vendor/supabase.js?v=20260927-unified-26"></script>
+  <script src="./i18n.js?v=20260927-unified-26"></script>
+  <script src="./public.js?v=20260927-unified-26"></script>
+  <script src="./app.js?v=20260927-unified-26"></script>
 </body>
 </html>
