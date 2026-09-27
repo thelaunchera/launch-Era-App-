@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-10";
+const APP_VERSION = "20260927-unified-11";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3542,7 +3542,7 @@ function renderOperations(){
   if(mileageTable){
     mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
       <div class="table-row mobile-record-card">
-        <span class="record-primary"><strong>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</strong><small>${escapeHtml(m.notes||tr("Business drive"))}</small></span>
+        <span class="record-primary"><strong>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</strong><small>${escapeHtml(m.from_location&&m.to_location?m.from_location+" → "+m.to_location:m.notes||tr("Business drive"))}</small>${m.notes&&m.from_location&&m.to_location?'<em class="record-note">'+escapeHtml(m.notes)+'</em>':""}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Miles"))}">${Number(m.miles||0).toFixed(1)}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Job"))}">${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Type"))}">${escapeHtml(tr("Business"))}</span>
@@ -4348,14 +4348,21 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="mileage"){
-    modalHeader("MILEAGE",record?"Edit drive":"Log drive","Record business miles for a job or business trip.");
+    const es=appIsSpanish();
+    const mileageJobs=state.jobs.filter(j=>j.status!=="canceled");
+    modalHeader("MILEAGE",record?(es?"Editar viaje":"Edit drive"):(es?"Registrar viaje":"Log drive"),es?"Guarda las millas del negocio con origen y destino separados.":"Keep business miles simple with separate From and To fields.");
     entityForm.innerHTML=`
       <div class="form-grid">
-        <label>Date<input name="log_date" type="date" required value="${new Date().toLocaleDateString("en-CA")}"></label>
-        <label>Miles<input name="miles" type="number" min="0.1" step="0.1" required></label>
-        <label class="full">Job<select name="job_id"><option value="">No specific job</option>${optionList(state.jobs.filter(j=>j.status!=="canceled"),"id","service_address",null)}</select></label>
-        <label class="full">From → To / note<input name="notes" placeholder="Office → client, supply store trip…"></label>
-      </div>${formSubmit("Save mileage")}`;
+        <label>${es?"Fecha":"Date"}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
+        <label>${es?"Millas":"Miles"}<input name="miles" type="number" min="0.1" step="0.1" required value="${record?.miles??""}" placeholder="12.4"></label>
+        <label class="full">${es?"Trabajo (opcional)":"Job (optional)"}<select name="job_id" data-mileage-job>
+          <option value="">${es?"Sin trabajo específico":"No specific job"}</option>
+          ${mileageJobs.map(j=>`<option value="${j.id}" data-address="${escapeHtml(j.service_address||"")}" ${record?.job_id===j.id?"selected":""}>${escapeHtml(j.clients?.name||j.service_address||"Cleaning job")}</option>`).join("")}
+        </select></label>
+        <label>${es?"Desde":"From"}<input name="from_location" required value="${escapeHtml(record?.from_location||"")}" placeholder="${es?"Oficina / casa / parada anterior":"Office / home / previous stop"}"></label>
+        <label>${es?"Hasta":"To"}<input name="to_location" required value="${escapeHtml(record?.to_location||"")}" placeholder="${es?"Cliente / tienda de suministros":"Client / supply store"}"></label>
+        <label class="full">${es?"Nota (opcional)":"Note (optional)"}<input name="notes" value="${escapeHtml(record?.notes||"")}" placeholder="${es?"Ej. recoger suministros":"e.g. pick up supplies"}"></label>
+      </div>${formSubmit(es?"Guardar millas":"Save mileage")}`;
   }
 
   if(type==="job"){
@@ -4738,9 +4745,12 @@ async function saveMileage(fd){
     job_id:fd.get("job_id")||null,
     log_date:fd.get("log_date"),
     miles:Number(fd.get("miles")||0),
+    from_location:String(fd.get("from_location")||"").trim()||null,
+    to_location:String(fd.get("to_location")||"").trim()||null,
     notes:String(fd.get("notes")||"").trim()||null
   };
-  if(payload.miles<=0) throw new Error("Enter miles greater than 0.");
+  if(payload.miles<=0) throw new Error(appIsSpanish()?"Escribe una cantidad de millas mayor que 0.":"Enter miles greater than 0.");
+  if(!payload.from_location || !payload.to_location) throw new Error(appIsSpanish()?"Completa Desde y Hasta.":"Complete From and To.");
   const {error}=await supabase.from("mileage_logs").insert(payload);
   if(error) throw error;
 }
@@ -5363,6 +5373,15 @@ function openGeneric(type){
 }
 
 document.addEventListener("change",async e=>{
+  const mileageJob=e.target.closest("[data-mileage-job]");
+  if(mileageJob){
+    const selected=mileageJob.selectedOptions?.[0];
+    const toField=entityForm?.querySelector('input[name="to_location"]');
+    const address=selected?.dataset?.address||"";
+    if(toField && address) toField.value=address;
+    return;
+  }
+
   const platformStatus=e.target.closest("[data-platform-status]");
   if(platformStatus){
     const {error}=await supabase.rpc("platform_set_subscription_status",{
