@@ -109,6 +109,12 @@ if(!$("#teamMessageCenter") || !$("#workerMessageThread") || !$("#workerMessageF
 if(!$("#workerGuestPill") || !$("#workerAccessLabel")){
   throw new Error("Worker access regression: guest employee access labels are missing");
 }
+if(!app.includes('data-finish-time="') || !app.includes('e.target.closest("[data-finish-time]")') || !app.includes("await finishTimeEntry(id)")){
+  throw new Error("Time tracking regression: Finish timer is rendered without a working handler");
+}
+if(!app.includes('data-worker-time-stop="') || !app.includes('e.target.closest("[data-worker-time-stop]")') || !app.includes("worker_portal_stop_time")){
+  throw new Error("Worker time tracking regression: guest Finish timer handler is missing");
+}
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const releaseVersions=[
   appVersion,
