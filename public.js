@@ -429,7 +429,7 @@
       if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
       const quoteTimeInput=form?.querySelector('[name="time"]');
-      if(quoteTimeInput) quoteTimeInput.required=mode==="quote";
+      if(quoteTimeInput) quoteTimeInput.required=false;
 
       if(!services.length){
         if(select){
@@ -577,7 +577,7 @@
                 p_preferred_contact:preferred,
                 p_service_address:String(fd.get("address")).trim(),
                 p_preferred_date:fd.get("date"),
-                p_preferred_time:fd.get("time"),
+                p_preferred_time:String(fd.get("time")||"").trim()||null,
                 p_notes:String(fd.get("notes")||"").trim()||null
               });
             }else{
