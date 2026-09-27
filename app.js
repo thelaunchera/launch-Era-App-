@@ -3168,13 +3168,42 @@ function openInquiryNotificationDetail(notificationId){
     markBookingReviewed(item.recordId).catch(err=>console.warn("[TLE] mark booking reviewed",err));
   }
 
-  if(item.type==="quote-accepted" || item.type==="quote-declined"){
+  if(item.type==="quote-accepted" || item.type==="quote-declined" || item.type==="quote-request"){
     closeNotificationPopover();
     openView("quotes");
     setTimeout(()=>{
       const target=document.querySelector('[data-id="'+CSS.escape(item.recordId)+'"]');
       target?.scrollIntoView({behavior:"smooth",block:"center"});
     },180);
+    return;
+  }
+
+  if(item.type==="payment" || item.type==="invoice-payment-choice"){
+    closeNotificationPopover();
+    openView("invoices");
+    return;
+  }
+
+  if(item.type==="dispute"){
+    closeNotificationPopover();
+    openView(item.resourceType==="quote"?"quotes":"invoices");
+    return;
+  }
+
+  if(item.type==="job-status"){
+    closeNotificationPopover();
+    openView("route");
+    return;
+  }
+
+  if(item.type==="team-message"){
+    closeNotificationPopover();
+    state.activeTeamMessageMemberId=item.recordId;
+    openView("team");
+    loadTeamMessageThread(item.recordId,{markRead:true})
+      .then(()=>loadTeamMessageThreads())
+      .then(()=>renderInquiryNotifications())
+      .catch(err=>console.warn("[TLE] open team message",err));
     return;
   }
 
@@ -3227,6 +3256,23 @@ function getInquiryUnreadCount(){
   return getInquiryNotifications().filter(item=>!isInquiryNotificationRead(item)).length;
 }
 
+function notificationTypeLabel(item){
+  if(!item) return "";
+  const labels={
+    booking:langPick("Booking request","Solicitud de reserva","Solicitação de reserva","Demande de réservation"),
+    lead:langPick("Lead","Lead","Lead","Prospect"),
+    "quote-request":langPick("Quote request","Solicitud de cotización","Pedido de orçamento","Demande de devis"),
+    "quote-accepted":langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté"),
+    "quote-declined":langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé"),
+    payment:langPick("Payment","Pago","Pagamento","Paiement"),
+    "invoice-payment-choice":langPick("Payment choice","Método de pago","Forma de pagamento","Choix de paiement"),
+    dispute:langPick("Dispute","Disputa","Contestação","Contestation"),
+    "job-status":langPick("Job update","Actualización del trabajo","Atualização do trabalho","Mise à jour du travail"),
+    "team-message":langPick("Team message","Mensaje del equipo","Mensagem da equipe","Message d’équipe")
+  };
+  return labels[item.type]||langPick("Notification","Notificación","Notificação","Notification");
+}
+
 function renderInquiryNotifications(){
   const button=$("#notificationBellBtn");
   const badge=$("#notificationBadge");
@@ -3251,13 +3297,7 @@ function renderInquiryNotifications(){
 
   list.innerHTML=unreadItems.slice(0,8).map(item=>{
     const isNew=true;
-    const typeLabel=item.type==="booking"
-      ? langPick("Booking request","Solicitud de reserva","Solicitação de reserva","Demande de réservation")
-      : item.type==="quote-accepted"
-      ? langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté")
-      : item.type==="quote-declined"
-      ? langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé")
-      : langPick("Lead","Lead","Lead","Prospect");
+    const typeLabel=notificationTypeLabel(item);
     return `
       <button class="notification-item ${isNew?"is-new":""}" type="button" data-notification-id="${escapeHtml(item.id)}">
         <span class="notification-dot" aria-hidden="true"></span>
