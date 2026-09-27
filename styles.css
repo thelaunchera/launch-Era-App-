@@ -3519,3 +3519,49 @@ body.shell-public #publicShell{
     min-height:42px!important;
   }
 }
+
+
+/* 2026-09-27 — contextual greeting card states */
+#todayHeroCard.quarter-color-0{background-color:#F3EBCB}
+#todayHeroCard.quarter-color-1{background-color:#E7EEF2}
+#todayHeroCard.quarter-color-2{background-color:#F3F0EA}
+#todayHeroCard.quarter-color-3{background-color:#ECE9F2}
+
+#todayHeroCard.message-rain{
+  background:linear-gradient(135deg,#DCE8EC 0%,#EEF2F1 58%,#E7E1D4 100%)!important;
+}
+#todayHeroCard.message-jobs{
+  background:linear-gradient(135deg,#F2E8C6 0%,#F7F3E8 100%)!important;
+}
+#todayHeroCard.message-booking{
+  background:linear-gradient(135deg,#E3EDF2 0%,#F5F3ED 100%)!important;
+}
+#todayHeroCard.message-quotes{
+  background:linear-gradient(135deg,#E8EAF1 0%,#F4F1EA 100%)!important;
+}
+#todayHeroCard.message-invoice{
+  background:linear-gradient(135deg,#ECE5D9 0%,#F6F2EB 100%)!important;
+}
+#todayHeroCard.message-hydrate{
+  background:linear-gradient(135deg,#E2EDF1 0%,#F5F2E9 100%)!important;
+}
+#todayHeroCard.message-night{
+  background:linear-gradient(135deg,#E8E7F0 0%,#F3F0EA 100%)!important;
+}
+#todayHeroCard[data-daypart="early"] #todayGreeting,
+#todayHeroCard[data-daypart="morning"] #todayGreeting,
+#todayHeroCard[data-daypart="midday"] #todayGreeting,
+#todayHeroCard[data-daypart="afternoon"] #todayGreeting,
+#todayHeroCard[data-daypart="wrap"] #todayGreeting,
+#todayHeroCard[data-daypart="evening"] #todayGreeting,
+#todayHeroCard[data-daypart="late"] #todayGreeting{
+  letter-spacing:-.035em;
+}
+#todayHeroCard #todayMomentCopy{
+  max-width:640px;
+  line-height:1.55;
+}
+@media(max-width:720px){
+  #todayHeroCard #todayMomentCopy{font-size:15px;line-height:1.5}
+  #todayHeroCard .hero-greeting-zone #todayHeroAction{width:100%;justify-content:center}
+}
