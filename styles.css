@@ -2488,12 +2488,12 @@ html,body{max-width:100%;overflow-x:hidden}
 #todayHeroCard{
   isolation:isolate;
   border:1px solid rgba(25,25,25,.07);
-  animation:tleAssistantColorCycle 16s ease-in-out infinite;
+  animation:tleGreetingColorCycle 40min linear infinite;
 }
 #todayHeroCard.assistant-arrival{
   animation:
     tleAssistantEnter .58s cubic-bezier(.2,.8,.2,1) both,
-    tleAssistantColorCycle 16s ease-in-out .58s infinite;
+    tleGreetingColorCycle 40min linear .58s infinite;
 }
 #todayHeroCard::before{
   content:"";
@@ -2536,31 +2536,16 @@ html,body{max-width:100%;overflow-x:hidden}
   flex-wrap:wrap;
   min-width:0;
 }
-.assistant-live-dot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#191919;
-  box-shadow:0 0 0 0 rgba(25,25,25,.18);
-  animation:tleAssistantPulse 2.4s ease-out infinite;
-}
-.assistant-label{
-  font-size:10px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:#514D46;
-}
 @keyframes tleAssistantEnter{
   0%{opacity:0;transform:translateY(10px) scale(.99)}
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
-@keyframes tleAssistantColorCycle{
-  0%,100%{background-color:#FFF0B7}
-  26%{background-color:#DDEBFA}
-  52%{background-color:#F8F5EE}
-  78%{background-color:#E7E5FF}
+@keyframes tleGreetingColorCycle{
+  0%,24.999%{background-color:#FFF0B7}
+  25%,49.999%{background-color:#DDEBFA}
+  50%,74.999%{background-color:#F8F5EE}
+  75%,99.999%{background-color:#E7E5FF}
+  100%{background-color:#FFF0B7}
 }
 @keyframes tleAssistantOrb{
   0%,100%{transform:translate3d(0,0,0) scale(.95)}
@@ -2570,15 +2555,11 @@ html,body{max-width:100%;overflow-x:hidden}
   0%,100%{transform:translate3d(0,0,0)}
   50%{transform:translate3d(15px,-10px,0)}
 }
-@keyframes tleAssistantPulse{
-  0%{box-shadow:0 0 0 0 rgba(25,25,25,.20)}
   70%,100%{box-shadow:0 0 0 7px rgba(25,25,25,0)}
 }
 @media (prefers-reduced-motion: reduce){
   #todayHeroCard,
   #todayHeroCard::before,
   #todayHeroCard::after,
-  .assistant-live-dot{
-    animation:none!important;
-  }
+
 }
