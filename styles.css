@@ -1455,3 +1455,22 @@ body.platform-owner-no-billing .trial-card{
     grid-template-columns:minmax(0,1fr) auto;
   }
 }
+
+/* Explicit confirmation on public invoice + quote */
+.public-confirm-submit{
+  width:100%;
+  margin-top:14px;
+}
+.public-confirm-submit:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.quote-response-choice.selected,
+.invoice-payment-choices button.selected{
+  outline:3px solid rgba(25,25,25,.12);
+  outline-offset:2px;
+}
+#declineQuoteBtn.selected{
+  background:#191919;
+  color:#fff;
+}
