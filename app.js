@@ -4816,7 +4816,7 @@ async function refreshInstalledApp(){
   }
 }
 
-$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
+$$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
 $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textContent.trim()));
 
 document.addEventListener("click",e=>{
