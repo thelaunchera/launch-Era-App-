@@ -46,11 +46,15 @@
 
   async function track(){
     try{
-      await rpc("track_app_visit",{
-        p_visitor_id:visitorId(),
-        p_page:"/public/"+mode,
-        p_referrer:document.referrer||null,
-        p_user_agent:navigator.userAgent||null
+      await fetch(URL+"/functions/v1/track-app-visit",{
+        method:"POST",
+        headers:{"apikey":KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({
+          visitor_id:visitorId(),
+          page:"/public/"+mode,
+          referrer:document.referrer||null,
+          user_agent:navigator.userAgent||null
+        })
       });
     }catch{}
   }
