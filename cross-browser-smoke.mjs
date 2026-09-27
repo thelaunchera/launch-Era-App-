@@ -139,6 +139,33 @@ async function assertLayout(page,profile){
   await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
   await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",null,{timeout:3000});
 
+  // Returning-user regression: remembered username must survive a natural
+  // reload without storing a password or bouncing back to the welcome screen.
+  await page.evaluate(()=>{
+    localStorage.setItem("tle_remember_username_v1","1");
+    localStorage.setItem("tle_owner_email","remembered.qa@example.com");
+  });
+  await page.reload({waitUntil:"domcontentloaded",timeout:20000});
+  await page.waitForFunction(()=>window.__tleAuthUiReady===true,null,{timeout:10000});
+  await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",null,{timeout:3000});
+  const remembered=await page.evaluate(()=>({
+    email:document.querySelector("#authEmail")?.value||"",
+    checked:Boolean(document.querySelector("#rememberUsername")?.checked),
+    visible:!document.querySelector("#rememberUsernameRow")?.hidden,
+    password:document.querySelector("#authPassword")?.value||""
+  }));
+  if(remembered.email!=="remembered.qa@example.com" || !remembered.checked || !remembered.visible){
+    throw new Error(profile.name+": remember username did not survive reload "+JSON.stringify(remembered));
+  }
+  if(remembered.password){
+    throw new Error(profile.name+": app stored a password in the sign-in field");
+  }
+  await page.evaluate(()=>{
+    localStorage.removeItem("tle_owner_email");
+    localStorage.setItem("tle_remember_username_v1","0");
+  });
+
   const authSubmit=page.locator("#authSubmit");
   if(!(await authSubmit.isVisible()) || !(await authSubmit.isEnabled())){
     throw new Error(profile.name+": sign-in submit is not usable");
@@ -214,6 +241,25 @@ async function assertLayout(page,profile){
   }
   if(dashboard.scrollWidth>dashboard.innerWidth+4){
     throw new Error(profile.name+": dashboard horizontal overflow "+JSON.stringify(dashboard));
+  }
+
+  // iOS/PWA resume regression: a pageshow event (for example after returning
+  // from Weather or a password-manager surface) must not force-scroll to top.
+  const resumeScroll=await page.evaluate(async()=>{
+    const spacer=document.createElement("div");
+    spacer.id="resumeSmokeSpacer";
+    spacer.style.height="1800px";
+    document.body.appendChild(spacer);
+    window.scrollTo(0,Math.min(320,document.documentElement.scrollHeight-innerHeight));
+    const before=window.scrollY;
+    window.dispatchEvent(new PageTransitionEvent("pageshow",{persisted:true}));
+    await new Promise(resolve=>setTimeout(resolve,60));
+    const after=window.scrollY;
+    spacer.remove();
+    return {before,after};
+  });
+  if(resumeScroll.before>40 && resumeScroll.after<resumeScroll.before-40){
+    throw new Error(profile.name+": pageshow resume jumped toward the top "+JSON.stringify(resumeScroll));
   }
 
   if(profile.viewport.width<=860){
