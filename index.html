@@ -94,7 +94,7 @@
         <form id="businessForm" class="auth-form">
           <label>Business name<input id="businessName" required placeholder="Bright Home Cleaning"></label>
           <label>Phone<input id="businessPhone" placeholder="(561) 555-0000"></label>
-          <label>Service area<input id="businessArea" required placeholder="Miami, FL"></label>
+          <label>Service area<input id="businessArea" required placeholder="City, region, country"></label>
           <button class="primary-btn" type="submit">Create my workspace</button>
         </form>
         <div class="auth-status" id="businessSetupStatus" aria-live="polite"></div>
@@ -208,11 +208,11 @@
           </div>
           <div class="invoice-payment-note">
             <strong>How would you like to pay?</strong>
-            <span id="invoiceViewMethods">Cash · Check · Zelle</span>
+            <span id="invoiceViewMethods">Cash · Check · Other</span>
             <div class="invoice-payment-choices" id="invoicePaymentChoices">
               <button type="button" data-invoice-payment="cash">Cash</button>
               <button type="button" data-invoice-payment="check">Check</button>
-              <button type="button" data-invoice-payment="zelle">Zelle</button>
+              <button type="button" data-invoice-payment="other">Other</button>
             </div>
             <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option, then submit it to the business.</p>
             <button class="primary-btn public-submit public-confirm-submit" type="button" id="submitInvoiceBtn" disabled>Submit invoice</button>
@@ -297,7 +297,7 @@
 
         <div class="nav-label">Operations</div>
         <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
-        <button class="nav-item" data-view="mileage">Mileage <span>mi</span></button>
+        <button class="nav-item" data-view="mileage">Mileage <span>↔</span></button>
         <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
         <button class="nav-item" data-view="supplies" data-admin-only>Supplies <span>▣</span></button>
         <button class="nav-item" data-view="reports" data-owner-only>Owner Reports <span>↗</span></button>
@@ -432,7 +432,7 @@
               <button class="quick-card" data-action="quote" data-admin-only>◫<span>Create quote</span></button>
               <button class="quick-card" data-jump="booking" data-admin-only>↗<span>Booking link</span></button>
               <button class="quick-card" data-action="invoice" data-admin-only>$<span>Create invoice</span></button>
-              <button class="quick-card" data-jump="mileage">mi<span>Log mileage</span></button>
+              <button class="quick-card" data-jump="mileage">↔<span>Log distance</span></button>
               <button class="quick-card" data-jump="time">◷<span>Track time</span></button>
             </div>
           </article>
@@ -528,7 +528,7 @@
             </div>
             <div class="mini-settings">
               <div><strong>Preferred contact</strong><span>Email · Text · WhatsApp</span></div>
-              <div><strong>Payment methods</strong><span>Cash · Check · Zelle</span></div>
+              <div><strong>Payment methods</strong><span id="bookingPaymentMethods">Cash · Check · Other</span></div>
               <div><strong>Quote behavior</strong><span>Request stays in Quotes until accepted</span></div>
             </div>
           </article>
@@ -591,7 +591,7 @@
       <section class="view" data-page="route">
         <div class="section-intro">
           <div><p class="eyebrow">TODAY'S ROUTE</p><h2>Know where you’re going before you leave.</h2></div>
-          <span class="pill blue" id="routeMileagePill">0 mi today</span>
+          <span class="pill blue" id="routeMileagePill">0 today</span>
         </div>
         <div class="route-layout">
           <article class="panel route-map-empty">
@@ -608,12 +608,12 @@
           <button class="primary-btn" data-action="mileage">+ Log drive</button>
         </div>
         <div class="metric-grid compact">
-          <article class="metric-card"><span>Today</span><strong id="mileageToday">0 mi</strong></article>
-          <article class="metric-card"><span>This week</span><strong id="mileageWeek">0 mi</strong></article>
-          <article class="metric-card"><span>This month</span><strong id="mileageMonth">0 mi</strong></article>
+          <article class="metric-card"><span>Today</span><strong id="mileageToday">0</strong></article>
+          <article class="metric-card"><span>This week</span><strong id="mileageWeek">0</strong></article>
+          <article class="metric-card"><span>This month</span><strong id="mileageMonth">0</strong></article>
         </div>
         <div class="table-card">
-          <div class="table-row table-head mileage-head"><span>Date / note</span><span>Miles</span><span>Job</span><span>Type</span></div>
+          <div class="table-row table-head mileage-head"><span>Date / note</span><span>Distance</span><span>Job</span><span>Type</span></div>
           <div id="mileageTable"></div>
         </div>
       </section>
@@ -666,7 +666,7 @@
         <div class="report-grid">
           <article class="panel"><span>Revenue this month</span><strong id="reportRevenue">$0</strong><p>Confirmed payments recorded this month.</p></article>
           <article class="panel"><span>Jobs completed</span><strong id="reportJobs">0</strong><p id="reportJobsCopy">No completed jobs yet.</p></article>
-          <article class="panel"><span>Business miles</span><strong id="reportMiles">0</strong><p>Tracked mileage this month.</p></article>
+          <article class="panel"><span>Business distance</span><strong id="reportMiles">0</strong><p>Tracked driving this month.</p></article>
           <article class="panel"><span>Work hours</span><strong id="reportHours">0h</strong><p id="reportHoursCopy">Tracked team time this month.</p></article>
         </div>
       </section>
@@ -731,8 +731,12 @@
             <div class="setting-row"><span><strong>Business email</strong><small id="settingsBusinessEmail">—</small></span></div>
             <div class="setting-row"><span><strong>Phone</strong><small id="settingsBusinessPhone">—</small></span></div>
             <div class="setting-row"><span><strong>Service area</strong><small id="settingsServiceArea">—</small></span></div>
+            <div class="setting-row"><span><strong>Country</strong><small id="settingsBusinessCountry">—</small></span></div>
             <div class="setting-row"><span><strong>Time zone</strong><small id="settingsBusinessTimezone">—</small></span></div>
             <div class="setting-row"><span><strong>Default language</strong><small id="settingsBusinessLanguage">—</small></span></div>
+            <div class="setting-row"><span><strong>Currency</strong><small id="settingsBusinessCurrency">—</small></span></div>
+            <div class="setting-row"><span><strong>Distance</strong><small id="settingsBusinessDistance">—</small></span></div>
+            <div class="setting-row"><span><strong>Temperature</strong><small id="settingsBusinessTemperature">—</small></span></div>
           </article>
           <article class="panel">
             <h3>Booking rules</h3>
@@ -741,7 +745,7 @@
           </article>
           <article class="panel">
             <h3>Contact + payments</h3>
-            <div class="setting-row"><span><strong>Client payment methods</strong><small>Cash · Check · Zelle</small></span></div>
+            <div class="setting-row"><span><strong>Client payment methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
             <div class="setting-row"><span><strong>Automatic client emails</strong><small>Quote review · Service confirmation · Invoice · Payment thank-you</small></span><span class="status success">On</span></div>
             <div class="setting-row"><span><strong>Replies go to</strong><small id="settingsReplyEmail">Business login email</small></span></div>
             <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner Admin.</small></span></div>
