@@ -17,9 +17,13 @@
   const $$ = (s,root=document) => [...root.querySelectorAll(s)];
   let publicLocale=navigator.language||"en-US";
   let publicCurrency="USD";
-  function setPublicLocale(locale,currency){
+  function setPublicLocale(locale,currency,language){
     publicLocale=String(locale||publicLocale||"en-US");
     publicCurrency=String(currency||publicCurrency||"USD").toUpperCase();
+    const lang=String(language||"").toLowerCase();
+    if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(lang)){
+      window.TLE_I18N.setLanguage(lang);
+    }
   }
   const money = v => new Intl.NumberFormat(publicLocale,{
     style:"currency",currency:publicCurrency,maximumFractionDigits:2
@@ -99,7 +103,7 @@
 
     try{
       const data=await rpc("get_public_invoice_context",{p_token:token});
-      setPublicLocale(data?.locale_code,data?.currency_code);
+      setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
       $("#publicModeLabel").textContent="INVOICE";
       $("#publicIntro").textContent="Review your invoice details below.";
@@ -249,7 +253,7 @@
 
     try{
       const data=await rpc("get_public_quote_context",{p_token:token});
-      setPublicLocale(data?.locale_code,data?.currency_code);
+      setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
       $("#publicModeLabel").textContent="QUOTE";
       $("#publicIntro").textContent="Review the details below and choose Accept or Decline.";
@@ -392,7 +396,7 @@
   async function bootRequest(){
     try{
       const data=await rpc("get_public_booking_config",{p_slug:slug});
-    setPublicLocale(data?.business?.locale_code,data?.business?.currency_code);
+    setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
       const allServices=data?.services||[];
       const services=allServices.filter(s=>
         mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0)
