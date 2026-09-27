@@ -1417,3 +1417,41 @@ body.platform-owner-no-billing .trial-card{
 @media (prefers-reduced-motion: reduce){
   .hero-card{transition:none}
 }
+
+/* Platform Admin activity feed */
+.platform-activity-panel{
+  min-width:0;
+}
+.activity-row{
+  min-width:0;
+}
+.activity-row>span:first-child{
+  min-width:0;
+}
+.activity-row strong{
+  overflow-wrap:anywhere;
+}
+.activity-row small{
+  overflow-wrap:anywhere;
+}
+.activity-value{
+  display:grid;
+  justify-items:end;
+  gap:2px;
+  flex:0 0 auto;
+}
+.activity-value strong{
+  font-size:13px;
+}
+@media(max-width:620px){
+  .activity-row{
+    align-items:flex-start;
+  }
+  .activity-row time{
+    white-space:nowrap;
+  }
+  .purchase-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+}
