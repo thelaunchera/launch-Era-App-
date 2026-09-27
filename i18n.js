@@ -1,6 +1,9 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "One moment…":"Un momento…",
+    "Checking your schedule and local weather.":"Revisando tu agenda y el clima de tu zona.",
+    "Getting your day ready…":"Preparando tu día…",
     "unique":"únicos",
     "New external visits will appear here.":"Las nuevas visitas externas aparecerán aquí.",
     "No location data yet.":"Aún no hay datos de ubicación.",
