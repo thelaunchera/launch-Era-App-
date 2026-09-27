@@ -781,3 +781,10 @@ button,a,input,select,textarea,[role="button"]{
 @media(max-width:600px){
   .auth-language-toggle{top:16px;right:16px;min-width:46px;height:40px}
 }
+
+/* Stable logout transition */
+body.tle-signing-out .sidebar,
+body.tle-signing-out .app-shell,
+body.tle-signing-out .auth-shell{transition:none!important;animation:none!important}
+body.tle-signing-out .sidebar-logout-btn:active{transform:none}
+.sidebar-logout-btn:disabled{opacity:.72;transform:none!important}
