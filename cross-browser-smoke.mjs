@@ -48,6 +48,9 @@ async function assertLayout(page,profile){
   if(initial.authDisplay==="none") throw new Error(profile.name+": auth shell is not visible on initial load");
   if(initial.appDisplay!=="none") throw new Error(profile.name+": app shell leaked into auth screen");
   if(initial.scrollWidth>initial.innerWidth+4) throw new Error(profile.name+": auth horizontal overflow");
+  await page.waitForFunction(()=>window.__tleAppReady===true || Boolean(document.documentElement.dataset.appError),null,{timeout:10000});
+  const bootError=await page.evaluate(()=>document.documentElement.dataset.appError||"");
+  if(bootError) throw new Error(profile.name+": app boot error "+bootError);
 
   const authLanguage=page.locator("[data-language-toggle]").first();
   await authLanguage.click();
