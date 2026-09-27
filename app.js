@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-26";
+const APP_VERSION = "20260927-unified-27";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -578,11 +578,8 @@ async function geocodeBusinessArea(area){
   return null;
 }
 function paymentMethodsForCountry(code){
-  // Keep payment recording simple and country-neutral. Businesses can still
-  // describe a local method under “Other” without introducing country-specific
-  // logic that can break signup outside the U.S.
-  void code;
-  return ["cash","check","other"];
+  const country=String(code||"").toUpperCase();
+  return country==="US" ? ["cash","check","zelle","other"] : ["cash","check","other"];
 }
 function currencyForCountry(code){
   const map={
