@@ -14,6 +14,7 @@ const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
+const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -538,6 +539,7 @@ async function requestOwnerAccessCode(email){
   if(error) throw error;
   if(!data?.sent) throw new Error(data?.error||"Could not send the access code.");
   localStorage.setItem(OWNER_EMAIL_KEY,clean);
+  localStorage.setItem(OWNER_CODE_REQUEST_KEY,String(Date.now()));
   return data;
 }
 async function verifyOwnerAccessCode(email,code){
@@ -583,13 +585,20 @@ async function showOwnerAccess(email,autoSend=false){
     : "Enter the 6-digit code sent to your email.";
   $("#ownerAccessCode").value="";
   if(autoSend && clean){
-    setAuthStatus("Sending your access code…","loading");
-    try{
-      const result=await requestOwnerAccessCode(clean);
-      setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
+    const requestedAt=Number(localStorage.getItem(OWNER_CODE_REQUEST_KEY)||0);
+    const codeStillFresh=requestedAt>0 && (Date.now()-requestedAt)<9*60*1000;
+    if(codeStillFresh){
+      setAuthStatus("A code was already sent. Check your email.","success");
       setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
-    }catch(err){
-      setAuthStatus(err?.message||"Could not send the access code.","error");
+    }else{
+      setAuthStatus("Sending your access code…","loading");
+      try{
+        const result=await requestOwnerAccessCode(clean);
+        setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
+        setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
+      }catch(err){
+        setAuthStatus(err?.message||"Could not send the access code.","error");
+      }
     }
   }else{
     setAuthStatus("");
@@ -800,6 +809,7 @@ async function signOutCurrentUser(event){
     if(wasOwner && ownerEmail){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
       localStorage.removeItem(OWNER_ACTIVITY_KEY);
+      localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
       await showOwnerAccess(ownerEmail,false);
     }else{
       showAuth();
