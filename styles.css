@@ -2594,8 +2594,8 @@ html,body{max-width:100%;overflow-x:hidden}
   right:-68px;
   top:-78px;
   border-radius:50%;
-  background:rgba(255,255,255,.38);
-  opacity:.75;
+  background:rgba(255,255,255,.22);
+  opacity:.42;
   pointer-events:none;
   z-index:0;
   animation:tleGreetingOrb 7s ease-in-out infinite;
@@ -2608,8 +2608,8 @@ html,body{max-width:100%;overflow-x:hidden}
   left:-46px;
   bottom:-62px;
   border-radius:50%;
-  background:rgba(255,255,255,.20);
-  opacity:.7;
+  background:rgba(255,255,255,.12);
+  opacity:.35;
   pointer-events:none;
   z-index:0;
   animation:tleGreetingOrbSmall 9s ease-in-out infinite;
@@ -3052,5 +3052,239 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   .inquiry-detail-actions button{
     width:100%;
+  }
+}
+
+/* Soft animated app atmosphere */
+.app-shell{
+  position:relative;
+  isolation:isolate;
+  background:
+    linear-gradient(180deg,#F2FAFF 0%,#E8F6FF 52%,#F6FBFF 100%);
+}
+.app-shell::before,
+.app-shell::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:0;
+  border-radius:50%;
+  filter:blur(.2px);
+  opacity:.20;
+}
+.app-shell::before{
+  width:340px;
+  height:340px;
+  left:14%;
+  top:14%;
+  background:
+    radial-gradient(circle at 34% 30%,rgba(255,255,255,.58) 0 10%,rgba(255,255,255,.18) 11% 18%,transparent 19%),
+    radial-gradient(circle at 68% 62%,rgba(255,255,255,.40) 0 7%,rgba(176,224,250,.16) 8% 15%,transparent 16%);
+  border:1px solid rgba(162,213,242,.18);
+  animation:tleAppBubbleDriftA 28s ease-in-out infinite alternate;
+}
+.app-shell::after{
+  width:220px;
+  height:220px;
+  right:6%;
+  bottom:12%;
+  background:
+    radial-gradient(circle at 62% 32%,rgba(255,255,255,.48) 0 11%,rgba(255,255,255,.16) 12% 20%,transparent 21%),
+    radial-gradient(circle at 32% 72%,rgba(255,255,255,.36) 0 7%,rgba(174,222,249,.13) 8% 16%,transparent 17%);
+  border:1px solid rgba(162,213,242,.15);
+  animation:tleAppBubbleDriftB 34s ease-in-out infinite alternate;
+}
+.app-shell>.sidebar,
+.app-shell>.main{
+  position:relative;
+  z-index:1;
+}
+.main{
+  background:transparent!important;
+}
+@keyframes tleAppBubbleDriftA{
+  from{transform:translate3d(-8px,10px,0) scale(.96)}
+  to{transform:translate3d(22px,-26px,0) scale(1.05)}
+}
+@keyframes tleAppBubbleDriftB{
+  from{transform:translate3d(8px,12px,0) scale(.98)}
+  to{transform:translate3d(-20px,-18px,0) scale(1.07)}
+}
+
+/* Live seasonal + current-weather animation inside greeting card */
+#todayHeroCard{
+  position:relative;
+  overflow:hidden;
+}
+.hero-weather-effects{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+  border-radius:inherit;
+}
+.hero-season-layer,
+.hero-precip-layer{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.hero-season-layer{
+  opacity:.26;
+}
+.hero-precip-layer{
+  opacity:.48;
+}
+#todayHeroCard .hero-ecosystem,
+#todayHeroCard>.hero-moment-icon{
+  position:relative;
+  z-index:2;
+}
+
+/* seasonal washes stay subtle so text remains the focus */
+#todayHeroCard[data-season="spring"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(255,255,255,.36),transparent 26%),
+    linear-gradient(135deg,rgba(233,251,242,.22),transparent 58%);
+}
+#todayHeroCard[data-season="summer"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 82% 10%,rgba(255,243,174,.33),transparent 24%),
+    linear-gradient(135deg,rgba(229,247,255,.18),transparent 58%);
+}
+#todayHeroCard[data-season="fall"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 86% 12%,rgba(246,218,166,.30),transparent 24%),
+    linear-gradient(135deg,rgba(255,239,215,.18),transparent 58%);
+}
+#todayHeroCard[data-season="winter"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 82% 10%,rgba(255,255,255,.42),transparent 26%),
+    linear-gradient(135deg,rgba(226,241,255,.24),transparent 58%);
+}
+
+.season-particle,
+.rain-drop,
+.snow-flake{
+  position:absolute;
+  left:var(--x);
+  top:-18px;
+  transform:scale(var(--scale));
+  animation-delay:var(--delay);
+  animation-duration:var(--dur);
+  animation-iteration-count:infinite;
+  animation-timing-function:linear;
+}
+.season-particle{
+  width:8px;
+  height:8px;
+  border-radius:55% 45% 60% 40%;
+  opacity:.42;
+}
+.season-spring .season-particle{
+  background:rgba(255,255,255,.72);
+  box-shadow:0 0 0 1px rgba(188,226,207,.22);
+  animation-name:tleSeasonFloat;
+}
+.season-summer .season-particle{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:rgba(255,245,184,.48);
+  filter:blur(.2px);
+  animation-name:tleSeasonGlow;
+}
+.season-fall .season-particle{
+  width:9px;
+  height:6px;
+  border-radius:70% 20% 70% 30%;
+  background:rgba(211,159,96,.32);
+  animation-name:tleSeasonLeaf;
+}
+.season-winter .season-particle{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(255,255,255,.62);
+  animation-name:tleSeasonFloat;
+}
+
+.rain-drop{
+  width:1.5px;
+  height:24px;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(113,174,214,.72));
+  animation-name:tleLiveRain;
+}
+.intensity-light .rain-drop{height:16px;opacity:.46}
+.intensity-heavy .rain-drop{height:30px;opacity:.72}
+.snow-flake{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 0 7px rgba(255,255,255,.38);
+  animation-name:tleLiveSnow;
+}
+.intensity-heavy .snow-flake{width:9px;height:9px}
+
+#todayHeroCard[data-weather="rain"]{
+  box-shadow:inset 0 0 0 999px rgba(205,230,247,.06);
+}
+#todayHeroCard[data-weather="snow"]{
+  box-shadow:inset 0 0 0 999px rgba(241,248,255,.08);
+}
+
+@keyframes tleLiveRain{
+  0%{transform:translate3d(0,-34px,0) rotate(8deg) scale(var(--scale));opacity:0}
+  8%{opacity:.75}
+  100%{transform:translate3d(var(--drift),430px,0) rotate(8deg) scale(var(--scale));opacity:.12}
+}
+@keyframes tleLiveSnow{
+  0%{transform:translate3d(0,-22px,0) scale(var(--scale));opacity:0}
+  12%{opacity:.9}
+  100%{transform:translate3d(var(--drift),430px,0) scale(var(--scale));opacity:.10}
+}
+@keyframes tleSeasonFloat{
+  0%{transform:translate3d(0,-12px,0) rotate(0deg) scale(var(--scale));opacity:0}
+  14%{opacity:.42}
+  100%{transform:translate3d(var(--drift),390px,0) rotate(160deg) scale(var(--scale));opacity:0}
+}
+@keyframes tleSeasonLeaf{
+  0%{transform:translate3d(0,-12px,0) rotate(0deg) scale(var(--scale));opacity:0}
+  15%{opacity:.42}
+  100%{transform:translate3d(var(--drift),370px,0) rotate(420deg) scale(var(--scale));opacity:0}
+}
+@keyframes tleSeasonGlow{
+  0%,100%{transform:translate3d(0,42px,0) scale(var(--scale));opacity:.12}
+  50%{transform:translate3d(var(--drift),190px,0) scale(calc(var(--scale) * 1.22));opacity:.38}
+}
+
+@media(max-width:680px){
+  .app-shell::before{
+    width:250px;
+    height:250px;
+    left:-18%;
+    top:16%;
+    opacity:.15;
+  }
+  .app-shell::after{
+    width:170px;
+    height:170px;
+    right:-12%;
+    bottom:16%;
+    opacity:.13;
+  }
+  .hero-season-layer{opacity:.20}
+  .hero-precip-layer{opacity:.40}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-shell::before,
+  .app-shell::after,
+  .season-particle,
+  .rain-drop,
+  .snow-flake{
+    animation:none!important;
   }
 }
