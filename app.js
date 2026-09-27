@@ -952,6 +952,13 @@ document.addEventListener("click",e=>{
     openView(jump.dataset.jump);
   }
 });
+document.addEventListener("keydown",e=>{
+  if(!["Enter"," "].includes(e.key)) return;
+  const jump=e.target.closest?.('[data-jump][role="button"]');
+  if(!jump || jump.disabled || jump.hidden) return;
+  e.preventDefault();
+  openView(jump.dataset.jump);
+});
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
   let previous=navHistory.pop();
