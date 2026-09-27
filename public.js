@@ -124,7 +124,7 @@
       $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
-      const methodLabels={cash:"Cash",check:"Check",other:"Other"};
+      const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle",other:"Other"};
       const enabledMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
         ? data.payment_methods.map(x=>String(x).toLowerCase())
         : ["cash","check","other"];
