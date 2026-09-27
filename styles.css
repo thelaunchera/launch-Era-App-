@@ -2482,3 +2482,100 @@ html,body{max-width:100%;overflow-x:hidden}
     grid-template-columns:minmax(0,1fr)!important;
   }
 }
+
+
+/* Dashboard mini assistant — lightweight animated welcome */
+#todayHeroCard{
+  isolation:isolate;
+  border:1px solid rgba(25,25,25,.07);
+  animation:
+    tleAssistantEnter .58s cubic-bezier(.2,.8,.2,1) both,
+    tleAssistantColorCycle 16s ease-in-out .58s infinite;
+}
+#todayHeroCard::before{
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  right:-68px;
+  top:-78px;
+  border-radius:50%;
+  background:rgba(255,255,255,.38);
+  opacity:.75;
+  pointer-events:none;
+  z-index:0;
+  animation:tleAssistantOrb 7s ease-in-out infinite;
+}
+#todayHeroCard::after{
+  content:"";
+  position:absolute;
+  width:120px;
+  height:120px;
+  left:-46px;
+  bottom:-62px;
+  border-radius:50%;
+  background:rgba(255,255,255,.20);
+  opacity:.7;
+  pointer-events:none;
+  z-index:0;
+  animation:tleAssistantOrbSmall 9s ease-in-out infinite;
+}
+#todayHeroCard>div,
+#todayHeroCard>#todayHeroAction,
+#todayHeroCard>.hero-moment-icon{
+  position:relative;
+  z-index:1;
+}
+.hero-assistant-meta{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.assistant-live-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#191919;
+  box-shadow:0 0 0 0 rgba(25,25,25,.18);
+  animation:tleAssistantPulse 2.4s ease-out infinite;
+}
+.assistant-label{
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#514D46;
+}
+@keyframes tleAssistantEnter{
+  0%{opacity:0;transform:translateY(10px) scale(.99)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes tleAssistantColorCycle{
+  0%,100%{background-color:#FFF0B7}
+  26%{background-color:#DDEBFA}
+  52%{background-color:#F8F5EE}
+  78%{background-color:#E7E5FF}
+}
+@keyframes tleAssistantOrb{
+  0%,100%{transform:translate3d(0,0,0) scale(.95)}
+  50%{transform:translate3d(-18px,16px,0) scale(1.08)}
+}
+@keyframes tleAssistantOrbSmall{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(15px,-10px,0)}
+}
+@keyframes tleAssistantPulse{
+  0%{box-shadow:0 0 0 0 rgba(25,25,25,.20)}
+  70%,100%{box-shadow:0 0 0 7px rgba(25,25,25,0)}
+}
+@media (prefers-reduced-motion: reduce){
+  #todayHeroCard,
+  #todayHeroCard::before,
+  #todayHeroCard::after,
+  .assistant-live-dot{
+    animation:none!important;
+  }
+}
