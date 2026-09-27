@@ -14,7 +14,8 @@
   const URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
   const KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
   const $ = (s,root=document) => root.querySelector(s);
-  const $$ = (s,root=document) => [...root.querySelectorAll(s)];
+  const $ = (s,root=document) => [...root.querySelectorAll(s)];
+  const tt = v => window.TLE_I18N?.t?.(v) || v;
   let publicLocale=navigator.language||"en-US";
   let publicCurrency="USD";
   function setPublicLocale(locale,currency,language){
@@ -105,9 +106,9 @@
       const data=await rpc("get_public_invoice_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
-      $("#publicModeLabel").textContent="INVOICE";
-      $("#publicIntro").textContent="Review your invoice details below.";
-      $("#invoiceViewTitle").textContent="Invoice #"+(data?.invoice_number||"");
+      $("#publicModeLabel").textContent=tt("INVOICE");
+      $("#publicIntro").textContent=tt("Review your invoice details below.");
+      $("#invoiceViewTitle").textContent=tt("Invoice")+" #"+(data?.invoice_number||"");
       const meta=[
         data?.customer_name||"",
         data?.due_at ? "Due "+new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
@@ -161,9 +162,9 @@
             ? "Paid · "+((methodLabels[selected]||selected)||selected)
             : "Payment confirmed by the cleaning business.";
         }else if(selected){
-          choiceStatus.textContent="Selected: "+((methodLabels[selected]||selected)||selected)+". Tap Submit invoice to send this choice.";
+          choiceStatus.textContent=tt("Selected")+": "+((methodLabels[selected]||selected)||selected)+". "+tt("Tap Submit invoice to send this choice.");
         }else{
-          choiceStatus.textContent="Choose a payment method, then submit your choice.";
+          choiceStatus.textContent=tt("Choose a payment method, then submit your choice.");
         }
       }
 
@@ -180,15 +181,15 @@
         if(isPaid || !selected) return;
         submitInvoiceBtn.disabled=true;
         choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
-        if(choiceStatus) choiceStatus.textContent="Submitting your payment choice…";
+        if(choiceStatus) choiceStatus.textContent=tt("Submitting your payment choice…");
         try{
           const result=await rpc("select_invoice_payment_method",{
             p_token:token,
             p_method:selected
           });
           selected=String(result?.payment_method||selected).toLowerCase();
-          if(choiceStatus) choiceStatus.textContent="Submitted: "+(methodLabels[selected]||selected)+". The business will confirm payment after it is received.";
-          submitInvoiceBtn.textContent="Submitted ✓";
+          if(choiceStatus) choiceStatus.textContent=tt("Submitted")+": "+(methodLabels[selected]||selected)+". "+tt("The business will confirm payment after it is received.");
+          submitInvoiceBtn.textContent=tt("Submitted")+" ✓";
           submitInvoiceBtn.disabled=true;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
         }catch(err){
@@ -221,23 +222,23 @@
         const reason=String(invoiceDisputeReason?.value||"").trim();
         const submit=invoiceDisputeForm.querySelector('button[type="submit"]');
         if(reason.length<3){
-          invoiceDisputeStatus.textContent="Please explain what you would like reviewed.";
+          invoiceDisputeStatus.textContent=tt("Please explain what you would like reviewed.");
           return;
         }
         submit.disabled=true;
-        invoiceDisputeStatus.textContent="Sending dispute…";
+        invoiceDisputeStatus.textContent=tt("Sending dispute…");
         try{
           await rpc("submit_invoice_dispute",{p_token:token,p_reason:reason});
           invoiceDisputeForm.hidden=true;
           invoiceDisputeBtn.hidden=true;
-          invoiceDisputeStatus.textContent="Dispute sent. The cleaning business can now review your message.";
+          invoiceDisputeStatus.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
           invoiceDisputeStatus.textContent=err.message||"Could not send dispute.";
           submit.disabled=false;
         }
       });
     }catch(err){
-      $("#publicBusinessName").textContent="Invoice unavailable";
+      $("#publicBusinessName").textContent=tt("Invoice unavailable");
       $("#publicIntro").textContent=err.message||"This invoice link is invalid or expired.";
       if(invoiceView) invoiceView.hidden=true;
     }
@@ -255,10 +256,10 @@
       const data=await rpc("get_public_quote_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
       $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
-      $("#publicModeLabel").textContent="QUOTE";
-      $("#publicIntro").textContent="Review the details below and choose Accept or Decline.";
+      $("#publicModeLabel").textContent=tt("QUOTE");
+      $("#publicIntro").textContent=tt("Review the details below and choose Accept or Decline.");
 
-      $("#quoteReviewTitle").textContent="Quote for "+(data?.customer_name||"your cleaning");
+      $("#quoteReviewTitle").textContent=tt("Quote for")+" "+(data?.customer_name||tt("your cleaning"));
       const meta=[
         data?.preferred_date ? formatDate(data.preferred_date) : "",
         data?.preferred_time ? formatTime(data.preferred_time) : "",
@@ -279,15 +280,15 @@
       if(status==="accepted"){
         if(actions) actions.hidden=true;
         if(submitQuoteButton) submitQuoteButton.hidden=true;
-        statusEl.textContent="Accepted. Your service is confirmed.";
+        statusEl.textContent=tt("Accepted. Your service is confirmed.");
       }else if(status==="declined"){
         if(actions) actions.hidden=true;
         if(submitQuoteButton) submitQuoteButton.hidden=true;
-        statusEl.textContent="This quote was declined.";
+        statusEl.textContent=tt("This quote was declined.");
       }else if(status!=="sent"){
         if(actions) actions.hidden=true;
         if(submitQuoteButton) submitQuoteButton.hidden=true;
-        statusEl.textContent="This quote is not currently awaiting a response.";
+        statusEl.textContent=tt("This quote is not currently awaiting a response.");
       }
 
       const submitQuoteBtn=$("#submitQuoteBtn");
@@ -370,24 +371,24 @@
         const reason=String(quoteDisputeReason?.value||"").trim();
         const submit=quoteDisputeForm.querySelector('button[type="submit"]');
         if(reason.length<3){
-          statusEl.textContent="Please explain what you would like reviewed.";
+          statusEl.textContent=tt("Please explain what you would like reviewed.");
           return;
         }
         submit.disabled=true;
-        statusEl.textContent="Sending dispute…";
+        statusEl.textContent=tt("Sending dispute…");
         try{
           await rpc("submit_quote_dispute",{p_token:token,p_reason:reason});
           quoteDisputeForm.hidden=true;
           if(actions) actions.hidden=true;
           if(submitQuoteBtn) submitQuoteBtn.hidden=true;
-          statusEl.textContent="Dispute sent. The cleaning business can now review your message.";
+          statusEl.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
           statusEl.textContent=err.message||"Could not send dispute.";
           submit.disabled=false;
         }
       });
     }catch(err){
-      $("#publicBusinessName").textContent="Quote unavailable";
+      $("#publicBusinessName").textContent=tt("Quote unavailable");
       $("#publicIntro").textContent=err.message||"This quote link is invalid or expired.";
       if(review) review.hidden=true;
     }
@@ -495,11 +496,11 @@
         const serviceId=select?.value;
         const dateValue=form?.querySelector('[name="date"]')?.value;
         if(!serviceId || !dateValue){
-          slotsBox.innerHTML='<span class="muted-line">Choose a service and date first.</span>';
+          slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
           return;
         }
 
-        slotsBox.innerHTML='<span class="muted-line">Checking availability…</span>';
+        slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Checking availability…"))+'</span>';
         try{
           const rows=await rpc("get_public_available_slots",{
             p_slug:slug,
@@ -509,7 +510,7 @@
           });
           const slots=Array.isArray(rows)?rows:[];
           if(!slots.length){
-            slotsBox.innerHTML='<span class="muted-line">No openings on this date. Try another day.</span>';
+            slotsBox.innerHTML='<span class="muted-line">'+esc(tt("No openings on this date. Try another day."))+'</span>';
             return;
           }
           slotsBox.innerHTML=slots.map(row=>
@@ -559,12 +560,12 @@
           const preferred=fd.get("preferred_contact");
           const phone=String(fd.get("phone")||"").trim();
           if((preferred==="text"||preferred==="whatsapp")&&!phone){
-            alert("Phone is required for Text or WhatsApp.");
+            alert(tt("Phone is required for Text or WhatsApp."));
             return;
           }
           const old=submit.textContent;
           submit.disabled=true;
-          submit.textContent="Sending…";
+          submit.textContent=tt("Sending…");
           try{
             if(mode==="quote"){
               await rpc("submit_public_quote_request",{
@@ -581,7 +582,7 @@
               });
             }else{
               const selectedSlot=String(fd.get("slot_start")||"").trim();
-              if(!selectedSlot) throw new Error("Choose one of the available times.");
+              if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
               await rpc("submit_public_booking_request",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
@@ -608,7 +609,7 @@
         });
       }
     }catch(err){
-      $("#publicBusinessName").textContent="Page unavailable";
+      $("#publicBusinessName").textContent=tt("Page unavailable");
       $("#publicIntro").textContent=err.message||"This page is not available.";
       $("#publicRequestForm").hidden=true;
     }
