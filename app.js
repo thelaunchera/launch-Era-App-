@@ -6312,13 +6312,15 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;i
 if("serviceWorker" in navigator){
   window.addEventListener("load",async ()=>{
     try{
-      const regs=await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r=>r.unregister()));
-    }catch{}
+      const registration=await navigator.serviceWorker.register(
+        "./service-worker.js?v="+encodeURIComponent(APP_VERSION),
+        {updateViaCache:"none"}
+      );
+      registration.update().catch(()=>{});
+    }catch(err){
+      console.warn("[TLE] service worker",err);
+    }
   });
-}
-if("caches" in window){
-  caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
 }
 
 window.__tleAppReady=true;
