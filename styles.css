@@ -764,8 +764,9 @@ button,a,input,select,textarea,[role="button"]{
 
 /* Free access ending banner */
 .trial-expiry-banner{
+  position:relative;
   margin:0 0 18px;
-  padding:15px 18px;
+  padding:15px 52px 15px 18px;
   border:1px solid #D8BE35;
   border-radius:16px;
   background:#FFF7C9;
@@ -773,6 +774,26 @@ button,a,input,select,textarea,[role="button"]{
   box-shadow:0 8px 22px rgba(25,25,25,.05);
 }
 .trial-expiry-banner>div{display:grid;gap:4px}
+.trial-expiry-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:32px;
+  height:32px;
+  border:0;
+  border-radius:50%;
+  background:rgba(25,25,25,.08);
+  color:#191919;
+  display:grid;
+  place-items:center;
+  padding:0;
+  font-size:22px;
+  line-height:1;
+  font-weight:700;
+  cursor:pointer;
+}
+.trial-expiry-close:active{transform:scale(.96)}
+
 .trial-expiry-kicker{
   font-size:10px;
   line-height:1.2;
@@ -793,7 +814,7 @@ button,a,input,select,textarea,[role="button"]{
 @media(max-width:620px){
   .trial-expiry-banner{
     margin-bottom:14px;
-    padding:13px 14px;
+    padding:13px 48px 13px 14px;
     border-radius:14px;
   }
   .trial-expiry-banner strong{font-size:15px}
