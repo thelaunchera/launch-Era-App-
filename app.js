@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-44";
+const APP_VERSION = "20260927-unified-45";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1170,7 +1170,7 @@ function syncAuthWelcomeCopy(){
     trial:langPick("30 days free","30 días gratis","30 dias grátis","30 jours gratuits"),
     noCard:langPick("No card needed","Sin tarjeta","Sem cartão","Sans carte"),
     after:langPick("Then $5.99/month","Después $5.99/mes","Depois US$ 5,99/mês","Puis 5,99 $/mois"),
-    start:langPick("Start 30 days free","Empezar 30 días gratis","Começar 30 dias grátis","Commencer 30 jours gratuits"),
+    start:langPick("Get 30 days free","Obtén 30 días gratis","Ganhe 30 dias grátis","Obtenez 30 jours gratuits"),
     signin:langPick("Sign in","Iniciar sesión","Entrar","Se connecter"),
     existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Já tem uma conta?","Vous avez déjà un compte ?"),
     note:langPick(
@@ -1200,6 +1200,7 @@ function showAuthWelcome(){
   authShell.hidden=false;
   appShell.hidden=true;
   authPanel.hidden=true;
+  authShell?.classList.remove("auth-form-open");
   businessSetup.hidden=true;
   if(authWelcome){
     authWelcome.hidden=false;
@@ -1220,31 +1221,37 @@ function openAuthFromWelcome(mode){
   }
   businessSetup.hidden=true;
   setAuthStatus("");
+  authPanel.hidden=false;
+  setAuthMode(mode);
+  authShell?.classList.add("auth-form-open");
+  authPanel.classList.remove("is-entering");
+  void authPanel.offsetWidth;
+  authPanel.classList.add("is-entering");
+  setTimeout(()=>authPanel.classList.remove("is-entering"),320);
 
-  if(authWelcome){
-    authWelcome.classList.add("is-leaving");
-    setTimeout(()=>{
-      authWelcome.hidden=true;
-      authWelcome.classList.remove("is-leaving");
-      authPanel.hidden=false;
-      setAuthMode(mode);
-      authPanel.classList.remove("is-entering");
-      void authPanel.offsetWidth;
-      authPanel.classList.add("is-entering");
-      setTimeout(()=>authPanel.classList.remove("is-entering"),320);
-      requestAnimationFrame(()=>{
-        try{email?.scrollIntoView({block:"center",behavior:"smooth"});}catch{}
-        setTimeout(()=>email?.focus(),120);
+  requestAnimationFrame(()=>{
+    try{
+      authPanel.scrollIntoView({
+        block:"start",
+        behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"
       });
-    },170);
-  }else{
-    authPanel.hidden=false;
-    setAuthMode(mode);
-  }
+    }catch{}
+    setTimeout(()=>email?.focus({preventScroll:true}),420);
+  });
 }
 $("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
 $("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
-$("#authBackWelcome")?.addEventListener("click",showAuthWelcome);
+$("#authBackWelcome")?.addEventListener("click",()=>{
+  authPanel.hidden=true;
+  authShell?.classList.remove("auth-form-open");
+  setAuthStatus("");
+  try{
+    authWelcome?.scrollIntoView({
+      block:"start",
+      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"
+    });
+  }catch{}
+});
 window.addEventListener("tle:languagechange",syncAuthWelcomeCopy);
 setTimeout(syncAuthWelcomeCopy,0);
 
