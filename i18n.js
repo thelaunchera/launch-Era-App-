@@ -1,6 +1,10 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "The first-time tips explain each section in a few words. Restart them anytime without changing your business data.":"Los tips de primera vez explican cada sección en pocas palabras. Puedes reiniciarlos cuando quieras sin cambiar los datos de tu negocio.",
+    "Restart tour":"Reiniciar recorrido",
+    "Need the walkthrough again?":"¿Necesitas ver la guía otra vez?",
+    "GUIDED TOUR":"RECORRIDO GUIADO",
     "Enter a valid email.":"Escribe un correo válido.",
     "Enter your email first.":"Primero escribe tu correo.",
     "Enter the 6-digit code.":"Escribe el código de 6 dígitos.",
