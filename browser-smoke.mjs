@@ -74,7 +74,7 @@ try{
       startText:document.querySelector("#authWelcomeStart")?.textContent.trim(),
       signInText:document.querySelector("#authWelcomeSignIn")?.textContent.trim()
     }));
-    if(!welcomeState.welcomeVisible||!welcomeState.panelHidden||welcomeState.startText!=="Start 30 days free"){
+    if(!welcomeState.welcomeVisible||!welcomeState.panelHidden||welcomeState.startText!=="Get 30 days free"){
       throw new Error(profile.name+": welcome-first auth screen failed: "+JSON.stringify(welcomeState));
     }
 
