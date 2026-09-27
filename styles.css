@@ -1390,3 +1390,30 @@ body.platform-owner-no-billing .trial-card{
     text-align:left;
   }
 }
+
+/* Context-aware greeting card colors */
+.hero-card{
+  transition:background-color .55s ease,border-color .55s ease,box-shadow .55s ease,transform .35s ease;
+}
+.hero-card.message-morning{background:#FFF0B7}
+.hero-card.message-afternoon{background:var(--blue)}
+.hero-card.message-jobs{background:#F8E6A0}
+.hero-card.message-hydrate{background:#DDEFFF}
+.hero-card.message-booking{background:#F6F1E8}
+.hero-card.message-calm{background:#F8F5EE}
+.hero-card.message-night{background:#E7E5FF}
+.hero-card.message-rain{
+  background:#D8E8FF;
+  border-color:#B7D0F4;
+  box-shadow:0 12px 36px rgba(63,96,143,.10);
+}
+.hero-card.message-rain .hero-moment-icon{
+  animation:tleRainNudge 2.4s ease-in-out infinite;
+}
+@keyframes tleRainNudge{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(5px)}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-card{transition:none}
+}
