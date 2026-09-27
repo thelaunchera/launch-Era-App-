@@ -1,6 +1,12 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Client view":"Vista cliente",
+    "Booking":"Reservas",
+    "Add Instagram, Facebook and your review link in Business Profile.":"Añade Instagram, Facebook y tu enlace de reseñas en el perfil del negocio.",
+    "Open reviews":"Abrir reseñas",
+    "Add link":"Añadir link",
+    "Reviews":"Reseñas",
     "These links appear on your private Dashboard for one-tap access. They do not post automatically.":"Estos enlaces aparecen en tu Dashboard privado para acceso rápido. No publican automáticamente.",
     "Add Instagram and Facebook in Business Profile.":"Añade Instagram y Facebook en el perfil del negocio.",
     "Keep your client-facing links close while you run the day.":"Ten tus enlaces para clientes a mano mientras manejas el día.",
