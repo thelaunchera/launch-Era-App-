@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-sidebar-tap-outside-1";
+const APP_VERSION = "20260927-human-filter-quarter-colors-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -733,12 +733,33 @@ function showSetup(){
   authPanel.hidden = true;
   businessSetup.hidden = false;
 }
+function applyQuarterHourCardColors(){
+  const now=new Date();
+  const quarter=Math.floor(now.getMinutes()/15)%4;
+  const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
+  [$("#todayHeroCard"),$(".trial-card")].filter(Boolean).forEach(el=>{
+    el.classList.remove(...classes);
+    el.classList.add("quarter-color-"+quarter);
+    el.dataset.colorQuarter=String(quarter);
+  });
+}
+
+function scheduleQuarterHourCardColors(){
+  applyQuarterHourCardColors();
+  if(window.__tleQuarterColorTimer) clearTimeout(window.__tleQuarterColorTimer);
+  const now=new Date();
+  const minutesToBoundary=15-(now.getMinutes()%15);
+  const ms=(minutesToBoundary*60*1000)-(now.getSeconds()*1000)-now.getMilliseconds()+120;
+  window.__tleQuarterColorTimer=setTimeout(scheduleQuarterHourCardColors,Math.max(1000,ms));
+}
+
 function showApp(){
   setShellState("app");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
+  scheduleQuarterHourCardColors();
 
   // Safari/iOS may restore the previous page scroll position before the hidden
   // app shell becomes visible. Force the authenticated dashboard to start at
@@ -3298,7 +3319,7 @@ async function loadPlatformAdmin(){
   if(internalActivityError) console.warn("[TLE] internal platform activity",internalActivityError);
   state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{}),internalActivity:internalActivityData||{}};
   const m=data?.metrics||{};
-  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
+  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d],["#platformFilteredTraffic",m.filtered_suspected_30d]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
 
   const table=$("#platformCustomersTable");
@@ -3410,6 +3431,41 @@ async function loadPlatformAdmin(){
           </div>
         </div>`;
     }).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+  }
+
+  const suspectedTraffic=$("#platformSuspectedTraffic");
+  if(suspectedTraffic){
+    const rows=activityData?.suspected_visits||[];
+    const groups=[];
+    const byKey=new Map();
+
+    rows.forEach(v=>{
+      const location=[v.city,v.state_code||v.state,v.country].filter(Boolean).join(", ")||"Unknown";
+      const reason=v.reason||"Suspicious traffic pattern";
+      const key=reason+"|"+location;
+      if(!byKey.has(key)){
+        const group={reason,location,count:0,visitors:new Set(),latest:v.created_at,pages:new Set()};
+        byKey.set(key,group);
+        groups.push(group);
+      }
+      const group=byKey.get(key);
+      group.count+=1;
+      if(v.visitor_id) group.visitors.add(v.visitor_id);
+      if(v.page) group.pages.add(v.page);
+      if(new Date(v.created_at)>new Date(group.latest)) group.latest=v.created_at;
+    });
+
+    suspectedTraffic.innerHTML=groups.length?groups.slice(0,12).map(g=>`
+      <div class="visit-row activity-row suspected-traffic-row">
+        <span>
+          <strong>${escapeHtml(g.reason)}</strong>
+          <small>${escapeHtml(g.location)} · ${g.count} hit${g.count===1?"":"s"} · ${g.visitors.size} visitor ID${g.visitors.size===1?"":"s"}</small>
+        </span>
+        <span class="activity-row-actions">
+          <span class="status neutral">Filtered</span>
+          <time>${formatDateTime(g.latest)}</time>
+        </span>
+      </div>`).join(""):`<div class="empty-inline"><strong>No suspicious traffic detected.</strong><span>Nothing is currently being filtered from visitor metrics.</span></div>`;
   }
 
   const internalVisits=$("#platformInternalVisits");
