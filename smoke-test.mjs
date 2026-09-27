@@ -170,6 +170,15 @@ if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","work
 if(!publicJs.includes('functions/v1/track-app-visit')){
   throw new Error("Analytics regression: public pages must use hardened edge tracking");
 }
+if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries"]')){
+  throw new Error("Realtime regression: operational table subscriptions changed unexpectedly");
+}
+if(app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","team_messages","job_time_entries"]')){
+  throw new Error("Realtime regression: team_messages must not use a business_id Postgres Changes filter");
+}
+if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") || !app.includes("TIMED_OUT")){
+  throw new Error("Realtime regression: polling fallback is missing");
+}
 console.log("REGRESSION_GUARDS_OK");
 
 console.log("LOGIN_SMOKE_OK");
