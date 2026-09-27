@@ -10,14 +10,12 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#FAF8F3}
 body{display:block}
 .demo-viewport{position:relative;width:100%;height:100%;overflow:hidden;background:#FAF8F3}
 .demo-stage{position:absolute;left:0;top:0;width:1365px;height:900px;transform-origin:top left}
-.demo-note{position:absolute;right:22px;bottom:18px;z-index:50;background:#191919;color:#fff;border-radius:999px;padding:8px 12px;font:800 11px/1 Arial,sans-serif;letter-spacing:.06em}
 .demo-stage .sidebar{height:900px}
 .demo-stage .main{height:900px;overflow:hidden}
-.demo-stage .trial-card{margin-top:18px}
+.demo-stage .trial-card{margin-top:18px;padding:13px}
 .demo-stage .nav-list{gap:3px}
 .demo-stage .nav-item{padding:8px 12px}
 .demo-stage .nav-label{margin:12px 10px 4px}
-.demo-stage .trial-card{padding:13px}
 .demo-stage .topbar{position:static}
 .demo-stage .timeline-item small{color:#706D66}
 .demo-stage .sample-request{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px}
@@ -35,68 +33,68 @@ body{display:block}
 <div class="app-shell">
 <aside class="sidebar">
   <div class="brand-row"><div class="brand-mark">TLE</div><div><div class="brand-name">The Launch Era</div><div class="brand-sub">Cleaning App</div></div></div>
-  <button class="workspace-chip" type="button"><span class="workspace-avatar">DC</span><span><strong>Demo Cleaning Co.</strong><small>Sample workspace</small></span></button>
+  <button class="workspace-chip" type="button"><span class="workspace-avatar">DC</span><span><strong>Demo Cleaning Co.</strong><small data-i18n="workspace">Demo workspace</small></span></button>
   <nav class="nav-list">
-    <button class="nav-item active" data-demo-nav="today">Today <span>⌂</span></button>
-    <button class="nav-item" data-demo-nav="booking">Booking Center <span>↗</span></button>
-    <button class="nav-item">Leads <span>◎</span></button>
-    <button class="nav-item">Clients <span>◌</span></button>
-    <button class="nav-item">Calendar + Jobs <span>□</span></button>
-    <button class="nav-item">Quotes <span>◫</span></button>
-    <button class="nav-item">Invoices <span>$</span></button>
-    <div class="nav-label">Operations</div>
-    <button class="nav-item">Today's Route <span>⌁</span></button>
-    <button class="nav-item">Mileage <span>mi</span></button>
-    <button class="nav-item">Time Tracking <span>◷</span></button>
-    <button class="nav-item">Supplies <span>▣</span></button>
-    <button class="nav-item">Owner Reports <span>↗</span></button>
-    <div class="nav-label">Business</div>
-    <button class="nav-item">Services + Add-ons <span>＋</span></button>
-    <button class="nav-item">Team <span>◉</span></button>
-    <button class="nav-item">Settings <span>⚙</span></button>
+    <button class="nav-item active" data-demo-nav="today"><span data-i18n="today">Today</span> <span>⌂</span></button>
+    <button class="nav-item" data-demo-nav="booking"><span data-i18n="bookingCenter">Booking Center</span> <span>↗</span></button>
+    <button class="nav-item"><span data-i18n="leads">Leads</span> <span>◎</span></button>
+    <button class="nav-item"><span data-i18n="clients">Clients</span> <span>◌</span></button>
+    <button class="nav-item"><span data-i18n="calendarJobs">Calendar + Jobs</span> <span>□</span></button>
+    <button class="nav-item"><span data-i18n="quotes">Quotes</span> <span>◫</span></button>
+    <button class="nav-item"><span data-i18n="invoices">Invoices</span> <span>$</span></button>
+    <div class="nav-label" data-i18n="operations">Operations</div>
+    <button class="nav-item"><span data-i18n="todayRoute">Today's Route</span> <span>⌁</span></button>
+    <button class="nav-item"><span data-i18n="mileage">Mileage</span> <span>mi</span></button>
+    <button class="nav-item"><span data-i18n="timeTracking">Time Tracking</span> <span>◷</span></button>
+    <button class="nav-item"><span data-i18n="supplies">Supplies</span> <span>▣</span></button>
+    <button class="nav-item"><span data-i18n="reports">Owner Reports</span> <span>↗</span></button>
+    <div class="nav-label" data-i18n="business">Business</div>
+    <button class="nav-item"><span data-i18n="services">Services + Add-ons</span> <span>＋</span></button>
+    <button class="nav-item"><span data-i18n="team">Team</span> <span>◉</span></button>
+    <button class="nav-item"><span data-i18n="settings">Settings</span> <span>⚙</span></button>
   </nav>
   <div class="trial-card">
-    <span class="pill trial-days-pill">30 days left</span>
-    <strong>$5.99/month after your trial</strong>
-    <p>Full access during the trial. No card required to start.</p>
+    <span class="pill trial-days-pill" data-i18n="daysLeft">30 days left</span>
+    <strong data-i18n="afterTrial">$5.99/month after your trial</strong>
+    <p data-i18n="trialCopy">Full access during the trial. No card required to start.</p>
   </div>
 </aside>
 <main class="main">
 <header class="topbar">
   <div><p class="eyebrow">THE LAUNCH ERA CLEANING APP</p><h1 id="demoTitle">Today</h1></div>
-  <div class="top-actions"><button class="ghost-btn">EN / ES</button><button class="primary-btn">+ Add New</button></div>
+  <div class="top-actions"><button class="ghost-btn">EN / ES</button><button class="primary-btn" data-i18n="addNew">+ Add New</button></div>
 </header>
 
 <section class="view active" data-demo-view="today">
   <div class="hero-card">
-    <div><span class="pill yellow">Today</span><h2>Good afternoon 👋</h2><p>Here’s what needs your attention today.</p></div>
-    <button class="dark-btn">Open today’s route →</button>
+    <div><span class="pill yellow" data-i18n="today">Today</span><h2 data-i18n="greeting">Good afternoon 👋</h2><p data-i18n="needsAttention">Here’s what needs your attention today.</p></div>
+    <button class="dark-btn" data-i18n="openRoute">Open today’s route →</button>
   </div>
   <div class="metric-grid">
-    <article class="metric-card"><span>Today’s jobs</span><strong>4</strong><small>Scheduled today</small></article>
-    <article class="metric-card"><span>Active clients</span><strong>28</strong><small>Current client records</small></article>
-    <article class="metric-card"><span>Open quotes</span><strong>3</strong><small>Requested, draft or sent</small></article>
-    <article class="metric-card"><span>Outstanding invoices</span><strong>$860</strong><small>Still to collect</small></article>
-    <article class="metric-card"><span>Booking requests</span><strong>2</strong><small>Waiting for review</small></article>
+    <article class="metric-card"><span data-i18n="todaysJobs">Today’s jobs</span><strong>4</strong><small data-i18n="scheduledToday">Scheduled today</small></article>
+    <article class="metric-card"><span data-i18n="activeClients">Active clients</span><strong>28</strong><small data-i18n="clientRecords">Current client records</small></article>
+    <article class="metric-card"><span data-i18n="openQuotes">Open quotes</span><strong>3</strong><small data-i18n="quoteStates">Requested, draft or sent</small></article>
+    <article class="metric-card"><span data-i18n="outstandingInvoices">Outstanding invoices</span><strong>$860</strong><small data-i18n="stillCollect">Still to collect</small></article>
+    <article class="metric-card"><span data-i18n="bookingRequests">Booking requests</span><strong>2</strong><small data-i18n="waitingReview">Waiting for review</small></article>
   </div>
   <div class="dashboard-grid">
     <article class="panel">
-      <div class="panel-head"><div><p class="eyebrow">TODAY</p><h3>Schedule + route</h3></div><button class="text-btn">Full calendar →</button></div>
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="todayUpper">TODAY</p><h3 data-i18n="scheduleRoute">Schedule + route</h3></div><button class="text-btn" data-i18n="fullCalendar">Full calendar →</button></div>
       <div class="timeline">
-        <div class="timeline-item"><time>10:30</time><div><strong>Standard Cleaning</strong><small>Palm Beach · Maria S.</small></div><span class="pill">Confirmed</span></div>
-        <div class="timeline-item"><time>1:00</time><div><strong>Deep Cleaning</strong><small>Boynton Beach · Rachel T.</small></div><span class="pill">Confirmed</span></div>
-        <div class="timeline-item"><time>3:30</time><div><strong>Move-out Cleaning</strong><small>Delray Beach · Chris J.</small></div><span class="pill yellow">Pending</span></div>
+        <div class="timeline-item"><time>10:30</time><div><strong data-i18n="standardCleaning">Standard Cleaning</strong><small>Palm Beach · Maria S.</small></div><span class="pill" data-i18n="confirmed">Confirmed</span></div>
+        <div class="timeline-item"><time>1:00</time><div><strong data-i18n="deepCleaning">Deep Cleaning</strong><small>Boynton Beach · Rachel T.</small></div><span class="pill" data-i18n="confirmed">Confirmed</span></div>
+        <div class="timeline-item"><time>3:30</time><div><strong data-i18n="moveOut">Move-out Cleaning</strong><small>Delray Beach · Chris J.</small></div><span class="pill yellow" data-i18n="pending">Pending</span></div>
       </div>
     </article>
     <article class="panel">
-      <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Move work forward</h3></div></div>
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="quickActions">QUICK ACTIONS</p><h3 data-i18n="moveForward">Move work forward</h3></div></div>
       <div class="quick-grid">
-        <button class="quick-card">＋<span>Add client</span></button>
-        <button class="quick-card">◫<span>Create quote</span></button>
-        <button class="quick-card">↗<span>Booking link</span></button>
-        <button class="quick-card">$<span>Create invoice</span></button>
-        <button class="quick-card">mi<span>Log mileage</span></button>
-        <button class="quick-card">◷<span>Track time</span></button>
+        <button class="quick-card">＋<span data-i18n="addClient">Add client</span></button>
+        <button class="quick-card">◫<span data-i18n="createQuote">Create quote</span></button>
+        <button class="quick-card">↗<span data-i18n="bookingLink">Booking link</span></button>
+        <button class="quick-card">$<span data-i18n="createInvoice">Create invoice</span></button>
+        <button class="quick-card">mi<span data-i18n="logMileage">Log mileage</span></button>
+        <button class="quick-card">◷<span data-i18n="trackTime">Track time</span></button>
       </div>
     </article>
   </div>
@@ -104,49 +102,55 @@ body{display:block}
 
 <section class="view" data-demo-view="booking">
   <div class="section-intro">
-    <div><p class="eyebrow">BOOKING CENTER</p><h2>Your public front door.</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
-    <button class="primary-btn">Copy booking link</button>
+    <div><p class="eyebrow" data-i18n="bookingUpper">BOOKING CENTER</p><h2 data-i18n="frontDoor">Your public front door.</h2><p data-i18n="bookingIntro">Control what clients can book, when they can book it, and where each request goes next.</p></div>
+    <button class="primary-btn" data-i18n="copyBooking">Copy booking link</button>
   </div>
   <div class="booking-grid">
     <article class="panel">
-      <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share anywhere</h3></div></div>
-      <label class="field-label">Booking link</label>
-      <div class="link-box"><a href="#">yourbusiness.com/book</a><button>Open</button><button>Copy</button></div>
-      <label class="field-label">Quote request link</label>
-      <div class="link-box"><a href="#">yourbusiness.com/quote</a><button>Open</button><button>Copy</button></div>
-      <div style="margin-top:24px"><p class="eyebrow">NEW REQUESTS</p>
-        <div class="sample-request"><div><strong>Standard Cleaning</strong><small>Saturday · 10:30 AM · Palm Beach</small></div><span class="pill yellow">Review</span></div>
-        <div class="sample-request"><div><strong>Move-out Cleaning</strong><small>Monday · 1:00 PM · Boynton Beach</small></div><span class="pill">New</span></div>
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="publicLinks">PUBLIC LINKS</p><h3 data-i18n="shareAnywhere">Share anywhere</h3></div></div>
+      <label class="field-label" data-i18n="bookingLink">Booking link</label>
+      <div class="link-box"><a href="#">yourbusiness.com/book</a><button data-i18n="open">Open</button><button data-i18n="copy">Copy</button></div>
+      <label class="field-label" data-i18n="quoteRequestLink">Quote request link</label>
+      <div class="link-box"><a href="#">yourbusiness.com/quote</a><button data-i18n="open">Open</button><button data-i18n="copy">Copy</button></div>
+      <div style="margin-top:24px"><p class="eyebrow" data-i18n="newRequests">NEW REQUESTS</p>
+        <div class="sample-request"><div><strong data-i18n="standardCleaning">Standard Cleaning</strong><small data-i18n="satSample">Saturday · 10:30 AM · Palm Beach</small></div><span class="pill yellow" data-i18n="review">Review</span></div>
+        <div class="sample-request"><div><strong data-i18n="moveOut">Move-out Cleaning</strong><small data-i18n="monSample">Monday · 1:00 PM · Boynton Beach</small></div><span class="pill" data-i18n="new">New</span></div>
       </div>
     </article>
     <article class="panel">
-      <div class="panel-head"><div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div><button class="text-btn">Save</button></div>
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="availability">AVAILABILITY</p><h3 data-i18n="realOpenings">Only show real openings</h3></div><button class="text-btn" data-i18n="save">Save</button></div>
       <div class="availability-settings">
-        <label>Travel buffer<select><option>30 min</option></select></label>
-        <label>Minimum booking notice<select><option>24 hours</option></select></label>
+        <label><span data-i18n="travelBuffer">Travel buffer</span><select><option>30 min</option></select></label>
+        <label><span data-i18n="minimumNotice">Minimum booking notice</span><select><option data-i18n="hours24">24 hours</option></select></label>
       </div>
       <div class="availability-week">
-        <div class="sample-day"><strong>Monday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
-        <div class="sample-day"><strong>Tuesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
-        <div class="sample-day"><strong>Wednesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
-        <div class="sample-day"><strong>Thursday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
-        <div class="sample-day"><strong>Friday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong data-i18n="monday">Monday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong data-i18n="tuesday">Tuesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong data-i18n="wednesday">Wednesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong data-i18n="thursday">Thursday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong data-i18n="friday">Friday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
       </div>
-      <p class="helper">Service duration, travel buffer, scheduled jobs and pending requests are checked before a time is shown.</p>
+      <p class="helper" data-i18n="availabilityHelp">Service duration, travel buffer, scheduled jobs and pending requests are checked before a time is shown.</p>
     </article>
   </div>
 </section>
 </main>
 </div>
 </div>
-<div class="demo-note">ACTUAL APP UI · SAMPLE DATA</div>
 </div>
 <script>
+const I18N={
+en:{workspace:"Demo workspace",today:"Today",bookingCenter:"Booking Center",leads:"Leads",clients:"Clients",calendarJobs:"Calendar + Jobs",quotes:"Quotes",invoices:"Invoices",operations:"Operations",todayRoute:"Today's Route",mileage:"Mileage",timeTracking:"Time Tracking",supplies:"Supplies",reports:"Owner Reports",business:"Business",services:"Services + Add-ons",team:"Team",settings:"Settings",daysLeft:"30 days left",afterTrial:"$5.99/month after your trial",trialCopy:"Full access during the trial. No card required to start.",addNew:"+ Add New",greeting:"Good afternoon 👋",needsAttention:"Here’s what needs your attention today.",openRoute:"Open today’s route →",todaysJobs:"Today’s jobs",scheduledToday:"Scheduled today",activeClients:"Active clients",clientRecords:"Current client records",openQuotes:"Open quotes",quoteStates:"Requested, draft or sent",outstandingInvoices:"Outstanding invoices",stillCollect:"Still to collect",bookingRequests:"Booking requests",waitingReview:"Waiting for review",todayUpper:"TODAY",scheduleRoute:"Schedule + route",fullCalendar:"Full calendar →",standardCleaning:"Standard Cleaning",deepCleaning:"Deep Cleaning",moveOut:"Move-out Cleaning",confirmed:"Confirmed",pending:"Pending",quickActions:"QUICK ACTIONS",moveForward:"Move work forward",addClient:"Add client",createQuote:"Create quote",bookingLink:"Booking link",createInvoice:"Create invoice",logMileage:"Log mileage",trackTime:"Track time",bookingUpper:"BOOKING CENTER",frontDoor:"Your public front door.",bookingIntro:"Control what clients can book, when they can book it, and where each request goes next.",copyBooking:"Copy booking link",publicLinks:"PUBLIC LINKS",shareAnywhere:"Share anywhere",open:"Open",copy:"Copy",quoteRequestLink:"Quote request link",newRequests:"NEW REQUESTS",satSample:"Saturday · 10:30 AM · Palm Beach",monSample:"Monday · 1:00 PM · Boynton Beach",review:"Review",new:"New",availability:"AVAILABILITY",realOpenings:"Only show real openings",save:"Save",travelBuffer:"Travel buffer",minimumNotice:"Minimum booking notice",hours24:"24 hours",monday:"Monday",tuesday:"Tuesday",wednesday:"Wednesday",thursday:"Thursday",friday:"Friday",availabilityHelp:"Service duration, travel buffer, scheduled jobs and pending requests are checked before a time is shown."},
+es:{workspace:"Espacio de demostración",today:"Hoy",bookingCenter:"Centro de reservas",leads:"Prospectos",clients:"Clientes",calendarJobs:"Calendario + Trabajos",quotes:"Cotizaciones",invoices:"Facturas",operations:"Operaciones",todayRoute:"Ruta de hoy",mileage:"Millas",timeTracking:"Control de tiempo",supplies:"Suministros",reports:"Reportes del dueño",business:"Negocio",services:"Servicios + Extras",team:"Equipo",settings:"Configuración",daysLeft:"30 días restantes",afterTrial:"$5.99/mes después de la prueba",trialCopy:"Acceso completo durante la prueba. No necesitas tarjeta para empezar.",addNew:"+ Añadir",greeting:"Buenas tardes 👋",needsAttention:"Esto es lo que necesita tu atención hoy.",openRoute:"Abrir ruta de hoy →",todaysJobs:"Trabajos de hoy",scheduledToday:"Programados hoy",activeClients:"Clientes activos",clientRecords:"Registros actuales",openQuotes:"Cotizaciones abiertas",quoteStates:"Solicitadas, borrador o enviadas",outstandingInvoices:"Facturas pendientes",stillCollect:"Pendiente por cobrar",bookingRequests:"Solicitudes de reserva",waitingReview:"Esperando revisión",todayUpper:"HOY",scheduleRoute:"Agenda + ruta",fullCalendar:"Ver calendario →",standardCleaning:"Limpieza estándar",deepCleaning:"Limpieza profunda",moveOut:"Limpieza de mudanza",confirmed:"Confirmado",pending:"Pendiente",quickActions:"ACCIONES RÁPIDAS",moveForward:"Haz avanzar el trabajo",addClient:"Añadir cliente",createQuote:"Crear cotización",bookingLink:"Link de reserva",createInvoice:"Crear factura",logMileage:"Registrar millas",trackTime:"Registrar tiempo",bookingUpper:"CENTRO DE RESERVAS",frontDoor:"Tu puerta de entrada online.",bookingIntro:"Controla qué pueden reservar tus clientes, cuándo pueden hacerlo y hacia dónde va cada solicitud.",copyBooking:"Copiar link de reserva",publicLinks:"LINKS PÚBLICOS",shareAnywhere:"Comparte donde quieras",open:"Abrir",copy:"Copiar",quoteRequestLink:"Link para pedir cotización",newRequests:"NUEVAS SOLICITUDES",satSample:"Sábado · 10:30 AM · Palm Beach",monSample:"Lunes · 1:00 PM · Boynton Beach",review:"Revisar",new:"Nuevo",availability:"DISPONIBILIDAD",realOpenings:"Muestra solo horarios disponibles",save:"Guardar",travelBuffer:"Tiempo de traslado",minimumNotice:"Anticipación mínima",hours24:"24 horas",monday:"Lunes",tuesday:"Martes",wednesday:"Miércoles",thursday:"Jueves",friday:"Viernes",availabilityHelp:"La duración del servicio, el tiempo de traslado, los trabajos programados y las solicitudes pendientes se revisan antes de mostrar un horario."}
+};
 const params=new URLSearchParams(location.search);
 const view=params.get("view")==="booking"?"booking":"today";
+const lang=params.get("lang")==="es"?"es":"en";
+document.documentElement.lang=lang;
+document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(I18N[lang][k])el.textContent=I18N[lang][k]});
 document.querySelectorAll("[data-demo-view]").forEach(el=>el.classList.toggle("active",el.dataset.demoView===view));
 document.querySelectorAll("[data-demo-nav]").forEach(el=>el.classList.toggle("active",el.dataset.demoNav===view));
-document.getElementById("demoTitle").textContent=view==="booking"?"Booking Center":"Today";
+document.getElementById("demoTitle").textContent=view==="booking"?I18N[lang].bookingCenter:I18N[lang].today;
 function fit(){
  const stage=document.getElementById("demoStage");
  const scale=Math.min(innerWidth/1365,innerHeight/900);
