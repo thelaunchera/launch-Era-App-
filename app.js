@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-11";
+const APP_VERSION = "20260927-unified-12";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1390,8 +1390,14 @@ function readOwnerSessionBackup(){
   try{
     const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
     if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
+    const savedAt=Number(raw.saved_at||0);
+    if(!Number.isFinite(savedAt) || Date.now()-savedAt>OWNER_IDLE_MS){
+      clearOwnerSessionBackup();
+      return null;
+    }
     return raw;
   }catch{
+    clearOwnerSessionBackup();
     return null;
   }
 }
@@ -1406,11 +1412,15 @@ async function restoreOwnerSessionFromBackup(){
       access_token:backup.access_token,
       refresh_token:backup.refresh_token
     });
-    if(error || !data?.session) return null;
+    if(error || !data?.session){
+      clearOwnerSessionBackup();
+      return null;
+    }
     saveOwnerSessionBackup(data.session);
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     return data.session;
   }catch(err){
+    clearOwnerSessionBackup();
     console.warn("[TLE] session backup restore",err);
     return null;
   }
