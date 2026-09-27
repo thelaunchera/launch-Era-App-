@@ -113,15 +113,16 @@
     <header class="worker-header">
       <div class="brand-row">
         <div class="brand-mark">TLE</div>
-        <div><div class="brand-name" id="workerBusinessName">The Launch Era</div><div class="brand-sub">Worker Access</div></div>
+        <div><div class="brand-name" id="workerBusinessName">The Launch Era</div><div class="brand-sub" id="workerAccessLabel">Guest Employee Access</div></div>
       </div>
       <button class="ghost-btn" id="exitWorkerBtn" type="button">Exit</button>
     </header>
     <main class="worker-main">
       <div class="worker-hero">
+        <span class="pill yellow worker-guest-pill" id="workerGuestPill">GUEST EMPLOYEE ACCESS</span>
         <p class="eyebrow">MY WORK</p>
-        <h1 id="workerWelcome">Today</h1>
-        <p id="workerCopy">Only your assigned jobs appear here.</p>
+        <h1 id="workerWelcome">Welcome, guest 👋</h1>
+        <p id="workerCopy">This is your limited employee view. You only see the tools your admin shared with you.</p>
       </div>
       <div class="metric-grid compact worker-metrics">
         <article class="metric-card"><span>Assigned jobs</span><strong id="workerJobCount">0</strong></article>
@@ -132,11 +133,24 @@
         <div class="panel-head"><div><p class="eyebrow">TODAY + UPCOMING</p><h3>My assigned jobs</h3></div></div>
         <div id="workerJobsList" class="worker-jobs-list"></div>
       </section>
+      <section class="panel worker-panel worker-message-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">MESSAGES</p><h3>Message your admin</h3><small class="panel-note">Use this for job questions or quick updates.</small></div>
+          <span class="message-unread-badge" id="workerMessageUnread" hidden>0 new</span>
+        </div>
+        <div id="workerMessageThread" class="message-thread worker-message-thread">
+          <div class="empty-inline"><strong>No messages yet.</strong><span>Your conversation with the admin will appear here.</span></div>
+        </div>
+        <form id="workerMessageForm" class="message-compose">
+          <textarea id="workerMessageInput" maxlength="2000" rows="2" placeholder="Write a message to your admin…" required></textarea>
+          <button class="primary-btn" type="submit">Send</button>
+        </form>
+      </section>
       <section class="panel worker-panel">
         <div class="panel-head"><div><p class="eyebrow">LIMITED ACCESS</p><h3>What you can use</h3></div></div>
         <div class="worker-permissions">
-          <span>✓ Assigned jobs</span><span>✓ Route + address</span><span>✓ Job status</span><span>✓ Time tracking</span><span>✓ Mileage</span>
-          <small>You cannot see leads, quotes, invoices, pricing, reports, billing, settings or other clients.</small>
+          <span>✓ Assigned jobs</span><span>✓ Route + address</span><span>✓ Job status</span><span>✓ Time tracking</span><span>✓ Mileage</span><span>✓ Messages with admin</span>
+          <small>This is guest employee access only. You cannot see leads, quotes, invoices, pricing, reports, billing, settings or clients outside your assigned jobs.</small>
         </div>
       </section>
     </main>
@@ -680,6 +694,26 @@
           <button class="dark-btn" id="shareAccessCardBtn">Invite an Admin →</button>
         </div>
         <div class="client-grid" id="teamGrid"></div>
+        <article class="panel team-message-center" id="teamMessageCenter">
+          <div class="panel-head activity-panel-head">
+            <div>
+              <p class="eyebrow">MESSAGE CENTER</p>
+              <h3>Admin ↔ Employee</h3>
+              <small class="panel-note">Private messages stay inside this business workspace.</small>
+            </div>
+            <button class="activity-refresh-btn" type="button" id="refreshTeamMessagesBtn">Refresh</button>
+          </div>
+          <label class="message-worker-select">Employee
+            <select id="teamMessageWorkerSelect"></select>
+          </label>
+          <div id="teamMessageThread" class="message-thread">
+            <div class="empty-inline"><strong>Choose an employee.</strong><span>The conversation will appear here.</span></div>
+          </div>
+          <form id="teamMessageForm" class="message-compose">
+            <textarea id="teamMessageInput" maxlength="2000" rows="2" placeholder="Write a message…" required></textarea>
+            <button class="primary-btn" type="submit">Send</button>
+          </form>
+        </article>
       </section>
 
       <section class="view" data-page="settings" data-admin-only>
