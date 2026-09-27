@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-activity-controls-1";
+const APP_VERSION = "20260927-global-refresh-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4706,7 +4706,117 @@ async function copyText(text){
   try{await navigator.clipboard.writeText(text);showToast("Link copied");}
   catch{showToast("Copy unavailable here");}
 }
-$$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
+async function getLatestAppShellVersion(){
+  try{
+    const response=await fetch("./index.html?tle_check="+Date.now(),{
+      cache:"no-store",
+      credentials:"same-origin",
+      headers:{"Cache-Control":"no-cache"}
+    });
+    if(!response.ok) return null;
+    const markup=await response.text();
+    const appMatch=markup.match(/app\.js\?v=([^"'&<\s]+)/i);
+    const cssMatch=markup.match(/styles\.css\?v=([^"'&<\s]+)/i);
+    return {
+      app:appMatch?.[1]||null,
+      css:cssMatch?.[1]||null
+    };
+  }catch(err){
+    console.warn("[TLE] version check",err);
+    return null;
+  }
+}
+
+function currentCssVersion(){
+  try{
+    const href=document.querySelector('link[rel="stylesheet"][href*="styles.css"]')?.getAttribute("href")||"";
+    return new URL(href,window.location.href).searchParams.get("v")||"";
+  }catch{return "";}
+}
+
+async function hardRefreshInstalledApp(version){
+  try{
+    if("serviceWorker" in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+  }catch{}
+  try{
+    if("caches" in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+  }catch{}
+
+  const url=new URL(window.location.href);
+  url.searchParams.set("app",version||String(Date.now()));
+  url.searchParams.set("refresh",String(Date.now()));
+  window.location.replace(url.toString());
+}
+
+async function refreshInstalledApp(){
+  const button=$("#appRefreshBtn");
+  if(!button || button.disabled) return;
+
+  button.disabled=true;
+  button.classList.add("is-refreshing");
+  const label=button.querySelector(".top-label");
+  const previousLabel=label?.textContent||"Refresh";
+  if(label) label.textContent=appIsSpanish()?"Actualizando…":"Refreshing…";
+
+  try{
+    const latest=await getLatestAppShellVersion();
+    const shellChanged=!!(
+      latest && (
+        (latest.app && latest.app!==APP_VERSION) ||
+        (latest.css && latest.css!==currentCssVersion())
+      )
+    );
+
+    if(shellChanged){
+      showToast(appIsSpanish()?"Actualizando la app…":"Updating app…");
+      await hardRefreshInstalledApp(latest.app||latest.css);
+      return;
+    }
+
+    if(state.business?.id){
+      try{
+        const {data:companyProfile,error:companyProfileError}=await supabase
+          .from("businesses")
+          .select("name,email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at")
+          .eq("id",state.business.id)
+          .single();
+        if(companyProfileError) throw companyProfileError;
+        if(companyProfile) state.business={...state.business,...companyProfile};
+      }catch(err){
+        console.warn("[TLE] manual business refresh",err);
+      }
+
+      const [linkResult]=await Promise.all([
+        supabase.rpc("get_my_public_link_settings"),
+        loadCoreData(),
+        loadBusinessWeather(true)
+      ]);
+
+      if(!linkResult?.error) state.publicLinks=linkResult?.data||null;
+      renderTrialStatus();
+      renderTodaySummary(true);
+      renderBusinessPresence();
+      if(state.isPlatformAdmin) await loadPlatformAdmin();
+    }
+
+    showToast(appIsSpanish()?"Todo actualizado":"Everything is up to date");
+  }catch(err){
+    console.warn("[TLE] manual refresh",err);
+    showToast(appIsSpanish()?"No se pudo actualizar. Intenta otra vez.":"Could not refresh. Try again.");
+  }finally{
+    button.disabled=false;
+    button.classList.remove("is-refreshing");
+    if(label) label.textContent=previousLabel;
+  }
+}
+
+$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
 $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textContent.trim()));
 
 document.addEventListener("click",e=>{
@@ -4716,6 +4826,7 @@ document.addEventListener("click",e=>{
   if(link) window.open(link,"_blank","noopener");
 });
 
+$("#appRefreshBtn")?.addEventListener("click",refreshInstalledApp);
 $("#languageBtn").addEventListener("click",()=>{ window.TLE_I18N?.toggle(); });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
 
