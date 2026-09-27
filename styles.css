@@ -2250,3 +2250,23 @@ html,body{max-width:100%;overflow-x:hidden}
 @media (prefers-reduced-motion: reduce){
   .view[data-page="today"].view-enter > *{animation:none!important}
 }
+
+/* Dashboard tap targets */
+.metric-link{
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.metric-link:active{
+  transform:scale(.985);
+}
+.metric-link:focus-visible{
+  outline:3px solid rgba(25,25,25,.16);
+  outline-offset:3px;
+}
+@media(hover:hover){
+  .metric-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px rgba(25,25,25,.06);
+  }
+}
