@@ -4088,6 +4088,7 @@ async function openBusinessProfileForm(){
         <div class="choice-grid compact">
           <label class="check-field"><input type="checkbox" name="payment_method" value="cash" ${record.payment_methods?.includes("cash")?"checked":""}> Cash</label>
           <label class="check-field"><input type="checkbox" name="payment_method" value="check" ${record.payment_methods?.includes("check")?"checked":""}> Check</label>
+          ${String(record.country_code||"").toUpperCase()==="US"?`<label class="check-field"><input type="checkbox" name="payment_method" value="zelle" ${record.payment_methods?.includes("zelle")?"checked":""}> Zelle</label>`:""}
           <label class="check-field"><input type="checkbox" name="payment_method" value="other" ${record.payment_methods?.includes("other")?"checked":""}> Other</label>
         </div>
         <small>No bank details are stored in the app. “Other” is only a payment label/reference.</small>
