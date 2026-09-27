@@ -141,7 +141,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Platform Admin", help:"Help & FAQ"
+  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
 };
 
 
@@ -220,8 +220,8 @@ const ONBOARDING_COPY={
     es:{title:"Ayuda y preguntas",text:"Encuentra ayuda de configuración, instrucciones de acceso y respuestas comunes. Aquí puedes reiniciar este recorrido cuando quieras."}
   },
   "platform-admin":{
-    en:{title:"Platform Admin",text:"Internal Launch Era controls for app customers, subscriptions and product activity."},
-    es:{title:"Platform Admin",text:"Controles internos de The Launch Era para clientes de la app, suscripciones y actividad del producto."}
+    en:{title:"Owner View",text:"Private owner controls for app customers, subscriptions and real product activity."},
+    es:{title:"Owner View",text:"Vista privada para clientes de la app, suscripciones y actividad real del producto."}
   }
 };
 
@@ -4791,7 +4791,10 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"2 months Cleaning App with Booking Page":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}" ${x.trial_promotion==="booking_page_setup"?"disabled":""}>${x.trial_promotion==="booking_page_setup"?"2-month promo active":"Grant Booking Page 2-month promo"}</button></div>
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"2 months Cleaning App with Booking Page":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
+          ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 2-month promo</button>`
+          : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant Booking Page 2-month promo</button>`
+        }</div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
         <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
         <select data-platform-status="${x.business_id}">
@@ -6120,9 +6123,10 @@ document.addEventListener("click",async e=>{
 
   const bookingPagePromo=e.target.closest("[data-booking-page-promo]");
   if(bookingPagePromo){
+    const businessId=bookingPagePromo.dataset.bookingPagePromo;
+    if(!window.confirm("Grant this customer the 2-month Booking Page promo?")) return;
     setBusy(bookingPagePromo,true,"Applying…");
     try{
-      const businessId=bookingPagePromo.dataset.bookingPagePromo;
       const {error}=await supabase.rpc("platform_apply_booking_page_trial_promo",{p_business_id:businessId});
       if(error) throw error;
 
@@ -6135,6 +6139,24 @@ document.addEventListener("click",async e=>{
       showToast(err?.message||"Could not apply the Booking Page 2-month promo");
     }finally{
       setBusy(bookingPagePromo,false);
+    }
+    return;
+  }
+
+  const bookingPagePromoRevoke=e.target.closest("[data-booking-page-promo-revoke]");
+  if(bookingPagePromoRevoke){
+    const businessId=bookingPagePromoRevoke.dataset.bookingPagePromoRevoke;
+    if(!window.confirm("Revoke the 2-month promo and restore the standard 30-day trial?")) return;
+    setBusy(bookingPagePromoRevoke,true,"Revoking…");
+    try{
+      const {error}=await supabase.rpc("platform_revoke_booking_page_trial_promo",{p_business_id:businessId});
+      if(error) throw error;
+      await loadPlatformAdmin();
+      showToast("2-month promo revoked · standard 30-day trial restored");
+    }catch(err){
+      showToast(err?.message||"Could not revoke the 2-month promo");
+    }finally{
+      setBusy(bookingPagePromoRevoke,false);
     }
     return;
   }
