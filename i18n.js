@@ -833,6 +833,20 @@
     const menu=document.getElementById("tleLanguageMenu");
     if(!menu) return;
     const staticNames={es:"Español",en:"English",pt:"Português",fr:"Français"};
+    const menuCopy={
+      en:{kicker:"LANGUAGE",title:"Choose your language",more:"MORE LANGUAGES",close:"Close",button:"Language",aria:"Choose language"},
+      es:{kicker:"IDIOMA",title:"Elige tu idioma",more:"MÁS IDIOMAS",close:"Cerrar",button:"Idioma",aria:"Elegir idioma"},
+      pt:{kicker:"IDIOMA",title:"Escolha seu idioma",more:"MAIS IDIOMAS",close:"Fechar",button:"Idioma",aria:"Escolher idioma"},
+      fr:{kicker:"LANGUE",title:"Choisissez votre langue",more:"AUTRES LANGUES",close:"Fermer",button:"Langue",aria:"Choisir la langue"}
+    }[lang]||{kicker:"LANGUAGE",title:"Choose your language",more:"MORE LANGUAGES",close:"Close",button:"Language",aria:"Choose language"};
+    const headSmall=menu.querySelector(".language-menu-head small");
+    const headTitle=menu.querySelector(".language-menu-head strong");
+    const more=menu.querySelector(".language-more-label");
+    const close=menu.querySelector(".language-menu-close");
+    if(headSmall) headSmall.textContent=menuCopy.kicker;
+    if(headTitle) headTitle.textContent=menuCopy.title;
+    if(more) more.textContent=menuCopy.more;
+    if(close) close.setAttribute("aria-label",menuCopy.close);
     menu.querySelectorAll("[data-language-choice]").forEach(btn=>{
       const code=btn.dataset.languageChoice;
       const name=btn.querySelector("span");
@@ -875,16 +889,22 @@
 
   function updateToggles(){
     document.documentElement.lang=lang;
+    const toggleCopy={
+      en:{button:"Language",aria:"Choose language"},
+      es:{button:"Idioma",aria:"Elegir idioma"},
+      pt:{button:"Idioma",aria:"Escolher idioma"},
+      fr:{button:"Langue",aria:"Choisir la langue"}
+    }[lang]||{button:"Language",aria:"Choose language"};
     document.querySelectorAll("[data-language-toggle],#languageBtn").forEach(btn=>{
       if(btn.id==="languageBtn" && btn.querySelector(".top-icon")){
         const icon=btn.querySelector(".top-icon");
         const label=btn.querySelector(".top-label");
         if(icon) icon.textContent=lang.toUpperCase();
-        if(label) label.textContent="Language";
+        if(label) label.textContent=toggleCopy.button;
       }else{
         btn.textContent=lang.toUpperCase();
       }
-      btn.setAttribute("aria-label","Choose language");
+      btn.setAttribute("aria-label",toggleCopy.aria);
       btn.setAttribute("aria-haspopup","dialog");
       btn.setAttribute("aria-expanded","false");
     });
