@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-56";
+const APP_VERSION = "20260927-unified-57";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2188,6 +2188,10 @@ async function signOutCurrentUser(event){
     try{await supabase.removeChannel(window.__tleInvoiceRealtime);}catch{}
     window.__tleInvoiceRealtime=null;
   }
+  if(window.__tleRealtimeFallbackTimer){
+    clearInterval(window.__tleRealtimeFallbackTimer);
+    window.__tleRealtimeFallbackTimer=null;
+  }
 
   const wasOwner=state.business?.role==="owner";
   const ownerEmail=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
@@ -3401,6 +3405,10 @@ function setupInvoiceRealtime(){
     try{supabase.removeChannel(window.__tleInvoiceRealtime);}catch{}
     window.__tleInvoiceRealtime=null;
   }
+  if(window.__tleRealtimeFallbackTimer){
+    clearInterval(window.__tleRealtimeFallbackTimer);
+    window.__tleRealtimeFallbackTimer=null;
+  }
 
   const refresh=function(){
     clearTimeout(window.__tleOperationalRefresh);
@@ -3436,8 +3444,20 @@ function setupInvoiceRealtime(){
     },500);
   };
 
+  const startFallbackPolling=function(){
+    if(window.__tleRealtimeFallbackTimer || !state.session || !state.business) return;
+    window.__tleRealtimeFallbackTimer=setInterval(()=>{
+      if(!state.session || !state.business || document.visibilityState!=="visible" || !appShell || appShell.hidden) return;
+      loadCoreData().catch(err=>console.warn("[TLE] realtime fallback refresh",err));
+    },30000);
+  };
+
+  // team_messages is intentionally excluded here. That table is accessed only
+  // through protected RPCs and does not grant authenticated SELECT on
+  // business_id, so adding a Postgres Changes filter for it causes Realtime to
+  // reject the whole subscription. Team messaging already has its own polling.
   let channel=supabase.channel("workspace-updates-"+state.business.id);
-  ["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","team_messages","job_time_entries"].forEach(function(table){
+  ["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries"].forEach(function(table){
     channel=channel.on("postgres_changes",{
       event:"*",
       schema:"public",
@@ -3445,7 +3465,19 @@ function setupInvoiceRealtime(){
       filter:"business_id=eq."+state.business.id
     },refresh);
   });
-  window.__tleInvoiceRealtime=channel.subscribe();
+  window.__tleInvoiceRealtime=channel.subscribe((status,err)=>{
+    if(status==="SUBSCRIBED"){
+      if(window.__tleRealtimeFallbackTimer){
+        clearInterval(window.__tleRealtimeFallbackTimer);
+        window.__tleRealtimeFallbackTimer=null;
+      }
+      return;
+    }
+    if(status==="CHANNEL_ERROR" || status==="TIMED_OUT"){
+      console.warn("[TLE] realtime unavailable; using safe polling fallback",err||status);
+      startFallbackPolling();
+    }
+  });
 }
 
 async function loadCoreData(){
