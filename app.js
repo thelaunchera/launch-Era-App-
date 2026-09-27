@@ -369,11 +369,40 @@ function syncLegalLinks(){
 window.addEventListener("tle:languagechange",syncLegalLinks);
 setTimeout(syncLegalLinks,0);
 
+function appLanguage(){
+  return String(window.TLE_I18N?.language||state.business?.default_language||"en").toLowerCase();
+}
 function appIsSpanish(){
-  return window.TLE_I18N?.language==="es";
+  return appLanguage()==="es";
 }
 function appLocale(){
-  return appIsSpanish() ? "es-US" : "en-US";
+  return state.business?.locale_code
+    || ({en:"en-US",es:"es-ES",pt:"pt-BR",fr:"fr-FR"}[appLanguage()])
+    || navigator.language
+    || "en-US";
+}
+function businessCurrency(){
+  return String(state.business?.currency_code||state.publicLinks?.currency_code||"USD").toUpperCase();
+}
+function businessDistanceUnit(){
+  return state.business?.distance_unit==="km"?"km":"mi";
+}
+function businessTemperatureUnit(){
+  return state.business?.temperature_unit==="celsius"?"celsius":"fahrenheit";
+}
+function temperatureSuffix(){
+  return businessTemperatureUnit()==="celsius"?"°C":"°F";
+}
+function distanceFromStoredMiles(value){
+  const miles=Number(value||0);
+  return businessDistanceUnit()==="km"?miles*1.609344:miles;
+}
+function distanceToStoredMiles(value){
+  const amount=Number(value||0);
+  return businessDistanceUnit()==="km"?amount/1.609344:amount;
+}
+function distanceText(value){
+  return Number(distanceFromStoredMiles(value)||0).toFixed(1)+" "+businessDistanceUnit();
 }
 function tr(value){
   return window.TLE_I18N?.t ? window.TLE_I18N.t(value) : value;
@@ -553,8 +582,8 @@ async function loadBusinessWeather(force=false){
       current:"temperature_2m,apparent_temperature,weather_code,precipitation",
       hourly:"temperature_2m,precipitation_probability,weather_code",
       daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-      temperature_unit:"fahrenheit",
-      precipitation_unit:"inch",
+      temperature_unit:businessTemperatureUnit(),
+      precipitation_unit:businessTemperatureUnit()==="celsius"?"mm":"inch",
       forecast_days:"4",
       timezone:"auto"
     });
@@ -655,7 +684,7 @@ function renderWeatherBrief(){
   const location=weather.location||{};
 
   $("#weatherIcon").textContent=meta.icon;
-  $("#weatherTemp").textContent=Number.isFinite(temp)?temp+"°F":"—";
+  $("#weatherTemp").textContent=Number.isFinite(temp)?temp+temperatureSuffix():"—";
   $("#weatherCondition").textContent=appIsSpanish()?meta.es:meta.en;
   $("#weatherFeels").textContent=Number.isFinite(feels)?(appIsSpanish()?"Se siente como "+feels+"°":"Feels like "+feels+"°"):"";
   $("#weatherLocation").textContent=(appIsSpanish()?"AFUERA · ":"OUTSIDE · ")+(location.name||state.weatherArea||"");
@@ -749,7 +778,7 @@ function escapeHtml(value=""){
 }
 function money(value){
   if(value === null || value === undefined || value === "") return "—";
-  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(Number(value));
+  return new Intl.NumberFormat(appLocale(),{style:"currency",currency:businessCurrency(),maximumFractionDigits:2}).format(Number(value));
 }
 function formatDateTime(value){
   if(!value) return "—";
