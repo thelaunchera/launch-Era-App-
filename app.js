@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-47";
+const APP_VERSION = "20260927-unified-48";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1152,6 +1152,32 @@ function setShellState(mode){
   document.body.classList.add("shell-"+mode);
 }
 
+const AUTH_WELCOME_SEEN_KEY="tle_auth_welcome_seen_v1";
+function hasSeenAuthWelcome(){
+  try{return localStorage.getItem(AUTH_WELCOME_SEEN_KEY)==="1";}catch{return false;}
+}
+function markAuthWelcomeSeen(){
+  try{localStorage.setItem(AUTH_WELCOME_SEEN_KEY,"1");}catch{}
+}
+function prepareDirectAuth(){
+  setShellState("auth");
+  if(workerShell) workerShell.hidden=true;
+  if(publicShell) publicShell.hidden=true;
+  authShell.hidden=false;
+  appShell.hidden=true;
+  businessSetup.hidden=true;
+  if(authWelcome) authWelcome.hidden=true;
+  if(authPanel) authPanel.hidden=false;
+  authShell?.classList.remove("auth-form-open");
+  const back=$("#authBackWelcome");
+  if(back) back.hidden=true;
+  const remembered=rememberedOwnerEmail();
+  const email=$("#authEmail");
+  if(remembered && email && !email.value) email.value=remembered;
+  setAuthMode(remembered?"signin":"signup");
+  setAuthStatus("");
+}
+
 function syncAuthWelcomeCopy(){
   const copy={
     badge:langPick("30 DAYS FREE","30 DÍAS GRATIS","30 DIAS GRÁTIS","30 JOURS GRATUITS"),
@@ -1194,6 +1220,10 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
+  if(hasSeenAuthWelcome()){
+    prepareDirectAuth();
+    return;
+  }
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1209,11 +1239,16 @@ function showAuthWelcome(){
     authWelcome.classList.add("is-entering");
     setTimeout(()=>authWelcome.classList.remove("is-entering"),320);
   }
+  const back=$("#authBackWelcome");
+  if(back) back.hidden=false;
+  window.__tleAuthWelcomeSessionActive=true;
+  markAuthWelcomeSeen();
   setAuthStatus("");
   syncAuthWelcomeCopy();
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
+  markAuthWelcomeSeen();
   const email=$("#authEmail");
   if(mode==="signin"){
     const remembered=rememberedOwnerEmail();
@@ -1222,33 +1257,32 @@ function openAuthFromWelcome(mode){
 
   businessSetup.hidden=true;
   setAuthStatus("");
-
-  // Replace the welcome screen with the auth form in the same viewport.
-  // Never scroll down or auto-focus an input here: in-app browsers can jump/zoom.
-  if(authWelcome) authWelcome.hidden=true;
-  authShell?.classList.remove("auth-form-open");
   authPanel.hidden=false;
   authPanel.classList.remove("is-entering");
-  setAuthMode(mode);
+  setAuthMode(mode,{keepWelcome:true});
+  if(authWelcome) authWelcome.hidden=false;
+  authShell?.classList.add("auth-form-open");
+  const back=$("#authBackWelcome");
+  if(back) back.hidden=false;
 
-  try{
-    document.documentElement.scrollTop=0;
-    document.body.scrollTop=0;
-    window.scrollTo(0,0);
-  }catch{}
+  requestAnimationFrame(()=>{
+    try{authPanel.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
+  });
 }
 $("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
 $("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
 $("#authBackWelcome")?.addEventListener("click",()=>{
+  if(!window.__tleAuthWelcomeSessionActive){
+    prepareDirectAuth();
+    return;
+  }
   authPanel.hidden=true;
   authShell?.classList.remove("auth-form-open");
   if(authWelcome) authWelcome.hidden=false;
   setAuthStatus("");
-  try{
-    document.documentElement.scrollTop=0;
-    document.body.scrollTop=0;
-    window.scrollTo(0,0);
-  }catch{}
+  requestAnimationFrame(()=>{
+    try{authWelcome?.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
+  });
 });
 window.addEventListener("tle:languagechange",syncAuthWelcomeCopy);
 setTimeout(syncAuthWelcomeCopy,0);
@@ -1899,9 +1933,9 @@ function toggleAuthPasswordVisibility(){
   try{input.focus({preventScroll:true});}catch{try{input.focus();}catch{}}
   if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
 }
-function setAuthMode(mode){
+function setAuthMode(mode,options={}){
   state.authMode=mode;
-  if(authWelcome) authWelcome.hidden=true;
+  if(authWelcome && !options.keepWelcome) authWelcome.hidden=true;
   if(authPanel) authPanel.hidden=false;
   const ownerPanel=$("#ownerCodePanel");
   const links=$(".auth-links");
@@ -2545,7 +2579,8 @@ async function initialize(){
     const ownerEmail=rememberedOwnerEmail();
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
-    showAuthWelcome();
+    if(!hasSeenAuthWelcome()) showAuthWelcome();
+    else prepareDirectAuth();
     return;
   }
 
