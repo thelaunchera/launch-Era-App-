@@ -406,6 +406,7 @@ function showApp(){
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
+  document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
   $("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
@@ -513,7 +514,7 @@ async function handleBillingReturn(params){
 }
 
 function showSubscriptionGate(){
-  if(isPrimaryPlatformAdminAccount()){
+  if(isPrimaryPlatformAdminAccount() || state.isPlatformAdmin){
     if(state.modalType==="subscriptionGate"){
       modal.hidden=true;
       modalClose.hidden=false;
@@ -568,7 +569,7 @@ function renderTrialStatus(){
   const pill=$("#trialDaysPill");
   const trialCard=pill?.closest(".trial-card");
   const warning=$("#trialExpiryBanner");
-  if(isPrimaryPlatformAdminAccount()){
+  if(isPrimaryPlatformAdminAccount() || state.isPlatformAdmin){
     if(trialCard) trialCard.hidden=true;
     if(warning) warning.hidden=true;
     $("#trialSubscribeBtn")?.remove();
@@ -689,11 +690,14 @@ function getVisitorId(){
 
 async function trackVisit(page=window.location.pathname+window.location.search){
   try{
-    await supabase.rpc("track_app_visit",{
-      p_visitor_id:getVisitorId(),
-      p_page:page,
-      p_referrer:document.referrer||null,
-      p_user_agent:navigator.userAgent||null
+    if(localStorage.getItem("tle_internal_admin_device")==="1" || state.isPlatformAdmin) return;
+    await supabase.functions.invoke("track-app-visit",{
+      body:{
+        visitor_id:getVisitorId(),
+        page,
+        referrer:document.referrer||null,
+        user_agent:navigator.userAgent||null
+      }
     });
   }catch{}
 }
@@ -2132,9 +2136,50 @@ function renderTodaySummary(){
     datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
   }
   const greet=$("#todayGreeting");
+  const hero=$("#todayHeroCard");
+  const momentIcon=$("#todayMomentIcon");
+  const momentCopy=$("#todayMomentCopy");
+  const heroAction=$("#todayHeroAction");
   if(greet){
     const hour=now.getHours();
-    greet.textContent=tr(hour<12?"Good morning":hour<18?"Good afternoon":"Good evening")+" 👋";
+    const isMorning=hour<12;
+    const isAfternoon=hour>=12 && hour<18;
+    const moment=isMorning?"morning":isAfternoon?"afternoon":"night";
+
+    hero?.classList.remove("moment-morning","moment-afternoon","moment-night");
+    hero?.classList.add("moment-"+moment);
+
+    if(isMorning){
+      greet.textContent=appIsSpanish()?"Buenos días":"Good morning";
+      if(momentIcon) momentIcon.textContent="☀️";
+      if(momentCopy) momentCopy.textContent=appIsSpanish()
+        ?"Revisa tu día y empieza con enfoque."
+        :"Check your day and start with focus.";
+      if(heroAction){
+        heroAction.textContent=appIsSpanish()?"Ver ruta de hoy →":"View today’s route →";
+        heroAction.dataset.jump="route";
+      }
+    }else if(isAfternoon){
+      greet.textContent=appIsSpanish()?"Buenas tardes":"Good afternoon";
+      if(momentIcon) momentIcon.textContent="💧";
+      if(momentCopy) momentCopy.textContent=appIsSpanish()
+        ?"Hidrátate y ponte al día."
+        :"Take a sip of water and catch up.";
+      if(heroAction){
+        heroAction.textContent=appIsSpanish()?"Seguir con mi día →":"Keep going →";
+        heroAction.dataset.jump="route";
+      }
+    }else{
+      greet.textContent=appIsSpanish()?"Buenas noches":"Good evening";
+      if(momentIcon) momentIcon.textContent="🌙";
+      if(momentCopy) momentCopy.textContent=appIsSpanish()
+        ?"Organiza mañana y luego descansa."
+        :"Set up tomorrow, then get some rest.";
+      if(heroAction){
+        heroAction.textContent=appIsSpanish()?"Planear mañana →":"Plan tomorrow →";
+        heroAction.dataset.jump="calendar";
+      }
+    }
   }
 
   const timeline=$("#todayTimeline");
@@ -2403,9 +2448,13 @@ function renderPublicLinks(){
 
 async function loadPlatformAdmin(){
   if(!state.isPlatformAdmin) return;
-  const {data,error}=await supabase.rpc("get_platform_admin_dashboard");
+  const [{data,error},{data:geoData,error:geoError}]=await Promise.all([
+    supabase.rpc("get_platform_admin_dashboard"),
+    supabase.rpc("get_platform_visit_geo_dashboard")
+  ]);
   if(error){ showToast(error.message); return; }
-  state.platformAdminData=data||{};
+  if(geoError) console.warn("[TLE] visitor geo",geoError);
+  state.platformAdminData={...(data||{}),...(geoData||{})};
   const m=data?.metrics||{};
   const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
@@ -2425,10 +2474,27 @@ async function loadPlatformAdmin(){
       </div>`).join(""):`<div class="empty-inline"><strong>No outside customers yet.</strong><span>Your internal admin accounts are intentionally excluded.</span></div>`;
   }
 
+  const states=$("#platformTopStates");
+  if(states){
+    const rows=geoData?.top_states||[];
+    states.innerHTML=rows.length?rows.map(x=>`
+      <div class="state-row">
+        <span><strong>${escapeHtml(x.state_code||x.state||"Unknown")}</strong><small>${escapeHtml(x.state||"Unknown")}${x.country?" · "+escapeHtml(x.country):""}</small></span>
+        <span><strong>${Number(x.visits||0)}</strong><small>${Number(x.unique_visitors||0)} unique</small></span>
+      </div>`).join(""):`<div class="empty-inline"><strong>No location data yet.</strong><span>New external visits will appear here.</span></div>`;
+  }
+
   const visits=$("#platformRecentVisits");
   if(visits){
-    const rows=data?.recent_visits||[];
-    visits.innerHTML=rows.length?rows.map(v=>`<div class="visit-row"><span><strong>${escapeHtml(v.business_name||"Visitor")}</strong><small>${escapeHtml(v.page||"/")}</small></span><time>${formatDateTime(v.created_at)}</time></div>`).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+    const rows=geoData?.recent_geo_visits||data?.recent_visits||[];
+    visits.innerHTML=rows.length?rows.map(v=>`
+      <div class="visit-row">
+        <span>
+          <strong>${escapeHtml(v.business_name||"Visitor")}</strong>
+          <small>${escapeHtml(v.page||"/")}${v.state?" · "+escapeHtml(v.state_code||v.state):""}${v.city?" · "+escapeHtml(v.city):""}</small>
+        </span>
+        <time>${formatDateTime(v.created_at)}</time>
+      </div>`).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
   }
 }
 
