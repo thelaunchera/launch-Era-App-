@@ -4939,7 +4939,7 @@ document.addEventListener("click",async e=>{
       await loadPlatformAdmin();
       showToast("Booking Page promo applied · 2 months free");
     }catch(err){
-      showToast(err?.message||"Could not apply the 60-day promo");
+      showToast(err?.message||"Could not apply the Booking Page 2-month promo");
     }finally{
       setBusy(bookingPagePromo,false);
     }
