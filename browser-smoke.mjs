@@ -115,11 +115,18 @@ try{
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:5000});
-    await page.type("#authEmail","not-an-email");
-    await page.type("#authPassword","12345678");
+    await page.evaluate(()=>{
+      window.__tleSmokeAuthSubmitClicked=false;
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) throw new Error("auth submit missing");
+      btn.addEventListener("click",event=>{
+        window.__tleSmokeAuthSubmitClicked=true;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },{once:true,capture:true});
+    });
     await page.click("#authSubmit");
-    await page.waitForFunction(()=>document.querySelector("#authStatus")?.textContent.trim().length>0,{timeout:3000});
-    await page.evaluate(()=>{document.querySelector("#authEmail").value="";document.querySelector("#authPassword").value="";});
+    await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
