@@ -1316,8 +1316,8 @@ function renderAvailabilityEditor(){
 }
 
 async function saveAvailabilitySettings(){
-  if(!state.business || !["owner","admin"].includes(state.business.role)){
-    throw new Error("Owner or Admin access required.");
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error("Owner access required.");
   }
 
   const buffer=Number($("#bookingTravelBuffer")?.value||0);
@@ -1766,8 +1766,8 @@ function renderBookingRequests(){
 
 
 async function openBusinessProfileForm(){
-  if(!state.business || !["owner","admin"].includes(state.business.role)){
-    showToast("Owner or Admin access required.");
+  if(!state.business || state.business.role!=="owner"){
+    showToast("Owner access required.");
     return;
   }
 
@@ -1801,12 +1801,15 @@ async function openBusinessProfileForm(){
       <label>Business name<input name="name" required value="${escapeHtml(record.name||"")}"></label>
       <label>Business email<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
       <label>Phone<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
-      <label>Service area<input name="service_area" value="${escapeHtml(record.service_area||"")}" placeholder="Palm Beach County, FL"></label>
+      <label>Service area<input name="service_area" value="${escapeHtml(record.service_area||"")}" placeholder="City, county or service radius"></label>
       <label>Time zone<select name="timezone" required>
         <option value="America/New_York" ${record.timezone==="America/New_York"?"selected":""}>Eastern Time</option>
         <option value="America/Chicago" ${record.timezone==="America/Chicago"?"selected":""}>Central Time</option>
         <option value="America/Denver" ${record.timezone==="America/Denver"?"selected":""}>Mountain Time</option>
         <option value="America/Los_Angeles" ${record.timezone==="America/Los_Angeles"?"selected":""}>Pacific Time</option>
+        <option value="America/Phoenix" ${record.timezone==="America/Phoenix"?"selected":""}>Arizona Time</option>
+        <option value="America/Anchorage" ${record.timezone==="America/Anchorage"?"selected":""}>Alaska Time</option>
+        <option value="Pacific/Honolulu" ${record.timezone==="Pacific/Honolulu"?"selected":""}>Hawaii Time</option>
       </select></label>
       <label>Default language<select name="default_language" required>
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
@@ -1845,6 +1848,9 @@ async function saveBusinessProfile(fd){
   if(error) throw error;
 
   state.business={...state.business,...data};
+  if(window.TLE_I18N?.setLanguage && ["en","es"].includes(data.default_language)){
+    window.TLE_I18N.setLanguage(data.default_language);
+  }
   renderSettings();
   showApp();
 }
