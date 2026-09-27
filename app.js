@@ -182,8 +182,52 @@ const ONBOARDING_COPY={
   }
 };
 
+const ONBOARDING_EXTRA={
+  pt:{
+    welcome:{kicker:"BEM-VINDO",title:"Obrigado por usar o The Launch Era Cleaning App.",text:"Sua conta está pronta. Vamos acompanhar seus primeiros passos para você entender onde fica cada coisa sem precisar descobrir tudo sozinho."},
+    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e ações rápidas."},
+    booking:{title:"Reservas",text:"Gerencie pedidos de reserva, disponibilidade e o link público usado pelos clientes."},
+    leads:{title:"Leads",text:"Guarde clientes potenciais aqui antes de virarem clientes ativos ou trabalhos agendados."},
+    clients:{title:"Clientes",text:"Guarde contatos, endereços de serviço e informações necessárias para trabalhos futuros."},
+    calendar:{title:"Calendário + trabalhos",text:"Veja próximos trabalhos e horários livres para organizar a agenda sem reservas duplicadas."},
+    quotes:{title:"Orçamentos",text:"Revise pedidos, crie orçamentos, envie aos clientes e acompanhe se foram aceitos ou recusados."},
+    invoices:{title:"Faturas",text:"Crie e envie faturas e registre a forma de pagamento aceita pela sua empresa."},
+    route:{title:"Rota de hoje",text:"Veja as paradas do dia em ordem para saber para onde ir em seguida."},
+    mileage:{title:"Quilometragem",text:"Registre distâncias de trabalho ligadas aos serviços para manter os deslocamentos organizados."},
+    time:{title:"Controle de tempo",text:"Inicie e finalize cronômetros para acompanhar o tempo trabalhado em cada serviço."},
+    reports:{title:"Relatórios",text:"Veja atividade, totais e desempenho operacional do negócio."},
+    services:{title:"Serviços + extras",text:"Crie serviços, preços e extras usados em reservas, orçamentos e faturas."},
+    supplies:{title:"Materiais",text:"Organize os produtos de limpeza para saber o que precisa ser reposto."},
+    team:{title:"Equipe",text:"Adicione funcionários, atribua trabalhos, compartilhe acesso de convidado e envie mensagens sem expor controles do proprietário."},
+    settings:{title:"Configurações",text:"Edite dados da empresa, regras de reserva, pagamentos, e-mails aos clientes e links."},
+    admin:{title:"Admin do proprietário",text:"Controles sensíveis ficam aqui: acessos, permissões, integrações e configurações da conta."},
+    help:{title:"Ajuda e FAQ",text:"Encontre ajuda de configuração, instruções de acesso e respostas comuns. Você pode reiniciar este tour quando quiser."}
+  },
+  fr:{
+    welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
+    today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et actions rapides."},
+    booking:{title:"Réservations",text:"Gérez les demandes de réservation, les disponibilités et le lien public utilisé par vos clients."},
+    leads:{title:"Prospects",text:"Gardez les clients potentiels ici avant qu’ils deviennent des clients actifs ou des travaux réservés."},
+    clients:{title:"Clients",text:"Conservez les coordonnées, adresses de service et informations nécessaires pour les prochains travaux."},
+    calendar:{title:"Calendrier + travaux",text:"Consultez les travaux à venir et les créneaux libres pour éviter les doubles réservations."},
+    quotes:{title:"Devis",text:"Examinez les demandes, créez des devis, envoyez-les et suivez leur acceptation ou leur refus."},
+    invoices:{title:"Factures",text:"Créez et envoyez des factures puis enregistrez le mode de paiement accepté par votre entreprise."},
+    route:{title:"Itinéraire du jour",text:"Voyez les arrêts du jour dans l’ordre pour savoir où aller ensuite."},
+    mileage:{title:"Kilométrage",text:"Enregistrez les déplacements professionnels liés aux travaux pour garder vos trajets organisés."},
+    time:{title:"Suivi du temps",text:"Démarrez et arrêtez les chronomètres pour suivre le temps travaillé sur chaque intervention."},
+    reports:{title:"Rapports",text:"Consultez l’activité, les totaux et les performances opérationnelles de l’entreprise."},
+    services:{title:"Services + options",text:"Créez les services, prix et options utilisés dans les réservations, devis et factures."},
+    supplies:{title:"Fournitures",text:"Organisez les produits de nettoyage pour savoir ce qui doit être réapprovisionné."},
+    team:{title:"Équipe",text:"Ajoutez des employés, attribuez des travaux, partagez un accès invité et échangez des messages sans exposer les contrôles du propriétaire."},
+    settings:{title:"Paramètres",text:"Modifiez les informations de l’entreprise, les règles de réservation, paiements, e-mails clients et liens."},
+    admin:{title:"Administration propriétaire",text:"Les contrôles sensibles sont ici : accès, permissions, intégrations et paramètres du compte."},
+    help:{title:"Aide et FAQ",text:"Trouvez l’aide de configuration, les instructions d’accès et les réponses fréquentes. Vous pouvez relancer ce guide à tout moment."}
+  }
+};
+
 function onboardingLanguage(){
-  return window.TLE_I18N?.language==="es" || (!window.TLE_I18N && localStorage.getItem("tle_language")==="es") ? "es" : "en";
+  const language=String(window.TLE_I18N?.language||localStorage.getItem("tle_language")||"en").toLowerCase();
+  return ["en","es","pt","fr"].includes(language)?language:"en";
 }
 function signupWelcomeKey(email=""){
   return "tle_signup_welcome_pending:"+String(email||"").trim().toLowerCase();
@@ -302,7 +346,7 @@ function renderOnboardingTip(key,kind="feature"){
   const copy=ONBOARDING_COPY[key];
   if(!copy) return;
   const lang=onboardingLanguage();
-  const words=copy[lang]||copy.en;
+  const words=copy[lang]||ONBOARDING_EXTRA?.[lang]?.[key]||copy.en;
   const layer=ensureOnboardingUi();
   const isWelcome=key==="welcome";
   window.__tleOnboardingCurrent={key,kind};
@@ -313,14 +357,14 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? (lang==="es"?"Cierra este mensaje y te mostramos lo esencial paso a paso.":"Close this message and we’ll show you the essentials step by step.")
-    : (lang==="es"?"Este tip solo aparece una vez.":"You’ll only see this tip once.");
+    ? ({es:"Cierra este mensaje y te mostramos lo esencial paso a paso.",pt:"Feche esta mensagem e mostraremos o essencial passo a passo.",fr:"Fermez ce message et nous vous montrerons l’essentiel étape par étape.",en:"Close this message and we’ll show you the essentials step by step."}[lang]||"Close this message and we’ll show you the essentials step by step.")
+    : ({es:"Este tip solo aparece una vez.",pt:"Esta dica aparece apenas uma vez.",fr:"Cette astuce n’apparaît qu’une seule fois.",en:"You’ll only see this tip once."}[lang]||"You’ll only see this tip once.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? (lang==="es"?"Empezar recorrido":"Start tour")
-    : (lang==="es"?"Entendido":"Got it");
+    ? ({es:"Empezar recorrido",pt:"Iniciar tour",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
+    : ({es:"Entendido",pt:"Entendi",fr:"Compris",en:"Got it"}[lang]||"Got it");
   $("#onboardingSkipBtn",layer).hidden=isWelcome;
-  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=lang==="es"?"No mostrar más tips":"Hide tips";
-  $("#onboardingCloseBtn",layer).setAttribute("aria-label",lang==="es"?"Cerrar":"Close");
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",fr:"Fermer",en:"Close"}[lang]||"Close"));
   layer.classList.toggle("welcome",isWelcome);
   if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
