@@ -904,3 +904,106 @@ body.tle-signing-out .sidebar-logout-btn:active{transform:none}
     align-items:stretch;
   }
 }
+
+/* Legal, support and feedback */
+.sidebar-support-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:8px;
+}
+.sidebar-support-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:12px;
+  padding:10px 9px;
+  font-size:12px;
+  font-weight:900;
+}
+.sidebar-support-btn:active{transform:translateY(1px)}
+
+.app-legal-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  margin-top:34px;
+  padding:24px 0 8px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+}
+.app-legal-footer>div{
+  display:grid;
+  gap:3px;
+}
+.app-legal-footer>div strong{color:var(--ink)}
+.app-legal-footer nav{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px 14px;
+}
+.app-legal-footer a,
+.app-legal-footer button,
+.auth-legal-links a{
+  color:var(--muted);
+  text-decoration:none;
+  border:0;
+  background:transparent;
+  padding:0;
+  font:inherit;
+  cursor:pointer;
+}
+.app-legal-footer a:hover,
+.app-legal-footer button:hover,
+.auth-legal-links a:hover{
+  color:var(--ink);
+  text-decoration:underline;
+}
+.auth-legal-links{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px 12px;
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid var(--line);
+  font-size:11px;
+}
+.support-contact-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.support-contact-grid a{
+  display:grid;
+  gap:4px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+}
+.support-contact-grid a span{
+  color:var(--muted);
+  font-size:12px;
+}
+.support-contact-grid a:hover{
+  border-color:#bcb7ae;
+}
+@media(max-width:680px){
+  .app-legal-footer{
+    align-items:flex-start;
+    flex-direction:column;
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+  }
+  .app-legal-footer nav{
+    justify-content:flex-start;
+  }
+  .support-contact-grid{
+    grid-template-columns:1fr;
+  }
+}
