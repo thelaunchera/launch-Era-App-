@@ -182,6 +182,11 @@ if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") 
 if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.includes("persistRememberUsername")){
   throw new Error("Auth regression: remember-username flow is missing");
 }
+if(!html.includes('Preferred time <span class="field-optional">(optional)</span>') ||
+   !publicJs.includes('quoteTimeInput.required=false') ||
+   !publicJs.includes('p_preferred_time:String(fd.get("time")||"").trim()||null')){
+  throw new Error("Quote regression: preferred time must remain optional and submit null when blank");
+}
 if(!app.includes('launcher.href="weather://"') || app.includes('window.location.href="weather://"')){
   throw new Error("iOS regression: Weather must not replace the PWA document");
 }
