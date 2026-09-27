@@ -1159,3 +1159,91 @@ body.tle-signing-out .sidebar-logout-btn:active{transform:none}
   }
   .topbar-title h1{font-size:19px}
 }
+
+/* Dynamic daypart hero */
+.hero-card{
+  position:relative;
+  overflow:hidden;
+}
+.hero-card .hero-moment-icon{
+  position:absolute;
+  top:22px;
+  right:26px;
+  font-size:40px;
+  line-height:1;
+  transform-origin:center;
+  pointer-events:none;
+}
+.hero-card.moment-morning .hero-moment-icon{
+  animation:tleSunPulse 3.8s ease-in-out infinite;
+}
+.hero-card.moment-afternoon .hero-moment-icon{
+  animation:tleDropFloat 2.8s ease-in-out infinite;
+}
+.hero-card.moment-night .hero-moment-icon{
+  animation:tleMoonFloat 4s ease-in-out infinite;
+}
+@keyframes tleSunPulse{
+  0%,100%{transform:scale(1) rotate(0)}
+  50%{transform:scale(1.08) rotate(6deg)}
+}
+@keyframes tleDropFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(7px)}
+}
+@keyframes tleMoonFloat{
+  0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-5px) rotate(3deg)}
+}
+.hero-card.moment-morning{background:#FFF0B7}
+.hero-card.moment-afternoon{background:var(--blue)}
+.hero-card.moment-night{background:#E7E5FF}
+.hero-card #todayMomentCopy{max-width:560px}
+
+/* Primary platform admin never sees subscription UI */
+body.platform-owner-no-billing [data-account-billing],
+body.platform-owner-no-billing #trialExpiryBanner,
+body.platform-owner-no-billing .trial-card{
+  display:none!important;
+}
+
+/* Visitor-state dashboard */
+.platform-states{
+  display:grid;
+  gap:8px;
+}
+.state-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#FCFBF8;
+}
+.state-row>span{
+  display:grid;
+  gap:2px;
+}
+.state-row>span:last-child{
+  text-align:right;
+}
+.state-row small{
+  color:var(--muted);
+  font-size:11px;
+}
+
+@media(max-width:680px){
+  .hero-card .hero-moment-icon{
+    top:18px;
+    right:18px;
+    font-size:34px;
+  }
+  .hero-card h2{
+    padding-right:46px;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-moment-icon{animation:none!important}
+}
