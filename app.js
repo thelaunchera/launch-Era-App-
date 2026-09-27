@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-46";
+const APP_VERSION = "20260927-unified-47";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1219,36 +1219,35 @@ function openAuthFromWelcome(mode){
     const remembered=rememberedOwnerEmail();
     if(remembered && email) email.value=remembered;
   }
+
   businessSetup.hidden=true;
   setAuthStatus("");
-  authPanel.hidden=false;
-  setAuthMode(mode);
-  authShell?.classList.add("auth-form-open");
-  authPanel.classList.remove("is-entering");
-  void authPanel.offsetWidth;
-  authPanel.classList.add("is-entering");
-  setTimeout(()=>authPanel.classList.remove("is-entering"),320);
 
-  requestAnimationFrame(()=>{
-    try{
-      authPanel.scrollIntoView({block:"start",behavior:"auto"});
-    }catch{
-      try{window.scrollTo(0,authPanel.offsetTop||0);}catch{}
-    }
-    setTimeout(()=>email?.focus({preventScroll:true}),80);
-  });
+  // Replace the welcome screen with the auth form in the same viewport.
+  // Never scroll down or auto-focus an input here: in-app browsers can jump/zoom.
+  if(authWelcome) authWelcome.hidden=true;
+  authShell?.classList.remove("auth-form-open");
+  authPanel.hidden=false;
+  authPanel.classList.remove("is-entering");
+  setAuthMode(mode);
+
+  try{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+  }catch{}
 }
 $("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
 $("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
 $("#authBackWelcome")?.addEventListener("click",()=>{
   authPanel.hidden=true;
   authShell?.classList.remove("auth-form-open");
+  if(authWelcome) authWelcome.hidden=false;
   setAuthStatus("");
   try{
-    authWelcome?.scrollIntoView({
-      block:"start",
-      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"
-    });
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
   }catch{}
 });
 window.addEventListener("tle:languagechange",syncAuthWelcomeCopy);
