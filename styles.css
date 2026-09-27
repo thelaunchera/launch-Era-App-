@@ -3414,3 +3414,29 @@ body.shell-public #publicShell{
 @media(prefers-reduced-motion:reduce){
   body.shell-app #menuToggle{transition:none!important}
 }
+
+/* Tap-outside drawer close layer */
+.sidebar-scrim{
+  display:none;
+}
+@media(max-width:860px){
+  body.shell-app .sidebar-scrim:not([hidden]){
+    display:block!important;
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:rgba(25,25,25,.14)!important;
+    backdrop-filter:blur(1.5px);
+    -webkit-backdrop-filter:blur(1.5px);
+    z-index:39!important;
+    cursor:default;
+  }
+  body.shell-app.sidebar-is-open{
+    overflow:hidden;
+  }
+}
