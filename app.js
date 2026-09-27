@@ -612,15 +612,51 @@ $("#forgotPassword").addEventListener("click", async ()=>{
   showToast(error ? error.message : "Password reset email sent");
 });
 
-async function signOutCurrentUser(){
+async function signOutCurrentUser(event){
+  if(window.__tleSigningOut) return;
+  window.__tleSigningOut=true;
+
+  const clicked=event?.currentTarget||null;
+  const buttons=[$("#signOutBtn"),$("#sidebarSignOutBtn")].filter(Boolean);
+  buttons.forEach(btn=>{
+    btn.disabled=true;
+    btn.dataset.logoutText=btn.textContent;
+  });
+  if(clicked) clicked.textContent=window.TLE_I18N?.t("Signing out…")||"Signing out…";
+
+  $("#sidebar")?.classList.remove("open");
+  document.body.classList.add("tle-signing-out");
+
   if(window.__tleInvoiceRealtime){
     try{await supabase.removeChannel(window.__tleInvoiceRealtime);}catch{}
     window.__tleInvoiceRealtime=null;
   }
-  await supabase.auth.signOut();
-  state.session=null;
-  state.business=null;
-  showAuth();
+
+  try{
+    const {error}=await supabase.auth.signOut({scope:"local"});
+    if(error) throw error;
+
+    state.session=null;
+    state.business=null;
+    showAuth();
+    setAuthMode("signin");
+    prepareAdminShortcut();
+    setAuthStatus("");
+
+    // Keep the admin shortcut ready after logout without forcing a new workspace.
+    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
+    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+  }catch(err){
+    showToast(err?.message||"Could not sign out");
+    if(state.session) showApp();
+  }finally{
+    window.__tleSigningOut=false;
+    document.body.classList.remove("tle-signing-out");
+    buttons.forEach(btn=>{
+      btn.disabled=false;
+      btn.textContent=btn.dataset.logoutText||btn.textContent;
+    });
+  }
 }
 
 $("#signOutBtn")?.addEventListener("click",signOutCurrentUser);
@@ -973,7 +1009,12 @@ supabase.auth.onAuthStateChange((event, session)=>{
   if(event === "SIGNED_OUT"){
     state.session=null;
     state.business=null;
-    setTimeout(()=>showAuth(),0);
+    if(window.__tleSigningOut) return;
+    setTimeout(()=>{
+      showAuth();
+      setAuthMode("signin");
+      prepareAdminShortcut();
+    },0);
   }
 });
 
