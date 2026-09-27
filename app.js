@@ -1846,14 +1846,21 @@ businessForm.addEventListener("submit", async (e)=>{
     const end = new Date(start);
     end.setDate(end.getDate()+30);
     const signupServiceArea=$("#businessArea").value.trim();
-    const signupTimeZone=await resolveSignupTimeZone(signupServiceArea);
+    const globalSetup=await resolveBusinessLocale(signupServiceArea);
     const payload = {
       owner_user_id: state.session.user.id,
       name: $("#businessName").value.trim(),
       email: state.session.user.email,
       phone: $("#businessPhone").value.trim() || null,
       service_area: signupServiceArea || null,
-      timezone: signupTimeZone,
+      timezone: globalSetup.timezone,
+      country_code: globalSetup.country_code,
+      locale_code: globalSetup.locale_code,
+      currency_code: globalSetup.currency_code,
+      distance_unit: globalSetup.distance_unit,
+      temperature_unit: globalSetup.temperature_unit,
+      default_language: globalSetup.default_language,
+      payment_methods:["cash","check","other"],
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
       trial_days:30,
@@ -1865,6 +1872,8 @@ businessForm.addEventListener("submit", async (e)=>{
     state.business={
       id:data.id,name:data.name,email:data.email,phone:data.phone,role:"owner",team_member_id:null,
       timezone:data.timezone,default_language:data.default_language,
+      country_code:data.country_code,locale_code:data.locale_code,currency_code:data.currency_code,
+      distance_unit:data.distance_unit,temperature_unit:data.temperature_unit,payment_methods:data.payment_methods,
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
       trial_ends_at:data.trial_ends_at,trial_days:data.trial_days,trial_promotion:data.trial_promotion,
       subscription_status:data.subscription_status
