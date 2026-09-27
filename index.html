@@ -42,7 +42,7 @@
     gtag("js",new Date());
     gtag("config","G-N5BHMC432Q",{send_page_view:false});
   </script>
-  <link rel="stylesheet" href="./styles.css?v=20260927-ga-share-1" />
+  <link rel="stylesheet" href="./styles.css?v=20260927-auth-notifs-1" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -82,6 +82,7 @@
         </form>
         <div class="auth-status" id="authStatus" aria-live="polite"></div>
         <div class="auth-links">
+          <button type="button" id="authRetryButton" class="auth-retry" hidden>Try again</button>
           <button type="button" id="authSwitch">Already have an account? Sign in</button>
           <button type="button" id="forgotPassword" hidden>Forgot password?</button>
         </div>
