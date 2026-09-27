@@ -3644,25 +3644,60 @@ body.shell-public #publicShell{
   }
 }
 
-/* Password visibility toggle */
+/* Password visibility toggle — subtle eyelid tab, not a literal eye */
 .password-input-wrap{position:relative;display:block}
-.password-input-wrap input{width:100%;padding-right:48px}
+.password-input-wrap input{width:100%;padding-right:46px}
 .password-toggle{
   position:absolute;
-  right:8px;
+  right:9px;
   top:50%;
   transform:translateY(-50%);
-  width:36px;
-  height:36px;
-  border:0;
-  border-radius:999px;
-  background:transparent;
+  width:30px;
+  height:24px;
+  border:1px solid rgba(39,37,33,.18);
+  border-radius:10px;
+  background:#F7F4EE;
   color:var(--ink);
   display:grid;
   place-items:center;
   cursor:pointer;
-  font-size:17px;
   line-height:1;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease;
 }
-.password-toggle:hover{background:rgba(25,25,25,.06)}
+.password-toggle:hover{background:#EFEAE1;border-color:rgba(39,37,33,.28)}
+.password-toggle:active{transform:translateY(-50%) scale(.96)}
 .password-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.password-tab-icon{
+  position:relative;
+  display:block;
+  width:16px;
+  height:9px;
+  border-top:2px solid currentColor;
+  border-radius:50% 50% 0 0;
+  opacity:.78;
+}
+.password-tab-icon:before,
+.password-tab-icon:after{
+  content:"";
+  position:absolute;
+  top:-5px;
+  width:2px;
+  height:5px;
+  border-radius:2px;
+  background:currentColor;
+  opacity:.72;
+}
+.password-tab-icon:before{left:3px;transform:rotate(-20deg)}
+.password-tab-icon:after{right:3px;transform:rotate(20deg)}
+.password-toggle.is-visible .password-tab-icon{
+  border-top-color:transparent;
+  border-bottom:2px solid currentColor;
+  border-radius:0 0 50% 50%;
+}
+.password-toggle.is-visible .password-tab-icon:before,
+.password-toggle.is-visible .password-tab-icon:after{
+  top:5px;
+  transform:rotate(0deg);
+  height:3px;
+  opacity:.45;
+}
