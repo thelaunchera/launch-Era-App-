@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-39";
+const APP_VERSION = "20260927-unified-40";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5561,9 +5561,9 @@ async function saveStartTimer(fd){
   }
 }
 async function finishTimeEntry(id){
+  if(!id) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Temporizador ativo não encontrado.","Minuteur actif introuvable."));
   const entry=state.timeEntries.find(t=>t.id===id);
-  if(!entry) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Temporizador ativo não encontrado.","Minuteur actif introuvable."));
-  if(entry.clocked_out_at) return entry;
+  if(entry?.clocked_out_at) return entry;
 
   const result=await withTimeout(
     supabase.rpc("finish_job_time_entry",{p_entry_id:id}),
@@ -5572,14 +5572,30 @@ async function finishTimeEntry(id){
   );
   const {data,error}=result||{};
   if(error) throw error;
-  if(!data?.clocked_out_at){
+
+  let finished=data||null;
+  if(!finished?.clocked_out_at){
+    const {data:verified,error:verifyError}=await supabase
+      .from("job_time_entries")
+      .select("id,clocked_out_at,minutes_worked")
+      .eq("id",id)
+      .eq("business_id",state.business.id)
+      .maybeSingle();
+    if(verifyError) throw verifyError;
+    finished=verified||finished;
+  }
+
+  if(!finished?.clocked_out_at){
     throw new Error(langPick("Could not confirm that the timer stopped.","No se pudo confirmar el cierre del temporizador.","Não foi possível confirmar o encerramento do cronômetro.","Impossible de confirmer l’arrêt du minuteur."));
   }
 
-  entry.clocked_out_at=data.clocked_out_at;
-  entry.minutes_worked=data.minutes_worked;
+  if(entry){
+    entry.clocked_out_at=finished.clocked_out_at;
+    entry.minutes_worked=finished.minutes_worked;
+  }
+  await loadCoreData();
   renderOperations();
-  return data;
+  return finished;
 }
 
 async function deleteBusinessRecord(type,id){
@@ -5832,7 +5848,6 @@ document.addEventListener("click",async e=>{
     setBusy(finishTimeBtn,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
     try{
       await finishTimeEntry(id);
-      loadCoreData().catch(err=>console.warn("[TLE] timer refresh",err));
       showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
     }catch(err){
       showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
