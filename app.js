@@ -2001,6 +2001,10 @@ async function initializeWorkerPortal(activationToken=null){
   }
 
   state.workerPortal=data;
+  const workerLanguage=String(data?.business?.default_language||"en").toLowerCase();
+  if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(workerLanguage)){
+    window.TLE_I18N.setLanguage(workerLanguage);
+  }
   renderWorkerPortal();
   await loadWorkerMessages(true).catch(err=>console.warn("[TLE] worker messages",err));
   installWorkerMessagePolling();
@@ -2016,11 +2020,18 @@ function renderWorkerPortal(){
 
   const bn=$("#workerBusinessName"),ww=$("#workerWelcome"),wc=$("#workerCopy");
   if(bn) bn.textContent=business.name||"Cleaning business";
-  const workerEs=String(business.default_language||"").toLowerCase()==="es";
-  if($("#workerAccessLabel")) $("#workerAccessLabel").textContent=workerEs?"Acceso de empleado invitado":"Guest Employee Access";
-  if($("#workerGuestPill")) $("#workerGuestPill").textContent=workerEs?"ACCESO LIMITADO · EMPLEADO":"GUEST EMPLOYEE ACCESS";
-  if(ww) ww.textContent=(workerEs?"Bienvenido, ":"Welcome, ")+(worker.name|| (workerEs?"invitado":"guest"))+" 👋";
-  if(wc) wc.textContent=workerEs?"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo.":"This is your limited employee view. You can only use the tools your admin shared with you.";
+  const workerLang=String(business.default_language||"en").toLowerCase();
+  const workerCopy={
+    en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
+    es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
+    pt:{access:"Acesso de funcionário convidado",pill:"ACESSO DE FUNCIONÁRIO CONVIDADO",welcome:"Bem-vindo, ",guest:"convidado",copy:"Esta é sua área limitada de funcionário. Você só pode usar as funções que o administrador compartilhou com você."},
+    fr:{access:"Accès employé invité",pill:"ACCÈS EMPLOYÉ INVITÉ",welcome:"Bienvenue, ",guest:"invité",copy:"Ceci est votre espace employé limité. Vous pouvez uniquement utiliser les fonctions partagées par votre administrateur."}
+  }[workerLang]||null;
+  const copySet=workerCopy||{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."};
+  if($("#workerAccessLabel")) $("#workerAccessLabel").textContent=copySet.access;
+  if($("#workerGuestPill")) $("#workerGuestPill").textContent=copySet.pill;
+  if(ww) ww.textContent=copySet.welcome+(worker.name||copySet.guest)+" 👋";
+  if(wc) wc.textContent=copySet.copy;
 
   const jc=$("#workerJobCount"),tc=$("#workerTodayCount"),ts=$("#workerTimerState");
   if(jc) jc.textContent=jobs.length;
