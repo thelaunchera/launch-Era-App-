@@ -16,7 +16,8 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
-const APP_VERSION = "20260927-ios-session-persist-1";
+const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
+const APP_VERSION = "20260927-ios-session-backup-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1025,6 +1026,61 @@ function maskEmail(email=""){
   const shown=name.length<=2 ? name[0]+"*" : name.slice(0,2)+"***";
   return shown+"@"+parts[1];
 }
+
+function saveOwnerSessionBackup(session){
+  try{
+    const email=String(session?.user?.email||"").trim().toLowerCase();
+    const accessToken=String(session?.access_token||"");
+    const refreshToken=String(session?.refresh_token||"");
+    if(!email || !accessToken || !refreshToken) return;
+    localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify({
+      email,
+      access_token:accessToken,
+      refresh_token:refreshToken,
+      saved_at:Date.now()
+    }));
+  }catch(err){
+    console.warn("[TLE] session backup save",err);
+  }
+}
+function clearOwnerSessionBackup(){
+  try{localStorage.removeItem(OWNER_SESSION_BACKUP_KEY);}catch{}
+}
+function readOwnerSessionBackup(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
+    if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
+    return raw;
+  }catch{
+    return null;
+  }
+}
+async function restoreOwnerSessionFromBackup(){
+  const backup=readOwnerSessionBackup();
+  if(!backup) return null;
+  const remembered=rememberedOwnerEmail();
+  if(remembered && backup.email!==remembered) return null;
+
+  const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  const anchorTime=lastActivity || Number(backup.saved_at||0);
+  if(!anchorTime || (Date.now()-anchorTime)>=OWNER_IDLE_MS){
+    return null;
+  }
+
+  try{
+    const {data,error}=await supabase.auth.setSession({
+      access_token:backup.access_token,
+      refresh_token:backup.refresh_token
+    });
+    if(error || !data?.session) return null;
+    saveOwnerSessionBackup(data.session);
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    return data.session;
+  }catch(err){
+    console.warn("[TLE] session backup restore",err);
+    return null;
+  }
+}
 function markOwnerActivity(){
   if(state.business?.role!=="owner") return;
   if(localStorage.getItem(OWNER_REAUTH_REQUIRED_KEY)==="1") return;
@@ -1138,6 +1194,7 @@ async function verifyOwnerAccessCode(email,code){
     });
     if(sessionError) throw sessionError;
     state.session=sessionData.session||existingSession||null;
+    if(state.session) saveOwnerSessionBackup(state.session);
 
     localStorage.setItem(OWNER_EMAIL_KEY,clean);
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
@@ -1364,6 +1421,7 @@ authForm.addEventListener("submit", async (e)=>{
       const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
       state.session=data.session||null;
+      if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
       await enterAuthenticatedApp();
     }
@@ -1412,6 +1470,7 @@ async function signOutCurrentUser(event){
 
     state.session=null;
     state.business=null;
+    clearOwnerSessionBackup();
     if(wasOwner && ownerEmail){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
       localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
@@ -1661,8 +1720,18 @@ async function initialize(){
 
   trackVisit("/login").catch(()=>{});
 
-  const { data:{session} } = await supabase.auth.getSession();
-  state.session = session;
+  const { data:{session:storedSession} } = await supabase.auth.getSession();
+  let session=storedSession||null;
+
+  // iOS Home Screen can occasionally fail to surface Supabase's own stored
+  // session even while our app storage remains intact. Restore the same
+  // access/refresh tokens Supabase already persists, but only inside the
+  // user's 12-hour activity window.
+  if(!session){
+    session=await restoreOwnerSessionFromBackup();
+  }
+
+  state.session=session;
   if(!session){
     const ownerEmail=rememberedOwnerEmail();
     if(ownerEmail){
@@ -1677,6 +1746,7 @@ async function initialize(){
     return;
   }
 
+  saveOwnerSessionBackup(session);
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
   const lastOwnerActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
   const hasRecentOwnerActivity=!lastOwnerActivity || (Date.now()-lastOwnerActivity)<OWNER_IDLE_MS;
@@ -1691,6 +1761,7 @@ async function initialize(){
 
   if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
     try{ await supabase.auth.signOut({scope:"local"}); }catch{}
+    clearOwnerSessionBackup();
     state.session=null;
     localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
     localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
@@ -1829,6 +1900,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
+    saveOwnerSessionBackup(session);
     if(window.__tleOwnerCodeLogin || window.__tleEnterAppPromise) return;
     setTimeout(()=>{
       if(appShell.hidden && !window.__tleEnterAppPromise){
@@ -1843,6 +1915,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "TOKEN_REFRESHED" && session){
     state.session=session;
+    saveOwnerSessionBackup(session);
     return;
   }
   if(event === "SIGNED_OUT"){
