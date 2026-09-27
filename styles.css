@@ -2270,3 +2270,196 @@ html,body{max-width:100%;overflow-x:hidden}
     box-shadow:0 12px 28px rgba(25,25,25,.06);
   }
 }
+
+/* FINAL mobile record layout — vertical, readable, no compressed columns */
+@media(max-width:680px){
+  #leadsTable .mobile-record-card,
+  #invoicesTable .mobile-record-card,
+  #mileageTable .mobile-record-card,
+  #timeEntriesTable .mobile-record-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    gap:0!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:18px!important;
+    overflow:visible!important;
+  }
+
+  .mobile-record-card>.record-primary{
+    width:100%!important;
+    min-width:0!important;
+    padding:0 0 13px!important;
+    margin:0 0 11px!important;
+    border-bottom:1px solid #ECE7DD!important;
+  }
+  .mobile-record-card>.record-primary strong{
+    display:block!important;
+    font-size:19px!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+  }
+  .mobile-record-card>.record-primary small{
+    display:block!important;
+    margin-top:5px!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+    color:var(--muted)!important;
+  }
+
+  .mobile-record-card>.record-field{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    justify-content:stretch!important;
+    align-items:start!important;
+    gap:4px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:10px 0!important;
+    border-bottom:1px solid #F1EDE5!important;
+    text-align:left!important;
+    font-size:14px!important;
+    line-height:1.35!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+  }
+
+  .mobile-record-card>.record-field:before{
+    content:attr(data-label)!important;
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    color:#8A857D!important;
+    font-size:9px!important;
+    font-weight:900!important;
+    letter-spacing:.11em!important;
+    line-height:1.2!important;
+    text-transform:uppercase!important;
+    text-align:left!important;
+  }
+
+  .mobile-record-card>.record-field>strong,
+  .mobile-record-card>.record-field>i,
+  .mobile-record-card>.record-field>small{
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    text-align:left!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+  }
+
+  /* Money must never break into vertical characters */
+  #invoicesTable .record-field[data-label="Amount"]>strong,
+  #invoicesTable .record-field[data-label="Monto"]>strong{
+    display:block!important;
+    width:max-content!important;
+    max-width:100%!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+    font-size:25px!important;
+    line-height:1!important;
+    letter-spacing:-.035em!important;
+  }
+
+  #invoicesTable .record-field .status{
+    justify-self:start!important;
+    width:max-content!important;
+    white-space:nowrap!important;
+  }
+
+  #invoicesTable .payment-choice-note{
+    display:block!important;
+    margin-top:3px!important;
+    color:#625A36!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+
+  .mobile-record-card>.record-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    width:100%!important;
+    min-width:0!important;
+    padding:15px 0 0!important;
+    margin:2px 0 0!important;
+    border-top:0!important;
+  }
+
+  .mobile-record-card .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+
+  #invoicesTable .safe-actions{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+
+  .mobile-record-card .safe-actions button{
+    width:100%!important;
+    min-width:0!important;
+    min-height:46px!important;
+    padding:11px 12px!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+    white-space:normal!important;
+  }
+
+  .mobile-record-card .record-delete-btn,
+  .record-card-actions .record-delete-btn{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:52px!important;
+    margin:7px 0 0!important;
+    padding:13px 16px!important;
+    border-radius:16px!important;
+    font-size:13px!important;
+    line-height:1.2!important;
+  }
+
+  /* Client + quote cards use the same safe action hierarchy */
+  .client-card .record-card-actions,
+  .kanban-col article .record-card-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    padding-top:14px!important;
+    margin-top:10px!important;
+    border-top:1px solid #ECE7DD!important;
+  }
+  .client-card .record-card-actions .safe-actions,
+  .kanban-col article .record-card-actions .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .client-card .record-delete-btn,
+  .kanban-col article .record-delete-btn{
+    width:100%!important;
+    min-height:50px!important;
+    margin-top:4px!important;
+  }
+}
+
+@media(max-width:390px){
+  .mobile-record-card .safe-actions,
+  .client-card .record-card-actions .safe-actions,
+  .kanban-col article .record-card-actions .safe-actions{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
