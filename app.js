@@ -2611,8 +2611,6 @@ function renderTodaySummary(wakeAssistant=false){
     const formatted=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"short",day:"numeric"}).format(now);
     datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
   }
-  const assistantLabel=$("#todayAssistantLabel");
-  if(assistantLabel) assistantLabel.textContent=appIsSpanish()?"Tu asistente":"Daily assistant";
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
   if(hero){
