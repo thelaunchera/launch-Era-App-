@@ -4159,3 +4159,96 @@ body.modal-open{
   .auth-welcome-trust{gap:6px}
   .auth-welcome-trust span{font-size:10px}
 }
+
+/* 2026-09-27 — single-path welcome + compact client cards */
+.auth-welcome{transition:opacity .18s ease,transform .18s ease}
+.auth-welcome.is-leaving{opacity:0;transform:translateY(-8px)}
+.auth-welcome.is-entering{animation:authSoftEnter .32s ease both}
+#authPanel.is-entering{animation:authSoftEnter .32s ease both}
+@keyframes authSoftEnter{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.auth-welcome-actions{display:block}
+.auth-welcome-actions .primary-btn{width:100%}
+.auth-welcome-existing{
+  margin:0;
+  text-align:center;
+  color:#777168;
+  font-size:12px;
+  line-height:1.5;
+}
+.auth-welcome-existing button{
+  border:0;
+  background:transparent;
+  padding:4px 2px;
+  color:#292723;
+  font:inherit;
+  font-weight:800;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+}
+.client-card-compact{
+  gap:9px!important;
+  padding:13px 14px!important;
+  border-radius:17px!important;
+}
+.client-card-head{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+.client-card-compact .client-avatar{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px;
+  margin:0!important;
+  border-radius:11px!important;
+  font-size:12px;
+}
+.client-card-identity{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.client-card-identity strong{
+  font-size:16px;
+  line-height:1.18;
+}
+.client-card-identity span,
+.client-card-compact .client-location{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.client-card-identity span{white-space:nowrap}
+.client-card-compact .client-location{
+  display:block;
+  white-space:nowrap;
+}
+.client-card-compact .record-card-actions{
+  margin-top:2px!important;
+  padding-top:9px!important;
+  gap:7px!important;
+}
+.client-card-compact .safe-actions{
+  gap:7px!important;
+}
+.client-card-compact .safe-actions button,
+.client-card-compact .record-delete-btn{
+  min-height:40px!important;
+  border-radius:12px!important;
+  font-size:11px!important;
+}
+.client-card-compact .record-delete-btn{margin-top:0!important}
+@media(max-width:620px){
+  .client-grid{gap:9px!important}
+  .client-card-compact{padding:12px 13px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .auth-welcome,#authPanel{animation:none!important;transition:none!important}
+}
