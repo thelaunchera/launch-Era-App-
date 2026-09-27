@@ -52,7 +52,19 @@ try{
     page.on("console",msg=>{if(msg.type()==="error") errors.push(msg.text());});
     await page.goto("http://127.0.0.1:4173/?browser-smoke=1",{waitUntil:"domcontentloaded",timeout:15000});
     await page.waitForSelector("#authSwitch",{visible:true,timeout:10000});
+    try{
     await page.waitForFunction(()=>window.__tleAuthUiReady===true || Boolean(document.documentElement.dataset.appError),{timeout:10000});
+  }catch(err){
+    const diag=await page.evaluate(()=>({
+      readyState:document.readyState,
+      authUiReady:window.__tleAuthUiReady,
+      appReady:window.__tleAppReady,
+      appError:document.documentElement.dataset.appError||"",
+      appScript:[...document.scripts].map(s=>s.src).find(src=>src.includes("app.js"))||"",
+      publicScript:[...document.scripts].map(s=>s.src).find(src=>src.includes("public.js"))||""
+    }));
+    throw new Error(profile.name+": auth UI did not initialize · "+JSON.stringify(diag)+" · console="+errors.join(" | ")+" · "+err.message);
+  }
     const bootError=await page.evaluate(()=>document.documentElement.dataset.appError||"");
     if(bootError) throw new Error(profile.name+": app boot error "+bootError);
     const initial=await page.$eval("#authTitle",el=>el.textContent.trim());
