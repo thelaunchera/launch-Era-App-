@@ -3537,13 +3537,14 @@ function dashboardWeatherContext(now,remainingJobs){
         : "Rain is likely"+(place?" in "+place:"")+" around "+weatherClockLabel(rain.hour)+" ("+rain.probability+"%). "+(remainingJobs.length?"Leave a little extra time between stops.":"Keep it in mind if you add a job today.")
     };
   }
-  if(Number.isFinite(temp)&&temp>=88){
+  const hotThreshold=businessTemperatureUnit()==="celsius"?31:88;
+  if(Number.isFinite(temp)&&temp>=hotThreshold){
     return {
       kind:"heat",
       icon:"☀️",
       text:appIsSpanish()
-        ? "Hace "+temp+"°F"+(place?" en "+place:"")+". Si sigues en ruta, deja unos minutos para agua entre paradas."
-        : "It’s "+temp+"°F"+(place?" in "+place:"")+". If you’re still on the road, leave a few minutes for water between stops."
+        ? "Hace "+temp+temperatureSuffix()+(place?" en "+place:"")+". Si sigues en ruta, deja unos minutos para agua entre paradas."
+        : "It’s "+temp+temperatureSuffix()+(place?" in "+place:"")+". If you’re still on the road, leave a few minutes for water between stops."
     };
   }
   return {kind:"steady",icon:"🌤️",text:""};
