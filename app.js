@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-internal-activity-1";
+const APP_VERSION = "20260927-sidebar-tap-outside-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1045,7 +1045,7 @@ function openView(id,options={}){
   $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
-  sidebar.classList.remove("open");
+  if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
   setTimeout(()=>maybeShowFeatureIntro(id),220);
@@ -1072,7 +1072,20 @@ document.addEventListener("keydown",e=>{
   e.preventDefault();
   openView(jump.dataset.jump);
 });
-$("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
+const sidebarScrim=$("#sidebarScrim");
+function setSidebarOpen(open){
+  const shouldOpen=!!open && window.matchMedia("(max-width: 860px)").matches;
+  sidebar.classList.toggle("open",shouldOpen);
+  if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
+  document.body.classList.toggle("sidebar-is-open",shouldOpen);
+  $("#menuToggle")?.setAttribute("aria-expanded",shouldOpen?"true":"false");
+}
+$("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.contains("open")));
+sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));
+window.addEventListener("resize",()=>{
+  if(window.innerWidth>860 && sidebar.classList.contains("open")) setSidebarOpen(false);
+});
+
 if(backBtn) backBtn.addEventListener("click",()=>{
   let previous=navHistory.pop();
   while(previous && previous===$(".view.active")?.dataset.page) previous=navHistory.pop();
@@ -5158,7 +5171,7 @@ document.addEventListener("click",e=>{
 });
 $("#appRefreshBtn")?.addEventListener("click",refreshInstalledApp);
 $("#languageBtn").addEventListener("click",()=>{ window.TLE_I18N?.toggle(); });
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;if(typeof setSidebarOpen==="function") setSidebarOpen(false);else sidebar.classList.remove("open")}});
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",async ()=>{
