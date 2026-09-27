@@ -91,6 +91,9 @@ if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel"
 if(!app.includes("window.__tleShowSignupWelcome=") || !app.includes("hasLocalSignupWelcomePending() ||") || !app.includes("hasAccountSignupWelcomePending()")){
   throw new Error("Business setup welcome regression: new signup welcome is not preserved through workspace creation");
 }
+if(!app.includes("resolveSignupTimeZone") || !app.includes("timezone: signupTimeZone")){
+  throw new Error("Timezone regression: signup must derive business timezone from service area");
+}
 console.log("REGRESSION_GUARDS_OK");
 
 console.log("LOGIN_SMOKE_OK");
