@@ -29,24 +29,34 @@ button{cursor:pointer}
   color:#191919;
   border:2px solid #191919;
   border-radius:18px;
-  animation:trialCardColorCycle 8s ease-in-out infinite;
+  animation:trialCardTenMinuteCycle 40min linear infinite;
   will-change:background-color,border-color,box-shadow;
 }
-@keyframes trialCardColorCycle{
-  0%,100%{
+@keyframes trialCardTenMinuteCycle{
+  0%,24.999%{
     background-color:#FFFDF5;
     border-color:#191919;
     box-shadow:0 0 0 rgba(25,25,25,0);
   }
-  33%{
+  25%,49.999%{
     background-color:#EAF4FF;
     border-color:#8DB6DC;
-    box-shadow:0 8px 24px rgba(141,182,220,.20);
+    box-shadow:0 8px 24px rgba(141,182,220,.16);
   }
-  66%{
+  50%,74.999%{
     background-color:#FFF3A8;
     border-color:#D4BC3E;
-    box-shadow:0 8px 24px rgba(242,216,91,.22);
+    box-shadow:0 8px 24px rgba(242,216,91,.18);
+  }
+  75%,99.999%{
+    background-color:#F2F0FF;
+    border-color:#B7B1DE;
+    box-shadow:0 8px 24px rgba(183,177,222,.16);
+  }
+  100%{
+    background-color:#FFFDF5;
+    border-color:#191919;
+    box-shadow:0 0 0 rgba(25,25,25,0);
   }
 }
 .trial-card strong{
@@ -2484,7 +2494,7 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 
 
-/* Dashboard mini assistant — lightweight animated welcome */
+/* Animated dashboard greeting */
 #todayHeroCard{
   isolation:isolate;
   border:1px solid rgba(25,25,25,.07);
@@ -2492,7 +2502,7 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 #todayHeroCard.assistant-arrival{
   animation:
-    tleAssistantEnter .58s cubic-bezier(.2,.8,.2,1) both,
+    tleGreetingEnter .58s cubic-bezier(.2,.8,.2,1) both,
     tleGreetingColorCycle 40min linear .58s infinite;
 }
 #todayHeroCard::before{
@@ -2507,7 +2517,7 @@ html,body{max-width:100%;overflow-x:hidden}
   opacity:.75;
   pointer-events:none;
   z-index:0;
-  animation:tleAssistantOrb 7s ease-in-out infinite;
+  animation:tleGreetingOrb 7s ease-in-out infinite;
 }
 #todayHeroCard::after{
   content:"";
@@ -2521,7 +2531,7 @@ html,body{max-width:100%;overflow-x:hidden}
   opacity:.7;
   pointer-events:none;
   z-index:0;
-  animation:tleAssistantOrbSmall 9s ease-in-out infinite;
+  animation:tleGreetingOrbSmall 9s ease-in-out infinite;
 }
 #todayHeroCard>div,
 #todayHeroCard>#todayHeroAction,
@@ -2536,7 +2546,7 @@ html,body{max-width:100%;overflow-x:hidden}
   flex-wrap:wrap;
   min-width:0;
 }
-@keyframes tleAssistantEnter{
+@keyframes tleGreetingEnter{
   0%{opacity:0;transform:translateY(10px) scale(.99)}
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
@@ -2547,19 +2557,19 @@ html,body{max-width:100%;overflow-x:hidden}
   75%,99.999%{background-color:#E7E5FF}
   100%{background-color:#FFF0B7}
 }
-@keyframes tleAssistantOrb{
+@keyframes tleGreetingOrb{
   0%,100%{transform:translate3d(0,0,0) scale(.95)}
   50%{transform:translate3d(-18px,16px,0) scale(1.08)}
 }
-@keyframes tleAssistantOrbSmall{
+@keyframes tleGreetingOrbSmall{
   0%,100%{transform:translate3d(0,0,0)}
   50%{transform:translate3d(15px,-10px,0)}
-}
-  70%,100%{box-shadow:0 0 0 7px rgba(25,25,25,0)}
 }
 @media (prefers-reduced-motion: reduce){
   #todayHeroCard,
   #todayHeroCard::before,
   #todayHeroCard::after,
-
+  .trial-card{
+    animation:none!important;
+  }
 }
