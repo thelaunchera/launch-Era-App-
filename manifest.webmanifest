@@ -1,8 +1,8 @@
 {
   "name": "The Launch Era Cleaning App",
-  "short_name": "TLE",
+  "short_name": "Cleaning App",
   "description": "Operations app for cleaning businesses serving homes, short-term rentals and commercial spaces.",
-  "start_url": "./?app=20260926-2112",
+  "start_url": "./?app=20260927-ios-session-persist-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FAF8F3",
