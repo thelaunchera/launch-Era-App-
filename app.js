@@ -94,6 +94,15 @@ const pageTitle = $("#pageTitle");
 const backBtn = $("#backBtn");
 const navHistory=["today"];
 
+// Auth controls must be interactive immediately, even while session/network boot continues.
+document.addEventListener("click",e=>{
+  const toggle=e.target.closest?.("#authPasswordToggle");
+  if(!toggle) return;
+  e.preventDefault();
+  toggleAuthPasswordVisibility();
+},true);
+window.__tleAuthUiReady=true;
+
 const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
@@ -1687,13 +1696,6 @@ function toggleAuthPasswordVisibility(){
   try{input.focus({preventScroll:true});}catch{try{input.focus();}catch{}}
   if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
 }
-document.addEventListener("click",e=>{
-  const toggle=e.target.closest?.("#authPasswordToggle");
-  if(!toggle) return;
-  e.preventDefault();
-  toggleAuthPasswordVisibility();
-},true);
-
 function setAuthMode(mode){
   state.authMode=mode;
   const ownerPanel=$("#ownerCodePanel");
@@ -1789,7 +1791,7 @@ $("#authSwitch").addEventListener("click",()=>{
     });
   }
 });
-window.__tleAuthUiReady=true;
+
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const button = $("#authSubmit");
