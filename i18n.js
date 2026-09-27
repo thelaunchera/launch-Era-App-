@@ -753,20 +753,104 @@
     }
   }
 
+  const LANGUAGE_NAMES={en:"English",es:"Español",pt:"Português",fr:"Français"};
+
+  function ensureLanguageMenu(){
+    let menu=document.getElementById("tleLanguageMenu");
+    if(menu) return menu;
+    menu=document.createElement("div");
+    menu.id="tleLanguageMenu";
+    menu.className="language-menu";
+    menu.hidden=true;
+    menu.setAttribute("role","dialog");
+    menu.setAttribute("aria-label","Choose language");
+    menu.innerHTML=`
+      <div class="language-menu-head">
+        <div><small>LANGUAGE</small><strong>Choose your language</strong></div>
+        <button type="button" class="language-menu-close" aria-label="Close">×</button>
+      </div>
+      <div class="language-featured-row">
+        <button type="button" class="language-choice featured" data-language-choice="es"><span>Español</span><small>ES</small></button>
+        <button type="button" class="language-choice featured" data-language-choice="en"><span>English</span><small>EN</small></button>
+      </div>
+      <div class="language-more-label">MORE LANGUAGES</div>
+      <div class="language-list">
+        <button type="button" class="language-choice" data-language-choice="pt"><span>Português</span><small>PT</small></button>
+        <button type="button" class="language-choice" data-language-choice="fr"><span>Français</span><small>FR</small></button>
+      </div>
+    `;
+    document.body.appendChild(menu);
+    menu.querySelector(".language-menu-close")?.addEventListener("click",()=>closeLanguageMenu());
+    menu.addEventListener("click",e=>{
+      const choice=e.target.closest("[data-language-choice]");
+      if(!choice) return;
+      const next=choice.dataset.languageChoice;
+      applyLanguage(next);
+      closeLanguageMenu();
+    });
+    return menu;
+  }
+
+  function updateLanguageMenu(){
+    const menu=document.getElementById("tleLanguageMenu");
+    if(!menu) return;
+    const staticNames={es:"Español",en:"English",pt:"Português",fr:"Français"};
+    menu.querySelectorAll("[data-language-choice]").forEach(btn=>{
+      const code=btn.dataset.languageChoice;
+      const name=btn.querySelector("span");
+      const small=btn.querySelector("small");
+      if(name) name.textContent=staticNames[code]||code;
+      if(small) small.textContent=code.toUpperCase();
+      btn.classList.toggle("active",code===lang);
+      btn.setAttribute("aria-pressed",code===lang?"true":"false");
+    });
+  }
+
+  function positionLanguageMenu(anchor){
+    const menu=ensureLanguageMenu();
+    const rect=anchor.getBoundingClientRect();
+    const width=Math.min(340,window.innerWidth-24);
+    const left=Math.max(12,Math.min(window.innerWidth-width-12,rect.right-width));
+    const top=Math.min(window.innerHeight-12,rect.bottom+10);
+    menu.style.width=width+"px";
+    menu.style.left=left+"px";
+    menu.style.top=top+"px";
+  }
+
+  function openLanguageMenu(anchor){
+    const menu=ensureLanguageMenu();
+    positionLanguageMenu(anchor);
+    updateLanguageMenu();
+    menu.hidden=false;
+    anchor.setAttribute("aria-expanded","true");
+    window.__tleLanguageAnchor=anchor;
+  }
+
+  function closeLanguageMenu(){
+    const menu=document.getElementById("tleLanguageMenu");
+    if(menu) menu.hidden=true;
+    if(window.__tleLanguageAnchor){
+      window.__tleLanguageAnchor.setAttribute("aria-expanded","false");
+      window.__tleLanguageAnchor=null;
+    }
+  }
+
   function updateToggles(){
     document.documentElement.lang=lang;
-    const names={en:"English",es:"Español",pt:"Português",fr:"Français"};
     document.querySelectorAll("[data-language-toggle],#languageBtn").forEach(btn=>{
       if(btn.id==="languageBtn" && btn.querySelector(".top-icon")){
         const icon=btn.querySelector(".top-icon");
         const label=btn.querySelector(".top-label");
         if(icon) icon.textContent=lang.toUpperCase();
-        if(label) label.textContent=names[lang]||"Language";
+        if(label) label.textContent="Language";
       }else{
         btn.textContent=lang.toUpperCase();
       }
-      btn.setAttribute("aria-label","Change language");
+      btn.setAttribute("aria-label","Choose language");
+      btn.setAttribute("aria-haspopup","dialog");
+      btn.setAttribute("aria-expanded","false");
     });
+    updateLanguageMenu();
   }
 
   function applyLanguage(next=lang){
@@ -789,17 +873,30 @@
   }
 
   function toggle(){
-    const index=SUPPORTED.indexOf(lang);
-    applyLanguage(SUPPORTED[(index+1)%SUPPORTED.length]);
+    const trigger=document.querySelector("#languageBtn,[data-language-toggle]");
+    if(trigger) openLanguageMenu(trigger);
   }
 
   document.addEventListener("click",e=>{
     const btn=e.target.closest("[data-language-toggle],#languageBtn");
-    if(!btn) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    toggle();
+    if(btn){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const menu=document.getElementById("tleLanguageMenu");
+      if(menu && !menu.hidden && window.__tleLanguageAnchor===btn) closeLanguageMenu();
+      else openLanguageMenu(btn);
+      return;
+    }
+
+    const menu=document.getElementById("tleLanguageMenu");
+    if(menu && !menu.hidden && !e.target.closest("#tleLanguageMenu")) closeLanguageMenu();
   },true);
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape") closeLanguageMenu();
+  });
+  window.addEventListener("resize",()=>{ if(window.__tleLanguageAnchor) positionLanguageMenu(window.__tleLanguageAnchor); });
+  window.addEventListener("scroll",()=>{ if(window.__tleLanguageAnchor) positionLanguageMenu(window.__tleLanguageAnchor); },true);
 
   const observer=new MutationObserver(mutations=>{
     if(applying) return;
