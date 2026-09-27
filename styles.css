@@ -3565,3 +3565,16 @@ body.shell-public #publicShell{
   #todayHeroCard #todayMomentCopy{font-size:15px;line-height:1.5}
   #todayHeroCard .hero-greeting-zone #todayHeroAction{width:100%;justify-content:center}
 }
+
+/* Auth recovery action */
+.auth-links .auth-retry{
+  border:1px solid var(--ink);
+  background:#F4F1EA;
+  border-radius:999px;
+  padding:8px 12px;
+}
+.auth-links .auth-retry[hidden]{display:none!important}
+@media(max-width:620px){
+  .auth-links{flex-wrap:wrap;align-items:center}
+  .auth-links .auth-retry{order:-1;width:100%;text-align:center}
+}
