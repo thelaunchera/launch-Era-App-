@@ -15,9 +15,10 @@ const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
+const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-55";
+const APP_VERSION = "20260927-unified-56";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1277,6 +1278,10 @@ function openAuthFromWelcome(mode){
   if(back) back.hidden=false;
 
   requestAnimationFrame(()=>{
+    // iOS zooms/repositions the viewport when a form field is focused by code.
+    // Let touch users tap the field themselves; desktop users keep the shortcut.
+    const isTouchDevice=window.matchMedia?.("(pointer: coarse)")?.matches;
+    if(isTouchDevice) return;
     const target=mode==="signup"?$("#authEmail"):($("#authEmail")?.value?$("#authPassword"):$("#authEmail"));
     setTimeout(()=>{
       try{target?.focus({preventScroll:true});}catch{try{target?.focus();}catch{}}
@@ -1353,7 +1358,9 @@ function showApp(){
   });
   renderTrialStatus();
   if(state.business?.role==="owner" && state.session?.user?.email){
-    localStorage.setItem(OWNER_EMAIL_KEY,String(state.session.user.email).trim().toLowerCase());
+    if(rememberUsernameEnabled()){
+      localStorage.setItem(OWNER_EMAIL_KEY,String(state.session.user.email).trim().toLowerCase());
+    }
     markOwnerActivity();
     installOwnerActivityTracker();
   }
@@ -1789,11 +1796,52 @@ function rememberedAdminEmails(){
   try{return JSON.parse(localStorage.getItem("tle_admin_emails")||"[]").filter(Boolean);}
   catch{return [];}
 }
+function rememberUsernameEnabled(){
+  try{
+    const explicit=localStorage.getItem(REMEMBER_USERNAME_KEY);
+    if(explicit!==null) return explicit==="1";
+    // Preserve the convenient behavior existing users already had, then let
+    // the new checkbox become the explicit preference from now on.
+    return Boolean(
+      String(localStorage.getItem(OWNER_EMAIL_KEY)||"").trim() ||
+      String(localStorage.getItem("tle_last_admin_email")||"").trim()
+    );
+  }catch{
+    return false;
+  }
+}
 function rememberedOwnerEmail(){
+  if(!rememberUsernameEnabled()) return "";
   const owner=String(localStorage.getItem(OWNER_EMAIL_KEY)||"").trim().toLowerCase();
   if(owner) return owner;
   const platformAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
   return platformAdmin===PRIMARY_PLATFORM_ADMIN_EMAIL ? platformAdmin : "";
+}
+function syncRememberUsernameControl(){
+  const row=$("#rememberUsernameRow");
+  const checkbox=$("#rememberUsername");
+  const label=$("#rememberUsernameLabel");
+  if(!row||!checkbox) return;
+  const signingIn=state.authMode==="signin";
+  row.hidden=!signingIn;
+  if(signingIn) checkbox.checked=rememberUsernameEnabled();
+  if(label){
+    label.textContent=langPick(
+      "Remember username",
+      "Recordar usuario",
+      "Lembrar usuário",
+      "Mémoriser l’identifiant"
+    );
+  }
+}
+function persistRememberUsername(email){
+  const checkbox=$("#rememberUsername");
+  const keep=state.authMode==="signin" && Boolean(checkbox?.checked);
+  try{
+    localStorage.setItem(REMEMBER_USERNAME_KEY,keep?"1":"0");
+    if(keep && email) localStorage.setItem(OWNER_EMAIL_KEY,String(email).trim().toLowerCase());
+    else localStorage.removeItem(OWNER_EMAIL_KEY);
+  }catch{}
 }
 function maskEmail(email=""){
   const clean=String(email).trim();
@@ -1948,7 +1996,8 @@ function setAuthMode(mode,options={}){
   const switchBtn=$("#authSwitch");
   const password=$("#authPassword");
   const passwordField=$("#passwordField");
-  const emailField=$("#emailField")||$("#authEmail").closest("label");
+  const email=$("#authEmail");
+  const emailField=$("#emailField")||email?.closest("label");
   const forgot=$("#forgotPassword");
   const signupLegalNote=$("#signupLegalNote");
   if(password){password.type="password";}
@@ -1964,6 +2013,7 @@ function setAuthMode(mode,options={}){
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="new-password";
+    if(email) email.autocomplete="email";
     emailField.hidden=false;
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=false;
@@ -1976,6 +2026,7 @@ function setAuthMode(mode,options={}){
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="new-password";
+    if(email) email.autocomplete="username";
     emailField.hidden=true;
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
@@ -1989,11 +2040,13 @@ function setAuthMode(mode,options={}){
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="current-password";
+    if(email) email.autocomplete="username";
     emailField.hidden=false;
     forgot.hidden=false;
     if(signupLegalNote) signupLegalNote.hidden=true;
   }
 
+  syncRememberUsernameControl();
   prepareAdminShortcut();
 }
 
@@ -2091,6 +2144,7 @@ authForm.addEventListener("submit", async (e)=>{
       const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
       state.session=data.session||null;
+      persistRememberUsername(email);
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
@@ -2144,8 +2198,10 @@ async function signOutCurrentUser(event){
     state.session=null;
     state.business=null;
     clearOwnerSessionBackup();
-    if(wasOwner && ownerEmail){
+    if(wasOwner && ownerEmail && rememberUsernameEnabled()){
       localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
+    }else if(!rememberUsernameEnabled()){
+      localStorage.removeItem(OWNER_EMAIL_KEY);
     }
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     localStorage.removeItem(OWNER_ACTIVITY_KEY);
@@ -2236,7 +2292,9 @@ businessForm.addEventListener("submit", async (e)=>{
     await identifyPlatformAdmin();
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
     state.publicLinks=linkSettings||null;
-    localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
+    if(rememberUsernameEnabled()){
+      localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
+    }
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
     window.__tleShowSignupWelcome=
       window.__tleShowSignupWelcome===true ||
@@ -2737,15 +2795,11 @@ async function initialize(){
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
   await trackVisit("/app/today");
 }
-window.addEventListener("pageshow",event=>{
+window.addEventListener("pageshow",()=>{
+  // Restore only the shell class. Do not force-scroll on resume: iOS fires
+  // pageshow when returning from native apps and password-manager surfaces.
   if(!appShell?.hidden){
     setShellState("app");
-    try{
-      if("scrollRestoration" in history) history.scrollRestoration="manual";
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-      window.scrollTo(0,0);
-    }catch{}
   }else if(!publicShell?.hidden){
     setShellState("public");
   }else if(!workerShell?.hidden){
@@ -6944,12 +6998,29 @@ function openDeviceWeather(){
     let switched=false;
     const markHidden=()=>{ if(document.hidden) switched=true; };
     document.addEventListener("visibilitychange",markHidden,{once:true});
-    window.location.href="weather://";
+
+    // Never replace the PWA's own document with weather://. Doing that leaves
+    // iOS with a blank/stale webview when the user comes back from Weather.
+    const launcher=document.createElement("a");
+    launcher.href="weather://";
+    launcher.target="_blank";
+    launcher.rel="noopener noreferrer";
+    launcher.setAttribute("aria-hidden","true");
+    launcher.tabIndex=-1;
+    launcher.style.position="fixed";
+    launcher.style.width="1px";
+    launcher.style.height="1px";
+    launcher.style.opacity="0";
+    launcher.style.pointerEvents="none";
+    document.body.appendChild(launcher);
+    launcher.click();
+    setTimeout(()=>launcher.remove(),1200);
+
     setTimeout(()=>{
       if(!switched && !document.hidden){
         window.open(fallback,"_blank","noopener");
       }
-    },900);
+    },1000);
     return;
   }
 
@@ -7013,7 +7084,8 @@ if("serviceWorker" in navigator){
 }
 
 window.__tleAppReady=true;
-setAuthMode("signin");
+// Keep the static auth shell stable until initialize() decides whether this is
+// a returning session, a remembered username, or a first visit.
 // Route every authenticated boot through the same promise so iPhone/PWA
 // startup and Supabase SIGNED_IN cannot initialize the app twice.
 enterAuthenticatedApp().catch(err=>{
