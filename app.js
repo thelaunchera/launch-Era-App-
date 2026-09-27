@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-global-refresh-1";
+const APP_VERSION = "20260927-inquiry-bell-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2021,6 +2021,123 @@ async function withTimeout(promise,label,ms=9000){
   }
 }
 
+function inquirySeenKey(){
+  return "tle_inquiry_seen_at_"+(state.business?.id||"business");
+}
+
+function getInquiryNotifications(){
+  const bookingLeadIds=new Set(
+    state.bookingRequests.map(b=>b.lead_id).filter(Boolean)
+  );
+  const items=[];
+
+  state.bookingRequests.forEach(b=>{
+    const lead=b.lead_id?state.leads.find(l=>l.id===b.lead_id):null;
+    items.push({
+      id:"booking:"+b.id,
+      type:"booking",
+      view:"booking",
+      createdAt:b.created_at,
+      name:b.customer_name||"New customer",
+      source:lead?.source||"Booking link",
+      detail:b.services?.name||"Cleaning request",
+      status:b.status||"requested"
+    });
+  });
+
+  state.leads.forEach(l=>{
+    if(bookingLeadIds.has(l.id)) return;
+    items.push({
+      id:"lead:"+l.id,
+      type:"lead",
+      view:"leads",
+      createdAt:l.created_at,
+      name:l.name||"New lead",
+      source:l.source||"Lead",
+      detail:l.service_interest||"New inquiry",
+      status:l.status||"new"
+    });
+  });
+
+  return items
+    .filter(x=>x.createdAt)
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
+    .slice(0,20);
+}
+
+function getInquiryUnreadCount(){
+  const seen=Number(localStorage.getItem(inquirySeenKey())||0);
+  return getInquiryNotifications().filter(x=>new Date(x.createdAt).getTime()>seen).length;
+}
+
+function renderInquiryNotifications(){
+  const button=$("#notificationBellBtn");
+  const badge=$("#notificationBadge");
+  const list=$("#notificationList");
+  if(!button||!badge||!list||!state.business) return;
+
+  const seen=Number(localStorage.getItem(inquirySeenKey())||0);
+  const items=getInquiryNotifications();
+  const unread=items.filter(x=>new Date(x.createdAt).getTime()>seen).length;
+
+  badge.textContent=unread>99?"99+":String(unread);
+  badge.hidden=unread===0;
+  button.classList.toggle("has-notifications",unread>0);
+  button.setAttribute("aria-label",unread
+    ? (appIsSpanish()?unread+" inquiries nuevos":unread+" new inquiries")
+    : (appIsSpanish()?"Inquiries":"Inquiries"));
+
+  if(!items.length){
+    list.innerHTML=`<div class="notification-empty"><strong>${appIsSpanish()?"Todo al día":"You’re all caught up"}</strong><span>${appIsSpanish()?"Los nuevos inquiries aparecerán aquí.":"New inquiries will appear here."}</span></div>`;
+    return;
+  }
+
+  list.innerHTML=items.slice(0,8).map(item=>{
+    const isNew=new Date(item.createdAt).getTime()>seen;
+    const typeLabel=item.type==="booking"
+      ? (appIsSpanish()?"Booking request":"Booking request")
+      : (appIsSpanish()?"Lead":"Lead");
+    return `
+      <button class="notification-item ${isNew?"is-new":""}" type="button" data-notification-view="${item.view}">
+        <span class="notification-dot" aria-hidden="true"></span>
+        <span class="notification-copy">
+          <strong>${escapeHtml(item.name)}</strong>
+          <small>${escapeHtml(typeLabel)} · ${escapeHtml(item.source)}</small>
+          <em>${escapeHtml(item.detail)} · ${formatDateTime(item.createdAt)}</em>
+        </span>
+        <span class="notification-arrow" aria-hidden="true">→</span>
+      </button>`;
+  }).join("");
+}
+
+function markInquiryNotificationsSeen(){
+  const items=getInquiryNotifications();
+  if(!items.length) return;
+  const newest=Math.max(...items.map(x=>new Date(x.createdAt).getTime()).filter(Number.isFinite));
+  if(Number.isFinite(newest)) localStorage.setItem(inquirySeenKey(),String(newest));
+  renderInquiryNotifications();
+}
+
+function openNotificationPopover(){
+  const popover=$("#notificationPopover");
+  const button=$("#notificationBellBtn");
+  if(!popover||!button) return;
+  const willOpen=popover.hidden;
+  popover.hidden=!willOpen;
+  button.setAttribute("aria-expanded",willOpen?"true":"false");
+  if(willOpen){
+    renderInquiryNotifications();
+    markInquiryNotificationsSeen();
+  }
+}
+
+function closeNotificationPopover(){
+  const popover=$("#notificationPopover");
+  const button=$("#notificationBellBtn");
+  if(popover) popover.hidden=true;
+  if(button) button.setAttribute("aria-expanded","false");
+}
+
 function setupInvoiceRealtime(){
   if(!state.business?.id) return;
 
@@ -2037,7 +2154,7 @@ function setupInvoiceRealtime(){
   };
 
   let channel=supabase.channel("workspace-updates-"+state.business.id);
-  ["invoices","jobs","quotes","booking_requests"].forEach(function(table){
+  ["invoices","jobs","quotes","booking_requests","leads"].forEach(function(table){
     channel=channel.on("postgres_changes",{
       event:"*",
       schema:"public",
@@ -2110,6 +2227,7 @@ async function loadCoreData(){
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
   renderInvoices();
+  renderInquiryNotifications();
   renderTodaySummary();
   renderOperations();
   renderSettings();
@@ -4755,6 +4873,7 @@ async function hardRefreshInstalledApp(version){
 }
 
 async function refreshInstalledApp(){
+  const unreadBefore=getInquiryUnreadCount();
   const button=$("#appRefreshBtn");
   if(!button || button.disabled) return;
 
@@ -4805,7 +4924,17 @@ async function refreshInstalledApp(){
       if(state.isPlatformAdmin) await loadPlatformAdmin();
     }
 
-    showToast(appIsSpanish()?"Todo actualizado":"Everything is up to date");
+    renderInquiryNotifications();
+    const unreadAfter=getInquiryUnreadCount();
+    if(unreadAfter>unreadBefore){
+      const newest=getInquiryNotifications()[0];
+      const source=newest?.source||"New inquiry";
+      showToast(appIsSpanish()
+        ? "Nuevo inquiry · "+source
+        : "New inquiry · "+source);
+    }else{
+      showToast(appIsSpanish()?"Todo actualizado":"Everything is up to date");
+    }
   }catch(err){
     console.warn("[TLE] manual refresh",err);
     showToast(appIsSpanish()?"No se pudo actualizar. Intenta otra vez.":"Could not refresh. Try again.");
@@ -4826,6 +4955,25 @@ document.addEventListener("click",e=>{
   if(link) window.open(link,"_blank","noopener");
 });
 
+$("#notificationBellBtn")?.addEventListener("click",e=>{
+  e.stopPropagation();
+  openNotificationPopover();
+});
+$("#notificationCloseBtn")?.addEventListener("click",e=>{
+  e.stopPropagation();
+  closeNotificationPopover();
+});
+$("#notificationPopover")?.addEventListener("click",e=>{
+  e.stopPropagation();
+  const item=e.target.closest("[data-notification-view]");
+  if(item){
+    closeNotificationPopover();
+    openView(item.dataset.notificationView);
+  }
+});
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".notification-shell")) closeNotificationPopover();
+});
 $("#appRefreshBtn")?.addEventListener("click",refreshInstalledApp);
 $("#languageBtn").addEventListener("click",()=>{ window.TLE_I18N?.toggle(); });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;sidebar.classList.remove("open")}});
