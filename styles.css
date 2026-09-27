@@ -4273,3 +4273,25 @@ body.modal-open{
   .auth-card{margin:14px auto 36px}
   #authPanel{scroll-margin-top:12px}
 }
+
+/* First-visit intro → auth form */
+.auth-shell.auth-form-open .auth-card{
+  width:min(520px,100%);
+}
+.auth-shell.auth-form-open #authWelcome{
+  padding-bottom:34px;
+  margin-bottom:30px;
+  border-bottom:1px solid #DED7CC;
+}
+.auth-shell.auth-form-open #authPanel{
+  display:block;
+}
+.auth-shell.auth-form-open #authPanel[hidden]{
+  display:none!important;
+}
+@media(max-width:620px){
+  .auth-shell.auth-form-open #authWelcome{
+    padding-bottom:28px;
+    margin-bottom:26px;
+  }
+}
