@@ -72,17 +72,6 @@
             <a class="legal-privacy-link" href="https://thelaunchera.github.io/The-launch-era-Website-/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
           </p>
         </form>
-        <button class="passwordless-btn admin-shortcut" type="button" id="rememberedAdminBtn" hidden>Continue as Admin</button>
-        <div id="ownerCodePanel" class="owner-code-panel" hidden>
-          <span class="pill yellow">ADMIN</span>
-          <p class="owner-code-copy" id="ownerCodeCopy">Enter the 6-digit code sent to your email.</p>
-          <form id="ownerCodeForm" class="auth-form">
-            <label>6-digit code<input id="ownerAccessCode" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000" required></label>
-            <button class="primary-btn" type="submit" id="ownerCodeVerifyBtn">Open my app</button>
-          </form>
-          <button class="passwordless-btn" type="button" id="ownerCodeResendBtn">Send a new code</button>
-          <button class="text-btn owner-code-different" type="button" id="ownerCodeDifferentBtn">Use a different email</button>
-        </div>
         <div class="auth-status" id="authStatus" aria-live="polite"></div>
         <div class="auth-links">
           <button type="button" id="authSwitch">Already have an account? Sign in</button>
@@ -839,7 +828,7 @@
               </details>
               <details>
                 <summary>How do owners and admins sign in?</summary>
-                <p>Use <strong>Continue with email</strong>. Recognized owner devices can open directly without a password; other approved accounts receive a secure email sign-in link.</p>
+                <p>Owners and admins sign in with their approved email address and password. If you forget your password, use <strong>Forgot password?</strong> to reset it securely.</p>
               </details>
             </div>
           </article>
