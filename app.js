@@ -2551,6 +2551,7 @@ function renderTodaySummary(){
   const openQuotes=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status));
   const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-confirmedPaid(i)),0);
   const pendingBookings=state.bookingRequests.filter(b=>b.status==="requested");
+  const overdueInvoices=state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status));
 
   const cards=$$(".metric-card", $('[data-page="today"]'));
   if(cards[0]){
@@ -2570,6 +2571,8 @@ function renderTodaySummary(){
     const formatted=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"short",day:"numeric"}).format(now);
     datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
   }
+  const assistantLabel=$("#todayAssistantLabel");
+  if(assistantLabel) assistantLabel.textContent=appIsSpanish()?"Tu asistente":"Daily assistant";
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
   if(hero) hero.classList.remove("is-loading");
@@ -2623,17 +2626,25 @@ function renderTodaySummary(){
       }else if(pendingBookings.length){
         messageState="booking";
         copy=appIsSpanish()
-          ? "Hoy está tranquilo. Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" esperando."
-          : "Today is light. You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting.";
+          ? "Hoy está tranquilo. Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" esperando. Esa es tu prioridad ahora."
+          : "Today is light. You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting. That’s your next priority.";
         actionView="booking";
+      }else if(overdueInvoices.length){
+        messageState="booking";
+        copy=appIsSpanish()
+          ? "No tienes una ruta urgente ahora, pero hay "+overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida":"s vencidas")+" que conviene revisar."
+          : "No urgent route right now, but "+overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.";
+        actionView="invoices";
       }else{
         messageState="calm";
         copy=appIsSpanish()
-          ? "Hoy está ligero. Buen momento para organizar reservas y preparar el día."
-          : "Today looks light. A good moment to organize bookings and set up the day.";
+          ? "Todo está bajo control. Buen momento para revisar reservas y dejar el día organizado."
+          : "Everything is under control. A good moment to review bookings and keep the day organized.";
         actionView="booking";
       }
-      actionText=appIsSpanish()?(actionView==="route"?"Ver ruta de hoy →":"Ver reservas →"):(actionView==="route"?"View today’s route →":"View bookings →");
+      actionText=appIsSpanish()
+        ? (actionView==="route"?"Ver ruta de hoy →":actionView==="invoices"?"Revisar facturas →":"Ver reservas →")
+        : (actionView==="route"?"View today’s route →":actionView==="invoices"?"Review invoices →":"View bookings →");
     }else if(isAfternoon){
       greet.textContent=appIsSpanish()?"Buenas tardes":"Good afternoon";
       if(momentIcon) momentIcon.textContent="💧";
@@ -2656,6 +2667,12 @@ function renderTodaySummary(){
           ? "Terminaste la ruta. Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" por revisar."
           : "The route is clear. You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" to review.";
         actionView="booking";
+      }else if(overdueInvoices.length){
+        messageState="booking";
+        copy=appIsSpanish()
+          ? "La ruta está tranquila. Tienes "+overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida":"s vencidas")+"; esa es tu mejor próxima tarea."
+          : "The route is quiet. You have "+overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?"":"s")+"; that’s your best next task.";
+        actionView="invoices";
       }else if(Number.isFinite(temp)&&temp>=88){
         messageState="hydrate";
         copy=appIsSpanish()
@@ -2669,7 +2686,9 @@ function renderTodaySummary(){
           : "You’re caught up. Check what’s left and make tomorrow a little easier.";
         actionView="today";
       }
-      actionText=appIsSpanish()?(actionView==="route"?"Ver próxima ruta →":actionView==="booking"?"Revisar solicitudes →":"Ver pendientes →"):(actionView==="route"?"View next route →":actionView==="booking"?"Review requests →":"View priorities →");
+      actionText=appIsSpanish()
+        ? (actionView==="route"?"Ver próxima ruta →":actionView==="booking"?"Revisar solicitudes →":actionView==="invoices"?"Revisar facturas →":"Ver pendientes →")
+        : (actionView==="route"?"View next route →":actionView==="booking"?"Review requests →":actionView==="invoices"?"Review invoices →":"View priorities →");
     }else{
       greet.textContent=appIsSpanish()?"Buenas noches":"Good evening";
       if(momentIcon) momentIcon.textContent="🌙";
@@ -2684,20 +2703,29 @@ function renderTodaySummary(){
         copy=appIsSpanish()
           ? "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Revisa la primera dirección y luego desconecta."
           : "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then switch off.";
+      }else if(overdueInvoices.length){
+        messageState="booking";
+        copy=appIsSpanish()
+          ? "Antes de cerrar el día, tienes "+overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida":"s vencidas")+" que necesita"+(overdueInvoices.length===1?"":"n")+" atención."
+          : "Before you close the day, "+overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.";
+        actionView="invoices";
       }else if(pendingBookings.length||openQuotes.length){
         messageState="booking";
         const count=pendingBookings.length+openQuotes.length;
         copy=appIsSpanish()
           ? "Tienes "+count+" pendiente"+(count===1?"":"s")+" para mañana. Organízalo ahora y luego descansa."
           : "You have "+count+" item"+(count===1?"":"s")+" waiting for tomorrow. Organize them now, then rest.";
+        actionView=pendingBookings.length?"booking":"quotes";
       }else{
         messageState="night";
         copy=appIsSpanish()
           ? "Todo está tranquilo. Organiza mañana, cierra la app y descansa."
           : "Everything looks quiet. Set up tomorrow, close the app and get some rest.";
+        actionView="calendar";
       }
-      actionView="calendar";
-      actionText=appIsSpanish()?"Planear mañana →":"Plan tomorrow →";
+      actionText=appIsSpanish()
+        ? (actionView==="invoices"?"Revisar facturas →":actionView==="booking"?"Revisar solicitudes →":actionView==="quotes"?"Revisar cotizaciones →":"Planear mañana →")
+        : (actionView==="invoices"?"Review invoices →":actionView==="booking"?"Review requests →":actionView==="quotes"?"Review quotes →":"Plan tomorrow →");
     }
 
     if(hero){
