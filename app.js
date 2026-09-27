@@ -825,6 +825,20 @@ function showSubscriptionGate(){
   };
 }
 
+function trialWarningDismissKey(){
+  const id=state.business?.id||"business";
+  const end=state.business?.trial_ends_at||"trial";
+  return "tle_trial_warning_dismissed_"+id+"_"+end;
+}
+function isTrialWarningDismissed(){
+  try{return localStorage.getItem(trialWarningDismissKey())==="1";}catch{return false;}
+}
+function dismissTrialWarning(){
+  try{localStorage.setItem(trialWarningDismissKey(),"1");}catch{}
+  const warning=$("#trialExpiryBanner");
+  if(warning) warning.hidden=true;
+}
+
 function renderTrialStatus(){
   const pill=$("#trialDaysPill");
   const trialCard=pill?.closest(".trial-card");
@@ -887,7 +901,8 @@ function renderTrialStatus(){
     pill.textContent=days===1 ? "1 day left" : days+" days left";
     if(payBtn) payBtn.remove();
 
-    if(warning && state.business.role==="owner" && days>0 && days<=3){
+    const withinFinal72Hours=ms>0 && ms<=72*60*60*1000;
+    if(warning && state.business.role==="owner" && withinFinal72Hours && !isTrialWarningDismissed()){
       warning.hidden=false;
       if(warningTitle){
         warningTitle.textContent=days===1
@@ -904,6 +919,8 @@ function renderTrialStatus(){
 
   showSubscriptionGate();
 }
+
+$("#trialExpiryClose")?.addEventListener("click",dismissTrialWarning);
 
 function applyRolePermissions(){
   const role=state.business?.role||"coworker";
@@ -1881,7 +1898,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,instagram_url,facebook_url")
+      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
