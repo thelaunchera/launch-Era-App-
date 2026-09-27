@@ -2743,24 +2743,26 @@ async function loadCoreData(){
   if(!state.business) return;
   const businessId=state.business.id;
 
-  const safe=async(label,promise)=>{
+  const loadFailures=[];
+  const safe=async(label,promise,fallback=[])=>{
     try{
       const result=await withTimeout(promise,label);
       if(result?.error) throw result.error;
-      return result?.data||[];
+      return result?.data??fallback;
     }catch(err){
       console.warn("[TLE]",label,err);
-      return [];
+      loadFailures.push(label);
+      return fallback;
     }
   };
 
   // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
   const [clients,leads,services,addons,availability]=await Promise.all([
-    safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
-    safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false})),
-    safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
-    safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
-    safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"))
+    safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.clients),
+    safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.leads),
+    safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.services),
+    safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.serviceAddons),
+    safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"),state.availabilityRules)
   ]);
   state.clients=clients;
   state.leads=leads;
@@ -2774,11 +2776,11 @@ async function loadCoreData(){
   renderAvailabilityEditor();
 
   const [jobs,quotes,team,supplies,disputes]=await Promise.all([
-    safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true})),
-    safe("quotes",supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false})),
-    safe("team",supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name")),
-    safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")),
-    safe("customer disputes",supabase.from("customer_disputes").select("*").eq("business_id",businessId).order("created_at",{ascending:false}))
+    safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),state.jobs),
+    safe("quotes",supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),state.quotes),
+    safe("team",supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name"),state.teamMembers),
+    safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.supplies),
+    safe("customer disputes",supabase.from("customer_disputes").select("*").eq("business_id",businessId).order("created_at",{ascending:false}),state.disputes)
   ]);
   state.jobs=jobs;
   state.quotes=quotes;
@@ -2792,10 +2794,10 @@ async function loadCoreData(){
   renderSupplies();
 
   const [invoices,bookingRequests,mileageLogs,timeEntries]=await Promise.all([
-    safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false})),
-    safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false})),
-    safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false})),
-    safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}))
+    safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false}),state.invoices),
+    safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingRequests),
+    safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),state.mileageLogs),
+    safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),state.timeEntries)
   ]);
   state.invoices=invoices;
   state.bookingRequests=bookingRequests;
@@ -2813,6 +2815,16 @@ async function loadCoreData(){
 
   if(state.business.role==="owner"){
     loadOwnerAdmin().catch(err=>console.warn("[TLE] owner admin",err));
+  }
+
+  if(loadFailures.length){
+    const now=Date.now();
+    if(now-Number(window.__tleLastLoadWarningAt||0)>45000){
+      window.__tleLastLoadWarningAt=now;
+      showToast(appIsSpanish()
+        ?"Algunos datos no pudieron actualizarse. Lo guardado sigue seguro; toca Refresh para intentar otra vez."
+        :"Some data couldn’t refresh. Your saved data is safe; tap Refresh to try again.");
+    }
   }
 }
 
