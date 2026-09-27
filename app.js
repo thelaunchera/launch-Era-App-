@@ -133,8 +133,8 @@ const ONBOARDING_COPY={
     es:{title:"Cotizaciones",text:"Revisa solicitudes, prepara estimados, envíalos al cliente y controla si fueron aceptados o rechazados."}
   },
   invoices:{
-    en:{title:"Invoices",text:"Create and send invoices, then record Cash, Check or Zelle when the client pays."},
-    es:{title:"Facturas",text:"Crea y envía facturas, y registra Efectivo, Cheque o Zelle cuando el cliente pague."}
+    en:{title:"Invoices",text:"Create and send invoices, then record the payment method your business accepts when the client pays."},
+    es:{title:"Facturas",text:"Crea y envía facturas y registra la forma de pago que acepta tu negocio cuando el cliente pague."}
   },
   route:{
     en:{title:"Today’s Route",text:"See today’s stops in order so you and your team know where to go next."},
@@ -522,6 +522,13 @@ async function geocodeBusinessArea(area){
     }catch(e){}
   }
   return null;
+}
+function paymentMethodsForCountry(code){
+  const country=String(code||"").toUpperCase();
+  if(country==="BR") return ["cash","pix","bank_transfer","other"];
+  if(country==="US") return ["cash","check","other"];
+  if(["CA","GB","AU","NZ","IE"].includes(country)) return ["cash","bank_transfer","other"];
+  return ["cash","bank_transfer","other"];
 }
 function currencyForCountry(code){
   const map={
@@ -1860,7 +1867,7 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit: globalSetup.distance_unit,
       temperature_unit: globalSetup.temperature_unit,
       default_language: globalSetup.default_language,
-      payment_methods:["cash","check","other"],
+      payment_methods:paymentMethodsForCountry(globalSetup.country_code),
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
       trial_days:30,
@@ -3019,7 +3026,7 @@ function renderInvoices(){
     const paid=invoicePaidAmount(inv);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
-    const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle"}[chosenMethod]||"";
+    const methodLabel={cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[chosenMethod]||chosenMethod||"";
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
@@ -4924,7 +4931,7 @@ function openPaymentForm(invoiceId){
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
   const chosen=String(inv.customer_payment_method||"").toLowerCase();
-  const methodLabel={cash:"Cash",check:"Check",other:"Other"}[chosen]||"";
+  const methodLabel={cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[chosen]||chosen||"";
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
