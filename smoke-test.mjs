@@ -131,7 +131,11 @@ for(const phrase of ["Today’s jobs","Current client records","Still to collect
     throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
   }
 }
-if(!publicJs.includes('tt("REQUEST A QUOTE")') || !publicJs.includes('tt("BOOK A CLEANING")') || !publicJs.includes('tt("Could not submit invoice.")')){
+if(
+  !publicJs.includes('tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING")') ||
+  !publicJs.includes('tt("Could not submit invoice.")') ||
+  !publicJs.includes('tt("Could not submit quote.")')
+){
   throw new Error("Public localization regression: booking/quote/invoice states bypass translation");
 }
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
