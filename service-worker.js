@@ -32,17 +32,24 @@ self.addEventListener("fetch",event=>{
   if(url.origin!==self.location.origin) return;
 
   event.respondWith((async()=>{
+    const sensitiveParams=["token","session_id","invite","worker","billing","slug","public"];
+    const hasSensitiveQuery=sensitiveParams.some(key=>url.searchParams.has(key));
+    const isNavigation=event.request.mode==="navigate";
+    const shouldCache=!isNavigation && !hasSensitiveQuery;
+
     try{
       const response=await fetch(new Request(event.request,{cache:"no-store"}));
-      if(response&&response.ok){
+      if(response&&response.ok&&shouldCache){
         const cache=await caches.open(CACHE_NAME);
         cache.put(event.request,response.clone()).catch(()=>{});
       }
       return response;
     }catch{
-      const cached=await caches.match(event.request);
-      if(cached) return cached;
-      if(event.request.mode==="navigate"){
+      if(shouldCache){
+        const cached=await caches.match(event.request);
+        if(cached) return cached;
+      }
+      if(isNavigation){
         const fallback=await caches.match("./index.html");
         if(fallback) return fallback;
       }
