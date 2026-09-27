@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-49";
+const APP_VERSION = "20260927-unified-50";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1229,7 +1229,10 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  if(hasSeenAuthWelcome()){
+  const remembered=rememberedOwnerEmail();
+  // Returning owners can go straight to Sign in. Everyone else always sees
+  // the product page before Create account.
+  if(remembered){
     prepareDirectAuth();
     return;
   }
@@ -1251,7 +1254,6 @@ function showAuthWelcome(){
   const back=$("#authBackWelcome");
   if(back) back.hidden=false;
   window.__tleAuthWelcomeSessionActive=true;
-  markAuthWelcomeSeen();
   setAuthStatus("");
   syncAuthWelcomeCopy();
 }
@@ -1276,6 +1278,9 @@ function openAuthFromWelcome(mode){
 
   requestAnimationFrame(()=>{
     try{authPanel.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
+    if(mode==="signup"){
+      setTimeout(()=>$("#authEmail")?.focus({preventScroll:true}),520);
+    }
   });
 }
 
