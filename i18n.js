@@ -1,6 +1,9 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Deleted":"Borrado",
+    "Deleting…":"Borrando…",
+    "Delete":"Borrar",
     "Submitting your decline…":"Enviando rechazo…",
     "Submitting your acceptance…":"Enviando aceptación…",
     "Choose Accept or Decline, then submit your response.":"Elige Aceptar o Rechazar y luego envía tu respuesta.",
