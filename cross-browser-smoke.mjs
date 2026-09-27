@@ -89,7 +89,10 @@ async function assertLayout(page,profile){
   if(Math.abs(dashboard.appTop)>4 || Math.abs(dashboard.mainTop)>4 || Math.abs(dashboard.topbarTop)>6){
     throw new Error(profile.name+": dashboard does not start at top "+JSON.stringify(dashboard));
   }
-  if(dashboard.mainWidth<dashboard.innerWidth-36){
+  const expectedMainMin=profile.viewport.width<=860
+    ? dashboard.innerWidth-36
+    : dashboard.innerWidth-dashboard.sidebarWidth-36;
+  if(dashboard.mainWidth<expectedMainMin){
     throw new Error(profile.name+": dashboard is compressed "+JSON.stringify(dashboard));
   }
   if(dashboard.scrollWidth>dashboard.innerWidth+4){
