@@ -567,8 +567,12 @@ async function geocodeBusinessArea(area){
   }
   return null;
 }
-function paymentMethodsForCountry(){
-  return ["cash","check","other"];
+function paymentMethodsForCountry(code){
+  const country=String(code||"").toUpperCase();
+  if(country==="BR") return ["cash","pix","bank_transfer","other"];
+  if(country==="US") return ["cash","check","other"];
+  if(["CA","GB","AU","NZ","IE"].includes(country)) return ["cash","bank_transfer","other"];
+  return ["cash","bank_transfer","other"];
 }
 function currencyForCountry(code){
   const map={
