@@ -115,6 +115,11 @@ try{
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:5000});
+    await page.type("#authEmail","not-an-email");
+    await page.type("#authPassword","12345678");
+    await page.click("#authSubmit");
+    await page.waitForFunction(()=>document.querySelector("#authStatus")?.textContent.trim().length>0,{timeout:3000});
+    await page.evaluate(()=>{document.querySelector("#authEmail").value="";document.querySelector("#authPassword").value="";});
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
