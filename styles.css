@@ -1935,3 +1935,6 @@ body.platform-owner-no-billing .trial-card{
     transition:none!important;
   }
 }
+
+.table-head.mileage-head{grid-template-columns:1.1fr .7fr 1.1fr .7fr}
+.table-head.time-head{grid-template-columns:1.25fr .7fr .7fr .8fr}
