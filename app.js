@@ -2881,27 +2881,33 @@ function renderSettings(){
 function renderBusinessPresence(){
   const instagram=$("#presenceInstagramBtn");
   const facebook=$("#presenceFacebookBtn");
+  const google=$("#presenceGoogleBtn");
   const booking=$("#presenceBookingBtn");
   const hint=$("#presenceHint");
   if(!instagram || !facebook || !booking) return;
 
   const ig=String(state.business?.instagram_url||"").trim();
   const fb=String(state.business?.facebook_url||"").trim();
+  const googleUrl=String(state.publicLinks?.google_review_url||"").trim();
 
   instagram.classList.toggle("connected",Boolean(ig));
   facebook.classList.toggle("connected",Boolean(fb));
+  if(google) google.classList.toggle("connected",Boolean(googleUrl));
   instagram.dataset.url=ig;
   facebook.dataset.url=fb;
+  if(google) google.dataset.url=googleUrl;
 
   const igState=$("#presenceInstagramState");
   const fbState=$("#presenceFacebookState");
+  const googleState=$("#presenceGoogleState");
   if(igState) igState.textContent=ig?tr("Open profile"):tr("Add profile");
   if(fbState) fbState.textContent=fb?tr("Open page"):tr("Add page");
+  if(googleState) googleState.textContent=googleUrl?tr("Open reviews"):tr("Add link");
 
   if(hint){
-    hint.textContent=ig||fb
+    hint.textContent=ig||fb||googleUrl
       ? tr("Keep your client-facing links close while you run the day.")
-      : tr("Add Instagram and Facebook in Business Profile.");
+      : tr("Add Instagram, Facebook and your review link in Business Profile.");
   }
 }
 
@@ -3905,12 +3911,18 @@ async function deleteBusinessRecord(type,id){
 }
 
 document.addEventListener("click",async e=>{
-  const presenceBtn=e.target.closest("#presenceInstagramBtn,#presenceFacebookBtn,#presenceBookingBtn");
+  const presenceBtn=e.target.closest("#presenceInstagramBtn,#presenceFacebookBtn,#presenceGoogleBtn,#presenceBookingBtn");
   if(presenceBtn){
     if(presenceBtn.id==="presenceBookingBtn"){
       const url=$("#bookingUrl")?.href;
       if(url && url!=="#") window.open(url,"_blank","noopener");
       else openView("booking");
+      return;
+    }
+    if(presenceBtn.id==="presenceGoogleBtn"){
+      const url=String(presenceBtn.dataset.url||"").trim();
+      if(url) window.open(url,"_blank","noopener");
+      else openView("settings");
       return;
     }
     const url=String(presenceBtn.dataset.url||"").trim();
