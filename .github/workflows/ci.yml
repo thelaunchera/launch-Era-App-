@@ -18,6 +18,15 @@ jobs:
         with:
           node-version: "22"
       - run: npm install --no-audit --no-fund
+      - name: Block high/critical production dependency advisories
+        run: npm audit --omit=dev --audit-level=high
+      - name: Prevent frontend secret leakage
+        shell: bash
+        run: |
+          if grep -nE 'sk_live_|sb_secret_|SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|hook\.us2\.make\.com' app.js public.js index.html i18n.js; then
+            echo "Sensitive backend credential or webhook pattern found in frontend files."
+            exit 1
+          fi
       - run: npm run check
       - run: npm run verify-local-supabase
       - run: npm run smoke
