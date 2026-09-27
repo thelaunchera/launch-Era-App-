@@ -795,3 +795,16 @@ body.tle-signing-out .sidebar-logout-btn:active{transform:none}
   .sidebar{overflow:hidden}
   .nav-list{overflow-y:auto;-webkit-overflow-scrolling:touch}
 }
+
+.owner-code-panel{display:grid;gap:14px;margin-top:8px}
+.owner-code-panel[hidden]{display:none!important}
+.owner-code-copy{margin:0;color:var(--muted);line-height:1.55}
+.owner-code-panel .pill{justify-self:start}
+#ownerAccessCode{
+  text-align:center;
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:.22em;
+  padding-left:calc(16px + .22em);
+}
+.owner-code-different{justify-self:center}
