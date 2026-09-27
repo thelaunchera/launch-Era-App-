@@ -685,7 +685,7 @@ businessForm.addEventListener("submit", async (e)=>{
     const { data, error } = await supabase.from("businesses").insert(payload).select().single();
     if(error) throw error;
     state.business={
-      id:data.id,name:data.name,role:"owner",team_member_id:null,
+      id:data.id,name:data.name,email:data.email,phone:data.phone,role:"owner",team_member_id:null,
       timezone:data.timezone,default_language:data.default_language,
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
       trial_ends_at:data.trial_ends_at,trial_days:data.trial_days,trial_promotion:data.trial_promotion,
@@ -956,6 +956,8 @@ async function initialize(){
   state.business={
     id:context.business_id,
     name:context.business_name,
+    email:context.business_email||state.session?.user?.email||null,
+    phone:context.business_phone||null,
     role:context.role,
     team_member_id:context.team_member_id,
     timezone:context.timezone,
@@ -966,7 +968,21 @@ async function initialize(){
     subscription_status:context.subscription_status
   };
 
-  await handleBillingReturn(params);
+  if(!state.business.email || state.business.phone===null){
+    try{
+      const {data:companyProfile,error:companyProfileError}=await supabase
+        .from("businesses")
+        .select("email,phone")
+        .eq("id",state.business.id)
+        .single();
+      if(companyProfileError) throw companyProfileError;
+      if(companyProfile) state.business={...state.business,...companyProfile};
+    }catch(err){
+      console.warn("[TLE] company profile hydrate",err);
+    }
+  }
+
+    await handleBillingReturn(params);
 
   const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
   state.publicLinks=linkSettings||null;
@@ -1748,10 +1764,107 @@ function renderBookingRequests(){
     </div>`).join("");
 }
 
+
+async function openBusinessProfileForm(){
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    showToast("Owner or Admin access required.");
+    return;
+  }
+
+  state.modalType="businessProfile";
+  state.modalId=state.business.id;
+
+  let record={
+    name:state.business.name||"",
+    email:state.business.email||state.session?.user?.email||"",
+    phone:state.business.phone||"",
+    service_area:state.business.service_area||"",
+    timezone:state.business.timezone||"America/New_York",
+    default_language:state.business.default_language||"en"
+  };
+
+  try{
+    const {data,error}=await supabase
+      .from("businesses")
+      .select("name,email,phone,service_area,timezone,default_language")
+      .eq("id",state.business.id)
+      .single();
+    if(error) throw error;
+    if(data) record={...record,...data};
+  }catch(err){
+    console.warn("[TLE] business profile load",err);
+  }
+
+  modalHeader("COMPANY DETAILS","Edit business details","Update the company information used across your workspace and client-facing flows.");
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label>Business name<input name="name" required value="${escapeHtml(record.name||"")}"></label>
+      <label>Business email<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
+      <label>Phone<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
+      <label>Service area<input name="service_area" value="${escapeHtml(record.service_area||"")}" placeholder="Palm Beach County, FL"></label>
+      <label>Time zone<select name="timezone" required>
+        <option value="America/New_York" ${record.timezone==="America/New_York"?"selected":""}>Eastern Time</option>
+        <option value="America/Chicago" ${record.timezone==="America/Chicago"?"selected":""}>Central Time</option>
+        <option value="America/Denver" ${record.timezone==="America/Denver"?"selected":""}>Mountain Time</option>
+        <option value="America/Los_Angeles" ${record.timezone==="America/Los_Angeles"?"selected":""}>Pacific Time</option>
+      </select></label>
+      <label>Default language<select name="default_language" required>
+        <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
+        <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
+      </select></label>
+    </div>
+    ${formSubmit("Save business details")}`;
+  modal.hidden=false;
+}
+
+async function saveBusinessProfile(fd){
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    throw new Error("Owner or Admin access required.");
+  }
+
+  const payload={
+    name:String(fd.get("name")||"").trim(),
+    email:String(fd.get("email")||"").trim().toLowerCase(),
+    phone:String(fd.get("phone")||"").trim()||null,
+    service_area:String(fd.get("service_area")||"").trim()||null,
+    timezone:String(fd.get("timezone")||"America/New_York"),
+    default_language:String(fd.get("default_language")||"en"),
+    updated_at:new Date().toISOString()
+  };
+
+  if(!payload.name) throw new Error("Business name is required.");
+  if(!payload.email) throw new Error("Business email is required.");
+
+  const {data,error}=await supabase
+    .from("businesses")
+    .update(payload)
+    .eq("id",state.business.id)
+    .select("name,email,phone,service_area,timezone,default_language")
+    .single();
+
+  if(error) throw error;
+
+  state.business={...state.business,...data};
+  renderSettings();
+  showApp();
+}
+
 function renderSettings(){
-  const n=$("#settingsBusinessName"),a=$("#settingsServiceArea"),b=$("#settingsTravelBuffer"),m=$("#settingsBookingNotice"),r=$("#settingsReplyEmail");
+  const n=$("#settingsBusinessName"),
+        e=$("#settingsBusinessEmail"),
+        p=$("#settingsBusinessPhone"),
+        a=$("#settingsServiceArea"),
+        tz=$("#settingsBusinessTimezone"),
+        lang=$("#settingsBusinessLanguage"),
+        b=$("#settingsTravelBuffer"),
+        m=$("#settingsBookingNotice"),
+        r=$("#settingsReplyEmail");
   if(n) n.textContent=state.business?.name||"—";
+  if(e) e.textContent=state.business?.email||state.session?.user?.email||"—";
+  if(p) p.textContent=state.business?.phone||"Not set";
   if(a) a.textContent=state.business?.service_area||"Not set";
+  if(tz) tz.textContent=state.business?.timezone||"America/New_York";
+  if(lang) lang.textContent=(state.business?.default_language||"en")==="es"?"Español":"English";
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
@@ -2204,6 +2317,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="mileage") await saveMileage(fd);
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="team") await saveTeam(fd);
+    if(state.modalType==="businessProfile") await saveBusinessProfile(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     if(state.modalType==="startTimer") await saveStartTimer(fd);
     modal.hidden=true;
@@ -2941,6 +3055,9 @@ document.addEventListener("change",async e=>{
   if(error) showToast(error.message);
   else {await loadOwnerAdmin();showToast("Access updated");}
 });
+
+const editBusinessProfileBtn=$("#editBusinessProfileBtn");
+if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
 
 const saveGoogleReviewBtn=$("#saveGoogleReviewBtn");
 if(saveGoogleReviewBtn) saveGoogleReviewBtn.addEventListener("click",async ()=>{
