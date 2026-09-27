@@ -1474,3 +1474,464 @@ body.platform-owner-no-billing .trial-card{
   background:#191919;
   color:#fff;
 }
+
+/* Premium mobile records + dashboard polish */
+.safe-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+}
+.record-card-actions{
+  display:grid!important;
+  grid-template-columns:1fr;
+  gap:10px!important;
+}
+.record-delete-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid #E8C9C4!important;
+  background:#FFF3F1!important;
+  color:#873F37!important;
+  border-radius:13px!important;
+  min-height:40px;
+  padding:10px 14px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:.01em;
+}
+.record-delete-btn:active{
+  transform:scale(.985);
+}
+.record-primary{
+  min-width:0;
+}
+.record-primary strong,
+.record-primary small{
+  display:block;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.record-field{
+  min-width:0;
+}
+.record-field>small{
+  display:block;
+  margin-top:3px;
+}
+#mileageTable .table-row{
+  grid-template-columns:1.1fr .7fr 1.1fr .7fr;
+}
+#timeEntriesTable .table-row{
+  grid-template-columns:1.25fr .7fr .7fr .8fr;
+}
+
+/* Premium Dashboard presence */
+.presence-panel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:20px;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(242,216,91,.20),transparent 32%),
+    #fff;
+  overflow:hidden;
+}
+.presence-copy{
+  min-width:0;
+  max-width:410px;
+}
+.presence-copy h3{
+  margin:0 0 6px;
+  font-size:22px;
+}
+.presence-copy>p:last-child{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.presence-actions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(130px,1fr));
+  gap:9px;
+  width:min(600px,100%);
+}
+.presence-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  padding:12px 13px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#FAF9F6;
+  color:var(--ink);
+  text-align:left;
+  cursor:pointer;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.presence-btn:hover{
+  transform:translateY(-1px);
+  border-color:#CFC9BD;
+  box-shadow:0 8px 20px rgba(25,25,25,.05);
+}
+.presence-btn.connected{
+  background:#fff;
+  border-color:#CFC8B8;
+}
+.presence-mark{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:var(--ink);
+  color:white;
+  font-size:17px;
+  font-weight:900;
+}
+.presence-btn>span:last-child{
+  display:grid;
+  min-width:0;
+  gap:2px;
+}
+.presence-btn strong{
+  font-size:12px;
+}
+.presence-btn small{
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Smooth premium interactions */
+.view.view-enter{
+  animation:tleViewIn .32s cubic-bezier(.22,.75,.22,1) both;
+}
+@keyframes tleViewIn{
+  from{opacity:.35;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.metric-card,
+.panel,
+.client-card,
+.kanban-col article,
+.job-block,
+.mobile-record-card{
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.quick-card,
+.primary-btn,
+.dark-btn,
+.ghost-btn,
+.text-btn,
+.card-actions button,
+.record-actions button{
+  transition:transform .15s ease,opacity .15s ease,background .15s ease,border-color .15s ease;
+}
+.quick-card:active,
+.primary-btn:active,
+.dark-btn:active,
+.ghost-btn:active,
+.card-actions button:active,
+.record-actions button:active{
+  transform:scale(.975);
+}
+[data-page="today"] .metric-card{
+  box-shadow:0 8px 24px rgba(25,25,25,.025);
+}
+[data-page="today"] .panel{
+  box-shadow:0 10px 32px rgba(25,25,25,.035);
+}
+
+@media(max-width:680px){
+  /* Sections breathe more like a native app */
+  .section-intro{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+    gap:14px!important;
+    margin-bottom:18px!important;
+  }
+  .section-intro h2{
+    font-size:clamp(29px,10vw,40px)!important;
+    line-height:1.05!important;
+  }
+  .section-intro>.primary-btn,
+  .section-intro>.section-actions{
+    width:100%;
+  }
+  .section-intro>.primary-btn{
+    min-height:50px;
+  }
+
+  /* Replace desktop tables with clean stacked cards */
+  .table-card{
+    border:0!important;
+    background:transparent!important;
+    overflow:visible!important;
+    border-radius:0!important;
+  }
+  .table-card>.table-head{
+    display:none!important;
+  }
+  #leadsTable,
+  #invoicesTable,
+  #mileageTable,
+  #timeEntriesTable{
+    display:grid;
+    gap:12px;
+  }
+  .mobile-record-card{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+    padding:16px!important;
+    border:1px solid var(--line)!important;
+    border-radius:19px!important;
+    background:#fff!important;
+    box-shadow:0 8px 24px rgba(25,25,25,.025);
+  }
+  .mobile-record-card>.record-primary{
+    padding-bottom:10px;
+    border-bottom:1px solid #EEEAE2;
+  }
+  .mobile-record-card>.record-primary strong{
+    font-size:17px;
+    line-height:1.2;
+  }
+  .mobile-record-card>.record-primary small{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .mobile-record-card>.record-field{
+    display:grid!important;
+    grid-template-columns:minmax(80px,.75fr) minmax(0,1.25fr);
+    align-items:center;
+    gap:12px;
+    min-height:28px;
+    font-size:13px;
+  }
+  .mobile-record-card>.record-field:before{
+    content:attr(data-label);
+    color:#8A857D;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .mobile-record-card>.record-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding-top:11px;
+    border-top:1px solid #EEEAE2;
+  }
+  .mobile-record-card .safe-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+  }
+  .mobile-record-card .safe-actions button{
+    min-height:40px;
+    width:100%;
+    padding:9px 10px!important;
+    font-size:11px!important;
+    border-radius:12px!important;
+  }
+  .mobile-record-card .record-delete-btn,
+  .record-card-actions .record-delete-btn{
+    width:100%;
+    min-height:44px;
+    margin-top:2px;
+  }
+
+  /* Client cards */
+  .client-grid{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .client-card{
+    padding:17px!important;
+    border-radius:19px!important;
+  }
+  .client-card .client-avatar{
+    width:40px;
+    height:40px;
+    margin-bottom:4px;
+  }
+  .client-card>strong{
+    font-size:18px;
+  }
+  .client-card>span,
+  .client-card>small{
+    overflow-wrap:anywhere;
+  }
+  .record-card-actions{
+    padding-top:11px;
+    margin-top:8px!important;
+    border-top:1px solid #EEEAE2;
+  }
+  .record-card-actions .safe-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+  }
+  .record-card-actions .safe-actions button{
+    width:100%;
+    min-height:40px;
+    border-radius:12px!important;
+  }
+
+  /* Quotes: one clean column instead of a squeezed Kanban */
+  .kanban{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .kanban-col{
+    border-radius:18px!important;
+    padding:12px!important;
+  }
+  .kanban-col h3{
+    margin:2px 2px 9px!important;
+  }
+  .kanban-col article{
+    padding:15px!important;
+    border-radius:16px!important;
+  }
+  .kanban-col .record-card-actions{
+    display:grid!important;
+  }
+
+  /* Calendar job list */
+  .job-block{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    align-items:start!important;
+    padding:15px!important;
+    border-radius:17px!important;
+  }
+  .job-block>time{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:900;
+  }
+  .job-block>.record-actions{
+    display:flex!important;
+    grid-column:auto!important;
+    justify-content:flex-start!important;
+    padding-top:9px;
+    border-top:1px solid #EEEAE2;
+  }
+  .buffer-block{
+    padding-left:12px!important;
+  }
+
+  /* Booking request rows and other split rows */
+  .booking-request-row{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .booking-request-row>.record-actions{
+    justify-content:flex-start!important;
+  }
+
+  /* Dashboard feels lighter and faster */
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  [data-page="today"] .metric-card{
+    padding:16px!important;
+    border-radius:18px!important;
+    min-height:125px;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    line-height:1.25;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:29px!important;
+    margin:9px 0 4px!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:11px;
+    line-height:1.35;
+  }
+  [data-page="today"] .metric-card:last-child{
+    grid-column:1/-1;
+    min-height:auto;
+  }
+  .dashboard-grid,
+  .dashboard-grid.lower{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .quick-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .quick-card{
+    min-height:84px!important;
+    padding:12px!important;
+    border-radius:16px!important;
+    font-size:20px!important;
+  }
+  .quick-card span{
+    font-size:10px!important;
+    line-height:1.25;
+    margin-top:14px!important;
+  }
+  .timeline-item{
+    grid-template-columns:62px 1fr!important;
+    gap:9px!important;
+  }
+  .timeline-item>.status{
+    grid-column:2;
+  }
+
+  /* Social / booking presence stays compact */
+  .presence-panel{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+    padding:18px!important;
+    border-radius:20px!important;
+  }
+  .presence-actions{
+    grid-template-columns:1fr!important;
+    width:100%;
+  }
+  .presence-btn{
+    min-height:56px;
+    padding:10px 12px;
+  }
+}
+
+@media(max-width:410px){
+  [data-page="today"] .metric-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .quick-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .mobile-record-card .safe-actions,
+  .record-card-actions .safe-actions{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .view.view-enter{animation:none!important}
+  .metric-card,.panel,.client-card,.kanban-col article,.job-block,.mobile-record-card,
+  .quick-card,.primary-btn,.dark-btn,.ghost-btn,.text-btn,.card-actions button,.record-actions button,.presence-btn{
+    transition:none!important;
+  }
+}
