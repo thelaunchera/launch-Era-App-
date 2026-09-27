@@ -71,7 +71,7 @@
         <p class="auth-copy" id="authCopy">Create your cleaning business account.</p>
         <form id="authForm" class="auth-form">
           <label id="emailField">Email address<input id="authEmail" name="email" type="email" required autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com"></label>
-          <label id="passwordField">Password<input id="authPassword" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="8+ characters"></label>
+          <label id="passwordField">Password<div class="password-input-wrap"><input id="authPassword" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="8+ characters"><button type="button" id="authPasswordToggle" class="password-toggle" aria-label="Show password" aria-pressed="false"><span aria-hidden="true">👁</span></button></div></label>
           <button class="primary-btn" type="submit" id="authSubmit">Create account</button>
           <p class="signup-legal-note" id="signupLegalNote" hidden>
             By creating an account, you agree to our
