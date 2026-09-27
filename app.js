@@ -666,7 +666,7 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
-  $$$("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   renderTrialStatus();
@@ -906,9 +906,9 @@ function renderTrialStatus(){
 
 function applyRolePermissions(){
   const role=state.business?.role||"coworker";
-  $$$("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
-  $$$("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
-  $$$("[data-platform-admin-only]").forEach(el=>el.hidden=!state.isPlatformAdmin);
+  $$("[data-owner-only]").forEach(el=>el.hidden=role!=="owner");
+  $$("[data-admin-only]").forEach(el=>el.hidden=!["owner","admin"].includes(role));
+  $$("[data-platform-admin-only]").forEach(el=>el.hidden=!state.isPlatformAdmin);
   if(role==="coworker"){
     const active=$(".nav-item.active");
     if(active && active.hidden) openView("today");
@@ -937,8 +937,8 @@ function openView(id,options={}){
   trackVisit("/app/"+id).catch(()=>{});
   setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
-$$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
-$$$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
+$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+$$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
   let previous=navHistory.pop();
@@ -1952,7 +1952,7 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
-  $$$("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   const [membersRes,invitesRes]=await Promise.all([
@@ -2143,7 +2143,7 @@ async function saveAvailabilitySettings(){
   const notice=Number($("#bookingNoticeHours")?.value||0);
   const rows=[];
 
-  $$$(".availability-day").forEach(day=>{
+  $$(".availability-day").forEach(day=>{
     const enabled=day.querySelector("[data-day-enabled]")?.checked;
     if(!enabled) return;
     const start=day.querySelector("[data-day-start]")?.value;
@@ -4402,7 +4402,7 @@ async function copyText(text){
   try{await navigator.clipboard.writeText(text);showToast("Link copied");}
   catch{showToast("Copy unavailable here");}
 }
-$$$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
+$$("[data-copy-target]").forEach(btn=>btn.addEventListener("click",()=>copyText($("#"+btn.dataset.copyTarget).textContent.trim())));
 $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textContent.trim()));
 
 document.addEventListener("click",e=>{
