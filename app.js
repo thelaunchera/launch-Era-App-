@@ -11,6 +11,9 @@ function isPrimaryPlatformAdminAccount(){
   return String(state?.session?.user?.email||"").trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL;
 }
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
+const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
+const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
+const OWNER_EMAIL_KEY = "tle_owner_email";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -143,9 +146,14 @@ function showApp(){
   appShell.hidden = false;
   applyRolePermissions();
   renderTrialStatus();
+  if(state.business?.role==="owner" && state.session?.user?.email){
+    localStorage.setItem(OWNER_EMAIL_KEY,String(state.session.user.email).trim().toLowerCase());
+    markOwnerActivity();
+    installOwnerActivityTracker();
+  }
   const chip = $(".workspace-chip");
   if(chip && state.business){
-    const roleLabel = state.business.role==="owner" ? "Owner workspace" : state.business.role==="admin" ? "Admin access" : "Worker access";
+    const roleLabel = state.business.role==="owner" ? "Admin" : state.business.role==="admin" ? "Admin access" : "Worker access";
     chip.innerHTML = `
       <span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
@@ -445,81 +453,161 @@ function rememberedAdminEmails(){
   try{return JSON.parse(localStorage.getItem("tle_admin_emails")||"[]").filter(Boolean);}
   catch{return [];}
 }
+function rememberedOwnerEmail(){
+  return String(localStorage.getItem(OWNER_EMAIL_KEY)||localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+}
+function maskEmail(email=""){
+  const clean=String(email).trim();
+  const parts=clean.split("@");
+  if(parts.length!==2) return clean;
+  const name=parts[0];
+  const shown=name.length<=2 ? name[0]+"*" : name.slice(0,2)+"***";
+  return shown+"@"+parts[1];
+}
+function markOwnerActivity(){
+  if(state.business?.role!=="owner") return;
+  localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
+}
+function ownerIdleExpired(){
+  const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  return last>0 && (Date.now()-last)>=OWNER_IDLE_MS;
+}
+async function expireOwnerSession(){
+  if(window.__tleOwnerLocking) return;
+  window.__tleOwnerLocking=true;
+  const email=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
+  try{
+    await supabase.auth.signOut({scope:"local"});
+  }catch{}
+  state.session=null;
+  state.business=null;
+  localStorage.removeItem(OWNER_ACTIVITY_KEY);
+  await showOwnerAccess(email,true);
+  window.__tleOwnerLocking=false;
+}
+function installOwnerActivityTracker(){
+  if(window.__tleOwnerActivityInstalled) return;
+  window.__tleOwnerActivityInstalled=true;
+  let lastWrite=0;
+  const onActivity=()=>{
+    if(!state.session || state.business?.role!=="owner") return;
+    if(ownerIdleExpired()){
+      expireOwnerSession().catch(()=>{});
+      return;
+    }
+    const now=Date.now();
+    if(now-lastWrite>60000){
+      lastWrite=now;
+      markOwnerActivity();
+    }
+  };
+  ["pointerdown","keydown","touchstart","scroll"].forEach(evt=>{
+    window.addEventListener(evt,onActivity,{passive:true});
+  });
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState!=="visible") return;
+    if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
+      expireOwnerSession().catch(()=>{});
+    }else{
+      onActivity();
+    }
+  });
+  window.setInterval(()=>{
+    if(state.session && state.business?.role==="owner" && ownerIdleExpired()){
+      expireOwnerSession().catch(()=>{});
+    }
+  },60000);
+}
 function prepareAdminShortcut(){
   const shortcut=$("#rememberedAdminBtn");
   if(!shortcut) return;
-  const last=localStorage.getItem("tle_last_admin_email");
-  const passwordField=$("#passwordField");
-  const submit=$("#authSubmit");
-  const forgot=$("#forgotPassword");
-  const recognized=Boolean(last && last.trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL && state.authMode==="signin");
-
-  shortcut.hidden=!recognized;
-  if(recognized){
-    if(!$("#authEmail").value) $("#authEmail").value=last;
-    passwordField.hidden=true;
-    $("#authPassword").required=false;
-    submit.hidden=true;
-    forgot.hidden=true;
-    $("#authCopy").textContent="Continue with your admin email. No password required.";
-  }else if(state.authMode==="signin"){
-    passwordField.hidden=false;
-    $("#authPassword").required=true;
-    submit.hidden=false;
-    forgot.hidden=false;
+  const remembered=rememberedOwnerEmail();
+  shortcut.hidden=state.authMode!=="signin";
+  shortcut.textContent="Continue as Admin";
+  if(remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
+}
+async function requestOwnerAccessCode(email){
+  const clean=String(email||"").trim().toLowerCase();
+  if(!clean || !clean.includes("@")) throw new Error("Enter a valid email.");
+  const {data,error}=await supabase.functions.invoke("request-owner-access-code",{body:{email:clean}});
+  if(error) throw error;
+  if(!data?.sent) throw new Error(data?.error||"Could not send the access code.");
+  localStorage.setItem(OWNER_EMAIL_KEY,clean);
+  return data;
+}
+async function verifyOwnerAccessCode(email,code){
+  const clean=String(email||"").trim().toLowerCase();
+  const token=String(code||"").replace(/\D/g,"").slice(0,6);
+  if(token.length!==6) throw new Error("Enter the 6-digit code.");
+  const {data,error}=await supabase.functions.invoke("verify-owner-access-code",{body:{email:clean,code:token}});
+  if(error) throw error;
+  if(!data?.verified || !data?.access_token || !data?.refresh_token){
+    throw new Error(data?.error||"That code could not be verified.");
+  }
+  window.__tleOwnerCodeLogin=true;
+  try{
+    const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
+      access_token:data.access_token,
+      refresh_token:data.refresh_token
+    });
+    if(sessionError) throw sessionError;
+    state.session=sessionData.session||null;
+    localStorage.setItem(OWNER_EMAIL_KEY,clean);
+    localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
+    await enterAuthenticatedApp();
+  }finally{
+    window.__tleOwnerCodeLogin=false;
   }
 }
-
-async function requestAdminSignIn(email){
-  const clean=String(email||"").trim().toLowerCase();
-  if(!clean) throw new Error("Enter your admin email first.");
-  if(clean!==PRIMARY_PLATFORM_ADMIN_EMAIL) throw new Error("Admin access is not active for this email.");
-
-  const {data,error}=await supabase.functions.invoke("trusted-admin-login",{
-    body:{email:clean}
-  });
-
-  if(error) throw error;
-  if(!data?.sent) throw new Error(data?.error||"Could not send admin sign-in email");
-
-  localStorage.setItem("tle_last_admin_email",clean);
-  return true;
+async function showOwnerAccess(email,autoSend=false){
+  const clean=String(email||rememberedOwnerEmail()).trim().toLowerCase();
+  showAuth();
+  state.authMode="ownerCode";
+  const form=$("#authForm");
+  const shortcut=$("#rememberedAdminBtn");
+  const panel=$("#ownerCodePanel");
+  const links=$(".auth-links");
+  if(form) form.hidden=true;
+  if(shortcut) shortcut.hidden=true;
+  if(links) links.hidden=true;
+  if(panel) panel.hidden=false;
+  $("#authTitle").textContent="Admin";
+  $("#authCopy").textContent="Secure owner access. No password needed.";
+  $("#ownerCodeCopy").textContent=clean
+    ? "Enter the 6-digit code sent to "+maskEmail(clean)+"."
+    : "Enter the 6-digit code sent to your email.";
+  $("#ownerAccessCode").value="";
+  if(autoSend && clean){
+    setAuthStatus("Sending your access code…","loading");
+    try{
+      const result=await requestOwnerAccessCode(clean);
+      setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
+      setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
+    }catch(err){
+      setAuthStatus(err?.message||"Could not send the access code.","error");
+    }
+  }else{
+    setAuthStatus("");
+  }
 }
-
 async function continueAsAdmin(){
-  const email=String($("#authEmail").value||localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+  const email=String($("#authEmail").value||rememberedOwnerEmail()).trim().toLowerCase();
   if(!email){
-    setAuthStatus("Enter your admin email first.","error");
+    setAuthStatus("Enter your email first.","error");
     $("#authEmail").focus();
     return;
   }
-
   const button=$("#rememberedAdminBtn");
-  setBusy(button,true,"Sending…");
-  setAuthStatus("Sending your secure sign-in email…","loading");
-
+  setBusy(button,true,"Sending code…");
   try{
-    const {data:{session}}=await supabase.auth.getSession();
-    const sessionEmail=String(session?.user?.email||"").trim().toLowerCase();
-
-    if(session && sessionEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
-      state.session=session;
-      await enterAuthenticatedApp();
-      return;
-    }
-
-    if(session && sessionEmail!==PRIMARY_PLATFORM_ADMIN_EMAIL){
-      try{ await supabase.auth.signOut({scope:"local"}); }catch{}
-      state.session=null;
-    }
-
-    await requestAdminSignIn(email);
-    setAuthStatus("Check your email and open the sign-in message. No password is needed.","success");
-    showToast("Sign-in email sent");
+    await showOwnerAccess(email,false);
+    const result=await requestOwnerAccessCode(email);
+    setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"Code sent. Check your email.","success");
+    setTimeout(()=>$("#ownerAccessCode")?.focus(),50);
   }catch(err){
-    const message=err?.message||"Could not send sign-in email";
-    setAuthStatus(message,"error");
-    showToast(message);
+    showAuth();
+    setAuthMode("signin");
+    setAuthStatus(err?.message||"Could not send the access code.","error");
   }finally{
     setBusy(button,false);
   }
@@ -527,6 +615,11 @@ async function continueAsAdmin(){
 
 function setAuthMode(mode){
   state.authMode=mode;
+  const ownerPanel=$("#ownerCodePanel");
+  const links=$(".auth-links");
+  if(ownerPanel) ownerPanel.hidden=true;
+  if(authForm) authForm.hidden=false;
+  if(links) links.hidden=false;
   const title=$("#authTitle");
   const copy=$("#authCopy");
   const submit=$("#authSubmit");
@@ -578,6 +671,43 @@ function setAuthMode(mode){
 
 $("#authSwitch").addEventListener("click",()=>setAuthMode(state.authMode==="signup"?"signin":"signup"));
 $("#rememberedAdminBtn").addEventListener("click",continueAsAdmin);
+
+$("#ownerCodeForm")?.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const button=$("#ownerCodeVerifyBtn");
+  const email=rememberedOwnerEmail();
+  setBusy(button,true,"Checking…");
+  setAuthStatus("Checking your code…","loading");
+  try{
+    await verifyOwnerAccessCode(email,$("#ownerAccessCode").value);
+    setAuthStatus("");
+  }catch(err){
+    setAuthStatus(err?.message||"That code could not be verified.","error");
+  }finally{
+    setBusy(button,false);
+  }
+});
+$("#ownerCodeResendBtn")?.addEventListener("click",async()=>{
+  const button=$("#ownerCodeResendBtn");
+  const email=rememberedOwnerEmail();
+  setBusy(button,true,"Sending…");
+  try{
+    const result=await requestOwnerAccessCode(email);
+    setAuthStatus(result?.cooldown?"A code was already sent. Check your email.":"New code sent. Check your email.","success");
+  }catch(err){
+    setAuthStatus(err?.message||"Could not send a new code.","error");
+  }finally{
+    setBusy(button,false);
+  }
+});
+$("#ownerCodeDifferentBtn")?.addEventListener("click",()=>{
+  localStorage.removeItem(OWNER_EMAIL_KEY);
+  setAuthMode("signin");
+  showAuth();
+  $("#authEmail").value="";
+  $("#authEmail").focus();
+  setAuthStatus("");
+});
 
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
@@ -654,18 +784,25 @@ async function signOutCurrentUser(event){
     window.__tleInvoiceRealtime=null;
   }
 
+  const wasOwner=state.business?.role==="owner";
+  const ownerEmail=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
   try{
     const {error}=await supabase.auth.signOut({scope:"local"});
     if(error) throw error;
 
     state.session=null;
     state.business=null;
-    showAuth();
-    setAuthMode("signin");
-    prepareAdminShortcut();
-    setAuthStatus("");
+    if(wasOwner && ownerEmail){
+      localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
+      localStorage.removeItem(OWNER_ACTIVITY_KEY);
+      await showOwnerAccess(ownerEmail,false);
+    }else{
+      showAuth();
+      setAuthMode("signin");
+      prepareAdminShortcut();
+      setAuthStatus("");
+    }
 
-    // Keep the admin shortcut ready after logout without forcing a new workspace.
     localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
     localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
   }catch(err){
@@ -716,6 +853,8 @@ businessForm.addEventListener("submit", async (e)=>{
     await identifyPlatformAdmin();
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
     state.publicLinks=linkSettings||null;
+    localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
+    localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
     showApp();
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
@@ -899,7 +1038,13 @@ async function initialize(){
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
   if(!session){
+    const ownerEmail=rememberedOwnerEmail();
+    if(ownerEmail){
+      await showOwnerAccess(ownerEmail,true);
+      return;
+    }
     showAuth();
+    setAuthMode("signin");
     setAuthStatus("");
     prepareAdminShortcut();
     return;
@@ -1004,7 +1149,16 @@ async function initialize(){
     }
   }
 
-    await handleBillingReturn(params);
+  if(state.business?.role==="owner"){
+    localStorage.setItem(OWNER_EMAIL_KEY,signedInEmail);
+    if(ownerIdleExpired()){
+      await expireOwnerSession();
+      return;
+    }
+    markOwnerActivity();
+  }
+
+  await handleBillingReturn(params);
 
   const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
   state.publicLinks=linkSettings||null;
@@ -1029,6 +1183,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
+    if(window.__tleOwnerCodeLogin) return;
     setTimeout(()=>{
       if(appShell.hidden){
         enterAuthenticatedApp().catch(err=>{
@@ -1047,7 +1202,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   if(event === "SIGNED_OUT"){
     state.session=null;
     state.business=null;
-    if(window.__tleSigningOut) return;
+    if(window.__tleSigningOut || window.__tleOwnerLocking) return;
     setTimeout(()=>{
       showAuth();
       setAuthMode("signin");
