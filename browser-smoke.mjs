@@ -45,7 +45,8 @@ const profiles=[
 
 try{
   for(const profile of profiles){
-    const page=await browser.newPage();
+    const context=await browser.createBrowserContext();
+    const page=await context.newPage();
     await page.setViewport(profile.viewport);
     const errors=[];
     page.on("pageerror",err=>errors.push(String(err)));
@@ -155,6 +156,7 @@ try{
     }
     console.log("BROWSER_SMOKE_OK",profile.name,layout);
     await page.close();
+    await context.close();
   }
 }finally{
   await browser.close();
