@@ -3271,16 +3271,19 @@ async function loadPlatformAdmin(){
   const [
     {data,error},
     {data:geoData,error:geoError},
-    {data:activityData,error:activityError}
+    {data:activityData,error:activityError},
+    {data:internalActivityData,error:internalActivityError}
   ]=await Promise.all([
     supabase.rpc("get_platform_admin_dashboard"),
     supabase.rpc("get_platform_visit_geo_dashboard"),
-    supabase.rpc("get_platform_activity_feed")
+    supabase.rpc("get_platform_activity_feed"),
+    supabase.rpc("get_platform_internal_activity_feed")
   ]);
   if(error){ showToast(error.message); return; }
   if(geoError) console.warn("[TLE] visitor geo",geoError);
   if(activityError) console.warn("[TLE] platform activity",activityError);
-  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{})};
+  if(internalActivityError) console.warn("[TLE] internal platform activity",internalActivityError);
+  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{}),internalActivity:internalActivityData||{}};
   const m=data?.metrics||{};
   const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
@@ -3394,6 +3397,74 @@ async function loadPlatformAdmin(){
           </div>
         </div>`;
     }).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+  }
+
+  const internalVisits=$("#platformInternalVisits");
+  if(internalVisits){
+    const rows=internalActivityData?.visits||[];
+    const groups=[];
+    const byVisitor=new Map();
+
+    rows.forEach(v=>{
+      const label=v.email||v.business_name||"Internal admin";
+      const subjectKey=v.user_id
+        ?"user:"+v.user_id
+        :(v.visitor_id?"visitor:"+v.visitor_id:label.toLowerCase());
+
+      if(!byVisitor.has(subjectKey)){
+        const group={
+          label,
+          latest:v.created_at,
+          city:v.city||"",
+          state:v.state_code||v.state||"",
+          country:v.country||"",
+          pages:[],
+          userId:v.user_id||"",
+          visitorId:v.visitor_id||""
+        };
+        byVisitor.set(subjectKey,group);
+        groups.push(group);
+      }
+
+      const group=byVisitor.get(subjectKey);
+      if(new Date(v.created_at)>new Date(group.latest)) group.latest=v.created_at;
+      const page=v.page||"/";
+      if(!group.pages.some(p=>p.page===page)){
+        group.pages.push({page,created_at:v.created_at});
+      }
+    });
+
+    internalVisits.innerHTML=groups.length?groups.slice(0,12).map(g=>{
+      const location=[g.city,g.state].filter(Boolean).join(", ")||(g.country||"");
+      const pageLabel=g.pages.length===1?"1 page":g.pages.length+" pages";
+      const details=g.pages.slice(0,10).map(p=>`
+        <div class="visit-detail-row">
+          <span>${escapeHtml(p.page)}</span>
+          <time>${formatDateTime(p.created_at)}</time>
+        </div>`).join("");
+
+      return `
+        <div class="visit-group internal-visit-group">
+          <div class="visit-group-main">
+            <span>
+              <strong>${escapeHtml(g.label)}</strong>
+              <small>Internal · ${pageLabel}${location?" · "+escapeHtml(location):""}</small>
+            </span>
+            <time>${formatDateTime(g.latest)}</time>
+          </div>
+          <div class="visit-group-actions">
+            <details class="visit-group-details">
+              <summary>View activity</summary>
+              <div class="visit-detail-list">${details}</div>
+            </details>
+            <button class="activity-archive-btn internal-clear-btn" type="button"
+              data-archive-activity="visits"
+              data-archive-user="${escapeHtml(g.userId)}"
+              data-archive-visitor="${escapeHtml(g.visitorId)}"
+              data-archive-label="Clear">Clear</button>
+          </div>
+        </div>`;
+    }).join(""):`<div class="empty-inline"><strong>No internal activity to clear.</strong><span>Your own activity stays separate from real visitor metrics.</span></div>`;
   }
 
   const purchases=$("#platformPurchases");
@@ -4353,8 +4424,9 @@ document.addEventListener("click",async e=>{
     const kind=archiveActivityBtn.dataset.archiveActivity;
     const userId=archiveActivityBtn.dataset.archiveUser||null;
     const visitorId=archiveActivityBtn.dataset.archiveVisitor||null;
+    const archiveLabel=archiveActivityBtn.dataset.archiveLabel||"Archive";
     archiveActivityBtn.disabled=true;
-    archiveActivityBtn.textContent="Archiving…";
+    archiveActivityBtn.textContent=archiveLabel==="Clear"?"Clearing…":"Archiving…";
     try{
       const {error}=await supabase.rpc("platform_archive_activity",{
         p_kind:kind,
@@ -4363,11 +4435,11 @@ document.addEventListener("click",async e=>{
       });
       if(error) throw error;
       await loadPlatformAdmin();
-      showToast("Activity archived");
+      showToast(archiveLabel==="Clear"?"Internal activity cleared":"Activity archived");
     }catch(err){
       archiveActivityBtn.disabled=false;
-      archiveActivityBtn.textContent="Archive";
-      showToast(err?.message||"Could not archive activity");
+      archiveActivityBtn.textContent=archiveLabel;
+      showToast(err?.message||(archiveLabel==="Clear"?"Could not clear activity":"Could not archive activity"));
     }
     return;
   }
