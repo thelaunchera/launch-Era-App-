@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-42";
+const APP_VERSION = "20260927-unified-43";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -82,6 +82,7 @@ const workerShell = $("#workerShell");
 const publicShell = $("#publicShell");
 const appShell = $("#appShell");
 const authPanel = $("#authPanel");
+const authWelcome = $("#authWelcome");
 const businessSetup = $("#businessSetup");
 const authForm = $("#authForm");
 const businessForm = $("#businessForm");
@@ -114,6 +115,12 @@ const navHistory=["today"];
 
 // Auth controls must be interactive immediately, even while session/network boot continues.
 document.addEventListener("click",e=>{
+  const start=e.target.closest?.("#authWelcomeStart");
+  if(start){ e.preventDefault(); openAuthFromWelcome("signup"); return; }
+  const signIn=e.target.closest?.("#authWelcomeSignIn");
+  if(signIn){ e.preventDefault(); openAuthFromWelcome("signin"); return; }
+  const back=e.target.closest?.("#authBackWelcome");
+  if(back){ e.preventDefault(); showAuthWelcome(); return; }
   const toggle=e.target.closest?.("#authPasswordToggle");
   if(!toggle) return;
   e.preventDefault();
@@ -1145,21 +1152,88 @@ function setShellState(mode){
   document.body.classList.add("shell-"+mode);
 }
 
-function showAuth(){
-  setShellState("auth");
-  if(workerShell) workerShell.hidden = true;
-  if(publicShell) publicShell.hidden = true;
-  authShell.hidden = false;
-  appShell.hidden = true;
-  authPanel.hidden = false;
-  businessSetup.hidden = true;
+function syncAuthWelcomeCopy(){
+  const copy={
+    badge:langPick("30 DAYS FREE","30 DÍAS GRATIS","30 DIAS GRÁTIS","30 JOURS GRATUITS"),
+    title:langPick(
+      "Run your cleaning business with less back-and-forth.",
+      "Maneja tu cleaning business con menos idas y vueltas.",
+      "Gerencie sua empresa de limpeza com menos idas e vindas.",
+      "Gérez votre entreprise de nettoyage avec moins d’allers-retours."
+    ),
+    text:langPick(
+      "Bookings, clients, jobs, quotes, invoices, routes and your team — organized in one place.",
+      "Reservas, clientes, trabajos, cotizaciones, facturas, rutas y tu equipo — organizados en un solo lugar.",
+      "Reservas, clientes, trabalhos, orçamentos, faturas, rotas e sua equipe — organizados em um só lugar.",
+      "Réservations, clients, interventions, devis, factures, itinéraires et équipe — réunis au même endroit."
+    ),
+    trial:langPick("30 days free","30 días gratis","30 dias grátis","30 jours gratuits"),
+    noCard:langPick("No card needed","Sin tarjeta","Sem cartão","Sans carte"),
+    after:langPick("Then $5.99/month","Después $5.99/mes","Depois US$ 5,99/mês","Puis 5,99 $/mois"),
+    start:langPick("Start 30 days free","Empezar 30 días gratis","Começar 30 dias grátis","Commencer 30 jours gratuits"),
+    signin:langPick("Sign in","Iniciar sesión","Entrar","Se connecter"),
+    note:langPick(
+      "Set up your workspace in a few minutes. We’ll guide you through the first steps.",
+      "Configura tu espacio en unos minutos. Te guiamos en los primeros pasos.",
+      "Configure seu espaço em poucos minutos. Nós guiamos seus primeiros passos.",
+      "Configurez votre espace en quelques minutes. Nous vous guidons dans les premières étapes."
+    ),
+    back:langPick("← Back","← Volver","← Voltar","← Retour")
+  };
+  $("#authWelcomeBadge") && ($("#authWelcomeBadge").textContent=copy.badge);
+  $("#authWelcomeTitle") && ($("#authWelcomeTitle").textContent=copy.title);
+  $("#authWelcomeCopy") && ($("#authWelcomeCopy").textContent=copy.text);
+  $("#authWelcomeTrial") && ($("#authWelcomeTrial").textContent=copy.trial);
+  $("#authWelcomeNoCard") && ($("#authWelcomeNoCard").textContent=copy.noCard);
+  $("#authWelcomeCancel") && ($("#authWelcomeCancel").textContent=copy.after);
+  $("#authWelcomeStart") && ($("#authWelcomeStart").textContent=copy.start);
+  $("#authWelcomeSignIn") && ($("#authWelcomeSignIn").textContent=copy.signin);
+  $("#authWelcomeNote") && ($("#authWelcomeNote").textContent=copy.note);
+  $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
+function showAuthWelcome(){
+  setShellState("auth");
+  if(workerShell) workerShell.hidden=true;
+  if(publicShell) publicShell.hidden=true;
+  authShell.hidden=false;
+  appShell.hidden=true;
+  if(authWelcome) authWelcome.hidden=false;
+  authPanel.hidden=true;
+  businessSetup.hidden=true;
+  setAuthStatus("");
+  syncAuthWelcomeCopy();
+}
+function openAuthFromWelcome(mode){
+  window.__tleAuthModeTouched=true;
+  if(authWelcome) authWelcome.hidden=true;
+  authPanel.hidden=false;
+  businessSetup.hidden=true;
+  setAuthMode(mode);
+  setAuthStatus("");
+  const email=$("#authEmail");
+  if(mode==="signin"){
+    const remembered=rememberedOwnerEmail();
+    if(remembered && email) email.value=remembered;
+  }
+  requestAnimationFrame(()=>{
+    try{email?.scrollIntoView({block:"center",behavior:"smooth"});}catch{}
+    setTimeout(()=>email?.focus(),100);
+  });
+}
+$("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
+$("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
+$("#authBackWelcome")?.addEventListener("click",showAuthWelcome);
+window.addEventListener("tle:languagechange",syncAuthWelcomeCopy);
+setTimeout(syncAuthWelcomeCopy,0);
+
+function showAuth(){ showAuthWelcome(); }
 function showSetup(){
   setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = false;
   appShell.hidden = true;
+  if(authWelcome) authWelcome.hidden = true;
   authPanel.hidden = true;
   businessSetup.hidden = false;
 }
@@ -1800,6 +1874,8 @@ function toggleAuthPasswordVisibility(){
 }
 function setAuthMode(mode){
   state.authMode=mode;
+  if(authWelcome) authWelcome.hidden=true;
+  if(authPanel) authPanel.hidden=false;
   const ownerPanel=$("#ownerCodePanel");
   const links=$(".auth-links");
   if(ownerPanel) ownerPanel.hidden=true;
@@ -2440,20 +2516,9 @@ async function initialize(){
   if(!session){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
-    showAuth();
-    if(!window.__tleAuthModeTouched){
-      if(ownerEmail){
-        setAuthMode("signin");
-        const emailInput=$("#authEmail");
-        if(emailInput) emailInput.value=ownerEmail;
-      }else{
-        setAuthMode("signup");
-      }
-    }else if(ownerEmail){
-      const emailInput=$("#authEmail");
-      if(emailInput && !emailInput.value) emailInput.value=ownerEmail;
-    }
-    setAuthStatus("");
+    const emailInput=$("#authEmail");
+    if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
+    showAuthWelcome();
     return;
   }
 
@@ -2660,8 +2725,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
     state.business=null;
     if(window.__tleSigningOut || window.__tleOwnerLocking) return;
     setTimeout(()=>{
-      showAuth();
-      setAuthMode("signin");
+      showAuthWelcome();
       prepareAdminShortcut();
     },0);
   }
