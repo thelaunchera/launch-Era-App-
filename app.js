@@ -4584,7 +4584,7 @@ function openEntityForm(type,id=null){
   if(type==="invoice"){
     const item=record?.invoice_items?.[0];
     const due=record?.due_at?new Date(record.due_at).toLocaleDateString("en-CA"):"";
-    modalHeader("INVOICE",record?"Edit invoice":"New invoice","Track payment manually with Cash, Check or Zelle.");
+    modalHeader("INVOICE",record?"Edit invoice":"New invoice","Track payment manually with Cash, Check or Other.");
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>Client<select name="client_id" required><option value="">Choose client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
@@ -4910,7 +4910,7 @@ function openPaymentForm(invoiceId){
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
   const chosen=String(inv.customer_payment_method||"").toLowerCase();
-  const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle"}[chosen]||"";
+  const methodLabel={cash:"Cash",check:"Check",other:"Other"}[chosen]||"";
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
@@ -4918,11 +4918,9 @@ function openPaymentForm(invoiceId){
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
       <label>Method<select name="method">
-        <option value="cash" ${chosen==="cash"?"selected":""}>Cash</option>
-        <option value="check" ${chosen==="check"?"selected":""}>Check</option>
-        <option value="zelle" ${chosen==="zelle"?"selected":""}>Zelle</option>
+        ${(state.business.payment_methods||["cash","check","other"]).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",other:"Other"}[method]||method)}</option>`).join("")}
       </select></label>
-      <label class="full">Note / reference<textarea name="note" placeholder="Check number, Zelle note, or cash note"></textarea></label>
+      <label class="full">Note / reference<textarea name="note" placeholder="Optional reference or payment note"></textarea></label>
     </div>${formSubmit("Confirm payment")}`;
   modal.hidden=false;
 }
