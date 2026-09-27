@@ -4685,8 +4685,8 @@ function openEntityForm(type,id=null){
         </select></label>
         <label class="full">Street address<input name="address_line1" value="${escapeHtml(record?.address_line1||"")}"></label>
         <label>City<input name="city" value="${escapeHtml(record?.city||"")}"></label>
-        <label>State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
-        <label>ZIP<input name="postal_code" value="${escapeHtml(record?.postal_code||"")}"></label>
+        <label>Region / State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
+        <label>Postal code<input name="postal_code" value="${escapeHtml(record?.postal_code||"")}"></label>
         <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
       </div>${formSubmit(record?"Save changes":"Add client")}`;
   }
