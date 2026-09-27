@@ -63,6 +63,34 @@ async function assertLayout(page,profile){
   await page.keyboard.press("Escape");
   await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
 
+  // Auth mode switching is release-blocking because mobile users must be
+  // able to move between Create account and Sign in before entering data.
+  const startTitle=(await page.locator("#authTitle").textContent()||"").trim();
+  if(!["Create account","Sign in"].includes(startTitle)){
+    throw new Error(profile.name+": unexpected auth title "+startTitle);
+  }
+  const authSwitch=page.locator("#authSwitch");
+  if(!(await authSwitch.isVisible()) || !(await authSwitch.isEnabled())){
+    throw new Error(profile.name+": auth switch is not usable");
+  }
+  await authSwitch.click();
+  const switchedTitle=startTitle==="Create account"?"Sign in":"Create account";
+  await page.waitForFunction(
+    expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
+    switchedTitle,
+    {timeout:3000}
+  );
+  const authSubmit=page.locator("#authSubmit");
+  if(!(await authSubmit.isVisible()) || !(await authSubmit.isEnabled())){
+    throw new Error(profile.name+": auth submit is not usable after mode switch");
+  }
+  await authSwitch.click();
+  await page.waitForFunction(
+    expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
+    startTitle,
+    {timeout:3000}
+  );
+
   await page.evaluate(()=>{
     document.body.classList.remove("shell-auth","shell-worker","shell-public");
     document.body.classList.add("shell-app");
