@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-19";
+const APP_VERSION = "20260927-unified-20";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5268,15 +5268,18 @@ async function saveStartTimer(fd){
 }
 async function finishTimeEntry(id){
   const entry=state.timeEntries.find(t=>t.id===id);
-  if(!entry) return;
+  if(!entry) throw new Error(appIsSpanish()?"No encontramos ese temporizador activo.":"Active timer not found.");
+  if(entry.clocked_out_at) return entry;
   const end=new Date();
   const start=new Date(entry.clocked_in_at);
   const minutes=Math.max(1,Math.round((end-start)/60000));
-  const {error}=await supabase.from("job_time_entries").update({
+  const {data,error}=await supabase.from("job_time_entries").update({
     clocked_out_at:end.toISOString(),
     minutes_worked:minutes
-  }).eq("id",id);
+  }).eq("id",id).is("clocked_out_at",null).select("id,clocked_out_at,minutes_worked").maybeSingle();
   if(error) throw error;
+  if(!data) throw new Error(appIsSpanish()?"El temporizador ya fue finalizado o no tienes permiso.":"The timer was already finished or you do not have permission.");
+  return data;
 }
 
 async function deleteBusinessRecord(type,id){
@@ -5490,6 +5493,22 @@ document.addEventListener("click",async e=>{
     const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop});
     if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer finished");}
+    return;
+  }
+
+  const finishTimeBtn=e.target.closest("[data-finish-time]");
+  if(finishTimeBtn){
+    const id=finishTimeBtn.dataset.finishTime;
+    setBusy(finishTimeBtn,true,appIsSpanish()?"Finalizando…":"Finishing…");
+    try{
+      await finishTimeEntry(id);
+      await loadCoreData();
+      showToast(appIsSpanish()?"Temporizador finalizado":"Timer finished");
+    }catch(err){
+      showToast(err?.message||(appIsSpanish()?"No se pudo finalizar el temporizador":"Could not finish timer"));
+    }finally{
+      if(document.body.contains(finishTimeBtn)) setBusy(finishTimeBtn,false);
+    }
     return;
   }
 
