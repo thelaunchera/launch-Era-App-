@@ -3578,3 +3578,68 @@ body.shell-public #publicShell{
   .auth-links{flex-wrap:wrap;align-items:center}
   .auth-links .auth-retry{order:-1;width:100%;text-align:center}
 }
+
+
+/* 2026-09-27 — unified app card palette */
+.app-shell{--unified-card-bg:#F3F0EA}
+.app-shell.quarter-color-0{--unified-card-bg:#F3EBCB}
+.app-shell.quarter-color-1{--unified-card-bg:#E7EEF2}
+.app-shell.quarter-color-2{--unified-card-bg:#F3F0EA}
+.app-shell.quarter-color-3{--unified-card-bg:#ECE9F2}
+.app-shell[data-card-mood="rain"]{--unified-card-bg:linear-gradient(135deg,#DCE8EC 0%,#EEF2F1 58%,#E7E1D4 100%)}
+.app-shell[data-card-mood="jobs"]{--unified-card-bg:linear-gradient(135deg,#F2E8C6 0%,#F7F3E8 100%)}
+.app-shell[data-card-mood="booking"]{--unified-card-bg:linear-gradient(135deg,#E3EDF2 0%,#F5F3ED 100%)}
+.app-shell[data-card-mood="quotes"]{--unified-card-bg:linear-gradient(135deg,#E8EAF1 0%,#F4F1EA 100%)}
+.app-shell[data-card-mood="invoice"]{--unified-card-bg:linear-gradient(135deg,#ECE5D9 0%,#F6F2EB 100%)}
+.app-shell[data-card-mood="hydrate"]{--unified-card-bg:linear-gradient(135deg,#E2EDF1 0%,#F5F2E9 100%)}
+.app-shell[data-card-mood="night"]{--unified-card-bg:linear-gradient(135deg,#E8E7F0 0%,#F3F0EA 100%)}
+
+.app-shell .metric-card,
+.app-shell .quick-card,
+.app-shell .table-card,
+.app-shell .client-card,
+.app-shell .service-card,
+.app-shell .supply-card,
+.app-shell .share-access-card,
+.app-shell .timer-card,
+.app-shell .empty-card,
+.app-shell .mobile-record-card,
+.app-shell .review-settings-card,
+.app-shell .support-contact-card,
+.app-shell .worker-job-card,
+.app-shell .trial-card,
+.app-shell .inquiry-detail-card,
+.app-shell .install-card,
+.app-shell .onboarding-help-card{
+  background:var(--unified-card-bg)!important;
+  border-color:rgba(87,81,72,.18)!important;
+  box-shadow:none!important;
+  transition:background .28s ease,border-color .28s ease!important;
+}
+
+/* Compact share action — never blocks primary controls */
+.footer-share-app-btn{
+  width:auto!important;
+  max-width:max-content!important;
+  min-height:34px!important;
+  padding:7px 10px!important;
+  gap:5px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  margin-left:auto!important;
+  align-self:center!important;
+  position:static!important;
+  inset:auto!important;
+  z-index:auto!important;
+}
+.footer-share-app-btn span:first-child{font-size:12px!important}
+@media(max-width:680px){
+  .footer-share-app-btn{
+    width:auto!important;
+    max-width:max-content!important;
+    min-height:34px!important;
+    margin:7px 0 0!important;
+    padding:7px 10px!important;
+    align-self:flex-start!important;
+  }
+}
