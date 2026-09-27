@@ -3482,3 +3482,40 @@ body.shell-public #publicShell{
     grid-template-columns:1fr 1fr;
   }
 }
+
+/* Footer share CTA */
+.footer-share-app-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid #191919!important;
+  border-radius:999px!important;
+  background:#191919!important;
+  color:#fff!important;
+  padding:9px 14px!important;
+  margin-left:auto!important;
+  min-height:38px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  cursor:pointer;
+}
+.footer-share-app-btn:hover{
+  color:#fff!important;
+  text-decoration:none!important;
+  transform:translateY(-1px);
+}
+.footer-share-app-btn span:first-child{
+  font-size:14px;
+  line-height:1;
+}
+@media(max-width:680px){
+  .footer-share-app-btn{
+    width:100%!important;
+    margin:8px 0 0!important;
+    min-height:42px!important;
+  }
+}
