@@ -3701,3 +3701,33 @@ body.shell-public #publicShell{
   height:3px;
   opacity:.45;
 }
+
+/* Registration welcome */
+.onboarding-layer.welcome .onboarding-card{
+  border-radius:24px;
+  box-shadow:0 24px 70px rgba(39,37,33,.14);
+  max-width:520px;
+}
+.onboarding-layer.welcome .onboarding-topline .pill{
+  background:#E7D88A;
+  border-color:#C8B873;
+  color:#292723;
+}
+.onboarding-layer.welcome .onboarding-card h3{
+  font-weight:600;
+  letter-spacing:-.025em;
+  line-height:1.08;
+}
+.onboarding-layer.welcome .onboarding-card p{
+  line-height:1.6;
+}
+.onboarding-layer.welcome .onboarding-close{
+  width:36px;
+  height:36px;
+  border-radius:999px;
+  background:#F5F1E9;
+}
+@media(max-width:620px){
+  .onboarding-layer.welcome{padding:16px}
+  .onboarding-layer.welcome .onboarding-card{border-radius:20px}
+}
