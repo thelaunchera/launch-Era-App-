@@ -567,12 +567,8 @@ async function geocodeBusinessArea(area){
   }
   return null;
 }
-function paymentMethodsForCountry(code){
-  const country=String(code||"").toUpperCase();
-  if(country==="BR") return ["cash","pix","bank_transfer","other"];
-  if(country==="US") return ["cash","check","other"];
-  if(["CA","GB","AU","NZ","IE"].includes(country)) return ["cash","bank_transfer","other"];
-  return ["cash","bank_transfer","other"];
+function paymentMethodsForCountry(){
+  return ["cash","check","other"];
 }
 function currencyForCountry(code){
   const map={
@@ -3081,7 +3077,7 @@ function renderInvoices(){
     const paid=invoicePaidAmount(inv);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
-    const methodLabel={cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[chosenMethod]||chosenMethod||"";
+    const methodLabel={cash:"Cash",check:"Check",other:"Other"}[chosenMethod]||chosenMethod||"";
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
@@ -4014,9 +4010,6 @@ async function openBusinessProfileForm(){
         <div class="choice-grid compact">
           <label class="check-field"><input type="checkbox" name="payment_method" value="cash" ${record.payment_methods?.includes("cash")?"checked":""}> Cash</label>
           <label class="check-field"><input type="checkbox" name="payment_method" value="check" ${record.payment_methods?.includes("check")?"checked":""}> Check</label>
-          <label class="check-field"><input type="checkbox" name="payment_method" value="bank_transfer" ${record.payment_methods?.includes("bank_transfer")?"checked":""}> Bank transfer</label>
-          <label class="check-field"><input type="checkbox" name="payment_method" value="pix" ${record.payment_methods?.includes("pix")?"checked":""}> Pix</label>
-          <label class="check-field"><input type="checkbox" name="payment_method" value="paypal" ${record.payment_methods?.includes("paypal")?"checked":""}> PayPal</label>
           <label class="check-field"><input type="checkbox" name="payment_method" value="other" ${record.payment_methods?.includes("other")?"checked":""}> Other</label>
         </div>
         <small>No bank details are stored in the app. “Other” is only a payment label/reference.</small>
@@ -4495,7 +4488,7 @@ async function initializePublicRequest(mode,slug){
 
   function formatSlot(iso){
     return new Intl.DateTimeFormat(appLocale(),{
-      timeZone:data?.business?.timezone||"America/New_York",
+      timeZone:data?.business?.timezone||"UTC",
       hour:"numeric",
       minute:"2-digit"
     }).format(new Date(iso));
@@ -4554,9 +4547,9 @@ async function initializePublicRequest(mode,slug){
 
   const dateInput=form?.querySelector('[name="date"]');
   if(dateInput){
-    dateInput.min=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"America/New_York"}).format(new Date());
+    dateInput.min=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"UTC"}).format(new Date());
     const maxDate=new Date(Date.now()+90*86400000);
-    dateInput.max=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"America/New_York"}).format(maxDate);
+    dateInput.max=new Intl.DateTimeFormat("en-CA",{timeZone:data?.business?.timezone||"UTC"}).format(maxDate);
     dateInput.onchange=refreshPublicSlots;
   }
 
@@ -4989,7 +4982,7 @@ function openPaymentForm(invoiceId){
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
   const chosen=String(inv.customer_payment_method||"").toLowerCase();
-  const methodLabel={cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[chosen]||chosen||"";
+  const methodLabel={cash:"Cash",check:"Check",other:"Other"}[chosen]||chosen||"";
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
@@ -4997,7 +4990,7 @@ function openPaymentForm(invoiceId){
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
       <label>Method<select name="method">
-        ${(state.business.payment_methods||["cash","check","other"]).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",bank_transfer:"Bank transfer",pix:"Pix",paypal:"PayPal",other:"Other"}[method]||method)}</option>`).join("")}
+        ${(state.business.payment_methods||["cash","check","other"]).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",other:"Other"}[method]||method)}</option>`).join("")}
       </select></label>
       <label class="full">Note / reference<textarea name="note" placeholder="Optional reference or payment note"></textarea></label>
     </div>${formSubmit("Confirm payment")}`;
