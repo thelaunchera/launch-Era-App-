@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-25";
+const APP_VERSION = "20260927-unified-26";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1601,6 +1601,12 @@ function readOwnerSessionBackup(){
   try{
     const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
     if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
+    // Supabase access tokens are JWTs. Never send a damaged legacy token back
+    // to Auth because it can cause repeated 403 /user requests on app boot.
+    if(String(raw.access_token).split(".").length!==3){
+      clearOwnerSessionBackup();
+      return null;
+    }
     const savedAt=Number(raw.saved_at||0);
     if(!Number.isFinite(savedAt) || Date.now()-savedAt>OWNER_IDLE_MS){
       clearOwnerSessionBackup();
