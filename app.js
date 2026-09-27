@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-37";
+const APP_VERSION = "20260927-unified-38";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2218,7 +2218,7 @@ function renderWorkerPortal(){
 
   const bn=$("#workerBusinessName"),ww=$("#workerWelcome"),wc=$("#workerCopy");
   if(bn) bn.textContent=business.name||"Cleaning business";
-  const workerLang=String(business.default_language||"en").toLowerCase();
+  const workerLang=String(window.TLE_I18N?.language||business.default_language||"en").toLowerCase();
   const workerCopy={
     en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
     es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
