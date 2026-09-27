@@ -14,7 +14,7 @@
   const URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
   const KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
   const $ = (s,root=document) => root.querySelector(s);
-  const $ = (s,root=document) => [...root.querySelectorAll(s)];
+  const $$ = (s,root=document) => [...root.querySelectorAll(s)];
   const tt = v => window.TLE_I18N?.t?.(v) || v;
   let publicLocale=navigator.language||"en-US";
   let publicCurrency="USD";
