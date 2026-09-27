@@ -4011,3 +4011,16 @@ body.shell-public #publicShell{
   .auth-links{gap:6px 14px}
   #authSwitch,#forgotPassword{font-size:13px}
 }
+
+/* Time Tracking list-only removal */
+.time-hide-btn{
+  display:block;
+  margin-top:8px;
+  padding:0;
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.time-hide-btn:hover{color:var(--ink)}
