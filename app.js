@@ -1740,6 +1740,10 @@ async function initialize(){
     markOwnerActivity();
   }
 
+  supabase.rpc("track_app_login",{p_visitor_id:getVisitorId()}).catch(function(err){
+    console.warn("[TLE] login tracking",err);
+  });
+
   await handleBillingReturn(params);
 
   const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
@@ -2834,13 +2838,19 @@ function renderPublicLinks(){
 
 async function loadPlatformAdmin(){
   if(!state.isPlatformAdmin) return;
-  const [{data,error},{data:geoData,error:geoError}]=await Promise.all([
+  const [
+    {data,error},
+    {data:geoData,error:geoError},
+    {data:activityData,error:activityError}
+  ]=await Promise.all([
     supabase.rpc("get_platform_admin_dashboard"),
-    supabase.rpc("get_platform_visit_geo_dashboard")
+    supabase.rpc("get_platform_visit_geo_dashboard"),
+    supabase.rpc("get_platform_activity_feed")
   ]);
   if(error){ showToast(error.message); return; }
   if(geoError) console.warn("[TLE] visitor geo",geoError);
-  state.platformAdminData={...(data||{}),...(geoData||{})};
+  if(activityError) console.warn("[TLE] platform activity",activityError);
+  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{})};
   const m=data?.metrics||{};
   const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
@@ -2870,17 +2880,46 @@ async function loadPlatformAdmin(){
       </div>`).join(""):`<div class="empty-inline"><strong>No location data yet.</strong><span>New external visits will appear here.</span></div>`;
   }
 
+  const logins=$("#platformRecentLogins");
+  if(logins){
+    const rows=activityData?.logins||[];
+    logins.innerHTML=rows.length?rows.map(v=>`
+      <div class="visit-row activity-row">
+        <span>
+          <strong>${escapeHtml(v.email||"Unknown email")}</strong>
+          <small>${escapeHtml(v.business_name||"Cleaning business")} · Login</small>
+        </span>
+        <time>${formatDateTime(v.created_at)}</time>
+      </div>`).join(""):`<div class="empty-inline"><strong>No customer logins yet.</strong><span>New authenticated app opens will appear here.</span></div>`;
+  }
+
   const visits=$("#platformRecentVisits");
   if(visits){
-    const rows=geoData?.recent_geo_visits||data?.recent_visits||[];
+    const rows=activityData?.visits||geoData?.recent_geo_visits||data?.recent_visits||[];
     visits.innerHTML=rows.length?rows.map(v=>`
-      <div class="visit-row">
+      <div class="visit-row activity-row">
         <span>
-          <strong>${escapeHtml(v.business_name||"Visitor")}</strong>
+          <strong>${escapeHtml(v.email||v.business_name||"Anonymous visitor")}</strong>
           <small>${escapeHtml(v.page||"/")}${v.state?" · "+escapeHtml(v.state_code||v.state):""}${v.city?" · "+escapeHtml(v.city):""}</small>
         </span>
         <time>${formatDateTime(v.created_at)}</time>
       </div>`).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+  }
+
+  const purchases=$("#platformPurchases");
+  if(purchases){
+    const rows=activityData?.purchases||[];
+    purchases.innerHTML=rows.length?rows.map(v=>`
+      <div class="visit-row activity-row purchase-row">
+        <span>
+          <strong>${escapeHtml(v.email||"Unknown email")}</strong>
+          <small>${escapeHtml(v.business_name||"Cleaning business")} · ${escapeHtml(v.status||"active")}</small>
+        </span>
+        <span class="activity-value">
+          <strong>${money(Number(v.price||5.99))}</strong>
+          <time>${formatDateTime(v.activated_at||v.created_at)}</time>
+        </span>
+      </div>`).join(""):`<div class="empty-inline"><strong>No purchases yet.</strong><span>Paid app activations will appear here with the customer email.</span></div>`;
   }
 }
 
