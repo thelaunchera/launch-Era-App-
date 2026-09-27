@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-auth-notifs-1";
+const APP_VERSION = "20260927-unified-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -843,7 +843,7 @@ function applyQuarterHourCardColors(){
   const now=new Date();
   const quarter=Math.floor(now.getMinutes()/15)%4;
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
-  [$("#todayHeroCard"),$(".trial-card")].filter(Boolean).forEach(el=>{
+  [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
     el.classList.add("quarter-color-"+quarter);
     el.dataset.colorQuarter=String(quarter);
@@ -1697,7 +1697,20 @@ businessForm.addEventListener("submit", async (e)=>{
     }
     showToast("Workspace created");
   }catch(err){
-    showToast(err.message || "Could not create workspace");
+    const businessName=$("#businessName")?.value?.trim()||"";
+    const area=$("#businessArea")?.value?.trim()||"";
+    if(!businessName || !area){
+      showToast(appIsSpanish()?"Revisa los campos requeridos.":"Check the required fields.");
+      if(!businessName) $("#businessName")?.focus();
+      else $("#businessArea")?.focus();
+    }else{
+      showToast(appIsSpanish()?"No pudimos crear el espacio. Intenta otra vez.":"We couldn’t create the workspace. Try again.");
+      const email=String(state.session?.user?.email||"").trim().toLowerCase();
+      const attempt=recordAuthIssueAttempt("signup",email,err);
+      if(attempt.item.count>=2 && !attempt.item.reported){
+        reportPersistentAuthIssue("signup",email,err,attempt.item.count,attempt.key);
+      }
+    }
   }finally{
     setBusy(button,false);
   }
@@ -2982,10 +2995,29 @@ function renderQuotes(){
   ].join("");
 }
 
+function dateKeyInZone(value,timeZone){
+  const d=value instanceof Date?value:new Date(value);
+  if(!Number.isFinite(d.getTime())) return "";
+  try{
+    const parts=new Intl.DateTimeFormat("en-CA",{
+      timeZone:timeZone||Intl.DateTimeFormat().resolvedOptions().timeZone,
+      year:"numeric",month:"2-digit",day:"2-digit"
+    }).formatToParts(d);
+    const map=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+    return [map.year,map.month,map.day].join("-");
+  }catch{
+    return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+  }
+}
+function activeBusinessTimeZone(){
+  return state.weather?.location?.timezone
+    || state.business?.timezone
+    || Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
 function sameLocalDay(value,date=new Date()){
   if(!value) return false;
-  const d=new Date(value);
-  return d.getFullYear()===date.getFullYear() && d.getMonth()===date.getMonth() && d.getDate()===date.getDate();
+  const zone=activeBusinessTimeZone();
+  return dateKeyInZone(value,zone)===dateKeyInZone(date,zone);
 }
 function startOfWeek(date=new Date()){
   const d=new Date(date); const day=d.getDay();
@@ -3075,7 +3107,7 @@ function dashboardWeatherContext(now,remainingJobs){
 
 function renderTodaySummary(wakeAssistant=false){
   const now=new Date();
-  const businessTimeZone=state.business?.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const businessTimeZone=activeBusinessTimeZone();
   const businessHour=Number(new Intl.DateTimeFormat("en-US",{
     hour:"2-digit",
     hour12:false,
@@ -3255,6 +3287,7 @@ function renderTodaySummary(wakeAssistant=false){
       hero.dataset.daypart=daypart;
       hero.dataset.activity=messageState;
     }
+    if(appShell) appShell.dataset.cardMood=messageState;
     if(momentCopy) momentCopy.textContent=copy.replace(/\s+/g," ").trim();
     if(heroAction){
       heroAction.disabled=false;
