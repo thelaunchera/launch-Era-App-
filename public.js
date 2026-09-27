@@ -119,16 +119,7 @@
       $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
-      const methodLabels={
-        cash:"Cash",
-        check:"Check",
-        other:"Other",
-        bank_transfer:"Bank transfer",
-        card:"Card",
-        paypal:"PayPal",
-        venmo:"Venmo",
-        pix:"Pix"
-      };
+      const methodLabels={cash:"Cash",check:"Check",other:"Other"};
       const enabledMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
         ? data.payment_methods.map(x=>String(x).toLowerCase())
         : ["cash","check","other"];
@@ -488,7 +479,7 @@
       }
 
       function formatSlot(iso){
-        const tz=data?.business?.timezone||"America/New_York";
+        const tz=data?.business?.timezone||"UTC";
         return new Intl.DateTimeFormat(publicLocale,{
           timeZone:tz,hour:"numeric",minute:"2-digit"
         }).format(new Date(iso));
@@ -543,7 +534,7 @@
 
       const dateInput=form?.querySelector('[name="date"]');
       if(dateInput){
-        const businessZone=data?.business?.timezone||"America/New_York";
+        const businessZone=data?.business?.timezone||"UTC";
         const dateInBusinessZone=value=>{
           const parts=new Intl.DateTimeFormat("en-CA",{
             timeZone:businessZone,year:"numeric",month:"2-digit",day:"2-digit"
