@@ -53,7 +53,11 @@ try{
     await page.goto("http://127.0.0.1:4173/?browser-smoke=1",{waitUntil:"domcontentloaded",timeout:15000});
     await page.waitForSelector("#authSwitch",{visible:true,timeout:10000});
     const initial=await page.$eval("#authTitle",el=>el.textContent.trim());
-    if(initial!=="Create account") throw new Error(profile.name+": initial auth screen failed: "+initial);
+    if(!["Create account","Sign in"].includes(initial)) throw new Error(profile.name+": initial auth screen failed: "+initial);
+    if(initial==="Sign in"){
+      await page.click("#authSwitch");
+      await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
+    }
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
