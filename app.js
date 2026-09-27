@@ -1418,6 +1418,28 @@ function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
   if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
 }
+
+function syncAuthPasswordToggle(){
+  const input=$("#authPassword");
+  const toggle=$("#authPasswordToggle");
+  if(!input||!toggle) return;
+  const visible=input.type==="text";
+  toggle.setAttribute("aria-pressed",visible?"true":"false");
+  toggle.setAttribute("aria-label",visible?(appIsSpanish()?"Ocultar contraseña":"Hide password"):(appIsSpanish()?"Mostrar contraseña":"Show password"));
+  const icon=toggle.querySelector("span");
+  if(icon) icon.textContent=visible?"🙈":"👁";
+}
+$("#authPasswordToggle")?.addEventListener("click",()=>{
+  const input=$("#authPassword");
+  if(!input) return;
+  const start=input.selectionStart;
+  const end=input.selectionEnd;
+  input.type=input.type==="password"?"text":"password";
+  syncAuthPasswordToggle();
+  input.focus({preventScroll:true});
+  try{input.setSelectionRange(start,end);}catch{}
+});
+
 function setAuthMode(mode){
   state.authMode=mode;
   const ownerPanel=$("#ownerCodePanel");
@@ -1434,6 +1456,8 @@ function setAuthMode(mode){
   const emailField=$("#emailField")||$("#authEmail").closest("label");
   const forgot=$("#forgotPassword");
   const signupLegalNote=$("#signupLegalNote");
+  if(password){password.type="password";}
+  syncAuthPasswordToggle();
 
   if(mode==="signup"){
     title.textContent="Create account";
