@@ -1,6 +1,11 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Hawaii Time":"Hora de Hawái",
+    "Alaska Time":"Hora de Alaska",
+    "Arizona Time":"Hora de Arizona",
+    "City, county or service radius":"Ciudad, condado o radio de servicio",
+    "Owner access required.":"Se requiere acceso de Dueño.",
     "Not set":"Sin configurar",
     "Owner or Admin access required.":"Se requiere acceso de Dueño o Admin.",
     "Business email is required.":"El correo del negocio es obligatorio.",
