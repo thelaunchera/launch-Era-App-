@@ -3052,6 +3052,105 @@ function getInquiryNotifications(){
     });
   });
 
+  state.quotes.forEach(q=>{
+    const status=String(q.status||"").toLowerCase();
+    if(!["requested","submitted","new"].includes(status)) return;
+    items.push({
+      id:"quote-request:"+q.id,
+      recordId:q.id,
+      type:"quote-request",
+      createdAt:q.created_at,
+      name:q.customer_name||langPick("New quote request","Nueva solicitud de cotización","Novo pedido de orçamento","Nouvelle demande de devis"),
+      email:q.customer_email||"",
+      phone:q.customer_phone||"",
+      address:q.service_address||"",
+      service:langPick("Quote request","Solicitud de cotización","Pedido de orçamento","Demande de devis"),
+      notes:q.notes||"",
+      status,
+      clientId:q.client_id||""
+    });
+  });
+
+  state.invoices.forEach(inv=>{
+    const customerName=inv.clients?.name||langPick("Customer","Cliente","Cliente","Client");
+    if(inv.customer_payment_selected_at && inv.customer_payment_method){
+      items.push({
+        id:"invoice-payment-choice:"+inv.id+":"+inv.customer_payment_selected_at,
+        recordId:inv.id,
+        type:"invoice-payment-choice",
+        createdAt:inv.customer_payment_selected_at,
+        name:customerName,
+        service:langPick("Payment method selected","Método de pago seleccionado","Método de pagamento selecionado","Mode de paiement sélectionné")+" · "+String(inv.customer_payment_method||""),
+        status:inv.status||""
+      });
+    }
+    (inv.payments||[]).forEach(p=>{
+      const status=String(p.status||"").toLowerCase();
+      if(!["paid","completed","succeeded"].includes(status)) return;
+      items.push({
+        id:"payment:"+p.id,
+        recordId:inv.id,
+        type:"payment",
+        createdAt:p.paid_at||p.created_at,
+        name:customerName,
+        service:langPick("Payment received","Pago recibido","Pagamento recebido","Paiement reçu")+" · "+money(Number(p.amount||0)),
+        status
+      });
+    });
+  });
+
+  state.disputes.forEach(d=>{
+    if(!d.created_at) return;
+    items.push({
+      id:"dispute:"+d.id,
+      recordId:d.id,
+      type:"dispute",
+      resourceType:d.resource_type||"",
+      createdAt:d.created_at,
+      name:d.customer_name||langPick("Customer","Cliente","Cliente","Client"),
+      email:d.customer_email||"",
+      service:langPick("New dispute","Nueva disputa","Nova contestação","Nouvelle contestation")+" · "+String(d.resource_type||"").replaceAll("_"," "),
+      notes:d.reason||"",
+      status:d.status||"open"
+    });
+  });
+
+  state.jobs.forEach(j=>{
+    const status=String(j.status||"").toLowerCase();
+    if(!["on_the_way","in_progress","completed"].includes(status)) return;
+    const eventAt=j.updated_at||j.created_at;
+    if(!eventAt) return;
+    const statusText=status==="on_the_way"
+      ? langPick("On the way","En camino","A caminho","En route")
+      : status==="in_progress"
+      ? langPick("Job started","Trabajo iniciado","Trabalho iniciado","Travail commencé")
+      : langPick("Job completed","Trabajo completado","Trabalho concluído","Travail terminé");
+    items.push({
+      id:"job-status:"+status+":"+j.id+":"+eventAt,
+      recordId:j.id,
+      type:"job-status",
+      createdAt:eventAt,
+      name:j.clients?.name||j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"),
+      address:j.service_address||"",
+      service:statusText,
+      status
+    });
+  });
+
+  (state.teamMessageThreads||[]).forEach(thread=>{
+    const unread=Number(thread.unread_count||0);
+    if(unread<=0 || !thread.last_message_at) return;
+    items.push({
+      id:"team-message:"+thread.team_member_id+":"+thread.last_message_at,
+      recordId:thread.team_member_id,
+      type:"team-message",
+      createdAt:thread.last_message_at,
+      name:thread.name||langPick("Employee","Empleado","Funcionário","Employé"),
+      service:thread.last_message||langPick("New team message","Nuevo mensaje del equipo","Nova mensagem da equipe","Nouveau message d’équipe"),
+      status:"unread"
+    });
+  });
+
   const cutoff=Date.now()-INQUIRY_NOTIFICATION_TTL_MS;
   return items
     .filter(x=>x.createdAt && new Date(x.createdAt).getTime()>=cutoff)
