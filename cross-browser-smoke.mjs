@@ -48,7 +48,19 @@ async function assertLayout(page,profile){
   if(initial.authDisplay==="none") throw new Error(profile.name+": auth shell is not visible on initial load");
   if(initial.appDisplay!=="none") throw new Error(profile.name+": app shell leaked into auth screen");
   if(initial.scrollWidth>initial.innerWidth+4) throw new Error(profile.name+": auth horizontal overflow");
-  await page.waitForFunction(()=>window.__tleAuthUiReady===true || Boolean(document.documentElement.dataset.appError),null,{timeout:10000});
+  try{
+    await page.waitForFunction(()=>window.__tleAuthUiReady===true || Boolean(document.documentElement.dataset.appError),null,{timeout:10000});
+  }catch(err){
+    const diag=await page.evaluate(()=>({
+      readyState:document.readyState,
+      authUiReady:window.__tleAuthUiReady,
+      appReady:window.__tleAppReady,
+      appError:document.documentElement.dataset.appError||"",
+      appScript:[...document.scripts].map(s=>s.src).find(src=>src.includes("app.js"))||"",
+      publicScript:[...document.scripts].map(s=>s.src).find(src=>src.includes("public.js"))||""
+    }));
+    throw new Error(profile.name+": auth UI did not initialize · "+JSON.stringify(diag)+" · console="+errors.join(" | ")+" · "+err.message);
+  }
   const bootError=await page.evaluate(()=>document.documentElement.dataset.appError||"");
   if(bootError) throw new Error(profile.name+": app boot error "+bootError);
 
