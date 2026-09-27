@@ -5339,15 +5339,16 @@ async function finishTimeEntry(id){
   const entry=state.timeEntries.find(t=>t.id===id);
   if(!entry) throw new Error(appIsSpanish()?"No encontramos ese temporizador activo.":"Active timer not found.");
   if(entry.clocked_out_at) return entry;
-  const end=new Date();
-  const start=new Date(entry.clocked_in_at);
-  const minutes=Math.max(1,Math.round((end-start)/60000));
-  const {data,error}=await supabase.from("job_time_entries").update({
-    clocked_out_at:end.toISOString(),
-    minutes_worked:minutes
-  }).eq("id",id).is("clocked_out_at",null).select("id,clocked_out_at,minutes_worked").maybeSingle();
+
+  const {data,error}=await supabase.rpc("finish_job_time_entry",{p_entry_id:id});
   if(error) throw error;
-  if(!data) throw new Error(appIsSpanish()?"El temporizador ya fue finalizado o no tienes permiso.":"The timer was already finished or you do not have permission.");
+  if(!data?.clocked_out_at){
+    throw new Error(appIsSpanish()?"No se pudo confirmar el cierre del temporizador.":"Could not confirm that the timer stopped.");
+  }
+
+  entry.clocked_out_at=data.clocked_out_at;
+  entry.minutes_worked=data.minutes_worked;
+  renderBusinessOperations();
   return data;
 }
 
