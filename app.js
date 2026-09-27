@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-27";
+const APP_VERSION = "20260927-unified-28";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -987,12 +987,14 @@ async function reportPersistentAuthIssue(mode,email,err,attemptCount,key){
       })
     });
     if(response.ok){
+      let result=null;
+      try{ result=await response.json(); }catch{}
       try{
         const saved=JSON.parse(sessionStorage.getItem(key)||"{}");
         saved.reported=true;
         sessionStorage.setItem(key,JSON.stringify(saved));
       }catch{}
-      return true;
+      return result?.alerted===true;
     }
   }catch(reportErr){
     console.warn("[TLE] auth issue report",reportErr);
@@ -1031,8 +1033,8 @@ function showAuthFailure(err,mode,email){
 
   const attempt=recordAuthIssueAttempt(mode,email,err);
   if(!correctable && attempt.item.count>=2 && !attempt.item.reported){
-    reportPersistentAuthIssue(mode,email,err,attempt.item.count,attempt.key).then(reported=>{
-      if(reported){
+    reportPersistentAuthIssue(mode,email,err,attempt.item.count,attempt.key).then(alerted=>{
+      if(alerted){
         setAuthStatus(
           appIsSpanish()
             ? "El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo."
