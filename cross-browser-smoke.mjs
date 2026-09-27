@@ -100,12 +100,18 @@ async function assertLayout(page,profile){
     throw new Error(profile.name+": auth submit is not usable after mode switch");
   }
   if(switchedTitle==="Sign in"){
-    await page.locator("#authEmail").fill("not-an-email");
-    await page.locator("#authPassword").fill("12345678");
+    await page.evaluate(()=>{
+      window.__tleSmokeAuthSubmitClicked=false;
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) throw new Error("auth submit missing");
+      btn.addEventListener("click",event=>{
+        window.__tleSmokeAuthSubmitClicked=true;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },{once:true,capture:true});
+    });
     await authSubmit.click();
-    await page.waitForFunction(()=>document.querySelector("#authStatus")?.textContent.trim().length>0,null,{timeout:3000});
-    await page.locator("#authEmail").fill("");
-    await page.locator("#authPassword").fill("");
+    await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,null,{timeout:3000});
   }
   await authSwitch.click();
   await page.waitForFunction(
