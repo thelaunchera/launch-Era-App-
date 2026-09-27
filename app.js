@@ -4243,6 +4243,7 @@ function renderTodaySummary(wakeAssistant=false){
 
     hero?.classList.remove("moment-morning","moment-afternoon","moment-night","moment-early","moment-midday","moment-wrap","moment-evening","moment-late");
     hero?.classList.add("moment-"+daypart);
+    if(hero) hero.dataset.celestial=["evening","late"].includes(daypart)?"night":"day";
 
     greet.textContent=dashboardGreeting(daypart);
 
@@ -4376,10 +4377,10 @@ function renderTodaySummary(wakeAssistant=false){
         )+(weatherContext.text?" "+weatherContext.text:"");
       }else if(daypart==="wrap"){
         copy=langPick(
-          "The route is clear and nothing urgent is waiting. Check tomorrow, then wrap up the day.",
-          "La ruta está cerrada y no hay nada urgente. Revisa mañana y termina el día con calma.",
-          "A rota está livre e não há nada urgente. Confira amanhã e encerre o dia.",
-          "L’itinéraire est terminé et rien n’est urgent. Vérifiez demain, puis terminez la journée."
+          "The route is clear. Nothing urgent is waiting.",
+          "La ruta está libre. No hay nada urgente pendiente.",
+          "A rota está livre. Não há nada urgente pendente.",
+          "L’itinéraire est libre. Rien d’urgent n’est en attente."
         )+(weatherContext.text?" "+weatherContext.text:"");
       }else{
         copy=langPick(
@@ -4404,8 +4405,10 @@ function renderTodaySummary(wakeAssistant=false){
       : langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
 
     if(hero){
+      const hasPending=Boolean(remainingJobs.length||pendingBookings.length||openQuotes.length||overdueInvoices.length);
       hero.classList.remove("message-rain","message-booking","message-jobs","message-hydrate","message-calm","message-night","message-morning","message-afternoon","message-quotes","message-invoice");
       hero.classList.add("message-"+messageState);
+      hero.classList.toggle("has-pending",hasPending);
       hero.dataset.daypart=daypart;
       hero.dataset.activity=messageState;
     }
@@ -4432,12 +4435,12 @@ function renderTodaySummary(wakeAssistant=false){
   if(attention){
     const items=[];
     state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status)).slice(0,2).forEach(i=>{
-      items.push(`<button data-jump="invoices"><span class="dot red"></span><strong>${escapeHtml(tr("Invoice"))} #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} ${escapeHtml(tr("outstanding"))}</small></button>`);
+      items.push(`<button class="attention-pending" data-jump="invoices"><span class="dot red"></span><strong>${escapeHtml(tr("Invoice"))} #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} ${escapeHtml(tr("outstanding"))}</small></button>`);
     });
     openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
-      items.push(`<button data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Orçamento para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
+      items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Orçamento para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
     });
-    if(pendingBookings.length) items.push(`<button data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
+    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
