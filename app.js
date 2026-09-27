@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-welcome-email-fix-1";
+const APP_VERSION = "20260927-activity-controls-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3179,7 +3179,13 @@ async function loadPlatformAdmin(){
           <strong>${escapeHtml(v.email||"Unknown email")}</strong>
           <small>${escapeHtml(v.business_name||"Cleaning business")} · Login</small>
         </span>
-        <time>${formatDateTime(v.created_at)}</time>
+        <span class="activity-row-actions">
+          <time>${formatDateTime(v.created_at)}</time>
+          <button class="activity-archive-btn" type="button"
+            data-archive-activity="logins"
+            data-archive-user="${escapeHtml(v.user_id||"")}"
+            data-archive-visitor="${escapeHtml(v.visitor_id||"")}">Archive</button>
+        </span>
       </div>`).join(""):`<div class="empty-inline"><strong>No customer logins yet.</strong><span>New authenticated app opens will appear here.</span></div>`;
   }
 
@@ -3194,12 +3200,23 @@ async function loadPlatformAdmin(){
       const anonymousKey=!v.email&&!v.business_name
         ? [label,v.city||"",v.state_code||v.state||"",v.country||""].join("|")
         : label.toLowerCase();
-      if(!byVisitor.has(anonymousKey)){
-        const group={label,latest:v.created_at,city:v.city||"",state:v.state_code||v.state||"",country:v.country||"",pages:[],count:0};
-        byVisitor.set(anonymousKey,group);
+      const subjectKey=v.user_id?"user:"+v.user_id:(v.visitor_id?"visitor:"+v.visitor_id:anonymousKey);
+      if(!byVisitor.has(subjectKey)){
+        const group={
+          label,
+          latest:v.created_at,
+          city:v.city||"",
+          state:v.state_code||v.state||"",
+          country:v.country||"",
+          pages:[],
+          count:0,
+          userId:v.user_id||"",
+          visitorId:v.visitor_id||""
+        };
+        byVisitor.set(subjectKey,group);
         groups.push(group);
       }
-      const group=byVisitor.get(anonymousKey);
+      const group=byVisitor.get(subjectKey);
       group.count+=1;
       if(new Date(v.created_at)>new Date(group.latest)) group.latest=v.created_at;
       const page=v.page||"/";
@@ -3225,10 +3242,16 @@ async function loadPlatformAdmin(){
             </span>
             <time>${formatDateTime(g.latest)}</time>
           </div>
-          <details class="visit-group-details">
-            <summary>View activity</summary>
-            <div class="visit-detail-list">${details}</div>
-          </details>
+          <div class="visit-group-actions">
+            <details class="visit-group-details">
+              <summary>View activity</summary>
+              <div class="visit-detail-list">${details}</div>
+            </details>
+            <button class="activity-archive-btn" type="button"
+              data-archive-activity="visits"
+              data-archive-user="${escapeHtml(g.userId)}"
+              data-archive-visitor="${escapeHtml(g.visitorId)}">Archive</button>
+          </div>
         </div>`;
     }).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
   }
@@ -4151,6 +4174,47 @@ async function deleteBusinessRecord(type,id){
 }
 
 document.addEventListener("click",async e=>{
+  const refreshActivityBtn=e.target.closest("[data-refresh-platform-activity]");
+  if(refreshActivityBtn){
+    const original=refreshActivityBtn.textContent;
+    refreshActivityBtn.disabled=true;
+    refreshActivityBtn.textContent="Refreshing…";
+    try{
+      await loadPlatformAdmin();
+      showToast("Activity refreshed");
+    }catch(err){
+      showToast(err?.message||"Could not refresh activity");
+    }finally{
+      refreshActivityBtn.disabled=false;
+      refreshActivityBtn.textContent=original;
+    }
+    return;
+  }
+
+  const archiveActivityBtn=e.target.closest("[data-archive-activity]");
+  if(archiveActivityBtn){
+    const kind=archiveActivityBtn.dataset.archiveActivity;
+    const userId=archiveActivityBtn.dataset.archiveUser||null;
+    const visitorId=archiveActivityBtn.dataset.archiveVisitor||null;
+    archiveActivityBtn.disabled=true;
+    archiveActivityBtn.textContent="Archiving…";
+    try{
+      const {error}=await supabase.rpc("platform_archive_activity",{
+        p_kind:kind,
+        p_user_id:userId||null,
+        p_visitor_id:visitorId||null
+      });
+      if(error) throw error;
+      await loadPlatformAdmin();
+      showToast("Activity archived");
+    }catch(err){
+      archiveActivityBtn.disabled=false;
+      archiveActivityBtn.textContent="Archive";
+      showToast(err?.message||"Could not archive activity");
+    }
+    return;
+  }
+
   const presenceBtn=e.target.closest("#presenceInstagramBtn,#presenceFacebookBtn,#presenceGoogleBtn,#presenceBookingBtn");
   if(presenceBtn){
     if(presenceBtn.id==="presenceBookingBtn"){
