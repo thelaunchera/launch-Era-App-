@@ -1,6 +1,21 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Submitting your decline…":"Enviando rechazo…",
+    "Submitting your acceptance…":"Enviando aceptación…",
+    "Choose Accept or Decline, then submit your response.":"Elige Aceptar o Rechazar y luego envía tu respuesta.",
+    "Decline selected. Tap Submit quote to confirm.":"Rechazar seleccionado. Toca Enviar cotización para confirmar.",
+    "Accept selected. Tap Submit quote to confirm.":"Aceptar seleccionado. Toca Enviar cotización para confirmar.",
+    "Submitted ✓":"Enviado ✓",
+    "Submitting your payment choice…":"Enviando tu forma de pago…",
+    "Choose Cash, Check or Zelle, then submit your choice.":"Elige Efectivo, Cheque o Zelle y luego envía tu opción.",
+    "Selected: Zelle. Tap Submit invoice to send this choice.":"Seleccionado: Zelle. Toca Enviar factura para enviar esta opción.",
+    "Selected: Cash. Tap Submit invoice to send this choice.":"Seleccionado: Efectivo. Toca Enviar factura para enviar esta opción.",
+    "Selected: Check. Tap Submit invoice to send this choice.":"Seleccionado: Cheque. Toca Enviar factura para enviar esta opción.",
+    "Submitting only sends your payment choice. The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.":"Enviar solo comunica tu forma de pago. El negocio confirmará el pago en la app cuando realmente lo reciba. Solo entonces recibirás el correo de confirmación.",
+    "Choose one option, then submit it to the business.":"Elige una opción y envíala al negocio.",
+    "Submit quote":"Enviar cotización",
+    "Submit invoice":"Enviar factura",
     "Paid app activations will appear here with the customer email.":"Las activaciones pagadas aparecerán aquí con el correo del cliente.",
     "No purchases yet.":"Aún no hay compras.",
     "New authenticated app opens will appear here.":"Las nuevas aperturas autenticadas aparecerán aquí.",
