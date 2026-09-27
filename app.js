@@ -2185,10 +2185,24 @@ async function loadInquirySeenState(){
     console.warn("[TLE] notification state read",err);
   }
 
-  const seen=Math.max(currentInquirySeenAt(),Number.isFinite(persisted)?persisted:0);
+  const localSeen=currentInquirySeenAt();
+  const seen=Math.max(localSeen,Number.isFinite(persisted)?persisted:0);
   state.inquirySeenAt=seen;
   state.inquirySeenLoadedFor=scope;
   try{localStorage.setItem(inquirySeenKey(),String(seen));}catch{}
+
+  // Migrate an already-seen notification state from this device to the account
+  // so it stays read after closing the app or signing in on another device.
+  if(seen>persisted){
+    supabase.from("app_notification_state").upsert({
+      user_id:userId,
+      business_id:businessId,
+      last_seen_at:new Date(seen).toISOString(),
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id,business_id"}).then(({error})=>{
+      if(error) console.warn("[TLE] notification state migration",error);
+    }).catch(err=>console.warn("[TLE] notification state migration",err));
+  }
   return seen;
 }
 function persistInquirySeenState(seen){
