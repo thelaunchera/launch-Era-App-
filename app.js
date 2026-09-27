@@ -861,7 +861,62 @@ function money(value){
 }
 function formatDateTime(value){
   if(!value) return "—";
-  return new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
+  return new Intl.DateTimeFormat(appLocale(),{
+    month:"short",day:"numeric",hour:"numeric",minute:"2-digit",
+    timeZone:activeBusinessTimeZone()
+  }).format(new Date(value));
+}
+function zonedDateTimeParts(value,timeZone=activeBusinessTimeZone()){
+  const d=value instanceof Date?value:new Date(value);
+  if(!Number.isFinite(d.getTime())) return {date:"",time:""};
+  try{
+    const parts=new Intl.DateTimeFormat("en-CA",{
+      timeZone,
+      year:"numeric",month:"2-digit",day:"2-digit",
+      hour:"2-digit",minute:"2-digit",hourCycle:"h23"
+    }).formatToParts(d);
+    const map=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+    return {date:[map.year,map.month,map.day].join("-"),time:[map.hour,map.minute].join(":")};
+  }catch{
+    return {
+      date:[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-"),
+      time:[String(d.getHours()).padStart(2,"0"),String(d.getMinutes()).padStart(2,"0")].join(":")
+    };
+  }
+}
+function zoneOffsetMs(date,timeZone){
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone,
+    year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"
+  }).formatToParts(date);
+  const map=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  const asUtc=Date.UTC(
+    Number(map.year),Number(map.month)-1,Number(map.day),
+    Number(map.hour),Number(map.minute),Number(map.second)
+  );
+  return asUtc-date.getTime();
+}
+function businessLocalDateTimeToIso(dateValue,timeValue,timeZone=activeBusinessTimeZone()){
+  const date=String(dateValue||"");
+  const time=String(timeValue||"");
+  const dm=date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const tm=time.match(/^(\d{2}):(\d{2})$/);
+  if(!dm||!tm) throw new Error("Choose a valid date and time.");
+  const naive=Date.UTC(+dm[1],+dm[2]-1,+dm[3],+tm[1],+tm[2],0);
+  let candidate=new Date(naive);
+  try{
+    candidate=new Date(naive-zoneOffsetMs(candidate,timeZone));
+    candidate=new Date(naive-zoneOffsetMs(candidate,timeZone));
+    const roundTrip=zonedDateTimeParts(candidate,timeZone);
+    if(roundTrip.date!==date||roundTrip.time!==time){
+      throw new Error("That local time does not exist in the business time zone. Choose another time.");
+    }
+  }catch(err){
+    if(err?.message?.includes("does not exist")) throw err;
+    throw new Error("Could not apply the business time zone. Check the service area and try again.");
+  }
+  return candidate.toISOString();
 }
 function setAuthStatus(message="",type=""){
   const raw=String(message||"");
@@ -4758,9 +4813,9 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="job"){
-    const local=record?.starts_at?new Date(record.starts_at):null;
-    const date=local?local.toLocaleDateString("en-CA"):"";
-    const time=local?local.toTimeString().slice(0,5):"";
+    const localParts=record?.starts_at?zonedDateTimeParts(record.starts_at):{date:"",time:""};
+    const date=localParts.date;
+    const time=localParts.time;
     modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration and travel buffer.");
     entityForm.innerHTML=`
       <div class="form-grid">
@@ -5146,15 +5201,14 @@ async function saveMileage(fd){
 }
 
 async function saveJob(fd){
-  const starts=new Date(`${fd.get("date")}T${fd.get("time")}:00`);
-  if(Number.isNaN(starts.getTime())) throw new Error("Choose a valid date and time.");
+  const startsIso=businessLocalDateTimeToIso(fd.get("date"),fd.get("time"));
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id")||null,
     service_id:fd.get("service_id")||null,
     status:fd.get("status"),
     service_address:String(fd.get("service_address")).trim(),
-    starts_at:starts.toISOString(),
+    starts_at:startsIso,
     duration_minutes:Number(fd.get("duration_minutes")),
     travel_buffer_before_minutes:Number(fd.get("travel_buffer")||0),
     travel_buffer_after_minutes:Number(fd.get("travel_buffer")||0),
