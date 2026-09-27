@@ -446,6 +446,10 @@ function appLanguage(){
 function appIsSpanish(){
   return appLanguage()==="es";
 }
+function langPick(en,es,pt,fr){
+  const map={en,en:en,es,pt,fr};
+  return map[appLanguage()] ?? en;
+}
 function appLocale(){
   return state.business?.locale_code
     || ({en:"en-US",es:"es-ES",pt:"pt-BR",fr:"fr-FR"}[appLanguage()])
@@ -490,36 +494,29 @@ function translatedStatus(value=""){
 }
 function weatherCodeMeta(code){
   const n=Number(code);
-  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado"};
-  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado"};
-  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado"};
-  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina"};
-  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna"};
-  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia"};
-  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve"};
-  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas"};
-  return {icon:"🌤️",en:"Weather",es:"Clima"};
+  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",pt:"Limpo",fr:"Dégagé"};
+  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",pt:"Parcialmente nublado",fr:"Partiellement nuageux"};
+  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",pt:"Nublado",fr:"Nuageux"};
+  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",pt:"Neblina",fr:"Brume"};
+  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
+  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
+  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
+  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
+  return {icon:"🌤️",en:"Weather",es:"Clima",pt:"Clima",fr:"Météo"};
 }
 function weatherClockLabel(hour){
   const h=Number(hour);
-  if(appIsSpanish()){
-    if(h===0) return "12 a. m.";
-    if(h<12) return h+" a. m.";
-    if(h===12) return "12 p. m.";
-    return (h-12)+" p. m.";
-  }
-  if(h===0) return "12 AM";
-  if(h<12) return h+" AM";
-  if(h===12) return "12 PM";
-  return (h-12)+" PM";
+  if(!Number.isFinite(h)) return "";
+  const d=new Date(Date.UTC(2026,0,1,h,0,0));
+  return new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit",timeZone:"UTC"}).format(d);
 }
 function weatherDayLabel(dateString,currentDateString){
   if(!dateString) return "";
   const d=new Date(dateString+"T12:00:00Z");
   const today=new Date(currentDateString+"T12:00:00Z");
   const tomorrow=new Date(today); tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
-  if(dateString===currentDateString) return appIsSpanish()?"Hoy":"Today";
-  if(dateString===tomorrow.toISOString().slice(0,10)) return appIsSpanish()?"Mañana":"Tomorrow";
+  if(dateString===currentDateString) return langPick("Today","Hoy","Hoje","Aujourd’hui");
+  if(dateString===tomorrow.toISOString().slice(0,10)) return langPick("Tomorrow","Mañana","Amanhã","Demain");
   return new Intl.DateTimeFormat(appLocale(),{weekday:"short",timeZone:"UTC"}).format(d);
 }
 function nextRainWindow(weather){
@@ -789,12 +786,15 @@ function renderWeatherBrief(){
   const rain=weather.nextRain;
   const currentDate=String(weather.current.time||"").slice(0,10);
   const location=weather.location||{};
+  const lang=appLanguage();
 
   $("#weatherIcon").textContent=meta.icon;
   $("#weatherTemp").textContent=Number.isFinite(temp)?temp+temperatureSuffix():"—";
-  $("#weatherCondition").textContent=appIsSpanish()?meta.es:meta.en;
-  $("#weatherFeels").textContent=Number.isFinite(feels)?(appIsSpanish()?"Se siente como "+feels+"°":"Feels like "+feels+"°"):"";
-  $("#weatherLocation").textContent=(appIsSpanish()?"AFUERA · ":"OUTSIDE · ")+(location.name||state.weatherArea||"");
+  $("#weatherCondition").textContent=meta[lang]||meta.en;
+  $("#weatherFeels").textContent=Number.isFinite(feels)
+    ? langPick("Feels like ","Se siente como ","Sensação de ","Ressenti ")+feels+"°"
+    : "";
+  $("#weatherLocation").textContent=langPick("OUTSIDE · ","AFUERA · ","LÁ FORA · ","DEHORS · ")+(location.name||state.weatherArea||"");
 
   const note=$("#weatherBusinessNote");
   if(note){
@@ -802,19 +802,39 @@ function renderWeatherBrief(){
       const day=weatherDayLabel(rain.date,currentDate).toLowerCase();
       const time=weatherClockLabel(rain.hour);
       note.classList.add("rain");
-      note.innerHTML=appIsSpanish()
-        ? "<strong>🌧️ Lluvia probable "+escapeHtml(day)+" cerca de las "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Deja un poco de margen entre paradas y revisa el acceso antes de salir.</span>"
-        : "<strong>🌧️ Rain likely "+escapeHtml(day)+" around "+escapeHtml(time)+" · "+rain.probability+"%</strong><span>Leave a little room between stops and double-check access before heading out.</span>";
+      const heading=langPick(
+        "🌧️ Rain likely "+day+" around "+time+" · "+rain.probability+"%",
+        "🌧️ Lluvia probable "+day+" cerca de las "+time+" · "+rain.probability+"%",
+        "🌧️ Chuva provável "+day+" por volta de "+time+" · "+rain.probability+"%",
+        "🌧️ Pluie probable "+day+" vers "+time+" · "+rain.probability+"%"
+      );
+      const detail=langPick(
+        "Leave a little room between stops and double-check access before heading out.",
+        "Deja un poco de margen entre paradas y revisa el acceso antes de salir.",
+        "Deixe um pouco mais de tempo entre as paradas e confirme o acesso antes de sair.",
+        "Prévoyez un peu de marge entre les arrêts et vérifiez l’accès avant de partir."
+      );
+      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
     }else if(temp>=(businessTemperatureUnit()==="celsius"?31:88)){
       note.classList.remove("rain");
-      note.innerHTML=appIsSpanish()
-        ? "<strong>💧 Hace calor afuera.</strong><span>Ten agua cerca y deja unos minutos para respirar entre paradas.</span>"
-        : "<strong>💧 It’s hot outside.</strong><span>Keep water close and give yourself a few minutes between stops.</span>";
+      const heading=langPick("💧 It’s hot outside.","💧 Hace calor afuera.","💧 Está quente lá fora.","💧 Il fait chaud dehors.");
+      const detail=langPick(
+        "Keep water close and give yourself a few minutes between stops.",
+        "Ten agua cerca y deja unos minutos para respirar entre paradas.",
+        "Mantenha água por perto e reserve alguns minutos entre as paradas.",
+        "Gardez de l’eau à portée de main et prévoyez quelques minutes entre les arrêts."
+      );
+      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
     }else{
       note.classList.remove("rain");
-      note.innerHTML=appIsSpanish()
-        ? "<strong>Todo tranquilo con el clima por ahora.</strong><span>Tu ruta puede seguir sin alertas de lluvia importantes.</span>"
-        : "<strong>Weather looks steady for now.</strong><span>No major rain alert is affecting your route yet.</span>";
+      const heading=langPick("Weather looks steady for now.","Todo tranquilo con el clima por ahora.","O clima está estável por enquanto.","La météo est stable pour le moment.");
+      const detail=langPick(
+        "No major rain alert is affecting your route yet.",
+        "Tu ruta puede seguir sin alertas de lluvia importantes.",
+        "Nenhum alerta importante de chuva está afetando sua rota agora.",
+        "Aucune alerte de pluie importante n’affecte votre itinéraire pour le moment."
+      );
+      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
     }
   }
 
@@ -831,14 +851,14 @@ function renderWeatherBrief(){
       const hi=Math.round(Number(highs[i]));
       const lo=Math.round(Number(lows[i]));
       const prob=Math.round(Number(probs[i]||0));
-      return '<div class="weather-day"><span>'+escapeHtml(day)+'</span><b>'+m.icon+' '+hi+'°</b><small>'+lo+'° · '+prob+'% '+(appIsSpanish()?"lluvia":"rain")+'</small></div>';
+      return '<div class="weather-day"><span>'+escapeHtml(day)+'</span><b>'+m.icon+' '+hi+'°</b><small>'+lo+'° · '+prob+'% '+escapeHtml(langPick("rain","lluvia","chuva","pluie"))+'</small></div>';
     }).join("");
   }
 
   const updated=$("#weatherUpdated");
   if(updated){
     const t=new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(state.weatherFetchedAt||Date.now()));
-    updated.textContent=appIsSpanish()?"Actualizado "+t:"Updated "+t;
+    updated.textContent=langPick("Updated ","Actualizado ","Atualizado ","Mis à jour ")+t;
   }
   renderHeroWeatherEffects();
 }
@@ -3667,15 +3687,14 @@ function dashboardDaypart(hour){
   return "late";
 }
 function dashboardGreeting(daypart){
-  const es=appIsSpanish();
   const map={
-    early:es?"Buenos días":"Good morning",
-    morning:es?"Así va tu mañana":"Morning check-in",
-    midday:es?"Chequeo del mediodía":"Midday check-in",
-    afternoon:es?"Buenas tardes":"Good afternoon",
-    wrap:es?"Vamos cerrando el día":"End-of-day check",
-    evening:es?"Buenas noches":"Good evening",
-    late:es?"Mañana puede esperar":"Tomorrow can wait"
+    early:langPick("Good morning","Buenos días","Bom dia","Bonjour"),
+    morning:langPick("Morning check-in","Así va tu mañana","Resumo da manhã","Point du matin"),
+    midday:langPick("Midday check-in","Chequeo del mediodía","Resumo do meio-dia","Point de midi"),
+    afternoon:langPick("Good afternoon","Buenas tardes","Boa tarde","Bon après-midi"),
+    wrap:langPick("End-of-day check","Vamos cerrando el día","Fechando o dia","Fin de journée"),
+    evening:langPick("Good evening","Buenas noches","Boa noite","Bonsoir"),
+    late:langPick("Tomorrow can wait","Mañana puede esperar","Amanhã pode esperar","Demain peut attendre")
   };
   return map[daypart]||map.morning;
 }
@@ -3700,36 +3719,54 @@ function dashboardWeatherContext(now,remainingJobs){
   const currentRain=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(code)||Number(weather.current.precipitation||0)>0;
   const storm=[95,96,99].includes(code);
   if(currentRain){
-    return {
-      kind:"rain",
-      icon:storm?"⛈️":"🌧️",
-      text:appIsSpanish()
-        ? (storm?"Hay tormentas":"Está lloviendo")+(place?" en "+place:"")+". "+(remainingJobs.length?"Revisa la ruta antes de la próxima parada y protege los materiales al entrar.":"No hay una ruta activa ahora, pero revisa el clima antes de salir.")
-        : (storm?"Storms are affecting":"Rain is affecting")+(place?" "+place:" your service area")+". "+(remainingJobs.length?"Check the route before the next stop and keep entry supplies dry.":"No active route right now, but check conditions before heading out.")
-    };
+    const base=storm
+      ? langPick("Storms are affecting","Hay tormentas","Há tempestades em","Des orages touchent")
+      : langPick("Rain is affecting","Está lloviendo en","Está chovendo em","Il pleut à");
+    const area=place?" "+place:langPick(" your service area"," tu zona de servicio"," sua área de atendimento"," votre zone de service");
+    const advice=remainingJobs.length
+      ? langPick(
+          " Check the route before the next stop and keep entry supplies dry.",
+          " Revisa la ruta antes de la próxima parada y protege los materiales al entrar.",
+          " Confira a rota antes da próxima parada e mantenha os materiais secos.",
+          " Vérifiez l’itinéraire avant le prochain arrêt et gardez le matériel au sec."
+        )
+      : langPick(
+          " No active route right now, but check conditions before heading out.",
+          " No hay una ruta activa ahora, pero revisa el clima antes de salir.",
+          " Não há rota ativa agora, mas confira as condições antes de sair.",
+          " Aucun itinéraire actif pour le moment, mais vérifiez les conditions avant de partir."
+        );
+    return {kind:"rain",icon:storm?"⛈️":"🌧️",text:base+area+"."+advice};
   }
   if(rain&&rain.hoursAhead<=8){
-    return {
-      kind:"rain",
-      icon:"🌧️",
-      text:appIsSpanish()
-        ? "Lluvia probable"+(place?" en "+place:"")+" cerca de las "+weatherClockLabel(rain.hour)+" ("+rain.probability+"%). "+(remainingJobs.length?"Deja un poco más de tiempo entre paradas.":"Tenlo en cuenta si agregas un trabajo hoy.")
-        : "Rain is likely"+(place?" in "+place:"")+" around "+weatherClockLabel(rain.hour)+" ("+rain.probability+"%). "+(remainingJobs.length?"Leave a little extra time between stops.":"Keep it in mind if you add a job today.")
-    };
+    const location=place?langPick(" in "," en "," em "," à ")+place:"";
+    const when=weatherClockLabel(rain.hour);
+    const first=langPick(
+      "Rain is likely"+location+" around "+when+" ("+rain.probability+"%).",
+      "Lluvia probable"+location+" cerca de las "+when+" ("+rain.probability+"%).",
+      "Chuva provável"+location+" por volta de "+when+" ("+rain.probability+"%).",
+      "Pluie probable"+location+" vers "+when+" ("+rain.probability+"%)."
+    );
+    const advice=remainingJobs.length
+      ? langPick(" Leave a little extra time between stops."," Deja un poco más de tiempo entre paradas."," Deixe um pouco mais de tempo entre as paradas."," Prévoyez un peu plus de temps entre les arrêts.")
+      : langPick(" Keep it in mind if you add a job today."," Tenlo en cuenta si agregas un trabajo hoy."," Leve isso em conta se adicionar um trabalho hoje."," Gardez cela en tête si vous ajoutez un travail aujourd’hui.");
+    return {kind:"rain",icon:"🌧️",text:first+advice};
   }
   const hotThreshold=businessTemperatureUnit()==="celsius"?31:88;
   if(Number.isFinite(temp)&&temp>=hotThreshold){
     return {
       kind:"heat",
       icon:"☀️",
-      text:appIsSpanish()
-        ? "Hace "+temp+temperatureSuffix()+(place?" en "+place:"")+". Si sigues en ruta, deja unos minutos para agua entre paradas."
-        : "It’s "+temp+temperatureSuffix()+(place?" in "+place:"")+". If you’re still on the road, leave a few minutes for water between stops."
+      text:langPick(
+        "It’s "+temp+temperatureSuffix()+(place?" in "+place:"")+". If you’re still on the road, leave a few minutes for water between stops.",
+        "Hace "+temp+temperatureSuffix()+(place?" en "+place:"")+". Si sigues en ruta, deja unos minutos para agua entre paradas.",
+        "Está fazendo "+temp+temperatureSuffix()+(place?" em "+place:"")+". Se ainda estiver na rua, reserve alguns minutos para água entre as paradas.",
+        "Il fait "+temp+temperatureSuffix()+(place?" à "+place:"")+". Si vous êtes encore en route, prévoyez quelques minutes pour boire entre les arrêts."
+      )
     };
   }
   return {kind:"steady",icon:"🌤️",text:""};
 }
-
 function renderTodaySummary(wakeAssistant=false){
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
