@@ -1,6 +1,7 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Use your current admin email to continue.":"Usa tu correo actual de administrador para continuar.",
     "Back to sign in":"Volver a iniciar sesión",
     "Enter the new password you want to use.":"Escribe la nueva contraseña que quieres usar.",
     "Choose a new password":"Elige una contraseña nueva",
