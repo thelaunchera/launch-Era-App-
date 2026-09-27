@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-inquiry-detail-1";
+const APP_VERSION = "20260927-notification-expiry-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2021,6 +2021,35 @@ async function withTimeout(promise,label,ms=9000){
   }
 }
 
+const INQUIRY_NOTIFICATION_TTL_MS=24*60*60*1000;
+const BOOKING_REVIEW_VISIBILITY_MS=12*60*60*1000;
+
+function bookingRequestVisibleInQueue(booking){
+  if(!booking?.reviewed_at) return true;
+  const reviewedAt=new Date(booking.reviewed_at).getTime();
+  if(!Number.isFinite(reviewedAt)) return true;
+  return Date.now()-reviewedAt<BOOKING_REVIEW_VISIBILITY_MS;
+}
+
+function visibleBookingRequests(){
+  return state.bookingRequests.filter(bookingRequestVisibleInQueue);
+}
+
+async function markBookingReviewed(id){
+  if(!id) return null;
+  const booking=state.bookingRequests.find(b=>b.id===id);
+  if(booking?.reviewed_at) return booking.reviewed_at;
+
+  const {data,error}=await supabase.rpc("mark_booking_request_reviewed",{p_request_id:id});
+  if(error) throw error;
+
+  const reviewedAt=data||new Date().toISOString();
+  if(booking) booking.reviewed_at=reviewedAt;
+  renderBookingRequests();
+  renderTodaySummary();
+  return reviewedAt;
+}
+
 function inquirySeenKey(){
   return "tle_inquiry_seen_at_"+(state.business?.id||"business");
 }
@@ -2098,8 +2127,9 @@ function getInquiryNotifications(){
     });
   });
 
+  const cutoff=Date.now()-INQUIRY_NOTIFICATION_TTL_MS;
   return items
-    .filter(x=>x.createdAt)
+    .filter(x=>x.createdAt && new Date(x.createdAt).getTime()>=cutoff)
     .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
     .slice(0,20);
 }
@@ -2107,6 +2137,10 @@ function getInquiryNotifications(){
 function openInquiryNotificationDetail(notificationId){
   const item=getInquiryNotifications().find(x=>x.id===notificationId);
   if(!item) return;
+
+  if(item.type==="booking"){
+    markBookingReviewed(item.recordId).catch(err=>console.warn("[TLE] mark booking reviewed",err));
+  }
 
   state.modalType="inquiryDetail";
   state.modalId=item.recordId;
@@ -2834,7 +2868,7 @@ function renderTodaySummary(wakeAssistant=false){
   const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
   const openQuotes=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status));
   const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-confirmedPaid(i)),0);
-  const pendingBookings=state.bookingRequests.filter(b=>b.status==="requested");
+  const pendingBookings=visibleBookingRequests().filter(b=>b.status==="requested");
   const overdueInvoices=state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status));
 
   const cards=$$(".metric-card", $('[data-page="today"]'));
@@ -3140,18 +3174,20 @@ function renderOperations(){
 function renderBookingRequests(){
   const list=$("#bookingRequestsList");
   const pill=$("#bookingRequestCountPill");
-  const pending=state.bookingRequests.filter(b=>b.status==="requested");
+  const visible=visibleBookingRequests();
+  const pending=visible.filter(b=>b.status==="requested");
   if(pill) pill.textContent=pending.length+" new";
   if(!list) return;
-  if(!state.bookingRequests.length){
-    list.innerHTML=`<div class="empty-inline"><strong>No booking requests yet.</strong><span>Share your booking link to receive requests here.</span></div>`;
+  if(!visible.length){
+    list.innerHTML=`<div class="empty-inline"><strong>No booking requests waiting.</strong><span>Reviewed requests leave this list automatically after 12 hours.</span></div>`;
     return;
   }
-  list.innerHTML=state.bookingRequests.slice(0,20).map(b=>`
+  list.innerHTML=visible.slice(0,20).map(b=>`
     <div class="booking-request-row">
       <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(b.service_address)}</small></div>
       <div class="record-actions">
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
+        <button data-check-booking-client="${b.id}">${b.reviewed_at?"Checked":"Check client"}</button>
         ${b.status==="requested"?`<button data-approve-booking="${b.id}">Approve</button><button class="danger-link" data-decline-booking="${b.id}">Decline</button>`:""}
       </div>
     </div>`).join("");
@@ -4750,19 +4786,39 @@ document.addEventListener("click",async e=>{
     return;
   }
 
+  const checkBookingClient=e.target.closest("[data-check-booking-client]");
+  if(checkBookingClient){
+    const id=checkBookingClient.dataset.checkBookingClient;
+    try{
+      await markBookingReviewed(id);
+      openInquiryNotificationDetail("booking:"+id);
+    }catch(err){
+      showToast(err?.message||"Could not open booking request");
+    }
+    return;
+  }
+
   const approveBooking=e.target.closest("[data-approve-booking]");
   if(approveBooking){
     approveBooking.disabled=true;
     const {error}=await supabase.rpc("approve_booking_request",{p_request_id:approveBooking.dataset.approveBooking});
     approveBooking.disabled=false;
-    if(error) showToast(error.message); else {await loadCoreData();showToast("Booking approved · client, job and invoice created");}
+    if(error) showToast(error.message); else {
+      try{await markBookingReviewed(approveBooking.dataset.approveBooking);}catch{}
+      await loadCoreData();
+      showToast("Booking approved · client, job and invoice created");
+    }
     return;
   }
 
   const declineBooking=e.target.closest("[data-decline-booking]");
   if(declineBooking){
     const {error}=await supabase.rpc("decline_booking_request",{p_request_id:declineBooking.dataset.declineBooking});
-    if(error) showToast(error.message); else {await loadCoreData();showToast("Booking request declined");}
+    if(error) showToast(error.message); else {
+      try{await markBookingReviewed(declineBooking.dataset.declineBooking);}catch{}
+      await loadCoreData();
+      showToast("Booking request declined");
+    }
     return;
   }
 
