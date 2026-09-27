@@ -853,7 +853,58 @@
       "Refresh":"Atualizar",
       "No route today.":"Não há rota hoje.",
       "Schedule jobs to build today’s stop list.":"Agende trabalhos para montar a rota de hoje.",
-      "Your route appears here when jobs are scheduled.":"Sua rota aparecerá aqui quando houver trabalhos agendados."
+      "Your route appears here when jobs are scheduled.":"Sua rota aparecerá aqui quando houver trabalhos agendados.",
+      "OWNER ONLY":"SOMENTE PROPRIETÁRIO",
+      "Billing, access, permissions, integrations and sensitive business controls stay with the owner.":"Cobrança, acesso, permissões, integrações e controles sensíveis do negócio ficam somente com o proprietário.",
+      "Private":"Privado",
+      "ACCESS + PERMISSIONS":"ACESSO + PERMISSÕES",
+      "Who can enter this workspace":"Quem pode entrar neste espaço",
+      "+ Invite teammate":"+ Convidar membro",
+      "Everything + billing, reports, permissions, integrations.":"Tudo, incluindo cobrança, relatórios, permissões e integrações.",
+      "Runs clients, jobs, quotes, invoices, services and team operations.":"Gerencia clientes, trabalhos, orçamentos, faturas, serviços e operações da equipe.",
+      "Only assigned jobs, route, time tracking and needed client details.":"Somente trabalhos atribuídos, rota, controle de tempo e dados necessários do cliente.",
+      "Worker":"Funcionário",
+      "PLAN + BILLING":"PLANO + COBRANÇA",
+      "Subscription":"Assinatura",
+      "Trial":"Teste",
+      "Owner only":"Somente proprietário",
+      "Trial ends":"O teste termina",
+      "30 days":"30 dias",
+      "After trial":"Depois do teste",
+      "SECURITY":"SEGURANÇA",
+      "Protected controls":"Controles protegidos",
+      "Workspace ownership":"Propriedade do espaço",
+      "Cannot be changed by Admin or Worker.":"Não pode ser alterada por Administrador ou Funcionário.",
+      "Permissions":"Permissões",
+      "Only the owner can promote, demote or remove access.":"Somente o proprietário pode alterar funções ou remover acesso.",
+      "Locked":"Bloqueado",
+      "Data protection":"Proteção de dados",
+      "Business records are isolated by account permissions.":"Os registros da empresa são isolados pelas permissões da conta.",
+      "Protected":"Protegido",
+      "INTEGRATIONS":"INTEGRAÇÕES",
+      "Private connections":"Conexões privadas",
+      "App subscription":"Assinatura do app",
+      "Subscription access is managed by The Launch Era.":"O acesso à assinatura é gerenciado pela The Launch Era.",
+      "Email connections":"Conexões de e-mail",
+      "Email delivery and private connection settings stay hidden from teammates.":"As configurações de envio de e-mail e conexões privadas ficam ocultas dos membros da equipe.",
+      "Cleaning App":"Cleaning App",
+      "Contact me":"Fale comigo",
+      "Share app":"Compartilhar app",
+      "Workers use a private no-password link. Admin access stays separate.":"Funcionários usam um link privado sem senha. O acesso Admin permanece separado.",
+      "Invite Admin":"Convidar Admin",
+      "+ Add team profile":"+ Adicionar perfil da equipe",
+      "Workers do not need passwords":"Funcionários não precisam de senha",
+      "Create the worker profile, assign jobs, then use Share worker link on that person’s card. The link only opens their assigned work.":"Crie o perfil do funcionário, atribua trabalhos e depois use Compartilhar link do funcionário no cartão dele. O link abre somente os trabalhos atribuídos.",
+      "Invite an Admin →":"Convidar um Admin →",
+      "Share worker link":"Compartilhar link do funcionário",
+      "Owner Admin":"Admin do proprietário",
+      "Everything, including billing, permissions, reports, integrations and Owner Admin.":"Tudo, incluindo cobrança, permissões, relatórios, integrações e Admin do proprietário.",
+      "Clients, jobs, quotes, invoices, services and day-to-day business operations.":"Clientes, trabalhos, orçamentos, faturas, serviços e operações diárias do negócio.",
+      "No password. Only assigned jobs, route/address, job status, time tracking, mileage and the client contact needed for that job.":"Sem senha. Somente trabalhos atribuídos, rota/endereço, status do trabalho, controle de tempo, quilometragem e o contato do cliente necessário para esse trabalho.",
+      "No password. Only assigned jobs, route/address, job status, time tracking, mileage, messages with the admin and the client contact needed for that assigned job.":"Sem senha. Somente trabalhos atribuídos, rota/endereço, status do trabalho, controle de tempo, quilometragem, mensagens com o administrador e o contato do cliente necessário para esse trabalho.",
+      "Owner":"Proprietário",
+      "Admin":"Administrador",
+      "On":"Ativado"
     },
     fr:{
       "See what’s paid and what needs follow-up.":"Voyez ce qui est payé et ce qui nécessite un suivi.",
@@ -908,7 +959,58 @@
       "Refresh":"Actualiser",
       "No route today.":"Aucun itinéraire aujourd’hui.",
       "Schedule jobs to build today’s stop list.":"Planifiez des travaux pour créer l’itinéraire du jour.",
-      "Your route appears here when jobs are scheduled.":"Votre itinéraire apparaîtra ici lorsque des travaux seront planifiés."
+      "Your route appears here when jobs are scheduled.":"Votre itinéraire apparaîtra ici lorsque des travaux seront planifiés.",
+      "OWNER ONLY":"PROPRIÉTAIRE UNIQUEMENT",
+      "Billing, access, permissions, integrations and sensitive business controls stay with the owner.":"La facturation, les accès, les autorisations, les intégrations et les contrôles sensibles restent réservés au propriétaire.",
+      "Private":"Privé",
+      "ACCESS + PERMISSIONS":"ACCÈS + AUTORISATIONS",
+      "Who can enter this workspace":"Qui peut accéder à cet espace",
+      "+ Invite teammate":"+ Inviter un membre",
+      "Everything + billing, reports, permissions, integrations.":"Tout, y compris facturation, rapports, autorisations et intégrations.",
+      "Runs clients, jobs, quotes, invoices, services and team operations.":"Gère les clients, travaux, devis, factures, services et opérations de l’équipe.",
+      "Only assigned jobs, route, time tracking and needed client details.":"Uniquement les travaux attribués, l’itinéraire, le suivi du temps et les informations client nécessaires.",
+      "Worker":"Employé",
+      "PLAN + BILLING":"FORFAIT + FACTURATION",
+      "Subscription":"Abonnement",
+      "Trial":"Essai",
+      "Owner only":"Propriétaire uniquement",
+      "Trial ends":"Fin de l’essai",
+      "30 days":"30 jours",
+      "After trial":"Après l’essai",
+      "SECURITY":"SÉCURITÉ",
+      "Protected controls":"Contrôles protégés",
+      "Workspace ownership":"Propriété de l’espace",
+      "Cannot be changed by Admin or Worker.":"Ne peut pas être modifiée par un administrateur ou un employé.",
+      "Permissions":"Autorisations",
+      "Only the owner can promote, demote or remove access.":"Seul le propriétaire peut modifier les rôles ou supprimer un accès.",
+      "Locked":"Verrouillé",
+      "Data protection":"Protection des données",
+      "Business records are isolated by account permissions.":"Les données de l’entreprise sont isolées par les autorisations du compte.",
+      "Protected":"Protégé",
+      "INTEGRATIONS":"INTÉGRATIONS",
+      "Private connections":"Connexions privées",
+      "App subscription":"Abonnement à l’application",
+      "Subscription access is managed by The Launch Era.":"L’accès à l’abonnement est géré par The Launch Era.",
+      "Email connections":"Connexions e-mail",
+      "Email delivery and private connection settings stay hidden from teammates.":"Les paramètres d’envoi des e-mails et des connexions privées restent masqués pour l’équipe.",
+      "Cleaning App":"Cleaning App",
+      "Contact me":"Me contacter",
+      "Share app":"Partager l’application",
+      "Workers use a private no-password link. Admin access stays separate.":"Les employés utilisent un lien privé sans mot de passe. L’accès Admin reste séparé.",
+      "Invite Admin":"Inviter un Admin",
+      "+ Add team profile":"+ Ajouter un profil d’équipe",
+      "Workers do not need passwords":"Les employés n’ont pas besoin de mot de passe",
+      "Create the worker profile, assign jobs, then use Share worker link on that person’s card. The link only opens their assigned work.":"Créez le profil de l’employé, attribuez des travaux, puis utilisez Partager le lien employé sur sa carte. Le lien ouvre uniquement ses travaux attribués.",
+      "Invite an Admin →":"Inviter un Admin →",
+      "Share worker link":"Partager le lien employé",
+      "Owner Admin":"Administration propriétaire",
+      "Everything, including billing, permissions, reports, integrations and Owner Admin.":"Tout, y compris la facturation, les autorisations, les rapports, les intégrations et l’administration propriétaire.",
+      "Clients, jobs, quotes, invoices, services and day-to-day business operations.":"Clients, travaux, devis, factures, services et opérations quotidiennes de l’entreprise.",
+      "No password. Only assigned jobs, route/address, job status, time tracking, mileage and the client contact needed for that job.":"Sans mot de passe. Uniquement les travaux attribués, l’itinéraire/l’adresse, le statut du travail, le suivi du temps, le kilométrage et le contact client nécessaire.",
+      "No password. Only assigned jobs, route/address, job status, time tracking, mileage, messages with the admin and the client contact needed for that assigned job.":"Sans mot de passe. Uniquement les travaux attribués, l’itinéraire/l’adresse, le statut du travail, le suivi du temps, le kilométrage, les messages avec l’administrateur et le contact client nécessaire.",
+      "Owner":"Propriétaire",
+      "Admin":"Administrateur",
+      "On":"Activé"
     }
   };
 
@@ -1197,6 +1299,33 @@
     }
   };
 
+  const canonicalTranslations=new Map();
+  function indexCanonicalTranslations(dict){
+    Object.entries(dict||{}).forEach(([source,target])=>{
+      if(typeof target!=="string") return;
+      const translated=target.trim();
+      const canonical=String(source||"").trim();
+      if(!translated || !canonical || translated===canonical) return;
+      if(!canonicalTranslations.has(translated)) canonicalTranslations.set(translated,canonical);
+    });
+  }
+  indexCanonicalTranslations(exact);
+  Object.values(extra).forEach(indexCanonicalTranslations);
+  Object.values(uiCorrections).forEach(indexCanonicalTranslations);
+  Object.values(staticCorrections).forEach(indexCanonicalTranslations);
+
+  function canonicalizeString(value){
+    let key=String(value||"").trim();
+    let guard=0;
+    while(canonicalTranslations.has(key) && guard<4){
+      const next=canonicalTranslations.get(key);
+      if(!next || next===key) break;
+      key=next;
+      guard++;
+    }
+    return key;
+  }
+
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
@@ -1216,8 +1345,9 @@
   let lang=localStorage.getItem(STORAGE_KEY) || (SUPPORTED.includes(browserLanguage)?browserLanguage:"en");
 
   function translateString(value){
-    const key=String(value||"").trim();
-    if(!key || lang==="en") return key||value;
+    const key=canonicalizeString(value);
+    if(!key) return key||value;
+    if(lang==="en") return key;
     if(staticCorrections[lang]?.[key]) return staticCorrections[lang][key];
     if(uiCorrections[lang]?.[key]) return uiCorrections[lang][key];
     if(lang==="es"){
@@ -1234,10 +1364,6 @@
   function setTextNode(node){
     if(!originals.has(node)) originals.set(node,node.nodeValue);
     const original=originals.get(node);
-    if(lang==="en"){
-      if(node.nodeValue!==original) node.nodeValue=original;
-      return;
-    }
     const leading=(original.match(/^\s*/)||[""])[0];
     const trailing=(original.match(/\s*$/)||[""])[0];
     const core=original.trim();
@@ -1252,7 +1378,7 @@
     for(const attr of ["placeholder","aria-label","title"]){
       if(!el.hasAttribute(attr)) continue;
       if(!(attr in saved)) saved[attr]=el.getAttribute(attr);
-      el.setAttribute(attr,lang==="en"?saved[attr]:translateString(saved[attr]));
+      el.setAttribute(attr,translateString(saved[attr]));
     }
   }
 
