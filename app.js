@@ -1740,9 +1740,12 @@ async function initialize(){
     markOwnerActivity();
   }
 
-  supabase.rpc("track_app_login",{p_visitor_id:getVisitorId()}).catch(function(err){
+  try{
+    const {error:loginTrackError}=await supabase.rpc("track_app_login",{p_visitor_id:getVisitorId()});
+    if(loginTrackError) console.warn("[TLE] login tracking",loginTrackError);
+  }catch(err){
     console.warn("[TLE] login tracking",err);
-  });
+  }
 
   await handleBillingReturn(params);
 
