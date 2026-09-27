@@ -994,7 +994,6 @@ function markOwnerActivity(){
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
-  if(localStorage.getItem(OWNER_REAUTH_REQUIRED_KEY)==="1") return true;
   const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
   return last>0 && (Date.now()-last)>=OWNER_IDLE_MS;
 }
@@ -1148,6 +1147,7 @@ async function showOwnerAccess(email,autoSend=false){
     }
   }else{
     setAuthStatus("");
+    if(clean) $("#ownerCodeCopy").textContent="Tap “Send a new code” when you need to sign in again.";
   }
 }
 async function continueAsAdmin(){
@@ -1608,7 +1608,8 @@ async function initialize(){
   if(!session){
     const ownerEmail=rememberedOwnerEmail();
     if(ownerEmail){
-      await showOwnerAccess(ownerEmail,true);
+      await showOwnerAccess(ownerEmail,false);
+      setAuthStatus("Tap “Send a new code” to continue.","");
       return;
     }
     showAuth();
@@ -1619,8 +1620,13 @@ async function initialize(){
   }
 
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
+  const lastOwnerActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  const hasRecentOwnerActivity=!lastOwnerActivity || (Date.now()-lastOwnerActivity)<OWNER_IDLE_MS;
 
-  if(rememberedOwnerEmail()===signedInEmail && ownerIdleExpired()){
+  if(hasRecentOwnerActivity){
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    if(!lastOwnerActivity) localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
+  }else if(rememberedOwnerEmail()===signedInEmail){
     await expireOwnerSession();
     return;
   }
@@ -1652,12 +1658,6 @@ async function initialize(){
       history.replaceState({}, "", clean.pathname + clean.hash);
       showToast("Workspace access accepted");
     }
-  }
-
-  try{
-    await supabase.functions.invoke("sync-stripe-subscription-status",{body:{}});
-  }catch(err){
-    console.warn("[TLE] subscription status sync",err);
   }
 
   const {data:contexts,error}=await supabase.rpc("get_my_business_context");
@@ -1729,6 +1729,7 @@ async function initialize(){
       await expireOwnerSession();
       return;
     }
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     markOwnerActivity();
   }
 
