@@ -885,6 +885,7 @@ function setAuthMode(mode){
   const passwordField=$("#passwordField");
   const emailField=$("#authEmail").closest("label");
   const forgot=$("#forgotPassword");
+  const signupLegalNote=$("#signupLegalNote");
 
   if(mode==="signup"){
     title.textContent="Create account";
@@ -898,6 +899,7 @@ function setAuthMode(mode){
     password.autocomplete="new-password";
     emailField.hidden=false;
     forgot.hidden=true;
+    if(signupLegalNote) signupLegalNote.hidden=false;
   }else if(mode==="recovery"){
     title.textContent="Choose a new password";
     copy.textContent="Enter the new password you want to use.";
@@ -909,6 +911,7 @@ function setAuthMode(mode){
     password.autocomplete="new-password";
     emailField.hidden=true;
     forgot.hidden=true;
+    if(signupLegalNote) signupLegalNote.hidden=true;
   }else{
     title.textContent="Sign in";
     copy.textContent="Open your cleaning business workspace.";
@@ -921,6 +924,7 @@ function setAuthMode(mode){
     password.autocomplete="current-password";
     emailField.hidden=false;
     forgot.hidden=false;
+    if(signupLegalNote) signupLegalNote.hidden=true;
   }
 
   prepareAdminShortcut();
@@ -3628,13 +3632,13 @@ if(availabilityWeek) availabilityWeek.addEventListener("change",e=>{
 const restartOnboardingBtn=$("#restartOnboardingBtn");
 if(restartOnboardingBtn) restartOnboardingBtn.addEventListener("click",restartGuidedOnboarding);
 
-const helpButtons=["#sidebarHelpBtn","#footerHelpBtn"];
+const helpButtons=["#sidebarHelpBtn","#footerHelpBtn","#topHelpBtn"];
 helpButtons.forEach(selector=>{
   const button=$(selector);
   if(button) button.addEventListener("click",()=>openView("help"));
 });
 
-const feedbackButtons=["#sidebarFeedbackBtn","#footerFeedbackBtn","#helpFeedbackBtn"];
+const feedbackButtons=["#sidebarFeedbackBtn","#footerFeedbackBtn","#helpFeedbackBtn","#topFeedbackBtn"];
 feedbackButtons.forEach(selector=>{
   const button=$(selector);
   if(button) button.addEventListener("click",openFeedbackForm);
