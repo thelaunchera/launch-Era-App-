@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-16";
+const APP_VERSION = "20260927-unified-17";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -161,8 +161,8 @@ const ONBOARDING_COPY={
     es:{title:"Suministros",text:"Mantén organizada tu lista de productos de limpieza para saber qué necesita el negocio."}
   },
   team:{
-    en:{title:"Team",text:"Add workers, assign jobs and share limited worker access without giving them owner controls."},
-    es:{title:"Equipo",text:"Añade trabajadores, asigna trabajos y comparte acceso limitado sin darles controles del dueño."}
+    en:{title:"Team",text:"Add employees, assign jobs, share Guest Employee Access and message them without exposing owner controls."},
+    es:{title:"Equipo",text:"Añade empleados, asigna trabajos, comparte acceso de invitado y envíales mensajes sin mostrar controles del dueño."}
   },
   settings:{
     en:{title:"Settings",text:"Edit company details, booking rules, payment options, client emails and your review link."},
