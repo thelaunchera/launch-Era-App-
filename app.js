@@ -593,7 +593,19 @@ async function geocodeBusinessArea(area){
 }
 function paymentMethodsForCountry(code){
   const country=String(code||"").toUpperCase();
-  return country==="US" ? ["cash","check","zelle","other"] : ["cash","check","other"];
+  if(country==="US") return ["cash","check","zelle","other"];
+  if(country==="CA") return ["cash","check","etransfer","other"];
+  return ["cash","bank_transfer","other"];
+}
+function paymentMethodLabel(method){
+  return {
+    cash:"Cash",
+    check:"Check",
+    zelle:"Zelle",
+    etransfer:"E-transfer",
+    bank_transfer:"Bank transfer",
+    other:"Other"
+  }[String(method||"").toLowerCase()]||String(method||"").replace(/_/g," ");
 }
 function currencyForCountry(code){
   const map={
@@ -3235,7 +3247,7 @@ function renderInvoices(){
     const paid=invoicePaidAmount(inv);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
-    const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle",other:"Other"}[chosenMethod]||chosenMethod||"";
+    const methodLabel=paymentMethodLabel(chosenMethod);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
@@ -4342,7 +4354,7 @@ function renderSettings(){
   if(currency) currency.textContent=state.business?.currency_code||"USD";
   if(distance) distance.textContent=state.business?.distance_unit==="km"?"Kilometers":"Miles";
   if(temperature) temperature.textContent=state.business?.temperature_unit==="celsius"?"Celsius":"Fahrenheit";
-  const methodLabel=(state.business?.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(v=>({cash:"Cash",check:"Check",zelle:"Zelle",other:"Other"}[v]||v)).join(" · ");
+  const methodLabel=(state.business?.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(paymentMethodLabel).join(" · ");
   if(paymentMethods) paymentMethods.textContent=methodLabel;
   if(bookingPaymentMethods) bookingPaymentMethods.textContent=methodLabel;
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
@@ -5261,7 +5273,7 @@ function openPaymentForm(invoiceId){
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
   const chosen=String(inv.customer_payment_method||"").toLowerCase();
-  const methodLabel={cash:"Cash",check:"Check",zelle:"Zelle",other:"Other"}[chosen]||chosen||"";
+  const methodLabel=paymentMethodLabel(chosen);
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
@@ -5269,7 +5281,7 @@ function openPaymentForm(invoiceId){
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
       <label>Method<select name="method">
-        ${(state.business.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml({cash:"Cash",check:"Check",zelle:"Zelle",other:"Other"}[method]||method)}</option>`).join("")}
+        ${(state.business.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml(paymentMethodLabel(method))}</option>`).join("")}
       </select></label>
       <label class="full">Note / reference<textarea name="note" placeholder="Optional reference or payment note"></textarea></label>
     </div>${formSubmit("Confirm payment")}`;
