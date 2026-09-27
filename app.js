@@ -7,6 +7,9 @@ const { createClient } = window.supabase;
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const PRIMARY_PLATFORM_ADMIN_EMAIL = "dailinsegura17@gmail.com";
+function isPrimaryPlatformAdminAccount(){
+  return String(state?.session?.user?.email||"").trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL;
+}
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -236,6 +239,13 @@ async function handleBillingReturn(params){
 }
 
 function showSubscriptionGate(){
+  if(isPrimaryPlatformAdminAccount()){
+    if(state.modalType==="subscriptionGate"){
+      modal.hidden=true;
+      modalClose.hidden=false;
+    }
+    return;
+  }
   if(!state.business || !subscriptionNeedsPayment()){
     if(state.modalType==="subscriptionGate"){
       modal.hidden=true;
@@ -282,11 +292,23 @@ function showSubscriptionGate(){
 
 function renderTrialStatus(){
   const pill=$("#trialDaysPill");
+  const trialCard=pill?.closest(".trial-card");
+  const warning=$("#trialExpiryBanner");
+  if(isPrimaryPlatformAdminAccount()){
+    if(trialCard) trialCard.hidden=true;
+    if(warning) warning.hidden=true;
+    $("#trialSubscribeBtn")?.remove();
+    if(state.modalType==="subscriptionGate"){
+      modal.hidden=true;
+      modalClose.hidden=false;
+    }
+    return;
+  }
+  if(trialCard) trialCard.hidden=false;
   if(!pill || !state.business) return;
 
   const status=String(state.business.subscription_status||"").toLowerCase();
-  const trialCard=pill.closest(".trial-card");
-  const warning=$("#trialExpiryBanner");
+  
   const warningTitle=$("#trialExpiryTitle");
   const warningCopy=$("#trialExpiryCopy");
   let payBtn=$("#trialSubscribeBtn");
