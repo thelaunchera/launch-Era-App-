@@ -1,6 +1,22 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "unique":"únicos",
+    "New external visits will appear here.":"Las nuevas visitas externas aparecerán aquí.",
+    "No location data yet.":"Aún no hay datos de ubicación.",
+    "Top states":"Estados principales",
+    "VISITOR LOCATION":"UBICACIÓN",
+    "You still have full access. When your free period ends, you can continue for $5.99/month.":"Todavía tienes acceso completo. Al terminar la prueba, puedes continuar por $5.99/mes.",
+    "Your free access ends in 3 days":"Tu acceso gratis termina en 3 días",
+    "FREE ACCESS":"ACCESO GRATIS",
+    "48 hours":"48 horas",
+    "24 hours":"24 horas",
+    "12 hours":"12 horas",
+    "2 hours":"2 horas",
+    "60 min":"60 minutos",
+    "45 min":"45 minutos",
+    "30 min":"30 minutos",
+    "15 min":"15 minutos",
     "Next stop":"Próxima parada",
     "Address not added":"Sin dirección",
     "Business drive":"Viaje de trabajo",
