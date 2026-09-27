@@ -2436,6 +2436,7 @@ function renderTodaySummary(){
     let copy="";
     let actionView="calendar";
     let actionText="";
+    let messageState=isMorning?"morning":isAfternoon?"afternoon":"night";
 
     if(isMorning){
       greet.textContent=appIsSpanish()?"Buenos días":"Good morning";
@@ -2446,6 +2447,7 @@ function renderTodaySummary(){
           ? "Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. Lluvia cerca de las "+weatherClockLabel(rain.hour)+"; deja un poco más de tiempo entre paradas."
           : "You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. Rain is likely around "+weatherClockLabel(rain.hour)+"; leave a little extra time between stops.";
         actionView="route";
+        messageState="rain";
       }else if(todayJobs.length){
         const first=todayJobs[0];
         const firstTime=new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(first.starts_at));
@@ -2453,12 +2455,15 @@ function renderTodaySummary(){
           ? "Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. Tu primera parada es a las "+firstTime+"."
           : "You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. Your first stop is at "+firstTime+".";
         actionView="route";
+        messageState="jobs";
       }else if(pendingBookings.length){
+        messageState="booking";
         copy=appIsSpanish()
           ? "Hoy está tranquilo. Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" esperando."
           : "Today is light. You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting.";
         actionView="booking";
       }else{
+        messageState="calm";
         copy=appIsSpanish()
           ? "Hoy está ligero. Buen momento para organizar reservas y preparar el día."
           : "Today looks light. A good moment to organize bookings and set up the day.";
@@ -2474,22 +2479,27 @@ function renderTodaySummary(){
           ? "Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". Lluvia probable cerca de las "+weatherClockLabel(rain.hour)+"; revisa la próxima ruta antes de salir."
           : "You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. Rain is likely around "+weatherClockLabel(rain.hour)+"; check the next route before heading out.";
         actionView="route";
+        messageState="rain";
       }else if(remainingJobs.length){
+        messageState="hydrate";
         copy=appIsSpanish()
           ? "Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" hoy. Hidrátate y revisa la próxima parada."
           : "You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left today. Grab some water and check the next stop.";
         actionView="route";
       }else if(pendingBookings.length){
+        messageState="booking";
         copy=appIsSpanish()
           ? "Terminaste la ruta. Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" por revisar."
           : "The route is clear. You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" to review.";
         actionView="booking";
       }else if(Number.isFinite(temp)&&temp>=88){
+        messageState="hydrate";
         copy=appIsSpanish()
           ? "La ruta está tranquila y hace "+temp+"°F afuera. Toma agua y cierra lo pendiente con calma."
           : "The route is quiet and it’s "+temp+"°F outside. Grab some water and wrap up what’s left.";
         actionView="today";
       }else{
+        messageState="calm";
         copy=appIsSpanish()
           ? "Vas al día. Revisa lo pendiente y deja mañana un poco más fácil."
           : "You’re caught up. Check what’s left and make tomorrow a little easier.";
@@ -2501,19 +2511,23 @@ function renderTodaySummary(){
       if(momentIcon) momentIcon.textContent="🌙";
 
       if(rainTomorrow){
+        messageState="rain";
         copy=appIsSpanish()
           ? "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+" y puede llover. Deja la primera ruta lista y luego descansa."
           : "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow and rain may be coming. Set up the first route, then rest.";
       }else if(tomorrowJobs.length){
+        messageState="night";
         copy=appIsSpanish()
           ? "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Revisa la primera dirección y luego desconecta."
           : "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then switch off.";
       }else if(pendingBookings.length||openQuotes.length){
+        messageState="booking";
         const count=pendingBookings.length+openQuotes.length;
         copy=appIsSpanish()
           ? "Tienes "+count+" pendiente"+(count===1?"":"s")+" para mañana. Organízalo ahora y luego descansa."
           : "You have "+count+" item"+(count===1?"":"s")+" waiting for tomorrow. Organize them now, then rest.";
       }else{
+        messageState="night";
         copy=appIsSpanish()
           ? "Todo está tranquilo. Organiza mañana, cierra la app y descansa."
           : "Everything looks quiet. Set up tomorrow, close the app and get some rest.";
@@ -2522,6 +2536,10 @@ function renderTodaySummary(){
       actionText=appIsSpanish()?"Planear mañana →":"Plan tomorrow →";
     }
 
+    if(hero){
+      hero.classList.remove("message-rain","message-booking","message-jobs","message-hydrate","message-calm","message-night","message-morning","message-afternoon");
+      hero.classList.add("message-"+messageState);
+    }
     if(momentCopy) momentCopy.textContent=copy;
     if(heroAction){
       heroAction.textContent=actionText;
