@@ -316,6 +316,38 @@ function syncLegalLinks(){
 window.addEventListener("tle:languagechange",syncLegalLinks);
 setTimeout(syncLegalLinks,0);
 
+function appIsSpanish(){
+  return window.TLE_I18N?.language==="es";
+}
+function appLocale(){
+  return appIsSpanish() ? "es-US" : "en-US";
+}
+function tr(value){
+  return window.TLE_I18N?.t ? window.TLE_I18N.t(value) : value;
+}
+function translatedStatus(value=""){
+  const raw=String(value||"").replaceAll("_"," ");
+  const map={
+    requested:"Requested",draft:"Draft",sent:"Sent",accepted:"Accepted",declined:"Declined",
+    completed:"Completed",in_progress:"In progress",scheduled:"Scheduled",canceled:"Canceled",
+    paid:"Paid",void:"Void",new:"New",contacted:"Contacted",qualified:"Qualified",
+    quoted:"Quoted",booked:"Booked",lost:"Lost",confirmed:"Confirmed",pending:"Pending"
+  };
+  return tr(map[String(value||"").toLowerCase()]||raw);
+}
+
+function refreshDynamicLanguageContent(){
+  if(!state.business || !state.session) return;
+  try{ renderTodaySummary(); }catch{}
+  try{ renderOperations(); }catch{}
+  try{ renderSettings(); }catch{}
+  try{ renderPublicLinks(); }catch{}
+  try{ if(state.business.role==="owner") loadOwnerAdmin().catch(()=>{}); }catch{}
+}
+window.addEventListener("tle:languagechange",()=>{
+  setTimeout(refreshDynamicLanguageContent,0);
+});
+
 function escapeHtml(value=""){
   return String(value).replace(/[&<>"']/g, ch => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -327,7 +359,7 @@ function money(value){
 }
 function formatDateTime(value){
   if(!value) return "—";
-  return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
+  return new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
 }
 function setAuthStatus(message="",type=""){
   const el=$("#authStatus");
@@ -1223,7 +1255,7 @@ function renderWorkerPortal(){
     <article class="worker-job-card">
       <div class="worker-job-top">
         <span><strong>${escapeHtml(j.client_name||"Cleaning job")}</strong><small>${escapeHtml(j.service_name||"Cleaning")} · ${formatDateTime(j.starts_at)}</small></span>
-        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
+        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
       </div>
       <div class="worker-job-address">${escapeHtml(j.service_address||"Address not added")}</div>
       ${j.client_phone?`<a class="worker-phone" href="tel:${escapeHtml(j.client_phone)}">Call client</a>`:""}
@@ -1605,7 +1637,7 @@ async function loadOwnerAdmin(){
   const status=$("#adminPlanStatus");
   const trial=$("#adminTrialEnds");
   if(status) status.textContent=state.business.subscription_status||"Trial";
-  if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+  if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
 }
 
 function renderMembers(){
@@ -1705,7 +1737,7 @@ function renderInvoices(){
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
     return `<div class="table-row">
-      <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
+      <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
       <span>${escapeHtml(inv.clients?.name||"No client")}</span>
       <span><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" paid":""}</small></span>
       <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i>${methodLabel?`<small class="payment-choice-note">Customer chose ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
@@ -1966,7 +1998,7 @@ function renderJobs(){
           <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
         </div>
         <div class="record-actions">
-          <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
+          <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
           ${state.business.role==="coworker"
             ? `<button data-coworker-status="${j.id}" data-status="on_the_way">On my way</button><button data-coworker-status="${j.id}" data-status="in_progress">Start</button><button data-coworker-status="${j.id}" data-status="completed">Complete</button>`
             : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
@@ -1986,8 +2018,8 @@ function renderJobs(){
     if(range){
       const sameMonth=start.getMonth()===end.getMonth();
       range.textContent=sameMonth
-        ? new Intl.DateTimeFormat("en-US",{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
-        : new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(end);
+        ? new Intl.DateTimeFormat(appLocale(),{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
+        : new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(end);
     }
 
     week.innerHTML=Array.from({length:14},(_,i)=>{
@@ -2001,7 +2033,7 @@ function renderJobs(){
         : `<small class="calendar-job-count empty">—</small>`;
 
       return `<span class="${selected}${hasJobs}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
-        <em>${new Intl.DateTimeFormat("en-US",{weekday:"short"}).format(d).toUpperCase()}</em>
+        <em>${new Intl.DateTimeFormat(appLocale(),{weekday:"short"}).format(d).toUpperCase()}</em>
         <strong>${d.getDate()}</strong>
         ${count}
       </span>`;
@@ -2082,28 +2114,37 @@ function renderTodaySummary(){
   const pendingBookings=state.bookingRequests.filter(b=>b.status==="requested");
 
   const cards=$$(".metric-card", $('[data-page="today"]'));
-  if(cards[0]){ cards[0].querySelector("strong").textContent=todayJobs.length; cards[0].querySelector("small").textContent=todayJobs.length?todayJobs.filter(j=>j.status==="completed").length+" completed":"Nothing scheduled"; }
+  if(cards[0]){
+    cards[0].querySelector("strong").textContent=todayJobs.length;
+    const completed=todayJobs.filter(j=>j.status==="completed").length;
+    cards[0].querySelector("small").textContent=todayJobs.length
+      ? (appIsSpanish() ? `${completed} completados` : `${completed} completed`)
+      : tr("Nothing scheduled");
+  }
   if(cards[1]){ cards[1].querySelector("strong").textContent=state.clients.length; }
   if(cards[2]){ cards[2].querySelector("strong").textContent=openQuotes.length; }
   const out=$("#todayOutstanding"); if(out) out.textContent=money(outstanding);
   const br=$("#todayBookingRequests"); if(br) br.textContent=pendingBookings.length;
 
   const datePill=$("#todayDatePill");
-  if(datePill) datePill.textContent=new Intl.DateTimeFormat("en-US",{weekday:"long",month:"short",day:"numeric"}).format(now);
+  if(datePill){
+    const formatted=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"short",day:"numeric"}).format(now);
+    datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
+  }
   const greet=$("#todayGreeting");
   if(greet){
     const hour=now.getHours();
-    greet.textContent=(hour<12?"Good morning":hour<18?"Good afternoon":"Good evening")+" 👋";
+    greet.textContent=tr(hour<12?"Good morning":hour<18?"Good afternoon":"Good evening")+" 👋";
   }
 
   const timeline=$("#todayTimeline");
   if(timeline){
     timeline.innerHTML=todayJobs.length?todayJobs.map(j=>`
       <div class="timeline-item ${j.status==="completed"?"done":""}">
-        <time>${new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))}</time>
-        <div><strong>${escapeHtml(j.clients?.name||"Cleaning job")}</strong><span>${escapeHtml(j.services?.name||"Service")} · ${Math.round(j.duration_minutes/60*10)/10}h</span></div>
-        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(j.status.replaceAll("_"," "))}</span>
-      </div>`).join(""):`<div class="empty-inline"><strong>No jobs today.</strong><span>Your scheduled jobs will appear here.</span></div>`;
+        <time>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))}</time>
+        <div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${escapeHtml(j.services?.name||tr("Service"))} · ${Math.round(j.duration_minutes/60*10)/10}h</span></div>
+        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
+      </div>`).join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("No jobs today."))}</strong><span>${escapeHtml(tr("Your scheduled jobs will appear here."))}</span></div>`;
   }
 
   const attention=$("#attentionList");
@@ -2116,7 +2157,7 @@ function renderTodaySummary(){
       items.push(`<button data-jump="quotes"><span class="dot yellow"></span><strong>Quote for ${escapeHtml(q.customer_name)}</strong><small>Waiting for response</small></button>`);
     });
     if(pendingBookings.length) items.push(`<button data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} booking request${pendingBookings.length===1?"":"s"}</strong><small>Waiting for review</small></button>`);
-    attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>Nothing urgent.</strong><span>No overdue invoices, sent quotes, or new booking requests need attention.</span></div>`;
+    attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
   const weekStart=startOfWeek(now);
@@ -2142,7 +2183,7 @@ function renderOperations(){
   const routeVisual=$("#routeVisual");
   if(routeStops){
     routeStops.innerHTML=todayJobs.length?todayJobs.map((j,i)=>`
-      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||"Cleaning job")}</strong><span>${new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||"Address not added")}</small></div><em>${escapeHtml(j.status.replaceAll("_"," "))}</em></div>
+      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||"Address not added")}</small></div><em>${escapeHtml(translatedStatus(j.status))}</em></div>
       ${i<todayJobs.length-1?'<div class="route-drive">Next stop</div>':""}
     `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
   }
@@ -2156,7 +2197,7 @@ function renderOperations(){
   if(mileageTable){
     mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
       <div class="table-row">
-        <span>${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</span>
+        <span>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</span>
         <span>${escapeHtml(m.notes||"Business drive")}</span>
         <span>${Number(m.miles||0).toFixed(1)}</span>
         <span>${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
@@ -2365,9 +2406,9 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="landing_setup"?"60-day Landing promo":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-landing-promo="${x.business_id}" ${x.trial_promotion==="landing_setup"?"disabled":""}>${x.trial_promotion==="landing_setup"?"60-day promo active":"Grant 60-day Landing promo"}</button></div>
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="landing_setup"?"60-day Landing promo":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-landing-promo="${x.business_id}" ${x.trial_promotion==="landing_setup"?"disabled":""}>${x.trial_promotion==="landing_setup"?"60-day promo active":"Grant 60-day Landing promo"}</button></div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
-        <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
+        <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
         <select data-platform-status="${x.business_id}">
           ${["trial","active","past_due","canceled","expired"].map(s=>`<option value="${s}" ${x.status===s?"selected":""}>${s}</option>`).join("")}
         </select>
@@ -2455,7 +2496,7 @@ async function initializePublicRequest(mode,slug){
   }
 
   function formatSlot(iso){
-    return new Intl.DateTimeFormat("en-US",{
+    return new Intl.DateTimeFormat(appLocale(),{
       timeZone:data?.business?.timezone||"America/New_York",
       hour:"numeric",
       minute:"2-digit"
