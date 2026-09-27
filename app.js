@@ -64,6 +64,7 @@ const state = {
   weatherFetchedAt: 0,
   inquirySeenAt: 0,
   inquirySeenLoadedFor: null,
+  inquiryReadIds: new Set(),
   workerPortal: null,
   currentWorkerLink: null,
   authMode: "signup",
@@ -2209,6 +2210,56 @@ function persistInquirySeenState(seen){
   }).catch(err=>console.warn("[TLE] notification state write",err));
 }
 
+async function loadInquiryReadIds(){
+  const userId=state.session?.user?.id;
+  const businessId=state.business?.id;
+  if(!userId||!businessId){
+    state.inquiryReadIds=new Set();
+    return state.inquiryReadIds;
+  }
+  try{
+    const {data,error}=await supabase
+      .from("app_notification_reads")
+      .select("notification_id")
+      .eq("user_id",userId)
+      .eq("business_id",businessId);
+    if(error) throw error;
+    state.inquiryReadIds=new Set((data||[]).map(row=>String(row.notification_id||"")).filter(Boolean));
+  }catch(err){
+    console.warn("[TLE] notification reads load",err);
+    state.inquiryReadIds=new Set();
+  }
+  return state.inquiryReadIds;
+}
+function isInquiryNotificationRead(item){
+  if(!item) return true;
+  if(state.inquiryReadIds?.has(item.id)) return true;
+  const seen=currentInquirySeenAt();
+  const created=new Date(item.createdAt).getTime();
+  return Number.isFinite(created)&&created<=seen;
+}
+async function markInquiryNotificationRead(notificationId){
+  if(!notificationId) return;
+  if(!(state.inquiryReadIds instanceof Set)) state.inquiryReadIds=new Set();
+  state.inquiryReadIds.add(notificationId);
+  renderInquiryNotifications();
+
+  const userId=state.session?.user?.id;
+  const businessId=state.business?.id;
+  if(!userId||!businessId) return;
+  try{
+    const {error}=await supabase.from("app_notification_reads").upsert({
+      user_id:userId,
+      business_id:businessId,
+      notification_id:notificationId,
+      read_at:new Date().toISOString()
+    },{onConflict:"user_id,business_id,notification_id"});
+    if(error) throw error;
+  }catch(err){
+    console.warn("[TLE] notification read write",err);
+  }
+}
+
 function findMatchingClient({email,phone,name}={}){
   const cleanEmail=String(email||"").trim().toLowerCase();
   const cleanPhone=String(phone||"").replace(/\D/g,"");
@@ -2293,6 +2344,8 @@ function openInquiryNotificationDetail(notificationId){
   const item=getInquiryNotifications().find(x=>x.id===notificationId);
   if(!item) return;
 
+  markInquiryNotificationRead(notificationId).catch(err=>console.warn("[TLE] notification read",err));
+
   if(item.type==="booking"){
     markBookingReviewed(item.recordId).catch(err=>console.warn("[TLE] mark booking reviewed",err));
   }
@@ -2343,8 +2396,7 @@ function openInquiryNotificationDetail(notificationId){
 }
 
 function getInquiryUnreadCount(){
-  const seen=currentInquirySeenAt();
-  return getInquiryNotifications().filter(x=>new Date(x.createdAt).getTime()>seen).length;
+  return getInquiryNotifications().filter(item=>!isInquiryNotificationRead(item)).length;
 }
 
 function renderInquiryNotifications(){
@@ -2353,9 +2405,9 @@ function renderInquiryNotifications(){
   const list=$("#notificationList");
   if(!button||!badge||!list||!state.business) return;
 
-  const seen=currentInquirySeenAt();
   const items=getInquiryNotifications();
-  const unread=items.filter(x=>new Date(x.createdAt).getTime()>seen).length;
+  const unreadItems=items.filter(item=>!isInquiryNotificationRead(item));
+  const unread=unreadItems.length;
 
   badge.textContent=unread>99?"99+":String(unread);
   badge.hidden=unread===0;
@@ -2364,13 +2416,13 @@ function renderInquiryNotifications(){
     ? (appIsSpanish()?unread+" inquiries nuevos":unread+" new inquiries")
     : (appIsSpanish()?"Inquiries":"Inquiries"));
 
-  if(!items.length){
-    list.innerHTML=`<div class="notification-empty"><strong>${appIsSpanish()?"Todo al día":"You’re all caught up"}</strong><span>${appIsSpanish()?"Los nuevos inquiries aparecerán aquí.":"New inquiries will appear here."}</span></div>`;
+  if(!unreadItems.length){
+    list.innerHTML=`<div class="notification-empty"><strong>${appIsSpanish()?"Todo al día":"You’re all caught up"}</strong><span>${appIsSpanish()?"Solo las notificaciones nuevas aparecerán aquí.":"Only new notifications will appear here."}</span></div>`;
     return;
   }
 
-  list.innerHTML=items.slice(0,8).map(item=>{
-    const isNew=new Date(item.createdAt).getTime()>seen;
+  list.innerHTML=unreadItems.slice(0,8).map(item=>{
+    const isNew=true;
     const typeLabel=item.type==="booking"
       ? (appIsSpanish()?"Booking request":"Booking request")
       : (appIsSpanish()?"Lead":"Lead");
@@ -2402,10 +2454,7 @@ function openNotificationPopover(){
   const willOpen=popover.hidden;
   popover.hidden=!willOpen;
   button.setAttribute("aria-expanded",willOpen?"true":"false");
-  if(willOpen){
-    renderInquiryNotifications();
-    markInquiryNotificationsSeen();
-  }
+  if(willOpen) renderInquiryNotifications();
 }
 
 function closeNotificationPopover(){
@@ -2505,6 +2554,7 @@ async function loadCoreData(){
   state.timeEntries=timeEntries;
   renderInvoices();
   await loadInquirySeenState();
+  await loadInquiryReadIds();
   renderInquiryNotifications();
   renderTodaySummary();
   renderOperations();
