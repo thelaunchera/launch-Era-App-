@@ -834,12 +834,24 @@ async function initialize(){
   const { data:{session} } = await supabase.auth.getSession();
   state.session = session;
   if(!session){
-    // No session: show the access screen immediately.
-    // Platform admins can use the remembered "Continue as Admin" passwordless flow.
-    // Do not call auth APIs from an auth-state callback or attempt silent admin auth here.
     showAuth();
     setAuthStatus("");
     prepareAdminShortcut();
+    return;
+  }
+
+  const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
+  if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
+    try{ await supabase.auth.signOut({scope:"local"}); }catch{}
+    state.session=null;
+    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
+    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+    showAuth();
+    setAuthMode("signin");
+    const emailInput=$("#authEmail");
+    if(emailInput) emailInput.value=PRIMARY_PLATFORM_ADMIN_EMAIL;
+    prepareAdminShortcut();
+    setAuthStatus(window.TLE_I18N?.t("Use your current admin email to continue.")||"Use your current admin email to continue.","success");
     return;
   }
 
@@ -866,8 +878,37 @@ async function initialize(){
 
   const {data:contexts,error}=await supabase.rpc("get_my_business_context");
   if(error){ showToast(error.message); showAuth(); return; }
-  const context=contexts?.[0];
-  if(!context){ showSetup(); return; }
+  let context=contexts?.[0];
+
+  if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
+    const {data:b,error:businessError}=await supabase
+      .from("businesses")
+      .select("id,name,timezone,default_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status")
+      .eq("owner_user_id",session.user.id)
+      .order("created_at",{ascending:true})
+      .limit(1)
+      .maybeSingle();
+
+    if(!businessError && b){
+      context={
+        business_id:b.id,
+        business_name:b.name,
+        role:"owner",
+        team_member_id:null,
+        timezone:b.timezone,
+        default_language:b.default_language,
+        service_area:b.service_area,
+        default_travel_buffer_minutes:b.default_travel_buffer_minutes,
+        trial_ends_at:b.trial_ends_at,
+        subscription_status:b.subscription_status
+      };
+    }
+  }
+
+  if(!context){
+    showSetup();
+    return;
+  }
 
   state.business={
     id:context.business_id,
