@@ -99,6 +99,14 @@ async function assertLayout(page,profile){
   if(!(await authSubmit.isVisible()) || !(await authSubmit.isEnabled())){
     throw new Error(profile.name+": auth submit is not usable after mode switch");
   }
+  if(switchedTitle==="Sign in"){
+    await page.locator("#authEmail").fill("not-an-email");
+    await page.locator("#authPassword").fill("12345678");
+    await authSubmit.click();
+    await page.waitForFunction(()=>document.querySelector("#authStatus")?.textContent.trim().length>0,null,{timeout:3000});
+    await page.locator("#authEmail").fill("");
+    await page.locator("#authPassword").fill("");
+  }
   await authSwitch.click();
   await page.waitForFunction(
     expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
