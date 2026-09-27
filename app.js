@@ -3379,7 +3379,7 @@ function setupInvoiceRealtime(){
   };
 
   let channel=supabase.channel("workspace-updates-"+state.business.id);
-  ["invoices","jobs","quotes","booking_requests","leads"].forEach(function(table){
+  ["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","team_messages","job_time_entries"].forEach(function(table){
     channel=channel.on("postgres_changes",{
       event:"*",
       schema:"public",
@@ -3445,7 +3445,7 @@ async function loadCoreData(){
   renderSupplies();
 
   const [invoices,bookingRequests,mileageLogs,timeEntries]=await Promise.all([
-    safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(method,amount,status,paid_at)").eq("business_id",businessId).order("created_at",{ascending:false}),state.invoices),
+    safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(id,method,amount,status,paid_at,created_at)").eq("business_id",businessId).order("created_at",{ascending:false}),state.invoices),
     safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingRequests),
     safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),state.mileageLogs),
     safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),state.timeEntries)
