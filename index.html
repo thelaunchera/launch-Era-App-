@@ -34,7 +34,7 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for cleaning businesses serving homes, Airbnb and short-term rentals, offices, stores, restaurants and other commercial spaces." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <link rel="stylesheet" href="./styles.css?v=20260927-inquiry-detail-1" />
+  <link rel="stylesheet" href="./styles.css?v=20260927-hero-weather-ecosystem-1" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -351,32 +351,41 @@
       <section class="view active" data-page="today">
         <div class="hero-card moment-afternoon is-loading assistant-arrival" id="todayHeroCard">
           <span class="hero-moment-icon" id="todayMomentIcon" aria-hidden="true">✨</span>
-          <div>
-            <div class="hero-assistant-meta">
-              <span class="pill yellow" id="todayDatePill">Today</span>
-            </div>
-            <h2 id="todayGreeting">Getting your day ready…</h2>
-            <p id="todayMomentCopy">Checking your schedule and local weather.</p>
-          </div>
-          <button class="dark-btn" id="todayHeroAction" data-jump="today" disabled>One moment…</button>
-        </div>
 
-        <article class="weather-brief" id="weatherBrief" hidden>
-          <div class="weather-now">
-            <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
-            <div class="weather-now-copy">
-              <small id="weatherLocation">LOCAL WEATHER</small>
-              <div class="weather-temp-row">
-                <strong id="weatherTemp">—</strong>
-                <span id="weatherCondition">Loading weather…</span>
+          <div class="hero-ecosystem">
+            <div class="hero-greeting-zone">
+              <div class="hero-assistant-meta">
+                <span class="pill yellow" id="todayDatePill">Today</span>
               </div>
-              <span id="weatherFeels"></span>
+              <h2 id="todayGreeting">Getting your day ready…</h2>
+              <p id="todayMomentCopy">Checking your schedule and local weather.</p>
+              <button class="dark-btn" id="todayHeroAction" data-jump="today" disabled>One moment…</button>
             </div>
+
+            <article class="weather-brief hero-weather-module" id="weatherBrief" hidden
+              role="button" tabindex="0" data-open-device-weather
+              aria-label="Open weather on this device">
+              <div class="weather-module-top">
+                <div class="weather-now">
+                  <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+                  <div class="weather-now-copy">
+                    <small id="weatherLocation">LOCAL WEATHER</small>
+                    <div class="weather-temp-row">
+                      <strong id="weatherTemp">—</strong>
+                      <span id="weatherCondition">Loading weather…</span>
+                    </div>
+                    <span id="weatherFeels"></span>
+                  </div>
+                </div>
+                <span class="weather-open-hint" aria-hidden="true">↗</span>
+              </div>
+
+              <div class="weather-business-note" id="weatherBusinessNote"></div>
+              <div class="weather-forecast" id="weatherForecast"></div>
+              <small class="weather-updated" id="weatherUpdated"></small>
+            </article>
           </div>
-          <div class="weather-business-note" id="weatherBusinessNote"></div>
-          <div class="weather-forecast" id="weatherForecast"></div>
-          <small class="weather-updated" id="weatherUpdated"></small>
-        </article>
+        </div>
 
         <div class="metric-grid">
           <article class="metric-card metric-link" data-jump="calendar" role="button" tabindex="0"><span>Today’s jobs</span><strong>0</strong><small>Scheduled today</small></article>
@@ -965,6 +974,6 @@
   <script src="./vendor/supabase.js?v=20260926-2112"></script>
   <script src="./i18n.js?v=20260927-premium-mobile-es-3"></script>
   <script src="./public.js?v=20260927-public-submit-2"></script>
-  <script src="./app.js?v=20260927-notification-detail-only-1"></script>
+  <script src="./app.js?v=20260927-hero-weather-ecosystem-1"></script>
 </body>
 </html>
