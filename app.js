@@ -586,6 +586,7 @@ function installLiveDashboardUpdates(){
 function refreshDynamicLanguageContent(){
   if(!state.business || !state.session) return;
   try{ renderTodaySummary(); }catch{}
+  try{ renderWeatherBrief(); }catch{}
   try{ renderOperations(); }catch{}
   try{ renderSettings(); }catch{}
   try{ renderPublicLinks(); }catch{}
