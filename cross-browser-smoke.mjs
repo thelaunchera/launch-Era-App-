@@ -75,6 +75,43 @@ async function assertLayout(page,profile){
   if(languageShape.featured.join(",")!=="es,en") throw new Error(profile.name+": primary language order changed");
   if(languageShape.listed.join(",")!=="pt,fr") throw new Error(profile.name+": secondary language list changed");
   if(languageShape.overflow) throw new Error(profile.name+": language picker overflows viewport");
+
+  // Regression guard: switching languages must never keep translated text
+  // from the previous language as the new source string.
+  await page.locator('#tleLanguageMenu [data-language-choice="fr"]').click();
+  await page.waitForFunction(()=>document.documentElement.lang==="fr",null,{timeout:2000});
+  const frAdmin=await page.locator('[data-page="admin"]').textContent();
+  if(!frAdmin.includes("SÉCURITÉ") || !frAdmin.includes("Contrôles protégés") || frAdmin.includes("Protected controls")){
+    throw new Error(profile.name+": French owner-admin translation is incomplete");
+  }
+
+  await authLanguage.click();
+  await page.waitForSelector("#tleLanguageMenu",{state:"visible",timeout:2000});
+  await page.locator('#tleLanguageMenu [data-language-choice="pt"]').click();
+  await page.waitForFunction(()=>document.documentElement.lang==="pt",null,{timeout:2000});
+  const ptAdmin=await page.locator('[data-page="admin"]').textContent();
+  if(
+    !ptAdmin.includes("SEGURANÇA") ||
+    !ptAdmin.includes("Controles protegidos") ||
+    !ptAdmin.includes("Conexões privadas") ||
+    !ptAdmin.includes("Administrador") ||
+    !ptAdmin.includes("Funcionário") ||
+    ptAdmin.includes("Administrateur") ||
+    ptAdmin.includes("Protected controls") ||
+    ptAdmin.includes("Private connections")
+  ){
+    throw new Error(profile.name+": Portuguese owner-admin translation is mixed or incomplete");
+  }
+
+  await authLanguage.click();
+  await page.waitForSelector("#tleLanguageMenu",{state:"visible",timeout:2000});
+  await page.locator('#tleLanguageMenu [data-language-choice="en"]').click();
+  await page.waitForFunction(()=>document.documentElement.lang==="en",null,{timeout:2000});
+  const enAdmin=await page.locator('[data-page="admin"]').textContent();
+  if(!enAdmin.includes("SECURITY") || !enAdmin.includes("Protected controls") || !enAdmin.includes("Private connections")){
+    throw new Error(profile.name+": returning to English did not restore canonical source text");
+  }
+
   await page.keyboard.press("Escape");
   await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
 
