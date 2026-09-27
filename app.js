@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-13";
+const APP_VERSION = "20260927-unified-14";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -487,6 +487,30 @@ async function geocodeBusinessArea(area){
   }
   return null;
 }
+async function resolveSignupTimeZone(area){
+  const clean=String(area||"").trim();
+  if(clean){
+    try{
+      const geo=await geocodeBusinessArea(clean);
+      const zone=String(geo?.timezone||"").trim();
+      if(zone && zone!=="auto"){
+        try{
+          new Intl.DateTimeFormat("en-US",{timeZone:zone}).format(new Date());
+          return zone;
+        }catch{}
+      }
+    }catch{}
+  }
+  const deviceZone=String(Intl.DateTimeFormat().resolvedOptions().timeZone||"").trim();
+  if(deviceZone){
+    try{
+      new Intl.DateTimeFormat("en-US",{timeZone:deviceZone}).format(new Date());
+      return deviceZone;
+    }catch{}
+  }
+  return "America/New_York";
+}
+
 async function loadBusinessWeather(force=false){
   const area=String(state.business&&state.business.service_area||"").trim();
   const card=$("#weatherBrief");
@@ -1753,12 +1777,15 @@ businessForm.addEventListener("submit", async (e)=>{
     const start = new Date();
     const end = new Date(start);
     end.setDate(end.getDate()+30);
+    const signupServiceArea=$("#businessArea").value.trim();
+    const signupTimeZone=await resolveSignupTimeZone(signupServiceArea);
     const payload = {
       owner_user_id: state.session.user.id,
       name: $("#businessName").value.trim(),
       email: state.session.user.email,
       phone: $("#businessPhone").value.trim() || null,
-      service_area: $("#businessArea").value.trim() || null,
+      service_area: signupServiceArea || null,
+      timezone: signupTimeZone,
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
       trial_days:30,
