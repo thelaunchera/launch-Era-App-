@@ -2744,3 +2744,20 @@ html,body{max-width:100%;overflow-x:hidden}
     gap:6px;
   }
 }
+
+/* Global installed-app refresh */
+.app-refresh-btn .top-icon{
+  display:inline-block;
+  font-size:18px;
+  line-height:1;
+  transform-origin:50% 50%;
+}
+.app-refresh-btn.is-refreshing .top-icon{
+  animation:tleManualRefreshSpin .8s linear infinite;
+}
+@keyframes tleManualRefreshSpin{
+  to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-refresh-btn.is-refreshing .top-icon{animation:none}
+}
