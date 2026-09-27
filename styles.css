@@ -3083,7 +3083,6 @@ html,body{max-width:100%;overflow-x:hidden}
     0 0;
   animation:tleSafeBubbleBackground 36s ease-in-out infinite alternate;
 }
-.app-shell>.sidebar,
 .app-shell>.main{
   position:relative;
 }
@@ -3341,5 +3340,29 @@ body.shell-public #publicShell{
   }
   body.shell-app #appShell>.sidebar.open{
     left:0!important;
+  }
+}
+
+/* Mobile sidebar must never participate in document flow */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    position:fixed!important;
+    top:0!important;
+    bottom:0!important;
+    left:calc(-1 * min(84vw,300px) - 20px)!important;
+    width:min(84vw,300px)!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    z-index:40!important;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+  }
+  body.shell-app #appShell>.main{
+    position:relative!important;
+    top:0!important;
+    margin:0!important;
+    width:100%!important;
   }
 }
