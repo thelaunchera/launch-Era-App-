@@ -83,7 +83,7 @@ async function assertLayout(page,profile){
   const welcomeStart=page.locator("#authWelcomeStart");
   if(!(await welcome.isVisible())) throw new Error(profile.name+": welcome screen is not visible");
   if(!(await welcomeStart.isVisible()) || !(await welcomeStart.isEnabled())){
-    throw new Error(profile.name+": Start 30 days free is not usable");
+    throw new Error(profile.name+": Get 30 days free is not usable");
   }
   await welcomeStart.click();
   await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
@@ -118,10 +118,14 @@ async function assertLayout(page,profile){
   });
   await authSubmit.click();
   await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,null,{timeout:3000});
+  const authSwitch=page.locator("#authSwitch");
+  if(!(await authSwitch.isVisible()) || !(await authSwitch.isEnabled())){
+    throw new Error(profile.name+": auth mode switch is not usable");
+  }
   await authSwitch.click();
   await page.waitForFunction(
-    expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
-    startTitle,
+    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",
+    null,
     {timeout:3000}
   );
 
