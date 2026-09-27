@@ -41,13 +41,19 @@ await new Promise(r=>setTimeout(r,20));
 const $=s=>window.document.querySelector(s);
 const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,cancelable:true}));
 
-if($("#authTitle")?.textContent!=="Create account") throw new Error("Initial create-account screen did not initialize");
+if($("#authWelcome")?.hidden) throw new Error("Initial welcome screen is hidden");
+if(!$("#authPanel")?.hidden) throw new Error("Auth form should be hidden before welcome CTA");
+if($("#authWelcomeStart")?.textContent!=="Start 30 days free") throw new Error("Welcome CTA label is wrong");
+if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
+if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
+
+click("#authWelcomeStart");
+await new Promise(r=>setTimeout(r,240));
+if($("#authTitle")?.textContent!=="Create account") throw new Error("Welcome CTA did not open create-account screen");
 if($("#emailField")?.hidden) throw new Error("Create account email field is hidden");
 if($("#passwordField")?.hidden) throw new Error("Create account password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 if($("#authSubmit")?.textContent!=="Create account") throw new Error("Create account submit label is wrong");
-if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
-if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
 
 click("#authSwitch");
 if($("#authTitle")?.textContent!=="Sign in") throw new Error("Existing-user sign-in switch failed");
