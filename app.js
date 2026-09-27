@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-43";
+const APP_VERSION = "20260927-unified-44";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1172,6 +1172,7 @@ function syncAuthWelcomeCopy(){
     after:langPick("Then $5.99/month","Después $5.99/mes","Depois US$ 5,99/mês","Puis 5,99 $/mois"),
     start:langPick("Start 30 days free","Empezar 30 días gratis","Começar 30 dias grátis","Commencer 30 jours gratuits"),
     signin:langPick("Sign in","Iniciar sesión","Entrar","Se connecter"),
+    existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Já tem uma conta?","Vous avez déjà un compte ?"),
     note:langPick(
       "Set up your workspace in a few minutes. We’ll guide you through the first steps.",
       "Configura tu espacio en unos minutos. Te guiamos en los primeros pasos.",
@@ -1188,6 +1189,7 @@ function syncAuthWelcomeCopy(){
   $("#authWelcomeCancel") && ($("#authWelcomeCancel").textContent=copy.after);
   $("#authWelcomeStart") && ($("#authWelcomeStart").textContent=copy.start);
   $("#authWelcomeSignIn") && ($("#authWelcomeSignIn").textContent=copy.signin);
+  $("#authWelcomeExistingText") && ($("#authWelcomeExistingText").textContent=copy.existing);
   $("#authWelcomeNote") && ($("#authWelcomeNote").textContent=copy.note);
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
@@ -1197,28 +1199,48 @@ function showAuthWelcome(){
   if(publicShell) publicShell.hidden=true;
   authShell.hidden=false;
   appShell.hidden=true;
-  if(authWelcome) authWelcome.hidden=false;
   authPanel.hidden=true;
   businessSetup.hidden=true;
+  if(authWelcome){
+    authWelcome.hidden=false;
+    authWelcome.classList.remove("is-entering");
+    void authWelcome.offsetWidth;
+    authWelcome.classList.add("is-entering");
+    setTimeout(()=>authWelcome.classList.remove("is-entering"),320);
+  }
   setAuthStatus("");
   syncAuthWelcomeCopy();
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
-  if(authWelcome) authWelcome.hidden=true;
-  authPanel.hidden=false;
-  businessSetup.hidden=true;
-  setAuthMode(mode);
-  setAuthStatus("");
   const email=$("#authEmail");
   if(mode==="signin"){
     const remembered=rememberedOwnerEmail();
     if(remembered && email) email.value=remembered;
   }
-  requestAnimationFrame(()=>{
-    try{email?.scrollIntoView({block:"center",behavior:"smooth"});}catch{}
-    setTimeout(()=>email?.focus(),100);
-  });
+  businessSetup.hidden=true;
+  setAuthStatus("");
+
+  if(authWelcome){
+    authWelcome.classList.add("is-leaving");
+    setTimeout(()=>{
+      authWelcome.hidden=true;
+      authWelcome.classList.remove("is-leaving");
+      authPanel.hidden=false;
+      setAuthMode(mode);
+      authPanel.classList.remove("is-entering");
+      void authPanel.offsetWidth;
+      authPanel.classList.add("is-entering");
+      setTimeout(()=>authPanel.classList.remove("is-entering"),320);
+      requestAnimationFrame(()=>{
+        try{email?.scrollIntoView({block:"center",behavior:"smooth"});}catch{}
+        setTimeout(()=>email?.focus(),120);
+      });
+    },170);
+  }else{
+    authPanel.hidden=false;
+    setAuthMode(mode);
+  }
 }
 $("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
 $("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
@@ -3584,12 +3606,16 @@ function renderClients(){
     return;
   }
   grid.innerHTML=state.clients.map(c=>`
-    <article class="client-card">
-      <div class="client-avatar">${escapeHtml(initials(c.name))}</div>
-      <strong>${escapeHtml(c.name)}</strong>
-      <span>${escapeHtml(c.email)}</span>
-      <small>${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || "No address yet")}</small>
-      <div class="card-actions record-card-actions">
+    <article class="client-card client-card-compact">
+      <div class="client-card-head">
+        <div class="client-avatar">${escapeHtml(initials(c.name))}</div>
+        <div class="client-card-identity">
+          <strong>${escapeHtml(c.name)}</strong>
+          <span>${escapeHtml(c.email||tr("No email"))}</span>
+        </div>
+      </div>
+      <small class="client-location">${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || tr("No address yet"))}</small>
+      <div class="card-actions record-card-actions client-card-actions">
         <span class="safe-actions">
           <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
