@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-50";
+const APP_VERSION = "20260927-unified-51";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3026,6 +3026,32 @@ function getInquiryNotifications(){
     });
   });
 
+  state.quotes.forEach(q=>{
+    const status=String(q.status||"").toLowerCase();
+    if(!["accepted","declined"].includes(status)) return;
+    const eventAt=status==="accepted"?(q.accepted_at||q.updated_at):q.updated_at;
+    if(!eventAt) return;
+    items.push({
+      id:"quote-"+status+":"+q.id,
+      recordId:q.id,
+      type:"quote-"+status,
+      createdAt:eventAt,
+      name:q.customer_name||langPick("Customer","Cliente","Cliente","Client"),
+      email:q.customer_email||"",
+      phone:q.customer_phone||"",
+      address:q.service_address||"",
+      service:status==="accepted"
+        ? langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté")+" · "+money(Number(q.total||0))
+        : langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé")+" · "+money(Number(q.total||0)),
+      serviceId:"",
+      requestedAt:q.preferred_date&&q.preferred_time?q.preferred_date+"T"+q.preferred_time:"",
+      notes:q.notes||"",
+      preferredContact:"",
+      status,
+      clientId:q.client_id||""
+    });
+  });
+
   const cutoff=Date.now()-INQUIRY_NOTIFICATION_TTL_MS;
   return items
     .filter(x=>x.createdAt && new Date(x.createdAt).getTime()>=cutoff)
@@ -3041,6 +3067,16 @@ function openInquiryNotificationDetail(notificationId){
 
   if(item.type==="booking"){
     markBookingReviewed(item.recordId).catch(err=>console.warn("[TLE] mark booking reviewed",err));
+  }
+
+  if(item.type==="quote-accepted" || item.type==="quote-declined"){
+    closeNotificationPopover();
+    openView("quotes");
+    setTimeout(()=>{
+      const target=document.querySelector('[data-id="'+CSS.escape(item.recordId)+'"]');
+      target?.scrollIntoView({behavior:"smooth",block:"center"});
+    },180);
+    return;
   }
 
   state.modalType="inquiryDetail";
@@ -3106,8 +3142,8 @@ function renderInquiryNotifications(){
   badge.hidden=unread===0;
   button.classList.toggle("has-notifications",unread>0);
   button.setAttribute("aria-label",unread
-    ? langPick(unread+" new inquiries",unread+" inquiries nuevos",unread+" novos contatos",unread+" nouvelles demandes")
-    : langPick("Inquiries","Inquiries","Contatos","Demandes"));
+    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" novas notificações",unread+" nouvelles notifications")
+    : langPick("Notifications","Notificaciones","Notificações","Notifications"));
 
   if(!unreadItems.length){
     list.innerHTML=`<div class="notification-empty"><strong>${escapeHtml(langPick("You’re all caught up","Todo al día","Tudo em dia","Tout est à jour"))}</strong><span>${escapeHtml(langPick("Only new notifications will appear here.","Solo las notificaciones nuevas aparecerán aquí.","Somente novas notificações aparecerão aqui.","Seules les nouvelles notifications apparaîtront ici."))}</span></div>`;
@@ -3118,6 +3154,10 @@ function renderInquiryNotifications(){
     const isNew=true;
     const typeLabel=item.type==="booking"
       ? langPick("Booking request","Solicitud de reserva","Solicitação de reserva","Demande de réservation")
+      : item.type==="quote-accepted"
+      ? langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté")
+      : item.type==="quote-declined"
+      ? langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé")
       : langPick("Lead","Lead","Lead","Prospect");
     return `
       <button class="notification-item ${isNew?"is-new":""}" type="button" data-notification-id="${escapeHtml(item.id)}">
@@ -3167,9 +3207,36 @@ function setupInvoiceRealtime(){
 
   const refresh=function(){
     clearTimeout(window.__tleOperationalRefresh);
-    window.__tleOperationalRefresh=setTimeout(function(){
-      loadCoreData().catch(function(err){console.warn("[TLE] realtime workspace refresh",err);});
-    },700);
+    const unreadBefore=getInquiryUnreadCount();
+    window.__tleOperationalRefresh=setTimeout(async function(){
+      try{
+        await loadCoreData();
+        const unreadAfter=getInquiryUnreadCount();
+        if(unreadAfter>unreadBefore){
+          const newest=getInquiryNotifications()[0];
+          if(newest?.type==="quote-accepted"){
+            showToast(langPick(
+              "Quote accepted",
+              "Cotización aceptada",
+              "Orçamento aceito",
+              "Devis accepté"
+            )+" · "+(newest.name||""));
+          }else if(newest?.type==="quote-declined"){
+            showToast(langPick(
+              "Quote declined",
+              "Cotización rechazada",
+              "Orçamento recusado",
+              "Devis refusé"
+            )+" · "+(newest.name||""));
+          }else{
+            const summary=[newest?.name,newest?.service].filter(Boolean).join(" · ");
+            showToast(langPick("New notification","Nueva notificación","Nova notificação","Nouvelle notification")+(summary?" · "+summary:""));
+          }
+        }
+      }catch(err){
+        console.warn("[TLE] realtime workspace refresh",err);
+      }
+    },500);
   };
 
   let channel=supabase.channel("workspace-updates-"+state.business.id);
