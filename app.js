@@ -375,6 +375,9 @@ function showApp(){
   authShell.hidden = true;
   appShell.hidden = false;
   applyRolePermissions();
+  $("[data-account-billing]").forEach(el=>{
+    el.hidden=isPrimaryPlatformAdminAccount();
+  });
   renderTrialStatus();
   if(state.business?.role==="owner" && state.session?.user?.email){
     localStorage.setItem(OWNER_EMAIL_KEY,String(state.session.user.email).trim().toLowerCase());
@@ -1589,6 +1592,9 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
+  $("[data-account-billing]").forEach(el=>{
+    el.hidden=isPrimaryPlatformAdminAccount();
+  });
   const [membersRes,invitesRes]=await Promise.all([
     supabase.from("business_members").select("*").eq("business_id",state.business.id).order("created_at"),
     supabase.from("business_invites").select("*").eq("business_id",state.business.id).is("accepted_at",null).is("revoked_at",null).order("created_at",{ascending:false})
