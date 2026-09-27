@@ -1316,8 +1316,8 @@ function renderAvailabilityEditor(){
 }
 
 async function saveAvailabilitySettings(){
-  if(!state.business || state.business.role!=="owner"){
-    throw new Error("Owner access required.");
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    throw new Error("Owner or Admin access required.");
   }
 
   const buffer=Number($("#bookingTravelBuffer")?.value||0);
@@ -1821,8 +1821,8 @@ async function openBusinessProfileForm(){
 }
 
 async function saveBusinessProfile(fd){
-  if(!state.business || !["owner","admin"].includes(state.business.role)){
-    throw new Error("Owner or Admin access required.");
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error("Owner access required.");
   }
 
   const payload={
