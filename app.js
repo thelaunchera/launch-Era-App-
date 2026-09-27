@@ -4508,7 +4508,10 @@ async function loadPlatformAdmin(){
 
     visits.innerHTML=groups.length?groups.slice(0,10).map(g=>{
       const location=[g.city,g.state].filter(Boolean).join(", ")||(g.country||"");
-      const pageLabel=g.pages.length===1?"1 page":g.pages.length+" pages";
+      const loginOnly=g.pages.length>0&&g.pages.every(p=>p.page==="/login");
+      const pageLabel=loginOnly
+        ?"Login page only · no sign-in"
+        :(g.pages.length===1?"1 page":g.pages.length+" pages");
       const details=g.pages.slice(0,8).map(p=>`
         <div class="visit-detail-row">
           <span>${escapeHtml(p.page)}</span>
