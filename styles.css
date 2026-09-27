@@ -8,7 +8,7 @@ html,body{margin:0;min-height:100%;background:var(--ivory);color:var(--ink);font
 button,input{font:inherit}
 button{cursor:pointer}
 .app-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
-.sidebar{position:sticky;top:0;height:100vh;padding:26px 20px;background:#F6F2EA;border-right:1px solid var(--line);overflow-y:auto}
+.sidebar{position:sticky;top:0;height:100vh;padding:26px 20px;background:#F6F2EA;border-right:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
 .brand-row{display:flex;align-items:center;gap:12px;margin-bottom:24px}
 .brand-mark{width:42px;height:42px;border-radius:14px;background:var(--ink);color:var(--yellow);display:grid;place-items:center;font-weight:900}
 .brand-name{font-weight:900;letter-spacing:-.02em}
@@ -17,7 +17,7 @@ button{cursor:pointer}
 .workspace-chip span:last-child{display:grid;gap:2px}
 .workspace-chip small{color:var(--muted)}
 .workspace-avatar{width:38px;height:38px;border-radius:12px;background:var(--blue);display:grid;place-items:center;font-weight:900}
-.nav-list{display:grid;gap:5px}
+.nav-list{display:grid;gap:5px;overflow-y:auto;min-height:0;flex:1;padding-right:2px;overscroll-behavior:contain}
 .nav-label{font-size:10px;letter-spacing:.16em;font-weight:900;color:#99948C;margin:18px 10px 6px}
 .nav-item{border:0;background:transparent;border-radius:12px;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;color:#4C4944;text-align:left;font-weight:700}
 .nav-item:hover,.nav-item.active{background:var(--paper);color:var(--ink);box-shadow:0 5px 18px rgba(25,25,25,.04)}
@@ -54,12 +54,12 @@ button{cursor:pointer}
   letter-spacing:.01em;
 }
 .sidebar-session-actions{
-  position:sticky;
-  bottom:-1px;
+  position:static;
   z-index:3;
+  flex:0 0 auto;
   margin-top:12px;
   padding:12px 0 max(2px,env(safe-area-inset-bottom));
-  background:linear-gradient(to bottom,rgba(246,242,234,0),#F6F2EA 18px,#F6F2EA);
+  background:#F6F2EA;
 }
 .sidebar-logout-btn{
   display:block!important;
@@ -788,3 +788,10 @@ body.tle-signing-out .app-shell,
 body.tle-signing-out .auth-shell{transition:none!important;animation:none!important}
 body.tle-signing-out .sidebar-logout-btn:active{transform:none}
 .sidebar-logout-btn:disabled{opacity:.72;transform:none!important}
+
+/* Keep logout anchored to the sidebar, independent of dashboard scrolling */
+.sidebar>.brand-row,.sidebar>.workspace-chip,.sidebar>.trial-card,.sidebar>.sidebar-session-actions{flex-shrink:0}
+@media(max-width:860px){
+  .sidebar{overflow:hidden}
+  .nav-list{overflow-y:auto;-webkit-overflow-scrolling:touch}
+}
