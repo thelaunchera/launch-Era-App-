@@ -540,7 +540,7 @@
     "Decline":"Rechazar",
     "Record payment":"Registrar pago",
     "Mark sent":"Marcar como enviada",
-    "Cash":"Efectivo",
+    "Cash":"Efectivo","Bank transfer":"Transferencia bancaria","Other":"Otro",
     "Check":"Cheque",
     "Other":"Otro",
     "Country":"País",
