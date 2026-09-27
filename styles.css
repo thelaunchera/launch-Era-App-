@@ -4295,3 +4295,11 @@ body.modal-open{
     margin-bottom:26px;
   }
 }
+
+/* Auth marketing-to-form flow */
+#authPanel{scroll-margin-top:22px}
+.auth-welcome-actions .primary-btn{min-height:52px}
+@media(max-width:620px){
+  #authPanel{scroll-margin-top:12px}
+  .auth-welcome-actions .primary-btn{width:100%}
+}
