@@ -1789,6 +1789,7 @@ $("#authSwitch").addEventListener("click",()=>{
     });
   }
 });
+window.__tleAuthUiReady=true;
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const button = $("#authSubmit");
