@@ -313,7 +313,7 @@ window.addEventListener("tle:languagechange",()=>{
 
 function syncLegalLinks(){
   const isEs=window.TLE_I18N?.language==="es";
-  const base="https://thelaunchera.github.io/The-launch-era-Website-/";
+  const base="https://thelaunchera.com/";
   $$(".legal-privacy-link").forEach(a=>a.href=base+(isEs?"es/privacy.html":"privacy.html"));
   $$(".legal-terms-link").forEach(a=>a.href=base+(isEs?"es/terms.html":"terms.html"));
 }
