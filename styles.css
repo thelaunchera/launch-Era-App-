@@ -1007,3 +1007,50 @@ body.tle-signing-out .sidebar-logout-btn:active{transform:none}
     grid-template-columns:1fr;
   }
 }
+
+.top-tool-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:999px;
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:900;
+}
+.top-tool-btn:hover{border-color:#bcb7ae}
+.top-icon{display:none}
+.signup-legal-note{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+  text-align:center;
+}
+.signup-legal-note a{color:var(--ink);font-weight:800}
+@media(max-width:860px){
+  .top-actions{gap:6px;align-items:center}
+  .top-tool-btn{
+    width:36px;
+    min-width:36px;
+    height:36px;
+    min-height:36px;
+    padding:0;
+    font-size:12px;
+  }
+  .top-tool-btn .top-label{display:none}
+  .top-tool-btn .top-icon{display:inline}
+  .top-actions .primary-btn{
+    padding:9px 11px;
+    font-size:11px;
+  }
+}
+@media(max-width:430px){
+  .topbar{gap:8px}
+  .top-actions{gap:4px}
+  .top-tool-btn{width:34px;min-width:34px;height:34px;min-height:34px}
+  .top-actions .primary-btn{padding:8px 9px;font-size:10px}
+}
