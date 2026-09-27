@@ -4136,3 +4136,26 @@ body.modal-open{
   .compact-header-actions{gap:6px}
   .language-mini-toggle{min-width:38px;height:34px;padding:0 8px}
 }
+
+/* Auth welcome gate */
+.auth-welcome{display:grid;gap:18px;padding:8px 0 4px}
+.auth-welcome[hidden]{display:none!important}
+.auth-welcome-badge{width:max-content;padding:8px 12px;border:1px solid #CBBE78;border-radius:999px;background:#F1E7A7;color:#292723;font-size:11px;font-weight:800;letter-spacing:.09em}
+.auth-welcome h1{max-width:390px;margin:2px 0 0;font-size:clamp(38px,8.5vw,54px);line-height:1.01;letter-spacing:-.045em;font-weight:650}
+.auth-welcome-copy{margin:0;max-width:390px;color:#6F6A62;font-size:17px;line-height:1.55}
+.auth-welcome-trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.auth-welcome-trust span{padding:8px 10px;border:1px solid #DDD6CA;border-radius:999px;background:#FAF8F3;color:#48443F;font-size:11px;font-weight:750}
+.auth-welcome-actions{display:grid;gap:10px;margin-top:4px}
+.auth-welcome-actions .primary-btn,.auth-welcome-actions .ghost-btn{width:100%;min-height:54px;border-radius:999px;font-size:15px;font-weight:800}
+.auth-welcome-signin{border:1px solid #CFC8BD!important;background:#fff!important;color:#292723!important}
+.auth-welcome-note{margin:0;color:#777168;font-size:12px;line-height:1.5;text-align:center}
+.auth-back-welcome{margin:0 0 18px;padding:0;border:0;background:transparent;color:#5E5952;font-size:12px;font-weight:800;cursor:pointer}
+@media(max-width:620px){
+  .auth-card{padding:24px 20px}
+  .auth-brand{margin-bottom:28px}
+  .auth-welcome{gap:16px}
+  .auth-welcome h1{font-size:40px}
+  .auth-welcome-copy{font-size:16px}
+  .auth-welcome-trust{gap:6px}
+  .auth-welcome-trust span{font-size:10px}
+}
