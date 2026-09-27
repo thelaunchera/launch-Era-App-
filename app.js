@@ -4101,7 +4101,7 @@ function renderSettings(){
   if(currency) currency.textContent=state.business?.currency_code||"USD";
   if(distance) distance.textContent=state.business?.distance_unit==="km"?"Kilometers":"Miles";
   if(temperature) temperature.textContent=state.business?.temperature_unit==="celsius"?"Celsius":"Fahrenheit";
-  const methodLabel=(state.business?.payment_methods||["cash","check","other"]).map(v=>({cash:"Cash",check:"Check",other:"Other"}[v]||v).join(" · ");
+  const methodLabel=(state.business?.payment_methods||["cash","check","other"]).map(v=>({cash:"Cash",check:"Check",other:"Other"}[v]||v)).join(" · ");
   if(paymentMethods) paymentMethods.textContent=methodLabel;
   if(bookingPaymentMethods) bookingPaymentMethods.textContent=methodLabel;
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
