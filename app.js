@@ -65,7 +65,7 @@ const state = {
   weatherFetchedAt: 0,
   workerPortal: null,
   currentWorkerLink: null,
-  authMode: "signin",
+  authMode: "signup",
   modalType: null,
   modalId: null
 };
@@ -1443,14 +1443,21 @@ authForm.addEventListener("submit", async (e)=>{
       });
       if(error) throw error;
       if(data.session){
-        state.session=data.session;
-        setAuthStatus("Account created.","success");
-        await enterAuthenticatedApp();
-      }else{
-        setAuthMode("signin");
-        setAuthStatus("Account created. Check your email to verify it, then sign in.","success");
-        showToast("Account created. Check your email to verify it, then sign in.");
+        try{ await supabase.auth.signOut({scope:"local"}); }catch{}
+        state.session=null;
       }
+      const createdEmail=email;
+      setAuthMode("signin");
+      const emailInput=$("#authEmail");
+      if(emailInput) emailInput.value=createdEmail;
+      $("#authPassword").value="";
+      const needsVerification=!data.session;
+      const message=needsVerification
+        ? "Account created. Check your email to verify it, then sign in."
+        : "Account created. Sign in to continue.";
+      setAuthStatus(message,"success");
+      showToast(message);
+      setTimeout(()=>$("#authPassword")?.focus(),120);
     }else{
       const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
@@ -1774,9 +1781,8 @@ async function initialize(){
       return;
     }
     showAuth();
-    setAuthMode("signin");
+    setAuthMode("signup");
     setAuthStatus("");
-    prepareAdminShortcut();
     return;
   }
 
