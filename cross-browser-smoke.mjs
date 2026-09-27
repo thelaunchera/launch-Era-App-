@@ -112,7 +112,8 @@ async function assertLayout(page,profile){
     if(Math.abs(nav.left)>3) throw new Error(profile.name+": open sidebar is off-screen "+JSON.stringify(nav));
     if(nav.width>Math.min(nav.innerWidth*.86,305)) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
     if(nav.mainWidth<nav.innerWidth-36) throw new Error(profile.name+": sidebar compressed dashboard "+JSON.stringify(nav));
-    await menu.click();
+    const scrim=page.locator("#sidebarScrim");
+    await scrim.click({position:{x:Math.max(10,profile.viewport.width-20),y:Math.floor(profile.viewport.height/2)}});
     await page.waitForFunction(()=>!document.querySelector(".sidebar")?.classList.contains("open"),null,{timeout:2000});
   }
 
