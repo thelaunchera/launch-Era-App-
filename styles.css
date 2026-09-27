@@ -3643,3 +3643,26 @@ body.shell-public #publicShell{
     align-self:flex-start!important;
   }
 }
+
+/* Password visibility toggle */
+.password-input-wrap{position:relative;display:block}
+.password-input-wrap input{width:100%;padding-right:48px}
+.password-toggle{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:var(--ink);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  font-size:17px;
+  line-height:1;
+}
+.password-toggle:hover{background:rgba(25,25,25,.06)}
+.password-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
