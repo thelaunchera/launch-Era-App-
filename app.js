@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-ga-share-1";
+const APP_VERSION = "20260927-auth-notifs-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -62,6 +62,8 @@ const state = {
   weather: null,
   weatherArea: null,
   weatherFetchedAt: 0,
+  inquirySeenAt: 0,
+  inquirySeenLoadedFor: null,
   workerPortal: null,
   currentWorkerLink: null,
   authMode: "signup",
@@ -691,6 +693,110 @@ function setAuthStatus(message="",type=""){
   if(!el) return;
   el.textContent=message;
   el.dataset.type=type||"";
+}
+
+
+function isUserCorrectableAuthError(err){
+  const raw=String(err?.message||err||"").toLowerCase();
+  return /invalid login credentials|email not confirmed|user already registered|already been registered|password should be|password.*characters|invalid email|email address.*invalid|signup is disabled|rate limit|too many requests/.test(raw);
+}
+function authRequiredFieldMessage(){
+  return appIsSpanish()
+    ? "Revisa los campos requeridos arriba y vuelve a intentarlo."
+    : "Check the required fields above and try again.";
+}
+function authIssueAttemptKey(mode,email,err){
+  const fingerprint=String(err?.code||err?.message||"unknown").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,80);
+  return "tle_auth_issue_attempt:"+String(mode||"unknown")+":"+String(email||"").toLowerCase()+":"+fingerprint;
+}
+function recordAuthIssueAttempt(mode,email,err){
+  const key=authIssueAttemptKey(mode,email,err);
+  const now=Date.now();
+  let item={count:0,firstAt:now,lastAt:0,reported:false};
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(key)||"null");
+    if(saved&&now-Number(saved.firstAt||0)<10*60*1000) item={...item,...saved};
+  }catch{}
+  item.count=Number(item.count||0)+1;
+  item.lastAt=now;
+  try{sessionStorage.setItem(key,JSON.stringify(item));}catch{}
+  return {key,item};
+}
+async function reportPersistentAuthIssue(mode,email,err,attemptCount,key){
+  if(!email || isUserCorrectableAuthError(err)) return false;
+  try{
+    const response=await fetch(SUPABASE_URL+"/functions/v1/report-auth-issue",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_PUBLISHABLE_KEY
+      },
+      body:JSON.stringify({
+        email:String(email||"").trim().toLowerCase(),
+        auth_mode:["signin","signup","recovery"].includes(mode)?mode:"unknown",
+        error_code:String(err?.code||err?.status||"").slice(0,120),
+        error_message:String(err?.message||err||"Unknown authentication error").slice(0,700),
+        attempt_count:Number(attemptCount||2),
+        page:window.location.pathname+window.location.search,
+        user_agent:navigator.userAgent
+      })
+    });
+    if(response.ok){
+      try{
+        const saved=JSON.parse(sessionStorage.getItem(key)||"{}");
+        saved.reported=true;
+        sessionStorage.setItem(key,JSON.stringify(saved));
+      }catch{}
+      return true;
+    }
+  }catch(reportErr){
+    console.warn("[TLE] auth issue report",reportErr);
+  }
+  return false;
+}
+function showAuthFailure(err,mode,email){
+  const retry=$("#authRetryButton");
+  const correctable=isUserCorrectableAuthError(err);
+  const raw=String(err?.message||"").toLowerCase();
+  let message=authRequiredFieldMessage();
+
+  if(/invalid login credentials/.test(raw)){
+    message=appIsSpanish()
+      ? "El correo o la contraseña no coinciden. Revísalos y vuelve a intentarlo."
+      : "The email or password doesn’t match. Check them and try again.";
+  }else if(/email not confirmed/.test(raw)){
+    message=appIsSpanish()
+      ? "Primero confirma tu correo y después inicia sesión."
+      : "Confirm your email first, then sign in.";
+  }else if(/already registered|already been registered/.test(raw)){
+    message=appIsSpanish()
+      ? "Ese correo ya tiene una cuenta. Inicia sesión en vez de crear otra."
+      : "That email already has an account. Sign in instead of creating another one.";
+  }else if(!correctable){
+    message=appIsSpanish()
+      ? "No pudimos completar esto. Revisa los campos requeridos y toca “Intentar otra vez”."
+      : "We couldn’t complete this. Check the required fields and tap “Try again”.";
+  }
+
+  setAuthStatus(message,"error");
+  if(retry){
+    retry.hidden=false;
+    retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+  }
+
+  const attempt=recordAuthIssueAttempt(mode,email,err);
+  if(!correctable && attempt.item.count>=2 && !attempt.item.reported){
+    reportPersistentAuthIssue(mode,email,err,attempt.item.count,attempt.key).then(reported=>{
+      if(reported){
+        setAuthStatus(
+          appIsSpanish()
+            ? "El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo."
+            : "The error is still happening. Support has been alerted. Check the required fields and try again.",
+          "error"
+        );
+      }
+    });
+  }
 }
 
 function showToast(message){
@@ -1371,9 +1477,16 @@ function setAuthMode(mode){
   prepareAdminShortcut();
 }
 
+$("#authRetryButton")?.addEventListener("click",()=>{
+  setAuthStatus("");
+  const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
+  authForm?.requestSubmit();
+});
+
 $("#authSwitch").addEventListener("click",()=>{
   const enteringSignup=state.authMode!=="signup";
   setAuthStatus("");
+  const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
   setAuthMode(enteringSignup?"signup":"signin");
   if(enteringSignup){
     const email=$("#authEmail");
@@ -1404,15 +1517,18 @@ authForm.addEventListener("submit", async (e)=>{
     const email = $("#authEmail").value.trim().toLowerCase();
     const password = $("#authPassword").value;
     if(state.authMode!=="recovery" && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
-      setAuthStatus("Enter your email address to continue.","error");
+      setAuthStatus(authRequiredFieldMessage(),"error");
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";}
       $("#authEmail").focus();
       return;
     }
     if(!password || password.length<8){
-      setAuthStatus("Enter a password with at least 8 characters.","error");
+      setAuthStatus(authRequiredFieldMessage(),"error");
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";}
       $("#authPassword").focus();
       return;
     }
+    const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
     setAuthStatus(state.authMode==="signup"?"Creating your account…":"Signing you in…","loading");
     if(state.authMode === "recovery"){
       const { error } = await supabase.auth.updateUser({password});
@@ -1455,8 +1571,8 @@ authForm.addEventListener("submit", async (e)=>{
       await enterAuthenticatedApp();
     }
   }catch(err){
-    setAuthStatus(err.message || "Could not continue","error");
-    showToast(err.message || "Could not continue");
+    const email=$("#authEmail")?.value?.trim()?.toLowerCase()||"";
+    showAuthFailure(err,state.authMode,email);
   }finally{
     setBusy(button,false);
   }
@@ -2028,7 +2144,56 @@ async function markBookingReviewed(id){
 }
 
 function inquirySeenKey(){
-  return "tle_inquiry_seen_at_"+(state.business?.id||"business");
+  return "tle_inquiry_seen_at_"+(state.business?.id||"business")+"_"+(state.session?.user?.id||"user");
+}
+function currentInquirySeenAt(){
+  const local=Number(localStorage.getItem(inquirySeenKey())||0);
+  return Math.max(Number(state.inquirySeenAt||0),Number.isFinite(local)?local:0);
+}
+async function loadInquirySeenState(){
+  const userId=state.session?.user?.id;
+  const businessId=state.business?.id;
+  if(!userId||!businessId) return currentInquirySeenAt();
+  const scope=userId+":"+businessId;
+  if(state.inquirySeenLoadedFor===scope) return currentInquirySeenAt();
+
+  let persisted=0;
+  try{
+    const {data,error}=await supabase
+      .from("app_notification_state")
+      .select("last_seen_at")
+      .eq("user_id",userId)
+      .eq("business_id",businessId)
+      .maybeSingle();
+    if(error) throw error;
+    persisted=data?.last_seen_at?new Date(data.last_seen_at).getTime():0;
+  }catch(err){
+    console.warn("[TLE] notification state read",err);
+  }
+
+  const seen=Math.max(currentInquirySeenAt(),Number.isFinite(persisted)?persisted:0);
+  state.inquirySeenAt=seen;
+  state.inquirySeenLoadedFor=scope;
+  try{localStorage.setItem(inquirySeenKey(),String(seen));}catch{}
+  return seen;
+}
+function persistInquirySeenState(seen){
+  const value=Number(seen||0);
+  if(!Number.isFinite(value)||value<=0) return;
+  state.inquirySeenAt=Math.max(Number(state.inquirySeenAt||0),value);
+  try{localStorage.setItem(inquirySeenKey(),String(state.inquirySeenAt));}catch{}
+
+  const userId=state.session?.user?.id;
+  const businessId=state.business?.id;
+  if(!userId||!businessId) return;
+  supabase.from("app_notification_state").upsert({
+    user_id:userId,
+    business_id:businessId,
+    last_seen_at:new Date(state.inquirySeenAt).toISOString(),
+    updated_at:new Date().toISOString()
+  },{onConflict:"user_id,business_id"}).then(({error})=>{
+    if(error) console.warn("[TLE] notification state write",error);
+  }).catch(err=>console.warn("[TLE] notification state write",err));
 }
 
 function findMatchingClient({email,phone,name}={}){
@@ -2165,7 +2330,7 @@ function openInquiryNotificationDetail(notificationId){
 }
 
 function getInquiryUnreadCount(){
-  const seen=Number(localStorage.getItem(inquirySeenKey())||0);
+  const seen=currentInquirySeenAt();
   return getInquiryNotifications().filter(x=>new Date(x.createdAt).getTime()>seen).length;
 }
 
@@ -2175,7 +2340,7 @@ function renderInquiryNotifications(){
   const list=$("#notificationList");
   if(!button||!badge||!list||!state.business) return;
 
-  const seen=Number(localStorage.getItem(inquirySeenKey())||0);
+  const seen=currentInquirySeenAt();
   const items=getInquiryNotifications();
   const unread=items.filter(x=>new Date(x.createdAt).getTime()>seen).length;
 
@@ -2213,7 +2378,7 @@ function markInquiryNotificationsSeen(){
   const items=getInquiryNotifications();
   if(!items.length) return;
   const newest=Math.max(...items.map(x=>new Date(x.createdAt).getTime()).filter(Number.isFinite));
-  if(Number.isFinite(newest)) localStorage.setItem(inquirySeenKey(),String(newest));
+  if(Number.isFinite(newest)) persistInquirySeenState(newest);
   renderInquiryNotifications();
 }
 
@@ -2326,6 +2491,7 @@ async function loadCoreData(){
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
   renderInvoices();
+  await loadInquirySeenState();
   renderInquiryNotifications();
   renderTodaySummary();
   renderOperations();
