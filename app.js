@@ -655,6 +655,11 @@ function showApp(){
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
+
+  // iOS can restore an older Home Screen HTML snapshot. Remove retired
+  // top-bar controls at runtime so the visible UI always matches the live app.
+  $("#topHelpBtn")?.remove();
+  $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
   $("[data-account-billing]").forEach(el=>{
@@ -1424,6 +1429,8 @@ businessForm.addEventListener("submit", async (e)=>{
     localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
     showApp();
+    try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
+    loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
@@ -1739,6 +1746,11 @@ async function initialize(){
   state.publicLinks=linkSettings||null;
 
   showApp();
+
+  // Never leave the static HTML placeholder visible on launch.
+  try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
+  loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
+
   setupInvoiceRealtime();
   showToast("Loading your workspace…");
   loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
