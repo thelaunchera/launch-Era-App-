@@ -590,9 +590,19 @@
         <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Your business rules live here.</h2></div></div>
         <div class="settings-grid">
           <article class="panel">
-            <h3>Business profile</h3>
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">COMPANY DETAILS</p>
+                <h3>Business profile</h3>
+              </div>
+              <button class="text-btn" type="button" id="editBusinessProfileBtn">Edit business details</button>
+            </div>
             <div class="setting-row"><span><strong>Business name</strong><small id="settingsBusinessName">—</small></span></div>
+            <div class="setting-row"><span><strong>Business email</strong><small id="settingsBusinessEmail">—</small></span></div>
+            <div class="setting-row"><span><strong>Phone</strong><small id="settingsBusinessPhone">—</small></span></div>
             <div class="setting-row"><span><strong>Service area</strong><small id="settingsServiceArea">—</small></span></div>
+            <div class="setting-row"><span><strong>Time zone</strong><small id="settingsBusinessTimezone">—</small></span></div>
+            <div class="setting-row"><span><strong>Default language</strong><small id="settingsBusinessLanguage">—</small></span></div>
           </article>
           <article class="panel">
             <h3>Booking rules</h3>
@@ -819,8 +829,8 @@
     }
   </script>
   <script src="./vendor/supabase.js?v=20260926-2112"></script>
-  <script src="./i18n.js?v=20260927-signout-es-1"></script>
+  <script src="./i18n.js?v=20260927-business-profile-es-1"></script>
   <script src="./public.js?v=20260926-disputes-1"></script>
-  <script src="./app.js?v=20260927-signout-fix-1"></script>
+  <script src="./app.js?v=20260927-business-profile-1"></script>
 </body>
 </html>
