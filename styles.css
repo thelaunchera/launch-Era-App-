@@ -2204,3 +2204,49 @@ html,body{max-width:100%;overflow-x:hidden}
     grid-template-columns:repeat(3,minmax(0,1fr))!important;
   }
 }
+
+/* Premium dashboard stagger + 4-way presence controls */
+.view[data-page="today"].view-enter > *{
+  animation:tleDashboardRise .38s cubic-bezier(.2,.8,.2,1) both;
+}
+.view[data-page="today"].view-enter > *:nth-child(1){animation-delay:0ms}
+.view[data-page="today"].view-enter > *:nth-child(2){animation-delay:35ms}
+.view[data-page="today"].view-enter > *:nth-child(3){animation-delay:70ms}
+.view[data-page="today"].view-enter > *:nth-child(4){animation-delay:105ms}
+.view[data-page="today"].view-enter > *:nth-child(5){animation-delay:140ms}
+.view[data-page="today"].view-enter > *:nth-child(6){animation-delay:175ms}
+@keyframes tleDashboardRise{
+  from{opacity:.15;transform:translateY(9px) scale(.995)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.presence-actions{
+  grid-template-columns:repeat(4,minmax(105px,1fr))!important;
+}
+#presenceInstagramBtn.connected .presence-mark{background:#191919}
+#presenceFacebookBtn.connected .presence-mark{background:#191919}
+#presenceGoogleBtn.connected .presence-mark{background:#191919}
+#presenceBookingBtn .presence-mark{background:#191919}
+@media(max-width:680px){
+  .presence-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .presence-btn{
+    min-height:76px!important;
+    grid-template-columns:36px minmax(0,1fr)!important;
+    justify-items:start!important;
+    text-align:left!important;
+    padding:11px!important;
+  }
+  .presence-btn>span:last-child{
+    justify-items:start!important;
+  }
+  .presence-btn small{
+    max-width:none!important;
+  }
+  .view[data-page="today"].view-enter > *{
+    animation-duration:.32s;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .view[data-page="today"].view-enter > *{animation:none!important}
+}
