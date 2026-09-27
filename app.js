@@ -2397,6 +2397,12 @@ function confirmedPaid(inv){
 
 function renderTodaySummary(){
   const now=new Date();
+  const businessTimeZone=state.business?.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const businessHour=Number(new Intl.DateTimeFormat("en-US",{
+    hour:"2-digit",
+    hour12:false,
+    timeZone:businessTimeZone
+  }).format(now));
   const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
   const openQuotes=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status));
   const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-confirmedPaid(i)),0);
@@ -2427,7 +2433,7 @@ function renderTodaySummary(){
   const momentCopy=$("#todayMomentCopy");
   const heroAction=$("#todayHeroAction");
   if(greet){
-    const hour=now.getHours();
+    const hour=Number.isFinite(businessHour)?businessHour:now.getHours();
     const isMorning=hour<12;
     const isAfternoon=hour>=12 && hour<18;
     const moment=isMorning?"morning":isAfternoon?"afternoon":"night";
