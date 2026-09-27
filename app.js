@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-45";
+const APP_VERSION = "20260927-unified-46";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1231,12 +1231,11 @@ function openAuthFromWelcome(mode){
 
   requestAnimationFrame(()=>{
     try{
-      authPanel.scrollIntoView({
-        block:"start",
-        behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"
-      });
-    }catch{}
-    setTimeout(()=>email?.focus({preventScroll:true}),420);
+      authPanel.scrollIntoView({block:"start",behavior:"auto"});
+    }catch{
+      try{window.scrollTo(0,authPanel.offsetTop||0);}catch{}
+    }
+    setTimeout(()=>email?.focus({preventScroll:true}),80);
   });
 }
 $("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
