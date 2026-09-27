@@ -22,3 +22,16 @@ jobs:
       - run: npm run verify-local-supabase
       - run: npm run smoke
       - run: npm run browser-smoke
+
+  cross-browser:
+    name: Cross-browser release gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --no-audit --no-fund
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: node cross-browser-smoke.mjs
