@@ -89,6 +89,223 @@ const pageTitles = {
   reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Platform Admin", help:"Help & FAQ"
 };
 
+
+const ONBOARDING_VERSION=1;
+const ONBOARDING_COPY={
+  welcome:{
+    en:{kicker:"WELCOME",title:"Your Cleaning App, explained as you use it.",text:"The first time you open a section, a small tip will tell you what it does. Each tip appears only once."},
+    es:{kicker:"BIENVENIDA",title:"Tu Cleaning App, explicada mientras la usas.",text:"La primera vez que abras una sección, verás un cartelito corto que te explica para qué sirve. Cada tip aparece una sola vez."}
+  },
+  today:{
+    en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and quick actions."},
+    es:{title:"Hoy",text:"Tu resumen diario: trabajos de hoy, solicitudes de reserva, cotizaciones, facturas y acciones rápidas."}
+  },
+  booking:{
+    en:{title:"Booking Center",text:"Manage booking requests, availability and the public booking link your clients use."},
+    es:{title:"Centro de reservas",text:"Maneja solicitudes de reserva, disponibilidad y el enlace público que usan tus clientes."}
+  },
+  leads:{
+    en:{title:"Leads",text:"Keep potential customers here before they become active clients or booked jobs."},
+    es:{title:"Leads",text:"Guarda aquí clientes potenciales antes de convertirlos en clientes activos o trabajos reservados."}
+  },
+  clients:{
+    en:{title:"Clients",text:"Store client contact details, service addresses and the records you need for future jobs."},
+    es:{title:"Clientes",text:"Guarda datos de contacto, direcciones de servicio y la información que necesitas para futuros trabajos."}
+  },
+  calendar:{
+    en:{title:"Calendar + Jobs",text:"See upcoming jobs and open dates so you can plan the schedule without double-booking."},
+    es:{title:"Calendario + trabajos",text:"Mira los próximos trabajos y fechas disponibles para organizarte sin duplicar reservas."}
+  },
+  quotes:{
+    en:{title:"Quotes",text:"Review requests, build estimates, send them to clients and track whether they are accepted or declined."},
+    es:{title:"Cotizaciones",text:"Revisa solicitudes, prepara estimados, envíalos al cliente y controla si fueron aceptados o rechazados."}
+  },
+  invoices:{
+    en:{title:"Invoices",text:"Create and send invoices, then record Cash, Check or Zelle when the client pays."},
+    es:{title:"Facturas",text:"Crea y envía facturas, y registra Efectivo, Cheque o Zelle cuando el cliente pague."}
+  },
+  route:{
+    en:{title:"Today’s Route",text:"See today’s stops in order so you and your team know where to go next."},
+    es:{title:"Ruta de hoy",text:"Mira las paradas de hoy en orden para que tú y tu equipo sepan cuál sigue."}
+  },
+  mileage:{
+    en:{title:"Mileage",text:"Log business miles connected to jobs so your driving records stay organized."},
+    es:{title:"Millaje",text:"Registra las millas del negocio vinculadas a trabajos para mantener tus recorridos organizados."}
+  },
+  time:{
+    en:{title:"Time Tracking",text:"Start and stop work timers and keep track of hours worked on jobs."},
+    es:{title:"Control de tiempo",text:"Inicia y detén temporizadores de trabajo y lleva control de las horas trabajadas."}
+  },
+  reports:{
+    en:{title:"Owner Reports",text:"Owner-only view of business activity, totals and operational performance."},
+    es:{title:"Reportes del dueño",text:"Vista solo para el dueño con actividad, totales y desempeño operativo del negocio."}
+  },
+  services:{
+    en:{title:"Services + Add-ons",text:"Create the services, prices and extras used in bookings, quotes and invoices."},
+    es:{title:"Servicios + extras",text:"Crea los servicios, precios y extras que usarás en reservas, cotizaciones y facturas."}
+  },
+  supplies:{
+    en:{title:"Supplies",text:"Keep your cleaning supply list organized so you know what the business needs."},
+    es:{title:"Suministros",text:"Mantén organizada tu lista de productos de limpieza para saber qué necesita el negocio."}
+  },
+  team:{
+    en:{title:"Team",text:"Add workers, assign jobs and share limited worker access without giving them owner controls."},
+    es:{title:"Equipo",text:"Añade trabajadores, asigna trabajos y comparte acceso limitado sin darles controles del dueño."}
+  },
+  settings:{
+    en:{title:"Settings",text:"Edit company details, booking rules, payment options, client emails and your review link."},
+    es:{title:"Configuración",text:"Edita datos de la compañía, reglas de reserva, pagos, correos al cliente y enlace de reseñas."}
+  },
+  admin:{
+    en:{title:"Owner Admin",text:"Sensitive owner controls live here: access, permissions, integrations and account-level settings."},
+    es:{title:"Admin del dueño",text:"Aquí están los controles sensibles del dueño: accesos, permisos, integraciones y ajustes de la cuenta."}
+  },
+  help:{
+    en:{title:"Help & FAQ",text:"Find setup help, access instructions and common answers. You can restart this guided tour here anytime."},
+    es:{title:"Ayuda y preguntas",text:"Encuentra ayuda de configuración, instrucciones de acceso y respuestas comunes. Aquí puedes reiniciar este recorrido cuando quieras."}
+  },
+  "platform-admin":{
+    en:{title:"Platform Admin",text:"Internal Launch Era controls for app customers, subscriptions and product activity."},
+    es:{title:"Platform Admin",text:"Controles internos de The Launch Era para clientes de la app, suscripciones y actividad del producto."}
+  }
+};
+
+function onboardingLanguage(){
+  return window.TLE_I18N?.language==="es" || (!window.TLE_I18N && localStorage.getItem("tle_language")==="es") ? "es" : "en";
+}
+function onboardingStorageKey(){
+  const business=state.business?.id||"business";
+  const user=state.session?.user?.id||state.business?.team_member_id||"device";
+  return `tle_guided_onboarding_v${ONBOARDING_VERSION}:${business}:${user}`;
+}
+function getOnboardingState(){
+  try{
+    return JSON.parse(localStorage.getItem(onboardingStorageKey())||"{}");
+  }catch{
+    return {};
+  }
+}
+function saveOnboardingState(value){
+  localStorage.setItem(onboardingStorageKey(),JSON.stringify(value||{}));
+}
+function ensureOnboardingUi(){
+  let layer=$("#tleOnboardingLayer");
+  if(layer) return layer;
+  layer=document.createElement("div");
+  layer.id="tleOnboardingLayer";
+  layer.className="onboarding-layer";
+  layer.hidden=true;
+  layer.innerHTML=`
+    <div class="onboarding-card" role="dialog" aria-modal="false" aria-live="polite">
+      <div class="onboarding-topline">
+        <span class="pill yellow" id="onboardingKicker">FIRST TIME TIP</span>
+        <button class="onboarding-close" id="onboardingCloseBtn" type="button" aria-label="Close">×</button>
+      </div>
+      <h3 id="onboardingTitle"></h3>
+      <p id="onboardingText"></p>
+      <small id="onboardingOnceNote"></small>
+      <div class="onboarding-actions">
+        <button class="text-btn" id="onboardingSkipBtn" type="button"></button>
+        <button class="primary-btn" id="onboardingDoneBtn" type="button"></button>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+
+  $("#onboardingCloseBtn",layer).addEventListener("click",()=>hideOnboardingTip());
+  $("#onboardingDoneBtn",layer).addEventListener("click",()=>completeCurrentOnboardingTip());
+  $("#onboardingSkipBtn",layer).addEventListener("click",()=>disableOnboardingTips());
+  return layer;
+}
+function hideOnboardingTip(){
+  const layer=$("#tleOnboardingLayer");
+  if(layer) layer.hidden=true;
+  window.__tleOnboardingCurrent=null;
+}
+function disableOnboardingTips(){
+  const progress=getOnboardingState();
+  progress.disabled=true;
+  progress.welcome=true;
+  saveOnboardingState(progress);
+  hideOnboardingTip();
+}
+function completeCurrentOnboardingTip(){
+  const current=window.__tleOnboardingCurrent;
+  if(!current) return hideOnboardingTip();
+  const progress=getOnboardingState();
+
+  if(current.key==="welcome"){
+    progress.welcome=true;
+    progress.disabled=false;
+    saveOnboardingState(progress);
+    hideOnboardingTip();
+    setTimeout(()=>maybeShowFeatureIntro($(".view.active")?.dataset.page||"today",true),180);
+    return;
+  }
+
+  progress.seen={...(progress.seen||{}),[current.key]:true};
+  saveOnboardingState(progress);
+  hideOnboardingTip();
+}
+function renderOnboardingTip(key,kind="feature"){
+  const copy=ONBOARDING_COPY[key];
+  if(!copy) return;
+  const lang=onboardingLanguage();
+  const words=copy[lang]||copy.en;
+  const layer=ensureOnboardingUi();
+  const isWelcome=key==="welcome";
+  window.__tleOnboardingCurrent={key,kind};
+
+  $("#onboardingKicker",layer).textContent=isWelcome
+    ? words.kicker
+    : (lang==="es"?"PRIMERA VEZ":"FIRST TIME TIP");
+  $("#onboardingTitle",layer).textContent=words.title;
+  $("#onboardingText",layer).textContent=words.text;
+  $("#onboardingOnceNote",layer).textContent=isWelcome
+    ? (lang==="es"?"Puedes saltarlo cuando quieras.":"You can skip it anytime.")
+    : (lang==="es"?"Este tip solo aparece una vez.":"You’ll only see this tip once.");
+  $("#onboardingDoneBtn",layer).textContent=isWelcome
+    ? (lang==="es"?"Empezar":"Start tour")
+    : (lang==="es"?"Entendido":"Got it");
+  $("#onboardingSkipBtn",layer).textContent=isWelcome
+    ? (lang==="es"?"Saltar":"Skip")
+    : (lang==="es"?"No mostrar más tips":"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",lang==="es"?"Cerrar":"Close");
+  layer.classList.toggle("welcome",isWelcome);
+  layer.hidden=false;
+}
+function maybeShowOnboardingWelcome(){
+  if(!state.business || !state.session) return;
+  const progress=getOnboardingState();
+  if(progress.disabled || progress.welcome) return;
+  if(!appShell || appShell.hidden) return;
+  renderOnboardingTip("welcome","welcome");
+}
+function maybeShowFeatureIntro(id,force=false){
+  if(!state.business || !ONBOARDING_COPY[id]) return;
+  const progress=getOnboardingState();
+  if(progress.disabled || !progress.welcome) return;
+  if(progress.seen?.[id] && !force) return;
+  if($("#tleOnboardingLayer") && !$("#tleOnboardingLayer").hidden) return;
+  renderOnboardingTip(id,"feature");
+}
+function scheduleOnboardingWelcome(){
+  clearTimeout(window.__tleOnboardingWelcomeTimer);
+  window.__tleOnboardingWelcomeTimer=setTimeout(maybeShowOnboardingWelcome,650);
+}
+function restartGuidedOnboarding(){
+  saveOnboardingState({welcome:false,seen:{},disabled:false});
+  hideOnboardingTip();
+  openView("today");
+  setTimeout(()=>renderOnboardingTip("welcome","welcome"),180);
+}
+
+window.addEventListener("tle:languagechange",()=>{
+  const current=window.__tleOnboardingCurrent;
+  if(current && !$("#tleOnboardingLayer")?.hidden){
+    renderOnboardingTip(current.key,current.kind);
+  }
+});
+
 function escapeHtml(value=""){
   return String(value).replace(/[&<>"']/g, ch => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -162,6 +379,7 @@ function showApp(){
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
     `;
   }
+  scheduleOnboardingWelcome();
 }
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
@@ -404,6 +622,7 @@ function openView(id,options={}){
   sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
+  setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
 $$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
 $$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
@@ -3337,6 +3556,9 @@ if(availabilityWeek) availabilityWeek.addEventListener("change",e=>{
   row.classList.toggle("off",!toggle.checked);
   row.querySelectorAll('input[type="time"]').forEach(input=>input.disabled=!toggle.checked);
 });
+
+const restartOnboardingBtn=$("#restartOnboardingBtn");
+if(restartOnboardingBtn) restartOnboardingBtn.addEventListener("click",restartGuidedOnboarding);
 
 const quickAddBtn=$("#quickAddBtn");
 if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
