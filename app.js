@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-human-filter-quarter-colors-1";
+const APP_VERSION = "20260927-ga-share-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1122,7 +1122,52 @@ function getVisitorId(){
   return id;
 }
 
+function googleVisitorClass(){
+  return (state.isPlatformAdmin || localStorage.getItem("tle_internal_admin_device")==="1")
+    ? "internal"
+    : "external";
+}
+
+function googleAnalyticsBase(){
+  return {
+    app_surface:"cleaning_app",
+    visitor_class:googleVisitorClass(),
+    business_role:state.business?.role||"unknown",
+    language:appIsSpanish()?"es":"en"
+  };
+}
+
+function trackGoogleEvent(name,params={}){
+  try{
+    if(typeof window.gtag!=="function") return;
+    window.gtag("event",name,{...googleAnalyticsBase(),...params});
+  }catch{}
+}
+
+function trackGooglePage(page){
+  try{
+    if(typeof window.gtag!=="function") return;
+    const raw=String(page||"/").replace(/^https?:\/\/[^/]+/,"");
+    const clean=raw.startsWith("/app/")
+      ? "/cleaning-app/"+raw.slice(5)
+      : raw.startsWith("/public/")
+        ? "/cleaning-app"+raw
+        : raw==="/login"
+          ? "/cleaning-app/login"
+          : "/cleaning-app"+(raw.startsWith("/")?raw:"/"+raw);
+    const pageLocation=window.location.origin+window.location.pathname+"#"+clean.replace(/^\//,"");
+    const leaf=clean.split("/").filter(Boolean).slice(-1)[0]||"home";
+    window.gtag("event","page_view",{
+      ...googleAnalyticsBase(),
+      page_path:clean,
+      page_location:pageLocation,
+      page_title:"Cleaning App · "+leaf
+    });
+  }catch{}
+}
+
 async function trackVisit(page=window.location.pathname+window.location.search){
+  trackGooglePage(page);
   try{
     if(localStorage.getItem("tle_internal_admin_device")==="1" || state.isPlatformAdmin) return;
     await supabase.functions.invoke("track-app-visit",{
@@ -1406,6 +1451,7 @@ authForm.addEventListener("submit", async (e)=>{
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
+      trackGoogleEvent("login",{method:"password"});
       await enterAuthenticatedApp();
     }
   }catch(err){
@@ -4835,6 +4881,7 @@ document.addEventListener("click",async e=>{
       try{await markBookingReviewed(approveBooking.dataset.approveBooking);}catch{}
       await loadCoreData();
       showToast("Booking approved · client, job and invoice created");
+      trackGoogleEvent("booking_approved",{source:"booking_request"});
     }
     return;
   }
@@ -4846,6 +4893,7 @@ document.addEventListener("click",async e=>{
       try{await markBookingReviewed(declineBooking.dataset.declineBooking);}catch{}
       await loadCoreData();
       showToast("Booking request declined");
+      trackGoogleEvent("booking_declined",{source:"booking_request"});
     }
     return;
   }
@@ -4981,6 +5029,8 @@ feedbackButtons.forEach(selector=>{
   if(button) button.addEventListener("click",openFeedbackForm);
 });
 
+$("#footerShareAppBtn")?.addEventListener("click",shareCleaningApp);
+
 const quickAddBtn=$("#quickAddBtn");
 if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
   if(!state.business || !["owner","admin"].includes(state.business.role)){
@@ -5019,6 +5069,42 @@ if(addTeamProfileBtn) addTeamProfileBtn.addEventListener("click",()=>openTeamFor
 
 $("#modalClose").addEventListener("click",()=>modal.hidden=true);
 modal.addEventListener("click",e=>{if(e.target===modal) modal.hidden=true});
+
+function customerShareAppUrl(){
+  const url=new URL(window.location.origin+window.location.pathname);
+  url.searchParams.set("utm_source","cleaning_app");
+  url.searchParams.set("utm_medium","share");
+  url.searchParams.set("utm_campaign","customer_share");
+  return url.toString();
+}
+
+async function shareCleaningApp(){
+  const url=customerShareAppUrl();
+  const title="The Launch Era Cleaning App";
+  const text=appIsSpanish()
+    ?"Organiza bookings, clientes, trabajos, quotes e invoices en un solo lugar."
+    :"Keep bookings, clients, jobs, quotes and invoices organized in one place.";
+
+  if(navigator.share){
+    try{
+      await navigator.share({title,text,url});
+      trackGoogleEvent("share_app",{share_method:"native",share_location:"footer"});
+      showToast(appIsSpanish()?"App compartida":"App shared");
+      return;
+    }catch(err){
+      if(err?.name==="AbortError") return;
+    }
+  }
+
+  try{
+    await navigator.clipboard.writeText(url);
+    trackGoogleEvent("share_app",{share_method:"copy",share_location:"footer"});
+    showToast(appIsSpanish()?"Link de la app copiado":"App link copied");
+  }catch{
+    await copyText(url);
+    trackGoogleEvent("share_app",{share_method:"copy_fallback",share_location:"footer"});
+  }
+}
 
 async function copyText(text){
   try{await navigator.clipboard.writeText(text);showToast("Link copied");}
