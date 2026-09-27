@@ -937,8 +937,21 @@ function openView(id,options={}){
   trackVisit("/app/"+id).catch(()=>{});
   setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
-$$(".nav-item").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
-$$("[data-jump]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.jump)));
+// Delegated navigation keeps dashboard links working even when cards/lists
+// are re-rendered after data loads or iOS restores an older DOM snapshot.
+document.addEventListener("click",e=>{
+  const nav=e.target.closest(".nav-item[data-view]");
+  if(nav && !nav.hidden){
+    e.preventDefault();
+    openView(nav.dataset.view);
+    return;
+  }
+  const jump=e.target.closest("[data-jump]");
+  if(jump && !jump.disabled && !jump.hidden){
+    e.preventDefault();
+    openView(jump.dataset.jump);
+  }
+});
 $("#menuToggle").addEventListener("click",()=>sidebar.classList.toggle("open"));
 if(backBtn) backBtn.addEventListener("click",()=>{
   let previous=navHistory.pop();
