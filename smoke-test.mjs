@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom";
 const html=fs.readFileSync("index.html","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
+const i18n=fs.readFileSync("i18n.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 
@@ -117,6 +118,21 @@ if(!app.includes('data-finish-time="') || !app.includes('e.target.closest("[data
 }
 if(!app.includes('data-worker-time-stop="') || !app.includes('e.target.closest("[data-worker-time-stop]")') || !app.includes("worker_portal_stop_time")){
   throw new Error("Worker time tracking regression: guest Finish timer handler is missing");
+}
+const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
+if(spanishOnlyBranches!==1){
+  throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
+}
+if(!app.includes("function langPick(en,es,pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","pt","fr"]')){
+  throw new Error("Localization regression: EN/ES/PT/FR runtime support is incomplete");
+}
+for(const phrase of ["Today’s jobs","Current client records","Still to collect","Waiting for review","Your scheduled jobs will appear here."]){
+  if(!i18n.includes(JSON.stringify(phrase))){
+    throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
+  }
+}
+if(!publicJs.includes('tt("REQUEST A QUOTE")') || !publicJs.includes('tt("BOOK A CLEANING")') || !publicJs.includes('tt("Could not submit invoice.")')){
+  throw new Error("Public localization regression: booking/quote/invoice states bypass translation");
 }
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const releaseVersions=[
