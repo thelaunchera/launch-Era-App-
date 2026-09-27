@@ -3055,60 +3055,58 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 }
 
-/* Soft animated app atmosphere */
+/* Soft animated app atmosphere — Safari-safe, no fixed layers */
 .app-shell{
   position:relative;
-  isolation:isolate;
-  background:
-    linear-gradient(180deg,#F2FAFF 0%,#E8F6FF 52%,#F6FBFF 100%);
-}
-.app-shell::before,
-.app-shell::after{
-  content:"";
-  position:fixed;
-  pointer-events:none;
-  z-index:0;
-  border-radius:50%;
-  filter:blur(.2px);
-  opacity:.20;
-}
-.app-shell::before{
-  width:340px;
-  height:340px;
-  left:14%;
-  top:14%;
-  background:
-    radial-gradient(circle at 34% 30%,rgba(255,255,255,.58) 0 10%,rgba(255,255,255,.18) 11% 18%,transparent 19%),
-    radial-gradient(circle at 68% 62%,rgba(255,255,255,.40) 0 7%,rgba(176,224,250,.16) 8% 15%,transparent 16%);
-  border:1px solid rgba(162,213,242,.18);
-  animation:tleAppBubbleDriftA 28s ease-in-out infinite alternate;
-}
-.app-shell::after{
-  width:220px;
-  height:220px;
-  right:6%;
-  bottom:12%;
-  background:
-    radial-gradient(circle at 62% 32%,rgba(255,255,255,.48) 0 11%,rgba(255,255,255,.16) 12% 20%,transparent 21%),
-    radial-gradient(circle at 32% 72%,rgba(255,255,255,.36) 0 7%,rgba(174,222,249,.13) 8% 16%,transparent 17%);
-  border:1px solid rgba(162,213,242,.15);
-  animation:tleAppBubbleDriftB 34s ease-in-out infinite alternate;
+  isolation:auto;
+  min-height:100vh;
+  min-height:100dvh;
+  background-color:#EEF9FF;
+  background-image:
+    radial-gradient(circle at 15% 18%,rgba(255,255,255,.34) 0 44px,rgba(178,226,250,.10) 45px 64px,transparent 65px),
+    radial-gradient(circle at 82% 28%,rgba(255,255,255,.24) 0 30px,rgba(178,226,250,.08) 31px 46px,transparent 47px),
+    radial-gradient(circle at 74% 72%,rgba(255,255,255,.22) 0 38px,rgba(178,226,250,.07) 39px 56px,transparent 57px),
+    radial-gradient(circle at 24% 82%,rgba(255,255,255,.18) 0 24px,rgba(178,226,250,.06) 25px 38px,transparent 39px),
+    linear-gradient(180deg,#F5FCFF 0%,#EAF7FF 52%,#F7FCFF 100%);
+  background-size:
+    520px 520px,
+    440px 440px,
+    600px 600px,
+    460px 460px,
+    100% 100%;
+  background-repeat:repeat;
+  background-position:
+    0 0,
+    180px 70px,
+    90px 260px,
+    300px 340px,
+    0 0;
+  animation:tleSafeBubbleBackground 36s ease-in-out infinite alternate;
 }
 .app-shell>.sidebar,
 .app-shell>.main{
   position:relative;
-  z-index:1;
 }
 .main{
   background:transparent!important;
 }
-@keyframes tleAppBubbleDriftA{
-  from{transform:translate3d(-8px,10px,0) scale(.96)}
-  to{transform:translate3d(22px,-26px,0) scale(1.05)}
-}
-@keyframes tleAppBubbleDriftB{
-  from{transform:translate3d(8px,12px,0) scale(.98)}
-  to{transform:translate3d(-20px,-18px,0) scale(1.07)}
+@keyframes tleSafeBubbleBackground{
+  from{
+    background-position:
+      0 0,
+      180px 70px,
+      90px 260px,
+      300px 340px,
+      0 0;
+  }
+  to{
+    background-position:
+      18px -16px,
+      164px 88px,
+      108px 240px,
+      284px 324px,
+      0 0;
+  }
 }
 
 /* Live seasonal + current-weather animation inside greeting card */
@@ -3262,29 +3260,43 @@ html,body{max-width:100%;overflow-x:hidden}
 }
 
 @media(max-width:680px){
-  .app-shell::before{
-    width:250px;
-    height:250px;
-    left:-18%;
-    top:16%;
-    opacity:.15;
-  }
-  .app-shell::after{
-    width:170px;
-    height:170px;
-    right:-12%;
-    bottom:16%;
-    opacity:.13;
+  .app-shell{
+    background-size:
+      420px 420px,
+      360px 360px,
+      500px 500px,
+      380px 380px,
+      100% 100%;
   }
   .hero-season-layer{opacity:.20}
   .hero-precip-layer{opacity:.40}
 }
 @media(prefers-reduced-motion:reduce){
-  .app-shell::before,
-  .app-shell::after,
+  .app-shell,
   .season-particle,
   .rain-drop,
   .snow-flake{
     animation:none!important;
+  }
+}
+
+/* iOS/Safari layout guard for app shell */
+@supports (-webkit-touch-callout:none){
+  .app-shell{
+    display:block;
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+    padding-top:0!important;
+    margin-top:0!important;
+  }
+  .main{
+    display:block;
+    padding-top:0!important;
+    margin-top:0!important;
+    transform:none!important;
+  }
+  .topbar{
+    margin-top:0!important;
+    transform:none!important;
   }
 }
