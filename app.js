@@ -3693,7 +3693,7 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="landing_setup"?"60-day Landing promo":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-landing-promo="${x.business_id}" ${x.trial_promotion==="landing_setup"?"disabled":""}>${x.trial_promotion==="landing_setup"?"60-day promo active":"Grant 60-day Landing promo"}</button></div>
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"2 months Cleaning App with Booking Page":"30-day standard trial"}</small><button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}" ${x.trial_promotion==="booking_page_setup"?"disabled":""}>${x.trial_promotion==="booking_page_setup"?"2-month promo active":"Grant Booking Page 2-month promo"}</button></div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
         <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
         <select data-platform-status="${x.business_id}">
@@ -4925,23 +4925,23 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const landingPromo=e.target.closest("[data-landing-promo]");
-  if(landingPromo){
-    setBusy(landingPromo,true,"Applying…");
+  const bookingPagePromo=e.target.closest("[data-booking-page-promo]");
+  if(bookingPagePromo){
+    setBusy(bookingPagePromo,true,"Applying…");
     try{
-      const businessId=landingPromo.dataset.landingPromo;
-      const {error}=await supabase.rpc("platform_apply_landing_trial_promo",{p_business_id:businessId});
+      const businessId=bookingPagePromo.dataset.bookingPagePromo;
+      const {error}=await supabase.rpc("platform_apply_booking_page_trial_promo",{p_business_id:businessId});
       if(error) throw error;
 
       const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:businessId},headers:{Authorization:`Bearer ${state.session?.access_token||""}`}});
       if(notifyError) throw notifyError;
 
       await loadPlatformAdmin();
-      showToast("60-day Landing promo applied");
+      showToast("Booking Page promo applied · 2 months free");
     }catch(err){
       showToast(err?.message||"Could not apply the 60-day promo");
     }finally{
-      setBusy(landingPromo,false);
+      setBusy(bookingPagePromo,false);
     }
     return;
   }
