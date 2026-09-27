@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-audit-1";
+const APP_VERSION = "20260927-welcome-email-fix-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1603,8 +1603,9 @@ businessForm.addEventListener("submit", async (e)=>{
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
     try{
-      const {error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:data.id}});
+      const {data:notifyData,error:notifyError}=await supabase.functions.invoke("notify-trial-start",{body:{business_id:data.id}});
       if(notifyError) console.warn("[TLE] trial welcome automation",notifyError);
+      else if(notifyData?.welcome_sent) state.business.trial_welcome_sent_at=new Date().toISOString();
     }catch(err){
       console.warn("[TLE] trial welcome automation",err);
     }
@@ -1737,6 +1738,24 @@ async function createWorkerLink(teamMemberId){
     <div class="permission-note">This activation link works once. After activation, only that device keeps access to assigned jobs, route details, job status, time tracking and mileage. It does not expose client lists, leads, quotes, invoices, pricing, reports, billing or settings.</div>
     <div class="form-footer"><button type="button" class="ghost-btn" data-native-share-worker-link>Share</button><button type="button" class="primary-btn" data-modal-cancel>Done</button></div>`;
   modal.hidden=false;
+}
+
+async function ensureTrialWelcomeEmail(){
+  if(!state.session?.user || !state.business?.id) return;
+  if(state.business.role!=="owner") return;
+  if(state.business.trial_welcome_sent_at) return;
+
+  try{
+    const {data,error}=await supabase.functions.invoke("notify-trial-start",{
+      body:{business_id:state.business.id}
+    });
+    if(error) throw error;
+    if(data?.welcome_sent){
+      state.business.trial_welcome_sent_at=new Date().toISOString();
+    }
+  }catch(err){
+    console.warn("[TLE] trial welcome retry",err);
+  }
 }
 
 async function enterAuthenticatedApp(){
@@ -1896,7 +1915,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status")
+      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
@@ -1931,6 +1950,9 @@ async function initialize(){
   state.publicLinks=linkSettings||null;
 
   showApp();
+
+  // Welcome email is retried safely until the backend confirms delivery.
+  ensureTrialWelcomeEmail().catch(err=>console.warn("[TLE] trial welcome retry",err));
 
   // Never leave the static HTML placeholder visible on launch.
   try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
