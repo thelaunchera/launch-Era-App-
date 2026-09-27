@@ -456,7 +456,10 @@ function rememberedAdminEmails(){
   catch{return [];}
 }
 function rememberedOwnerEmail(){
-  return String(localStorage.getItem(OWNER_EMAIL_KEY)||localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+  const owner=String(localStorage.getItem(OWNER_EMAIL_KEY)||"").trim().toLowerCase();
+  if(owner) return owner;
+  const platformAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
+  return platformAdmin===PRIMARY_PLATFORM_ADMIN_EMAIL ? platformAdmin : "";
 }
 function maskEmail(email=""){
   const clean=String(email).trim();
@@ -805,8 +808,10 @@ async function signOutCurrentUser(event){
       setAuthStatus("");
     }
 
-    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
-    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+    if(ownerEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
+      localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
+      localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+    }
   }catch(err){
     showToast(err?.message||"Could not sign out");
     if(state.session) showApp();
@@ -1053,6 +1058,12 @@ async function initialize(){
   }
 
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
+
+  if(rememberedOwnerEmail()===signedInEmail && ownerIdleExpired()){
+    await expireOwnerSession();
+    return;
+  }
+
   if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
     try{ await supabase.auth.signOut({scope:"local"}); }catch{}
     state.session=null;
