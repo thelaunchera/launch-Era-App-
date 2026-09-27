@@ -920,8 +920,16 @@ function openView(id,options={}){
   if(!options.fromBack && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $$(".view").forEach(v=>v.classList.toggle("active",v.dataset.page===id));
-  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  $(".view").forEach(v=>{
+    const active=v.dataset.page===id;
+    v.classList.toggle("active",active);
+    if(active){
+      v.classList.remove("view-enter");
+      requestAnimationFrame(()=>v.classList.add("view-enter"));
+      setTimeout(()=>v.classList.remove("view-enter"),380);
+    }
+  });
+  $(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   sidebar.classList.remove("open");
@@ -1739,18 +1747,16 @@ async function initialize(){
     subscription_status:context.subscription_status
   };
 
-  if(!state.business.email || state.business.phone===null){
-    try{
-      const {data:companyProfile,error:companyProfileError}=await supabase
-        .from("businesses")
-        .select("email,phone")
-        .eq("id",state.business.id)
-        .single();
-      if(companyProfileError) throw companyProfileError;
-      if(companyProfile) state.business={...state.business,...companyProfile};
-    }catch(err){
-      console.warn("[TLE] company profile hydrate",err);
-    }
+  try{
+    const {data:companyProfile,error:companyProfileError}=await supabase
+      .from("businesses")
+      .select("email,phone,instagram_url,facebook_url")
+      .eq("id",state.business.id)
+      .single();
+    if(companyProfileError) throw companyProfileError;
+    if(companyProfile) state.business={...state.business,...companyProfile};
+  }catch(err){
+    console.warn("[TLE] company profile hydrate",err);
   }
 
   if(state.business?.role==="owner"){
@@ -2021,12 +2027,15 @@ function renderLeads(){
     return;
   }
   table.innerHTML=state.leads.map(l=>`
-    <div class="table-row">
-      <span><strong>${escapeHtml(l.name)}</strong><small>${escapeHtml(l.email)}</small></span>
-      <span>${escapeHtml(l.source||"—")}</span>
-      <span>${escapeHtml(l.service_interest||"—")}</span>
-      <span><i class="status ${l.status==="new"?"blue":l.status==="booked"?"success":l.status==="lost"?"danger":"neutral"}">${escapeHtml(l.status)}</i></span>
-      <span class="record-actions"><button data-edit-lead="${l.id}">Edit</button><button data-lead-to-quote="${l.id}">Quote</button><button class="danger-link" data-archive-lead="${l.id}">Archive</button><button class="danger-link" data-delete-record="lead" data-id="${l.id}">Delete</button></span>
+    <div class="table-row mobile-record-card">
+      <span class="record-primary"><strong>${escapeHtml(l.name)}</strong><small>${escapeHtml(l.email)}</small></span>
+      <span class="record-field" data-label="${escapeHtml(tr("Source"))}">${escapeHtml(l.source||"—")}</span>
+      <span class="record-field" data-label="${escapeHtml(tr("Service"))}">${escapeHtml(l.service_interest||"—")}</span>
+      <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${l.status==="new"?"blue":l.status==="booked"?"success":l.status==="lost"?"danger":"neutral"}">${escapeHtml(translatedStatus(l.status))}</i></span>
+      <span class="record-actions">
+        <span class="safe-actions"><button data-edit-lead="${l.id}">${escapeHtml(tr("Edit"))}</button><button data-lead-to-quote="${l.id}">${escapeHtml(tr("Quote"))}</button><button data-archive-lead="${l.id}">${escapeHtml(tr("Archive"))}</button></span>
+        <button class="record-delete-btn" data-delete-record="lead" data-id="${l.id}">${escapeHtml(tr("Delete lead"))}</button>
+      </span>
     </div>`).join("");
 }
 
@@ -2058,17 +2067,19 @@ function renderInvoices(){
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
-    return `<div class="table-row">
-      <span><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?"Due "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):"No due date"}</small></span>
-      <span>${escapeHtml(inv.clients?.name||"No client")}</span>
-      <span><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" paid":""}</small></span>
-      <span><i class="status ${statusClass}">${overdue?"overdue":escapeHtml(inv.status)}</i>${methodLabel?`<small class="payment-choice-note">Customer chose ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
+    return `<div class="table-row mobile-record-card">
+      <span class="record-primary"><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?(appIsSpanish()?"Vence ":"Due ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
+      <span class="record-field" data-label="${escapeHtml(tr("Client"))}">${escapeHtml(inv.clients?.name||tr("No client"))}</span>
+      <span class="record-field" data-label="${escapeHtml(tr("Amount"))}"><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" "+tr("paid"):""}</small></span>
+      <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions">
-        <button data-edit-invoice="${inv.id}">Edit</button>
-        ${dispute?`<button data-resolve-dispute="${dispute.id}">Resolve dispute</button>`:""}
-        ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
-        ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":methodLabel?"Confirm payment":"Record payment"}</button>`:""}
-        <button class="danger-link" data-delete-record="invoice" data-id="${inv.id}">Delete</button>
+        <span class="safe-actions">
+          <button data-edit-invoice="${inv.id}">${escapeHtml(tr("Edit"))}</button>
+          ${dispute?`<button data-resolve-dispute="${dispute.id}">${escapeHtml(tr("Resolve dispute"))}</button>`:""}
+          ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">${escapeHtml(tr("Send invoice"))}</button>`:""}
+          ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${escapeHtml(lastMethod?tr("Add payment"):methodLabel?tr("Confirm payment"):tr("Record payment"))}</button>`:""}
+        </span>
+        <button class="record-delete-btn" data-delete-record="invoice" data-id="${inv.id}">${escapeHtml(tr("Delete invoice"))}</button>
       </span>
     </div>`;
   }).join("");
@@ -2240,10 +2251,12 @@ function renderClients(){
       <strong>${escapeHtml(c.name)}</strong>
       <span>${escapeHtml(c.email)}</span>
       <small>${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || "No address yet")}</small>
-      <div class="card-actions">
-        <button data-edit="client" data-id="${c.id}">Edit</button>
-        <button class="danger-link" data-archive-client="${c.id}">Archive</button>
-        <button class="danger-link" data-delete-record="client" data-id="${c.id}">Delete</button>
+      <div class="card-actions record-card-actions">
+        <span class="safe-actions">
+          <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
+          <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
+        </span>
+        <button class="record-delete-btn" data-delete-record="client" data-id="${c.id}">${escapeHtml(tr("Delete client"))}</button>
       </div>
     </article>
   `).join("");
@@ -2391,12 +2404,14 @@ function quoteColumn(status,label){
         <small>${escapeHtml(service?.name || "Cleaning service")} · ${money(total)}</small>
         <b>${stateCopy}</b>
         ${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}
-        <div class="card-actions">
-          ${dispute?`<button data-resolve-dispute="${dispute.id}">Resolve dispute</button>`:""}
-          ${!["accepted"].includes(status)?`<button data-edit="quote" data-id="${q.id}">Edit</button>`:""}
-          ${["requested","draft","declined"].includes(status)?`<button class="accept-btn" data-send-customer-quote="${q.id}">Send quote</button>`:""}
-          ${status==="sent"?`<button data-send-customer-quote="${q.id}">Resend quote</button>`:""}
-          <button class="danger-link" data-delete-record="quote" data-id="${q.id}">Delete</button>
+        <div class="card-actions record-card-actions">
+          <span class="safe-actions">
+            ${dispute?`<button data-resolve-dispute="${dispute.id}">${escapeHtml(tr("Resolve dispute"))}</button>`:""}
+            ${!["accepted"].includes(status)?`<button data-edit="quote" data-id="${q.id}">${escapeHtml(tr("Edit"))}</button>`:""}
+            ${["requested","draft","declined"].includes(status)?`<button class="accept-btn" data-send-customer-quote="${q.id}">${escapeHtml(tr("Send quote"))}</button>`:""}
+            ${status==="sent"?`<button data-send-customer-quote="${q.id}">${escapeHtml(tr("Resend quote"))}</button>`:""}
+          </span>
+          <button class="record-delete-btn" data-delete-record="quote" data-id="${q.id}">${escapeHtml(tr("Delete quote"))}</button>
         </div>
       </article>`;
     }).join(""):`<div class="kanban-empty">Nothing here</div>`}
@@ -2672,12 +2687,11 @@ function renderOperations(){
   const mileageTable=$("#mileageTable");
   if(mileageTable){
     mileageTable.innerHTML=state.mileageLogs.length?state.mileageLogs.map(m=>`
-      <div class="table-row">
-        <span>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</span>
-        <span>${escapeHtml(m.notes||tr("Business drive"))}</span>
-        <span>${Number(m.miles||0).toFixed(1)}</span>
-        <span>${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
-        <span>Business</span>
+      <div class="table-row mobile-record-card">
+        <span class="record-primary"><strong>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</strong><small>${escapeHtml(m.notes||tr("Business drive"))}</small></span>
+        <span class="record-field" data-label="${escapeHtml(tr("Miles"))}">${Number(m.miles||0).toFixed(1)}</span>
+        <span class="record-field" data-label="${escapeHtml(tr("Job"))}">${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
+        <span class="record-field" data-label="${escapeHtml(tr("Type"))}">${escapeHtml(tr("Business"))}</span>
       </div>`).join(""):`<div class="empty-table"><strong>No mileage logged yet.</strong><span>Use “Log drive” after a business trip.</span></div>`;
   }
 
@@ -2689,12 +2703,11 @@ function renderOperations(){
   const timeTable=$("#timeEntriesTable");
   if(timeTable){
     timeTable.innerHTML=state.timeEntries.length?state.timeEntries.map(t=>`
-      <div class="table-row">
-        <span>${escapeHtml(t.jobs?.clients?.name||t.jobs?.services?.name||"Job")}</span>
-        <span>${escapeHtml(t.team_members?.name||"Owner")}</span>
-        <span>${t.jobs?.duration_minutes?Math.round(t.jobs.duration_minutes/60*10)/10+"h":"—"}</span>
-        <span>${t.minutes_worked!=null?(Number(t.minutes_worked)/60).toFixed(1).replace(".0","")+"h":t.clocked_out_at?"—":"Running"}</span>
-        <span><i class="status ${t.clocked_out_at?"success":"warning"}">${t.clocked_out_at?"Complete":"Running"}</i></span>
+      <div class="table-row mobile-record-card">
+        <span class="record-primary"><strong>${escapeHtml(t.jobs?.clients?.name||t.jobs?.services?.name||tr("Job"))}</strong><small>${escapeHtml(t.team_members?.name||tr("Owner"))}</small></span>
+        <span class="record-field" data-label="${escapeHtml(tr("Planned"))}">${t.jobs?.duration_minutes?Math.round(t.jobs.duration_minutes/60*10)/10+"h":"—"}</span>
+        <span class="record-field" data-label="${escapeHtml(tr("Actual"))}">${t.minutes_worked!=null?(Number(t.minutes_worked)/60).toFixed(1).replace(".0","")+"h":t.clocked_out_at?"—":tr("Running")}</span>
+        <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${t.clocked_out_at?"success":"warning"}">${escapeHtml(t.clocked_out_at?tr("Complete"):tr("Running"))}</i></span>
       </div>`).join(""):`<div class="empty-table"><strong>No time entries yet.</strong><span>Time worked will appear here.</span></div>`;
   }
 
@@ -2750,13 +2763,15 @@ async function openBusinessProfileForm(){
     phone:state.business.phone||"",
     service_area:state.business.service_area||"",
     timezone:state.business.timezone||"America/New_York",
-    default_language:state.business.default_language||"en"
+    default_language:state.business.default_language||"en",
+    instagram_url:state.business.instagram_url||"",
+    facebook_url:state.business.facebook_url||""
   };
 
   try{
     const {data,error}=await supabase
       .from("businesses")
-      .select("name,email,phone,service_area,timezone,default_language")
+      .select("name,email,phone,service_area,timezone,default_language,instagram_url,facebook_url")
       .eq("id",state.business.id)
       .single();
     if(error) throw error;
@@ -2785,7 +2800,10 @@ async function openBusinessProfileForm(){
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
       </select></label>
+      <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
+      <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
     </div>
+    <p class="helper">These links appear on your private Dashboard for one-tap access. They do not post automatically.</p>
     ${formSubmit("Save business details")}`;
   modal.hidden=false;
 }
@@ -2802,6 +2820,8 @@ async function saveBusinessProfile(fd){
     service_area:String(fd.get("service_area")||"").trim()||null,
     timezone:String(fd.get("timezone")||"America/New_York"),
     default_language:String(fd.get("default_language")||"en"),
+    instagram_url:String(fd.get("instagram_url")||"").trim()||null,
+    facebook_url:String(fd.get("facebook_url")||"").trim()||null,
     updated_at:new Date().toISOString()
   };
 
@@ -2812,7 +2832,7 @@ async function saveBusinessProfile(fd){
     .from("businesses")
     .update(payload)
     .eq("id",state.business.id)
-    .select("name,email,phone,service_area,timezone,default_language")
+    .select("name,email,phone,service_area,timezone,default_language,instagram_url,facebook_url")
     .single();
 
   if(error) throw error;
@@ -2855,6 +2875,34 @@ function renderSettings(){
     status.className="status "+(reviewUrl?"success":"neutral");
   }
   if(test) test.hidden=!reviewUrl;
+  renderBusinessPresence();
+}
+
+function renderBusinessPresence(){
+  const instagram=$("#presenceInstagramBtn");
+  const facebook=$("#presenceFacebookBtn");
+  const booking=$("#presenceBookingBtn");
+  const hint=$("#presenceHint");
+  if(!instagram || !facebook || !booking) return;
+
+  const ig=String(state.business?.instagram_url||"").trim();
+  const fb=String(state.business?.facebook_url||"").trim();
+
+  instagram.classList.toggle("connected",Boolean(ig));
+  facebook.classList.toggle("connected",Boolean(fb));
+  instagram.dataset.url=ig;
+  facebook.dataset.url=fb;
+
+  const igState=$("#presenceInstagramState");
+  const fbState=$("#presenceFacebookState");
+  if(igState) igState.textContent=ig?tr("Open profile"):tr("Add profile");
+  if(fbState) fbState.textContent=fb?tr("Open page"):tr("Add page");
+
+  if(hint){
+    hint.textContent=ig||fb
+      ? tr("Keep your client-facing links close while you run the day.")
+      : tr("Add Instagram and Facebook in Business Profile.");
+  }
 }
 
 function renderPublicLinks(){
@@ -2866,6 +2914,7 @@ function renderPublicLinks(){
   const be=$("#bookingUrl"),qe=$("#quoteUrl");
   if(be){be.textContent=booking;be.href=booking;}
   if(qe){qe.textContent=quote;qe.href=quote;}
+  renderBusinessPresence();
 }
 
 async function loadPlatformAdmin(){
@@ -3856,6 +3905,23 @@ async function deleteBusinessRecord(type,id){
 }
 
 document.addEventListener("click",async e=>{
+  const presenceBtn=e.target.closest("#presenceInstagramBtn,#presenceFacebookBtn,#presenceBookingBtn");
+  if(presenceBtn){
+    if(presenceBtn.id==="presenceBookingBtn"){
+      const url=$("#bookingUrl")?.href;
+      if(url && url!=="#") window.open(url,"_blank","noopener");
+      else openView("booking");
+      return;
+    }
+    const url=String(presenceBtn.dataset.url||"").trim();
+    if(url){
+      window.open(url,"_blank","noopener");
+    }else{
+      await openBusinessProfileForm();
+    }
+    return;
+  }
+
   const create=e.target.closest("[data-create]");
   const action=e.target.closest("[data-action]");
   const edit=e.target.closest("[data-edit]");
