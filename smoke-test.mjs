@@ -94,8 +94,8 @@ if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel"
 if(!app.includes("window.__tleShowSignupWelcome=") || !app.includes("hasLocalSignupWelcomePending() ||") || !app.includes("hasAccountSignupWelcomePending()")){
   throw new Error("Business setup welcome regression: new signup welcome is not preserved through workspace creation");
 }
-if(!app.includes("resolveSignupTimeZone") || !app.includes("timezone: signupTimeZone")){
-  throw new Error("Timezone regression: signup must derive business timezone from service area");
+if(!app.includes("resolveBusinessLocale(signupServiceArea)") || !app.includes("timezone: globalSetup.timezone") || !app.includes("country_code: globalSetup.country_code") || !app.includes("currency_code: globalSetup.currency_code")){
+  throw new Error("Global setup regression: signup must derive timezone, country and currency from service area");
 }
 if(!publicJs.includes("dateInBusinessZone") || !publicJs.includes("business?.timezone")){
   throw new Error("Booking regression: public booking date bounds must use business timezone");
