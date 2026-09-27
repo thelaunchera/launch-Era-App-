@@ -4303,3 +4303,263 @@ body.modal-open{
   #authPanel{scroll-margin-top:12px}
   .auth-welcome-actions .primary-btn{width:100%}
 }
+
+
+/* 2026-09-27 — compact animated greeting v55 */
+#todayHeroCard{
+  padding:22px!important;
+}
+#todayHeroCard .hero-ecosystem{
+  gap:14px;
+}
+#todayHeroCard .hero-greeting-zone{
+  padding:2px 0!important;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin:8px 0 7px!important;
+  line-height:.96;
+}
+#todayHeroCard #todayMomentCopy{
+  line-height:1.4!important;
+}
+#todayHeroCard .hero-greeting-zone #todayHeroAction{
+  margin-top:12px!important;
+}
+
+/* Sun + moving clouds / glowing moon + stars */
+.hero-sky-badge{
+  position:relative;
+  display:inline-block;
+  width:78px;
+  height:52px;
+  flex:0 0 78px;
+  overflow:visible;
+  pointer-events:none;
+}
+.hero-sun-orb,
+.hero-moon-orb,
+.hero-cloud,
+.hero-night-star{
+  position:absolute;
+  display:block;
+  line-height:1;
+  transform-origin:center;
+  will-change:transform,opacity;
+}
+.hero-sun-orb{
+  left:0;
+  top:0;
+  font-size:43px;
+  z-index:1;
+  animation:tleHeroSunSpin 28s linear infinite;
+}
+.hero-cloud{
+  z-index:2;
+  font-size:27px;
+  filter:drop-shadow(0 2px 3px rgba(25,25,25,.08));
+}
+.hero-cloud-a{
+  left:28px;
+  top:21px;
+  animation:tleHeroCloudA 6.5s ease-in-out infinite alternate;
+}
+.hero-cloud-b{
+  left:45px;
+  top:8px;
+  font-size:20px;
+  opacity:.78;
+  animation:tleHeroCloudB 8.2s ease-in-out infinite alternate;
+}
+.hero-moon-orb{
+  left:5px;
+  top:1px;
+  font-size:44px;
+  opacity:0;
+  transform:scale(.9);
+  filter:drop-shadow(0 0 9px rgba(255,255,245,.8));
+}
+.hero-night-star{
+  opacity:0;
+  z-index:2;
+  color:#fffdf0;
+  text-shadow:0 0 8px rgba(255,255,255,.92);
+}
+.hero-night-star.star-a{left:51px;top:3px;font-size:16px}
+.hero-night-star.star-b{left:58px;top:27px;font-size:12px}
+.hero-night-star.star-c{left:31px;top:36px;font-size:10px}
+
+#todayHeroCard[data-celestial="night"] .hero-sun-orb,
+#todayHeroCard[data-celestial="night"] .hero-cloud{
+  opacity:0;
+  pointer-events:none;
+}
+#todayHeroCard[data-celestial="night"] .hero-moon-orb{
+  opacity:1;
+  animation:tleHeroMoonGlow 3.6s ease-in-out infinite;
+}
+#todayHeroCard[data-celestial="night"] .hero-night-star{
+  opacity:1;
+  animation:tleHeroStarTwinkle 2.6s ease-in-out infinite;
+}
+#todayHeroCard[data-celestial="night"] .hero-night-star.star-b{animation-delay:.7s}
+#todayHeroCard[data-celestial="night"] .hero-night-star.star-c{animation-delay:1.35s}
+#todayHeroCard[data-weather="rain"] .hero-sun-orb{opacity:.28}
+#todayHeroCard[data-weather="rain"] .hero-cloud{opacity:1}
+
+@keyframes tleHeroSunSpin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes tleHeroCloudA{
+  from{transform:translate3d(-2px,0,0)}
+  to{transform:translate3d(7px,-2px,0)}
+}
+@keyframes tleHeroCloudB{
+  from{transform:translate3d(2px,0,0)}
+  to{transform:translate3d(-5px,2px,0)}
+}
+@keyframes tleHeroMoonGlow{
+  0%,100%{
+    transform:translateY(0) scale(.98);
+    filter:drop-shadow(0 0 7px rgba(255,255,245,.68));
+  }
+  50%{
+    transform:translateY(-2px) scale(1.05);
+    filter:drop-shadow(0 0 15px rgba(255,255,245,.98));
+  }
+}
+@keyframes tleHeroStarTwinkle{
+  0%,100%{opacity:.28;transform:scale(.82) rotate(0)}
+  50%{opacity:1;transform:scale(1.18) rotate(18deg)}
+}
+
+/* The decorative sky replaces the generic icon when nothing needs action. */
+#todayHeroCard.message-calm>.hero-moment-icon,
+#todayHeroCard.message-night>.hero-moment-icon,
+#todayHeroCard.message-hydrate>.hero-moment-icon{
+  display:none;
+}
+
+/* A real pending item gets a small, occasional nudge — never the whole card. */
+#todayHeroCard.has-pending>.hero-moment-icon{
+  display:block;
+  animation:tleHeroPendingCue 5.4s ease-in-out infinite!important;
+}
+.attention-list button.attention-pending{
+  transform-origin:center;
+  animation:tlePendingAttention 6.2s ease-in-out infinite;
+}
+.attention-list button.attention-pending:nth-child(2){animation-delay:1.45s}
+.attention-list button.attention-pending:nth-child(3){animation-delay:2.9s}
+.attention-list button.attention-pending:nth-child(4){animation-delay:4.1s}
+
+@keyframes tleHeroPendingCue{
+  0%,76%,100%{transform:translate3d(0,0,0) scale(1)}
+  82%{transform:translate3d(0,-3px,0) scale(1.06)}
+  88%{transform:translate3d(2px,0,0) scale(1.03)}
+  94%{transform:translate3d(-2px,0,0) scale(1.03)}
+}
+@keyframes tlePendingAttention{
+  0%,80%,100%{transform:translate3d(0,0,0)}
+  85%{transform:translate3d(0,-2px,0)}
+  90%{transform:translate3d(3px,0,0)}
+  95%{transform:translate3d(-2px,0,0)}
+}
+
+/* Mobile: remove empty vertical space without shrinking readability. */
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:15px 16px 14px!important;
+    border-radius:25px!important;
+    margin-bottom:12px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-ecosystem{
+    gap:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    padding:0!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    gap:7px;
+    min-height:48px;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    font-size:clamp(31px,9.4vw,42px)!important;
+    line-height:.94!important;
+    margin:5px 0 6px!important;
+    padding-right:0!important;
+  }
+  [data-page="today"] #todayHeroCard p#todayMomentCopy{
+    max-width:100%!important;
+    font-size:14px!important;
+    line-height:1.35!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayHeroAction{
+    width:100%;
+    min-height:47px!important;
+    margin-top:10px!important;
+    padding:10px 16px!important;
+    border-radius:16px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-brief{
+    padding:10px!important;
+    gap:6px!important;
+    border-radius:16px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-module-top{
+    gap:7px;
+  }
+  [data-page="today"] #todayHeroCard .weather-now{
+    gap:8px;
+  }
+  [data-page="today"] #todayHeroCard .weather-icon{
+    width:38px!important;
+    height:38px!important;
+    flex-basis:38px!important;
+    border-radius:12px!important;
+    font-size:22px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-temp-row strong{
+    font-size:22px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note{
+    padding:7px 8px!important;
+    border-radius:11px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note strong{
+    line-height:1.2;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note span{
+    line-height:1.25;
+  }
+  [data-page="today"] #todayHeroCard .weather-forecast{
+    gap:5px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-day{
+    padding:6px!important;
+    border-radius:10px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-updated{
+    margin-top:0!important;
+  }
+  .hero-sky-badge{
+    width:72px;
+    height:48px;
+    flex-basis:72px;
+  }
+  .hero-sun-orb{font-size:40px}
+  .hero-cloud-a{left:26px;top:20px;font-size:25px}
+  .hero-cloud-b{left:43px;top:8px;font-size:18px}
+  .hero-moon-orb{font-size:41px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-sun-orb,
+  .hero-cloud,
+  .hero-moon-orb,
+  .hero-night-star,
+  #todayHeroCard.has-pending>.hero-moment-icon,
+  .attention-list button.attention-pending{
+    animation:none!important;
+  }
+}
