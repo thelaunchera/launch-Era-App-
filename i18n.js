@@ -1,6 +1,11 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Change language":"Cambiar idioma",
+    "Español":"Español",
+    "Privacy Policy":"Política de Privacidad",
+    "and acknowledge our":"y reconoces nuestra",
+    "By creating an account, you agree to our":"Al crear una cuenta, aceptas nuestros",
     "© 2026 The Launch Era":"© 2026 The Launch Era",
     "Could not send feedback.":"No se pudo enviar el feedback.",
     "Tell us a little more before sending.":"Cuéntanos un poco más antes de enviarlo.",
@@ -480,7 +485,14 @@
   function updateToggles(){
     document.documentElement.lang=lang;
     document.querySelectorAll("[data-language-toggle],#languageBtn").forEach(btn=>{
-      btn.textContent=lang==="es"?"EN":"ES";
+      if(btn.id==="languageBtn" && btn.querySelector(".top-icon")){
+        const icon=btn.querySelector(".top-icon");
+        const label=btn.querySelector(".top-label");
+        if(icon) icon.textContent=lang==="es"?"EN":"ES";
+        if(label) label.textContent=lang==="es"?"English":"Español";
+      }else{
+        btn.textContent=lang==="es"?"EN":"ES";
+      }
       btn.setAttribute("aria-label",lang==="es"?"Switch to English":"Cambiar a español");
     });
   }
