@@ -97,8 +97,13 @@ async function assertLayout(page,profile){
   }
 
   if(profile.viewport.width<=860){
-    await page.evaluate(()=>document.querySelector(".sidebar")?.classList.add("open"));
-    await page.waitForTimeout(320);
+    const menu=page.locator("#menuToggle");
+    await menu.click();
+    await page.waitForFunction(()=>{
+      const sidebar=document.querySelector(".sidebar");
+      if(!sidebar) return false;
+      return sidebar.classList.contains("open") && Math.abs(sidebar.getBoundingClientRect().left)<=3;
+    },null,{timeout:2000});
     const nav=await page.evaluate(()=>{
       const sidebar=document.querySelector(".sidebar").getBoundingClientRect();
       const main=document.querySelector(".main").getBoundingClientRect();
@@ -107,7 +112,8 @@ async function assertLayout(page,profile){
     if(Math.abs(nav.left)>3) throw new Error(profile.name+": open sidebar is off-screen "+JSON.stringify(nav));
     if(nav.width>Math.min(nav.innerWidth*.86,305)) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
     if(nav.mainWidth<nav.innerWidth-36) throw new Error(profile.name+": sidebar compressed dashboard "+JSON.stringify(nav));
-    await page.evaluate(()=>document.querySelector(".sidebar")?.classList.remove("open"));
+    await menu.click();
+    await page.waitForFunction(()=>!document.querySelector(".sidebar")?.classList.contains("open"),null,{timeout:2000});
   }
 
   const rotated={width:profile.viewport.height,height:profile.viewport.width};
