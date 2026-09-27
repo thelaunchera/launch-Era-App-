@@ -459,10 +459,19 @@
   function applyLanguage(next=lang){
     lang=next==="es"?"es":"en";
     localStorage.setItem(STORAGE_KEY,lang);
+
+    // Disconnect while we rewrite text so our own translations are never
+    // mistaken for fresh source content by the MutationObserver.
+    observer.disconnect();
     applying=true;
-    translateTree(document.body);
-    updateToggles();
-    applying=false;
+    try{
+      translateTree(document.body);
+      updateToggles();
+    }finally{
+      applying=false;
+      observeDom();
+    }
+
     window.dispatchEvent(new CustomEvent("tle:languagechange",{detail:{language:lang}}));
   }
 
@@ -480,7 +489,11 @@
 
   const observer=new MutationObserver(mutations=>{
     if(applying) return;
+
+    // Avoid observing the translations that this callback itself writes.
+    observer.disconnect();
     applying=true;
+    try{
     for(const mutation of mutations){
       if(mutation.type==="characterData"){
         // App-rendered text can change after the first translation (page titles,
@@ -510,11 +523,14 @@
       });
     }
     updateToggles();
-    applying=false;
+    }finally{
+      applying=false;
+      observeDom();
+    }
   });
 
-  function init(){
-    applyLanguage(lang);
+  function observeDom(){
+    if(!document.body) return;
     observer.observe(document.body,{
       subtree:true,
       childList:true,
@@ -522,6 +538,10 @@
       attributes:true,
       attributeFilter:["placeholder","aria-label","title"]
     });
+  }
+
+  function init(){
+    applyLanguage(lang);
   }
 
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init,{once:true});
