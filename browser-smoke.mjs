@@ -51,7 +51,7 @@ try{
     page.on("pageerror",err=>errors.push(String(err)));
     page.on("console",msg=>{if(msg.type()==="error") errors.push(msg.text());});
     await page.goto("http://127.0.0.1:4173/?browser-smoke=1",{waitUntil:"domcontentloaded",timeout:15000});
-    await page.waitForSelector("#authSwitch",{visible:true,timeout:10000});
+    await page.waitForSelector("#authWelcomeStart",{visible:true,timeout:10000});
     try{
     await page.waitForFunction(()=>window.__tleAuthUiReady===true || Boolean(document.documentElement.dataset.appError),{timeout:10000});
   }catch(err){
@@ -67,12 +67,19 @@ try{
   }
     const bootError=await page.evaluate(()=>document.documentElement.dataset.appError||"");
     if(bootError) throw new Error(profile.name+": app boot error "+bootError);
-    const initial=await page.$eval("#authTitle",el=>el.textContent.trim());
-    if(!["Create account","Sign in"].includes(initial)) throw new Error(profile.name+": initial auth screen failed: "+initial);
-    if(initial==="Sign in"){
-      await page.click("#authSwitch");
-      await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
+
+    const welcomeState=await page.evaluate(()=>({
+      welcomeVisible:!document.querySelector("#authWelcome")?.hidden,
+      panelHidden:!!document.querySelector("#authPanel")?.hidden,
+      startText:document.querySelector("#authWelcomeStart")?.textContent.trim(),
+      signInText:document.querySelector("#authWelcomeSignIn")?.textContent.trim()
+    }));
+    if(!welcomeState.welcomeVisible||!welcomeState.panelHidden||welcomeState.startText!=="Start 30 days free"){
+      throw new Error(profile.name+": welcome-first auth screen failed: "+JSON.stringify(welcomeState));
     }
+
+    await page.click("#authWelcomeStart");
+    await page.waitForFunction(()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
