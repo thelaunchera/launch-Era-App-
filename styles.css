@@ -770,3 +770,14 @@ button,a,input,select,textarea,[role="button"]{
   .trial-expiry-banner strong{font-size:15px}
   .trial-expiry-banner p{font-size:12px}
 }
+
+.auth-card{position:relative}
+.auth-language-toggle{
+  position:absolute;top:20px;right:20px;z-index:2;
+  min-width:48px;height:42px;border:1.5px solid var(--ink);
+  background:transparent;color:var(--ink);border-radius:999px;
+  font-size:12px;font-weight:900;letter-spacing:.08em
+}
+@media(max-width:600px){
+  .auth-language-toggle{top:16px;right:16px;min-width:46px;height:40px}
+}
