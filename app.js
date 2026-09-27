@@ -2026,7 +2026,7 @@ function renderLeads(){
       <span>${escapeHtml(l.source||"—")}</span>
       <span>${escapeHtml(l.service_interest||"—")}</span>
       <span><i class="status ${l.status==="new"?"blue":l.status==="booked"?"success":l.status==="lost"?"danger":"neutral"}">${escapeHtml(l.status)}</i></span>
-      <span class="record-actions"><button data-edit-lead="${l.id}">Edit</button><button data-lead-to-quote="${l.id}">Quote</button><button class="danger-link" data-archive-lead="${l.id}">Archive</button></span>
+      <span class="record-actions"><button data-edit-lead="${l.id}">Edit</button><button data-lead-to-quote="${l.id}">Quote</button><button class="danger-link" data-archive-lead="${l.id}">Archive</button><button class="danger-link" data-delete-record="lead" data-id="${l.id}">Delete</button></span>
     </div>`).join("");
 }
 
@@ -2068,6 +2068,7 @@ function renderInvoices(){
         ${dispute?`<button data-resolve-dispute="${dispute.id}">Resolve dispute</button>`:""}
         ${inv.status==="draft"?`<button data-send-invoice="${inv.id}">Send invoice</button>`:""}
         ${!["paid","void"].includes(inv.status)?`<button data-record-payment="${inv.id}">${lastMethod?"Add payment":methodLabel?"Confirm payment":"Record payment"}</button>`:""}
+        <button class="danger-link" data-delete-record="invoice" data-id="${inv.id}">Delete</button>
       </span>
     </div>`;
   }).join("");
@@ -2242,6 +2243,7 @@ function renderClients(){
       <div class="card-actions">
         <button data-edit="client" data-id="${c.id}">Edit</button>
         <button class="danger-link" data-archive-client="${c.id}">Archive</button>
+        <button class="danger-link" data-delete-record="client" data-id="${c.id}">Delete</button>
       </div>
     </article>
   `).join("");
@@ -2394,6 +2396,7 @@ function quoteColumn(status,label){
           ${!["accepted"].includes(status)?`<button data-edit="quote" data-id="${q.id}">Edit</button>`:""}
           ${["requested","draft","declined"].includes(status)?`<button class="accept-btn" data-send-customer-quote="${q.id}">Send quote</button>`:""}
           ${status==="sent"?`<button data-send-customer-quote="${q.id}">Resend quote</button>`:""}
+          <button class="danger-link" data-delete-record="quote" data-id="${q.id}">Delete</button>
         </div>
       </article>`;
     }).join(""):`<div class="kanban-empty">Nothing here</div>`}
@@ -3809,6 +3812,49 @@ async function finishTimeEntry(id){
   if(error) throw error;
 }
 
+async function deleteBusinessRecord(type,id){
+  if(!state.business || !["owner","admin"].includes(state.business.role)){
+    throw new Error(appIsSpanish()?"Solo Owner o Admin puede borrar registros.":"Only Owner or Admin can delete records.");
+  }
+
+  const names={
+    client:appIsSpanish()?"cliente":"client",
+    lead:appIsSpanish()?"lead":"lead",
+    quote:appIsSpanish()?"cotización":"quote",
+    invoice:appIsSpanish()?"factura":"invoice"
+  };
+
+  let message=appIsSpanish()
+    ? "¿Borrar permanentemente este "+names[type]+"? Esta acción no se puede deshacer."
+    : "Permanently delete this "+names[type]+"? This cannot be undone.";
+
+  if(type==="client"){
+    message=appIsSpanish()
+      ? "¿Borrar permanentemente este cliente? También se borrarán sus trabajos y facturas relacionadas. Esta acción no se puede deshacer."
+      : "Permanently delete this client? Related jobs and invoices will also be deleted. This cannot be undone.";
+  }else if(type==="invoice"){
+    message=appIsSpanish()
+      ? "¿Borrar permanentemente esta factura? También se borrarán sus pagos, items, link público y disputas relacionadas."
+      : "Permanently delete this invoice? Its payments, items, public link and related disputes will also be deleted.";
+  }else if(type==="quote"){
+    message=appIsSpanish()
+      ? "¿Borrar permanentemente esta cotización? Sus items, link público y disputas relacionadas también se borrarán."
+      : "Permanently delete this quote? Its items, public link and related disputes will also be deleted.";
+  }
+
+  if(!window.confirm(message)) return false;
+
+  const {data,error}=await supabase.rpc("delete_business_record",{
+    p_record_type:type,
+    p_record_id:id
+  });
+  if(error) throw error;
+
+  await loadCoreData();
+  showToast(appIsSpanish()?"Borrado":"Deleted");
+  return data||true;
+}
+
 document.addEventListener("click",async e=>{
   const create=e.target.closest("[data-create]");
   const action=e.target.closest("[data-action]");
@@ -3817,6 +3863,21 @@ document.addEventListener("click",async e=>{
   const teamEdit=e.target.closest("[data-team-edit]");
   if(teamCreate){ openTeamForm(); return; }
   if(teamEdit){ openTeamForm(teamEdit.dataset.teamEdit); return; }
+
+  const deleteRecordBtn=e.target.closest("[data-delete-record]");
+  if(deleteRecordBtn){
+    const type=deleteRecordBtn.dataset.deleteRecord;
+    const id=deleteRecordBtn.dataset.id;
+    setBusy(deleteRecordBtn,true,appIsSpanish()?"Borrando…":"Deleting…");
+    try{
+      await deleteBusinessRecord(type,id);
+    }catch(err){
+      showToast(err?.message||(appIsSpanish()?"No se pudo borrar":"Could not delete"));
+    }finally{
+      if(document.body.contains(deleteRecordBtn)) setBusy(deleteRecordBtn,false);
+    }
+    return;
+  }
 
   const landingPromo=e.target.closest("[data-landing-promo]");
   if(landingPromo){
