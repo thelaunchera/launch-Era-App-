@@ -49,6 +49,20 @@ async function assertLayout(page,profile){
   if(initial.appDisplay!=="none") throw new Error(profile.name+": app shell leaked into auth screen");
   if(initial.scrollWidth>initial.innerWidth+4) throw new Error(profile.name+": auth horizontal overflow");
 
+  const authLanguage=page.locator("[data-language-toggle]").first();
+  await authLanguage.click();
+  await page.waitForSelector("#tleLanguageMenu",{state:"visible",timeout:2000});
+  const languageShape=await page.evaluate(()=>({
+    featured:[...document.querySelectorAll("#tleLanguageMenu .language-featured-row [data-language-choice]")].map(x=>x.dataset.languageChoice),
+    listed:[...document.querySelectorAll("#tleLanguageMenu .language-list [data-language-choice]")].map(x=>x.dataset.languageChoice),
+    overflow:document.querySelector("#tleLanguageMenu")?.getBoundingClientRect().right>innerWidth+2
+  }));
+  if(languageShape.featured.join(",")!=="es,en") throw new Error(profile.name+": primary language order changed");
+  if(languageShape.listed.join(",")!=="pt,fr") throw new Error(profile.name+": secondary language list changed");
+  if(languageShape.overflow) throw new Error(profile.name+": language picker overflows viewport");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
+
   await page.evaluate(()=>{
     document.body.classList.remove("shell-auth","shell-worker","shell-public");
     document.body.classList.add("shell-app");
