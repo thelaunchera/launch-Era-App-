@@ -112,8 +112,10 @@
 
       const choices=$("#invoicePaymentChoices");
       const choiceStatus=$("#invoicePaymentChoiceStatus");
+      const submitInvoiceBtn=$("#submitInvoiceBtn");
       const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle"};
       let selected=String(data?.customer_payment_method||"").toLowerCase();
+      const savedMethod=selected;
       const isPaid=String(data?.status||"").toLowerCase()==="paid";
 
       function renderPaymentChoice(){
@@ -124,40 +126,51 @@
           btn.disabled=isPaid;
         });
 
+        if(submitInvoiceBtn){
+          submitInvoiceBtn.hidden=isPaid;
+          submitInvoiceBtn.disabled=isPaid || !selected;
+        }
+
         if(!choiceStatus) return;
         if(isPaid){
           choiceStatus.textContent=selected
             ? "Paid · "+methodLabels[selected]
             : "Payment confirmed by the cleaning business.";
         }else if(selected){
-          choiceStatus.textContent="Selected: "+methodLabels[selected]+". The business will confirm it after payment is received.";
+          choiceStatus.textContent="Selected: "+methodLabels[selected]+". Tap Submit invoice to send this choice.";
         }else{
-          choiceStatus.textContent="Choose one option. This does not mark the invoice as paid.";
+          choiceStatus.textContent="Choose Cash, Check or Zelle, then submit your choice.";
         }
       }
 
       renderPaymentChoice();
 
-      choices?.addEventListener("click",async e=>{
+      choices?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-invoice-payment]");
         if(!btn || isPaid) return;
+        selected=String(btn.dataset.invoicePayment||"").toLowerCase();
+        renderPaymentChoice();
+      });
 
-        const method=btn.dataset.invoicePayment;
-        const oldText=choiceStatus?.textContent||"";
-        choices.querySelectorAll("button").forEach(x=>x.disabled=true);
-        if(choiceStatus) choiceStatus.textContent="Saving your choice…";
-
+      submitInvoiceBtn?.addEventListener("click",async()=>{
+        if(isPaid || !selected) return;
+        submitInvoiceBtn.disabled=true;
+        choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
+        if(choiceStatus) choiceStatus.textContent="Submitting your payment choice…";
         try{
           const result=await rpc("select_invoice_payment_method",{
             p_token:token,
-            p_method:method
+            p_method:selected
           });
-          selected=String(result?.payment_method||method).toLowerCase();
-          renderPaymentChoice();
+          selected=String(result?.payment_method||selected).toLowerCase();
+          if(choiceStatus) choiceStatus.textContent="Submitted: "+methodLabels[selected]+". The business will confirm payment after it is received.";
+          submitInvoiceBtn.textContent="Submitted ✓";
+          submitInvoiceBtn.disabled=true;
+          choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
         }catch(err){
-          if(choiceStatus) choiceStatus.textContent=err.message||oldText||"Could not save payment method.";
-        }finally{
-          if(!isPaid) choices.querySelectorAll("button").forEach(x=>x.disabled=false);
+          if(choiceStatus) choiceStatus.textContent=err.message||"Could not submit invoice.";
+          submitInvoiceBtn.disabled=false;
+          choices?.querySelectorAll("button").forEach(x=>x.disabled=false);
         }
       });
 
@@ -237,38 +250,76 @@
       const status=String(data?.status||"");
       const actions=$("#quoteReviewActions");
       const statusEl=$("#quoteReviewStatus");
+      const submitQuoteButton=$("#submitQuoteBtn");
       if(status==="accepted"){
         if(actions) actions.hidden=true;
+        if(submitQuoteButton) submitQuoteButton.hidden=true;
         statusEl.textContent="Accepted. Your service is confirmed.";
       }else if(status==="declined"){
         if(actions) actions.hidden=true;
+        if(submitQuoteButton) submitQuoteButton.hidden=true;
         statusEl.textContent="This quote was declined.";
       }else if(status!=="sent"){
         if(actions) actions.hidden=true;
+        if(submitQuoteButton) submitQuoteButton.hidden=true;
         statusEl.textContent="This quote is not currently awaiting a response.";
       }
 
-      async function respond(action){
-        const accept=$("#acceptQuoteBtn"), decline=$("#declineQuoteBtn");
-        if(accept) accept.disabled=true;
-        if(decline) decline.disabled=true;
-        statusEl.textContent=action==="accept"?"Confirming your service…":"Declining quote…";
-        try{
-          const result=await rpc("respond_public_quote",{p_token:token,p_action:action});
-          if(actions) actions.hidden=true;
-          statusEl.textContent=action==="accept"
-            ?"Accepted. Your service is confirmed and a confirmation email is on the way."
-            :"Quote declined. The cleaning business can now follow up with you.";
-          return result;
-        }catch(err){
-          statusEl.textContent=err.message||"Could not update quote.";
-          if(accept) accept.disabled=false;
-          if(decline) decline.disabled=false;
+      const submitQuoteBtn=$("#submitQuoteBtn");
+      const acceptBtn=$("#acceptQuoteBtn");
+      const declineBtn=$("#declineQuoteBtn");
+      let selectedQuoteResponse="";
+
+      function renderQuoteResponse(){
+        [acceptBtn,declineBtn].forEach(btn=>{
+          if(!btn) return;
+          const active=btn.dataset.quoteResponse===selectedQuoteResponse;
+          btn.classList.toggle("selected",active);
+          btn.setAttribute("aria-pressed",active?"true":"false");
+        });
+        if(submitQuoteBtn){
+          submitQuoteBtn.disabled=!selectedQuoteResponse;
+        }
+        if(status==="sent" && statusEl){
+          statusEl.textContent=selectedQuoteResponse
+            ? (selectedQuoteResponse==="accept"
+              ? "Accept selected. Tap Submit quote to confirm."
+              : "Decline selected. Tap Submit quote to confirm.")
+            : "Choose Accept or Decline, then submit your response.";
         }
       }
 
-      $("#acceptQuoteBtn")?.addEventListener("click",()=>respond("accept"));
-      $("#declineQuoteBtn")?.addEventListener("click",()=>respond("decline"));
+      acceptBtn?.addEventListener("click",()=>{
+        selectedQuoteResponse="accept";
+        renderQuoteResponse();
+      });
+      declineBtn?.addEventListener("click",()=>{
+        selectedQuoteResponse="decline";
+        renderQuoteResponse();
+      });
+      if(status==="sent") renderQuoteResponse();
+
+      submitQuoteBtn?.addEventListener("click",async()=>{
+        if(!selectedQuoteResponse) return;
+        const action=selectedQuoteResponse;
+        submitQuoteBtn.disabled=true;
+        if(acceptBtn) acceptBtn.disabled=true;
+        if(declineBtn) declineBtn.disabled=true;
+        statusEl.textContent=action==="accept"?"Submitting your acceptance…":"Submitting your decline…";
+        try{
+          await rpc("respond_public_quote",{p_token:token,p_action:action});
+          if(actions) actions.hidden=true;
+          submitQuoteBtn.hidden=true;
+          statusEl.textContent=action==="accept"
+            ?"Accepted. Your service is confirmed and a confirmation email is on the way."
+            :"Quote declined. The cleaning business can now follow up with you.";
+        }catch(err){
+          statusEl.textContent=err.message||"Could not submit quote.";
+          submitQuoteBtn.disabled=false;
+          if(acceptBtn) acceptBtn.disabled=false;
+          if(declineBtn) declineBtn.disabled=false;
+        }
+      });
 
       const quoteDisputeBtn=$("#quoteDisputeBtn");
       const quoteDisputeForm=$("#quoteDisputeForm");
@@ -277,6 +328,7 @@
       quoteDisputeBtn?.addEventListener("click",()=>{
         quoteDisputeForm.hidden=false;
         quoteDisputeBtn.hidden=true;
+        if(submitQuoteBtn) submitQuoteBtn.hidden=true;
         statusEl.textContent="";
         quoteDisputeReason?.focus();
       });
@@ -284,7 +336,8 @@
       $("#cancelQuoteDisputeBtn")?.addEventListener("click",()=>{
         quoteDisputeForm.hidden=true;
         quoteDisputeBtn.hidden=false;
-        statusEl.textContent="";
+        if(submitQuoteBtn && status==="sent") submitQuoteBtn.hidden=false;
+        renderQuoteResponse();
       });
 
       quoteDisputeForm?.addEventListener("submit",async e=>{
@@ -301,6 +354,7 @@
           await rpc("submit_quote_dispute",{p_token:token,p_reason:reason});
           quoteDisputeForm.hidden=true;
           if(actions) actions.hidden=true;
+          if(submitQuoteBtn) submitQuoteBtn.hidden=true;
           statusEl.textContent="Dispute sent. The cleaning business can now review your message.";
         }catch(err){
           statusEl.textContent=err.message||"Could not send dispute.";
