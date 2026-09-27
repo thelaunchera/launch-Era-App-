@@ -1546,7 +1546,7 @@ function googleAnalyticsBase(){
     app_surface:"cleaning_app",
     visitor_class:googleVisitorClass(),
     business_role:state.business?.role||"unknown",
-    language:appIsSpanish()?"es":"en"
+    language:appLanguage()
   };
 }
 
@@ -1865,13 +1865,13 @@ authForm.addEventListener("submit", async (e)=>{
     const password = $("#authPassword").value;
     if(state.authMode!=="recovery" && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
       setAuthStatus(authRequiredFieldMessage(),"error");
-      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";}
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");}
       $("#authEmail").focus();
       return;
     }
     if(!password || password.length<8){
       setAuthStatus(authRequiredFieldMessage(),"error");
-      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";}
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");}
       $("#authPassword").focus();
       return;
     }
@@ -2085,23 +2085,23 @@ businessForm.addEventListener("submit", async (e)=>{
     const area=$("#businessArea")?.value?.trim()||"";
     if(!businessName || !area){
       setBusinessSetupStatus(
-        appIsSpanish()?"Revisa los campos requeridos y vuelve a intentarlo.":"Check the required fields and try again.",
+        langPick("Check the required fields and try again.","Revisa los campos requeridos y vuelve a intentarlo.","Confira os campos obrigatórios e tente novamente.","Vérifiez les champs obligatoires et réessayez."),
         "error"
       );
       if(setupRetry){
         setupRetry.hidden=false;
-        setupRetry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+        setupRetry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
       }
       if(!businessName) $("#businessName")?.focus();
       else $("#businessArea")?.focus();
     }else{
       setBusinessSetupStatus(
-        appIsSpanish()?"No pudimos crear tu espacio. Intenta otra vez.":"We couldn’t create your workspace. Try again.",
+        langPick("We couldn’t create your workspace. Try again.","No pudimos crear tu espacio. Intenta otra vez.","Não foi possível criar seu espaço. Tente novamente.","Impossible de créer votre espace. Réessayez."),
         "error"
       );
       if(setupRetry){
         setupRetry.hidden=false;
-        setupRetry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+        setupRetry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
       }
       const email=String(state.session?.user?.email||"").trim().toLowerCase();
       const attempt=recordAuthIssueAttempt("signup",email,err);
@@ -2109,9 +2109,12 @@ businessForm.addEventListener("submit", async (e)=>{
         reportPersistentAuthIssue("signup",email,err,attempt.item.count,attempt.key).then(reported=>{
           if(reported){
             setBusinessSetupStatus(
-              appIsSpanish()
-                ?"El error continúa. Soporte ya recibió una alerta. Revisa los campos y vuelve a intentarlo."
-                :"The error is still happening. Support has been alerted. Check the fields and try again.",
+              langPick(
+                "The error is still happening. Support has been alerted. Check the fields and try again.",
+                "El error continúa. Soporte ya recibió una alerta. Revisa los campos y vuelve a intentarlo.",
+                "O erro continua. O suporte foi avisado. Confira os campos e tente novamente.",
+                "L’erreur continue. Le support a été prévenu. Vérifiez les champs et réessayez."
+              ),
               "error"
             );
           }
@@ -2880,8 +2883,8 @@ function openInquiryNotificationDetail(notificationId){
   state.modalId=item.recordId;
 
   const typeLabel=item.type==="booking"
-    ? (appIsSpanish()?"SOLICITUD DE RESERVA":"BOOKING REQUEST")
-    : (appIsSpanish()?"INQUIRY":"INQUIRY");
+    ? langPick("BOOKING REQUEST","SOLICITUD DE RESERVA","SOLICITAÇÃO DE RESERVA","DEMANDE DE RÉSERVATION")
+    : langPick("INQUIRY","INQUIRY","CONTATO","DEMANDE");
 
   const statusLabel=String(item.status||"").replaceAll("_"," ");
   const requested=item.requestedAt?formatDateTime(item.requestedAt):"";
@@ -2898,24 +2901,24 @@ function openInquiryNotificationDetail(notificationId){
   entityForm.innerHTML=`
     <div class="inquiry-detail-card">
       <div class="inquiry-detail-service">
-        <span>${appIsSpanish()?"SERVICIO":"SERVICE"}</span>
+        <span>${escapeHtml(langPick("SERVICE","SERVICIO","SERVIÇO","SERVICE"))}</span>
         <strong>${escapeHtml(item.service)}</strong>
         ${statusLabel?`<small>${escapeHtml(statusLabel)}</small>`:""}
       </div>
 
       <div class="inquiry-detail-grid">
-        ${item.phone?`<div><small>${appIsSpanish()?"Teléfono":"Phone"}</small><strong>${escapeHtml(item.phone)}</strong></div>`:""}
+        ${item.phone?`<div><small>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}</small><strong>${escapeHtml(item.phone)}</strong></div>`:""}
         ${item.email?`<div><small>Email</small><strong>${escapeHtml(item.email)}</strong></div>`:""}
-        ${item.address?`<div class="full"><small>${appIsSpanish()?"Dirección":"Address"}</small><strong>${escapeHtml(item.address)}</strong></div>`:""}
-        ${requested?`<div class="full"><small>${appIsSpanish()?"Fecha y hora solicitada":"Requested date & time"}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
-        ${contactMethod?`<div><small>${appIsSpanish()?"Contacto preferido":"Preferred contact"}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
-        ${item.notes?`<div class="full"><small>${appIsSpanish()?"Notas":"Notes"}</small><p>${escapeHtml(item.notes)}</p></div>`:""}
+        ${item.address?`<div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(item.address)}</strong></div>`:""}
+        ${requested?`<div class="full"><small>${escapeHtml(langPick("Requested date & time","Fecha y hora solicitada","Data e hora solicitadas","Date et heure demandées"))}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
+        ${contactMethod?`<div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
+        ${item.notes?`<div class="full"><small>${escapeHtml(langPick("Notes","Notas","Observações","Notes"))}</small><p>${escapeHtml(item.notes)}</p></div>`:""}
       </div>
 
       <div class="form-footer inquiry-detail-actions">
-        <button type="button" class="ghost-btn" data-modal-cancel>${appIsSpanish()?"Cerrar":"Close"}</button>
-        ${item.clientId?`<button type="button" class="primary-btn" data-inquiry-open-client="${escapeHtml(item.clientId)}">${appIsSpanish()?"Abrir cliente":"Open client"}</button>`:""}
-        ${item.type==="lead"?`<button type="button" class="primary-btn" data-inquiry-open-lead="${escapeHtml(item.recordId)}">${appIsSpanish()?"Abrir lead":"Open lead"}</button>`:""}
+        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
+        ${item.clientId?`<button type="button" class="primary-btn" data-inquiry-open-client="${escapeHtml(item.clientId)}">${escapeHtml(langPick("Open client","Abrir cliente","Abrir cliente","Ouvrir le client"))}</button>`:""}
+        ${item.type==="lead"?`<button type="button" class="primary-btn" data-inquiry-open-lead="${escapeHtml(item.recordId)}">${escapeHtml(langPick("Open lead","Abrir lead","Abrir lead","Ouvrir le prospect"))}</button>`:""}
       </div>
     </div>`;
   modal.hidden=false;
@@ -2939,19 +2942,19 @@ function renderInquiryNotifications(){
   badge.hidden=unread===0;
   button.classList.toggle("has-notifications",unread>0);
   button.setAttribute("aria-label",unread
-    ? (appIsSpanish()?unread+" inquiries nuevos":unread+" new inquiries")
-    : (appIsSpanish()?"Inquiries":"Inquiries"));
+    ? langPick(unread+" new inquiries",unread+" inquiries nuevos",unread+" novos contatos",unread+" nouvelles demandes")
+    : langPick("Inquiries","Inquiries","Contatos","Demandes"));
 
   if(!unreadItems.length){
-    list.innerHTML=`<div class="notification-empty"><strong>${appIsSpanish()?"Todo al día":"You’re all caught up"}</strong><span>${appIsSpanish()?"Solo las notificaciones nuevas aparecerán aquí.":"Only new notifications will appear here."}</span></div>`;
+    list.innerHTML=`<div class="notification-empty"><strong>${escapeHtml(langPick("You’re all caught up","Todo al día","Tudo em dia","Tout est à jour"))}</strong><span>${escapeHtml(langPick("Only new notifications will appear here.","Solo las notificaciones nuevas aparecerán aquí.","Somente novas notificações aparecerão aqui.","Seules les nouvelles notifications apparaîtront ici."))}</span></div>`;
     return;
   }
 
   list.innerHTML=unreadItems.slice(0,8).map(item=>{
     const isNew=true;
     const typeLabel=item.type==="booking"
-      ? (appIsSpanish()?"Booking request":"Booking request")
-      : (appIsSpanish()?"Lead":"Lead");
+      ? langPick("Booking request","Solicitud de reserva","Solicitação de reserva","Demande de réservation")
+      : langPick("Lead","Lead","Lead","Prospect");
     return `
       <button class="notification-item ${isNew?"is-new":""}" type="button" data-notification-id="${escapeHtml(item.id)}">
         <span class="notification-dot" aria-hidden="true"></span>
@@ -3099,9 +3102,12 @@ async function loadCoreData(){
     const now=Date.now();
     if(now-Number(window.__tleLastLoadWarningAt||0)>45000){
       window.__tleLastLoadWarningAt=now;
-      showToast(appIsSpanish()
-        ?"Algunos datos no pudieron actualizarse. Lo guardado sigue seguro; toca Refresh para intentar otra vez."
-        :"Some data couldn’t refresh. Your saved data is safe; tap Refresh to try again.");
+      showToast(langPick(
+        "Some data couldn’t refresh. Your saved data is safe; tap Refresh to try again.",
+        "Algunos datos no pudieron actualizarse. Lo guardado sigue seguro; toca Actualizar para intentar otra vez.",
+        "Alguns dados não puderam ser atualizados. Seus dados salvos estão seguros; toque em Atualizar para tentar novamente.",
+        "Certaines données n’ont pas pu être actualisées. Vos données enregistrées sont en sécurité ; touchez Actualiser pour réessayer."
+      ));
     }
   }
 }
@@ -3223,7 +3229,7 @@ function renderInvoices(){
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
     return `<div class="table-row mobile-record-card">
-      <span class="record-primary"><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?(appIsSpanish()?"Vence ":"Due ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
+      <span class="record-primary"><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
       <span class="record-field" data-label="${escapeHtml(tr("Client"))}">${escapeHtml(inv.clients?.name||tr("No client"))}</span>
       <span class="record-field" data-label="${escapeHtml(tr("Amount"))}"><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" "+tr("paid"):""}</small></span>
       <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
@@ -4958,13 +4964,12 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="mileage"){
-    const es=appIsSpanish();
     const mileageJobs=state.jobs.filter(j=>j.status!=="canceled");
-    modalHeader("MILEAGE",record?(es?"Editar viaje":"Edit drive"):(es?"Registrar viaje":"Log drive"),es?"Guarda la distancia del negocio con origen y destino separados.":"Keep business distance simple with separate From and To fields.");
+    modalHeader(tr("MILEAGE"),record?langPick("Edit drive","Editar viaje","Editar trajeto","Modifier le trajet"):langPick("Log drive","Registrar viaje","Registrar trajeto","Enregistrer le trajet"),langPick("Keep business distance simple with separate From and To fields.","Guarda la distancia del negocio con origen y destino separados.","Mantenha a distância do negócio simples com origem e destino separados.","Gardez les déplacements professionnels simples avec un départ et une destination séparés."));
     entityForm.innerHTML=`
       <div class="form-grid">
-        <label>${es?"Fecha":"Date"}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
-        <label>${businessDistanceUnit()==="km"?(es?"Kilómetros":"Kilometers"):(es?"Millas":"Miles")}<input name="distance" type="number" min="0.1" step="0.1" required value="${record?distanceFromStoredMiles(record.miles).toFixed(1):""}" placeholder="12.4"></label>
+        <label>${tr("Date")}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
+        <label>${tr(businessDistanceUnit()==="km"?"Kilometers":"Miles")}<input name="distance" type="number" min="0.1" step="0.1" required value="${record?distanceFromStoredMiles(record.miles).toFixed(1):""}" placeholder="12.4"></label>
         <label class="full">${tr("Job (optional)")}<select name="job_id" data-mileage-job>
           <option value="">${tr("No specific job")}</option>
           ${mileageJobs.map(j=>`<option value="${j.id}" data-address="${escapeHtml(j.service_address||"")}" ${record?.job_id===j.id?"selected":""}>${escapeHtml(j.clients?.name||j.service_address||tr("Cleaning job"))}</option>`).join("")}
@@ -4985,7 +4990,7 @@ function openEntityForm(type,id=null){
         <label>${tr("From")}<input name="from_location" required value="${escapeHtml(record?.from_location||"")}" placeholder="${tr("Office / home / previous stop")}"></label>
         <label>${tr("To")}<input name="to_location" required value="${escapeHtml(record?.to_location||"")}" placeholder="${tr("Client / supply store")}"></label>
         <label class="full">${tr("Note (optional)")}<input name="notes" value="${escapeHtml(record?.notes||"")}" placeholder="${tr("e.g. pick up supplies")}"></label>
-      </div>${formSubmit(es?"Guardar millas":"Save mileage")}`;
+      </div>${formSubmit(langPick("Save mileage","Guardar millaje","Salvar quilometragem","Enregistrer le kilométrage"))}`;
   }
 
   if(type==="job"){
@@ -6266,15 +6271,18 @@ function customerShareAppUrl(){
 async function shareCleaningApp(){
   const url=customerShareAppUrl();
   const title="The Launch Era Cleaning App";
-  const text=appIsSpanish()
-    ?"Organiza bookings, clientes, trabajos, quotes e invoices en un solo lugar."
-    :"Keep bookings, clients, jobs, quotes and invoices organized in one place.";
+  const text=langPick(
+    "Keep bookings, clients, jobs, quotes and invoices organized in one place.",
+    "Organiza reservas, clientes, trabajos, cotizaciones y facturas en un solo lugar.",
+    "Organize reservas, clientes, trabalhos, orçamentos e faturas em um só lugar.",
+    "Gardez réservations, clients, travaux, devis et factures organisés au même endroit."
+  );
 
   if(navigator.share){
     try{
       await navigator.share({title,text,url});
       trackGoogleEvent("share_app",{share_method:"native",share_location:"footer"});
-      showToast(appIsSpanish()?"App compartida":"App shared");
+      showToast(langPick("App shared","App compartida","App compartilhado","Application partagée"));
       return;
     }catch(err){
       if(err?.name==="AbortError") return;
@@ -6284,7 +6292,7 @@ async function shareCleaningApp(){
   try{
     await navigator.clipboard.writeText(url);
     trackGoogleEvent("share_app",{share_method:"copy",share_location:"footer"});
-    showToast(appIsSpanish()?"Link de la app copiado":"App link copied");
+    showToast(langPick("App link copied","Link de la app copiado","Link do app copiado","Lien de l’application copié"));
   }catch{
     await copyText(url);
     trackGoogleEvent("share_app",{share_method:"copy_fallback",share_location:"footer"});
@@ -6352,7 +6360,7 @@ async function refreshInstalledApp(){
   button.classList.add("is-refreshing");
   const label=button.querySelector(".top-label");
   const previousLabel=label?.textContent||"Refresh";
-  if(label) label.textContent=appIsSpanish()?"Actualizando…":"Refreshing…";
+  if(label) label.textContent=langPick("Refreshing…","Actualizando…","Atualizando…","Actualisation…");
 
   try{
     const latest=await getLatestAppShellVersion();
@@ -6364,7 +6372,7 @@ async function refreshInstalledApp(){
     );
 
     if(shellChanged){
-      showToast(appIsSpanish()?"Actualizando la app…":"Updating app…");
+      showToast(langPick("Updating app…","Actualizando la app…","Atualizando o app…","Mise à jour de l’application…"));
       await hardRefreshInstalledApp(latest.app||latest.css);
       return;
     }
@@ -6400,15 +6408,13 @@ async function refreshInstalledApp(){
     if(unreadAfter>unreadBefore){
       const newest=getInquiryNotifications()[0];
       const summary=[newest?.name,newest?.service].filter(Boolean).join(" · ");
-      showToast(appIsSpanish()
-        ? "Nuevo inquiry"+(summary?" · "+summary:"")
-        : "New inquiry"+(summary?" · "+summary:""));
+      showToast(langPick("New inquiry","Nuevo inquiry","Novo contato","Nouvelle demande")+(summary?" · "+summary:""));
     }else{
-      showToast(appIsSpanish()?"Todo actualizado":"Everything is up to date");
+      showToast(langPick("Everything is up to date","Todo actualizado","Tudo atualizado","Tout est à jour"));
     }
   }catch(err){
     console.warn("[TLE] manual refresh",err);
-    showToast(appIsSpanish()?"No se pudo actualizar. Intenta otra vez.":"Could not refresh. Try again.");
+    showToast(langPick("Could not refresh. Try again.","No se pudo actualizar. Intenta otra vez.","Não foi possível atualizar. Tente novamente.","Impossible d’actualiser. Réessayez."));
   }finally{
     button.disabled=false;
     button.classList.remove("is-refreshing");
