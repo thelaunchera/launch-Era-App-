@@ -906,6 +906,13 @@
 
   const staticCorrections={
     es:{
+      "Request failed":"La solicitud falló.",
+      "Could not submit invoice.":"No se pudo enviar la factura.",
+      "This invoice link is invalid or expired.":"Este enlace de factura no es válido o venció.",
+      "Could not submit quote.":"No se pudo enviar la cotización.",
+      "This quote link is invalid or expired.":"Este enlace de cotización no es válido o venció.",
+      "Could not load availability":"No se pudo cargar la disponibilidad",
+      "This page is not available.":"Esta página no está disponible.",
       "Email address":"Correo electrónico",
       "This is your limited employee view. You only see the tools your admin shared with you.":"Esta es tu vista limitada de empleado. Solo ves las herramientas que tu admin compartió contigo.",
       "Use this for job questions or quick updates.":"Usa esto para preguntas del trabajo o actualizaciones rápidas.",
@@ -967,6 +974,13 @@
       "Write a message to your admin…":"Escribe un mensaje a tu admin…"
     },
     pt:{
+      "Request failed":"A solicitação falhou.",
+      "Could not submit invoice.":"Não foi possível enviar a fatura.",
+      "This invoice link is invalid or expired.":"Este link de fatura é inválido ou expirou.",
+      "Could not submit quote.":"Não foi possível enviar o orçamento.",
+      "This quote link is invalid or expired.":"Este link de orçamento é inválido ou expirou.",
+      "Could not load availability":"Não foi possível carregar a disponibilidade",
+      "This page is not available.":"Esta página não está disponível.",
       "Today’s jobs":"Trabalhos de hoje",
       "Today's jobs":"Trabalhos de hoje",
       "Active clients":"Clientes ativos",
@@ -1067,6 +1081,13 @@
       "Write a message to your admin…":"Escreva uma mensagem para o administrador…"
     },
     fr:{
+      "Request failed":"La demande a échoué.",
+      "Could not submit invoice.":"Impossible d’envoyer la facture.",
+      "This invoice link is invalid or expired.":"Ce lien de facture est invalide ou a expiré.",
+      "Could not submit quote.":"Impossible d’envoyer le devis.",
+      "This quote link is invalid or expired.":"Ce lien de devis est invalide ou a expiré.",
+      "Could not load availability":"Impossible de charger les disponibilités",
+      "This page is not available.":"Cette page n’est pas disponible.",
       "Today’s jobs":"Travaux du jour",
       "Today's jobs":"Travaux du jour",
       "Active clients":"Clients actifs",
