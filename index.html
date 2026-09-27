@@ -867,8 +867,12 @@
             <div class="platform-visits" id="platformRecentLogins"></div>
           </article>
           <article class="panel platform-activity-panel">
-            <div class="panel-head activity-panel-head"><div><p class="eyebrow">VISIT ACTIVITY</p><h3>Recent visits</h3><small class="panel-note">Grouped by visitor</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">REAL VISITOR ACTIVITY</p><h3>Recent visits</h3><small class="panel-note">Real visitors only · internal activity excluded</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
             <div class="platform-visits" id="platformRecentVisits"></div>
+          </article>
+          <article class="panel platform-activity-panel internal-activity-panel">
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">INTERNAL ACTIVITY</p><h3>My / internal views</h3><small class="panel-note">Not counted in real visits</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="platform-visits" id="platformInternalVisits"></div>
           </article>
           <article class="panel platform-activity-panel">
             <div class="panel-head"><div><p class="eyebrow">PURCHASES</p><h3>Purchases + activations</h3></div></div>
@@ -965,7 +969,7 @@
     }
   </script>
   <script src="./vendor/supabase.js?v=20260926-2112"></script>
-  <script src="./i18n.js?v=20260927-email-connections-1"></script>
+  <script src="./i18n.js?v=20260927-internal-activity-1"></script>
   <script src="./public.js?v=20260927-public-submit-2"></script>
   <script src="./app.js?v=20260927-persistent-menu-1"></script>
 </body>
