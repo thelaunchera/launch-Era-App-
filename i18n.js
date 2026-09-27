@@ -384,6 +384,7 @@
   };
 
   const patterns=[
+    [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
     [/^(\d+) completed$/i,(m,n)=>`${n} completados`],
     [/^(\d+) booking request(s)?$/i,(m,n)=>`${n} solicitud${n==="1"?"":"es"} de reserva`],
