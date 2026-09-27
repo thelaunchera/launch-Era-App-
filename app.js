@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-9";
+const APP_VERSION = "20260927-unified-10";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -189,15 +189,32 @@ function markSignupWelcomePending(email=""){
   if(!normalized) return;
   try{localStorage.setItem(signupWelcomeKey(normalized),"1");}catch{}
 }
-function consumeSignupWelcomePending(){
+function hasLocalSignupWelcomePending(){
   const email=String(state.session?.user?.email||"").trim().toLowerCase();
   if(!email) return false;
-  let pending=false;
+  try{return localStorage.getItem(signupWelcomeKey(email))==="1";}catch{return false;}
+}
+function clearLocalSignupWelcomePending(){
+  const email=String(state.session?.user?.email||"").trim().toLowerCase();
+  if(!email) return;
+  try{localStorage.removeItem(signupWelcomeKey(email));}catch{}
+}
+function hasAccountSignupWelcomePending(){
+  const meta=state.session?.user?.user_metadata||{};
+  return meta.tle_new_signup===true && meta.tle_signup_welcome_seen!==true;
+}
+async function clearSignupWelcomeMarker(){
+  clearLocalSignupWelcomePending();
   try{
-    pending=localStorage.getItem(signupWelcomeKey(email))==="1";
-    if(pending) localStorage.removeItem(signupWelcomeKey(email));
-  }catch{}
-  return pending;
+    if(!state.session?.user) return;
+    const {data,error}=await supabase.auth.updateUser({
+      data:{tle_new_signup:false,tle_signup_welcome_seen:true}
+    });
+    if(error) throw error;
+    if(data?.user && state.session) state.session.user=data.user;
+  }catch(err){
+    console.warn("[TLE] signup welcome marker",err);
+  }
 }
 function onboardingStorageKey(){
   const business=state.business?.id||"business";
@@ -268,6 +285,7 @@ function completeCurrentOnboardingTip(){
     progress.disabled=false;
     saveOnboardingState(progress);
     hideOnboardingTip();
+    clearSignupWelcomeMarker().catch(()=>{});
     setTimeout(()=>maybeShowFeatureIntro($(".view.active")?.dataset.page||"today",true),180);
     return;
   }
@@ -1589,7 +1607,10 @@ authForm.addEventListener("submit", async (e)=>{
     if(state.authMode === "signup"){
       const { data, error } = await supabase.auth.signUp({
         email,password,
-        options:{ emailRedirectTo: window.location.href.split("#")[0].split("?")[0] }
+        options:{
+          emailRedirectTo: window.location.href.split("#")[0].split("?")[0],
+          data:{tle_new_signup:true,tle_signup_welcome_seen:false}
+        }
       });
       if(error) throw error;
       if(data.session){
@@ -1616,7 +1637,7 @@ authForm.addEventListener("submit", async (e)=>{
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
-      window.__tleShowSignupWelcome=consumeSignupWelcomePending();
+      window.__tleShowSignupWelcome=hasLocalSignupWelcomePending() || hasAccountSignupWelcomePending();
       trackGoogleEvent("login",{method:"password"});
       await enterAuthenticatedApp();
     }
@@ -2077,6 +2098,11 @@ async function initialize(){
     showSetup();
     return;
   }
+
+  window.__tleShowSignupWelcome=
+    window.__tleShowSignupWelcome===true ||
+    hasLocalSignupWelcomePending() ||
+    hasAccountSignupWelcomePending();
 
   state.business={
     id:context.business_id,
