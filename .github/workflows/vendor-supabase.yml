@@ -24,6 +24,12 @@ jobs:
         run: |
           mkdir -p vendor
           cp node_modules/@supabase/supabase-js/dist/umd/supabase.js vendor/supabase.js
+          # The UMD bundle declares `var supabase`, which collides with the
+          # app's lexical Supabase client variable in classic browser scripts.
+          # Export through window instead so future dependency refreshes cannot
+          # silently break the entire app boot/login flow.
+          sed -i 's/^var supabase=/window.supabase=/' vendor/supabase.js
+          grep -q '^window\.supabase=' vendor/supabase.js
       - name: Commit vendored bundle
         run: |
           git config user.name "github-actions[bot]"
