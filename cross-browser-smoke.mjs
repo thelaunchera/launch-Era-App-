@@ -78,41 +78,46 @@ async function assertLayout(page,profile){
   await page.keyboard.press("Escape");
   await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
 
-  // Auth mode switching is release-blocking because mobile users must be
-  // able to move between Create account and Sign in before entering data.
-  const startTitle=(await page.locator("#authTitle").textContent()||"").trim();
-  if(!["Create account","Sign in"].includes(startTitle)){
-    throw new Error(profile.name+": unexpected auth title "+startTitle);
+  // Welcome-first auth is release-blocking on mobile and in-app browsers.
+  const welcome=page.locator("#authWelcome");
+  const welcomeStart=page.locator("#authWelcomeStart");
+  if(!(await welcome.isVisible())) throw new Error(profile.name+": welcome screen is not visible");
+  if(!(await welcomeStart.isVisible()) || !(await welcomeStart.isEnabled())){
+    throw new Error(profile.name+": Start 30 days free is not usable");
   }
-  const authSwitch=page.locator("#authSwitch");
-  if(!(await authSwitch.isVisible()) || !(await authSwitch.isEnabled())){
-    throw new Error(profile.name+": auth switch is not usable");
+  await welcomeStart.click();
+  await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",null,{timeout:3000});
+
+  const back=page.locator("#authBackWelcome");
+  if(!(await back.isVisible()) || !(await back.isEnabled())) throw new Error(profile.name+": back-to-welcome is not usable");
+  await back.click();
+  await page.waitForSelector("#authWelcome",{state:"visible",timeout:3000});
+
+  const welcomeSignIn=page.locator("#authWelcomeSignIn");
+  if(!(await welcomeSignIn.isVisible()) || !(await welcomeSignIn.isEnabled())){
+    throw new Error(profile.name+": welcome Sign in link is not usable");
   }
-  await authSwitch.click();
-  const switchedTitle=startTitle==="Create account"?"Sign in":"Create account";
-  await page.waitForFunction(
-    expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
-    switchedTitle,
-    {timeout:3000}
-  );
+  await welcomeSignIn.click();
+  await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",null,{timeout:3000});
+
   const authSubmit=page.locator("#authSubmit");
   if(!(await authSubmit.isVisible()) || !(await authSubmit.isEnabled())){
-    throw new Error(profile.name+": auth submit is not usable after mode switch");
+    throw new Error(profile.name+": sign-in submit is not usable");
   }
-  if(switchedTitle==="Sign in"){
-    await page.evaluate(()=>{
-      window.__tleSmokeAuthSubmitClicked=false;
-      const btn=document.querySelector("#authSubmit");
-      if(!btn) throw new Error("auth submit missing");
-      btn.addEventListener("click",event=>{
-        window.__tleSmokeAuthSubmitClicked=true;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      },{once:true,capture:true});
-    });
-    await authSubmit.click();
-    await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,null,{timeout:3000});
-  }
+  await page.evaluate(()=>{
+    window.__tleSmokeAuthSubmitClicked=false;
+    const btn=document.querySelector("#authSubmit");
+    if(!btn) throw new Error("auth submit missing");
+    btn.addEventListener("click",event=>{
+      window.__tleSmokeAuthSubmitClicked=true;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    },{once:true,capture:true});
+  });
+  await authSubmit.click();
+  await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,null,{timeout:3000});
   await authSwitch.click();
   await page.waitForFunction(
     expected=>document.querySelector("#authTitle")?.textContent.trim()===expected,
