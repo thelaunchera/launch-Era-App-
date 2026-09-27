@@ -50,7 +50,8 @@ if($("#authTitle")?.textContent!=="Sign in") throw new Error("Existing-user sign
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
-if(!$("#rememberedAdminBtn")) throw new Error("Admin passwordless button is missing");
+if($("#rememberedAdminBtn") || $("#ownerCodePanel") || $("#ownerCodeForm")) throw new Error("Legacy access-code UI is still present");
+if(app.includes("request-owner-access-code") || app.includes("verify-owner-access-code")) throw new Error("Legacy OTP endpoints are still referenced by the app");
 
 $("#authEmail").value="nobody@example.invalid";
 $("#authPassword").value="NotARealPassword123!";
