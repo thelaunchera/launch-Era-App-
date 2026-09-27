@@ -478,10 +478,17 @@ async function continueAsAdmin(){
 
   try{
     const {data:{session}}=await supabase.auth.getSession();
-    if(session){
+    const sessionEmail=String(session?.user?.email||"").trim().toLowerCase();
+
+    if(session && sessionEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
       state.session=session;
       await enterAuthenticatedApp();
       return;
+    }
+
+    if(session && sessionEmail!==PRIMARY_PLATFORM_ADMIN_EMAIL){
+      try{ await supabase.auth.signOut({scope:"local"}); }catch{}
+      state.session=null;
     }
 
     await requestAdminSignIn(email);
