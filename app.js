@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-53";
+const APP_VERSION = "20260927-unified-54";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2579,8 +2579,11 @@ async function initialize(){
     const ownerEmail=rememberedOwnerEmail();
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
-    if(!hasSeenAuthWelcome()) showAuthWelcome();
-    else prepareDirectAuth();
+
+    // New/prospective customers always see the product intro before Create account.
+    // Returning owners with a remembered email may go straight to Sign in.
+    if(ownerEmail) prepareDirectAuth();
+    else showAuthWelcome();
     return;
   }
 
