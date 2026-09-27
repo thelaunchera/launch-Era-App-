@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-38";
+const APP_VERSION = "20260927-unified-39";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1213,7 +1213,11 @@ function showApp(){
   }
   const chip = $(".workspace-chip");
   if(chip && state.business){
-    const roleLabel = state.business.role==="owner" ? "Admin" : state.business.role==="admin" ? "Admin access" : "Worker access";
+    const roleLabel = state.business.role==="owner"
+      ? tr("Owner")
+      : state.business.role==="admin"
+        ? tr("Admin")
+        : tr("Guest employee");
     chip.innerHTML = `
       <span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
