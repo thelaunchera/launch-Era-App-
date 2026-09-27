@@ -27,8 +27,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
 try{
   const lastAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
   if(lastAdmin===LEGACY_PLATFORM_ADMIN_EMAIL){
-    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
-    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+    if(ownerEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
+      localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
+      localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
+    }
   }
 }catch{}
 
