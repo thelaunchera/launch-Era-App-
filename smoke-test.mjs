@@ -4,6 +4,8 @@ import { JSDOM } from "jsdom";
 const html=fs.readFileSync("index.html","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
+const serviceWorker=fs.readFileSync("service-worker.js","utf8");
+const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 
 const dom=new JSDOM(html,{
   url:"https://thelaunchera.github.io/launch-Era-App-/",
@@ -106,6 +108,22 @@ if(!$("#teamMessageCenter") || !$("#workerMessageThread") || !$("#workerMessageF
 }
 if(!$("#workerGuestPill") || !$("#workerAccessLabel")){
   throw new Error("Worker access regression: guest employee access labels are missing");
+}
+const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
+const releaseVersions=[
+  appVersion,
+  ...[...html.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0]),
+  ...[...serviceWorker.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0]),
+  ...[...manifest.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0])
+].filter(Boolean);
+if(!appVersion || releaseVersions.some(v=>v!==appVersion)){
+  throw new Error("Release version mismatch across app shell/runtime/service worker");
+}
+if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","worker","billing","slug","public"]')){
+  throw new Error("PWA regression: sensitive navigation URLs can be cached");
+}
+if(!publicJs.includes('functions/v1/track-app-visit')){
+  throw new Error("Analytics regression: public pages must use hardened edge tracking");
 }
 console.log("REGRESSION_GUARDS_OK");
 
