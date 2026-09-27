@@ -125,7 +125,21 @@ try{
         event.stopImmediatePropagation();
       },{once:true,capture:true});
     });
-    await page.click("#authSubmit");
+    const submitHit=await page.evaluate(()=>{
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) return {ok:false,reason:"missing"};
+      const r=btn.getBoundingClientRect();
+      const x=r.left+r.width/2;
+      const y=r.top+r.height/2;
+      const hit=document.elementFromPoint(x,y);
+      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};
+    });
+    if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
+    if(profile.viewport.hasTouch){
+      await page.touchscreen.tap(submitHit.x,submitHit.y);
+    }else{
+      await page.click("#authSubmit");
+    }
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.click("#authSwitch");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
