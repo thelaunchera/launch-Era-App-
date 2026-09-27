@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-34";
+const APP_VERSION = "20260927-unified-35";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1579,7 +1579,18 @@ function trackGooglePage(page){
   }catch{}
 }
 
+function isAutomationTestSession(){
+  const host=String(window.location.hostname||"").toLowerCase();
+  const params=new URLSearchParams(window.location.search);
+  return host==="127.0.0.1"
+    || host==="localhost"
+    || host==="::1"
+    || params.has("browser-smoke")
+    || params.has("cross-browser-smoke")
+    || params.has("ci-smoke");
+}
 async function trackVisit(page=window.location.pathname+window.location.search){
+  if(isAutomationTestSession()) return;
   trackGooglePage(page);
   try{
     if(localStorage.getItem("tle_internal_admin_device")==="1" || state.isPlatformAdmin) return;
@@ -5538,7 +5549,12 @@ async function finishTimeEntry(id){
   if(!entry) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Temporizador ativo não encontrado.","Minuteur actif introuvable."));
   if(entry.clocked_out_at) return entry;
 
-  const {data,error}=await supabase.rpc("finish_job_time_entry",{p_entry_id:id});
+  const result=await withTimeout(
+    supabase.rpc("finish_job_time_entry",{p_entry_id:id}),
+    langPick("Finishing timer","Finalizando temporizador","Finalizando cronômetro","Arrêt du minuteur"),
+    10000
+  );
+  const {data,error}=result||{};
   if(error) throw error;
   if(!data?.clocked_out_at){
     throw new Error(langPick("Could not confirm that the timer stopped.","No se pudo confirmar el cierre del temporizador.","Não foi possível confirmar o encerramento do cronômetro.","Impossible de confirmer l’arrêt du minuteur."));
@@ -5546,6 +5562,7 @@ async function finishTimeEntry(id){
 
   entry.clocked_out_at=data.clocked_out_at;
   entry.minutes_worked=data.minutes_worked;
+  renderOperations();
   return data;
 }
 
@@ -5775,8 +5792,21 @@ document.addEventListener("click",async e=>{
   const workerTimeStop=e.target.closest("[data-worker-time-stop]");
   if(workerTimeStop){
     const token=localStorage.getItem("tle_worker_device_token");
-    const {error}=await supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop});
-    if(error) showToast(error.message); else {await refreshWorkerPortal();showToast("Timer finished");}
+    setBusy(workerTimeStop,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
+    try{
+      const result=await withTimeout(
+        supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop}),
+        langPick("Finishing timer","Finalizando temporizador","Finalizando cronômetro","Arrêt du minuteur"),
+        10000
+      );
+      if(result?.error) throw result.error;
+      await refreshWorkerPortal();
+      showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
+    }catch(err){
+      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
+    }finally{
+      if(document.body.contains(workerTimeStop)) setBusy(workerTimeStop,false);
+    }
     return;
   }
 
@@ -5786,7 +5816,7 @@ document.addEventListener("click",async e=>{
     setBusy(finishTimeBtn,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
     try{
       await finishTimeEntry(id);
-      await loadCoreData();
+      loadCoreData().catch(err=>console.warn("[TLE] timer refresh",err));
       showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
     }catch(err){
       showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
