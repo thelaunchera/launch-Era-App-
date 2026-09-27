@@ -611,6 +611,10 @@ function formatDateTime(value){
   return new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
 }
 function setAuthStatus(message="",type=""){
+  const raw=String(message||"");
+  if(/supabase\.|track_app_login|\.catch is not a function|is undefined|stack|TypeError/i.test(raw)){
+    message=type==="error"?"We couldn’t open the app. Please try again.":"";
+  }
   const el=$("#authStatus");
   if(!el) return;
   el.textContent=message;
@@ -1251,7 +1255,26 @@ $("#ownerCodeForm")?.addEventListener("submit",async(e)=>{
     await verifyOwnerAccessCode(email,$("#ownerAccessCode").value);
     setAuthStatus("");
   }catch(err){
-    setAuthStatus(err?.message||"That code could not be verified.","error");
+    console.error("[TLE] owner code open failed",err);
+    try{
+      const {data:{session}}=await supabase.auth.getSession();
+      if(session){
+        state.session=session;
+        setAuthStatus("Opening your app…","loading");
+        await enterAuthenticatedApp();
+        setAuthStatus("");
+        return;
+      }
+    }catch(recoveryErr){
+      console.warn("[TLE] owner code recovery",recoveryErr);
+    }
+    const msg=String(err?.message||"");
+    setAuthStatus(
+      /invalid|expired|code|verify/i.test(msg)
+        ? "That code is invalid or expired. Send a new code and try again."
+        : "We couldn’t open the app. Please try again.",
+      "error"
+    );
   }finally{
     setBusy(button,false);
   }
@@ -1740,12 +1763,15 @@ async function initialize(){
     markOwnerActivity();
   }
 
-  try{
-    const {error:loginTrackError}=await supabase.rpc("track_app_login",{p_visitor_id:getVisitorId()});
-    if(loginTrackError) console.warn("[TLE] login tracking",loginTrackError);
-  }catch(err){
-    console.warn("[TLE] login tracking",err);
-  }
+  // Analytics must never block app access.
+  setTimeout(async()=>{
+    try{
+      const {error:loginTrackError}=await supabase.rpc("track_app_login",{p_visitor_id:getVisitorId()});
+      if(loginTrackError) console.warn("[TLE] login tracking",loginTrackError);
+    }catch(err){
+      console.warn("[TLE] login tracking",err);
+    }
+  },0);
 
   await handleBillingReturn(params);
 
