@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-notification-expiry-1";
+const APP_VERSION = "20260927-notification-detail-only-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2181,7 +2181,6 @@ function openInquiryNotificationDetail(notificationId){
       <div class="form-footer inquiry-detail-actions">
         <button type="button" class="ghost-btn" data-modal-cancel>${appIsSpanish()?"Cerrar":"Close"}</button>
         ${item.clientId?`<button type="button" class="primary-btn" data-inquiry-open-client="${escapeHtml(item.clientId)}">${appIsSpanish()?"Abrir cliente":"Open client"}</button>`:""}
-        ${item.type==="booking"?`<button type="button" class="primary-btn" data-inquiry-open-booking="${escapeHtml(item.recordId)}">${appIsSpanish()?"Ver reserva":"Open booking"}</button>`:""}
         ${item.type==="lead"?`<button type="button" class="primary-btn" data-inquiry-open-lead="${escapeHtml(item.recordId)}">${appIsSpanish()?"Abrir lead":"Open lead"}</button>`:""}
       </div>
     </div>`;
@@ -2226,7 +2225,7 @@ function renderInquiryNotifications(){
         <span class="notification-copy">
           <strong>${escapeHtml(item.name)}</strong>
           <small>${escapeHtml(item.service)}</small>
-          <em>${item.phone?escapeHtml(item.phone)+" · ":""}${formatDateTime(item.createdAt)}</em>
+          <em>${[item.phone,item.email].filter(Boolean).map(escapeHtml).join(" · ")}${item.phone||item.email?" · ":""}${formatDateTime(item.createdAt)}</em>
         </span>
         <span class="notification-arrow" aria-hidden="true">→</span>
       </button>`;
@@ -4433,17 +4432,6 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const inquiryBookingBtn=e.target.closest("[data-inquiry-open-booking]");
-  if(inquiryBookingBtn){
-    modal.hidden=true;
-    openView("booking");
-    setTimeout(()=>{
-      const row=document.querySelector(`[data-approve-booking="${CSS.escape(inquiryBookingBtn.dataset.inquiryOpenBooking)}"]`)?.closest(".booking-request-row");
-      row?.scrollIntoView({behavior:"smooth",block:"center"});
-    },120);
-    return;
-  }
-
   const refreshActivityBtn=e.target.closest("[data-refresh-platform-activity]");
   if(refreshActivityBtn){
     const original=refreshActivityBtn.textContent;
@@ -5136,13 +5124,17 @@ $("#notificationCloseBtn")?.addEventListener("click",e=>{
   closeNotificationPopover();
 });
 $("#notificationPopover")?.addEventListener("click",e=>{
-  e.stopPropagation();
   const item=e.target.closest("[data-notification-id]");
-  if(item){
-    const id=item.dataset.notificationId;
-    closeNotificationPopover();
-    openInquiryNotificationDetail(id);
+  if(!item){
+    e.stopPropagation();
+    return;
   }
+  e.preventDefault();
+  e.stopPropagation();
+  if(typeof e.stopImmediatePropagation==="function") e.stopImmediatePropagation();
+  const id=item.dataset.notificationId;
+  closeNotificationPopover();
+  openInquiryNotificationDetail(id);
 });
 document.addEventListener("click",e=>{
   if(!e.target.closest(".notification-shell")) closeNotificationPopover();
