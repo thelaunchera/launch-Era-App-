@@ -491,27 +491,30 @@ async function fetchJsonWithTimeout(url,ms=5500){
 async function geocodeBusinessArea(area){
   const clean=String(area||"").trim();
   if(!clean) return null;
-  const geoKey="tle_weather_geo:"+clean.toLowerCase();
+  const geoKey="tle_weather_geo_v2:"+clean.toLowerCase();
   try{
     const cached=JSON.parse(localStorage.getItem(geoKey)||"null");
     if(cached&&cached.latitude!=null&&cached.longitude!=null) return cached;
   }catch(e){}
 
-  const candidates=[clean,clean.split(",")[0].trim()].filter(function(v,i,a){return v&&a.indexOf(v)===i;});
+  const browserRegion=String(navigator.language||"").split("-")[1]?.toUpperCase()||"";
+  const preferredCountry=String(state.business?.country_code||browserRegion||"").toUpperCase();
+  const candidates=[clean,clean.split(",")[0].trim()].filter((v,i,a)=>v&&a.indexOf(v)===i);
   for(const query of candidates){
     try{
-      const url="https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&format=json&name="+encodeURIComponent(query);
+      const url="https://geocoding-api.open-meteo.com/v1/search?count=8&language=en&format=json&name="+encodeURIComponent(query);
       const data=await fetchJsonWithTimeout(url);
       const results=Array.isArray(data&&data.results)?data.results:[];
-      const us=results.find(function(x){return String(x.country_code||"").toUpperCase()==="US";})||results[0];
-      if(us){
+      const place=results.find(x=>preferredCountry&&String(x.country_code||"").toUpperCase()===preferredCountry)||results[0];
+      if(place){
         const geo={
-          latitude:Number(us.latitude),
-          longitude:Number(us.longitude),
-          name:us.name||clean,
-          admin1:us.admin1||"",
-          country:us.country||"",
-          timezone:us.timezone||(state.business&&state.business.timezone)||"auto"
+          latitude:Number(place.latitude),
+          longitude:Number(place.longitude),
+          name:place.name||clean,
+          admin1:place.admin1||"",
+          country:place.country||"",
+          country_code:String(place.country_code||"").toUpperCase(),
+          timezone:place.timezone||(state.business&&state.business.timezone)||"auto"
         };
         localStorage.setItem(geoKey,JSON.stringify(geo));
         return geo;
@@ -520,28 +523,54 @@ async function geocodeBusinessArea(area){
   }
   return null;
 }
+function currencyForCountry(code){
+  const map={
+    US:"USD",CA:"CAD",GB:"GBP",IE:"EUR",FR:"EUR",DE:"EUR",ES:"EUR",PT:"EUR",IT:"EUR",NL:"EUR",BE:"EUR",AT:"EUR",FI:"EUR",GR:"EUR",
+    LU:"EUR",CY:"EUR",MT:"EUR",SI:"EUR",SK:"EUR",EE:"EUR",LV:"EUR",LT:"EUR",HR:"EUR",CH:"CHF",SE:"SEK",NO:"NOK",DK:"DKK",
+    PL:"PLN",CZ:"CZK",HU:"HUF",RO:"RON",BG:"BGN",BR:"BRL",CL:"CLP",MX:"MXN",CO:"COP",AR:"ARS",PE:"PEN",UY:"UYU",
+    PY:"PYG",BO:"BOB",CR:"CRC",DO:"DOP",GT:"GTQ",HN:"HNL",NI:"NIO",AU:"AUD",NZ:"NZD",JP:"JPY",CN:"CNY",HK:"HKD",
+    SG:"SGD",KR:"KRW",IN:"INR",AE:"AED",SA:"SAR",IL:"ILS",ZA:"ZAR",TR:"TRY",BY:"BYN",UA:"UAH"
+  };
+  return map[String(code||"").toUpperCase()]||"USD";
+}
+function languageForCountry(code){
+  const country=String(code||"").toUpperCase();
+  if(["ES","MX","CL","CO","AR","PE","UY","PY","BO","CR","DO","GT","HN","NI","PA","EC","SV","VE"].includes(country)) return "es";
+  if(["BR","PT"].includes(country)) return "pt";
+  if(["FR","BE","LU","MC","SN","CI","CM","HT"].includes(country)) return "fr";
+  const browser=String(navigator.language||"en").slice(0,2).toLowerCase();
+  return ["en","es","pt","fr"].includes(browser)?browser:"en";
+}
+function localeForCountry(code,language){
+  const region=String(code||"").toUpperCase();
+  const lang=["en","es","pt","fr"].includes(language)?language:"en";
+  const candidate=region?lang+"-"+region:"";
+  if(candidate){
+    try{new Intl.NumberFormat(candidate).format(1);return candidate;}catch{}
+  }
+  return {en:"en-US",es:"es-ES",pt:"pt-BR",fr:"fr-FR"}[lang];
+}
+function globalDefaultsFromGeo(geo){
+  const country=String(geo?.country_code||String(navigator.language||"").split("-")[1]||"US").toUpperCase();
+  const language=languageForCountry(country);
+  return {
+    country_code:country,
+    default_language:language,
+    locale_code:localeForCountry(country,language),
+    currency_code:currencyForCountry(country),
+    distance_unit:["US","GB","LR","MM"].includes(country)?"mi":"km",
+    temperature_unit:["US","LR","MM"].includes(country)?"fahrenheit":"celsius"
+  };
+}
+async function resolveBusinessLocale(area){
+  const geo=await geocodeBusinessArea(area).catch(()=>null);
+  let timezone=String(geo?.timezone||"").trim();
+  if(!timezone||timezone==="auto") timezone=String(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");
+  try{new Intl.DateTimeFormat("en-US",{timeZone:timezone}).format(new Date());}catch{timezone="UTC";}
+  return {...globalDefaultsFromGeo(geo),timezone,geo};
+}
 async function resolveSignupTimeZone(area){
-  const clean=String(area||"").trim();
-  if(clean){
-    try{
-      const geo=await geocodeBusinessArea(clean);
-      const zone=String(geo?.timezone||"").trim();
-      if(zone && zone!=="auto"){
-        try{
-          new Intl.DateTimeFormat("en-US",{timeZone:zone}).format(new Date());
-          return zone;
-        }catch{}
-      }
-    }catch{}
-  }
-  const deviceZone=String(Intl.DateTimeFormat().resolvedOptions().timeZone||"").trim();
-  if(deviceZone){
-    try{
-      new Intl.DateTimeFormat("en-US",{timeZone:deviceZone}).format(new Date());
-      return deviceZone;
-    }catch{}
-  }
-  return "America/New_York";
+  return (await resolveBusinessLocale(area)).timezone;
 }
 
 async function loadBusinessWeather(force=false){
