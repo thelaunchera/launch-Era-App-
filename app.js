@@ -983,9 +983,12 @@ function isUserCorrectableAuthError(err){
   return /invalid login credentials|email not confirmed|user already registered|already been registered|password should be|password.*characters|invalid email|email address.*invalid|signup is disabled|rate limit|too many requests/.test(raw);
 }
 function authRequiredFieldMessage(){
-  return appIsSpanish()
-    ? "Revisa los campos requeridos arriba y vuelve a intentarlo."
-    : "Check the required fields above and try again.";
+  return langPick(
+    "Check the required fields above and try again.",
+    "Revisa los campos requeridos arriba y vuelve a intentarlo.",
+    "Confira os campos obrigatórios acima e tente novamente.",
+    "Vérifiez les champs obligatoires ci-dessus et réessayez."
+  );
 }
 function authIssueAttemptKey(mode,email,err){
   const fingerprint=String(err?.code||err?.message||"unknown").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,80);
@@ -1045,27 +1048,39 @@ function showAuthFailure(err,mode,email){
   let message=authRequiredFieldMessage();
 
   if(/invalid login credentials/.test(raw)){
-    message=appIsSpanish()
-      ? "El correo o la contraseña no coinciden. Revísalos y vuelve a intentarlo."
-      : "The email or password doesn’t match. Check them and try again.";
+    message=langPick(
+      "The email or password doesn’t match. Check them and try again.",
+      "El correo o la contraseña no coinciden. Revísalos y vuelve a intentarlo.",
+      "O e-mail ou a senha não conferem. Revise e tente novamente.",
+      "L’e-mail ou le mot de passe ne correspond pas. Vérifiez-les et réessayez."
+    );
   }else if(/email not confirmed/.test(raw)){
-    message=appIsSpanish()
-      ? "Primero confirma tu correo y después inicia sesión."
-      : "Confirm your email first, then sign in.";
+    message=langPick(
+      "Confirm your email first, then sign in.",
+      "Primero confirma tu correo y después inicia sesión.",
+      "Confirme seu e-mail primeiro e depois entre.",
+      "Confirmez d’abord votre e-mail, puis connectez-vous."
+    );
   }else if(/already registered|already been registered/.test(raw)){
-    message=appIsSpanish()
-      ? "Ese correo ya tiene una cuenta. Inicia sesión en vez de crear otra."
-      : "That email already has an account. Sign in instead of creating another one.";
+    message=langPick(
+      "That email already has an account. Sign in instead of creating another one.",
+      "Ese correo ya tiene una cuenta. Inicia sesión en vez de crear otra.",
+      "Esse e-mail já tem uma conta. Entre em vez de criar outra.",
+      "Cet e-mail possède déjà un compte. Connectez-vous au lieu d’en créer un autre."
+    );
   }else if(!correctable){
-    message=appIsSpanish()
-      ? "No pudimos completar esto. Revisa los campos requeridos y toca “Intentar otra vez”."
-      : "We couldn’t complete this. Check the required fields and tap “Try again”.";
+    message=langPick(
+      "We couldn’t complete this. Check the required fields and tap “Try again”.",
+      "No pudimos completar esto. Revisa los campos requeridos y toca “Intentar otra vez”.",
+      "Não foi possível concluir. Confira os campos obrigatórios e toque em “Tentar novamente”.",
+      "Impossible de terminer. Vérifiez les champs obligatoires et touchez « Réessayer »."
+    );
   }
 
   setAuthStatus(message,"error");
   if(retry){
     retry.hidden=false;
-    retry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+    retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
   }
 
   const attempt=recordAuthIssueAttempt(mode,email,err);
@@ -1073,16 +1088,18 @@ function showAuthFailure(err,mode,email){
     reportPersistentAuthIssue(mode,email,err,attempt.item.count,attempt.key).then(alerted=>{
       if(alerted){
         setAuthStatus(
-          appIsSpanish()
-            ? "El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo."
-            : "The error is still happening. Support has been alerted. Check the required fields and try again.",
+          langPick(
+            "The error is still happening. Support has been alerted. Check the required fields and try again.",
+            "El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo.",
+            "O erro continua. O suporte foi avisado. Confira os campos obrigatórios e tente novamente.",
+            "L’erreur continue. Le support a été prévenu. Vérifiez les champs obligatoires et réessayez."
+          ),
           "error"
         );
       }
     });
   }
 }
-
 function showToast(message){
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -1730,7 +1747,7 @@ function syncAuthPasswordToggle(){
   if(!input||!toggle) return;
   const visible=input.type==="text";
   toggle.setAttribute("aria-pressed",visible?"true":"false");
-  toggle.setAttribute("aria-label",visible?(appIsSpanish()?"Ocultar contraseña":"Hide password"):(appIsSpanish()?"Mostrar contraseña":"Show password"));
+  toggle.setAttribute("aria-label",visible?langPick("Hide password","Ocultar contraseña","Ocultar senha","Masquer le mot de passe"):langPick("Show password","Mostrar contraseña","Mostrar senha","Afficher le mot de passe"));
   toggle.classList.toggle("is-visible",visible);
 }
 function toggleAuthPasswordVisibility(){
@@ -2228,7 +2245,11 @@ function renderMessageList(target,messages,viewer){
   if(!target) return;
   const rows=Array.isArray(messages)?messages:[];
   if(!rows.length){
-    target.innerHTML=`<div class="empty-inline"><strong>${viewer==="worker"?(appIsSpanish()?"Sin mensajes todavía.":"No messages yet."):(appIsSpanish()?"Sin conversación todavía.":"No conversation yet.")}</strong><span>${viewer==="worker"?(appIsSpanish()?"Los mensajes de tu administrador aparecerán aquí.":"Messages from your admin will appear here."):(appIsSpanish()?"Escribe el primer mensaje abajo.":"Write the first message below.")}</span></div>`;
+    target.innerHTML=`<div class="empty-inline"><strong>${viewer==="worker"
+      ? escapeHtml(langPick("No messages yet.","Sin mensajes todavía.","Ainda não há mensagens.","Aucun message pour le moment."))
+      : escapeHtml(langPick("No conversation yet.","Sin conversación todavía.","Ainda não há conversa.","Aucune conversation pour le moment."))}</strong><span>${viewer==="worker"
+      ? escapeHtml(langPick("Messages from your admin will appear here.","Los mensajes de tu administrador aparecerán aquí.","As mensagens do administrador aparecerão aqui.","Les messages de votre administrateur apparaîtront ici."))
+      : escapeHtml(langPick("Write the first message below.","Escribe el primer mensaje abajo.","Escreva a primeira mensagem abaixo.","Écrivez le premier message ci-dessous."))}</span></div>`;
     return;
   }
   target.innerHTML=rows.map(m=>{
@@ -5489,13 +5510,13 @@ async function saveStartTimer(fd){
 }
 async function finishTimeEntry(id){
   const entry=state.timeEntries.find(t=>t.id===id);
-  if(!entry) throw new Error(appIsSpanish()?"No encontramos ese temporizador activo.":"Active timer not found.");
+  if(!entry) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Temporizador ativo não encontrado.","Minuteur actif introuvable."));
   if(entry.clocked_out_at) return entry;
 
   const {data,error}=await supabase.rpc("finish_job_time_entry",{p_entry_id:id});
   if(error) throw error;
   if(!data?.clocked_out_at){
-    throw new Error(appIsSpanish()?"No se pudo confirmar el cierre del temporizador.":"Could not confirm that the timer stopped.");
+    throw new Error(langPick("Could not confirm that the timer stopped.","No se pudo confirmar el cierre del temporizador.","Não foi possível confirmar o encerramento do cronômetro.","Impossible de confirmer l’arrêt du minuteur."));
   }
 
   entry.clocked_out_at=data.clocked_out_at;
@@ -5720,13 +5741,13 @@ document.addEventListener("click",async e=>{
   const finishTimeBtn=e.target.closest("[data-finish-time]");
   if(finishTimeBtn){
     const id=finishTimeBtn.dataset.finishTime;
-    setBusy(finishTimeBtn,true,appIsSpanish()?"Finalizando…":"Finishing…");
+    setBusy(finishTimeBtn,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
     try{
       await finishTimeEntry(id);
       await loadCoreData();
-      showToast(appIsSpanish()?"Temporizador finalizado":"Timer finished");
+      showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
     }catch(err){
-      showToast(err?.message||(appIsSpanish()?"No se pudo finalizar el temporizador":"Could not finish timer"));
+      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
     }finally{
       if(document.body.contains(finishTimeBtn)) setBusy(finishTimeBtn,false);
     }
