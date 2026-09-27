@@ -34,7 +34,7 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for cleaning businesses serving homes, Airbnb and short-term rentals, offices, stores, restaurants and other commercial spaces." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <link rel="stylesheet" href="./styles.css?v=20260927-sidebar-tap-outside-1" />
+  <link rel="stylesheet" href="./styles.css?v=20260927-human-filter-quarter-colors-1" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -850,8 +850,9 @@
           <article class="metric-card"><span>Customers</span><strong id="platformCustomers">0</strong><small>Excludes internal admin accounts</small></article>
           <article class="metric-card"><span>Trials</span><strong id="platformTrials">0</strong><small>Currently evaluating the app</small></article>
           <article class="metric-card"><span>Active subscribers</span><strong id="platformActive">0</strong><small>Active / purchased access</small></article>
-          <article class="metric-card"><span>Visits · 30 days</span><strong id="platformVisits">0</strong><small>Internal admin visits excluded</small></article>
-          <article class="metric-card"><span>Unique visitors · 30 days</span><strong id="platformUnique">0</strong><small>Browser-level unique visitors</small></article>
+          <article class="metric-card"><span>Likely human visits · 30 days</span><strong id="platformVisits">0</strong><small>Internal + suspicious traffic excluded</small></article>
+          <article class="metric-card"><span>Likely human visitors · 30 days</span><strong id="platformUnique">0</strong><small>Filtered unique visitor IDs</small></article>
+          <article class="metric-card"><span>Filtered traffic · 30 days</span><strong id="platformFilteredTraffic">0</strong><small>Suspected bots / automated traffic</small></article>
         </div>
 
         <div class="admin-grid">
@@ -860,7 +861,7 @@
             <div class="platform-table" id="platformCustomersTable"></div>
           </article>
           <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">VISITOR LOCATION</p><h3>Top states</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">VISITOR LOCATION</p><h3>Likely human states</h3><small class="panel-note">Suspicious traffic excluded</small></div></div>
             <div class="platform-states" id="platformTopStates"></div>
           </article>
           <article class="panel platform-activity-panel">
@@ -868,8 +869,12 @@
             <div class="platform-visits" id="platformRecentLogins"></div>
           </article>
           <article class="panel platform-activity-panel">
-            <div class="panel-head activity-panel-head"><div><p class="eyebrow">REAL VISITOR ACTIVITY</p><h3>Recent visits</h3><small class="panel-note">Real visitors only · internal activity excluded</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">LIKELY HUMAN ACTIVITY</p><h3>Recent visits</h3><small class="panel-note">Internal + suspicious traffic excluded</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
             <div class="platform-visits" id="platformRecentVisits"></div>
+          </article>
+          <article class="panel platform-activity-panel suspected-traffic-panel">
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">FILTERED TRAFFIC</p><h3>Suspected bots / automation</h3><small class="panel-note">Automatically excluded from visitor metrics</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="platform-visits" id="platformSuspectedTraffic"></div>
           </article>
           <article class="panel platform-activity-panel internal-activity-panel">
             <div class="panel-head activity-panel-head"><div><p class="eyebrow">INTERNAL ACTIVITY</p><h3>My / internal views</h3><small class="panel-note">Not counted in real visits</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
@@ -970,8 +975,8 @@
     }
   </script>
   <script src="./vendor/supabase.js?v=20260926-2112"></script>
-  <script src="./i18n.js?v=20260927-internal-activity-1"></script>
+  <script src="./i18n.js?v=20260927-human-filter-quarter-colors-1"></script>
   <script src="./public.js?v=20260927-public-submit-2"></script>
-  <script src="./app.js?v=20260927-sidebar-tap-outside-1"></script>
+  <script src="./app.js?v=20260927-human-filter-quarter-colors-1"></script>
 </body>
 </html>
