@@ -3164,14 +3164,51 @@ async function loadPlatformAdmin(){
   const visits=$("#platformRecentVisits");
   if(visits){
     const rows=activityData?.visits||geoData?.recent_geo_visits||data?.recent_visits||[];
-    visits.innerHTML=rows.length?rows.map(v=>`
-      <div class="visit-row activity-row">
-        <span>
-          <strong>${escapeHtml(v.email||v.business_name||"Anonymous visitor")}</strong>
-          <small>${escapeHtml(v.page||"/")}${v.state?" · "+escapeHtml(v.state_code||v.state):""}${v.city?" · "+escapeHtml(v.city):""}</small>
-        </span>
-        <time>${formatDateTime(v.created_at)}</time>
-      </div>`).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
+    const groups=[];
+    const byVisitor=new Map();
+
+    rows.forEach(v=>{
+      const label=v.email||v.business_name||"Anonymous visitor";
+      const anonymousKey=!v.email&&!v.business_name
+        ? [label,v.city||"",v.state_code||v.state||"",v.country||""].join("|")
+        : label.toLowerCase();
+      if(!byVisitor.has(anonymousKey)){
+        const group={label,latest:v.created_at,city:v.city||"",state:v.state_code||v.state||"",country:v.country||"",pages:[],count:0};
+        byVisitor.set(anonymousKey,group);
+        groups.push(group);
+      }
+      const group=byVisitor.get(anonymousKey);
+      group.count+=1;
+      if(new Date(v.created_at)>new Date(group.latest)) group.latest=v.created_at;
+      const page=v.page||"/";
+      if(!group.pages.some(p=>p.page===page)){
+        group.pages.push({page,created_at:v.created_at});
+      }
+    });
+
+    visits.innerHTML=groups.length?groups.slice(0,10).map(g=>{
+      const location=[g.city,g.state].filter(Boolean).join(", ")||(g.country||"");
+      const pageLabel=g.pages.length===1?"1 page":g.pages.length+" pages";
+      const details=g.pages.slice(0,8).map(p=>`
+        <div class="visit-detail-row">
+          <span>${escapeHtml(p.page)}</span>
+          <time>${formatDateTime(p.created_at)}</time>
+        </div>`).join("");
+      return `
+        <div class="visit-group">
+          <div class="visit-group-main">
+            <span>
+              <strong>${escapeHtml(g.label)}</strong>
+              <small>${pageLabel}${location?" · "+escapeHtml(location):""}</small>
+            </span>
+            <time>${formatDateTime(g.latest)}</time>
+          </div>
+          <details class="visit-group-details">
+            <summary>View activity</summary>
+            <div class="visit-detail-list">${details}</div>
+          </details>
+        </div>`;
+    }).join(""):`<div class="empty-inline"><strong>No external visits yet.</strong><span>Your own visits do not count.</span></div>`;
   }
 
   const purchases=$("#platformPurchases");
