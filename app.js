@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-safari-bg-fix-1";
+const APP_VERSION = "20260927-ios-top-anchor-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -732,6 +732,22 @@ function showApp(){
   if(publicShell) publicShell.hidden = true;
   authShell.hidden = true;
   appShell.hidden = false;
+
+  // Safari/iOS may restore the previous page scroll position before the hidden
+  // app shell becomes visible. Force the authenticated dashboard to start at
+  // the real document top instead of leaving a blank viewport above Today.
+  try{
+    if("scrollRestoration" in history) history.scrollRestoration="manual";
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>{
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+    });
+    setTimeout(()=>window.scrollTo(0,0),80);
+  }catch{}
 
   // iOS can restore an older Home Screen HTML snapshot. Remove retired
   // top-bar controls at runtime so the visible UI always matches the live app.
@@ -1993,6 +2009,18 @@ async function initialize(){
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
   await trackVisit("/app/today");
 }
+window.addEventListener("pageshow",event=>{
+  if(!appShell?.hidden){
+    try{
+      if("scrollRestoration" in history) history.scrollRestoration="manual";
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+      setTimeout(()=>window.scrollTo(0,0),60);
+    }catch{}
+  }
+});
+
 supabase.auth.onAuthStateChange((event, session)=>{
   // IMPORTANT: keep this callback synchronous.
   // Awaiting Supabase calls from onAuthStateChange can deadlock supabase-js.
