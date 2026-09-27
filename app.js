@@ -1157,7 +1157,7 @@ function prepareAdminShortcut(){
   const shortcut=$("#rememberedAdminBtn");
   if(!shortcut) return;
   const remembered=rememberedOwnerEmail();
-  shortcut.hidden=state.authMode!=="signin";
+  shortcut.hidden=state.authMode!=="signin" || !remembered;
   shortcut.textContent="Continue as Admin";
   if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
 }
