@@ -3,6 +3,7 @@ import { JSDOM } from "jsdom";
 
 const html=fs.readFileSync("index.html","utf8");
 const app=fs.readFileSync("app.js","utf8");
+const publicJs=fs.readFileSync("public.js","utf8");
 
 const dom=new JSDOM(html,{
   url:"https://thelaunchera.github.io/launch-Era-App-/",
@@ -96,6 +97,15 @@ if(!app.includes("resolveSignupTimeZone") || !app.includes("timezone: signupTime
 }
 if(!publicJs.includes("dateInBusinessZone") || !publicJs.includes("business?.timezone")){
   throw new Error("Booking regression: public booking date bounds must use business timezone");
+}
+if(!app.includes("admin_team_message_threads") || !app.includes("worker_portal_messages") || !app.includes("worker_portal_send_message")){
+  throw new Error("Team messaging regression: admin/worker messaging hooks are missing");
+}
+if(!$("#teamMessageCenter") || !$("#workerMessageThread") || !$("#workerMessageForm")){
+  throw new Error("Team messaging regression: message center UI is missing");
+}
+if(!$("#workerGuestPill") || !$("#workerAccessLabel")){
+  throw new Error("Worker access regression: guest employee access labels are missing");
 }
 console.log("REGRESSION_GUARDS_OK");
 
