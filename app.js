@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-29";
+const APP_VERSION = "20260927-unified-30";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3973,7 +3973,11 @@ function renderOperations(){
         <span class="record-primary"><strong>${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(m.log_date+"T12:00:00"))}</strong><small>${escapeHtml(m.from_location&&m.to_location?m.from_location+" → "+m.to_location:m.notes||tr("Business drive"))}</small>${m.notes&&m.from_location&&m.to_location?'<em class="record-note">'+escapeHtml(m.notes)+'</em>':""}</span>
         <span class="record-field" data-label="${escapeHtml(businessDistanceUnit()==="km"?"Kilometers":"Miles")}">${distanceFromStoredMiles(m.miles).toFixed(1)}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Job"))}">${escapeHtml(m.jobs?.clients?.name||m.jobs?.services?.name||"—")}</span>
-        <span class="record-field" data-label="${escapeHtml(tr("Type"))}">${escapeHtml(tr("Business"))}</span>
+        <span class="record-field" data-label="${escapeHtml(tr("Type"))}">${escapeHtml(
+          m.trip_type==="commercial" ? tr("Commercial") :
+          m.trip_type==="extra" ? (m.extra_job_type ? tr("Extra job")+" · "+tr(m.extra_job_type) : tr("Extra job")) :
+          tr("Residential")
+        )}</span>
       </div>`).join(""):`<div class="empty-table"><strong>No mileage logged yet.</strong><span>Use “Log drive” after a business trip.</span></div>`;
   }
 
@@ -3984,13 +3988,17 @@ function renderOperations(){
   }
   const timeTable=$("#timeEntriesTable");
   if(timeTable){
-    timeTable.innerHTML=state.timeEntries.length?state.timeEntries.map(t=>`
+    const visibleTimeEntries=state.timeEntries.filter(t=>!t.hidden_from_time_tracking);
+    timeTable.innerHTML=visibleTimeEntries.length?visibleTimeEntries.map(t=>`
       <div class="table-row mobile-record-card">
         <span class="record-primary"><strong>${escapeHtml(t.jobs?.clients?.name||t.jobs?.services?.name||tr("Job"))}</strong><small>${escapeHtml(t.team_members?.name||tr("Owner"))}</small></span>
         <span class="record-field" data-label="${escapeHtml(tr("Planned"))}">${t.jobs?.duration_minutes?Math.round(t.jobs.duration_minutes/60*10)/10+"h":"—"}</span>
         <span class="record-field" data-label="${escapeHtml(tr("Actual"))}">${t.minutes_worked!=null?(Number(t.minutes_worked)/60).toFixed(1).replace(".0","")+"h":t.clocked_out_at?"—":tr("Running")}</span>
-        <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${t.clocked_out_at?"success":"warning"}">${escapeHtml(t.clocked_out_at?tr("Complete"):tr("Running"))}</i></span>
-      </div>`).join(""):`<div class="empty-table"><strong>No time entries yet.</strong><span>Time worked will appear here.</span></div>`;
+        <span class="record-field" data-label="${escapeHtml(tr("Status"))}">
+          <i class="status ${t.clocked_out_at?"success":"warning"}">${escapeHtml(t.clocked_out_at?tr("Complete"):tr("Running"))}</i>
+          ${t.clocked_out_at?`<button class="text-btn time-hide-btn" data-hide-time-entry="${t.id}">${escapeHtml(tr("Remove from this list"))}</button>`:""}
+        </span>
+      </div>`).join(""):`<div class="empty-table"><strong>${escapeHtml(tr("No time entries yet."))}</strong><span>${escapeHtml(tr("Time worked will appear here."))}</span></div>`;
   }
 
   const monthPayments=state.invoices.flatMap(i=>i.payments||[]).filter(p=>p.status==="confirmed"&&p.paid_at&&new Date(p.paid_at)>=monthStart);
@@ -4820,13 +4828,26 @@ function openEntityForm(type,id=null){
       <div class="form-grid">
         <label>${es?"Fecha":"Date"}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
         <label>${businessDistanceUnit()==="km"?(es?"Kilómetros":"Kilometers"):(es?"Millas":"Miles")}<input name="distance" type="number" min="0.1" step="0.1" required value="${record?distanceFromStoredMiles(record.miles).toFixed(1):""}" placeholder="12.4"></label>
-        <label class="full">${es?"Trabajo (opcional)":"Job (optional)"}<select name="job_id" data-mileage-job>
-          <option value="">${es?"Sin trabajo específico":"No specific job"}</option>
-          ${mileageJobs.map(j=>`<option value="${j.id}" data-address="${escapeHtml(j.service_address||"")}" ${record?.job_id===j.id?"selected":""}>${escapeHtml(j.clients?.name||j.service_address||"Cleaning job")}</option>`).join("")}
+        <label class="full">${tr("Job (optional)")}<select name="job_id" data-mileage-job>
+          <option value="">${tr("No specific job")}</option>
+          ${mileageJobs.map(j=>`<option value="${j.id}" data-address="${escapeHtml(j.service_address||"")}" ${record?.job_id===j.id?"selected":""}>${escapeHtml(j.clients?.name||j.service_address||tr("Cleaning job"))}</option>`).join("")}
         </select></label>
-        <label>${es?"Desde":"From"}<input name="from_location" required value="${escapeHtml(record?.from_location||"")}" placeholder="${es?"Oficina / casa / parada anterior":"Office / home / previous stop"}"></label>
-        <label>${es?"Hasta":"To"}<input name="to_location" required value="${escapeHtml(record?.to_location||"")}" placeholder="${es?"Cliente / tienda de suministros":"Client / supply store"}"></label>
-        <label class="full">${es?"Nota (opcional)":"Note (optional)"}<input name="notes" value="${escapeHtml(record?.notes||"")}" placeholder="${es?"Ej. recoger suministros":"e.g. pick up supplies"}"></label>
+        <label class="full">${tr("Type")}<select name="trip_type" data-mileage-type required>
+          <option value="residential" ${record?.trip_type==="residential"||!record?.trip_type?"selected":""}>${tr("Residential")}</option>
+          <option value="commercial" ${record?.trip_type==="commercial"?"selected":""}>${tr("Commercial")}</option>
+          <option value="extra" ${record?.trip_type==="extra"?"selected":""}>${tr("Extra job")}</option>
+        </select></label>
+        <label class="full" data-mileage-extra-wrap ${record?.trip_type==="extra"?"":"hidden"}>${tr("Extra job type")}<select name="extra_job_type">
+          <option value="">${tr("Choose type")}</option>
+          <option value="Store" ${record?.extra_job_type==="Store"?"selected":""}>${tr("Store")}</option>
+          <option value="School" ${record?.extra_job_type==="School"?"selected":""}>${tr("School")}</option>
+          <option value="Office" ${record?.extra_job_type==="Office"?"selected":""}>${tr("Office")}</option>
+          <option value="Supply run" ${record?.extra_job_type==="Supply run"?"selected":""}>${tr("Supply run")}</option>
+          <option value="Other" ${record?.extra_job_type==="Other"?"selected":""}>${tr("Other")}</option>
+        </select></label>
+        <label>${tr("From")}<input name="from_location" required value="${escapeHtml(record?.from_location||"")}" placeholder="${tr("Office / home / previous stop")}"></label>
+        <label>${tr("To")}<input name="to_location" required value="${escapeHtml(record?.to_location||"")}" placeholder="${tr("Client / supply store")}"></label>
+        <label class="full">${tr("Note (optional)")}<input name="notes" value="${escapeHtml(record?.notes||"")}" placeholder="${tr("e.g. pick up supplies")}"></label>
       </div>${formSubmit(es?"Guardar millas":"Save mileage")}`;
   }
 
@@ -5208,12 +5229,15 @@ async function saveMileage(fd){
     job_id:fd.get("job_id")||null,
     log_date:fd.get("log_date"),
     miles:distanceToStoredMiles(fd.get("distance")),
+    trip_type:String(fd.get("trip_type")||"residential"),
+    extra_job_type:String(fd.get("extra_job_type")||"").trim()||null,
     from_location:String(fd.get("from_location")||"").trim()||null,
     to_location:String(fd.get("to_location")||"").trim()||null,
     notes:String(fd.get("notes")||"").trim()||null
   };
-  if(payload.miles<=0) throw new Error(appIsSpanish()?"Escribe una cantidad de millas mayor que 0.":"Enter miles greater than 0.");
-  if(!payload.from_location || !payload.to_location) throw new Error(appIsSpanish()?"Completa Desde y Hasta.":"Complete From and To.");
+  if(payload.miles<=0) throw new Error(tr("Enter a distance greater than 0."));
+  if(!payload.from_location || !payload.to_location) throw new Error(tr("Complete From and To."));
+  if(payload.trip_type==="extra" && !payload.extra_job_type) throw new Error(tr("Choose the extra job type."));
   const {error}=await supabase.from("mileage_logs").insert(payload);
   if(error) throw error;
 }
@@ -5593,6 +5617,26 @@ document.addEventListener("click",async e=>{
     return;
   }
 
+  const hideTimeEntry=e.target.closest("[data-hide-time-entry]");
+  if(hideTimeEntry){
+    const id=hideTimeEntry.dataset.hideTimeEntry;
+    setBusy(hideTimeEntry,true,tr("Removing…"));
+    try{
+      const {error}=await supabase.from("job_time_entries")
+        .update({hidden_from_time_tracking:true})
+        .eq("id",id)
+        .eq("business_id",state.business.id);
+      if(error) throw error;
+      const entry=state.timeEntries.find(t=>t.id===id);
+      if(entry) entry.hidden_from_time_tracking=true;
+      renderOperations();
+      showToast(tr("Removed from Time Tracking only."));
+    }catch(err){
+      showToast(err?.message||tr("Could not remove it from this list."));
+    }
+    return;
+  }
+
   const workerMileage=e.target.closest("[data-worker-mileage]");
   if(workerMileage){
     const workerUnit=state.workerPortal?.business?.distance_unit==="km"?"km":"mi";
@@ -5870,6 +5914,13 @@ document.addEventListener("change",async e=>{
     const toField=entityForm?.querySelector('input[name="to_location"]');
     const address=selected?.dataset?.address||"";
     if(toField && address) toField.value=address;
+    return;
+  }
+
+  const mileageType=e.target.closest("[data-mileage-type]");
+  if(mileageType){
+    const extraWrap=entityForm?.querySelector("[data-mileage-extra-wrap]");
+    if(extraWrap) extraWrap.hidden=mileageType.value!=="extra";
     return;
   }
 
