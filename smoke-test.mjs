@@ -100,6 +100,9 @@ if(!app.includes("resolveBusinessLocale(signupServiceArea)") || !app.includes("t
 if(!publicJs.includes("dateInBusinessZone") || !publicJs.includes("business?.timezone")){
   throw new Error("Booking regression: public booking date bounds must use business timezone");
 }
+if(!app.includes("businessLocalDateTimeToIso") || !app.includes("zonedDateTimeParts") || !app.includes("starts_at:startsIso")){
+  throw new Error("Manual job timezone regression: jobs must save and render in business timezone");
+}
 if(!app.includes("admin_team_message_threads") || !app.includes("worker_portal_messages") || !app.includes("worker_portal_send_message")){
   throw new Error("Team messaging regression: admin/worker messaging hooks are missing");
 }
