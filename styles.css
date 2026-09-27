@@ -4252,3 +4252,33 @@ body.modal-open{
 @media(prefers-reduced-motion:reduce){
   .auth-welcome,#authPanel{animation:none!important;transition:none!important}
 }
+
+/* Auth intro → form flow */
+.auth-shell{
+  align-items:start;
+  scroll-behavior:smooth;
+}
+.auth-card{
+  margin:clamp(22px,6vh,64px) auto;
+}
+#authPanel{
+  scroll-margin-top:24px;
+  margin-top:0;
+}
+.auth-shell.auth-form-open .auth-welcome{
+  padding-bottom:28px;
+  border-bottom:1px solid var(--line);
+}
+.auth-shell.auth-form-open #authPanel{
+  margin-top:28px;
+}
+.auth-welcome-actions .primary-btn{
+  min-height:56px;
+  font-weight:750;
+  letter-spacing:-.01em;
+}
+@media(max-width:620px){
+  .auth-card{margin:14px auto 36px}
+  #authPanel{scroll-margin-top:12px}
+  .auth-shell.auth-form-open #authPanel{margin-top:22px}
+}
