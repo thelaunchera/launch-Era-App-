@@ -4019,8 +4019,14 @@ function renderSettings(){
         e=$("#settingsBusinessEmail"),
         p=$("#settingsBusinessPhone"),
         a=$("#settingsServiceArea"),
+        country=$("#settingsBusinessCountry"),
         tz=$("#settingsBusinessTimezone"),
         lang=$("#settingsBusinessLanguage"),
+        currency=$("#settingsBusinessCurrency"),
+        distance=$("#settingsBusinessDistance"),
+        temperature=$("#settingsBusinessTemperature"),
+        paymentMethods=$("#settingsPaymentMethods"),
+        bookingPaymentMethods=$("#bookingPaymentMethods"),
         b=$("#settingsTravelBuffer"),
         m=$("#settingsBookingNotice"),
         r=$("#settingsReplyEmail");
@@ -4028,8 +4034,15 @@ function renderSettings(){
   if(e) e.textContent=state.business?.email||state.session?.user?.email||"—";
   if(p) p.textContent=state.business?.phone||"Not set";
   if(a) a.textContent=state.business?.service_area||"Not set";
-  if(tz) tz.textContent=state.business?.timezone||"America/New_York";
+  if(country) country.textContent=state.business?.country_code||"—";
+  if(tz) tz.textContent=state.business?.timezone||"UTC";
   if(lang) lang.textContent=({en:"English",es:"Español",pt:"Português",fr:"Français"}[state.business?.default_language]||"English");
+  if(currency) currency.textContent=state.business?.currency_code||"USD";
+  if(distance) distance.textContent=state.business?.distance_unit==="km"?"Kilometers":"Miles";
+  if(temperature) temperature.textContent=state.business?.temperature_unit==="celsius"?"Celsius":"Fahrenheit";
+  const methodLabel=(state.business?.payment_methods||["cash","check","other"]).map(v=>({cash:"Cash",check:"Check",other:"Other"}[v]||v).join(" · ");
+  if(paymentMethods) paymentMethods.textContent=methodLabel;
+  if(bookingPaymentMethods) bookingPaymentMethods.textContent=methodLabel;
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
@@ -6014,7 +6027,7 @@ async function refreshInstalledApp(){
       try{
         const {data:companyProfile,error:companyProfileError}=await supabase
           .from("businesses")
-          .select("name,email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at")
+          .select("name,email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
           .eq("id",state.business.id)
           .single();
         if(companyProfileError) throw companyProfileError;
