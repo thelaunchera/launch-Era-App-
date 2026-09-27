@@ -1673,9 +1673,25 @@ async function signOutCurrentUser(event){
 $("#signOutBtn")?.addEventListener("click",signOutCurrentUser);
 $("#sidebarSignOutBtn")?.addEventListener("click",signOutCurrentUser);
 
+function setBusinessSetupStatus(message="",type=""){
+  const el=$("#businessSetupStatus");
+  if(!el) return;
+  el.textContent=message;
+  el.className="auth-status"+(type?" "+type:"");
+}
+$("#businessSetupRetryButton")?.addEventListener("click",()=>{
+  setBusinessSetupStatus("");
+  const retry=$("#businessSetupRetryButton");
+  if(retry) retry.hidden=true;
+  businessForm?.requestSubmit();
+});
+
 businessForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const button = e.submitter;
+  const setupRetry=$("#businessSetupRetryButton");
+  if(setupRetry) setupRetry.hidden=true;
+  setBusinessSetupStatus("");
   setBusy(button,true,"Creating…");
   try{
     const start = new Date();
@@ -1725,15 +1741,38 @@ businessForm.addEventListener("submit", async (e)=>{
     const businessName=$("#businessName")?.value?.trim()||"";
     const area=$("#businessArea")?.value?.trim()||"";
     if(!businessName || !area){
-      showToast(appIsSpanish()?"Revisa los campos requeridos.":"Check the required fields.");
+      setBusinessSetupStatus(
+        appIsSpanish()?"Revisa los campos requeridos y vuelve a intentarlo.":"Check the required fields and try again.",
+        "error"
+      );
+      if(setupRetry){
+        setupRetry.hidden=false;
+        setupRetry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+      }
       if(!businessName) $("#businessName")?.focus();
       else $("#businessArea")?.focus();
     }else{
-      showToast(appIsSpanish()?"No pudimos crear el espacio. Intenta otra vez.":"We couldn’t create the workspace. Try again.");
+      setBusinessSetupStatus(
+        appIsSpanish()?"No pudimos crear tu espacio. Intenta otra vez.":"We couldn’t create your workspace. Try again.",
+        "error"
+      );
+      if(setupRetry){
+        setupRetry.hidden=false;
+        setupRetry.textContent=appIsSpanish()?"Intentar otra vez":"Try again";
+      }
       const email=String(state.session?.user?.email||"").trim().toLowerCase();
       const attempt=recordAuthIssueAttempt("signup",email,err);
       if(attempt.item.count>=2 && !attempt.item.reported){
-        reportPersistentAuthIssue("signup",email,err,attempt.item.count,attempt.key);
+        reportPersistentAuthIssue("signup",email,err,attempt.item.count,attempt.key).then(reported=>{
+          if(reported){
+            setBusinessSetupStatus(
+              appIsSpanish()
+                ?"El error continúa. Soporte ya recibió una alerta. Revisa los campos y vuelve a intentarlo."
+                :"The error is still happening. Support has been alerted. Check the fields and try again.",
+              "error"
+            );
+          }
+        });
       }
     }
   }finally{
