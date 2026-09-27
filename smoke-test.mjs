@@ -179,6 +179,15 @@ if(app.includes('["invoices","jobs","quotes","booking_requests","leads","payment
 if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") || !app.includes("TIMED_OUT")){
   throw new Error("Realtime regression: polling fallback is missing");
 }
+if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.includes("persistRememberUsername")){
+  throw new Error("Auth regression: remember-username flow is missing");
+}
+if(!app.includes('launcher.href="weather://"') || app.includes('window.location.href="weather://"')){
+  throw new Error("iOS regression: Weather must not replace the PWA document");
+}
+if(html.includes('document.addEventListener("visibilitychange",function(){\n              if(document.visibilityState==="visible") reg.update()')){
+  throw new Error("PWA regression: service worker update must not reload on iOS resume");
+}
 console.log("REGRESSION_GUARDS_OK");
 
 console.log("LOGIN_SMOKE_OK");
