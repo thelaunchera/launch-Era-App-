@@ -482,15 +482,20 @@ async function expireOwnerSession(){
   if(window.__tleOwnerLocking) return;
   window.__tleOwnerLocking=true;
   const email=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
-  try{
-    await supabase.auth.signOut({scope:"local"});
-  }catch{}
-  state.session=null;
-  state.business=null;
+
+  // Soft-lock only. Keep the authenticated Supabase session alive so a UI
+  // refresh, language change or PWA resume can never accidentally sign the
+  // owner out. The email code unlocks the existing session after inactivity.
   localStorage.removeItem(OWNER_ACTIVITY_KEY);
   await showOwnerAccess(email,true);
   window.__tleOwnerLocking=false;
 }
+window.addEventListener("tle:languagechange",()=>{
+  if(state.session && state.business?.role==="owner"){
+    markOwnerActivity();
+  }
+});
+
 function installOwnerActivityTracker(){
   if(window.__tleOwnerActivityInstalled) return;
   window.__tleOwnerActivityInstalled=true;
@@ -553,14 +558,23 @@ async function verifyOwnerAccessCode(email,code){
   }
   window.__tleOwnerCodeLogin=true;
   try{
-    const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
-      access_token:data.access_token,
-      refresh_token:data.refresh_token
-    });
-    if(sessionError) throw sessionError;
-    state.session=sessionData.session||null;
+    const {data:{session:existingSession}}=await supabase.auth.getSession();
+    const existingEmail=String(existingSession?.user?.email||"").trim().toLowerCase();
+
+    if(existingSession && existingEmail===clean){
+      state.session=existingSession;
+    }else{
+      const {data:sessionData,error:sessionError}=await supabase.auth.setSession({
+        access_token:data.access_token,
+        refresh_token:data.refresh_token
+      });
+      if(sessionError) throw sessionError;
+      state.session=sessionData.session||null;
+    }
+
     localStorage.setItem(OWNER_EMAIL_KEY,clean);
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
+    localStorage.removeItem(OWNER_CODE_REQUEST_KEY);
     await enterAuthenticatedApp();
   }finally{
     window.__tleOwnerCodeLogin=false;
