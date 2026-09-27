@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-notification-detail-only-1";
+const APP_VERSION = "20260927-hero-weather-ecosystem-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5113,6 +5113,52 @@ document.addEventListener("click",e=>{
   if(!publicOpen) return;
   const link=publicOpen.dataset.openPublic==="book" ? $("#bookingUrl")?.href : $("#quoteUrl")?.href;
   if(link) window.open(link,"_blank","noopener");
+});
+
+function weatherFallbackUrl(){
+  const location=state.weather?.location||{};
+  const place=[
+    location.name||state.weatherArea||"",
+    location.admin1||"",
+    location.country||""
+  ].filter(Boolean).join(", ");
+  return "https://www.google.com/search?q="+encodeURIComponent("weather "+place);
+}
+
+function openDeviceWeather(){
+  const ua=navigator.userAgent||"";
+  const isIOS=/iPad|iPhone|iPod/i.test(ua)
+    || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
+  if(isIOS){
+    const fallback=weatherFallbackUrl();
+    let switched=false;
+    const markHidden=()=>{ if(document.hidden) switched=true; };
+    document.addEventListener("visibilitychange",markHidden,{once:true});
+    window.location.href="weather://";
+    setTimeout(()=>{
+      if(!switched && !document.hidden){
+        window.open(fallback,"_blank","noopener");
+      }
+    },900);
+    return;
+  }
+
+  window.open(weatherFallbackUrl(),"_blank","noopener");
+}
+
+document.addEventListener("click",e=>{
+  const weatherTarget=e.target.closest("[data-open-device-weather]");
+  if(!weatherTarget) return;
+  if(e.target.closest("button,a")) return;
+  openDeviceWeather();
+});
+
+document.addEventListener("keydown",e=>{
+  const weatherTarget=e.target.closest?.("[data-open-device-weather]");
+  if(!weatherTarget || !["Enter"," "].includes(e.key)) return;
+  e.preventDefault();
+  openDeviceWeather();
 });
 
 $("#notificationBellBtn")?.addEventListener("click",e=>{
