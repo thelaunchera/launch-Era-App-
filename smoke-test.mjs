@@ -94,6 +94,9 @@ if(!app.includes("window.__tleShowSignupWelcome=") || !app.includes("hasLocalSig
 if(!app.includes("resolveSignupTimeZone") || !app.includes("timezone: signupTimeZone")){
   throw new Error("Timezone regression: signup must derive business timezone from service area");
 }
+if(!publicJs.includes("dateInBusinessZone") || !publicJs.includes("business?.timezone")){
+  throw new Error("Booking regression: public booking date bounds must use business timezone");
+}
 console.log("REGRESSION_GUARDS_OK");
 
 console.log("LOGIN_SMOKE_OK");
