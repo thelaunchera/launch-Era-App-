@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-48";
+const APP_VERSION = "20260927-unified-49";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -120,7 +120,16 @@ document.addEventListener("click",e=>{
   const signIn=e.target.closest?.("#authWelcomeSignIn");
   if(signIn){ e.preventDefault(); openAuthFromWelcome("signin"); return; }
   const back=e.target.closest?.("#authBackWelcome");
-  if(back){ e.preventDefault(); showAuthWelcome(); return; }
+  if(back){
+    e.preventDefault();
+    if(!window.__tleAuthWelcomeSessionActive){ prepareDirectAuth(); return; }
+    authPanel.hidden=true;
+    authShell?.classList.remove("auth-form-open");
+    if(authWelcome) authWelcome.hidden=false;
+    setAuthStatus("");
+    requestAnimationFrame(()=>{try{authWelcome?.scrollIntoView({behavior:"smooth",block:"start"});}catch{}});
+    return;
+  }
   const toggle=e.target.closest?.("#authPasswordToggle");
   if(!toggle) return;
   e.preventDefault();
@@ -1269,21 +1278,7 @@ function openAuthFromWelcome(mode){
     try{authPanel.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
   });
 }
-$("#authWelcomeStart")?.addEventListener("click",()=>openAuthFromWelcome("signup"));
-$("#authWelcomeSignIn")?.addEventListener("click",()=>openAuthFromWelcome("signin"));
-$("#authBackWelcome")?.addEventListener("click",()=>{
-  if(!window.__tleAuthWelcomeSessionActive){
-    prepareDirectAuth();
-    return;
-  }
-  authPanel.hidden=true;
-  authShell?.classList.remove("auth-form-open");
-  if(authWelcome) authWelcome.hidden=false;
-  setAuthStatus("");
-  requestAnimationFrame(()=>{
-    try{authWelcome?.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
-  });
-});
+
 window.addEventListener("tle:languagechange",syncAuthWelcomeCopy);
 setTimeout(syncAuthWelcomeCopy,0);
 
