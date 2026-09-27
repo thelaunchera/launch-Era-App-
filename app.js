@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-57";
+const APP_VERSION = "20260927-unified-58";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5154,7 +5154,7 @@ async function initializePublicRequest(mode,slug){
   if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
   const quoteTimeInput=form?.querySelector('[name="time"]');
-  if(quoteTimeInput) quoteTimeInput.required=mode==="quote";
+  if(quoteTimeInput) quoteTimeInput.required=false;
 
   if(!services.length){
     serviceSelect.innerHTML='<option value="">'+(mode==="quote"?"No services available yet":"No priced services available for online booking")+'</option>';
@@ -5276,7 +5276,7 @@ async function initializePublicRequest(mode,slug){
           p_preferred_contact:preferred,
           p_service_address:String(fd.get("address")).trim(),
           p_preferred_date:fd.get("date"),
-          p_preferred_time:fd.get("time"),
+          p_preferred_time:String(fd.get("time")||"").trim()||null,
           p_notes:String(fd.get("notes")||"").trim()||null
         });
         if(submitError) throw submitError;
