@@ -1702,6 +1702,7 @@ $("#authRetryButton")?.addEventListener("click",()=>{
 });
 
 $("#authSwitch").addEventListener("click",()=>{
+  window.__tleAuthModeTouched=true;
   const enteringSignup=state.authMode!=="signup";
   setAuthStatus("");
   const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
@@ -2267,12 +2268,17 @@ async function initialize(){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
     showAuth();
-    if(ownerEmail){
-      setAuthMode("signin");
+    if(!window.__tleAuthModeTouched){
+      if(ownerEmail){
+        setAuthMode("signin");
+        const emailInput=$("#authEmail");
+        if(emailInput) emailInput.value=ownerEmail;
+      }else{
+        setAuthMode("signup");
+      }
+    }else if(ownerEmail){
       const emailInput=$("#authEmail");
-      if(emailInput) emailInput.value=ownerEmail;
-    }else{
-      setAuthMode("signup");
+      if(emailInput && !emailInput.value) emailInput.value=ownerEmail;
     }
     setAuthStatus("");
     return;
