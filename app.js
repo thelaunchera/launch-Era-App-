@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-15";
+const APP_VERSION = "20260927-unified-16";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -66,6 +66,10 @@ const state = {
   inquirySeenLoadedFor: null,
   inquiryReadIds: new Set(),
   workerPortal: null,
+  workerMessages: [],
+  teamMessageThreads: [],
+  teamMessages: [],
+  activeTeamMessageMemberId: null,
   currentWorkerLink: null,
   authMode: "signup",
   modalType: null,
@@ -975,6 +979,7 @@ function showApp(){
   }
   scheduleOnboardingWelcome();
   installLiveDashboardUpdates();
+  installTeamMessagePolling();
 }
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
@@ -1242,6 +1247,11 @@ function openView(id,options={}){
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   window.scrollTo({top:0,behavior:"smooth"});
   trackVisit("/app/"+id).catch(()=>{});
+  if(id==="team"){
+    loadTeamMessageThreads().then(()=>{
+      if(state.activeTeamMessageMemberId) return loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true});
+    }).catch(err=>console.warn("[TLE] team messages",err));
+  }
   setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
 // Delegated navigation keeps dashboard links working even when cards/lists
@@ -1918,6 +1928,8 @@ async function initializeWorkerPortal(activationToken=null){
 
   state.workerPortal=data;
   renderWorkerPortal();
+  await loadWorkerMessages(true).catch(err=>console.warn("[TLE] worker messages",err));
+  installWorkerMessagePolling();
 }
 
 function renderWorkerPortal(){
@@ -1930,8 +1942,11 @@ function renderWorkerPortal(){
 
   const bn=$("#workerBusinessName"),ww=$("#workerWelcome"),wc=$("#workerCopy");
   if(bn) bn.textContent=business.name||"Cleaning business";
-  if(ww) ww.textContent="Hi "+(worker.name||"there")+" 👋";
-  if(wc) wc.textContent="Only your assigned jobs are visible here.";
+  const workerEs=String(business.default_language||"").toLowerCase()==="es";
+  if($("#workerAccessLabel")) $("#workerAccessLabel").textContent=workerEs?"Acceso de empleado invitado":"Guest Employee Access";
+  if($("#workerGuestPill")) $("#workerGuestPill").textContent=workerEs?"ACCESO LIMITADO · EMPLEADO":"GUEST EMPLOYEE ACCESS";
+  if(ww) ww.textContent=(workerEs?"Bienvenido, ":"Welcome, ")+(worker.name|| (workerEs?"invitado":"guest"))+" 👋";
+  if(wc) wc.textContent=workerEs?"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo.":"This is your limited employee view. You can only use the tools your admin shared with you.";
 
   const jc=$("#workerJobCount"),tc=$("#workerTodayCount"),ts=$("#workerTimerState");
   if(jc) jc.textContent=jobs.length;
@@ -1963,6 +1978,69 @@ function renderWorkerPortal(){
   `).join("");
 }
 
+
+function formatTeamMessageTime(value){
+  try{
+    return new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(value));
+  }catch{return "";}
+}
+function renderMessageList(target,messages,viewer){
+  if(!target) return;
+  const rows=Array.isArray(messages)?messages:[];
+  if(!rows.length){
+    target.innerHTML=`<div class="empty-inline"><strong>${viewer==="worker"?(appIsSpanish()?"Sin mensajes todavía.":"No messages yet."):(appIsSpanish()?"Sin conversación todavía.":"No conversation yet.")}</strong><span>${viewer==="worker"?(appIsSpanish()?"Los mensajes de tu administrador aparecerán aquí.":"Messages from your admin will appear here."):(appIsSpanish()?"Escribe el primer mensaje abajo.":"Write the first message below.")}</span></div>`;
+    return;
+  }
+  target.innerHTML=rows.map(m=>{
+    const mine=viewer==="worker"?m.sender_type==="worker":m.sender_type==="admin";
+    return `<div class="message-row ${mine?"mine":"theirs"}">
+      <div class="message-bubble">
+        <small>${escapeHtml(m.sender_name||(m.sender_type==="worker"?"Employee":"Admin"))} · ${escapeHtml(formatTeamMessageTime(m.created_at))}</small>
+        <p>${escapeHtml(m.body||"")}</p>
+      </div>
+    </div>`;
+  }).join("");
+  target.scrollTop=target.scrollHeight;
+}
+async function loadWorkerMessages(markRead=false){
+  const token=localStorage.getItem("tle_worker_device_token");
+  if(!token) return [];
+  const {data,error}=await supabase.rpc("worker_portal_messages",{p_token:token});
+  if(error) throw error;
+  state.workerMessages=Array.isArray(data)?data:[];
+  const unread=state.workerMessages.filter(m=>m.sender_type==="admin"&&!m.worker_read_at).length;
+  const badge=$("#workerMessageUnread");
+  if(badge){
+    badge.hidden=unread===0;
+    badge.textContent=unread+" "+(unread===1?"new":"new");
+  }
+  renderMessageList($("#workerMessageThread"),state.workerMessages,"worker");
+  if(markRead && unread){
+    const {error:readError}=await supabase.rpc("worker_portal_mark_messages_read",{p_token:token});
+    if(readError) console.warn("[TLE] worker message read",readError);
+    else{
+      state.workerMessages=state.workerMessages.map(m=>m.sender_type==="admin"?{...m,worker_read_at:m.worker_read_at||new Date().toISOString()}:m);
+      if(badge) badge.hidden=true;
+    }
+  }
+  return state.workerMessages;
+}
+async function sendWorkerMessage(body){
+  const token=localStorage.getItem("tle_worker_device_token");
+  if(!token) throw new Error("Worker access expired");
+  const clean=String(body||"").trim();
+  if(!clean) return;
+  const {error}=await supabase.rpc("worker_portal_send_message",{p_token:token,p_body:clean});
+  if(error) throw error;
+  await loadWorkerMessages(true);
+}
+function installWorkerMessagePolling(){
+  clearInterval(window.__tleWorkerMessageTimer);
+  window.__tleWorkerMessageTimer=setInterval(()=>{
+    if(!workerShell?.hidden) loadWorkerMessages(false).catch(()=>{});
+  },12000);
+}
+
 async function refreshWorkerPortal(){
   const token=localStorage.getItem("tle_worker_device_token");
   if(!token) return;
@@ -1971,6 +2049,7 @@ async function refreshWorkerPortal(){
   localStorage.removeItem("tle_worker_token"); showAuth(); showToast(error.message); return; }
   state.workerPortal=data;
   renderWorkerPortal();
+  await loadWorkerMessages(true).catch(err=>console.warn("[TLE] worker messages",err));
 }
 
 async function createWorkerLink(teamMemberId){
@@ -2709,6 +2788,7 @@ async function loadCoreData(){
   renderJobs();
   renderQuotes();
   renderTeam();
+  if(["owner","admin"].includes(String(state.business?.role||""))) await loadTeamMessageThreads().catch(err=>console.warn("[TLE] team messages",err));
   renderSupplies();
 
   const [invoices,bookingRequests,mileageLogs,timeEntries]=await Promise.all([
@@ -2978,18 +3058,93 @@ function renderTeam(){
     return;
   }
   const isOwner=state.business?.role==="owner";
-  grid.innerHTML=state.teamMembers.map(tm=>`
+  const threadMap=new Map((state.teamMessageThreads||[]).map(x=>[x.team_member_id,x]));
+  grid.innerHTML=state.teamMembers.map(tm=>{
+    const thread=threadMap.get(tm.id)||{};
+    const unread=Number(thread.unread_count||0);
+    return `
     <article class="client-card">
       <div class="client-avatar">${escapeHtml(initials(tm.name))}</div>
       <strong>${escapeHtml(tm.name)}</strong>
       <span>${escapeHtml(tm.role||"cleaner")}</span>
       <small>${escapeHtml(tm.email||tm.phone||"No contact saved")}</small>
+      ${thread.last_message?`<small class="team-message-preview">${escapeHtml(thread.last_message)}</small>`:""}
+      ${unread?`<span class="message-unread-badge">${unread} new</span>`:""}
       <div class="card-actions">
         <button data-team-edit="${tm.id}">Edit</button>
+        <button data-team-message="${tm.id}">Message${unread?" · "+unread:""}</button>
         ${isOwner?`<button data-worker-link="${tm.id}">Share worker link</button><button class="danger-link" data-worker-revoke="${tm.id}">Revoke link</button>`:""}
       </div>
-    </article>
-  `).join("")+`<article class="client-card add-card" data-team-create><div>＋</div><strong>Add worker</strong><span>Assign jobs and share limited access.</span></article>`;
+    </article>`;
+  }).join("")+`<article class="client-card add-card" data-team-create><div>＋</div><strong>Add worker</strong><span>Assign jobs and share limited access.</span></article>`;
+}
+
+
+async function loadTeamMessageThreads(){
+  if(!state.business?.id || !["owner","admin"].includes(String(state.business.role||""))) return [];
+  const {data,error}=await supabase.rpc("admin_team_message_threads",{p_business_id:state.business.id});
+  if(error) throw error;
+  state.teamMessageThreads=Array.isArray(data)?data:[];
+  renderTeam();
+  renderTeamMessageCenter();
+  return state.teamMessageThreads;
+}
+async function loadTeamMessageThread(teamMemberId,{markRead=true}={}){
+  if(!teamMemberId) return [];
+  state.activeTeamMessageMemberId=teamMemberId;
+  const {data,error}=await supabase.rpc("admin_team_messages",{p_team_member_id:teamMemberId});
+  if(error) throw error;
+  state.teamMessages=Array.isArray(data)?data:[];
+  if(markRead){
+    const {error:readError}=await supabase.rpc("admin_mark_team_messages_read",{p_team_member_id:teamMemberId});
+    if(readError) console.warn("[TLE] admin message read",readError);
+  }
+  renderTeamMessageCenter();
+  return state.teamMessages;
+}
+function renderTeamMessageCenter(){
+  const select=$("#teamMessageWorkerSelect");
+  const thread=$("#teamMessageThread");
+  const form=$("#teamMessageForm");
+  if(!select||!thread||!form) return;
+
+  const current=state.activeTeamMessageMemberId || state.teamMembers?.[0]?.id || "";
+  if(!state.activeTeamMessageMemberId && current) state.activeTeamMessageMemberId=current;
+  select.innerHTML=(state.teamMembers||[]).length
+    ? state.teamMembers.map(tm=>`<option value="${tm.id}" ${tm.id===current?"selected":""}>${escapeHtml(tm.name)}</option>`).join("")
+    : '<option value="">No employees yet</option>';
+  select.disabled=!(state.teamMembers||[]).length;
+  $("#teamMessageInput").disabled=!(state.teamMembers||[]).length;
+  form.querySelector('button[type="submit"]').disabled=!(state.teamMembers||[]).length;
+
+  if(!current){
+    state.teamMessages=[];
+    renderMessageList(thread,[],"admin");
+    return;
+  }
+  renderMessageList(thread,state.teamMessages||[],"admin");
+}
+async function sendAdminTeamMessage(body){
+  const teamMemberId=state.activeTeamMessageMemberId;
+  const clean=String(body||"").trim();
+  if(!teamMemberId||!clean) return;
+  const {error}=await supabase.rpc("admin_send_team_message",{p_team_member_id:teamMemberId,p_body:clean});
+  if(error) throw error;
+  await Promise.all([
+    loadTeamMessageThread(teamMemberId,{markRead:true}),
+    loadTeamMessageThreads()
+  ]);
+}
+function installTeamMessagePolling(){
+  clearInterval(window.__tleTeamMessageTimer);
+  window.__tleTeamMessageTimer=setInterval(()=>{
+    const active=$(".view.active")?.dataset.page;
+    if(active==="team" && !appShell?.hidden){
+      loadTeamMessageThreads().then(()=>{
+        if(state.activeTeamMessageMemberId) return loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:false});
+      }).catch(()=>{});
+    }
+  },12000);
 }
 
 function openTeamForm(id=null){
@@ -5071,6 +5226,14 @@ document.addEventListener("click",async e=>{
   const teamEdit=e.target.closest("[data-team-edit]");
   if(teamCreate){ openTeamForm(); return; }
   if(teamEdit){ openTeamForm(teamEdit.dataset.teamEdit); return; }
+  const teamMessage=e.target.closest("[data-team-message]");
+  if(teamMessage){
+    state.activeTeamMessageMemberId=teamMessage.dataset.teamMessage;
+    const select=$("#teamMessageWorkerSelect"); if(select) select.value=state.activeTeamMessageMemberId;
+    await loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true}).catch(err=>showToast(err.message||"Could not load messages"));
+    $("#teamMessageCenter")?.scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
 
   const deleteRecordBtn=e.target.closest("[data-delete-record]");
   if(deleteRecordBtn){
@@ -5441,6 +5604,62 @@ document.addEventListener("change",async e=>{
     .eq("id",memberRole.dataset.memberRole);
   if(error) showToast(error.message);
   else {await loadOwnerAdmin();showToast("Access updated");}
+});
+
+
+const workerMessageForm=$("#workerMessageForm");
+if(workerMessageForm) workerMessageForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const input=$("#workerMessageInput");
+  const body=String(input?.value||"").trim();
+  if(!body) return;
+  const button=workerMessageForm.querySelector('button[type="submit"]');
+  setBusy(button,true,"Sending…");
+  try{
+    await sendWorkerMessage(body);
+    input.value="";
+  }catch(err){
+    showToast(err.message||"Could not send message");
+  }finally{
+    setBusy(button,false);
+  }
+});
+
+const teamMessageWorkerSelect=$("#teamMessageWorkerSelect");
+if(teamMessageWorkerSelect) teamMessageWorkerSelect.addEventListener("change",async e=>{
+  state.activeTeamMessageMemberId=e.target.value||null;
+  if(state.activeTeamMessageMemberId){
+    await loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true}).catch(err=>showToast(err.message||"Could not load messages"));
+  }else{
+    state.teamMessages=[];
+    renderTeamMessageCenter();
+  }
+});
+
+const teamMessageForm=$("#teamMessageForm");
+if(teamMessageForm) teamMessageForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const input=$("#teamMessageInput");
+  const body=String(input?.value||"").trim();
+  if(!body) return;
+  const button=teamMessageForm.querySelector('button[type="submit"]');
+  setBusy(button,true,"Sending…");
+  try{
+    await sendAdminTeamMessage(body);
+    input.value="";
+  }catch(err){
+    showToast(err.message||"Could not send message");
+  }finally{
+    setBusy(button,false);
+  }
+});
+
+$("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
+  try{
+    await loadTeamMessageThreads();
+    if(state.activeTeamMessageMemberId) await loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true});
+    showToast("Messages refreshed");
+  }catch(err){showToast(err.message||"Could not refresh messages");}
 });
 
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
