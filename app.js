@@ -2149,28 +2149,28 @@ function renderWorkerPortal(){
   const jc=$("#workerJobCount"),tc=$("#workerTodayCount"),ts=$("#workerTimerState");
   if(jc) jc.textContent=jobs.length;
   if(tc) tc.textContent=jobs.filter(j=>sameLocalDay(j.starts_at,today)).length;
-  if(ts) ts.textContent=active?"Running":"Off";
+  if(ts) ts.textContent=active?tr("Running"):tr("Off");
 
   const list=$("#workerJobsList");
   if(!list) return;
   if(!jobs.length){
-    list.innerHTML=`<div class="empty-inline"><strong>No assigned jobs.</strong><span>Your owner or admin will assign jobs when they are ready.</span></div>`;
+    list.innerHTML=`<div class="empty-inline"><strong>${escapeHtml(tr("No assigned jobs."))}</strong><span>${escapeHtml(tr("Your owner or admin will assign jobs when they are ready."))}</span></div>`;
     return;
   }
 
   list.innerHTML=jobs.map(j=>`
     <article class="worker-job-card">
       <div class="worker-job-top">
-        <span><strong>${escapeHtml(j.client_name||"Cleaning job")}</strong><small>${escapeHtml(j.service_name||"Cleaning")} · ${formatDateTime(j.starts_at)}</small></span>
+        <span><strong>${escapeHtml(j.client_name||tr("Cleaning job"))}</strong><small>${escapeHtml(j.service_name||tr("Cleaning"))} · ${formatDateTime(j.starts_at)}</small></span>
         <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
       </div>
       <div class="worker-job-address">${escapeHtml(j.service_address||tr("Address not added"))}</div>
-      ${j.client_phone?`<a class="worker-phone" href="tel:${escapeHtml(j.client_phone)}">Call client</a>`:""}
+      ${j.client_phone?`<a class="worker-phone" href="tel:${escapeHtml(j.client_phone)}">${escapeHtml(tr("Call client"))}</a>`:""}
       ${j.notes?`<p class="worker-job-notes">${escapeHtml(j.notes)}</p>`:""}
       <div class="worker-job-actions">
-        ${j.status!=="completed"?`<button data-worker-status-link="${j.id}" data-status="on_the_way">On my way</button><button data-worker-status-link="${j.id}" data-status="in_progress">Start job</button><button data-worker-status-link="${j.id}" data-status="completed">Complete</button>`:""}
-        ${active?.job_id===j.id?`<button class="primary-btn" data-worker-time-stop="${active.id}">Finish timer</button>`:`<button class="ghost-btn" data-worker-time-start="${j.id}" ${active?"disabled":""}>Start timer</button>`}
-        <button class="ghost-btn" data-worker-mileage="${j.id}">Log mileage</button>
+        ${j.status!=="completed"?`<button data-worker-status-link="${j.id}" data-status="on_the_way">${escapeHtml(tr("On my way"))}</button><button data-worker-status-link="${j.id}" data-status="in_progress">${escapeHtml(tr("Start job"))}</button><button data-worker-status-link="${j.id}" data-status="completed">${escapeHtml(tr("Complete"))}</button>`:""}
+        ${active?.job_id===j.id?`<button class="primary-btn" data-worker-time-stop="${active.id}">${escapeHtml(tr("Finish timer"))}</button>`:`<button class="ghost-btn" data-worker-time-start="${j.id}" ${active?"disabled":""}>${escapeHtml(tr("Start timer"))}</button>`}
+        <button class="ghost-btn" data-worker-mileage="${j.id}">${escapeHtml(tr("Log mileage"))}</button>
       </div>
     </article>
   `).join("");
@@ -3977,7 +3977,7 @@ function renderOperations(){
   const active=state.timeEntries.find(t=>!t.clocked_out_at);
   const timerWrap=$("#activeTimerWrap");
   if(timerWrap){
-    timerWrap.innerHTML=active?`<article class="timer-card"><span>Current job</span><h3>${escapeHtml(active.jobs?.clients?.name||active.jobs?.services?.name||"Job")}</h3><strong>Running</strong><div><button class="ghost-btn" data-finish-time="${active.id}">Finish timer</button></div></article>`:`<div class="empty-inline timer-empty"><strong>No timer running.</strong><span>Start time from an assigned job when work begins.</span></div>`;
+    timerWrap.innerHTML=active?`<article class="timer-card"><span>${escapeHtml(tr("Current job"))}</span><h3>${escapeHtml(active.jobs?.clients?.name||active.jobs?.services?.name||tr("Job"))}</h3><strong>${escapeHtml(tr("Running"))}</strong><div><button class="ghost-btn" data-finish-time="${active.id}">${escapeHtml(tr("Finish timer"))}</button></div></article>`:`<div class="empty-inline timer-empty"><strong>${escapeHtml(tr("No timer running."))}</strong><span>${escapeHtml(tr("Start time from an assigned job when work begins."))}</span></div>`;
   }
   const timeTable=$("#timeEntriesTable");
   if(timeTable){
