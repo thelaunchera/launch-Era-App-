@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-33";
+const APP_VERSION = "20260927-unified-34";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5100,7 +5100,27 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="feedback"){
       await saveFeedback(fd);
       modal.hidden=true;
-      showToast("Feedback sent. Thank you!");
+      showToast(langPick("Feedback sent. Thank you!","Comentarios enviados. ¡Gracias!","Feedback enviado. Obrigado!","Commentaire envoyé. Merci !"));
+      return;
+    }
+    if(state.modalType==="workerMileage"){
+      const workerUnit=state.workerPortal?.business?.distance_unit==="km"?"km":"mi";
+      const entered=Number(fd.get("distance")||0);
+      if(!Number.isFinite(entered)||entered<=0){
+        throw new Error(langPick("Enter a valid distance.","Ingresa una distancia válida.","Digite uma distância válida.","Saisissez une distance valide."));
+      }
+      const miles=workerUnit==="km"?entered/1.609344:entered;
+      const token=localStorage.getItem("tle_worker_device_token");
+      const {error}=await supabase.rpc("worker_portal_log_mileage",{
+        p_token:token,
+        p_job_id:state.modalId,
+        p_miles:miles,
+        p_notes:String(fd.get("notes")||"").trim()||null
+      });
+      if(error) throw error;
+      modal.hidden=true;
+      await refreshWorkerPortal();
+      showToast(langPick("Mileage saved","Millaje guardado","Quilometragem salva","Kilométrage enregistré"));
       return;
     }
     if(state.modalType==="lead") await saveLead(fd);
@@ -5799,14 +5819,32 @@ document.addEventListener("click",async e=>{
   const workerMileage=e.target.closest("[data-worker-mileage]");
   if(workerMileage){
     const workerUnit=state.workerPortal?.business?.distance_unit==="km"?"km":"mi";
-    const raw=window.prompt((workerUnit==="km"?"Kilometers":"Miles")+" driven for this job:");
-    if(raw===null) return;
-    const entered=Number(raw);
-    if(!Number.isFinite(entered)||entered<=0){showToast("Enter a valid distance");return;}
-    const miles=workerUnit==="km"?entered/1.609344:entered;
-    const token=localStorage.getItem("tle_worker_device_token");
-    const {error}=await supabase.rpc("worker_portal_log_mileage",{p_token:token,p_job_id:workerMileage.dataset.workerMileage,p_miles:miles,p_notes:null});
-    if(error) showToast(error.message); else showToast("Mileage saved");
+    state.modalType="workerMileage";
+    state.modalId=workerMileage.dataset.workerMileage;
+    modalHeader(
+      langPick("MILEAGE","MILLAJE","QUILOMETRAGEM","KILOMÉTRAGE"),
+      langPick("Log drive","Registrar viaje","Registrar trajeto","Enregistrer le trajet"),
+      langPick(
+        "Add the distance driven for this assigned job.",
+        "Agrega la distancia recorrida para este trabajo asignado.",
+        "Adicione a distância percorrida para este trabalho atribuído.",
+        "Ajoutez la distance parcourue pour ce travail attribué."
+      )
+    );
+    entityForm.innerHTML=`
+      <div class="form-grid">
+        <label class="full">${workerUnit==="km"
+          ? langPick("Kilometers","Kilómetros","Quilômetros","Kilomètres")
+          : langPick("Miles","Millas","Milhas","Miles")}
+          <input name="distance" type="number" min="0.1" step="0.1" inputmode="decimal" required placeholder="0.0">
+        </label>
+        <label class="full">${langPick("Note (optional)","Nota (opcional)","Nota (opcional)","Note (facultative)")}
+          <input name="notes" maxlength="240" placeholder="${langPick("Example: supply stop","Ej. parada de suministros","Ex.: parada para materiais","Ex. : arrêt fournitures")}">
+        </label>
+      </div>
+      ${formSubmit(langPick("Save mileage","Guardar millaje","Salvar quilometragem","Enregistrer"))}`;
+    modal.hidden=false;
+    requestAnimationFrame(()=>entityForm.querySelector('[name="distance"]')?.focus());
     return;
   }
 
