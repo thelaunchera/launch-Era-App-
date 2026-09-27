@@ -2488,6 +2488,9 @@ html,body{max-width:100%;overflow-x:hidden}
 #todayHeroCard{
   isolation:isolate;
   border:1px solid rgba(25,25,25,.07);
+  animation:tleAssistantColorCycle 16s ease-in-out infinite;
+}
+#todayHeroCard.assistant-arrival{
   animation:
     tleAssistantEnter .58s cubic-bezier(.2,.8,.2,1) both,
     tleAssistantColorCycle 16s ease-in-out .58s infinite;
