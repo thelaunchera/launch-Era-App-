@@ -479,11 +479,35 @@
   },true);
 
   const observer=new MutationObserver(mutations=>{
-    if(applying||lang!=="es") return;
+    if(applying) return;
     applying=true;
     for(const mutation of mutations){
-      if(mutation.type==="characterData") setTextNode(mutation.target);
-      mutation.addedNodes?.forEach(n=>translateTree(n));
+      if(mutation.type==="characterData"){
+        // App-rendered text can change after the first translation (page titles,
+        // counters, modal copy, statuses). Treat that new English value as the
+        // fresh source string before translating it.
+        originals.set(mutation.target,mutation.target.nodeValue);
+        if(lang==="es") setTextNode(mutation.target);
+      }
+
+      if(mutation.type==="attributes"){
+        const el=mutation.target;
+        if(el instanceof Element){
+          let saved=attrOriginals.get(el);
+          if(!saved){saved={};attrOriginals.set(el,saved);}
+          const attr=mutation.attributeName;
+          if(["placeholder","aria-label","title"].includes(attr)){
+            saved[attr]=el.getAttribute(attr);
+            if(lang==="es") setAttrs(el);
+          }
+        }
+      }
+
+      mutation.addedNodes?.forEach(n=>{
+        // New nodes are always captured from their current English source text,
+        // then translated immediately when Spanish is active.
+        translateTree(n);
+      });
     }
     updateToggles();
     applying=false;
@@ -491,7 +515,13 @@
 
   function init(){
     applyLanguage(lang);
-    observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:false});
+    observer.observe(document.body,{
+      subtree:true,
+      childList:true,
+      characterData:true,
+      attributes:true,
+      attributeFilter:["placeholder","aria-label","title"]
+    });
   }
 
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init,{once:true});
