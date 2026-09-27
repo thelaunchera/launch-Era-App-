@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-21";
+const APP_VERSION = "20260927-unified-22";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1677,16 +1677,22 @@ function syncAuthPasswordToggle(){
   toggle.setAttribute("aria-label",visible?(appIsSpanish()?"Ocultar contraseña":"Hide password"):(appIsSpanish()?"Mostrar contraseña":"Show password"));
   toggle.classList.toggle("is-visible",visible);
 }
-$("#authPasswordToggle")?.addEventListener("click",()=>{
+function toggleAuthPasswordVisibility(){
   const input=$("#authPassword");
   if(!input) return;
-  const start=input.selectionStart;
-  const end=input.selectionEnd;
+  let start=null,end=null;
+  try{start=input.selectionStart;end=input.selectionEnd;}catch{}
   input.type=input.type==="password"?"text":"password";
   syncAuthPasswordToggle();
-  input.focus({preventScroll:true});
-  try{input.setSelectionRange(start,end);}catch{}
-});
+  try{input.focus({preventScroll:true});}catch{try{input.focus();}catch{}}
+  if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
+}
+document.addEventListener("click",e=>{
+  const toggle=e.target.closest?.("#authPasswordToggle");
+  if(!toggle) return;
+  e.preventDefault();
+  toggleAuthPasswordVisibility();
+},true);
 
 function setAuthMode(mode){
   state.authMode=mode;
