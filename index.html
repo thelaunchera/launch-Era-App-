@@ -34,7 +34,7 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for cleaning businesses serving homes, Airbnb and short-term rentals, offices, stores, restaurants and other commercial spaces." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <link rel="stylesheet" href="./styles.css?v=20260927-trial-card-color-1" />
+  <link rel="stylesheet" href="./styles.css?v=20260927-dashboard-assistant-1" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -333,10 +333,14 @@
       </div>
 
       <section class="view active" data-page="today">
-        <div class="hero-card moment-afternoon is-loading" id="todayHeroCard">
+        <div class="hero-card moment-afternoon is-loading assistant-arrival" id="todayHeroCard">
           <span class="hero-moment-icon" id="todayMomentIcon" aria-hidden="true">✨</span>
           <div>
-            <span class="pill yellow" id="todayDatePill">Today</span>
+            <div class="hero-assistant-meta">
+              <span class="assistant-live-dot" aria-hidden="true"></span>
+              <span class="assistant-label" id="todayAssistantLabel">Daily assistant</span>
+              <span class="pill yellow" id="todayDatePill">Today</span>
+            </div>
             <h2 id="todayGreeting">Getting your day ready…</h2>
             <p id="todayMomentCopy">Checking your schedule and local weather.</p>
           </div>
