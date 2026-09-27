@@ -37,17 +37,16 @@ await new Promise(r=>setTimeout(r,20));
 const $=s=>window.document.querySelector(s);
 const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,cancelable:true}));
 
-if($("#authTitle")?.textContent!=="Sign in") throw new Error("Initial sign-in screen did not initialize");
-
-click("#authSwitch");
-if($("#authTitle")?.textContent!=="Create account") throw new Error("Create account button is not wired");
-if($("#passwordField")?.hidden) throw new Error("Create account did not show password field");
-
+if($("#authTitle")?.textContent!=="Create account") throw new Error("Initial create-account screen did not initialize");
+if($("#emailField")?.hidden) throw new Error("Create account email field is hidden");
+if($("#passwordField")?.hidden) throw new Error("Create account password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 if($("#authSubmit")?.textContent!=="Create account") throw new Error("Create account submit label is wrong");
+if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
+if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
 
 click("#authSwitch");
-if($("#authTitle")?.textContent!=="Sign in") throw new Error("Return to sign-in failed");
+if($("#authTitle")?.textContent!=="Sign in") throw new Error("Existing-user sign-in switch failed");
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
@@ -61,6 +60,7 @@ if(signInCalls!==1) throw new Error("Sign in submit handler did not call auth");
 console.log("SIGNIN_SUBMIT_OK");
 
 click("#authSwitch");
+if($("#authTitle")?.textContent!=="Create account") throw new Error("Return to create-account failed");
 $("#authEmail").value="new@example.invalid";
 $("#authPassword").value="CreateAccount123!";
 $("#authForm").dispatchEvent(new window.Event("submit",{bubbles:true,cancelable:true}));
