@@ -16,7 +16,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-8";
+const APP_VERSION = "20260927-unified-9";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -101,8 +101,8 @@ const pageTitles = {
 const ONBOARDING_VERSION=1;
 const ONBOARDING_COPY={
   welcome:{
-    en:{kicker:"WELCOME",title:"Your Cleaning App, explained as you use it.",text:"The first time you open a section, a small tip will tell you what it does. Each tip appears only once."},
-    es:{kicker:"BIENVENIDA",title:"Tu Cleaning App, explicada mientras la usas.",text:"La primera vez que abras una sección, verás un cartelito corto que te explica para qué sirve. Cada tip aparece una sola vez."}
+    en:{kicker:"YOU’RE IN",title:"Thanks for choosing The Launch Era Cleaning App.",text:"Your account is ready. We’ll stay with you for the first few steps so you can see where everything lives without having to figure it out alone."},
+    es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
   },
   today:{
     en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and quick actions."},
@@ -181,6 +181,24 @@ const ONBOARDING_COPY={
 function onboardingLanguage(){
   return window.TLE_I18N?.language==="es" || (!window.TLE_I18N && localStorage.getItem("tle_language")==="es") ? "es" : "en";
 }
+function signupWelcomeKey(email=""){
+  return "tle_signup_welcome_pending:"+String(email||"").trim().toLowerCase();
+}
+function markSignupWelcomePending(email=""){
+  const normalized=String(email||"").trim().toLowerCase();
+  if(!normalized) return;
+  try{localStorage.setItem(signupWelcomeKey(normalized),"1");}catch{}
+}
+function consumeSignupWelcomePending(){
+  const email=String(state.session?.user?.email||"").trim().toLowerCase();
+  if(!email) return false;
+  let pending=false;
+  try{
+    pending=localStorage.getItem(signupWelcomeKey(email))==="1";
+    if(pending) localStorage.removeItem(signupWelcomeKey(email));
+  }catch{}
+  return pending;
+}
 function onboardingStorageKey(){
   const business=state.business?.id||"business";
   const user=state.session?.user?.id||state.business?.team_member_id||"device";
@@ -219,7 +237,11 @@ function ensureOnboardingUi(){
     </div>`;
   document.body.appendChild(layer);
 
-  $("#onboardingCloseBtn",layer).addEventListener("click",()=>hideOnboardingTip());
+  $("#onboardingCloseBtn",layer).addEventListener("click",()=>{
+    const current=window.__tleOnboardingCurrent;
+    if(current?.key==="welcome") completeCurrentOnboardingTip();
+    else hideOnboardingTip();
+  });
   $("#onboardingDoneBtn",layer).addEventListener("click",()=>completeCurrentOnboardingTip());
   $("#onboardingSkipBtn",layer).addEventListener("click",()=>disableOnboardingTips());
   return layer;
@@ -269,16 +291,16 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? (lang==="es"?"Puedes saltarlo cuando quieras.":"You can skip it anytime.")
+    ? (lang==="es"?"Cierra este mensaje y te mostramos lo esencial paso a paso.":"Close this message and we’ll show you the essentials step by step.")
     : (lang==="es"?"Este tip solo aparece una vez.":"You’ll only see this tip once.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? (lang==="es"?"Empezar":"Start tour")
+    ? (lang==="es"?"Empezar recorrido":"Start tour")
     : (lang==="es"?"Entendido":"Got it");
-  $("#onboardingSkipBtn",layer).textContent=isWelcome
-    ? (lang==="es"?"Saltar":"Skip")
-    : (lang==="es"?"No mostrar más tips":"Hide tips");
+  $("#onboardingSkipBtn",layer).hidden=isWelcome;
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=lang==="es"?"No mostrar más tips":"Hide tips";
   $("#onboardingCloseBtn",layer).setAttribute("aria-label",lang==="es"?"Cerrar":"Close");
   layer.classList.toggle("welcome",isWelcome);
+  if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
 }
 function maybeShowOnboardingWelcome(){
@@ -286,6 +308,8 @@ function maybeShowOnboardingWelcome(){
   const progress=getOnboardingState();
   if(progress.disabled || progress.welcome) return;
   if(!appShell || appShell.hidden) return;
+  if(!window.__tleShowSignupWelcome) return;
+  window.__tleShowSignupWelcome=false;
   renderOnboardingTip("welcome","welcome");
 }
 function maybeShowFeatureIntro(id,force=false){
@@ -1573,6 +1597,7 @@ authForm.addEventListener("submit", async (e)=>{
         state.session=null;
       }
       const createdEmail=email;
+      markSignupWelcomePending(createdEmail);
       setAuthMode("signin");
       const emailInput=$("#authEmail");
       if(emailInput) emailInput.value=createdEmail;
@@ -1591,6 +1616,7 @@ authForm.addEventListener("submit", async (e)=>{
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
+      window.__tleShowSignupWelcome=consumeSignupWelcomePending();
       trackGoogleEvent("login",{method:"password"});
       await enterAuthenticatedApp();
     }
