@@ -88,6 +88,9 @@ if(!app.includes("Date.now()-savedAt>OWNER_IDLE_MS") || !app.includes("clearOwne
 if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
   throw new Error("Dashboard regression: contextual service-area weather is missing");
 }
+if(!app.includes("window.__tleShowSignupWelcome=") || !app.includes("hasLocalSignupWelcomePending() ||") || !app.includes("hasAccountSignupWelcomePending()")){
+  throw new Error("Business setup welcome regression: new signup welcome is not preserved through workspace creation");
+}
 console.log("REGRESSION_GUARDS_OK");
 
 console.log("LOGIN_SMOKE_OK");
