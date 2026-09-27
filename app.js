@@ -15,6 +15,7 @@ const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
+const APP_VERSION = "20260927-legal-feedback-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -305,6 +306,15 @@ window.addEventListener("tle:languagechange",()=>{
     renderOnboardingTip(current.key,current.kind);
   }
 });
+
+function syncLegalLinks(){
+  const isEs=window.TLE_I18N?.language==="es";
+  const base="https://thelaunchera.github.io/The-launch-era-Website-/";
+  $(".legal-privacy-link").forEach(a=>a.href=base+(isEs?"es/privacy.html":"privacy.html"));
+  $(".legal-terms-link").forEach(a=>a.href=base+(isEs?"es/terms.html":"terms.html"));
+}
+window.addEventListener("tle:languagechange",syncLegalLinks);
+setTimeout(syncLegalLinks,0);
 
 function escapeHtml(value=""){
   return String(value).replace(/[&<>"']/g, ch => ({
@@ -2735,12 +2745,70 @@ function openEntityForm(type,id=null){
 }
 function formSubmit(label){ return `<div class="form-footer"><button type="button" class="ghost-btn" data-modal-cancel>Cancel</button><button class="primary-btn" type="submit">${label}</button></div>`; }
 
+
+function openFeedbackForm(){
+  if(!state.session || !state.business){
+    showToast("Sign in to send feedback");
+    return;
+  }
+  state.modalType="feedback";
+  state.modalId=null;
+  modalHeader(
+    "FEEDBACK",
+    "Help us improve the Cleaning App",
+    "Send a quick bug report, idea or question. Your business email is included so we can follow up if needed."
+  );
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label class="full">Feedback type
+        <select name="category" required>
+          <option value="bug">Something is not working</option>
+          <option value="idea">I have an idea</option>
+          <option value="question">I have a question</option>
+          <option value="other">Something else</option>
+        </select>
+      </label>
+      <label class="full">Tell us what happened or what you need
+        <textarea name="message" rows="6" maxlength="3000" required placeholder="A short description is enough."></textarea>
+      </label>
+    </div>
+    ${formSubmit("Send feedback")}`;
+  modal.hidden=false;
+  setTimeout(()=>entityForm.querySelector('textarea[name="message"]')?.focus(),50);
+}
+
+async function saveFeedback(fd){
+  const category=String(fd.get("category")||"other");
+  const message=String(fd.get("message")||"").trim();
+  if(message.length<2) throw new Error("Tell us a little more before sending.");
+
+  const page=$(".view.active")?.dataset.page||"unknown";
+  const {data,error}=await supabase.functions.invoke("submit-app-feedback",{
+    body:{
+      category,
+      message,
+      page,
+      language:window.TLE_I18N?.language||"en",
+      app_version:APP_VERSION
+    }
+  });
+  if(error) throw error;
+  if(!data?.submitted) throw new Error(data?.error||"Could not send feedback.");
+  return data;
+}
+
 entityForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const button=e.submitter;
   setBusy(button,true,"Saving…");
   try{
     const fd=new FormData(entityForm);
+    if(state.modalType==="feedback"){
+      await saveFeedback(fd);
+      modal.hidden=true;
+      showToast("Feedback sent. Thank you!");
+      return;
+    }
     if(state.modalType==="lead") await saveLead(fd);
     let invoiceResult=null;
     let quoteResult=null;
@@ -3559,6 +3627,18 @@ if(availabilityWeek) availabilityWeek.addEventListener("change",e=>{
 
 const restartOnboardingBtn=$("#restartOnboardingBtn");
 if(restartOnboardingBtn) restartOnboardingBtn.addEventListener("click",restartGuidedOnboarding);
+
+const helpButtons=["#sidebarHelpBtn","#footerHelpBtn"];
+helpButtons.forEach(selector=>{
+  const button=$(selector);
+  if(button) button.addEventListener("click",()=>openView("help"));
+});
+
+const feedbackButtons=["#sidebarFeedbackBtn","#footerFeedbackBtn","#helpFeedbackBtn"];
+feedbackButtons.forEach(selector=>{
+  const button=$(selector);
+  if(button) button.addEventListener("click",openFeedbackForm);
+});
 
 const quickAddBtn=$("#quickAddBtn");
 if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
