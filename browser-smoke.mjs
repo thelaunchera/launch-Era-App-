@@ -68,6 +68,19 @@ try{
     if(signup.button.text!=="Create account"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
       throw new Error(profile.name+": Create account form is not usable");
     }
+    const passwordToggle=await page.evaluate(()=>{
+      const btn=document.querySelector("#authPasswordToggle");
+      const input=document.querySelector("#authPassword");
+      if(!btn||!input) return {exists:false};
+      btn.click();
+      const shown=input.type==="text"&&btn.getAttribute("aria-pressed")==="true";
+      btn.click();
+      const hidden=input.type==="password"&&btn.getAttribute("aria-pressed")==="false";
+      return {exists:true,shown,hidden};
+    });
+    if(!passwordToggle.exists||!passwordToggle.shown||!passwordToggle.hidden){
+      throw new Error(profile.name+": password visibility toggle failed");
+    }
     if(!signup.trialClose||signup.staticThreeDay) throw new Error(profile.name+": trial alert markup is stale");
     const layout=await page.evaluate(()=>({
       scrollWidth:document.documentElement.scrollWidth,
