@@ -17,7 +17,7 @@ const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-54";
+const APP_VERSION = "20260927-unified-55";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -127,7 +127,7 @@ document.addEventListener("click",e=>{
     authShell?.classList.remove("auth-form-open");
     if(authWelcome) authWelcome.hidden=false;
     setAuthStatus("");
-    requestAnimationFrame(()=>{try{authWelcome?.scrollIntoView({behavior:"smooth",block:"start"});}catch{}});
+    requestAnimationFrame(()=>{try{authWelcome?.focus?.({preventScroll:true});}catch{}});
     return;
   }
   const toggle=e.target.closest?.("#authPasswordToggle");
@@ -1268,19 +1268,19 @@ function openAuthFromWelcome(mode){
 
   businessSetup.hidden=true;
   setAuthStatus("");
+  if(authWelcome) authWelcome.hidden=true;
   authPanel.hidden=false;
   authPanel.classList.remove("is-entering");
-  setAuthMode(mode,{keepWelcome:true});
-  if(authWelcome) authWelcome.hidden=false;
+  setAuthMode(mode);
   authShell?.classList.add("auth-form-open");
   const back=$("#authBackWelcome");
   if(back) back.hidden=false;
 
   requestAnimationFrame(()=>{
-    try{authPanel.scrollIntoView({behavior:"smooth",block:"start"});}catch{}
-    if(mode==="signup"){
-      setTimeout(()=>$("#authEmail")?.focus({preventScroll:true}),520);
-    }
+    const target=mode==="signup"?$("#authEmail"):($("#authEmail")?.value?$("#authPassword"):$("#authEmail"));
+    setTimeout(()=>{
+      try{target?.focus({preventScroll:true});}catch{try{target?.focus();}catch{}}
+    },40);
   });
 }
 
@@ -2025,8 +2025,9 @@ $("#authSwitch").addEventListener("click",()=>{
       password.value="";
     }
     requestAnimationFrame(()=>{
-      try{ email?.scrollIntoView({block:"center",behavior:"smooth"}); }catch{}
-      setTimeout(()=>email?.focus(),120);
+      setTimeout(()=>{
+        try{email?.focus({preventScroll:true});}catch{try{email?.focus();}catch{}}
+      },40);
     });
   }
 });
