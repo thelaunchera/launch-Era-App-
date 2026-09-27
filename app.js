@@ -17,7 +17,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const OWNER_CODE_REQUEST_KEY = "tle_owner_code_requested_at";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-password-session-no-code-1";
+const APP_VERSION = "20260927-live-weather-seasons-1";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -500,6 +500,75 @@ async function loadBusinessWeather(force=false){
     if(card&&!state.weather) card.hidden=true;
   }
 }
+function currentWeatherVisual(weather){
+  const code=Number(weather?.current?.weather_code);
+  const precipitation=Number(weather?.current?.precipitation||0);
+
+  if([71,73,75,77,85,86].includes(code)) return {kind:"snow",intensity:code===75||code===86?"heavy":"normal"};
+  if([95,96,99].includes(code)) return {kind:"rain",intensity:"heavy"};
+  if([61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain",intensity:[65,67,82].includes(code)?"heavy":"normal"};
+  if([51,53,55,56,57].includes(code)) return {kind:"rain",intensity:"light"};
+  if(precipitation>0) return {kind:"rain",intensity:precipitation>=0.15?"heavy":"light"};
+  return {kind:"none",intensity:"none"};
+}
+
+function currentWeatherSeason(weather){
+  const latitude=Number(weather?.location?.latitude);
+  const dateStamp=String(weather?.current?.time||"");
+  const month=Number(dateStamp.slice(5,7)) || (new Date().getMonth()+1);
+  let season;
+  if(month>=3&&month<=5) season="spring";
+  else if(month>=6&&month<=8) season="summer";
+  else if(month>=9&&month<=11) season="fall";
+  else season="winter";
+
+  if(Number.isFinite(latitude) && latitude<0){
+    season={spring:"fall",summer:"winter",fall:"spring",winter:"summer"}[season]||season;
+  }
+  return season;
+}
+
+function particleMarkup(count,className){
+  return Array.from({length:count},(_,i)=>{
+    const left=(7+(i*17)%91);
+    const delay=-((i*0.83)%7).toFixed(2);
+    const duration=(5.6+(i%6)*0.65).toFixed(2);
+    const drift=(-14+(i*11)%29);
+    const scale=(0.72+(i%5)*0.10).toFixed(2);
+    return `<span class="${className}" style="--x:${left}%;--delay:${delay}s;--dur:${duration}s;--drift:${drift}px;--scale:${scale}"></span>`;
+  }).join("");
+}
+
+function renderHeroWeatherEffects(){
+  const hero=$("#todayHeroCard");
+  const seasonLayer=$("#heroSeasonLayer");
+  const precipLayer=$("#heroPrecipLayer");
+  if(!hero||!seasonLayer||!precipLayer) return;
+
+  const weather=state.weather;
+  const season=currentWeatherSeason(weather);
+  const visual=currentWeatherVisual(weather);
+
+  hero.dataset.season=season;
+  hero.dataset.weather=visual.kind;
+  hero.dataset.weatherIntensity=visual.intensity;
+
+  const seasonCounts={spring:9,summer:6,fall:9,winter:7};
+  seasonLayer.innerHTML=particleMarkup(seasonCounts[season]||7,"season-particle");
+  seasonLayer.className="hero-season-layer season-"+season;
+
+  if(visual.kind==="rain"){
+    const count=visual.intensity==="heavy"?28:visual.intensity==="light"?12:20;
+    precipLayer.innerHTML=particleMarkup(count,"rain-drop");
+  }else if(visual.kind==="snow"){
+    const count=visual.intensity==="heavy"?24:16;
+    precipLayer.innerHTML=particleMarkup(count,"snow-flake");
+  }else{
+    precipLayer.innerHTML="";
+  }
+  precipLayer.className="hero-precip-layer weather-"+visual.kind+" intensity-"+visual.intensity;
+}
+
 function renderWeatherBrief(){
   const card=$("#weatherBrief");
   const weather=state.weather;
@@ -563,6 +632,7 @@ function renderWeatherBrief(){
     const t=new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(state.weatherFetchedAt||Date.now()));
     updated.textContent=appIsSpanish()?"Actualizado "+t:"Updated "+t;
   }
+  renderHeroWeatherEffects();
 }
 function installLiveDashboardUpdates(){
   if(window.__tleLiveDashboardInstalled) return;
@@ -573,13 +643,15 @@ function installLiveDashboardUpdates(){
   },60*1000);
 
   window.setInterval(function(){
-    if(state.session&&state.business) loadBusinessWeather(true).catch(function(){});
-  },15*60*1000);
+    if(state.session&&state.business&&document.visibilityState==="visible"){
+      loadBusinessWeather(true).catch(function(){});
+    }
+  },5*60*1000);
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
     renderTodaySummary(true);
-    if(Date.now()-(state.weatherFetchedAt||0)>15*60*1000){
+    if(Date.now()-(state.weatherFetchedAt||0)>5*60*1000){
       loadBusinessWeather(true).catch(function(){});
     }
   });
@@ -2848,6 +2920,7 @@ function renderTodaySummary(wakeAssistant=false){
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
   if(hero){
+    try{renderHeroWeatherEffects();}catch{}
     hero.classList.remove("is-loading");
     if(wakeAssistant){
       hero.classList.remove("assistant-arrival");
