@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cleaning App Preview</title>
+<link rel="stylesheet" href="./styles.css">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#FAF8F3}
+body{display:block}
+.demo-viewport{position:relative;width:100%;height:100%;overflow:hidden;background:#FAF8F3}
+.demo-stage{position:absolute;left:0;top:0;width:1365px;height:900px;transform-origin:top left}
+.demo-note{position:absolute;right:22px;bottom:18px;z-index:50;background:#191919;color:#fff;border-radius:999px;padding:8px 12px;font:800 11px/1 Arial,sans-serif;letter-spacing:.06em}
+.demo-stage .sidebar{height:900px}
+.demo-stage .main{height:900px;overflow:hidden}
+.demo-stage .trial-card{margin-top:18px}
+.demo-stage .nav-list{gap:3px}
+.demo-stage .nav-item{padding:8px 12px}
+.demo-stage .nav-label{margin:12px 10px 4px}
+.demo-stage .trial-card{padding:13px}
+.demo-stage .topbar{position:static}
+.demo-stage .timeline-item small{color:#706D66}
+.demo-stage .sample-request{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px}
+.demo-stage .sample-request small{color:var(--muted)}
+.demo-stage .sample-day{display:grid;grid-template-columns:100px 1fr 1fr;gap:8px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}
+.demo-stage .sample-time{background:#F8F6F1;border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.demo-stage .view{display:none}
+.demo-stage .view.active{display:block}
+.demo-stage .workspace-chip small{text-transform:none}
+</style>
+</head>
+<body>
+<div class="demo-viewport">
+<div class="demo-stage" id="demoStage">
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="brand-row"><div class="brand-mark">TLE</div><div><div class="brand-name">The Launch Era</div><div class="brand-sub">Cleaning App</div></div></div>
+  <button class="workspace-chip" type="button"><span class="workspace-avatar">DC</span><span><strong>Demo Cleaning Co.</strong><small>Sample workspace</small></span></button>
+  <nav class="nav-list">
+    <button class="nav-item active" data-demo-nav="today">Today <span>⌂</span></button>
+    <button class="nav-item" data-demo-nav="booking">Booking Center <span>↗</span></button>
+    <button class="nav-item">Leads <span>◎</span></button>
+    <button class="nav-item">Clients <span>◌</span></button>
+    <button class="nav-item">Calendar + Jobs <span>□</span></button>
+    <button class="nav-item">Quotes <span>◫</span></button>
+    <button class="nav-item">Invoices <span>$</span></button>
+    <div class="nav-label">Operations</div>
+    <button class="nav-item">Today's Route <span>⌁</span></button>
+    <button class="nav-item">Mileage <span>mi</span></button>
+    <button class="nav-item">Time Tracking <span>◷</span></button>
+    <button class="nav-item">Supplies <span>▣</span></button>
+    <button class="nav-item">Owner Reports <span>↗</span></button>
+    <div class="nav-label">Business</div>
+    <button class="nav-item">Services + Add-ons <span>＋</span></button>
+    <button class="nav-item">Team <span>◉</span></button>
+    <button class="nav-item">Settings <span>⚙</span></button>
+  </nav>
+  <div class="trial-card">
+    <span class="pill trial-days-pill">30 days left</span>
+    <strong>$5.99/month after your trial</strong>
+    <p>Full access during the trial. No card required to start.</p>
+  </div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div><p class="eyebrow">THE LAUNCH ERA CLEANING APP</p><h1 id="demoTitle">Today</h1></div>
+  <div class="top-actions"><button class="ghost-btn">EN / ES</button><button class="primary-btn">+ Add New</button></div>
+</header>
+
+<section class="view active" data-demo-view="today">
+  <div class="hero-card">
+    <div><span class="pill yellow">Today</span><h2>Good afternoon 👋</h2><p>Here’s what needs your attention today.</p></div>
+    <button class="dark-btn">Open today’s route →</button>
+  </div>
+  <div class="metric-grid">
+    <article class="metric-card"><span>Today’s jobs</span><strong>4</strong><small>Scheduled today</small></article>
+    <article class="metric-card"><span>Active clients</span><strong>28</strong><small>Current client records</small></article>
+    <article class="metric-card"><span>Open quotes</span><strong>3</strong><small>Requested, draft or sent</small></article>
+    <article class="metric-card"><span>Outstanding invoices</span><strong>$860</strong><small>Still to collect</small></article>
+    <article class="metric-card"><span>Booking requests</span><strong>2</strong><small>Waiting for review</small></article>
+  </div>
+  <div class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-head"><div><p class="eyebrow">TODAY</p><h3>Schedule + route</h3></div><button class="text-btn">Full calendar →</button></div>
+      <div class="timeline">
+        <div class="timeline-item"><time>10:30</time><div><strong>Standard Cleaning</strong><small>Palm Beach · Maria S.</small></div><span class="pill">Confirmed</span></div>
+        <div class="timeline-item"><time>1:00</time><div><strong>Deep Cleaning</strong><small>Boynton Beach · Rachel T.</small></div><span class="pill">Confirmed</span></div>
+        <div class="timeline-item"><time>3:30</time><div><strong>Move-out Cleaning</strong><small>Delray Beach · Chris J.</small></div><span class="pill yellow">Pending</span></div>
+      </div>
+    </article>
+    <article class="panel">
+      <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Move work forward</h3></div></div>
+      <div class="quick-grid">
+        <button class="quick-card">＋<span>Add client</span></button>
+        <button class="quick-card">◫<span>Create quote</span></button>
+        <button class="quick-card">↗<span>Booking link</span></button>
+        <button class="quick-card">$<span>Create invoice</span></button>
+        <button class="quick-card">mi<span>Log mileage</span></button>
+        <button class="quick-card">◷<span>Track time</span></button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="view" data-demo-view="booking">
+  <div class="section-intro">
+    <div><p class="eyebrow">BOOKING CENTER</p><h2>Your public front door.</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
+    <button class="primary-btn">Copy booking link</button>
+  </div>
+  <div class="booking-grid">
+    <article class="panel">
+      <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share anywhere</h3></div></div>
+      <label class="field-label">Booking link</label>
+      <div class="link-box"><a href="#">yourbusiness.com/book</a><button>Open</button><button>Copy</button></div>
+      <label class="field-label">Quote request link</label>
+      <div class="link-box"><a href="#">yourbusiness.com/quote</a><button>Open</button><button>Copy</button></div>
+      <div style="margin-top:24px"><p class="eyebrow">NEW REQUESTS</p>
+        <div class="sample-request"><div><strong>Standard Cleaning</strong><small>Saturday · 10:30 AM · Palm Beach</small></div><span class="pill yellow">Review</span></div>
+        <div class="sample-request"><div><strong>Move-out Cleaning</strong><small>Monday · 1:00 PM · Boynton Beach</small></div><span class="pill">New</span></div>
+      </div>
+    </article>
+    <article class="panel">
+      <div class="panel-head"><div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div><button class="text-btn">Save</button></div>
+      <div class="availability-settings">
+        <label>Travel buffer<select><option>30 min</option></select></label>
+        <label>Minimum booking notice<select><option>24 hours</option></select></label>
+      </div>
+      <div class="availability-week">
+        <div class="sample-day"><strong>Monday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong>Tuesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong>Wednesday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong>Thursday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+        <div class="sample-day"><strong>Friday</strong><div class="sample-time">9:00 AM</div><div class="sample-time">5:00 PM</div></div>
+      </div>
+      <p class="helper">Service duration, travel buffer, scheduled jobs and pending requests are checked before a time is shown.</p>
+    </article>
+  </div>
+</section>
+</main>
+</div>
+</div>
+<div class="demo-note">ACTUAL APP UI · SAMPLE DATA</div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const view=params.get("view")==="booking"?"booking":"today";
+document.querySelectorAll("[data-demo-view]").forEach(el=>el.classList.toggle("active",el.dataset.demoView===view));
+document.querySelectorAll("[data-demo-nav]").forEach(el=>el.classList.toggle("active",el.dataset.demoNav===view));
+document.getElementById("demoTitle").textContent=view==="booking"?"Booking Center":"Today";
+function fit(){
+ const stage=document.getElementById("demoStage");
+ const scale=Math.min(innerWidth/1365,innerHeight/900);
+ stage.style.transform="scale("+scale+")";
+ stage.style.left=((innerWidth-1365*scale)/2)+"px";
+ stage.style.top=((innerHeight-900*scale)/2)+"px";
+}
+addEventListener("resize",fit);fit();
+</script>
+</body>
+</html>
