@@ -1,6 +1,20 @@
 (()=>{
   const STORAGE_KEY="tle_language";
   const exact={
+    "Paid app activations will appear here with the customer email.":"Las activaciones pagadas aparecerán aquí con el correo del cliente.",
+    "No purchases yet.":"Aún no hay compras.",
+    "New authenticated app opens will appear here.":"Las nuevas aperturas autenticadas aparecerán aquí.",
+    "No customer logins yet.":"Aún no hay inicios de sesión de clientes.",
+    "Anonymous visitor":"Visitante anónimo",
+    "Login":"Inicio de sesión",
+    "Cleaning business":"Negocio de limpieza",
+    "Unknown email":"Correo desconocido",
+    "Purchases + activations":"Compras + activaciones",
+    "PURCHASES":"COMPRAS",
+    "Recent visits":"Visitas recientes",
+    "VISIT ACTIVITY":"VISITAS",
+    "Recent logins":"Inicios recientes",
+    "LOGIN ACTIVITY":"INICIOS DE SESIÓN",
     "One moment…":"Un momento…",
     "Checking your schedule and local weather.":"Revisando tu agenda y el clima de tu zona.",
     "Getting your day ready…":"Preparando tu día…",
