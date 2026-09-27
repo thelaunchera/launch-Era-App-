@@ -2,7 +2,7 @@
   "name": "The Launch Era Cleaning App",
   "short_name": "Cleaning App",
   "description": "Operations app for cleaning businesses serving homes, short-term rentals and commercial spaces.",
-  "start_url": "./?app=20260927-live-weather-seasons-1",
+  "start_url": "./?app=20260927-safari-bg-fix-1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FAF8F3",
