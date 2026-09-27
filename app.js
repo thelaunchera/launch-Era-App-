@@ -4662,11 +4662,11 @@ function openEntityForm(type,id=null){
   if(type==="mileage"){
     const es=appIsSpanish();
     const mileageJobs=state.jobs.filter(j=>j.status!=="canceled");
-    modalHeader("MILEAGE",record?(es?"Editar viaje":"Edit drive"):(es?"Registrar viaje":"Log drive"),es?"Guarda las millas del negocio con origen y destino separados.":"Keep business miles simple with separate From and To fields.");
+    modalHeader("MILEAGE",record?(es?"Editar viaje":"Edit drive"):(es?"Registrar viaje":"Log drive"),es?"Guarda la distancia del negocio con origen y destino separados.":"Keep business distance simple with separate From and To fields.");
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>${es?"Fecha":"Date"}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
-        <label>${es?"Millas":"Miles"}<input name="miles" type="number" min="0.1" step="0.1" required value="${record?.miles??""}" placeholder="12.4"></label>
+        <label>${businessDistanceUnit()==="km"?(es?"Kilómetros":"Kilometers"):(es?"Millas":"Miles")}<input name="distance" type="number" min="0.1" step="0.1" required value="${record?distanceFromStoredMiles(record.miles).toFixed(1):""}" placeholder="12.4"></label>
         <label class="full">${es?"Trabajo (opcional)":"Job (optional)"}<select name="job_id" data-mileage-job>
           <option value="">${es?"Sin trabajo específico":"No specific job"}</option>
           ${mileageJobs.map(j=>`<option value="${j.id}" data-address="${escapeHtml(j.service_address||"")}" ${record?.job_id===j.id?"selected":""}>${escapeHtml(j.clients?.name||j.service_address||"Cleaning job")}</option>`).join("")}
@@ -5054,7 +5054,7 @@ async function saveMileage(fd){
     business_id:state.business.id,
     job_id:fd.get("job_id")||null,
     log_date:fd.get("log_date"),
-    miles:Number(fd.get("miles")||0),
+    miles:distanceToStoredMiles(fd.get("distance")),
     from_location:String(fd.get("from_location")||"").trim()||null,
     to_location:String(fd.get("to_location")||"").trim()||null,
     notes:String(fd.get("notes")||"").trim()||null
@@ -5424,10 +5424,12 @@ document.addEventListener("click",async e=>{
 
   const workerMileage=e.target.closest("[data-worker-mileage]");
   if(workerMileage){
-    const raw=window.prompt("Miles driven for this job:");
+    const workerUnit=state.workerPortal?.business?.distance_unit==="km"?"km":"mi";
+    const raw=window.prompt((workerUnit==="km"?"Kilometers":"Miles")+" driven for this job:");
     if(raw===null) return;
-    const miles=Number(raw);
-    if(!Number.isFinite(miles)||miles<=0){showToast("Enter valid miles");return;}
+    const entered=Number(raw);
+    if(!Number.isFinite(entered)||entered<=0){showToast("Enter a valid distance");return;}
+    const miles=workerUnit==="km"?entered/1.609344:entered;
     const token=localStorage.getItem("tle_worker_device_token");
     const {error}=await supabase.rpc("worker_portal_log_mileage",{p_token:token,p_job_id:workerMileage.dataset.workerMileage,p_miles:miles,p_notes:null});
     if(error) showToast(error.message); else showToast("Mileage saved");
