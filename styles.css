@@ -221,6 +221,31 @@ button{cursor:pointer}
 }
 .auth-form input:focus,.entity-form input:focus,.entity-form select:focus,.entity-form textarea:focus{border-color:#9EB9D6;box-shadow:0 0 0 3px rgba(191,217,245,.38)}
 .auth-form .primary-btn{margin-top:4px}
+.remember-username-row{
+  display:flex!important;
+  grid-template-columns:auto 1fr!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  width:max-content;
+  max-width:100%;
+  color:#5D5952!important;
+  font-size:12px!important;
+  font-weight:750!important;
+  cursor:pointer;
+  user-select:none;
+}
+.remember-username-row[hidden]{display:none!important}
+.remember-username-row input{
+  width:18px!important;
+  height:18px!important;
+  min-height:18px!important;
+  margin:0!important;
+  padding:0!important;
+  flex:0 0 18px;
+  accent-color:var(--ink);
+}
+.remember-username-row span{line-height:1.25}
 .auth-links{display:flex;justify-content:space-between;gap:12px;margin-top:16px}
 .auth-links button{border:0;background:transparent;color:var(--ink);font-size:12px;font-weight:800;padding:0}
 .entity-form{margin-top:18px}
@@ -4561,5 +4586,27 @@ body.modal-open{
   #todayHeroCard.has-pending>.hero-moment-icon,
   .attention-list button.attention-pending{
     animation:none!important;
+  }
+}
+
+
+/* 2026-09-27 — iOS auth stability v56 */
+body.shell-auth{overflow-anchor:none}
+.auth-card,#authPanel,.auth-form{overflow-anchor:none}
+@media(max-width:620px){
+  /* iOS Safari zooms inputs below 16px, which looks like the login screen is
+     jumping. Keep authentication fields at 16px while the keyboard is open. */
+  .auth-form input:not([type="checkbox"]){
+    font-size:16px!important;
+    min-height:48px;
+  }
+  .auth-shell{
+    min-height:100dvh;
+    padding-top:max(14px,env(safe-area-inset-top));
+    padding-bottom:max(20px,env(safe-area-inset-bottom));
+  }
+  .auth-card{
+    scroll-margin-top:0;
+    transform:none!important;
   }
 }
