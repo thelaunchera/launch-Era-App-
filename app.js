@@ -662,7 +662,7 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
-  $("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   renderTrialStatus();
@@ -1913,7 +1913,7 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
-  $("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   const [membersRes,invitesRes]=await Promise.all([
