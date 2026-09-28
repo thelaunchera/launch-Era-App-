@@ -2131,11 +2131,9 @@ function readOwnerSessionBackup(){
       clearOwnerSessionBackup();
       return null;
     }
-    const savedAt=Number(raw.saved_at||0);
-    if(!Number.isFinite(savedAt) || Date.now()-savedAt>OWNER_IDLE_MS){
-      clearOwnerSessionBackup();
-      return null;
-    }
+    // Do not expire a valid persisted session just because the app was closed.
+    // Supabase owns session lifetime/revocation; the PWA should behave like an
+    // installed app and keep using the refresh token until Auth rejects it.
     return raw;
   }catch{
     clearOwnerSessionBackup();
