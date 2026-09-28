@@ -28,6 +28,7 @@ let signUpCalls=0;
 let currentSession=null;
 const auth={
   getSession:async()=>({data:{session:currentSession},error:null}),
+  refreshSession:async()=>({data:{session:currentSession},error:null}),
   onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),
   signInWithOtp:async()=>({data:{},error:null}),
   signInWithPassword:async()=>{signInCalls++; return {data:{session:null},error:{message:"Invalid login credentials"}};},
@@ -96,8 +97,14 @@ if(!app.includes("tle_new_signup:true") || !app.includes("hasAccountSignupWelcom
 if(!app.includes('from("app_notification_reads")') || !app.includes('from("app_notification_state")')){
   throw new Error("Notification regression: persistent read state is missing");
 }
-if(!app.includes("Date.now()-savedAt>OWNER_IDLE_MS") || !app.includes("clearOwnerSessionBackup();")){
-  throw new Error("Session regression: stale iOS backup protection is missing");
+if(app.includes("Date.now()-savedAt>OWNER_IDLE_MS")){
+  throw new Error("Session regression: closing/reopening the PWA must not expire a valid owner session locally");
+}
+if(!app.includes("isPermanentSessionRestoreError") || !app.includes("invalid refresh token") || !app.includes("clearOwnerSessionBackup();")){
+  throw new Error("Session regression: permanently invalid Supabase refresh tokens must still be discarded");
+}
+if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.localStorage")){
+  throw new Error("Session regression: Supabase persistent browser auth configuration is missing");
 }
 if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
   throw new Error("Dashboard regression: contextual service-area weather is missing");
