@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-94";
+const APP_VERSION = "20260928-stable-95";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -727,8 +727,10 @@ async function loadBusinessWeather(force=false){
         state.weather.nextRain=state.weather.nextPrecip?.kind==="rain"?state.weather.nextPrecip:null;
         state.weatherArea=area;
         state.weatherFetchedAt=cached.fetchedAt;
-        renderWeatherBrief();
-        renderTodaySummary();
+        renderWeatherCoreSnapshot(state.weather);
+        try{ renderWeatherBrief(); }catch(err){ console.warn("[TLE] cached weather render",err); }
+        try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] cached dashboard weather render",err); }
+        window.__tleWeatherRetryCount=0;
         return;
       }
     }catch(e){}
@@ -736,7 +738,9 @@ async function loadBusinessWeather(force=false){
 
   const geo=await geocodeBusinessArea(area);
   if(!geo){
-    if(card) card.hidden=true;
+    window.__tleWeatherRetryCount=Number(window.__tleWeatherRetryCount||0)+1;
+    renderWeatherPending(window.__tleWeatherRetryCount>2);
+    if(window.__tleWeatherRetryCount<=2) scheduleWeatherRetry();
     return;
   }
 
@@ -759,12 +763,21 @@ async function loadBusinessWeather(force=false){
     state.weather=weather;
     state.weatherArea=area;
     state.weatherFetchedAt=Date.now();
+    window.__tleWeatherRetryCount=0;
+    if(window.__tleWeatherRetryTimer){
+      clearTimeout(window.__tleWeatherRetryTimer);
+      window.__tleWeatherRetryTimer=null;
+    }
     try{localStorage.setItem(cacheKey,JSON.stringify({weather:weather,fetchedAt:state.weatherFetchedAt}));}catch(e){}
-    renderWeatherBrief();
-    renderTodaySummary();
+    renderWeatherCoreSnapshot(weather);
+    try{ renderWeatherBrief(); }catch(err){ console.warn("[TLE] weather detail render",err); }
+    try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] dashboard weather render",err); }
   }catch(err){
     console.warn("[TLE] weather",err);
-    if(card&&!state.weather) card.hidden=true;
+    window.__tleWeatherRetryCount=Number(window.__tleWeatherRetryCount||0)+1;
+    if(state.weather) renderWeatherCoreSnapshot(state.weather);
+    else renderWeatherPending(window.__tleWeatherRetryCount>2);
+    if(window.__tleWeatherRetryCount<=2) scheduleWeatherRetry();
   }
 }
 function currentWeatherVisual(weather){
@@ -872,11 +885,53 @@ function nextWeatherConditionShift(weather){
   return null;
 }
 
+function renderWeatherCoreSnapshot(weather=state.weather){
+  const card=$("#weatherBrief");
+  if(!card||!weather||!weather.current) return false;
+  card.hidden=false;
+  const meta=weatherCodeMeta(weather.current.weather_code);
+  const temp=Math.round(Number(weather.current.temperature_2m));
+  const highs=weather.daily?.temperature_2m_max||[];
+  const lows=weather.daily?.temperature_2m_min||[];
+  const high=Math.round(Number(highs[0]));
+  const low=Math.round(Number(lows[0]));
+  const lang=appLanguage();
+  const tempEl=$("#weatherTemp");
+  const condition=$("#weatherCondition");
+  const highLow=$("#weatherHighLow");
+  const location=$("#weatherLocation");
+  if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
+  if(condition) condition.textContent=meta[lang]||meta.en;
+  if(highLow) highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
+  if(location) location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","CLIMA LOCAL","MÉTÉO LOCALE");
+  return true;
+}
+function renderWeatherPending(finalFailure=false){
+  const card=$("#weatherBrief");
+  if(!card) return;
+  card.hidden=false;
+  const condition=$("#weatherCondition");
+  const highLow=$("#weatherHighLow");
+  const tempEl=$("#weatherTemp");
+  if(tempEl && !state.weather) tempEl.textContent="—";
+  if(condition) condition.textContent=finalFailure
+    ? langPick("Weather unavailable","Clima no disponible","Clima indisponível","Météo indisponible")
+    : langPick("Updating weather…","Actualizando clima…","Atualizando clima…","Mise à jour météo…");
+  if(highLow && !state.weather) highLow.textContent="H:—  L:—";
+}
+function scheduleWeatherRetry(){
+  if(window.__tleWeatherRetryTimer || !state.session || !state.business) return;
+  window.__tleWeatherRetryTimer=setTimeout(()=>{
+    window.__tleWeatherRetryTimer=null;
+    loadBusinessWeather(true).catch(err=>console.warn("[TLE] weather retry",err));
+  },2600);
+}
+
 function renderWeatherBrief(){
   const card=$("#weatherBrief");
   const weather=state.weather;
   if(!card||!weather||!weather.current) return;
-  card.hidden=false;
+  renderWeatherCoreSnapshot(weather);
 
   const meta=weatherCodeMeta(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
