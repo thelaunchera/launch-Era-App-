@@ -712,6 +712,25 @@ async function resolveSignupTimeZone(area){
   return (await resolveBusinessLocale(area)).timezone;
 }
 
+function getDeviceWeatherGeo(){
+  if(!("geolocation" in navigator)) return Promise.resolve(null);
+  return new Promise(resolve=>{
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const latitude=Number(pos.coords?.latitude);
+      const longitude=Number(pos.coords?.longitude);
+      if(!Number.isFinite(latitude)||!Number.isFinite(longitude)) return resolve(null);
+      resolve({
+        latitude,longitude,
+        name:langPick("Current location","Ubicación actual","Localização atual","Position actuelle"),
+        admin1:"",
+        country:"",
+        country_code:"",
+        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||"auto",
+        source:"device"
+      });
+    },()=>resolve(null),{enableHighAccuracy:false,maximumAge:10*60*1000,timeout:3500});
+  });
+}
 async function loadBusinessWeather(force=false){
   const area=String(state.business&&state.business.service_area||"").trim();
   const card=$("#weatherBrief");
@@ -739,7 +758,10 @@ async function loadBusinessWeather(force=false){
     }catch(e){}
   }
 
-  const geo=await geocodeBusinessArea(area);
+  // Prefer the user's current device location when available so weather follows
+  // travel/relaunch automatically. Fall back to the configured service area.
+  const deviceGeo=await getDeviceWeatherGeo();
+  const geo=deviceGeo||await geocodeBusinessArea(area);
   if(!geo){
     if(card) card.hidden=true;
     return;
@@ -1002,10 +1024,14 @@ function installLiveDashboardUpdates(){
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
-    renderTodaySummary(true);
-    if(Date.now()-(state.weatherFetchedAt||0)>5*60*1000){
-      loadBusinessWeather(true).catch(function(){});
-    }
+    // A PWA returning to the foreground may now be in a different location.
+    // Refresh weather immediately; Open-Meteo resolves the timezone from coords.
+    loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
+  });
+
+  window.addEventListener("pageshow",function(){
+    if(!state.session||!state.business) return;
+    loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
   });
 }
 
@@ -1475,6 +1501,8 @@ function showApp(){
   }
   scheduleOnboardingWelcome();
   installLiveDashboardUpdates();
+  // Refresh immediately on authenticated app entry instead of waiting for the 5-minute timer.
+  loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
   installTeamMessagePolling();
 }
 function initials(name=""){
