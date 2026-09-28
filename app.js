@@ -4050,6 +4050,7 @@ function openClientInfo(clientId){
   const quotes=state.quotes.filter(q=>q.client_id===clientId || (!q.client_id && String(q.customer_email||"").toLowerCase()===String(client.email||"").toLowerCase()));
   const invoices=state.invoices.filter(inv=>inv.client_id===clientId);
   const bookings=state.bookingRequests.filter(b=>String(b.customer_email||"").toLowerCase()===String(client.email||"").toLowerCase());
+  const leads=state.leads.filter(l=>String(l.email||"").toLowerCase()===String(client.email||"").toLowerCase());
 
   const recurringIds=[...new Set(jobs.map(j=>j.recurrence_rule_id).filter(Boolean))];
   const upcoming=jobs.filter(j=>!["completed","canceled","no_show"].includes(j.status) && new Date(j.starts_at)>=new Date()).length;
@@ -4085,6 +4086,12 @@ function openClientInfo(clientId){
         meta:formatDateTime(payment.paid_at||payment.created_at)+" · "+paymentMethodLabel(payment.method||"")
       }))
     ),
+    ...leads.map(l=>({
+      at:l.updated_at||l.created_at,
+      icon:"◎",
+      title:langPick("Lead / inquiry","Lead / consulta","Lead / consulta","Prospect / demande"),
+      meta:formatDateTime(l.updated_at||l.created_at)+" · "+String(l.status||"new").replaceAll("_"," ")+(l.source?" · "+l.source:"")
+    })),
     ...bookings.map(b=>({
       at:b.created_at||b.requested_start_at,
       icon:"📅",
@@ -4112,6 +4119,7 @@ function openClientInfo(clientId){
         <div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(clientServiceAddress(client)||"—")}</strong></div>
         <div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(client.preferred_contact||"email")}</strong></div>
         <div><small>${escapeHtml(langPick("Recurring","Recurrente","Recorrente","Récurrent"))}</small><strong>${escapeHtml(recurringSummary.join(", ")||langPick("No","No","Não","Non"))}</strong></div>
+        ${client.notes?`<div class="full"><small>${escapeHtml(langPick("Client notes","Notas del cliente","Notas do cliente","Notes client"))}</small><strong>${escapeHtml(client.notes)}</strong></div>`:""}
       </div>
       <div class="client-history-stats">
         <span><small>${escapeHtml(langPick("Completed","Completados","Concluídos","Terminés"))}</small><b>${completed}</b></span>
