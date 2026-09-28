@@ -12,7 +12,7 @@ function isPrimaryPlatformAdminAccount(){
   return String(state?.session?.user?.email||"").trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL;
 }
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
-const OWNER_IDLE_MS = 24 * 60 * 60 * 1000;
+const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
@@ -2280,13 +2280,29 @@ function markOwnerActivity(){
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
-  return false;
+  const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  return Number.isFinite(last) && last>0 && Date.now()-last>=OWNER_IDLE_MS;
 }
 async function expireOwnerSession(){
-  // Legacy compatibility only. Owner access no longer uses email codes.
-  // Supabase's persisted session/refresh token determines whether the user stays signed in.
-  localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-  markOwnerActivity();
+  window.__tleOwnerLocking=true;
+  try{
+    // Twelve hours without real interaction requires a fresh password sign-in.
+    // This is a local lock: closing/backgrounding the PWA itself is not activity.
+    try{await supabase.auth.signOut({scope:"local"});}catch(err){console.warn("[TLE] idle local signout",err);}
+    state.session=null;
+    state.business=null;
+    clearOwnerSessionBackup();
+    localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
+    localStorage.removeItem(OWNER_ACTIVITY_KEY);
+    showAuth();
+    setAuthMode("signin");
+    const emailInput=$("#authEmail");
+    const remembered=rememberedOwnerEmail();
+    if(emailInput && remembered) emailInput.value=remembered;
+    setAuthStatus(langPick("Please sign in again after 12 hours of inactivity.","Inicia sesión nuevamente después de 12 horas de inactividad.","Entre novamente após 12 horas de inatividade.","Reconnectez-vous après 12 heures d’inactivité."),"success");
+  }finally{
+    window.__tleOwnerLocking=false;
+  }
 }
 window.addEventListener("tle:languagechange",()=>{
   if(state.session && state.business?.role==="owner"){
@@ -2294,15 +2310,12 @@ window.addEventListener("tle:languagechange",()=>{
   }
 });
 window.addEventListener("pagehide",()=>{
-  if(state.session){
-    saveOwnerSessionBackup(state.session);
-    if(state.business?.role==="owner") markOwnerActivity();
-  }
+  if(state.session) saveOwnerSessionBackup(state.session);
 });
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="hidden" && state.session){
-    saveOwnerSessionBackup(state.session);
-    if(state.business?.role==="owner") markOwnerActivity();
+  if(document.visibilityState==="hidden" && state.session) saveOwnerSessionBackup(state.session);
+  if(document.visibilityState==="visible" && state.session && state.business?.role==="owner" && ownerIdleExpired()){
+    expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
   }
 });
 
@@ -2321,12 +2334,7 @@ function installOwnerActivityTracker(){
   ["pointerdown","keydown","touchstart","scroll"].forEach(evt=>{
     window.addEventListener(evt,onActivity,{passive:true});
   });
-  document.addEventListener("visibilitychange",()=>{
-    if(state.session && state.business?.role==="owner") markOwnerActivity();
-  });
-  window.addEventListener("pagehide",()=>{
-    if(state.session && state.business?.role==="owner") markOwnerActivity();
-  },{passive:true});
+
 }
 function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
@@ -3041,6 +3049,10 @@ async function initialize(){
   }
 
   state.session=session;
+  if(session && ownerIdleExpired()){
+    await expireOwnerSession();
+    return;
+  }
   if(!session){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
