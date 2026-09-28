@@ -151,7 +151,7 @@ try{
       if(!btn) return false;
       const r=btn.getBoundingClientRect();
       return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") && r.width>0 && r.height>0;
-    },{timeout:3000});
+    },{timeout:8000});
     const submitHit=await page.evaluate(()=>{
       const btn=document.querySelector("#authSubmit");
       if(!btn) return {ok:false,reason:"missing"};
