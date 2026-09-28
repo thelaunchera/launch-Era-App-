@@ -233,8 +233,10 @@ if(!app.includes("function showApp(){\n  dismissSessionSplash();") || !app.inclu
 if(!html.includes('host==="app.thelaunchera.com"&&!automation') || !html.includes("navigator.webdriver")){
   throw new Error("Analytics regression: app must block automated/non-production GA4 traffic");
 }
-if(!app.includes("trackAuthLandingOnHumanInteraction();") || !app.includes("HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed")){
-  throw new Error("Analytics regression: passive/automated login traffic filtering is missing");
+if(!app.includes("function trackAuthLandingOnHumanInteraction()") ||
+   !app.includes('trackVisit("/login").catch(()=>{});') ||
+   !app.includes("HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed")){
+  throw new Error("Analytics regression: human login tracking or automated traffic filtering is missing");
 }
 if(!html.includes('Preferred time <span class="field-optional">(optional)</span>') ||
    !publicJs.includes('quoteTimeInput.required=false') ||
