@@ -68,6 +68,15 @@ try{
   }
     const bootError=await page.evaluate(()=>document.documentElement.dataset.appError||"");
     if(bootError) throw new Error(profile.name+": app boot error "+bootError);
+    await page.waitForFunction(()=>typeof window.TLE_FOLLOWUPS?.load==="function",{timeout:10000});
+    const followupsShell=await page.evaluate(()=>({
+      nav:Boolean(document.querySelector('.nav-item[data-view="followups"]')),
+      view:Boolean(document.querySelector('.view[data-page="followups"]')),
+      module:typeof window.TLE_FOLLOWUPS?.load==="function"
+    }));
+    if(!followupsShell.nav||!followupsShell.view||!followupsShell.module){
+      throw new Error(profile.name+": Follow-ups module failed to initialize "+JSON.stringify(followupsShell));
+    }
 
     const welcomeState=await page.evaluate(()=>({
       welcomeVisible:!document.querySelector("#authWelcome")?.hidden,
