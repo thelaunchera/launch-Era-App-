@@ -158,9 +158,9 @@ if(
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const releaseVersions=[
   appVersion,
-  ...[...html.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0]),
-  ...[...serviceWorker.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0]),
-  ...[...manifest.matchAll(/20260927-unified-\\d+/g)].map(m=>m[0])
+  ...[...html.matchAll(/20260928-unified-\\d+/g)].map(m=>m[0]),
+  ...[...serviceWorker.matchAll(/20260928-unified-\\d+/g)].map(m=>m[0]),
+  ...[...manifest.matchAll(/20260928-unified-\\d+/g)].map(m=>m[0])
 ].filter(Boolean);
 if(!appVersion || releaseVersions.some(v=>v!==appVersion)){
   throw new Error("Release version mismatch across app shell/runtime/service worker");
