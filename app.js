@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-95";
+const APP_VERSION = "20260928-stable-96";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1464,6 +1464,43 @@ function scheduleQuarterHourCardColors(){
   window.__tleQuarterColorTimer=setTimeout(scheduleQuarterHourCardColors,Math.max(1000,ms));
 }
 
+function ensureDashboardBootResolved(){
+  if(!state.session||!state.business) return;
+  const greet=$("#todayGreeting");
+  const action=$("#todayHeroAction");
+  const pending=Boolean(
+    action?.disabled ||
+    /getting your day ready/i.test(String(greet?.textContent||""))
+  );
+  if(!pending) return;
+  try{ renderTodaySummary(true); }catch(err){ console.warn("[TLE] dashboard boot retry",err); }
+  const stillPending=Boolean(
+    action?.disabled ||
+    /getting your day ready/i.test(String(greet?.textContent||""))
+  );
+  if(!stillPending) return;
+  const hero=$("#todayHeroCard");
+  const copy=$("#todayMomentCopy");
+  try{hero?.classList.remove("is-loading");}catch{}
+  if(greet){
+    const hour=new Date().getHours();
+    greet.textContent=dashboardGreeting(dashboardDaypart(hour));
+  }
+  if(copy){
+    copy.textContent=langPick(
+      "Your workspace is ready. Check the calendar and what’s next.",
+      "Tu espacio está listo. Revisa el calendario y lo próximo.",
+      "Seu espaço está pronto. Confira o calendário e o que vem a seguir.",
+      "Votre espace est prêt. Consultez le calendrier et la suite."
+    );
+  }
+  if(action){
+    action.disabled=false;
+    action.dataset.jump="calendar";
+    action.textContent=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+  }
+}
+
 function showApp(){
   dismissSessionSplash();
   setShellState("app");
@@ -1526,6 +1563,8 @@ function showApp(){
   scheduleOnboardingWelcome();
   installLiveDashboardUpdates();
   installTeamMessagePolling();
+  clearTimeout(window.__tleDashboardBootTimer);
+  window.__tleDashboardBootTimer=setTimeout(ensureDashboardBootResolved,1400);
 }
 function initials(name=""){
   return name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase() || "TL";
