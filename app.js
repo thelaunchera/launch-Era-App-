@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-92";
+const APP_VERSION = "20260928-stable-93";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2822,10 +2822,14 @@ async function ensureTrialWelcomeEmail(){
 
 async function enterAuthenticatedApp(){
   if(window.__tleEnterAppPromise) return window.__tleEnterAppPromise;
+  window.__tleBootInProgress=true;
+  window.__tleBootResolved=false;
   window.__tleEnterAppPromise=(async()=>{
     try{
       await initialize();
     }finally{
+      window.__tleBootInProgress=false;
+      window.__tleBootResolved=true;
       window.__tleEnterAppPromise=null;
     }
   })();
@@ -3046,8 +3050,10 @@ async function initialize(){
   await trackVisit("/app/"+($(".view.active")?.dataset.page||"today"));
 }
 window.addEventListener("pageshow",()=>{
-  // Restore only the shell class. Do not force-scroll on resume: iOS fires
-  // pageshow when returning from native apps and password-manager surfaces.
+  // iOS fires pageshow before persisted Auth is fully resolved on a cold PWA
+  // launch. Never choose the auth shell while boot is still deciding whether
+  // a valid saved session exists.
+  if(window.__tleBootInProgress || window.__tleBootResolved!==true) return;
   if(!appShell?.hidden){
     setShellState("app");
   }else if(!publicShell?.hidden){
@@ -3091,6 +3097,10 @@ supabase.auth.onAuthStateChange((event, session)=>{
     return;
   }
   if(event === "SIGNED_OUT"){
+    // Supabase can briefly emit SIGNED_OUT while iOS is still restoring its
+    // persisted session. During boot, initialize() is the single source of
+    // truth and will show Auth itself only if restoration truly fails.
+    if(window.__tleBootInProgress && !window.__tleSigningOut && !window.__tleOwnerLocking) return;
     state.session=null;
     state.business=null;
     if(window.__tleSigningOut || window.__tleOwnerLocking) return;
