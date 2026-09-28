@@ -2114,9 +2114,8 @@ function isPermanentSessionRestoreError(err){
 async function restoreOwnerSessionFromBackup(){
   const backup=readOwnerSessionBackup();
   if(!backup) return null;
-  const remembered=rememberedOwnerEmail();
-  if(remembered && backup.email!==remembered) return null;
-
+  // The remembered-username preference must never decide which authenticated
+  // session is valid. It is only a form convenience and can be stale on iOS.
   let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
     try{
@@ -3120,9 +3119,34 @@ supabase.auth.onAuthStateChange((event, session)=>{
     return;
   }
   if(event === "SIGNED_OUT"){
+    // Supabase can emit SIGNED_OUT during an automatic refresh/cold-start
+    // recovery. Only transition to the login UI for an explicit user logout.
+    if(window.__tleSigningOut || window.__tleOwnerLocking){
+      state.session=null;
+      state.business=null;
+      return;
+    }
+    if(state.session || !appShell.hidden){
+      restoreOwnerSessionFromBackup().then(restored=>{
+        if(restored){
+          state.session=restored;
+          if(appShell.hidden) enterAuthenticatedApp().catch(err=>console.warn("[TLE] silent session recovery",err));
+          return;
+        }
+        state.session=null;
+        state.business=null;
+        showAuthWelcome();
+        prepareAdminShortcut();
+      }).catch(()=>{
+        state.session=null;
+        state.business=null;
+        showAuthWelcome();
+        prepareAdminShortcut();
+      });
+      return;
+    }
     state.session=null;
     state.business=null;
-    if(window.__tleSigningOut || window.__tleOwnerLocking) return;
     setTimeout(()=>{
       showAuthWelcome();
       prepareAdminShortcut();
