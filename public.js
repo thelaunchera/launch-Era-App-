@@ -416,6 +416,7 @@
       const summary=$("#publicSummary");
       const form=$("#publicRequestForm");
       const quoteTimeWrap=$("#publicQuoteTimeWrap");
+      const recurrenceWrap=$("#publicRecurrenceWrap");
       const slotsWrap=$("#publicSlotsWrap");
       const slotsBox=$("#publicSlots");
       const slotInput=$("#publicSlotStart");
@@ -428,6 +429,7 @@
       if(submit) submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
       if(addWrap) addWrap.hidden=mode==="quote";
       if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
+      if(recurrenceWrap) recurrenceWrap.hidden=mode==="quote";
       if(slotsWrap) slotsWrap.hidden=mode==="quote";
 
       const quoteTimeInput=form?.querySelector('[name="time"]');
@@ -595,7 +597,8 @@
                 p_preferred_contact:preferred,
                 p_service_address:String(fd.get("address")).trim(),
                 p_requested_start_at:selectedSlot,
-                p_notes:String(fd.get("notes")||"").trim()||null
+                p_notes:String(fd.get("notes")||"").trim()||null,
+                p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time")
               });
             }
             form.hidden=true;
