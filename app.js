@@ -8169,6 +8169,17 @@ if("serviceWorker" in navigator){
   });
 }
 
+window.TLE_FOLLOWUPS_BRIDGE={
+  getState:()=>state,
+  supabase,
+  openView,
+  showToast,
+  langPick,
+  escapeHtml,
+  appLocale,
+  openClientInfo
+};
+
 window.__tleAppReady=true;
 // Keep the static auth shell stable until initialize() decides whether this is
 // a returning session, a remembered username, or a first visit.
