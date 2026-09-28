@@ -6432,3 +6432,252 @@ body.shell-auth{overflow-anchor:none}
     flex-basis:25px!important;
   }
 }
+
+
+/* 2026-09-28 — Tablet + desktop dashboard density v95 */
+@media (min-width:861px) and (max-width:1199px){
+  body.shell-app #appShell{
+    grid-template-columns:220px minmax(0,1fr)!important;
+  }
+  body.shell-app #appShell>.sidebar{
+    padding:22px 15px!important;
+  }
+  body.shell-app #appShell>.main{
+    width:100%!important;
+    max-width:none!important;
+    padding:0 24px 56px!important;
+  }
+  [data-page="today"]{
+    width:100%!important;
+    max-width:none!important;
+  }
+  [data-page="today"] #todayHeroCard{
+    padding:30px 28px!important;
+    border-radius:30px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(40px,5vw,58px)!important;
+    line-height:.96!important;
+    letter-spacing:-.055em!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:17px!important;
+    max-width:720px!important;
+  }
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:14px!important;
+    margin-bottom:22px!important;
+  }
+  [data-page="today"] .metric-card{
+    grid-column:span 2;
+    min-height:142px!important;
+    padding:20px!important;
+    border-radius:22px!important;
+  }
+  [data-page="today"] .metric-card:nth-child(4),
+  [data-page="today"] .metric-card:nth-child(5){
+    grid-column:span 3;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    letter-spacing:.08em!important;
+    text-transform:uppercase;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:42px!important;
+    line-height:.95!important;
+    margin:14px 0 8px!important;
+    letter-spacing:-.055em!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:12px!important;
+  }
+  [data-page="today"] .dashboard-grid,
+  [data-page="today"] .dashboard-grid.lower{
+    gap:16px!important;
+  }
+  [data-page="today"] .panel{
+    padding:22px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:104px!important;
+  }
+  [data-page="reports"] .report-grid .panel>strong{
+    font-size:46px!important;
+    line-height:.95!important;
+  }
+}
+
+@media (min-width:1200px){
+  body.shell-app #appShell{
+    grid-template-columns:280px minmax(0,1fr)!important;
+  }
+  body.shell-app #appShell>.main{
+    width:100%!important;
+    max-width:none!important;
+    padding:0 44px 76px!important;
+  }
+  body.shell-app .topbar{
+    padding-top:26px!important;
+    margin-bottom:28px!important;
+  }
+  [data-page="today"]{
+    width:100%!important;
+    max-width:1680px!important;
+    margin:0 auto!important;
+  }
+
+  /* Use desktop width horizontally instead of stretching the mobile stack */
+  [data-page="today"] #todayHeroCard{
+    padding:34px 36px!important;
+    border-radius:32px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.55fr) minmax(300px,.72fr)!important;
+    grid-template-areas:
+      "top top"
+      "greeting weather"
+      "action weather"
+      "route alert"!important;
+    column-gap:34px!important;
+    row-gap:12px!important;
+    align-items:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    grid-area:top!important;
+    margin-bottom:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    grid-area:greeting!important;
+    margin:0!important;
+    align-self:end!important;
+  }
+  [data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(48px,4.5vw,72px)!important;
+    line-height:.93!important;
+    letter-spacing:-.06em!important;
+    max-width:900px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:18px!important;
+    line-height:1.4!important;
+    max-width:760px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayHeroAction{
+    grid-area:action!important;
+    width:min(420px,100%)!important;
+    min-height:54px!important;
+    margin:4px 0 0!important;
+    justify-self:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-area:weather!important;
+    align-self:stretch!important;
+    min-height:168px!important;
+    padding:22px 22px!important;
+    border-radius:22px!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    width:100%!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:58px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    font-size:14px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:11px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    grid-area:alert!important;
+    margin:0!important;
+    align-self:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-area:route!important;
+    margin:2px 0 0!important;
+    justify-self:start!important;
+  }
+
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:16px!important;
+    margin-bottom:24px!important;
+  }
+  [data-page="today"] .metric-card,
+  [data-page="today"] .metric-card:last-child{
+    grid-column:auto!important;
+    min-height:154px!important;
+    padding:22px 24px!important;
+    border-radius:24px!important;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    letter-spacing:.09em!important;
+    text-transform:uppercase;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:48px!important;
+    line-height:.92!important;
+    margin:16px 0 9px!important;
+    letter-spacing:-.06em!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+
+  [data-page="today"] .dashboard-grid{
+    grid-template-columns:minmax(0,1.45fr) minmax(300px,.55fr)!important;
+    gap:22px!important;
+  }
+  [data-page="today"] .dashboard-grid.lower{
+    grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)!important;
+    gap:22px!important;
+  }
+  [data-page="today"] .panel{
+    padding:26px!important;
+    border-radius:26px!important;
+  }
+  [data-page="today"] .panel h3{
+    font-size:24px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:112px!important;
+    padding:18px!important;
+  }
+  [data-page="today"] .quick-card span{
+    font-size:12px!important;
+  }
+  [data-page="today"] .presence-panel{
+    padding:26px!important;
+  }
+  [data-page="reports"] .report-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:20px!important;
+  }
+  [data-page="reports"] .report-grid .panel>strong{
+    font-size:54px!important;
+    line-height:.92!important;
+    letter-spacing:-.055em!important;
+  }
+}
+
+@media (min-width:1500px){
+  body.shell-app #appShell>.main{
+    padding-left:56px!important;
+    padding-right:56px!important;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:52px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    min-height:180px!important;
+  }
+}
