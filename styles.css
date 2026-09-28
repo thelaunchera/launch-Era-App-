@@ -5475,3 +5475,89 @@ body.shell-auth{overflow-anchor:none}
 @media(prefers-reduced-motion:reduce) and (max-width:860px){
   body.shell-app #appShell>.sidebar{transition:none!important}
 }
+
+
+/* 2026-09-28 — modern separated weather alert v70 */
+#todayHeroCard .hero-weather-alert{
+  position:relative;
+  width:100%;
+  max-width:none;
+  margin:14px 0 20px;
+  padding:12px 14px 12px 38px;
+  border:1px solid rgba(25,25,25,.10);
+  border-radius:16px;
+  background:rgba(255,255,255,.42);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#4F4A44;
+  box-shadow:0 7px 20px rgba(25,25,25,.035);
+}
+#todayHeroCard .hero-weather-alert[hidden]{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-alert::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:50%;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  transform:translateY(-50%);
+  background:#191919;
+  box-shadow:0 0 0 5px rgba(25,25,25,.07);
+}
+#todayHeroCard .hero-weather-alert.rain::before{
+  background:#6D91BA;
+  box-shadow:0 0 0 5px rgba(109,145,186,.12);
+}
+#todayHeroCard .hero-weather-alert span{
+  display:block;
+  font-size:11px!important;
+  line-height:1.4!important;
+  font-weight:850;
+  letter-spacing:-.005em;
+  color:#4F4A44!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+  grid-template-columns:minmax(0,1fr) 24px!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+  font-size:34px!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-now-copy{
+  padding-left:2px;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin-top:0!important;
+}
+#todayHeroCard #todayMomentCopy{
+  margin-top:4px;
+  max-width:590px;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    margin:13px 0 18px;
+    padding:11px 12px 11px 34px;
+    border-radius:14px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert::before{
+    left:12px;
+    width:9px;
+    height:9px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert span{
+    font-size:10px!important;
+    line-height:1.38!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 20px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:30px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin-top:0!important;
+  }
+}
