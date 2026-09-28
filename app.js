@@ -7998,6 +7998,12 @@ if("serviceWorker" in navigator){
 }
 
 window.__tleAppReady=true;
+// JavaScript is fully wired now. The splash may still fade visually, but it
+// must never block the first auth interaction while session detection runs.
+if(sessionSplash){
+  sessionSplash.style.pointerEvents="none";
+  sessionSplash.setAttribute("aria-hidden","true");
+}
 // Keep the static auth shell stable until initialize() decides whether this is
 // a returning session, a remembered username, or a first visit.
 // Route every authenticated boot through the same promise so iPhone/PWA
