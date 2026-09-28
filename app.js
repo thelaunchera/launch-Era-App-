@@ -5039,7 +5039,7 @@ function renderOperations(){
           <strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong>
           <span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span>
           <small>${escapeHtml(j.service_address||tr("Address not added"))}</small>
-          ${j.service_address?`<button type="button" class="route-gps-btn" data-route-gps-job="${j.id}">⌖ ${escapeHtml(langPick("GPS","GPS","GPS","GPS"))}</button>`:""}
+          ${j.service_address?`<button type="button" class="route-gps-btn" data-route-gps-job="${j.id}">↗ ${escapeHtml(langPick("Open in Maps","Abrir en Maps","Abrir no Maps","Ouvrir dans Maps"))}</button>`:""}
         </div>
         <em>${escapeHtml(translatedStatus(j.status))}</em>
       </div>
@@ -5049,7 +5049,7 @@ function renderOperations(){
   if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     routeVisual.innerHTML=todayJobs.length
-      ? `<div class="route-command-summary"><strong>${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today</strong><span>${escapeHtml(langPick("Live traffic opens in GPS.","El tráfico en vivo se abre en GPS.","O trânsito ao vivo abre no GPS.","Le trafic en direct s’ouvre dans le GPS."))}</span>${routable.length?`<button type="button" class="route-best-btn" data-best-route>↗ ${escapeHtml(langPick("Best route","Mejor ruta","Melhor rota","Meilleur itinéraire"))}</button>`:""}</div>`
+      ? `<div class="route-command-summary"><strong>${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today</strong><span>${escapeHtml(langPick("Stops are shown below in scheduled order.","Las paradas aparecen abajo en el orden programado.","As paradas aparecem abaixo na ordem agendada.","Les arrêts apparaissent ci-dessous dans l’ordre prévu."))}</span></div>`
       : "Your route appears here when jobs are scheduled.";
   }
   renderTodayRouteChip(todayJobs);
