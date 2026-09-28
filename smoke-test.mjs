@@ -7,6 +7,7 @@ const publicJs=fs.readFileSync("public.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
+const styles=fs.readFileSync("styles.css","utf8");
 
 const dom=new JSDOM(html,{
   url:"https://thelaunchera.github.io/launch-Era-App-/",
@@ -204,6 +205,15 @@ if(!app.includes('launcher.href="weather://"') || app.includes('window.location.
 }
 if(html.includes('document.addEventListener("visibilitychange",function(){\n              if(document.visibilityState==="visible") reg.update()')){
   throw new Error("PWA regression: service worker update must not reload on iOS resume");
+}
+if(!app.includes('data-client-to-quote="') || !app.includes('const clientQuote=e.target.closest("[data-client-to-quote]")') || !app.includes('client_id:fd.get("client_id")||current?.client_id||null')){
+  throw new Error("Client quote regression: saved clients must be able to start a linked quote inside the app");
+}
+if(!styles.includes("tleHeroCtaFloat") || !styles.includes(".hero-card.message-calm #todayHeroAction") || !styles.includes("tleNotificationRing")){
+  throw new Error("Dashboard polish regression: compact adaptive CTA or notification motion is missing");
+}
+if(!app.includes('button.dataset.unreadCount=String(unread)') || !app.includes('button.classList.add("notification-arrived")')){
+  throw new Error("Notification regression: new unread activity must trigger bell motion");
 }
 console.log("REGRESSION_GUARDS_OK");
 
