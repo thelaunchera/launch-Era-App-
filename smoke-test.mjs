@@ -10,7 +10,9 @@ const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 const styles=fs.readFileSync("styles.css","utf8");
 
 const dom=new JSDOM(html,{
-  url:"https://thelaunchera.github.io/launch-Era-App-/",
+  // Run the auth smoke test on the canonical production origin. The app
+  // intentionally redirects legacy GitHub Pages traffic before auth UI setup.
+  url:"https://app.thelaunchera.com/",
   runScripts:"outside-only",
   pretendToBeVisual:true
 });
