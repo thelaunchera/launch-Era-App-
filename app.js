@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-90";
+const APP_VERSION = "20260928-stable-91";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2106,13 +2106,30 @@ function markOwnerActivity(){
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
-  return false;
+  const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  return Number.isFinite(lastActivity) && lastActivity>0 && Date.now()-lastActivity>=OWNER_IDLE_MS;
 }
 async function expireOwnerSession(){
-  // Legacy compatibility only. Owner access no longer uses email codes.
-  // Supabase's persisted session/refresh token determines whether the user stays signed in.
-  localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-  markOwnerActivity();
+  if(window.__tleOwnerLocking) return;
+  window.__tleOwnerLocking=true;
+  const ownerEmail=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
+  try{
+    try{ await supabase.auth.signOut({scope:"local"}); }catch(err){ console.warn("[TLE] idle sign out",err); }
+    state.session=null;
+    state.business=null;
+    clearOwnerSessionBackup();
+    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+    localStorage.removeItem(OWNER_ACTIVITY_KEY);
+    if(ownerEmail && rememberUsernameEnabled()) localStorage.setItem(OWNER_EMAIL_KEY,ownerEmail);
+    showAuth();
+    setAuthMode("signin");
+    const emailInput=$("#authEmail");
+    if(emailInput && ownerEmail) emailInput.value=ownerEmail;
+    prepareAdminShortcut();
+    setAuthStatus("For your security, please sign in again after 12 hours of inactivity.");
+  }finally{
+    window.__tleOwnerLocking=false;
+  }
 }
 window.addEventListener("tle:languagechange",()=>{
   if(state.session && state.business?.role==="owner"){
@@ -2148,8 +2165,21 @@ function installOwnerActivityTracker(){
     window.addEventListener(evt,onActivity,{passive:true});
   });
   document.addEventListener("visibilitychange",()=>{
-    if(state.session && state.business?.role==="owner") markOwnerActivity();
+    if(!state.session || state.business?.role!=="owner") return;
+    if(document.visibilityState==="visible" && ownerIdleExpired()){
+      expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+      return;
+    }
+    markOwnerActivity();
   });
+  window.addEventListener("pageshow",()=>{
+    if(!state.session || state.business?.role!=="owner") return;
+    if(ownerIdleExpired()){
+      expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+      return;
+    }
+    markOwnerActivity();
+  },{passive:true});
   window.addEventListener("pagehide",()=>{
     if(state.session && state.business?.role==="owner") markOwnerActivity();
   },{passive:true});
@@ -2839,7 +2869,7 @@ async function initialize(){
   // iOS Home Screen can occasionally fail to surface Supabase's own stored
   // session even while our app storage remains intact. Restore the same
   // access/refresh tokens Supabase already persists, but only inside the
-  // user's 24-hour activity window.
+  // user's 12-hour inactivity window.
   if(!session){
     session=await restoreOwnerSessionFromBackup();
   }
@@ -2861,7 +2891,6 @@ async function initialize(){
   saveOwnerSessionBackup(session);
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
   localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-  localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 
   if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
     try{ await supabase.auth.signOut({scope:"local"}); }catch{}
@@ -2958,6 +2987,11 @@ async function initialize(){
     trial_ends_at:context.trial_ends_at,
     subscription_status:context.subscription_status
   };
+
+  if(state.business?.role==="owner" && ownerIdleExpired()){
+    await expireOwnerSession();
+    return;
+  }
 
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
