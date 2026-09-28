@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-106";
+const APP_VERSION = "20260928-stable-107";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4532,9 +4532,12 @@ function renderSupplies(){
 function renderJobs(){
   const list=$("#jobsList");
   const visible=state.jobs.filter(j=>j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  // Recurring occurrences belong in the dedicated Recurring section. Keeping
+  // them out of Upcoming prevents the same client from filling the main list.
+  const upcomingStandalone=visible.filter(j=>!j.recurrence_rule_id);
 
   if(list){
-    list.innerHTML=visible.length?visible.slice(0,20).map(j=>`
+    list.innerHTML=upcomingStandalone.length?upcomingStandalone.slice(0,20).map(j=>`
       <div class="job-block" data-calendar-job="${j.id}" role="button" tabindex="0" aria-label="${escapeHtml((j.clients?.name||"Cleaning job")+" · "+formatDateTime(j.starts_at))}">
         <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
         <div>
@@ -4548,7 +4551,7 @@ function renderJobs(){
             : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
         </div>
       </div>
-    `).join(""):`<div class="empty-inline"><strong>No jobs scheduled.</strong><button class="text-btn" data-create="job">Add the first job →</button></div>`;
+    `).join(""):`<div class="empty-inline"><strong>No one-time jobs scheduled.</strong><span>Recurring jobs are listed once in Recurring.</span><button class="text-btn" data-create="job">Add a job →</button></div>`;
   }
 
   const week=$("#calendarWeekRow");
