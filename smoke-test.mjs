@@ -182,6 +182,12 @@ if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") 
 if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.includes("persistRememberUsername")){
   throw new Error("Auth regression: remember-username flow is missing");
 }
+if(!html.includes('host==="app.thelaunchera.com"&&!automation') || !html.includes("navigator.webdriver")){
+  throw new Error("Analytics regression: app must block automated/non-production GA4 traffic");
+}
+if(!app.includes("trackAuthLandingOnHumanInteraction();") || !app.includes("HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed")){
+  throw new Error("Analytics regression: passive/automated login traffic filtering is missing");
+}
 if(!html.includes('Preferred time <span class="field-optional">(optional)</span>') ||
    !publicJs.includes('quoteTimeInput.required=false') ||
    !publicJs.includes('p_preferred_time:String(fd.get("time")||"").trim()||null')){
