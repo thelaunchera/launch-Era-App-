@@ -71,6 +71,8 @@
   }
 
   function showPublicShell(){
+    const splash=$("#sessionSplash");
+    if(splash) splash.hidden=true;
     const auth=$("#authShell"), app=$("#appShell"), worker=$("#workerShell"), pub=$("#publicShell");
     if(auth) auth.hidden=true;
     if(app) app.hidden=true;
