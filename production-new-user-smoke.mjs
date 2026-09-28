@@ -3,7 +3,7 @@ import puppeteer from "puppeteer-core";
 
 const url="https://app.thelaunchera.com/";
 const stamp=String(Date.now());
-const email=`qa.newuser.${stamp}@example.com`;
+const email=`thelaunchera.qa.${stamp}@gmail.com`;
 const password="TestOnly!2026Launch";
 const businessName=`Bright Home QA Cleaning ${stamp.slice(-6)}`;
 const serviceArea="Boynton Beach, Florida, USA";
@@ -43,6 +43,11 @@ let page=await context.newPage();
 await page.setViewport({width:390,height:844,isMobile:true,hasTouch:true,deviceScaleFactor:3});
 page.on("pageerror",e=>result.errors.push("pageerror: "+String(e)));
 page.on("console",m=>{if(m.type()==="error") result.errors.push("console: "+m.text());});
+page.on("response",res=>{
+  if(res.status()>=400){
+    result.errors.push("http "+res.status()+": "+res.url());
+  }
+});
 
 const waitVisible=async(selector,timeout=15000)=>{
   await page.waitForFunction(sel=>{
