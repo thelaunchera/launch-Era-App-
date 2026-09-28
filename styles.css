@@ -5452,3 +5452,26 @@ body.shell-auth{overflow-anchor:none}
     max-width:58px!important;
   }
 }
+
+
+/* 2026-09-28 — final Safari mobile drawer positioning v69 */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    left:0!important;
+    right:auto!important;
+    transform:translate3d(-110%,0,0)!important;
+    -webkit-transform:translate3d(-110%,0,0)!important;
+    translate:0 0!important;
+    transition:transform .24s ease!important;
+    will-change:transform;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+    transform:translate3d(0,0,0)!important;
+    -webkit-transform:translate3d(0,0,0)!important;
+    translate:0 0!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:860px){
+  body.shell-app #appShell>.sidebar{transition:none!important}
+}
