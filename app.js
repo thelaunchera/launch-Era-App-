@@ -2096,28 +2096,49 @@ function maskEmail(email=""){
   return shown+"@"+parts[1];
 }
 
+function sessionBackupCookieValue(){
+  try{
+    const prefix=OWNER_SESSION_BACKUP_KEY+"=";
+    const part=String(document.cookie||"").split("; ").find(v=>v.startsWith(prefix));
+    return part?decodeURIComponent(part.slice(prefix.length)):"";
+  }catch{return "";}
+}
+function persistSessionBackupPayload(payload){
+  const encoded=JSON.stringify(payload);
+  try{localStorage.setItem(OWNER_SESSION_BACKUP_KEY,encoded);}catch{}
+  // iOS standalone PWAs have occasionally restored without localStorage being
+  // immediately available. Keep a same-origin Secure cookie as a second
+  // persistence layer. It contains Supabase session tokens, never a password.
+  try{document.cookie=OWNER_SESSION_BACKUP_KEY+"="+encodeURIComponent(encoded)+"; Max-Age=31536000; Path=/; Secure; SameSite=Strict";}catch{}
+}
 function saveOwnerSessionBackup(session){
   try{
     const email=String(session?.user?.email||"").trim().toLowerCase();
     const accessToken=String(session?.access_token||"");
     const refreshToken=String(session?.refresh_token||"");
     if(!email || !accessToken || !refreshToken) return;
-    localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify({
+    persistSessionBackupPayload({
       email,
       access_token:accessToken,
       refresh_token:refreshToken,
       saved_at:Date.now()
-    }));
+    });
   }catch(err){
     console.warn("[TLE] session backup save",err);
   }
 }
 function clearOwnerSessionBackup(){
   try{localStorage.removeItem(OWNER_SESSION_BACKUP_KEY);}catch{}
+  try{document.cookie=OWNER_SESSION_BACKUP_KEY+"=; Max-Age=0; Path=/; Secure; SameSite=Strict";}catch{}
 }
 function readOwnerSessionBackup(){
   try{
-    const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
+    const stored=localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||sessionBackupCookieValue()||"null";
+    const raw=JSON.parse(stored);
+    if(raw?.email && raw?.access_token && raw?.refresh_token){
+      // Heal localStorage after an iOS cold launch recovered from cookie.
+      try{localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify(raw));}catch{}
+    }
     if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
     // Supabase access tokens are JWTs. Never send a damaged legacy token back
     // to Auth because it can cause repeated 403 /user requests on app boot.
