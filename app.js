@@ -1683,6 +1683,19 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{
   if(!["Enter"," "].includes(e.key)) return;
+  const calendarDay=e.target.closest?.('[data-calendar-day][role="button"]');
+  if(calendarDay){
+    e.preventDefault();
+    renderCalendarDayDetails(calendarDay.dataset.calendarDay);
+    return;
+  }
+  const calendarJob=e.target.closest?.('[data-calendar-job][role="button"]');
+  if(calendarJob && !e.target.closest("button,a,input,select,textarea")){
+    e.preventDefault();
+    const job=state.jobs.find(j=>j.id===calendarJob.dataset.calendarJob);
+    if(job) renderCalendarDayDetails(tleCalendarDateKey(job.starts_at),{jobId:job.id});
+    return;
+  }
   const jump=e.target.closest?.('[data-jump][role="button"]');
   if(!jump || jump.disabled || jump.hidden) return;
   e.preventDefault();
@@ -4068,7 +4081,7 @@ function renderJobs(){
 
   if(list){
     list.innerHTML=visible.length?visible.slice(0,20).map(j=>`
-      <div class="job-block">
+      <div class="job-block" data-calendar-job="${j.id}" role="button" tabindex="0" aria-label="${escapeHtml((j.clients?.name||"Cleaning job")+" · "+formatDateTime(j.starts_at))}">
         <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
         <div>
           <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
@@ -4103,18 +4116,21 @@ function renderJobs(){
       const d=new Date(start);
       d.setDate(start.getDate()+i);
       const dayJobs=visible.filter(j=>sameLocalDay(j.starts_at,d));
+      const dateKey=tleCalendarDateKey(d);
       const selected=sameLocalDay(d,now)?"selected":"";
       const hasJobs=dayJobs.length?" has-jobs":"";
+      const active=state.calendarSelectedDate===dateKey?" calendar-active":"";
       const count=dayJobs.length
         ? `<small class="calendar-job-count">${dayJobs.length} ${dayJobs.length===1?"job":"jobs"}</small>`
         : `<small class="calendar-job-count empty">—</small>`;
 
-      return `<span class="${selected}${hasJobs}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
+      return `<span class="${selected}${hasJobs}${active}" data-calendar-day="${dateKey}" role="button" tabindex="0" aria-pressed="${state.calendarSelectedDate===dateKey?"true":"false"}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
         <em>${new Intl.DateTimeFormat(appLocale(),{weekday:"short"}).format(d).toUpperCase()}</em>
         <strong>${d.getDate()}</strong>
         ${count}
       </span>`;
     }).join("");
+    if(state.calendarSelectedDate) renderCalendarDayDetails(state.calendarSelectedDate);
   }
 
   const recurring=$("#recurringJobsList");
@@ -4125,6 +4141,117 @@ function renderJobs(){
     `).join(""):`<div class="empty-inline"><strong>No recurring jobs yet.</strong><span>Recurring appointments will appear here.</span></div>`;
   }
 }
+
+function tleCalendarDateKey(date){
+  const d=date instanceof Date?date:new Date(date);
+  if(Number.isNaN(d.getTime())) return "";
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+}
+
+function renderCalendarDayDetails(dateKey,options={}){
+  const week=$("#calendarWeekRow");
+  if(!week) return;
+  let panel=$("#calendarDayDetails");
+  if(!panel){
+    panel=document.createElement("section");
+    panel.id="calendarDayDetails";
+    panel.className="calendar-day-details";
+    panel.hidden=true;
+    week.insertAdjacentElement("afterend",panel);
+  }
+
+  if(!dateKey){
+    panel.hidden=true;
+    panel.innerHTML="";
+    return;
+  }
+
+  const parts=String(dateKey).split("-").map(Number);
+  const selectedDate=new Date(parts[0],(parts[1]||1)-1,parts[2]||1);
+  if(Number.isNaN(selectedDate.getTime())){
+    panel.hidden=true;
+    return;
+  }
+
+  state.calendarSelectedDate=dateKey;
+  const jobs=state.jobs
+    .filter(j=>j.status!=="canceled"&&sameLocalDay(j.starts_at,selectedDate))
+    .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+
+  const title=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"long",day:"numeric"}).format(selectedDate);
+  const emptyCopy=langPick(
+    "No jobs are scheduled for this day.",
+    "No hay trabajos programados para este día.",
+    "Não há trabalhos agendados para este dia.",
+    "Aucun travail n’est prévu ce jour-là."
+  );
+  const headingCopy=jobs.length===1
+    ? langPick("1 scheduled job","1 trabajo programado","1 trabalho agendado","1 travail prévu")
+    : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} trabalhos agendados`,`${jobs.length} travaux prévus`);
+
+  panel.innerHTML=`
+    <div class="calendar-day-details-head">
+      <div>
+        <p class="eyebrow">${escapeHtml(langPick("DAY DETAILS","DETALLES DEL DÍA","DETALHES DO DIA","DÉTAILS DU JOUR"))}</p>
+        <h3>${escapeHtml(title)}</h3>
+        <span>${escapeHtml(jobs.length?headingCopy:emptyCopy)}</span>
+      </div>
+      <button type="button" class="calendar-day-close" data-calendar-close aria-label="${escapeHtml(langPick("Close day details","Cerrar detalles del día","Fechar detalhes do dia","Fermer les détails du jour"))}">×</button>
+    </div>
+    <div class="calendar-day-job-list">
+      ${jobs.map(j=>{
+        const start=new Date(j.starts_at);
+        const time=Number.isNaN(start.getTime())?"—":new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(start);
+        const duration=Number(j.duration_minutes||0)>0?Math.round(Number(j.duration_minutes)/60*10)/10+"h":"—";
+        const assignee=j.job_assignments?.[0]?.team_members?.name||langPick("Not assigned","Sin asignar","Não atribuído","Non attribué");
+        const address=j.service_address||langPick("Address not added","Dirección no añadida","Endereço não adicionado","Adresse non ajoutée");
+        const notes=String(j.notes||"").trim();
+        const canEdit=state.business?.role!=="coworker";
+        return `
+          <article class="calendar-day-job ${options.jobId===j.id?"is-focus":""}">
+            <div class="calendar-day-job-top">
+              <div>
+                <strong>${escapeHtml(time)} · ${escapeHtml(j.clients?.name||langPick("Unassigned client","Cliente sin asignar","Cliente não atribuído","Client non attribué"))}</strong>
+                <span>${escapeHtml(j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"))}</span>
+              </div>
+              <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
+            </div>
+            <div class="calendar-day-job-grid">
+              <span><small>${escapeHtml(langPick("Duration","Duración","Duração","Durée"))}</small><b>${escapeHtml(duration)}</b></span>
+              <span><small>${escapeHtml(langPick("Assigned to","Asignado a","Atribuído a","Assigné à"))}</small><b>${escapeHtml(assignee)}</b></span>
+              <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
+            </div>
+            ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
+            ${canEdit?`<div class="calendar-day-actions"><button type="button" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Editar trabalho","Modifier le travail"))}</button></div>`:""}
+          </article>`;
+      }).join("")}
+    </div>`;
+
+  panel.hidden=false;
+  $("#calendarWeekRow [data-calendar-day]").forEach(el=>{
+    const active=el.dataset.calendarDay===dateKey;
+    el.classList.toggle("calendar-active",active);
+    el.setAttribute("aria-pressed",active?"true":"false");
+  });
+
+  if(options.scroll!==false){
+    requestAnimationFrame(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}));
+  }
+}
+
+function clearCalendarDayDetails(){
+  state.calendarSelectedDate="";
+  const panel=$("#calendarDayDetails");
+  if(panel){
+    panel.hidden=true;
+    panel.innerHTML="";
+  }
+  $("#calendarWeekRow [data-calendar-day]").forEach(el=>{
+    el.classList.remove("calendar-active");
+    el.setAttribute("aria-pressed","false");
+  });
+}
+
 function quoteColumn(status,label){
   const items=state.quotes.filter(q=>q.status===status);
   return `<div class="kanban-col"><h3>${label} <span>${items.length}</span></h3>
@@ -6228,6 +6355,25 @@ document.addEventListener("click",async e=>{
   const create=e.target.closest("[data-create]");
   const action=e.target.closest("[data-action]");
   const edit=e.target.closest("[data-edit]");
+  const calendarDay=e.target.closest("[data-calendar-day]");
+  const calendarJob=e.target.closest("[data-calendar-job]");
+  const calendarClose=e.target.closest("[data-calendar-close]");
+  if(calendarClose){
+    clearCalendarDayDetails();
+    return;
+  }
+  if(calendarDay){
+    renderCalendarDayDetails(calendarDay.dataset.calendarDay);
+    return;
+  }
+  if(calendarJob && !e.target.closest("button,a,input,select,textarea")){
+    const job=state.jobs.find(j=>j.id===calendarJob.dataset.calendarJob);
+    if(job){
+      renderCalendarDayDetails(tleCalendarDateKey(job.starts_at),{jobId:job.id});
+    }
+    return;
+  }
+
   const teamCreate=e.target.closest("[data-team-create]");
   const teamEdit=e.target.closest("[data-team-edit]");
   if(teamCreate){ openTeamForm(); return; }
