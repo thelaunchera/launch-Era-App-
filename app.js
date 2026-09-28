@@ -2992,8 +2992,27 @@ async function initialize(){
     }
   }
 
-  const {data:contexts,error}=await supabase.rpc("get_my_business_context");
-  if(error){ showToast(error.message); showAuth(); return; }
+  let contexts=null;
+  let contextError=null;
+  try{
+    const result=await withTimeout(supabase.rpc("get_my_business_context"),"Workspace",12000);
+    contexts=result?.data||null;
+    contextError=result?.error||null;
+  }catch(err){
+    contextError=err;
+  }
+  if(contextError){
+    // A workspace/network failure is NOT an authentication failure. Keep the
+    // valid owner session and show a recoverable app state instead of asking
+    // for the password again.
+    console.error("[TLE] workspace context load failed",contextError);
+    setShellState("app");
+    authShell.hidden=true;
+    appShell.hidden=false;
+    dismissSessionSplash();
+    showToast(langPick("We couldn’t load your workspace. Tap refresh to try again.","No pudimos cargar tu espacio. Toca actualizar para intentar de nuevo.","Não foi possível carregar seu espaço. Toque em atualizar para tentar novamente.","Impossible de charger votre espace. Touchez Actualiser pour réessayer."));
+    return;
+  }
   let context=contexts?.[0];
 
   if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
@@ -3139,8 +3158,19 @@ supabase.auth.onAuthStateChange((event, session)=>{
       if(appShell.hidden && !window.__tleEnterAppPromise){
         enterAuthenticatedApp().catch(err=>{
           console.error("[TLE] post-auth initialize failed",err);
-          showAuth();
-          setAuthStatus(err?.message||"Could not open workspace","error");
+          // Never reinterpret an app/workspace boot error as "signed out".
+          // Auth state is authoritative; preserve the valid session and offer
+          // recovery inside the app shell.
+          if(state.session){
+            setShellState("app");
+            authShell.hidden=true;
+            appShell.hidden=false;
+            dismissSessionSplash();
+            showToast(langPick("The app hit a loading error. Tap refresh to retry.","La app tuvo un error al cargar. Toca actualizar para reintentar.","O app teve um erro ao carregar. Toque em atualizar para tentar novamente.","L’app a rencontré une erreur de chargement. Touchez Actualiser pour réessayer."));
+          }else{
+            showAuth();
+            setAuthStatus(err?.message||"Could not open workspace","error");
+          }
         });
       }
     },0);
