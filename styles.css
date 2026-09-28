@@ -5591,3 +5591,206 @@ body.shell-auth{overflow-anchor:none}
 @media(prefers-reduced-motion:reduce) and (max-width:860px){
   body.shell-app #appShell>.sidebar{transition:none!important}
 }
+
+
+/* 2026-09-28 — Today mobile composition v72 */
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:24px 22px 26px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    width:100%!important;
+    padding:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-auto-rows:auto;
+    gap:12px 12px!important;
+    align-items:start!important;
+    width:100%!important;
+    min-height:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    grid-column:1!important;
+    grid-row:1!important;
+    justify-self:start!important;
+    width:78px!important;
+    height:62px!important;
+    min-width:78px!important;
+    margin:2px 0 0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    grid-column:2!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    align-self:start!important;
+    min-width:112px!important;
+    margin:0!important;
+    padding:9px 11px!important;
+    border-radius:18px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:14px 15px!important;
+    border-radius:20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    display:grid!important;
+    grid-template-columns:40px minmax(0,1fr) 26px!important;
+    gap:10px!important;
+    align-items:center!important;
+    width:100%!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 26px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-now-copy{
+    width:100%!important;
+    min-width:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact #weatherLocation{
+    display:block!important;
+    max-width:none!important;
+    margin:0 0 5px!important;
+    font-size:8px!important;
+    letter-spacing:.12em!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    gap:12px!important;
+    align-items:center!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:42px!important;
+    line-height:.9!important;
+    letter-spacing:-.065em!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .weather-condition-stack{
+    min-width:0!important;
+    gap:3px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:none!important;
+    width:100%!important;
+    font-size:12px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:10px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-open-hint{
+    align-self:center!important;
+    width:28px!important;
+    height:28px!important;
+    flex-basis:28px!important;
+    margin:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    grid-column:1/-1!important;
+    grid-row:3!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:2px 0 8px!important;
+    padding:13px 15px 13px 40px!important;
+    border-radius:16px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-alert span{
+    width:100%!important;
+    max-width:none!important;
+    font-size:11px!important;
+    line-height:1.42!important;
+    white-space:normal!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:1/-1!important;
+    grid-row:4!important;
+    justify-self:start!important;
+    margin:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin:10px 0 6px!important;
+  }
+
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    margin:0 0 2px!important;
+    max-width:none!important;
+  }
+}
+
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:minmax(0,1fr) 104px!important;
+    gap:10px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:70px!important;
+    height:58px!important;
+    min-width:70px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:104px!important;
+    padding:8px 10px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    display:grid!important;
+    width:23px!important;
+    height:23px!important;
+    flex-basis:23px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:39px!important;
+  }
+}
