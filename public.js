@@ -401,9 +401,11 @@
       const data=await rpc("get_public_booking_config",{p_slug:slug});
     setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
       const allServices=data?.services||[];
-      const services=allServices.filter(s=>
-        mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0)
-      );
+      const fixedPriceServices=allServices.filter(s=>s.pricing_type!=="quote" && Number(s.base_price)>0);
+      const quoteOnlyServices=allServices.filter(s=>s.pricing_type==="quote");
+      // Customer-facing paths are intentionally separate:
+      // priced services book directly; quote-required services never appear in booking.
+      const services=mode==="quote" ? quoteOnlyServices : fixedPriceServices;
       const addons=data?.addons||[];
 
       const business=$("#publicBusinessName");
@@ -420,12 +422,28 @@
       const slotsWrap=$("#publicSlotsWrap");
       const slotsBox=$("#publicSlots");
       const slotInput=$("#publicSlotStart");
+      const bookTab=$("#publicBookTab");
+      const quoteTab=$("#publicQuoteTab");
+      const serviceLabel=$("#publicServiceLabel");
+
+      const basePath=window.location.origin+window.location.pathname;
+      if(bookTab){
+        bookTab.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
+        bookTab.classList.toggle("active",mode==="book");
+        bookTab.setAttribute("aria-current",mode==="book"?"page":"false");
+      }
+      if(quoteTab){
+        quoteTab.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
+        quoteTab.classList.toggle("active",mode==="quote");
+        quoteTab.setAttribute("aria-current",mode==="quote"?"page":"false");
+      }
+      if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
       if(intro) intro.textContent=mode==="quote"
-        ?"Tell us what you need and the business will review your request."
-        :"Choose a service, date, and one of the real available times below.";
+        ?"For custom or variable-price work. Choose a quote-only service and tell us about the job."
+        :"Choose a service with upfront pricing, then pick a real available time.";
       if(submit) submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
       if(addWrap) addWrap.hidden=mode==="quote";
       if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
@@ -438,21 +456,24 @@
       if(!services.length){
         if(select){
           select.innerHTML='<option value="">'+(mode==="quote"
-            ?"No services available yet"
+            ?"No quote-only services available yet"
             :"No priced services available for online booking")+'</option>';
           select.disabled=true;
         }
         if(submit) submit.disabled=true;
         if(summary) summary.innerHTML=mode==="quote"
-          ? '<span>No services are available yet. Please contact the cleaning business directly.</span>'
-          : '<span>No instant-booking services are available yet. Services without a fixed price require a quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
+          ? '<span>No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.</span><button type="button" class="primary-btn" id="quoteToBookingBtn">Book a Cleaning</button>'
+          : '<span>No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
         $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
-          window.location.href=window.location.origin+window.location.pathname+"?public=quote&slug="+encodeURIComponent(slug);
+          window.location.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
+        });
+        $("#quoteToBookingBtn")?.addEventListener("click",()=>{
+          window.location.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
         });
       }else if(select){
-        select.innerHTML='<option value="">Choose a service</option>'+services.map(s=>
+        select.innerHTML='<option value="">'+(mode==="quote"?"Choose a custom job type":"Choose a service")+'</option>'+services.map(s=>
           '<option value="'+esc(s.id)+'">'+esc(s.name)+
-          (s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):"")+
+          (mode==="quote"?" · Custom quote":s.base_price!=null?" · "+money(s.base_price):"")+
           '</option>'
         ).join("");
       }
@@ -470,13 +491,18 @@
         const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
         const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
         summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
-          (selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total))+
+          (mode==="quote"?" · Price provided after review":" · "+money(total))+
           '</span>';
       }
 
       function renderAddons(){
         const selected=services.find(s=>s.id===select?.value);
         if(!addonBox) return;
+        if(mode==="quote"){
+          addonBox.innerHTML="";
+          updateSummary();
+          return;
+        }
         const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
         addonBox.innerHTML=available.length?available.map(a=>
           '<label class="addon-choice">'+
