@@ -4944,3 +4944,25 @@ body.shell-auth{overflow-anchor:none}
   .client-history-footer{display:grid;grid-template-columns:1fr 1fr}
   .client-history-footer button{width:100%}
 }
+
+
+/* Safari-safe mobile drawer positioning
+   Keep left fixed at 0 and move the drawer with transform. This avoids
+   WebKit intermittently retaining the closed left offset after .open is added. */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    left:0!important;
+    transform:translate3d(-105%,0,0)!important;
+    transition:transform .25s ease!important;
+    will-change:transform;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+    transform:translate3d(0,0,0)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    transition:none!important;
+  }
+}
