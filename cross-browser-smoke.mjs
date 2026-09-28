@@ -265,11 +265,33 @@ async function assertLayout(page,profile){
   if(profile.viewport.width<=860){
     const menu=page.locator("#menuToggle");
     await menu.click();
-    await page.waitForFunction(()=>{
-      const sidebar=document.querySelector(".sidebar");
-      if(!sidebar) return false;
-      return sidebar.classList.contains("open") && Math.abs(sidebar.getBoundingClientRect().left)<=3;
-    },null,{timeout:2000});
+    try{
+      await page.waitForFunction(()=>{
+        const sidebar=document.querySelector(".sidebar");
+        if(!sidebar) return false;
+        return sidebar.classList.contains("open") && Math.abs(sidebar.getBoundingClientRect().left)<=3;
+      },null,{timeout:2000});
+    }catch(err){
+      const sidebarDiag=await page.evaluate(()=>{
+        const sidebar=document.querySelector(".sidebar");
+        const menu=document.querySelector("#menuToggle");
+        const rect=sidebar?.getBoundingClientRect();
+        return {
+          bodyClass:document.body.className,
+          innerWidth,
+          matchMedia:window.matchMedia("(max-width: 860px)").matches,
+          sidebarClass:sidebar?.className||"",
+          sidebarLeft:rect?.left??null,
+          sidebarWidth:rect?.width??null,
+          sidebarDisplay:sidebar?getComputedStyle(sidebar).display:null,
+          appHidden:document.querySelector("#appShell")?.hidden,
+          appDisplay:getComputedStyle(document.querySelector("#appShell")).display,
+          menuExpanded:menu?.getAttribute("aria-expanded"),
+          menuDisplay:menu?getComputedStyle(menu).display:null
+        };
+      });
+      throw new Error(profile.name+": sidebar did not open "+JSON.stringify(sidebarDiag)+" · "+err.message);
+    }
     const nav=await page.evaluate(()=>{
       const sidebar=document.querySelector(".sidebar").getBoundingClientRect();
       const main=document.querySelector(".main").getBoundingClientRect();
