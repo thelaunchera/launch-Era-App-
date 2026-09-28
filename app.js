@@ -764,14 +764,17 @@ async function getDeviceWeatherGeo(){
 async function loadBusinessWeather(force=false){
   const area=String(state.business&&state.business.service_area||"").trim();
   const card=$("#weatherBrief");
-  if(!area){
+  // Weather must work even when an older workspace has no saved service area.
+  // Prefer already-authorized device location first; service area is only fallback.
+  const deviceGeo=await getDeviceWeatherGeo();
+  if(!area && !deviceGeo){
     state.weather=null;
     if(card) card.hidden=true;
     return;
   }
 
   const now=Date.now();
-  const cacheKey=weatherCacheKey(area);
+  const cacheKey=weatherCacheKey(area||"device");
   if(!force){
     try{
       const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
@@ -790,8 +793,7 @@ async function loadBusinessWeather(force=false){
 
   // Prefer the user's current device location when available so weather follows
   // travel/relaunch automatically. Fall back to the configured service area.
-  const deviceGeo=await getDeviceWeatherGeo();
-  const geo=deviceGeo||await geocodeBusinessArea(area);
+  const geo=deviceGeo||(area?await geocodeBusinessArea(area):null);
   if(!geo){
     if(card) card.hidden=true;
     return;
@@ -1533,6 +1535,21 @@ function showApp(){
   installLiveDashboardUpdates();
   // Refresh immediately on authenticated app entry instead of waiting for the 5-minute timer.
   loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
+  // Never leave the hero CTA disabled if a secondary dashboard calculation fails.
+  setTimeout(()=>{
+    const action=$("#todayHeroAction");
+    if(action && action.disabled){
+      action.disabled=false;
+      action.textContent=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+      action.dataset.jump="calendar";
+    }
+    const greeting=$("#todayGreeting");
+    const copy=$("#todayMomentCopy");
+    if(greeting && /Getting your day ready/i.test(greeting.textContent||"")){
+      greeting.textContent=dashboardGreeting(dashboardDaypart(new Date().getHours()));
+      if(copy) copy.textContent=langPick("Everything is ready. Check your calendar and what’s next.","Todo está listo. Revisa tu calendario y lo próximo.","Tudo está pronto. Confira seu calendário e o que vem a seguir.","Tout est prêt. Consultez votre calendrier et la suite.");
+    }
+  },1200);
   installTeamMessagePolling();
 }
 function initials(name=""){
