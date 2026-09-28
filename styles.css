@@ -6878,3 +6878,32 @@ body.shell-auth{overflow-anchor:none}
     grid-column:2;
   }
 }
+
+
+/* Booking Center compact hierarchy — stable-107 */
+.booking-experience-compact .panel-head,
+.availability-compact .panel-head{margin-bottom:12px}
+.compact-flow{gap:7px}
+.compact-flow span{padding:8px 11px;font-size:12px}
+.booking-experience-note{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.booking-experience-note strong{color:var(--ink)}
+.booking-experience-note>span:not(#bookingPaymentMethods){padding:0 3px}
+.availability-compact .availability-settings{margin-bottom:8px}
+.availability-compact .availability-week{gap:0}
+.availability-compact .availability-day{padding:6px 0;min-height:48px}
+.availability-compact .availability-day input[type="time"]{padding:7px 8px;min-height:38px}
+.availability-compact .helper{margin:10px 0 0;font-size:11px;line-height:1.45}
+@media(max-width:620px){
+  .booking-experience-compact,.availability-compact{padding-top:22px;padding-bottom:22px}
+  .booking-experience-compact .panel-head,.availability-compact .panel-head{align-items:flex-start}
+  .compact-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .compact-flow b{display:none}
+  .compact-flow span{width:auto!important;text-align:center;padding:8px 5px;font-size:10px;border-radius:10px}
+  .booking-experience-note{font-size:11px}
+  .availability-compact .availability-settings{grid-template-columns:1fr 1fr;gap:8px}
+  .availability-compact .availability-settings label{font-size:10px}
+  .availability-compact .availability-settings select{padding:8px;font-size:11px}
+  .availability-compact .availability-day{grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);gap:6px;padding:5px 0}
+  .availability-compact .availability-day .day-toggle{font-size:10px;gap:5px}
+  .availability-compact .availability-day input[type="time"]{font-size:11px;padding:6px;min-height:36px}
+}
