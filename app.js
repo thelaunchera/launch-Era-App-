@@ -1724,9 +1724,9 @@ function workspaceViewStorageKey(){
 }
 function canRestoreWorkspaceView(id){
   if(!id) return false;
-  const view=$(".view").find(v=>v.dataset.page===id);
+  const view=$$(".view").find(v=>v.dataset.page===id);
   if(!view) return false;
-  const nav=$(".nav-item[data-view]").find(n=>n.dataset.view===id);
+  const nav=$$(".nav-item[data-view]").find(n=>n.dataset.view===id);
   return !nav || !nav.hidden;
 }
 function saveWorkspaceView(id){
