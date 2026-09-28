@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-93";
+const APP_VERSION = "20260928-stable-94";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4681,10 +4681,28 @@ function dateKeyInZone(value,timeZone){
     return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
   }
 }
+function validIanaTimeZone(value){
+  const zone=String(value||"").trim();
+  if(!zone) return "";
+  try{
+    new Intl.DateTimeFormat("en-US",{timeZone:zone}).format(new Date());
+    return zone;
+  }catch{
+    return "";
+  }
+}
 function activeBusinessTimeZone(){
-  return state.weather?.location?.timezone
-    || state.business?.timezone
-    || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const candidates=[
+    state.weather?.location?.timezone,
+    state.business?.timezone,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    "UTC"
+  ];
+  for(const candidate of candidates){
+    const valid=validIanaTimeZone(candidate);
+    if(valid) return valid;
+  }
+  return "UTC";
 }
 function sameLocalDay(value,date=new Date()){
   if(!value) return false;
