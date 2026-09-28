@@ -4121,6 +4121,13 @@ async function loadCoreData(){
   state.timeEntries=timeEntries;
   renderInvoices();
 
+  // These collections define whether the workspace is actually hydrated.
+  // Do not report a successful cold launch when Safari returned fallbacks.
+  const criticalFailures=loadFailures.filter(label=>["clients","jobs","quotes","invoices"].includes(label));
+  if(criticalFailures.length){
+    throw new Error("Critical workspace data failed: "+criticalFailures.join(", "));
+  }
+
   // The core dashboard is ready at this point. Paint it immediately before
   // notification metadata or other secondary requests so iPhone cold-launch
   // can never leave real counts hidden behind the initial zero placeholders.
