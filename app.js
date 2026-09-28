@@ -18,81 +18,14 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const CANONICAL_APP_ORIGIN = "https://app.thelaunchera.com";
-const APP_VERSION = "20260928-unified-90";
-
-const TLE_AUTH_DB="tle_cleaning_app_auth_v1";
-const TLE_AUTH_STORE="session";
-function openAuthDb(){
-  return new Promise((resolve,reject)=>{
-    if(!window.indexedDB){ reject(new Error("IndexedDB unavailable")); return; }
-    const req=indexedDB.open(TLE_AUTH_DB,1);
-    req.onupgradeneeded=()=>{ if(!req.result.objectStoreNames.contains(TLE_AUTH_STORE)) req.result.createObjectStore(TLE_AUTH_STORE); };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error||new Error("IndexedDB open failed"));
-  });
-}
-async function authDbGet(key){
-  const db=await openAuthDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(TLE_AUTH_STORE,"readonly");
-    const req=tx.objectStore(TLE_AUTH_STORE).get(key);
-    req.onsuccess=()=>resolve(req.result??null);
-    req.onerror=()=>reject(req.error);
-    tx.oncomplete=()=>db.close();
-  });
-}
-async function authDbSet(key,value){
-  const db=await openAuthDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(TLE_AUTH_STORE,"readwrite");
-    tx.objectStore(TLE_AUTH_STORE).put(value,key);
-    tx.oncomplete=()=>{db.close();resolve();};
-    tx.onerror=()=>{const err=tx.error;db.close();reject(err);};
-  });
-}
-async function authDbRemove(key){
-  const db=await openAuthDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(TLE_AUTH_STORE,"readwrite");
-    tx.objectStore(TLE_AUTH_STORE).delete(key);
-    tx.oncomplete=()=>{db.close();resolve();};
-    tx.onerror=()=>{const err=tx.error;db.close();reject(err);};
-  });
-}
-const resilientAuthStorage={
-  async getItem(key){
-    let local=null;
-    try{local=window.localStorage.getItem(key);}catch{}
-    if(local){
-      authDbSet(key,local).catch(()=>{});
-      return local;
-    }
-    try{
-      const durable=await authDbGet(key);
-      if(durable){
-        try{window.localStorage.setItem(key,durable);}catch{}
-        return durable;
-      }
-    }catch(err){console.warn("[TLE] auth IndexedDB read",err);}
-    return null;
-  },
-  async setItem(key,value){
-    try{window.localStorage.setItem(key,value);}catch{}
-    try{await authDbSet(key,value);}catch(err){console.warn("[TLE] auth IndexedDB write",err);}
-  },
-  async removeItem(key){
-    try{window.localStorage.removeItem(key);}catch{}
-    try{await authDbRemove(key);}catch(err){console.warn("[TLE] auth IndexedDB remove",err);}
-  }
-};
+const APP_VERSION = "20260928-stable-90";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
     persistSession:true,
     autoRefreshToken:true,
     detectSessionInUrl:true,
-    storage:resilientAuthStorage
+    storage:window.localStorage
   }
 });
 
@@ -103,23 +36,6 @@ try{
     localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
   }
 }catch{}
-
-// Session storage is origin-scoped. Never let returning owners drift between
-// the GitHub Pages origin and the production app origin, because iOS treats
-// those as separate localStorage/session containers.
-try{
-  const host=String(window.location.hostname||"").toLowerCase();
-  const isLegacyGitHubHost=host==="thelaunchera.github.io";
-  if(isLegacyGitHubHost && !navigator.webdriver){
-    const target=new URL(CANONICAL_APP_ORIGIN+"/");
-    target.search=window.location.search;
-    target.hash=window.location.hash;
-    window.location.replace(target.toString());
-    return;
-  }
-}catch(err){
-  console.warn("[TLE] canonical app origin",err);
-}
 
 const state = {
   session: null,
@@ -177,15 +93,10 @@ const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
 function dismissSessionSplash(){
   if(!sessionSplash || sessionSplash.hidden) return;
-  // Never let the loading layer intercept taps once an auth/app screen is ready.
-  // The visual fade can continue, but interaction must be available immediately.
-  sessionSplash.style.pointerEvents="none";
-  sessionSplash.setAttribute("aria-hidden","true");
   sessionSplash.classList.add("is-leaving");
   setTimeout(()=>{
     sessionSplash.hidden=true;
     sessionSplash.classList.remove("is-leaving");
-    sessionSplash.style.pointerEvents="";
   },180);
 }
 
@@ -796,45 +707,17 @@ async function resolveSignupTimeZone(area){
   return (await resolveBusinessLocale(area)).timezone;
 }
 
-async function getDeviceWeatherGeo(){
-  if(!("geolocation" in navigator)) return null;
-  // Never prompt for location during auth or automated/first-paint flows.
-  // Use device coordinates only when permission has already been granted.
-  // iOS/PWA does not reliably expose geolocation through Permissions API.
-  // Ask the geolocation provider directly. If the user already granted access,
-  // this resolves without another prompt; if denied/unavailable we fall back to
-  // the saved service area.
-  return new Promise(resolve=>{
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const latitude=Number(pos.coords?.latitude);
-      const longitude=Number(pos.coords?.longitude);
-      if(!Number.isFinite(latitude)||!Number.isFinite(longitude)) return resolve(null);
-      resolve({
-        latitude,longitude,
-        name:langPick("Current location","Ubicación actual","Localização atual","Position actuelle"),
-        admin1:"",
-        country:"",
-        country_code:"",
-        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||"auto",
-        source:"device"
-      });
-    },()=>resolve(null),{enableHighAccuracy:true,maximumAge:60*1000,timeout:5000});
-  });
-}
 async function loadBusinessWeather(force=false){
   const area=String(state.business&&state.business.service_area||"").trim();
   const card=$("#weatherBrief");
-  // Weather must work even when an older workspace has no saved service area.
-  // Prefer already-authorized device location first; service area is only fallback.
-  const deviceGeo=await getDeviceWeatherGeo();
-  if(!area && !deviceGeo){
+  if(!area){
     state.weather=null;
     if(card) card.hidden=true;
     return;
   }
 
   const now=Date.now();
-  const cacheKey=weatherCacheKey(area||"device");
+  const cacheKey=weatherCacheKey(area);
   if(!force){
     try{
       const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
@@ -851,9 +734,7 @@ async function loadBusinessWeather(force=false){
     }catch(e){}
   }
 
-  // Prefer the user's current device location when available so weather follows
-  // travel/relaunch automatically. Fall back to the configured service area.
-  const geo=deviceGeo||(area?await geocodeBusinessArea(area):null);
+  const geo=await geocodeBusinessArea(area);
   if(!geo){
     if(card) card.hidden=true;
     return;
@@ -1116,14 +997,10 @@ function installLiveDashboardUpdates(){
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
-    // A PWA returning to the foreground may now be in a different location.
-    // Refresh weather immediately; Open-Meteo resolves the timezone from coords.
-    loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
-  });
-
-  window.addEventListener("pageshow",function(){
-    if(!state.session||!state.business) return;
-    loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
+    renderTodaySummary(true);
+    if(Date.now()-(state.weatherFetchedAt||0)>5*60*1000){
+      loadBusinessWeather(true).catch(function(){});
+    }
   });
 }
 
@@ -1593,23 +1470,6 @@ function showApp(){
   }
   scheduleOnboardingWelcome();
   installLiveDashboardUpdates();
-  // Refresh immediately on authenticated app entry instead of waiting for the 5-minute timer.
-  loadBusinessWeather(true).catch(function(){ renderTodaySummary(true); });
-  // Never leave the hero CTA disabled if a secondary dashboard calculation fails.
-  setTimeout(()=>{
-    const action=$("#todayHeroAction");
-    if(action && action.disabled){
-      action.disabled=false;
-      action.textContent=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
-      action.dataset.jump="calendar";
-    }
-    const greeting=$("#todayGreeting");
-    const copy=$("#todayMomentCopy");
-    if(greeting && /Getting your day ready/i.test(greeting.textContent||"")){
-      greeting.textContent=dashboardGreeting(dashboardDaypart(new Date().getHours()));
-      if(copy) copy.textContent=langPick("Everything is ready. Check your calendar and what’s next.","Todo está listo. Revisa tu calendario y lo próximo.","Tudo está pronto. Confira seu calendário e o que vem a seguir.","Tout est prêt. Consultez votre calendrier et la suite.");
-    }
-  },1200);
   installTeamMessagePolling();
 }
 function initials(name=""){
@@ -1870,22 +1730,17 @@ function canRestoreWorkspaceView(id){
   const nav=$$(".nav-item[data-view]").find(n=>n.dataset.view===id);
   return !nav || !nav.hidden;
 }
-const LAST_WORKSPACE_VIEW_KEY="tle_last_workspace_view_v2";
 function saveWorkspaceView(id){
   if(!canRestoreWorkspaceView(id)) return;
-  try{
-    localStorage.setItem(workspaceViewStorageKey(),id);
-    // Keep an account-independent fallback so Safari refresh can restore the
-    // visible page before/while the business context is being rehydrated.
-    localStorage.setItem(LAST_WORKSPACE_VIEW_KEY,id);
-  }catch{}
+  try{ localStorage.setItem(workspaceViewStorageKey(),id); }catch{}
 }
 function restoreWorkspaceView(){
   let id="";
-  try{
-    id=String(localStorage.getItem(workspaceViewStorageKey())||localStorage.getItem(LAST_WORKSPACE_VIEW_KEY)||"");
-  }catch{}
-  if(!canRestoreWorkspaceView(id)) id="today";
+  try{ id=String(localStorage.getItem(workspaceViewStorageKey())||""); }catch{}
+  if(!canRestoreWorkspaceView(id)){
+    id="today";
+    try{ localStorage.removeItem(workspaceViewStorageKey()); }catch{}
+  }
   openView(id,{fromRestore:true,skipTrack:true,skipIntro:true});
   return id;
 }
@@ -2167,49 +2022,28 @@ function maskEmail(email=""){
   return shown+"@"+parts[1];
 }
 
-function sessionBackupCookieValue(){
-  try{
-    const prefix=OWNER_SESSION_BACKUP_KEY+"=";
-    const part=String(document.cookie||"").split("; ").find(v=>v.startsWith(prefix));
-    return part?decodeURIComponent(part.slice(prefix.length)):"";
-  }catch{return "";}
-}
-function persistSessionBackupPayload(payload){
-  const encoded=JSON.stringify(payload);
-  try{localStorage.setItem(OWNER_SESSION_BACKUP_KEY,encoded);}catch{}
-  // iOS standalone PWAs have occasionally restored without localStorage being
-  // immediately available. Keep a same-origin Secure cookie as a second
-  // persistence layer. It contains Supabase session tokens, never a password.
-  try{document.cookie=OWNER_SESSION_BACKUP_KEY+"="+encodeURIComponent(encoded)+"; Max-Age=31536000; Path=/; Secure; SameSite=Strict";}catch{}
-}
 function saveOwnerSessionBackup(session){
   try{
     const email=String(session?.user?.email||"").trim().toLowerCase();
     const accessToken=String(session?.access_token||"");
     const refreshToken=String(session?.refresh_token||"");
     if(!email || !accessToken || !refreshToken) return;
-    persistSessionBackupPayload({
+    localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify({
       email,
       access_token:accessToken,
       refresh_token:refreshToken,
       saved_at:Date.now()
-    });
+    }));
   }catch(err){
     console.warn("[TLE] session backup save",err);
   }
 }
 function clearOwnerSessionBackup(){
   try{localStorage.removeItem(OWNER_SESSION_BACKUP_KEY);}catch{}
-  try{document.cookie=OWNER_SESSION_BACKUP_KEY+"=; Max-Age=0; Path=/; Secure; SameSite=Strict";}catch{}
 }
 function readOwnerSessionBackup(){
   try{
-    const stored=localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||sessionBackupCookieValue()||"null";
-    const raw=JSON.parse(stored);
-    if(raw?.email && raw?.access_token && raw?.refresh_token){
-      // Heal localStorage after an iOS cold launch recovered from cookie.
-      try{localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify(raw));}catch{}
-    }
+    const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
     if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
     // Supabase access tokens are JWTs. Never send a damaged legacy token back
     // to Auth because it can cause repeated 403 /user requests on app boot.
@@ -2217,9 +2051,11 @@ function readOwnerSessionBackup(){
       clearOwnerSessionBackup();
       return null;
     }
-    // Do not expire a valid persisted session just because the app was closed.
-    // Supabase owns session lifetime/revocation; the PWA should behave like an
-    // installed app and keep using the refresh token until Auth rejects it.
+    const savedAt=Number(raw.saved_at||0);
+    if(!Number.isFinite(savedAt) || Date.now()-savedAt>OWNER_IDLE_MS){
+      clearOwnerSessionBackup();
+      return null;
+    }
     return raw;
   }catch{
     clearOwnerSessionBackup();
@@ -2233,8 +2069,9 @@ function isPermanentSessionRestoreError(err){
 async function restoreOwnerSessionFromBackup(){
   const backup=readOwnerSessionBackup();
   if(!backup) return null;
-  // The remembered-username preference must never decide which authenticated
-  // session is valid. It is only a form convenience and can be stale on iOS.
+  const remembered=rememberedOwnerEmail();
+  if(remembered && backup.email!==remembered) return null;
+
   let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
     try{
@@ -2269,29 +2106,13 @@ function markOwnerActivity(){
   localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
 }
 function ownerIdleExpired(){
-  const last=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
-  return Number.isFinite(last) && last>0 && Date.now()-last>=OWNER_IDLE_MS;
+  return false;
 }
 async function expireOwnerSession(){
-  window.__tleOwnerLocking=true;
-  try{
-    // Twelve hours without real interaction requires a fresh password sign-in.
-    // This is a local lock: closing/backgrounding the PWA itself is not activity.
-    try{await supabase.auth.signOut({scope:"local"});}catch(err){console.warn("[TLE] idle local signout",err);}
-    state.session=null;
-    state.business=null;
-    clearOwnerSessionBackup();
-    localStorage.setItem(OWNER_REAUTH_REQUIRED_KEY,"1");
-    localStorage.removeItem(OWNER_ACTIVITY_KEY);
-    showAuth();
-    setAuthMode("signin");
-    const emailInput=$("#authEmail");
-    const remembered=rememberedOwnerEmail();
-    if(emailInput && remembered) emailInput.value=remembered;
-    setAuthStatus(langPick("Please sign in again after 12 hours of inactivity.","Inicia sesión nuevamente después de 12 horas de inactividad.","Entre novamente após 12 horas de inatividade.","Reconnectez-vous après 12 heures d’inactivité."),"success");
-  }finally{
-    window.__tleOwnerLocking=false;
-  }
+  // Legacy compatibility only. Owner access no longer uses email codes.
+  // Supabase's persisted session/refresh token determines whether the user stays signed in.
+  localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+  markOwnerActivity();
 }
 window.addEventListener("tle:languagechange",()=>{
   if(state.session && state.business?.role==="owner"){
@@ -2299,12 +2120,15 @@ window.addEventListener("tle:languagechange",()=>{
   }
 });
 window.addEventListener("pagehide",()=>{
-  if(state.session) saveOwnerSessionBackup(state.session);
+  if(state.session){
+    saveOwnerSessionBackup(state.session);
+    if(state.business?.role==="owner") markOwnerActivity();
+  }
 });
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="hidden" && state.session) saveOwnerSessionBackup(state.session);
-  if(document.visibilityState==="visible" && state.session && state.business?.role==="owner" && ownerIdleExpired()){
-    expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+  if(document.visibilityState==="hidden" && state.session){
+    saveOwnerSessionBackup(state.session);
+    if(state.business?.role==="owner") markOwnerActivity();
   }
 });
 
@@ -2323,7 +2147,12 @@ function installOwnerActivityTracker(){
   ["pointerdown","keydown","touchstart","scroll"].forEach(evt=>{
     window.addEventListener(evt,onActivity,{passive:true});
   });
-
+  document.addEventListener("visibilitychange",()=>{
+    if(state.session && state.business?.role==="owner") markOwnerActivity();
+  });
+  window.addEventListener("pagehide",()=>{
+    if(state.session && state.business?.role==="owner") markOwnerActivity();
+  },{passive:true});
 }
 function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
@@ -2674,7 +2503,7 @@ businessForm.addEventListener("submit", async (e)=>{
       hasAccountSignupWelcomePending();
     showApp();
     try{ renderTodaySummary(true); }catch(err){ console.warn("[TLE] first dashboard render",err); }
-    loadBusinessWeather(true).catch(err=>console.warn("[TLE] first weather load",err));
+    loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
@@ -3015,33 +2844,7 @@ async function initialize(){
     session=await restoreOwnerSessionFromBackup();
   }
 
-  // iOS/PWA can briefly report no session while Supabase is refreshing its
-  // persisted token after a cold launch. Give auth one final refresh/read
-  // before ever exposing the password screen.
-  if(!session){
-    try{
-      const refreshed=await supabase.auth.refreshSession();
-      session=refreshed?.data?.session||null;
-      if(session) saveOwnerSessionBackup(session);
-    }catch(err){
-      console.warn("[TLE] cold-launch session refresh",err);
-    }
-  }
-  if(!session){
-    await new Promise(resolve=>setTimeout(resolve,450));
-    try{
-      const finalRead=await supabase.auth.getSession();
-      session=finalRead?.data?.session||null;
-    }catch(err){
-      console.warn("[TLE] final persisted session read",err);
-    }
-  }
-
   state.session=session;
-  if(session && ownerIdleExpired()){
-    await expireOwnerSession();
-    return;
-  }
   if(!session){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
@@ -3090,68 +2893,9 @@ async function initialize(){
     }
   }
 
-  let contexts=null;
-  let contextError=null;
-  try{
-    const result=await withTimeout(supabase.rpc("get_my_business_context"),"Workspace",12000);
-    contexts=result?.data||null;
-    contextError=result?.error||null;
-  }catch(err){
-    contextError=err;
-  }
-  if(contextError){
-    // A valid auth session must not be turned into an empty workspace. Retry
-    // the context once after refreshing the token, then use the owner's direct
-    // business row as a safe fallback.
-    console.warn("[TLE] workspace context first attempt failed",contextError);
-    try{
-      const refreshed=await withTimeout(supabase.auth.refreshSession(),"Session refresh",5000);
-      if(refreshed?.data?.session){
-        state.session=refreshed.data.session;
-        saveOwnerSessionBackup(state.session);
-      }
-      const retry=await withTimeout(supabase.rpc("get_my_business_context"),"Workspace retry",8000);
-      contexts=retry?.data||null;
-      contextError=retry?.error||null;
-    }catch(err){
-      contextError=err;
-    }
-  }
+  const {data:contexts,error}=await supabase.rpc("get_my_business_context");
+  if(error){ showToast(error.message); showAuth(); return; }
   let context=contexts?.[0];
-
-  // Owner fallback: if the context RPC is unavailable on Safari cold launch,
-  // resolve the owned workspace directly instead of exposing an empty shell.
-  if(!context && state.session?.user?.id){
-    try{
-      const {data:ownedBusiness,error:ownedBusinessError}=await supabase
-        .from("businesses")
-        .select("id,name,email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
-        .eq("owner_user_id",state.session.user.id)
-        .order("created_at",{ascending:true})
-        .limit(1)
-        .maybeSingle();
-      if(!ownedBusinessError && ownedBusiness){
-        context={
-          business_id:ownedBusiness.id,business_name:ownedBusiness.name,
-          business_email:ownedBusiness.email,business_phone:ownedBusiness.phone,
-          role:"owner",team_member_id:null,timezone:ownedBusiness.timezone,
-          default_language:ownedBusiness.default_language,country_code:ownedBusiness.country_code,
-          locale_code:ownedBusiness.locale_code,currency_code:ownedBusiness.currency_code,
-          distance_unit:ownedBusiness.distance_unit,temperature_unit:ownedBusiness.temperature_unit,
-          payment_methods:ownedBusiness.payment_methods,service_area:ownedBusiness.service_area,
-          default_travel_buffer_minutes:ownedBusiness.default_travel_buffer_minutes,
-          trial_ends_at:ownedBusiness.trial_ends_at,subscription_status:ownedBusiness.subscription_status
-        };
-        contextError=null;
-      }
-    }catch(err){ contextError=err; }
-  }
-  if(contextError && !context){
-    console.error("[TLE] workspace context load failed",contextError);
-    showAuth();
-    setAuthStatus(langPick("Your session is active, but the workspace could not load. Try again.","Tu sesión está activa, pero no se pudo cargar el espacio. Intenta de nuevo.","Sua sessão está ativa, mas o espaço não pôde carregar. Tente novamente.","Votre session est active, mais l’espace n’a pas pu charger. Réessayez."),"error");
-    return;
-  }
 
   if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
     const {data:b,error:businessError}=await supabase
@@ -3245,58 +2989,23 @@ async function initialize(){
 
   await handleBillingReturn(params);
 
-  // Public-link settings are secondary UI data. Never let a slow mobile
-  // request hold the entire authenticated workspace on its loading skeleton.
-  try{
-    const linkSettingsResult=await withTimeout(supabase.rpc("get_my_public_link_settings"),"Public links",3500);
-    state.publicLinks=linkSettingsResult?.data||null;
-  }catch(err){
-    console.warn("[TLE] public links bootstrap",err);
-    state.publicLinks=null;
-  }
+  const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
+  state.publicLinks=linkSettings||null;
 
-  // Critical boot path: never expose an authenticated shell backed by empty
-  // arrays. Safari cold-launch must finish workspace hydration before showApp().
-  let coreLoaded=false;
-  for(let attempt=0;attempt<2 && !coreLoaded;attempt++){
-    try{
-      await withTimeout(loadCoreData(),"Workspace data",18000);
-      coreLoaded=true;
-    }catch(err){
-      console.warn("[TLE] critical workspace hydrate",attempt+1,err);
-      if(attempt===0){
-        try{
-          const refreshed=await withTimeout(supabase.auth.refreshSession(),"Session refresh",5000);
-          if(refreshed?.data?.session){
-            state.session=refreshed.data.session;
-            saveOwnerSessionBackup(state.session);
-          }
-        }catch(refreshErr){ console.warn("[TLE] hydrate token refresh",refreshErr); }
-      }
-    }
-  }
-  if(!coreLoaded){
-    throw new Error(langPick(
-      "Your workspace could not finish loading. Please try again.",
-      "Tu espacio no pudo terminar de cargar. Intenta de nuevo.",
-      "Seu espaço não conseguiu terminar de carregar. Tente novamente.",
-      "Votre espace n’a pas pu finir de charger. Réessayez."
-    ));
-  }
-
-  // Render from hydrated state first, then reveal the workspace atomically.
-  renderTodaySummary();
-  renderOperations();
-  renderSettings();
-  renderPublicLinks();
   showApp();
 
-  // Secondary work must never hold or empty the authenticated workspace.
+  // Welcome email is retried safely until the backend confirms delivery.
   ensureTrialWelcomeEmail().catch(err=>console.warn("[TLE] trial welcome retry",err));
-  loadBusinessWeather(true).catch(err=>console.warn("[TLE] first weather load",err));
+
+  // Never leave the static HTML placeholder visible on launch.
+  try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
+  loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
+
   setupInvoiceRealtime();
+  showToast("Loading your workspace…");
+  loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
-  trackVisit("/app/"+($(".view.active")?.dataset.page||"today")).catch(()=>{});
+  await trackVisit("/app/"+($(".view.active")?.dataset.page||"today"));
 }
 window.addEventListener("pageshow",()=>{
   // Restore only the shell class. Do not force-scroll on resume: iOS fires
@@ -3331,19 +3040,8 @@ supabase.auth.onAuthStateChange((event, session)=>{
       if(appShell.hidden && !window.__tleEnterAppPromise){
         enterAuthenticatedApp().catch(err=>{
           console.error("[TLE] post-auth initialize failed",err);
-          // Never reinterpret an app/workspace boot error as "signed out".
-          // Auth state is authoritative; preserve the valid session and offer
-          // recovery inside the app shell.
-          if(state.session){
-            setShellState("app");
-            authShell.hidden=true;
-            appShell.hidden=false;
-            dismissSessionSplash();
-            showToast(langPick("The app hit a loading error. Tap refresh to retry.","La app tuvo un error al cargar. Toca actualizar para reintentar.","O app teve um erro ao carregar. Toque em atualizar para tentar novamente.","L’app a rencontré une erreur de chargement. Touchez Actualiser pour réessayer."));
-          }else{
-            showAuth();
-            setAuthStatus(err?.message||"Could not open workspace","error");
-          }
+          showAuth();
+          setAuthStatus(err?.message||"Could not open workspace","error");
         });
       }
     },0);
@@ -3355,34 +3053,9 @@ supabase.auth.onAuthStateChange((event, session)=>{
     return;
   }
   if(event === "SIGNED_OUT"){
-    // Supabase can emit SIGNED_OUT during an automatic refresh/cold-start
-    // recovery. Only transition to the login UI for an explicit user logout.
-    if(window.__tleSigningOut || window.__tleOwnerLocking){
-      state.session=null;
-      state.business=null;
-      return;
-    }
-    if(state.session || !appShell.hidden){
-      restoreOwnerSessionFromBackup().then(restored=>{
-        if(restored){
-          state.session=restored;
-          if(appShell.hidden) enterAuthenticatedApp().catch(err=>console.warn("[TLE] silent session recovery",err));
-          return;
-        }
-        state.session=null;
-        state.business=null;
-        showAuthWelcome();
-        prepareAdminShortcut();
-      }).catch(()=>{
-        state.session=null;
-        state.business=null;
-        showAuthWelcome();
-        prepareAdminShortcut();
-      });
-      return;
-    }
     state.session=null;
     state.business=null;
+    if(window.__tleSigningOut || window.__tleOwnerLocking) return;
     setTimeout(()=>{
       showAuthWelcome();
       prepareAdminShortcut();
@@ -4120,26 +3793,8 @@ async function loadCoreData(){
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
   renderInvoices();
-
-  // These collections define whether the workspace is actually hydrated.
-  // Do not report a successful cold launch when Safari returned fallbacks.
-  const criticalFailures=loadFailures.filter(label=>["clients","jobs","quotes","invoices"].includes(label));
-  if(criticalFailures.length){
-    throw new Error("Critical workspace data failed: "+criticalFailures.join(", "));
-  }
-
-  // The core dashboard is ready at this point. Paint it immediately before
-  // notification metadata or other secondary requests so iPhone cold-launch
-  // can never leave real counts hidden behind the initial zero placeholders.
-  renderTodaySummary();
-  renderOperations();
-  renderSettings();
-  renderPublicLinks();
-
-  await Promise.all([
-    withTimeout(loadInquirySeenState(),"Notification state",3000).catch(err=>console.warn("[TLE] notification state bootstrap",err)),
-    withTimeout(loadInquiryReadIds(),"Notification reads",3000).catch(err=>console.warn("[TLE] notification reads bootstrap",err))
-  ]);
+  await loadInquirySeenState();
+  await loadInquiryReadIds();
   renderInquiryNotifications();
   renderTodaySummary();
   renderOperations();
@@ -8338,14 +7993,6 @@ if("serviceWorker" in navigator){
 }
 
 window.__tleAppReady=true;
-// Keep the launch splash visible while Supabase restores the persisted session.
-// The auth form already exists underneath in static HTML; exposing it before
-// session initialization finishes creates a false password prompt on iOS cold launch.
-if(sessionSplash){
-  sessionSplash.hidden=false;
-  sessionSplash.style.pointerEvents="auto";
-  sessionSplash.setAttribute("aria-hidden","false");
-}
 // Keep the static auth shell stable until initialize() decides whether this is
 // a returning session, a remembered username, or a first visit.
 // Route every authenticated boot through the same promise so iPhone/PWA
