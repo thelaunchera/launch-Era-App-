@@ -1,6 +1,6 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get("public");
+  let mode = params.get("public");
   const slug = params.get("slug");
   const token = params.get("token");
 
@@ -399,14 +399,13 @@
   async function bootRequest(){
     try{
       const data=await rpc("get_public_booking_config",{p_slug:slug});
-    setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
+      setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
+
       const allServices=data?.services||[];
       const fixedPriceServices=allServices.filter(s=>s.pricing_type!=="quote" && Number(s.base_price)>0);
       const quoteOnlyServices=allServices.filter(s=>s.pricing_type==="quote");
-      // Customer-facing paths are intentionally separate:
-      // priced services book directly; quote-required services never appear in booking.
-      const services=mode==="quote" ? quoteOnlyServices : fixedPriceServices;
       const addons=data?.addons||[];
+      let services=[];
 
       const business=$("#publicBusinessName");
       const label=$("#publicModeLabel");
@@ -425,58 +424,12 @@
       const bookTab=$("#publicBookTab");
       const quoteTab=$("#publicQuoteTab");
       const serviceLabel=$("#publicServiceLabel");
-
+      const dateInput=form?.querySelector('[name="date"]');
+      const quoteTimeInput=form?.querySelector('[name="time"]');
       const basePath=window.location.origin+window.location.pathname;
-      if(bookTab){
-        bookTab.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
-        bookTab.classList.toggle("active",mode==="book");
-        bookTab.setAttribute("aria-current",mode==="book"?"page":"false");
-      }
-      if(quoteTab){
-        quoteTab.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
-        quoteTab.classList.toggle("active",mode==="quote");
-        quoteTab.setAttribute("aria-current",mode==="quote"?"page":"false");
-      }
-      if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
-      if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
-      if(intro) intro.textContent=mode==="quote"
-        ?"For custom or variable-price work. Choose a quote-only service and tell us about the job."
-        :"Choose a service with upfront pricing, then pick a real available time.";
-      if(submit) submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
-      if(addWrap) addWrap.hidden=mode==="quote";
-      if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
-      if(recurrenceWrap) recurrenceWrap.hidden=mode==="quote";
-      if(slotsWrap) slotsWrap.hidden=mode==="quote";
-
-      const quoteTimeInput=form?.querySelector('[name="time"]');
       if(quoteTimeInput) quoteTimeInput.required=false;
-
-      if(!services.length){
-        if(select){
-          select.innerHTML='<option value="">'+(mode==="quote"
-            ?"No quote-only services available yet"
-            :"No priced services available for online booking")+'</option>';
-          select.disabled=true;
-        }
-        if(submit) submit.disabled=true;
-        if(summary) summary.innerHTML=mode==="quote"
-          ? '<span>No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.</span><button type="button" class="primary-btn" id="quoteToBookingBtn">Book a Cleaning</button>'
-          : '<span>No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
-        $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
-          window.location.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
-        });
-        $("#quoteToBookingBtn")?.addEventListener("click",()=>{
-          window.location.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
-        });
-      }else if(select){
-        select.innerHTML='<option value="">'+(mode==="quote"?"Choose a custom job type":"Choose a service")+'</option>'+services.map(s=>
-          '<option value="'+esc(s.id)+'">'+esc(s.name)+
-          (mode==="quote"?" · Custom quote":s.base_price!=null?" · "+money(s.base_price):"")+
-          '</option>'
-        ).join("");
-      }
 
       function chosenAddonIds(){
         return addonBox ? $$('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
@@ -485,9 +438,12 @@
       function updateSummary(){
         const selected=services.find(s=>s.id===select?.value);
         if(!summary) return;
-        if(!selected){ summary.innerHTML=""; return; }
+        if(!selected){
+          if(services.length) summary.innerHTML="";
+          return;
+        }
         const chosenIds=chosenAddonIds();
-        const chosen=addons.filter(a=>chosenIds.includes(a.id));
+        const chosen=mode==="quote"?[]:addons.filter(a=>chosenIds.includes(a.id));
         const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
         const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
         summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
@@ -524,7 +480,7 @@
         if(mode==="quote" || !slotsBox || !slotInput) return;
         slotInput.value="";
         const serviceId=select?.value;
-        const dateValue=form?.querySelector('[name="date"]')?.value;
+        const dateValue=dateInput?.value;
         if(!serviceId || !dateValue){
           slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
           return;
@@ -551,6 +507,91 @@
         }
       }
 
+      function renderMode(nextMode,{updateUrl=true}={}){
+        if(nextMode!=="book" && nextMode!=="quote") return;
+        mode=nextMode;
+        services=mode==="quote"?quoteOnlyServices:fixedPriceServices;
+
+        if(updateUrl){
+          const nextUrl=new URL(window.location.href);
+          nextUrl.searchParams.set("public",mode);
+          nextUrl.searchParams.set("slug",slug);
+          history.replaceState({tlePublicMode:mode},"",nextUrl.pathname+nextUrl.search+nextUrl.hash);
+        }
+
+        if(bookTab){
+          bookTab.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
+          bookTab.classList.toggle("active",mode==="book");
+          bookTab.setAttribute("aria-current",mode==="book"?"page":"false");
+        }
+        if(quoteTab){
+          quoteTab.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
+          quoteTab.classList.toggle("active",mode==="quote");
+          quoteTab.setAttribute("aria-current",mode==="quote"?"page":"false");
+        }
+
+        if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
+        if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
+        if(intro) intro.textContent=mode==="quote"
+          ?"For custom or variable-price work. Choose a quote-only service and tell us about the job."
+          :"Choose a service with upfront pricing, then pick a real available time.";
+        if(submit){
+          submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
+          submit.disabled=!services.length;
+        }
+        if(addWrap) addWrap.hidden=mode==="quote";
+        if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
+        if(recurrenceWrap) recurrenceWrap.hidden=mode==="quote";
+        if(slotsWrap) slotsWrap.hidden=mode==="quote";
+
+        if(select){
+          select.value="";
+          select.disabled=!services.length;
+          select.innerHTML=services.length
+            ? '<option value="">'+(mode==="quote"?"Choose a custom job type":"Choose a service")+'</option>'+services.map(s=>
+                '<option value="'+esc(s.id)+'">'+esc(s.name)+
+                (mode==="quote"?" · Custom quote":s.base_price!=null?" · "+money(s.base_price):"")+
+                '</option>'
+              ).join("")
+            : '<option value="">'+(mode==="quote"
+                ?"No quote-only services available yet"
+                :"No priced services available for online booking")+'</option>';
+        }
+
+        if(slotInput) slotInput.value="";
+        if(slotsBox) slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
+        if(addonBox) addonBox.innerHTML="";
+        if(summary){
+          summary.innerHTML=services.length
+            ? ""
+            : mode==="quote"
+              ? '<span>No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.</span><button type="button" class="primary-btn" data-switch-public-mode="book">Book a Cleaning</button>'
+              : '<span>No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.</span><button type="button" class="primary-btn" data-switch-public-mode="quote">Request a Quote</button>';
+        }
+
+        renderAddons();
+      }
+
+      function switchMode(nextMode){
+        if(nextMode===mode) return;
+        renderMode(nextMode,{updateUrl:true});
+      }
+
+      bookTab?.addEventListener("click",e=>{
+        e.preventDefault();
+        switchMode("book");
+      });
+      quoteTab?.addEventListener("click",e=>{
+        e.preventDefault();
+        switchMode("quote");
+      });
+      summary?.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-switch-public-mode]");
+        if(!btn) return;
+        e.preventDefault();
+        switchMode(btn.dataset.switchPublicMode);
+      });
+
       select?.addEventListener("change",()=>{
         renderAddons();
         refreshSlots();
@@ -565,9 +606,7 @@
         slotsBox.querySelectorAll("[data-slot]").forEach(x=>x.classList.toggle("selected",x===btn));
         slotInput.value=btn.dataset.slot;
       });
-      renderAddons();
 
-      const dateInput=form?.querySelector('[name="date"]');
       if(dateInput){
         const businessZone=data?.business?.timezone||"UTC";
         const dateInBusinessZone=value=>{
@@ -581,6 +620,8 @@
         dateInput.max=dateInBusinessZone(new Date(Date.now()+90*86400000));
         dateInput.addEventListener("change",refreshSlots);
       }
+
+      renderMode(mode,{updateUrl:false});
 
       if(form){
         form.addEventListener("submit",async e=>{
