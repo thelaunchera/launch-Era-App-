@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-69";
+const APP_VERSION = "20260928-unified-70";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -895,7 +895,37 @@ function renderWeatherBrief(){
   const highLow=$("#weatherHighLow");
   const location=$("#weatherLocation");
 
-  if(icon) icon.textContent=meta.icon;
+  if(icon){
+    const localHour=Number(new Intl.DateTimeFormat("en-US",{
+      hour:"2-digit",
+      hour12:false,
+      timeZone:activeBusinessTimeZone()
+    }).format(new Date()));
+    const isNight=Number.isFinite(localHour)&&(localHour>=19||localHour<6);
+    const family=weatherConditionFamily(weather.current.weather_code);
+    let visualIcon=meta.icon;
+    let hideIcon=false;
+
+    if(isNight){
+      if(family==="clear"||family==="partly"){
+        hideIcon=true;
+      }else if(family==="cloudy"){
+        visualIcon="☁️";
+      }else if(family==="fog"){
+        visualIcon="🌫️";
+      }else if(family==="rain"){
+        visualIcon="🌧️";
+      }else if(family==="snow"){
+        visualIcon="🌨️";
+      }else if(family==="storm"){
+        visualIcon="⛈️";
+      }
+    }
+
+    icon.hidden=hideIcon;
+    icon.textContent=hideIcon?"":visualIcon;
+    card.classList.toggle("weather-no-icon",hideIcon);
+  }
   if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
   if(condition) condition.textContent=meta[lang]||meta.en;
   if(highLow){
@@ -4746,8 +4776,8 @@ function renderTodaySummary(wakeAssistant=false){
     let copy="";
     let actionView="calendar";
     let actionText="";
-    let messageState=["rain","snow","storm"].includes(weatherContext.kind)?"rain":"calm";
-    let icon=weatherContext.icon || (["evening","late"].includes(daypart)?"🌙":daypart==="wrap"?"✨":"☀️");
+    let messageState="calm";
+    let icon=["evening","late"].includes(daypart)?"✦":daypart==="wrap"?"✓":"✓";
 
     const nextJobLine=nextJob
       ? langPick(
@@ -4758,11 +4788,7 @@ function renderTodaySummary(wakeAssistant=false){
         )
       : "";
 
-    if(["rain","snow","storm"].includes(weatherContext.kind)){
-      copy=weatherContext.text+(nextJobLine?" "+nextJobLine:"");
-      actionView=remainingJobs.length?"route":pendingBookings.length?"booking":"calendar";
-      messageState="rain";
-    }else if(nextJob){
+    if(nextJob){
       messageState="jobs";
       icon="📍";
       if(daypart==="early"){
@@ -4782,10 +4808,10 @@ function renderTodaySummary(wakeAssistant=false){
       }else if(daypart==="midday"){
         const later=Math.max(0,remainingJobs.length-1);
         copy=langPick(
-          nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+". "+(weatherContext.text||""),
-          nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+". "+(weatherContext.text||""),
-          nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+". "+(weatherContext.text||""),
-          nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+". "+(weatherContext.text||"")
+          nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",
+          nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",
+          nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+".",
+          nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+"."
         );
       }else if(daypart==="afternoon"||daypart==="wrap"){
         copy=langPick(
@@ -4812,7 +4838,6 @@ function renderTodaySummary(wakeAssistant=false){
         "Você tem "+pendingBookings.length+" solicitação"+(pendingBookings.length===1?"":"ões")+" de reserva aguardando revisão"+(openQuotes.length?" e "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+".":"."),
         "Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":".")
       );
-      if(weatherContext.text) copy+=" "+weatherContext.text;
       actionView="booking";
     }else if(openQuotes.length){
       messageState="quotes";
@@ -4822,7 +4847,7 @@ function renderTodaySummary(wakeAssistant=false){
         "Tienes "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+". Revisa cuál necesita el próximo paso.",
         "Você tem "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+". Veja qual precisa do próximo passo.",
         "Vous avez "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+". Vérifiez lequel nécessite la prochaine action."
-      )+(weatherContext.text?" "+weatherContext.text:"");
+      );
       actionView="quotes";
     }else if(overdueInvoices.length){
       messageState="invoice";
@@ -4836,22 +4861,8 @@ function renderTodaySummary(wakeAssistant=false){
       actionView="invoices";
     }else if(["evening","late"].includes(daypart)){
       messageState="night";
-      icon="🌙";
-      if(precipTomorrow){
-        const place=weatherPlaceLabel();
-        const eventName=nextPrecip?.kind==="snow"
-          ? langPick("snow","nieve","neve","neige")
-          : nextPrecip?.kind==="storm"
-          ? langPick("storms","tormentas","tempestades","orages")
-          : langPick("rain","lluvia","chuva","pluie");
-        const eventTime=nextPrecip?weatherClockLabel(nextPrecip.hour):"";
-        copy=langPick(
-          "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. "+eventName+" may move into "+(place||"your service area")+(eventTime?" around "+eventTime:"")+"; check the best route before you switch off.",
-          "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Se espera "+eventName+(place?" en "+place:"")+(eventTime?" cerca de las "+eventTime:"")+"; revisa la mejor ruta antes de desconectar.",
-          "Amanhã você tem "+tomorrowJobs.length+" trabalho"+(tomorrowJobs.length===1?"":"s")+". Há previsão de "+eventName+(place?" em "+place:"")+(eventTime?" por volta de "+eventTime:"")+"; confira a melhor rota antes de encerrar.",
-          "Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. "+eventName+" est possible"+(place?" à "+place:"")+(eventTime?" vers "+eventTime:"")+" ; vérifiez le meilleur itinéraire avant de terminer."
-        );
-      }else if(tomorrowJobs.length){
+      icon="✦";
+      if(tomorrowJobs.length){
         copy=langPick(
           "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then call it a day.",
           "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Deja lista la primera dirección y después descansa.",
@@ -4868,29 +4879,38 @@ function renderTodaySummary(wakeAssistant=false){
       }
       actionView="calendar";
     }else{
-      messageState=weatherContext.kind==="heat"?"hydrate":"calm";
-      icon=weatherContext.icon||"✓";
+        copy=langPick(
+          "Nothing urgent is waiting. Tomorrow is ready for a clean start.",
+          "No hay nada urgente pendiente. Mañana está listo para empezar limpio.",
+          "Não há nada urgente pendente. Amanhã está pronto para começar bem.",
+          "Rien d’urgent n’est en attente. Demain est prêt pour un nouveau départ."
+        );
+      }
+      actionView="calendar";
+    }else{
+      messageState="calm";
+      icon="✓";
       if(daypart==="midday"){
         copy=langPick(
           "Midday is clear. No urgent jobs or new requests are waiting.",
           "El mediodía está tranquilo. No hay trabajos urgentes ni solicitudes nuevas.",
           "O meio-dia está tranquilo. Não há trabalhos urgentes nem novas solicitações.",
           "Le milieu de journée est calme. Aucun travail urgent ni nouvelle demande en attente."
-        )+(weatherContext.text?" "+weatherContext.text:"");
+        );
       }else if(daypart==="wrap"){
         copy=langPick(
           "The route is clear. Nothing urgent is waiting.",
           "La ruta está libre. No hay nada urgente pendiente.",
           "A rota está livre. Não há nada urgente pendente.",
           "L’itinéraire est libre. Rien d’urgent n’est en attente."
-        )+(weatherContext.text?" "+weatherContext.text:"");
+        );
       }else{
         copy=langPick(
           "Everything is up to date. Good time to check the calendar and what’s next.",
           "Todo está al día. Buen momento para revisar el calendario y lo próximo.",
           "Tudo está em dia. Bom momento para conferir o calendário e o que vem a seguir.",
           "Tout est à jour. C’est un bon moment pour consulter le calendrier et la suite."
-        )+(weatherContext.text?" "+weatherContext.text:"");
+        );
       }
       actionView="calendar";
     }
