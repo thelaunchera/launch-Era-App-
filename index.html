@@ -85,7 +85,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-unified-73" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-unified-74" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -458,12 +458,15 @@
 
           <div class="hero-ecosystem">
             <div class="hero-greeting-zone">
-              <div class="today-greeting-first">
-                <h2 id="todayGreeting">Getting your day ready…</h2>
-                <p id="todayMomentCopy">Checking your schedule and what’s next.</p>
-              </div>
+              <div class="hero-card-topline">
+                <div class="today-clock" aria-label="Current date and time">
+                  <span class="today-clock-mark" aria-hidden="true">◷</span>
+                  <span class="today-clock-copy">
+                    <strong id="todayClockTime">--:--</strong>
+                    <small id="todayDatePill">Today</small>
+                  </span>
+                </div>
 
-              <div class="hero-assistant-meta">
                 <span class="hero-sky-badge" aria-hidden="true">
                   <span class="hero-sun-orb">☀️</span>
                   <span class="hero-cloud hero-cloud-a">☁️</span>
@@ -473,37 +476,36 @@
                   <span class="hero-night-star star-b">✧</span>
                   <span class="hero-night-star star-c">✦</span>
                 </span>
+              </div>
 
-                <article class="weather-brief hero-weather-module hero-weather-compact" id="weatherBrief" hidden
-                  role="button" tabindex="0" data-open-device-weather
-                  aria-label="Open weather on this device">
-                  <div class="weather-module-top">
-                    <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
-                    <div class="weather-now-copy">
-                      <small id="weatherLocation">LOCAL WEATHER</small>
-                      <div class="weather-temp-row">
-                        <strong id="weatherTemp">—</strong>
-                        <div class="weather-condition-stack">
-                          <span id="weatherCondition">Loading weather…</span>
-                          <small id="weatherHighLow">H:— · L:—</small>
-                        </div>
+              <div class="today-greeting-first">
+                <h2 id="todayGreeting">Getting your day ready…</h2>
+                <p id="todayMomentCopy">Checking your schedule and what’s next.</p>
+              </div>
+
+              <button class="dark-btn" id="todayHeroAction" data-jump="today" disabled>One moment…</button>
+
+              <article class="weather-brief hero-weather-module hero-weather-compact" id="weatherBrief" hidden
+                role="button" tabindex="0" data-open-device-weather
+                aria-label="Open weather on this device">
+                <div class="weather-module-top">
+                  <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+                  <div class="weather-now-copy">
+                    <small id="weatherLocation">LOCAL WEATHER</small>
+                    <div class="weather-temp-row">
+                      <strong id="weatherTemp">—</strong>
+                      <div class="weather-condition-stack">
+                        <span id="weatherCondition">Loading weather…</span>
+                        <small id="weatherHighLow">H:— · L:—</small>
                       </div>
                     </div>
-                    <span class="weather-open-hint" aria-hidden="true">↗</span>
                   </div>
-                  <span id="weatherFeels" hidden></span>
-                  <div class="weather-forecast" id="weatherForecast" hidden></div>
-                  <small class="weather-updated" id="weatherUpdated" hidden></small>
-                </article>
-
-                <div class="today-clock" aria-label="Current date and time">
-                  <span class="today-clock-mark" aria-hidden="true">◷</span>
-                  <span class="today-clock-copy">
-                    <strong id="todayClockTime">--:--</strong>
-                    <small id="todayDatePill">Today</small>
-                  </span>
+                  <span class="weather-open-hint" aria-hidden="true">↗</span>
                 </div>
-              </div>
+                <span id="weatherFeels" hidden></span>
+                <div class="weather-forecast" id="weatherForecast" hidden></div>
+                <small class="weather-updated" id="weatherUpdated" hidden></small>
+              </article>
 
               <div class="weather-business-note hero-weather-alert" id="weatherBusinessNote" hidden></div>
 
@@ -511,8 +513,6 @@
                 <span class="hero-route-chip-dot" aria-hidden="true"></span>
                 <span id="todayRouteChipText">Best route</span>
               </button>
-
-              <button class="dark-btn" id="todayHeroAction" data-jump="today" disabled>One moment…</button>
             </div>
           </div>
         </div>
@@ -1121,7 +1121,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-unified-73";
+    window.__tleShellVersion="20260928-unified-74";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1140,9 +1140,9 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-unified-73"></script>
-  <script src="./i18n.js?v=20260928-unified-73"></script>
-  <script src="./public.js?v=20260928-unified-73"></script>
-  <script src="./app.js?v=20260928-unified-73"></script>
+  <script src="./vendor/supabase.js?v=20260928-unified-74"></script>
+  <script src="./i18n.js?v=20260928-unified-74"></script>
+  <script src="./public.js?v=20260928-unified-74"></script>
+  <script src="./app.js?v=20260928-unified-74"></script>
 </body>
 </html>
