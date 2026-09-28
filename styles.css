@@ -6950,3 +6950,15 @@ body.shell-auth{overflow-anchor:none}
   .public-request-switch{gap:5px;padding:4px;border-radius:14px}
   .public-request-tab{min-height:42px;padding:8px 7px;font-size:11px}
 }
+
+/* iOS standalone tap reliability — stable-111 */
+.public-request-switch{position:relative;z-index:2}
+.public-request-tab{
+  border:0;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.public-request-tab:active{transform:scale(.985)}
