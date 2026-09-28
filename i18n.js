@@ -1388,6 +1388,11 @@
     "Could not send dispute.":"Impossible d’envoyer la contestation.","Due":"Échéance","Open Cleaning App":"Ouvrir Cleaning App"
   });
 
+
+  Object.assign(staticCorrections.es,{"Access":"Acceso","Security":"Seguridad","Integrations":"Integraciones"});
+  Object.assign(staticCorrections.pt,{"Access":"Acesso","Security":"Segurança","Integrations":"Integrações"});
+  Object.assign(staticCorrections.fr,{"Access":"Accès","Security":"Sécurité","Integrations":"Intégrations"});
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
