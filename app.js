@@ -1870,17 +1870,22 @@ function canRestoreWorkspaceView(id){
   const nav=$$(".nav-item[data-view]").find(n=>n.dataset.view===id);
   return !nav || !nav.hidden;
 }
+const LAST_WORKSPACE_VIEW_KEY="tle_last_workspace_view_v2";
 function saveWorkspaceView(id){
   if(!canRestoreWorkspaceView(id)) return;
-  try{ localStorage.setItem(workspaceViewStorageKey(),id); }catch{}
+  try{
+    localStorage.setItem(workspaceViewStorageKey(),id);
+    // Keep an account-independent fallback so Safari refresh can restore the
+    // visible page before/while the business context is being rehydrated.
+    localStorage.setItem(LAST_WORKSPACE_VIEW_KEY,id);
+  }catch{}
 }
 function restoreWorkspaceView(){
   let id="";
-  try{ id=String(localStorage.getItem(workspaceViewStorageKey())||""); }catch{}
-  if(!canRestoreWorkspaceView(id)){
-    id="today";
-    try{ localStorage.removeItem(workspaceViewStorageKey()); }catch{}
-  }
+  try{
+    id=String(localStorage.getItem(workspaceViewStorageKey())||localStorage.getItem(LAST_WORKSPACE_VIEW_KEY)||"");
+  }catch{}
+  if(!canRestoreWorkspaceView(id)) id="today";
   openView(id,{fromRestore:true,skipTrack:true,skipIntro:true});
   return id;
 }
@@ -3095,18 +3100,58 @@ async function initialize(){
     contextError=err;
   }
   if(contextError){
-    // A workspace/network failure is NOT an authentication failure. Keep the
-    // valid owner session and show a recoverable app state instead of asking
-    // for the password again.
-    console.error("[TLE] workspace context load failed",contextError);
-    setShellState("app");
-    authShell.hidden=true;
-    appShell.hidden=false;
-    dismissSessionSplash();
-    showToast(langPick("We couldn’t load your workspace. Tap refresh to try again.","No pudimos cargar tu espacio. Toca actualizar para intentar de nuevo.","Não foi possível carregar seu espaço. Toque em atualizar para tentar novamente.","Impossible de charger votre espace. Touchez Actualiser pour réessayer."));
-    return;
+    // A valid auth session must not be turned into an empty workspace. Retry
+    // the context once after refreshing the token, then use the owner's direct
+    // business row as a safe fallback.
+    console.warn("[TLE] workspace context first attempt failed",contextError);
+    try{
+      const refreshed=await withTimeout(supabase.auth.refreshSession(),"Session refresh",5000);
+      if(refreshed?.data?.session){
+        state.session=refreshed.data.session;
+        saveOwnerSessionBackup(state.session);
+      }
+      const retry=await withTimeout(supabase.rpc("get_my_business_context"),"Workspace retry",8000);
+      contexts=retry?.data||null;
+      contextError=retry?.error||null;
+    }catch(err){
+      contextError=err;
+    }
   }
   let context=contexts?.[0];
+
+  // Owner fallback: if the context RPC is unavailable on Safari cold launch,
+  // resolve the owned workspace directly instead of exposing an empty shell.
+  if(!context && state.session?.user?.id){
+    try{
+      const {data:ownedBusiness,error:ownedBusinessError}=await supabase
+        .from("businesses")
+        .select("id,name,email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
+        .eq("owner_user_id",state.session.user.id)
+        .order("created_at",{ascending:true})
+        .limit(1)
+        .maybeSingle();
+      if(!ownedBusinessError && ownedBusiness){
+        context={
+          business_id:ownedBusiness.id,business_name:ownedBusiness.name,
+          business_email:ownedBusiness.email,business_phone:ownedBusiness.phone,
+          role:"owner",team_member_id:null,timezone:ownedBusiness.timezone,
+          default_language:ownedBusiness.default_language,country_code:ownedBusiness.country_code,
+          locale_code:ownedBusiness.locale_code,currency_code:ownedBusiness.currency_code,
+          distance_unit:ownedBusiness.distance_unit,temperature_unit:ownedBusiness.temperature_unit,
+          payment_methods:ownedBusiness.payment_methods,service_area:ownedBusiness.service_area,
+          default_travel_buffer_minutes:ownedBusiness.default_travel_buffer_minutes,
+          trial_ends_at:ownedBusiness.trial_ends_at,subscription_status:ownedBusiness.subscription_status
+        };
+        contextError=null;
+      }
+    }catch(err){ contextError=err; }
+  }
+  if(contextError && !context){
+    console.error("[TLE] workspace context load failed",contextError);
+    showAuth();
+    setAuthStatus(langPick("Your session is active, but the workspace could not load. Try again.","Tu sesión está activa, pero no se pudo cargar el espacio. Intenta de nuevo.","Sua sessão está ativa, mas o espaço não pôde carregar. Tente novamente.","Votre session est active, mais l’espace n’a pas pu charger. Réessayez."),"error");
+    return;
+  }
 
   if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
     const {data:b,error:businessError}=await supabase
