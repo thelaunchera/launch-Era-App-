@@ -7183,3 +7183,23 @@ body.shell-auth{overflow-anchor:none}
   }
 }
 
+/* Default service add-ons · stable-115 */
+.public-addon-note{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  margin-bottom:2px;
+  border-radius:13px;
+  background:#F7F4EC;
+  border:1px solid var(--line);
+}
+.public-addon-note strong{font-size:12px;line-height:1.2}
+.public-addon-note span{font-size:11px;line-height:1.35;color:var(--muted)}
+.addon-choice.addon-default{background:#F7FBF5}
+.addon-choice.addon-default input{accent-color:#245A36}
+@media(max-width:620px){
+  .public-addon-note{padding:9px 10px}
+  .addon-choice{min-height:52px;padding:11px!important}
+}
+
