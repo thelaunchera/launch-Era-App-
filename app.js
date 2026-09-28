@@ -4593,11 +4593,10 @@ function dashboardWeatherContext(now,remainingJobs){
 
   if(currentKind){
     const base=currentKind==="snow"
-      ? langPick("Snow is affecting","Está nevando en","Está nevando em","Il neige à")
+      ? langPick("It’s snowing now.","Está nevando ahora.","Está nevando agora.","Il neige maintenant.")
       : currentKind==="storm"
-      ? langPick("Storms are affecting","Hay tormentas en","Há tempestades em","Des orages touchent")
-      : langPick("Rain is affecting","Está lloviendo en","Está chovendo em","Il pleut à");
-    const area=place?" "+place:langPick(" your service area"," tu zona de servicio"," sua área de atendimento"," votre zone de service");
+      ? langPick("Storms are active now.","Hay tormentas ahora.","Há tempestades agora.","Des orages sont actifs maintenant.")
+      : langPick("It’s raining now.","Está lloviendo ahora.","Está chovendo agora.","Il pleut maintenant.");
     const advice=remainingJobs.length
       ? langPick(
           " Check GPS before the next stop and allow extra travel time.",
@@ -4606,7 +4605,7 @@ function dashboardWeatherContext(now,remainingJobs){
           " Vérifiez le GPS avant le prochain arrêt et prévoyez plus de temps de trajet."
         )
       : "";
-    return {kind:currentKind,icon:currentKind==="snow"?"🌨️":currentKind==="storm"?"⛈️":"🌧️",text:base+area+"."+advice};
+    return {kind:currentKind,icon:currentKind==="snow"?"🌨️":currentKind==="storm"?"⛈️":"🌧️",text:base+advice};
   }
 
   if(event&&event.hoursAhead<=48){
@@ -4641,10 +4640,10 @@ function dashboardWeatherContext(now,remainingJobs){
       kind:"heat",
       icon:"☀️",
       text:langPick(
-        "It’s "+temp+temperatureSuffix()+(place?" in "+place:"")+". If you’re still on the road, leave a few minutes for water between stops.",
-        "Hace "+temp+temperatureSuffix()+(place?" en "+place:"")+". Si sigues en ruta, deja unos minutos para agua entre paradas.",
-        "Está fazendo "+temp+temperatureSuffix()+(place?" em "+place:"")+". Se ainda estiver na rua, reserve alguns minutos para água entre as paradas.",
-        "Il fait "+temp+temperatureSuffix()+(place?" à "+place:"")+". Si vous êtes encore en route, prévoyez quelques minutes pour boire entre les arrêts."
+        "It’s "+temp+temperatureSuffix()+". If you’re still on the road, leave a few minutes for water between stops.",
+        "Hace "+temp+temperatureSuffix()+". Si sigues en ruta, deja unos minutos para agua entre paradas.",
+        "Está fazendo "+temp+temperatureSuffix()+". Se ainda estiver na rua, reserve alguns minutos para água entre as paradas.",
+        "Il fait "+temp+temperatureSuffix()+". Si vous êtes encore en route, prévoyez quelques minutes pour boire entre les arrêts."
       )
     };
   }
