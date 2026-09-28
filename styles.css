@@ -7018,7 +7018,7 @@ body.shell-auth{overflow-anchor:none}
 }
 
 /* Compact operational cards · stable-114 */
-@media(max-width:860px){
+@media(max-width:1180px){
   /* Clients */
   [data-page="clients"] .client-grid{gap:10px!important}
   [data-page="clients"] .client-card.client-card-compact{
