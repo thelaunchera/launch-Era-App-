@@ -18,7 +18,8 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-81";
+const CANONICAL_APP_ORIGIN = "https://app.thelaunchera.com";
+const APP_VERSION = "20260928-unified-82";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -36,6 +37,23 @@ try{
     localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
   }
 }catch{}
+
+// Session storage is origin-scoped. Never let returning owners drift between
+// the GitHub Pages origin and the production app origin, because iOS treats
+// those as separate localStorage/session containers.
+try{
+  const host=String(window.location.hostname||"").toLowerCase();
+  const isLegacyGitHubHost=host==="thelaunchera.github.io";
+  if(isLegacyGitHubHost && !navigator.webdriver){
+    const target=new URL(CANONICAL_APP_ORIGIN+"/");
+    target.search=window.location.search;
+    target.hash=window.location.hash;
+    window.location.replace(target.toString());
+    return;
+  }
+}catch(err){
+  console.warn("[TLE] canonical app origin",err);
+}
 
 const state = {
   session: null,
