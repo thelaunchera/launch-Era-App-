@@ -3221,7 +3221,13 @@ async function initialize(){
 
   setupInvoiceRealtime();
   showToast("Loading your workspace…");
-  loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
+  loadCoreData().then(()=>{
+    try{renderTodaySummary();renderOperations();renderSettings();renderPublicLinks();}catch(err){console.warn("[TLE] post-load render",err);}
+  }).catch(err=>{
+    console.warn("[TLE] workspace load",err);
+    // Retry once automatically; owners should not need Refresh after cold launch.
+    setTimeout(()=>loadCoreData().catch(retryErr=>console.warn("[TLE] workspace retry",retryErr)),1200);
+  });
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
   await trackVisit("/app/"+($(".view.active")?.dataset.page||"today"));
 }
@@ -8258,11 +8264,13 @@ if("serviceWorker" in navigator){
 }
 
 window.__tleAppReady=true;
-// JavaScript is fully wired now. The splash may still fade visually, but it
-// must never block the first auth interaction while session detection runs.
+// Keep the launch splash visible while Supabase restores the persisted session.
+// The auth form already exists underneath in static HTML; exposing it before
+// session initialization finishes creates a false password prompt on iOS cold launch.
 if(sessionSplash){
-  sessionSplash.style.pointerEvents="none";
-  sessionSplash.setAttribute("aria-hidden","true");
+  sessionSplash.hidden=false;
+  sessionSplash.style.pointerEvents="auto";
+  sessionSplash.setAttribute("aria-hidden","false");
 }
 // Keep the static auth shell stable until initialize() decides whether this is
 // a returning session, a remembered username, or a first visit.
