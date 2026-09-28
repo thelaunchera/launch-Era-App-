@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-98";
+const APP_VERSION = "20260928-stable-99";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1537,7 +1537,7 @@ function showApp(){
   // Role permissions are applied first so a page that is no longer allowed
   // safely falls back to Today instead of exposing a hidden section.
   restoreWorkspaceView();
-  $("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   renderTrialStatus();
@@ -3963,7 +3963,7 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
-  $$("[data-account-billing]").forEach(el=>{
+  $$$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   const [membersRes,invitesRes]=await Promise.all([
