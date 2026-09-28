@@ -97,17 +97,20 @@ if(!app.includes("tle_new_signup:true") || !app.includes("hasAccountSignupWelcom
 if(!app.includes('from("app_notification_reads")') || !app.includes('from("app_notification_state")')){
   throw new Error("Notification regression: persistent read state is missing");
 }
-if(app.includes("Date.now()-savedAt>OWNER_IDLE_MS")){
-  throw new Error("Session regression: closing/reopening the PWA must not expire a valid owner session locally");
+if(!app.includes("const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;") || !app.includes("Date.now()-lastActivity>=OWNER_IDLE_MS") || !app.includes("await expireOwnerSession();")){
+  throw new Error("Session regression: 12-hour owner inactivity lock is not enforced");
 }
 if(!app.includes("isPermanentSessionRestoreError") || !app.includes("invalid refresh token") || !app.includes("clearOwnerSessionBackup();")){
   throw new Error("Session regression: permanently invalid Supabase refresh tokens must still be discarded");
 }
-if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:resilientAuthStorage")){
-  throw new Error("Session regression: Supabase resilient persistent auth configuration is missing");
+if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.localStorage")){
+  throw new Error("Session regression: stable Supabase localStorage persistence is missing");
 }
-if(!app.includes("window.localStorage.getItem(key)") || !app.includes("authDbGet(key)") || !app.includes("indexedDB.open(TLE_AUTH_DB")){
-  throw new Error("Session regression: iPhone IndexedDB auth fallback is missing");
+if(app.includes("resilientAuthStorage") || app.includes("indexedDB.open(TLE_AUTH_DB")){
+  throw new Error("Session regression: experimental IndexedDB auth fallback returned");
+}
+if(!app.includes("restoreWorkspaceView();") || !app.includes("saveWorkspaceView(id)")){
+  throw new Error("Workspace regression: active page restore is missing");
 }
 if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
   throw new Error("Dashboard regression: contextual service-area weather is missing");
@@ -169,7 +172,7 @@ if(
   throw new Error("Public localization regression: booking/quote/invoice states bypass translation");
 }
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
-const releaseVersionPattern=/20260928-unified-\\d+/g;
+const releaseVersionPattern=/20260928-(?:unified|stable)-\\d+/g;
 const releaseVersions=[
   appVersion,
   ...[...html.matchAll(releaseVersionPattern)].map(m=>m[0]),
