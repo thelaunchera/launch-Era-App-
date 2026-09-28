@@ -81,7 +81,7 @@ async function assertLayout(page,profile){
   await page.locator('#tleLanguageMenu [data-language-choice="fr"]').click();
   await page.waitForFunction(()=>document.documentElement.lang==="fr",null,{timeout:2000});
   const frAdmin=await page.locator('[data-page="admin"]').textContent();
-  if(!frAdmin.includes("SÉCURITÉ") || !frAdmin.includes("Contrôles protégés") || frAdmin.includes("Protected controls")){
+  if(!frAdmin.includes("SÉCURITÉ") || !frAdmin.includes("Sécurité") || !frAdmin.includes("Intégrations") || frAdmin.includes("Security")){
     throw new Error(profile.name+": French owner-admin translation is incomplete");
   }
 
@@ -92,13 +92,13 @@ async function assertLayout(page,profile){
   const ptAdmin=await page.locator('[data-page="admin"]').textContent();
   if(
     !ptAdmin.includes("SEGURANÇA") ||
-    !ptAdmin.includes("Controles protegidos") ||
-    !ptAdmin.includes("Conexões privadas") ||
+    !ptAdmin.includes("Segurança") ||
+    !ptAdmin.includes("Integrações") ||
     !ptAdmin.includes("Administrador") ||
     !ptAdmin.includes("Funcionário") ||
     ptAdmin.includes("Administrateur") ||
-    ptAdmin.includes("Protected controls") ||
-    ptAdmin.includes("Private connections")
+    ptAdmin.includes("Sécurité") ||
+    ptAdmin.includes("Intégrations")
   ){
     throw new Error(profile.name+": Portuguese owner-admin translation is mixed or incomplete");
   }
@@ -108,7 +108,7 @@ async function assertLayout(page,profile){
   await page.locator('#tleLanguageMenu [data-language-choice="en"]').click();
   await page.waitForFunction(()=>document.documentElement.lang==="en",null,{timeout:2000});
   const enAdmin=await page.locator('[data-page="admin"]').textContent();
-  if(!enAdmin.includes("SECURITY") || !enAdmin.includes("Protected controls") || !enAdmin.includes("Private connections")){
+  if(!enAdmin.includes("SECURITY") || !enAdmin.includes("Security") || !enAdmin.includes("Integrations")){
     throw new Error(profile.name+": returning to English did not restore canonical source text");
   }
 
