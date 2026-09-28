@@ -19,7 +19,7 @@ const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
 const CANONICAL_APP_ORIGIN = "https://app.thelaunchera.com";
-const APP_VERSION = "20260928-unified-82";
+const APP_VERSION = "20260928-unified-83";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
