@@ -4610,3 +4610,114 @@ body.shell-auth{overflow-anchor:none}
     transform:none!important;
   }
 }
+
+
+/* Dashboard CTA polish — compact, high-contrast, animated */
+.hero-greeting-zone #todayHeroAction{
+  width:auto;
+  min-width:0;
+  min-height:42px;
+  align-self:flex-start;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid rgba(25,25,25,.22);
+  background:#191919;
+  color:#fff;
+  box-shadow:0 9px 22px rgba(25,25,25,.14);
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform .2s ease,box-shadow .2s ease,background-color .45s ease,color .45s ease,border-color .45s ease;
+  animation:tleHeroCtaFloat 3.8s ease-in-out infinite;
+}
+.hero-greeting-zone #todayHeroAction::after{
+  content:"";
+  position:absolute;
+  inset:-40% auto -40% -36%;
+  width:28%;
+  transform:skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),transparent);
+  pointer-events:none;
+  z-index:-1;
+  animation:tleHeroCtaSheen 5.4s ease-in-out infinite;
+}
+.hero-greeting-zone #todayHeroAction:hover{
+  transform:translateY(-2px);
+  box-shadow:0 13px 28px rgba(25,25,25,.18);
+}
+.hero-greeting-zone #todayHeroAction:active{
+  transform:translateY(0) scale(.98);
+}
+.hero-card.message-afternoon #todayHeroAction,
+.hero-card.message-rain #todayHeroAction,
+.hero-card.message-hydrate #todayHeroAction{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+.hero-card.message-morning #todayHeroAction,
+.hero-card.message-jobs #todayHeroAction{
+  background:#BFE0FF;
+  color:#191919;
+  border-color:#8DBDE8;
+}
+.hero-card.message-calm #todayHeroAction,
+.hero-card.message-booking #todayHeroAction{
+  background:#F2D85B;
+  color:#191919;
+  border-color:#CDB63E;
+}
+.hero-card.message-night #todayHeroAction{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+@keyframes tleHeroCtaFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
+@keyframes tleHeroCtaSheen{
+  0%,70%{left:-36%;opacity:0}
+  76%{opacity:1}
+  94%{left:122%;opacity:0}
+  100%{left:122%;opacity:0}
+}
+@media(max-width:680px){
+  .hero-greeting-zone #todayHeroAction{
+    width:auto;
+    max-width:100%;
+    min-height:40px;
+    padding:0 16px;
+    margin-top:14px;
+    font-size:12px;
+  }
+}
+
+/* New-notification motion: ring only when unread count increases */
+.notification-bell-btn.notification-arrived .notification-bell-icon{
+  animation:tleNotificationRing .72s cubic-bezier(.36,.07,.19,.97) 2;
+}
+.notification-bell-btn.notification-arrived .notification-badge{
+  animation:tleNotificationBadgePop .58s cubic-bezier(.2,.9,.25,1.35) 1;
+}
+@keyframes tleNotificationRing{
+  0%,100%{transform:rotate(0)}
+  18%{transform:rotate(14deg)}
+  36%{transform:rotate(-12deg)}
+  54%{transform:rotate(9deg)}
+  72%{transform:rotate(-6deg)}
+  86%{transform:rotate(3deg)}
+}
+@keyframes tleNotificationBadgePop{
+  0%{transform:scale(.72)}
+  55%{transform:scale(1.28)}
+  100%{transform:scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-greeting-zone #todayHeroAction,
+  .hero-greeting-zone #todayHeroAction::after,
+  .notification-bell-btn.notification-arrived .notification-bell-icon,
+  .notification-bell-btn.notification-arrived .notification-badge{
+    animation:none!important;
+  }
+}
