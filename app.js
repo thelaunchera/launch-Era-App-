@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-62";
+const APP_VERSION = "20260927-unified-63";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4025,6 +4025,7 @@ function renderClients(){
       <small class="client-location">${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || tr("No address yet"))}</small>
       <div class="card-actions record-card-actions client-card-actions">
         <span class="safe-actions">
+          <button data-client-info="${c.id}">${escapeHtml(langPick("Info","Info","Info","Info"))}</button>
           <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
           <button data-client-to-quote="${c.id}">${escapeHtml(tr("Quote"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
@@ -4033,6 +4034,98 @@ function renderClients(){
       </div>
     </article>
   `).join("");
+}
+
+function openClientInfo(clientId){
+  const client=state.clients.find(c=>c.id===clientId);
+  if(!client){
+    showToast(langPick("Client not found","Cliente no encontrado","Cliente não encontrado","Client introuvable"));
+    return;
+  }
+
+  state.modalType="clientInfo";
+  state.modalId=clientId;
+
+  const jobs=state.jobs.filter(j=>j.client_id===clientId);
+  const quotes=state.quotes.filter(q=>q.client_id===clientId || (!q.client_id && String(q.customer_email||"").toLowerCase()===String(client.email||"").toLowerCase()));
+  const invoices=state.invoices.filter(inv=>inv.client_id===clientId);
+  const bookings=state.bookingRequests.filter(b=>String(b.customer_email||"").toLowerCase()===String(client.email||"").toLowerCase());
+
+  const recurringIds=[...new Set(jobs.map(j=>j.recurrence_rule_id).filter(Boolean))];
+  const upcoming=jobs.filter(j=>!["completed","canceled","no_show"].includes(j.status) && new Date(j.starts_at)>=new Date()).length;
+  const completed=jobs.filter(j=>j.status==="completed").length;
+  const invoiced=invoices.reduce((sum,inv)=>sum+Number(inv.total||0),0);
+  const paid=invoices.reduce((sum,inv)=>sum+invoicePaidAmount(inv),0);
+
+  const history=[
+    ...jobs.map(j=>({
+      at:j.starts_at,
+      icon:"🧹",
+      title:j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"),
+      meta:formatDateTime(j.starts_at)+" · "+translatedStatus(j.status)+(j.recurrence_rule_id?" · "+langPick("Recurring","Recurrente","Recorrente","Récurrent"):"")
+    })),
+    ...quotes.map(q=>({
+      at:q.updated_at||q.created_at,
+      icon:"📝",
+      title:langPick("Quote","Cotización","Orçamento","Devis")+" · "+money(Number(q.total||0)),
+      meta:formatDateTime(q.updated_at||q.created_at)+" · "+String(q.status||"").replaceAll("_"," ")
+    })),
+    ...invoices.map(inv=>({
+      at:inv.updated_at||inv.created_at,
+      icon:"🧾",
+      title:langPick("Invoice","Factura","Fatura","Facture")+" · "+money(Number(inv.total||0)),
+      meta:formatDateTime(inv.updated_at||inv.created_at)+" · "+String(inv.status||"").replaceAll("_"," ")
+    })),
+    ...bookings.map(b=>({
+      at:b.created_at||b.requested_start_at,
+      icon:"📅",
+      title:langPick("Booking request","Solicitud de reserva","Pedido de reserva","Demande de réservation"),
+      meta:formatDateTime(b.requested_start_at)+" · "+bookingRecurrenceLabel(b.recurrence_pattern)+" · "+String(b.status||"")
+    }))
+  ].filter(item=>item.at).sort((a,b)=>new Date(b.at)-new Date(a.at));
+
+  const recurringSummary=recurringIds.map(id=>{
+    const rule=state.recurrenceRules.find(r=>r.id===id);
+    return rule?bookingRecurrenceLabel(recurrencePatternFromRule(rule)):"";
+  }).filter(Boolean);
+
+  modalHeader(
+    langPick("CLIENT INFO","INFO DEL CLIENTE","INFO DO CLIENTE","INFO CLIENT"),
+    client.name,
+    langPick("Contact details and full activity history in one place.","Datos de contacto e historial completo en un solo lugar.","Dados de contato e histórico completo em um só lugar.","Coordonnées et historique complet au même endroit.")
+  );
+
+  entityForm.innerHTML=`
+    <div class="client-history-profile">
+      <div class="client-history-contact">
+        <div><small>${escapeHtml(langPick("Email","Email","Email","E-mail"))}</small><strong>${escapeHtml(client.email||"—")}</strong></div>
+        <div><small>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}</small><strong>${escapeHtml(client.phone||"—")}</strong></div>
+        <div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(clientServiceAddress(client)||"—")}</strong></div>
+        <div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(client.preferred_contact||"email")}</strong></div>
+        <div><small>${escapeHtml(langPick("Recurring","Recurrente","Recorrente","Récurrent"))}</small><strong>${escapeHtml(recurringSummary.join(", ")||langPick("No","No","Não","Non"))}</strong></div>
+      </div>
+      <div class="client-history-stats">
+        <span><small>${escapeHtml(langPick("Completed","Completados","Concluídos","Terminés"))}</small><b>${completed}</b></span>
+        <span><small>${escapeHtml(langPick("Upcoming","Próximos","Próximos","À venir"))}</small><b>${upcoming}</b></span>
+        <span><small>${escapeHtml(langPick("Invoiced","Facturado","Faturado","Facturé"))}</small><b>${escapeHtml(money(invoiced))}</b></span>
+        <span><small>${escapeHtml(langPick("Paid","Pagado","Pago","Payé"))}</small><b>${escapeHtml(money(paid))}</b></span>
+      </div>
+      <div class="client-history-section">
+        <div class="client-history-title"><strong>${escapeHtml(langPick("History","Historial","Histórico","Historique"))}</strong><span>${history.length}</span></div>
+        <div class="client-history-list">
+          ${history.length?history.map(item=>`
+            <div class="client-history-item">
+              <span class="client-history-icon">${item.icon}</span>
+              <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small></div>
+            </div>`).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No history yet.","Todavía no hay historial.","Ainda não há histórico.","Aucun historique pour le moment."))}</strong></div>`}
+        </div>
+      </div>
+      <div class="form-footer client-history-footer">
+        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
+        <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit client","Editar cliente","Editar cliente","Modifier le client"))}</button>
+      </div>
+    </div>`;
+  modal.hidden=false;
 }
 
 function renderServices(){
@@ -4814,6 +4907,14 @@ function renderOperations(){
   renderBookingRequests();
 }
 
+function bookingRecurrenceLabel(pattern){
+  const value=String(pattern||"one_time");
+  if(value==="weekly") return langPick("Every week","Cada semana","Toda semana","Chaque semaine");
+  if(value==="biweekly") return langPick("Every 2 weeks","Cada 2 semanas","A cada 2 semanas","Toutes les 2 semaines");
+  if(value==="monthly") return langPick("Monthly","Mensual","Mensal","Mensuel");
+  return langPick("One time","Una vez","Uma vez","Une fois");
+}
+
 function renderBookingRequests(){
   const list=$("#bookingRequestsList");
   const pill=$("#bookingRequestCountPill");
@@ -4827,7 +4928,7 @@ function renderBookingRequests(){
   }
   list.innerHTML=visible.slice(0,20).map(b=>`
     <div class="booking-request-row">
-      <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(b.service_address)}</small></div>
+      <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(bookingRecurrenceLabel(b.recurrence_pattern))} · ${escapeHtml(b.service_address)}</small></div>
       <div class="record-actions">
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
         <button data-check-booking-client="${b.id}">${b.reviewed_at?"Checked":"Check client"}</button>
@@ -5780,8 +5881,7 @@ function openEntityForm(type,id=null){
               <option value="one_time">Does not repeat</option>
               <option value="weekly">Every week</option>
               <option value="biweekly">Every 2 weeks</option>
-              <option value="every_4_weeks">Every 4 weeks</option>
-              <option value="monthly">Every month</option>
+              <option value="monthly">Monthly</option>
             </select>
           </label>
           <div class="recurrence-options full" data-recurrence-options hidden>
@@ -6819,6 +6919,12 @@ document.addEventListener("click",async e=>{
     setTimeout(()=>{
       [["customer_name",lead?.name],["customer_email",lead?.email],["customer_phone",lead?.phone],["service_address",lead?.address]].forEach(([n,v])=>{const el=entityForm.querySelector(`[name="${n}"]`);if(el&&v)el.value=v;});
     },0);
+    return;
+  }
+
+  const clientInfo=e.target.closest("[data-client-info]");
+  if(clientInfo){
+    openClientInfo(clientInfo.dataset.clientInfo);
     return;
   }
 
