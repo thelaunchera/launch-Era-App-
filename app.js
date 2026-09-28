@@ -3103,6 +3103,7 @@ function getInquiryNotifications(){
       requestedAt:b.requested_start_at||"",
       notes:b.notes||lead?.notes||"",
       preferredContact:b.preferred_contact||lead?.preferred_contact||"",
+      recurrencePattern:b.recurrence_pattern||"one_time",
       status:b.status||"requested",
       clientId:client?.id||""
     });
@@ -3347,6 +3348,7 @@ function openInquiryNotificationDetail(notificationId){
         ${item.email?`<div><small>Email</small><strong>${escapeHtml(item.email)}</strong></div>`:""}
         ${item.address?`<div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(item.address)}</strong></div>`:""}
         ${requested?`<div class="full"><small>${escapeHtml(langPick("Requested date & time","Fecha y hora solicitada","Data e hora solicitadas","Date et heure demandées"))}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
+        ${item.type==="booking"?`<div><small>${escapeHtml(langPick("Frequency","Frecuencia","Frequência","Fréquence"))}</small><strong>${escapeHtml(bookingRecurrenceLabel(item.recurrencePattern))}</strong></div>`:""}
         ${contactMethod?`<div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
         ${item.notes?`<div class="full"><small>${escapeHtml(langPick("Notes","Notas","Observações","Notes"))}</small><p>${escapeHtml(item.notes)}</p></div>`:""}
       </div>
