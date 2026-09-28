@@ -4339,6 +4339,13 @@ body.modal-open{
 }
 #todayHeroCard .hero-greeting-zone{
   padding:2px 0!important;
+  justify-content:flex-start!important;
+}
+#todayHeroCard .hero-card-topline{
+  margin-top:-6px!important;
+}
+#todayHeroCard .today-greeting-first{
+  margin-top:-2px!important;
 }
 #todayHeroCard .hero-greeting-zone #todayGreeting{
   margin:8px 0 7px!important;
