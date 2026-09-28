@@ -3000,7 +3000,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
+      .select("email,phone,timezone,default_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
