@@ -112,6 +112,9 @@ if(app.includes("resilientAuthStorage") || app.includes("indexedDB.open(TLE_AUTH
 if(!app.includes("restoreWorkspaceView();") || !app.includes("saveWorkspaceView(id)")){
   throw new Error("Workspace regression: active page restore is missing");
 }
+if(!app.includes('if(ownerIdleExpired()){') || !app.includes('expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err))')){
+  throw new Error("Session regression: first activity after 12 hours must lock before refreshing activity");
+}
 if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
   throw new Error("Dashboard regression: contextual service-area weather is missing");
 }

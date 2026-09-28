@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-91";
+const APP_VERSION = "20260928-stable-92";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2155,6 +2155,10 @@ function installOwnerActivityTracker(){
   let lastWrite=0;
   const onActivity=()=>{
     if(!state.session || state.business?.role!=="owner") return;
+    if(ownerIdleExpired()){
+      expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+      return;
+    }
     const now=Date.now();
     if(now-lastWrite>60000){
       lastWrite=now;
