@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-58";
+const APP_VERSION = "20260927-unified-59";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1751,12 +1751,28 @@ function trackGooglePage(page){
 function isAutomationTestSession(){
   const host=String(window.location.hostname||"").toLowerCase();
   const params=new URLSearchParams(window.location.search);
+  const ua=String(navigator.userAgent||"");
   return host==="127.0.0.1"
     || host==="localhost"
     || host==="::1"
+    || host!=="app.thelaunchera.com"
+    || navigator.webdriver===true
+    || /HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed/i.test(ua)
     || params.has("browser-smoke")
     || params.has("cross-browser-smoke")
     || params.has("ci-smoke");
+}
+
+let authLandingVisitTracked=false;
+function trackAuthLandingOnHumanInteraction(){
+  if(authLandingVisitTracked) return;
+  const fire=()=>{
+    if(authLandingVisitTracked) return;
+    authLandingVisitTracked=true;
+    ["pointerdown","touchstart","keydown"].forEach(type=>window.removeEventListener(type,fire,true));
+    trackAuthLandingOnHumanInteraction();
+  };
+  ["pointerdown","touchstart","keydown"].forEach(type=>window.addEventListener(type,fire,{capture:true,passive:true}));
 }
 async function trackVisit(page=window.location.pathname+window.location.search){
   if(isAutomationTestSession()) return;
