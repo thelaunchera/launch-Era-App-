@@ -85,7 +85,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-unified-65" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-unified-66" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -468,35 +468,35 @@
                   <span class="hero-night-star star-b">✧</span>
                   <span class="hero-night-star star-c">✦</span>
                 </span>
+
+                <article class="weather-brief hero-weather-module hero-weather-compact" id="weatherBrief" hidden
+                  role="button" tabindex="0" data-open-device-weather
+                  aria-label="Open weather on this device">
+                  <div class="weather-module-top">
+                    <div class="weather-now">
+                      <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+                      <div class="weather-now-copy">
+                        <small id="weatherLocation">LOCAL WEATHER</small>
+                        <div class="weather-temp-row">
+                          <strong id="weatherTemp">—</strong>
+                          <span id="weatherCondition">Loading weather…</span>
+                        </div>
+                        <span id="weatherFeels"></span>
+                      </div>
+                    </div>
+                    <span class="weather-open-hint" aria-hidden="true">↗</span>
+                  </div>
+                  <div class="weather-business-note" id="weatherBusinessNote"></div>
+                  <div class="weather-forecast" id="weatherForecast"></div>
+                  <small class="weather-updated" id="weatherUpdated"></small>
+                </article>
+
                 <span class="pill yellow" id="todayDatePill">Today</span>
               </div>
               <h2 id="todayGreeting">Getting your day ready…</h2>
               <p id="todayMomentCopy">Checking your schedule and local weather.</p>
               <button class="dark-btn" id="todayHeroAction" data-jump="today" disabled>One moment…</button>
             </div>
-
-            <article class="weather-brief hero-weather-module" id="weatherBrief" hidden
-              role="button" tabindex="0" data-open-device-weather
-              aria-label="Open weather on this device">
-              <div class="weather-module-top">
-                <div class="weather-now">
-                  <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
-                  <div class="weather-now-copy">
-                    <small id="weatherLocation">LOCAL WEATHER</small>
-                    <div class="weather-temp-row">
-                      <strong id="weatherTemp">—</strong>
-                      <span id="weatherCondition">Loading weather…</span>
-                    </div>
-                    <span id="weatherFeels"></span>
-                  </div>
-                </div>
-                <span class="weather-open-hint" aria-hidden="true">↗</span>
-              </div>
-
-              <div class="weather-business-note" id="weatherBusinessNote"></div>
-              <div class="weather-forecast" id="weatherForecast"></div>
-              <small class="weather-updated" id="weatherUpdated"></small>
-            </article>
           </div>
         </div>
 
@@ -1104,7 +1104,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-unified-65";
+    window.__tleShellVersion="20260928-unified-66";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1123,9 +1123,9 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-unified-65"></script>
-  <script src="./i18n.js?v=20260928-unified-65"></script>
-  <script src="./public.js?v=20260928-unified-65"></script>
-  <script src="./app.js?v=20260928-unified-65"></script>
+  <script src="./vendor/supabase.js?v=20260928-unified-66"></script>
+  <script src="./i18n.js?v=20260928-unified-66"></script>
+  <script src="./public.js?v=20260928-unified-66"></script>
+  <script src="./app.js?v=20260928-unified-66"></script>
 </body>
 </html>
