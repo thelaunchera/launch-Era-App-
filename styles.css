@@ -6907,3 +6907,46 @@ body.shell-auth{overflow-anchor:none}
   .availability-compact .availability-day .day-toggle{font-size:10px;gap:5px}
   .availability-compact .availability-day input[type="time"]{font-size:11px;padding:6px;min-height:36px}
 }
+
+
+/* Public booking vs quote separation — stable-108 */
+.public-request-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:0 0 18px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#F5F2EC;
+}
+.public-request-tab{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:10px 12px;
+  border-radius:12px;
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.public-request-tab.active{
+  background:var(--ink);
+  color:#fff;
+  box-shadow:0 5px 14px rgba(25,25,25,.12);
+}
+.public-request-tab:not(.active):hover{background:#fff;color:var(--ink)}
+#publicServiceField>span{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:800;
+  color:#5D5952;
+}
+@media(max-width:520px){
+  .public-request-switch{gap:5px;padding:4px;border-radius:14px}
+  .public-request-tab{min-height:42px;padding:8px 7px;font-size:11px}
+}
