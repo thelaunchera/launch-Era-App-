@@ -5651,10 +5651,23 @@ async function ensureRecurringJobHorizon(){
   const horizon=new Date(now);
   horizon.setDate(horizon.getDate()+180);
   const todayKey=tleCalendarDateKey(now);
+  const occupiedJobs=state.jobs.filter(j=>!["canceled","no_show"].includes(String(j.status||"")));
   let added=0;
 
+  const overlapsExisting=payload=>{
+    const start=new Date(payload.starts_at).getTime();
+    const from=start-(Number(payload.travel_buffer_before_minutes||0)*60000);
+    const to=start+((Number(payload.duration_minutes||0)+Number(payload.travel_buffer_after_minutes||0))*60000);
+    return occupiedJobs.some(job=>{
+      const jobStart=new Date(job.starts_at).getTime();
+      const jobFrom=jobStart-(Number(job.travel_buffer_before_minutes||0)*60000);
+      const jobTo=jobStart+((Number(job.duration_minutes||0)+Number(job.travel_buffer_after_minutes||0))*60000);
+      return from<jobTo && to>jobFrom;
+    });
+  };
+
   for(const rule of state.recurrenceRules.filter(r=>r.active)){
-    const series=state.jobs
+    const series=occupiedJobs
       .filter(j=>j.recurrence_rule_id===rule.id)
       .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
     if(!series.length) continue;
@@ -5686,11 +5699,23 @@ async function ensureRecurringJobHorizon(){
         notes:template.notes||null
       };
 
+      if(overlapsExisting(payload)){
+        console.warn("[TLE] recurring occurrence skipped because the time is already occupied",dateKey);
+        existingSlots.add(dateKey);
+        continue;
+      }
+
       const {data,error}=await supabase.from("jobs").insert(payload).select("id").single();
       if(error){
-        if(error.code==="23505") continue;
+        if(error.code==="23505"){
+          existingSlots.add(dateKey);
+          continue;
+        }
         throw error;
       }
+
+      const created={...payload,id:data.id,job_assignments:teamId?[{team_member_id:teamId}]:[]};
+      occupiedJobs.push(created);
       existingSlots.add(dateKey);
       added++;
       if(teamId){
