@@ -4777,7 +4777,7 @@ function renderTodaySummary(wakeAssistant=false){
     let actionView="calendar";
     let actionText="";
     let messageState="calm";
-    let icon=["evening","late"].includes(daypart)?"✦":daypart==="wrap"?"✓":"✓";
+    let icon=["evening","late"].includes(daypart)?"✦":"✓";
 
     const nextJobLine=nextJob
       ? langPick(
@@ -4815,10 +4815,10 @@ function renderTodaySummary(wakeAssistant=false){
         );
       }else if(daypart==="afternoon"||daypart==="wrap"){
         copy=langPick(
-          "You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine+" "+(weatherContext.text||""),
-          "Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine+" "+(weatherContext.text||""),
-          "Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine+" "+(weatherContext.text||""),
-          "Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine+" "+(weatherContext.text||"")
+          "You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,
+          "Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,
+          "Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,
+          "Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine
         );
       }else{
         copy=langPick(
@@ -4870,15 +4870,6 @@ function renderTodaySummary(wakeAssistant=false){
           "Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. Vérifiez la première adresse, puis terminez la journée."
         );
       }else{
-        copy=langPick(
-          "Nothing urgent is waiting. Tomorrow is ready for a clean start.",
-          "No hay nada urgente pendiente. Mañana está listo para empezar limpio.",
-          "Não há nada urgente pendente. Amanhã está pronto para começar bem.",
-          "Rien d’urgent n’est en attente. Demain est prêt pour un nouveau départ."
-        );
-      }
-      actionView="calendar";
-    }else{
         copy=langPick(
           "Nothing urgent is waiting. Tomorrow is ready for a clean start.",
           "No hay nada urgente pendiente. Mañana está listo para empezar limpio.",
