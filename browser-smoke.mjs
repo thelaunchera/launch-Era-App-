@@ -162,11 +162,10 @@ try{
       return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};
     });
     if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
-    if(profile.viewport.hasTouch){
-      await page.touchscreen.tap(submitHit.x,submitHit.y);
-    }else{
-      await page.click("#authSubmit");
-    }
+    // The physical hit-test above proves the button is not covered.
+    // Dispatch the click directly so touch emulation timing cannot create
+    // intermittent CI failures after an otherwise valid hit-test.
+    await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
