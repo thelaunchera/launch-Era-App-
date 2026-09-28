@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-67";
+const APP_VERSION = "20260928-unified-68";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -839,6 +839,39 @@ function renderHeroWeatherEffects(){
   precipLayer.className="hero-precip-layer weather-"+visual.kind+" intensity-"+visual.intensity;
 }
 
+function weatherConditionFamily(code){
+  const n=Number(code);
+  if(n===0) return "clear";
+  if([1,2].includes(n)) return "partly";
+  if(n===3) return "cloudy";
+  if([45,48].includes(n)) return "fog";
+  return precipitationKindForCode(n)||"other";
+}
+function nextWeatherConditionShift(weather){
+  const times=weather?.hourly?.time||[];
+  const codes=weather?.hourly?.weather_code||[];
+  if(!times.length||!codes.length) return null;
+  const currentStamp=String(weather?.current?.time||"").slice(0,13);
+  let start=times.findIndex(t=>String(t).slice(0,13)>=currentStamp);
+  if(start<0) start=0;
+  const currentFamily=weatherConditionFamily(weather?.current?.weather_code);
+  const end=Math.min(times.length,start+13);
+  for(let i=start+1;i<end;i++){
+    const family=weatherConditionFamily(codes[i]);
+    if(family!==currentFamily && family!=="other"){
+      const stamp=String(times[i]);
+      return {
+        family,
+        code:Number(codes[i]),
+        hour:Number(stamp.slice(11,13)),
+        date:stamp.slice(0,10),
+        hoursAhead:i-start
+      };
+    }
+  }
+  return null;
+}
+
 function renderWeatherBrief(){
   const card=$("#weatherBrief");
   const weather=state.weather;
@@ -847,85 +880,75 @@ function renderWeatherBrief(){
 
   const meta=weatherCodeMeta(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
-  const feels=Math.round(Number(weather.current.apparent_temperature));
-  const rain=weather.nextPrecip||weather.nextRain;
   const currentDate=String(weather.current.time||"").slice(0,10);
-  const location=weather.location||{};
   const lang=appLanguage();
+  const highs=weather.daily?.temperature_2m_max||[];
+  const lows=weather.daily?.temperature_2m_min||[];
+  const high=Math.round(Number(highs[0]));
+  const low=Math.round(Number(lows[0]));
+  const event=weather.nextPrecip||weather.nextRain||null;
+  const shift=nextWeatherConditionShift(weather);
 
-  $("#weatherIcon").textContent=meta.icon;
-  $("#weatherTemp").textContent=Number.isFinite(temp)?temp+temperatureSuffix():"—";
-  $("#weatherCondition").textContent=meta[lang]||meta.en;
-  $("#weatherFeels").textContent=Number.isFinite(feels)
-    ? langPick("Feels like ","Se siente como ","Sensação de ","Ressenti ")+feels+"°"
-    : "";
-  $("#weatherLocation").textContent=langPick("OUTSIDE · ","AFUERA · ","LÁ FORA · ","DEHORS · ")+(location.name||state.weatherArea||"");
+  const icon=$("#weatherIcon");
+  const tempEl=$("#weatherTemp");
+  const condition=$("#weatherCondition");
+  const highLow=$("#weatherHighLow");
+  const location=$("#weatherLocation");
+
+  if(icon) icon.textContent=meta.icon;
+  if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
+  if(condition) condition.textContent=meta[lang]||meta.en;
+  if(highLow){
+    highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
+  }
+  if(location){
+    location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","CLIMA LOCAL","MÉTÉO LOCALE");
+  }
 
   const note=$("#weatherBusinessNote");
   if(note){
-    if(rain){
-      const day=weatherDayLabel(rain.date,currentDate).toLowerCase();
-      const time=weatherClockLabel(rain.hour);
+    note.classList.remove("rain");
+    let text="";
+
+    if(event&&event.hoursAhead<=48){
+      const day=weatherDayLabel(event.date,currentDate);
+      const when=weatherClockLabel(event.hour);
+      const label=event.kind==="snow"
+        ? langPick("Snow expected","Nieve probable","Neve prevista","Neige prévue")
+        : event.kind==="storm"
+        ? langPick("Storms expected","Tormentas probables","Tempestades previstas","Orages prévus")
+        : langPick("Rain expected","Lluvia probable","Chuva prevista","Pluie prévue");
+      const dayPart=event.date===currentDate?"":(" "+day);
+      const chance=Number.isFinite(Number(event.probability))?" · "+Math.round(Number(event.probability))+"%":"";
+      text=label+dayPart+langPick(" around "," cerca de las "," por volta de "," vers ")+when+chance+".";
       note.classList.add("rain");
-      const eventIcon=rain.kind==="snow"?"🌨️":rain.kind==="storm"?"⛈️":"🌧️";
-      const eventLabel=rain.kind==="snow"
-        ? langPick("Snow likely","Nieve probable","Neve provável","Neige probable")
-        : rain.kind==="storm"
-        ? langPick("Storms likely","Tormentas probables","Tempestades prováveis","Orages probables")
-        : langPick("Rain likely","Lluvia probable","Chuva provável","Pluie probable");
-      const heading=eventIcon+" "+eventLabel+" "+day+" "+langPick("around ","cerca de las ","por volta de ","vers ")+time+" · "+rain.probability+"%";
-      const detail=langPick(
-        "Leave a little room between stops and double-check access before heading out.",
-        "Deja un poco de margen entre paradas y revisa el acceso antes de salir.",
-        "Deixe um pouco mais de tempo entre as paradas e confirme o acesso antes de sair.",
-        "Prévoyez un peu de marge entre les arrêts et vérifiez l’accès avant de partir."
+    }else if(shift){
+      const m=weatherCodeMeta(shift.code);
+      const label=m[lang]||m.en;
+      const when=weatherClockLabel(shift.hour);
+      text=langPick(
+        label+" conditions expected around "+when+".",
+        "Se espera "+label.toLowerCase()+" cerca de las "+when+".",
+        label+" previsto por volta de "+when+".",
+        label+" prévu vers "+when+"."
       );
-      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
-    }else if(temp>=(businessTemperatureUnit()==="celsius"?31:88)){
-      note.classList.remove("rain");
-      const heading=langPick("💧 It’s hot outside.","💧 Hace calor afuera.","💧 Está quente lá fora.","💧 Il fait chaud dehors.");
-      const detail=langPick(
-        "Keep water close and give yourself a few minutes between stops.",
-        "Ten agua cerca y deja unos minutos para respirar entre paradas.",
-        "Mantenha água por perto e reserve alguns minutos entre as paradas.",
-        "Gardez de l’eau à portée de main et prévoyez quelques minutes entre les arrêts."
-      );
-      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
+    }
+
+    if(text){
+      note.hidden=false;
+      note.innerHTML="<span>"+escapeHtml(text)+"</span>";
     }else{
-      note.classList.remove("rain");
-      const heading=langPick("Weather looks steady for now.","Todo tranquilo con el clima por ahora.","O clima está estável por enquanto.","La météo est stable pour le moment.");
-      const detail=langPick(
-        "No major rain alert is affecting your route yet.",
-        "Tu ruta puede seguir sin alertas de lluvia importantes.",
-        "Nenhum alerta importante de chuva está afetando sua rota agora.",
-        "Aucune alerte de pluie importante n’affecte votre itinéraire pour le moment."
-      );
-      note.innerHTML="<strong>"+escapeHtml(heading)+"</strong><span>"+escapeHtml(detail)+"</span>";
+      note.hidden=true;
+      note.innerHTML="";
     }
   }
 
+  const feels=$("#weatherFeels");
+  if(feels) feels.textContent="";
   const forecast=$("#weatherForecast");
-  if(forecast){
-    const dates=weather.daily&&weather.daily.time||[];
-    const highs=weather.daily&&weather.daily.temperature_2m_max||[];
-    const lows=weather.daily&&weather.daily.temperature_2m_min||[];
-    const probs=weather.daily&&weather.daily.precipitation_probability_max||[];
-    const codes=weather.daily&&weather.daily.weather_code||[];
-    forecast.innerHTML=dates.slice(0,3).map(function(date,i){
-      const day=weatherDayLabel(String(date),currentDate);
-      const m=weatherCodeMeta(codes[i]);
-      const hi=Math.round(Number(highs[i]));
-      const lo=Math.round(Number(lows[i]));
-      const prob=Math.round(Number(probs[i]||0));
-      return '<div class="weather-day"><span>'+escapeHtml(day)+'</span><b>'+m.icon+' '+hi+'°</b><small>'+lo+'° · '+prob+'% '+escapeHtml(langPick("rain","lluvia","chuva","pluie"))+'</small></div>';
-    }).join("");
-  }
-
+  if(forecast) forecast.innerHTML="";
   const updated=$("#weatherUpdated");
-  if(updated){
-    const t=new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(state.weatherFetchedAt||Date.now()));
-    updated.textContent=langPick("Updated ","Actualizado ","Atualizado ","Mis à jour ")+t;
-  }
+  if(updated) updated.textContent="";
   renderHeroWeatherEffects();
 }
 function installLiveDashboardUpdates(){
@@ -4587,7 +4610,6 @@ function dashboardWeatherContext(now,remainingJobs){
   }
 
   if(event&&event.hoursAhead<=48){
-    const location=place?langPick(" in "," en "," em "," à ")+place:"";
     const when=weatherClockLabel(event.hour);
     const day=weatherDayLabel(event.date,currentDate);
     const phenomenon=event.kind==="snow"
@@ -4597,10 +4619,10 @@ function dashboardWeatherContext(now,remainingJobs){
       : langPick("Rain","Lluvia","Chuva","Pluie");
     const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
     const first=langPick(
-      phenomenon+" expected "+day.toLowerCase()+location+" around "+when+probability+".",
-      phenomenon+" probable "+day.toLowerCase()+location+" cerca de las "+when+probability+".",
-      phenomenon+" provável "+day.toLowerCase()+location+" por volta de "+when+probability+".",
-      phenomenon+" probable "+day.toLowerCase()+location+" vers "+when+probability+"."
+      phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",
+      phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",
+      phenomenon+" provável "+day.toLowerCase()+" por volta de "+when+probability+".",
+      phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+"."
     );
     const advice=remainingJobs.length
       ? langPick(
@@ -4662,9 +4684,22 @@ function renderTodaySummary(wakeAssistant=false){
   const br=$("#todayBookingRequests"); if(br) br.textContent=pendingBookings.length;
 
   const datePill=$("#todayDatePill");
+  const clockTime=$("#todayClockTime");
   if(datePill){
-    const formatted=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"short",day:"numeric"}).format(now);
+    const formatted=new Intl.DateTimeFormat(appLocale(),{
+      weekday:"short",
+      month:"short",
+      day:"numeric",
+      timeZone:businessTimeZone
+    }).format(now);
     datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
+  }
+  if(clockTime){
+    clockTime.textContent=new Intl.DateTimeFormat(appLocale(),{
+      hour:"numeric",
+      minute:"2-digit",
+      timeZone:businessTimeZone
+    }).format(now);
   }
   const greet=$("#todayGreeting");
   const hero=$("#todayHeroCard");
