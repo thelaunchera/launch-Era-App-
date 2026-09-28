@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-118";
+const APP_VERSION = "20260928-stable-119";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4840,16 +4840,52 @@ function dashboardDaypart(hour){
   return "late";
 }
 function dashboardGreeting(daypart){
-  const map={
-    early:langPick("Good morning","Buenos días","Bom dia","Bonjour"),
-    morning:langPick("Morning check-in","Así va tu mañana","Resumo da manhã","Point du matin"),
-    midday:langPick("Midday check-in","Chequeo del mediodía","Resumo do meio-dia","Point de midi"),
-    afternoon:langPick("Good afternoon","Buenas tardes","Boa tarde","Bon après-midi"),
-    wrap:langPick("End-of-day check","Vamos cerrando el día","Fechando o dia","Fin de journée"),
-    evening:langPick("Good evening","Buenas noches","Boa noite","Bonsoir"),
-    late:langPick("Tomorrow can wait","Mañana puede esperar","Amanhã pode esperar","Demain peut attendre")
+  const period=["early","morning"].includes(daypart)
+    ? "morning"
+    : ["midday","afternoon","wrap"].includes(daypart)
+      ? "afternoon"
+      : "night";
+
+  const variants={
+    morning:[
+      langPick("Good morning · your day is ready","Buenos días · tu día está listo","Bom dia · seu dia está pronto","Bonjour · votre journée est prête"),
+      langPick("Good morning · let’s see what’s ahead","Buenos días · veamos qué viene hoy","Bom dia · vamos ver o que vem hoje","Bonjour · voyons ce qui vous attend"),
+      langPick("Good morning · one clear step at a time","Buenos días · un paso claro a la vez","Bom dia · um passo claro de cada vez","Bonjour · une étape claire à la fois"),
+      langPick("Good morning · here’s your day at a glance","Buenos días · así se ve tu día","Bom dia · veja seu dia de relance","Bonjour · votre journée en un coup d’œil"),
+      langPick("Good morning · let’s get organized","Buenos días · vamos a organizarnos","Bom dia · vamos nos organizar","Bonjour · organisons la journée"),
+      langPick("Good morning · your workspace is ready","Buenos días · tu espacio está listo","Bom dia · seu espaço está pronto","Bonjour · votre espace est prêt")
+    ],
+    afternoon:[
+      langPick("Good afternoon · here’s where things stand","Buenas tardes · así va tu día","Boa tarde · veja como está seu dia","Bon après-midi · voici où en est votre journée"),
+      langPick("Good afternoon · let’s check what’s next","Buenas tardes · veamos qué sigue","Boa tarde · vamos ver o que vem a seguir","Bon après-midi · voyons la suite"),
+      langPick("Good afternoon · keep the day moving","Buenas tardes · seguimos con el día","Boa tarde · vamos seguir com o dia","Bon après-midi · continuons la journée"),
+      langPick("Good afternoon · your next steps are here","Buenas tardes · aquí están tus próximos pasos","Boa tarde · seus próximos passos estão aqui","Bon après-midi · vos prochaines étapes sont ici"),
+      langPick("Good afternoon · quick check-in","Buenas tardes · chequeo rápido","Boa tarde · checagem rápida","Bon après-midi · petit point rapide"),
+      langPick("Good afternoon · let’s finish strong","Buenas tardes · terminemos bien el día","Boa tarde · vamos terminar bem o dia","Bon après-midi · finissons bien la journée")
+    ],
+    night:[
+      langPick("Good evening · here’s how the day landed","Buenas noches · así cerró tu día","Boa noite · veja como seu dia terminou","Bonsoir · voici comment votre journée s’est terminée"),
+      langPick("Good evening · tomorrow can wait a minute","Buenas noches · mañana puede esperar un momento","Boa noite · amanhã pode esperar um pouco","Bonsoir · demain peut attendre un instant"),
+      langPick("Good evening · one last look before you sign off","Buenas noches · una última mirada antes de cerrar","Boa noite · uma última olhada antes de encerrar","Bonsoir · un dernier regard avant de terminer"),
+      langPick("Good evening · your workspace is caught up","Buenas noches · tu espacio está al día","Boa noite · seu espaço está em dia","Bonsoir · votre espace est à jour"),
+      langPick("Good evening · let’s wrap things up","Buenas noches · vamos cerrando por hoy","Boa noite · vamos encerrar por hoje","Bonsoir · terminons pour aujourd’hui"),
+      langPick("Good evening · the day is almost done","Buenas noches · el día ya casi termina","Boa noite · o dia está quase terminando","Bonsoir · la journée touche à sa fin")
+    ]
   };
-  return map[daypart]||map.morning;
+
+  const choices=variants[period]||variants.morning;
+  const cacheKey="__tleGreeting_"+period;
+  if(Number.isInteger(window[cacheKey]) && choices[window[cacheKey]]){
+    return choices[window[cacheKey]];
+  }
+
+  const storageKey="tle_last_greeting_"+period;
+  let last=-1;
+  try{ last=Number(localStorage.getItem(storageKey)); }catch{}
+  const next=Number.isFinite(last) && last>=0 ? (last+1)%choices.length : 0;
+  window[cacheKey]=next;
+  try{ localStorage.setItem(storageKey,String(next)); }catch{}
+  return choices[next];
 }
 function weatherPlaceLabel(){
   const location=state.weather&&state.weather.location||{};
