@@ -867,12 +867,13 @@ function renderWeatherBrief(){
       const day=weatherDayLabel(rain.date,currentDate).toLowerCase();
       const time=weatherClockLabel(rain.hour);
       note.classList.add("rain");
-      const heading=langPick(
-        "🌧️ Rain likely "+day+" around "+time+" · "+rain.probability+"%",
-        "🌧️ Lluvia probable "+day+" cerca de las "+time+" · "+rain.probability+"%",
-        "🌧️ Chuva provável "+day+" por volta de "+time+" · "+rain.probability+"%",
-        "🌧️ Pluie probable "+day+" vers "+time+" · "+rain.probability+"%"
-      );
+      const eventIcon=rain.kind==="snow"?"🌨️":rain.kind==="storm"?"⛈️":"🌧️";
+      const eventLabel=rain.kind==="snow"
+        ? langPick("Snow likely","Nieve probable","Neve provável","Neige probable")
+        : rain.kind==="storm"
+        ? langPick("Storms likely","Tormentas probables","Tempestades prováveis","Orages probables")
+        : langPick("Rain likely","Lluvia probable","Chuva provável","Pluie probable");
+      const heading=eventIcon+" "+eventLabel+" "+day+" "+langPick("around ","cerca de las ","por volta de ","vers ")+time+" · "+rain.probability+"%";
       const detail=langPick(
         "Leave a little room between stops and double-check access before heading out.",
         "Deja un poco de margen entre paradas y revisa el acceso antes de salir.",
