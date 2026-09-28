@@ -1708,12 +1708,10 @@ function setSidebarOpen(open){
   const shouldOpen=!!open && isMobileNav;
   if(!sidebar) return;
   sidebar.classList.toggle("open",shouldOpen);
-  if(isMobileNav){
+  if(shouldOpen){
     sidebar.style.setProperty("left","0px","important");
-    sidebar.style.setProperty("transform",shouldOpen?"translate3d(0,0,0)":"translate3d(-105%,0,0)","important");
   }else{
     sidebar.style.removeProperty("left");
-    sidebar.style.removeProperty("transform");
   }
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
   document.body.classList.toggle("sidebar-is-open",shouldOpen);
