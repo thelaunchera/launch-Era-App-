@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom";
 const html=fs.readFileSync("index.html","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
+const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
@@ -111,6 +112,15 @@ if(app.includes("resilientAuthStorage") || app.includes("indexedDB.open(TLE_AUTH
 }
 if(!app.includes("restoreWorkspaceView();") || !app.includes("saveWorkspaceView(id)")){
   throw new Error("Workspace regression: active page restore is missing");
+}
+if(!html.includes('data-view="followups"') || !html.includes('data-page="followups"') || !html.includes('followups.js?v=')){
+  throw new Error("Follow-ups regression: isolated workspace shell is missing");
+}
+if(!app.includes("window.TLE_FOLLOWUPS_BRIDGE") || app.includes('supabase.rpc("refresh_follow_up_tasks"')){
+  throw new Error("Follow-ups regression: module bridge is missing or follow-up backend logic leaked into app.js");
+}
+if(!followups.includes('refresh_follow_up_tasks') || !followups.includes('send_follow_up_task') || !followups.includes('data-followup-mode')){
+  throw new Error("Follow-ups regression: queue, send, or preference controls are missing");
 }
 const billingCollectionLines=app.split("\n").filter(line=>line.includes("[data-account-billing]")&&line.includes(".forEach"));
 if(billingCollectionLines.length<2 || billingCollectionLines.some(line=>!line.includes('$$("[data-account-billing]").forEach'))){
