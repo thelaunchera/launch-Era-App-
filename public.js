@@ -3,6 +3,11 @@
   let mode = params.get("public");
   const slug = params.get("slug");
   const token = params.get("token");
+  const requestedLanguage=String(params.get("lang")||"").toLowerCase();
+  const supportedPublicLanguages=["en","es","pt","fr"];
+  if(supportedPublicLanguages.includes(requestedLanguage) && window.TLE_I18N?.setLanguage){
+    window.TLE_I18N.setLanguage(requestedLanguage);
+  }
 
   const validRequestMode = ["book","quote"].includes(mode) && Boolean(slug);
   const validQuoteReview = mode === "quote-review" && Boolean(token);
@@ -19,12 +24,19 @@
   let publicLocale=navigator.language||"en-US";
   let publicCurrency="USD";
   function setPublicLocale(locale,currency,language){
-    publicLocale=String(locale||publicLocale||"en-US");
     publicCurrency=String(currency||publicCurrency||"USD").toUpperCase();
-    const lang=String(language||"").toLowerCase();
-    if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(lang)){
-      window.TLE_I18N.setLanguage(lang);
-    }
+    const current=String(window.TLE_I18N?.language||"").toLowerCase();
+    const business=String(language||"").toLowerCase();
+    const chosen=supportedPublicLanguages.includes(requestedLanguage)
+      ? requestedLanguage
+      : supportedPublicLanguages.includes(current)
+        ? current
+        : supportedPublicLanguages.includes(business)
+          ? business
+          : "en";
+    const localeByLanguage={en:"en-US",es:"es-US",pt:"pt-BR",fr:"fr-FR"};
+    publicLocale=localeByLanguage[chosen]||String(locale||publicLocale||"en-US");
+    if(window.TLE_I18N?.setLanguage && current!==chosen) window.TLE_I18N.setLanguage(chosen);
   }
   const money = v => new Intl.NumberFormat(publicLocale,{
     style:"currency",currency:publicCurrency,maximumFractionDigits:2
@@ -113,15 +125,15 @@
       $("#invoiceViewTitle").textContent=tt("Invoice")+" #"+(data?.invoice_number||"");
       const meta=[
         data?.customer_name||"",
-        data?.due_at ? "Due "+new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
+        data?.due_at ? tt("Due")+" "+new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
         data?.status ? String(data.status).replaceAll("_"," ") : ""
       ].filter(Boolean).join(" · ");
       $("#invoiceViewMeta").textContent=meta;
 
       const items=data?.items||[];
       $("#invoiceViewItems").innerHTML=items.length
-        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||"Cleaning service")+'</strong><small>'+esc(item.quantity||1)+' × '+money(item.unit_price)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
-        : '<div class="empty-inline"><strong>No invoice items found.</strong></div>';
+        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||tt("Cleaning service"))+'</strong><small>'+esc(item.quantity||1)+' × '+money(item.unit_price)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
+        : '<div class="empty-inline"><strong>'+esc(tt("No invoice items found."))+'</strong></div>';
 
       $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
@@ -130,7 +142,7 @@
       const enabledMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
         ? data.payment_methods.map(x=>String(x).toLowerCase())
         : ["cash","check","other"];
-      $("#invoiceViewMethods").textContent=enabledMethods.map(x=>methodLabels[x]||x).join(" · ");
+      $("#invoiceViewMethods").textContent=enabledMethods.map(x=>tt(methodLabels[x]||x)).join(" · ");
 
       const choices=$("#invoicePaymentChoices");
       const choiceStatus=$("#invoicePaymentChoiceStatus");
@@ -141,7 +153,7 @@
 
       if(choices){
         choices.innerHTML=enabledMethods.map(method=>
-          '<button type="button" data-invoice-payment="'+esc(method)+'">'+esc(methodLabels[method]||method)+'</button>'
+          '<button type="button" data-invoice-payment="'+esc(method)+'">'+esc(tt(methodLabels[method]||method))+'</button>'
         ).join("");
       }
 
@@ -235,13 +247,13 @@
           invoiceDisputeBtn.hidden=true;
           invoiceDisputeStatus.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
-          invoiceDisputeStatus.textContent=err.message||"Could not send dispute.";
+          console.warn("[TLE] invoice dispute",err); invoiceDisputeStatus.textContent=tt("Could not send dispute.");
           submit.disabled=false;
         }
       });
     }catch(err){
       $("#publicBusinessName").textContent=tt("Invoice unavailable");
-      $("#publicIntro").textContent=err.message||tt("This invoice link is invalid or expired.");
+      console.warn("[TLE] public invoice",err); $("#publicIntro").textContent=tt("This invoice link is invalid or expired.");
       if(invoiceView) invoiceView.hidden=true;
     }
   }
@@ -257,7 +269,7 @@
     try{
       const data=await rpc("get_public_quote_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
-      $("#publicBusinessName").textContent=data?.business_name||"Cleaning business";
+      $("#publicBusinessName").textContent=data?.business_name||tt("Cleaning business");
       $("#publicModeLabel").textContent=tt("QUOTE");
       $("#publicIntro").textContent=tt("Review the details below and choose Accept or Decline.");
 
@@ -271,8 +283,8 @@
 
       const items=data?.items||[];
       $("#quoteReviewItems").innerHTML=items.length
-        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||"Cleaning service")+'</strong><small>Qty '+esc(item.quantity||1)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
-        : '<div class="empty-inline"><strong>No quote items found.</strong></div>';
+        ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||tt("Cleaning service"))+'</strong><small>'+esc(tt("Qty"))+' '+esc(item.quantity||1)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
+        : '<div class="empty-inline"><strong>'+esc(tt("No quote items found."))+'</strong></div>';
       $("#quoteReviewTotal").textContent=money(data?.total);
 
       const status=String(data?.status||"");
@@ -385,13 +397,13 @@
           if(submitQuoteBtn) submitQuoteBtn.hidden=true;
           statusEl.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
-          statusEl.textContent=err.message||"Could not send dispute.";
+          console.warn("[TLE] quote dispute",err); statusEl.textContent=tt("Could not send dispute.");
           submit.disabled=false;
         }
       });
     }catch(err){
       $("#publicBusinessName").textContent=tt("Quote unavailable");
-      $("#publicIntro").textContent=err.message||tt("This quote link is invalid or expired.");
+      console.warn("[TLE] public quote",err); $("#publicIntro").textContent=tt("This quote link is invalid or expired.");
       if(review) review.hidden=true;
     }
   }
@@ -446,7 +458,7 @@
         const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
         const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
         summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
-          (mode==="quote"?" · Price provided after review":" · "+money(total))+
+          (mode==="quote"?" · "+tt("Price provided after review"):" · "+money(total))+
           '</span>';
       }
 
@@ -464,7 +476,7 @@
           '<input type="checkbox" name="addon" value="'+esc(a.id)+'">'+
           '<span><strong>'+esc(a.name)+'</strong><small>+'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min</small></span>'+
           '</label>'
-        ).join(""):'<span class="muted-line">No add-ons for this service.</span>';
+        ).join(""):'<span class="muted-line">'+esc(tt("No add-ons for this service."))+'</span>';
         updateSummary();
       }
 
@@ -502,7 +514,7 @@
             '<button type="button" class="slot-btn" data-slot="'+esc(row.slot_start)+'">'+esc(formatSlot(row.slot_start))+'</button>'
           ).join("");
         }catch(err){
-          slotsBox.innerHTML='<span class="muted-line">'+esc(err.message||tt("Could not load availability"))+'</span>';
+          console.warn("[TLE] public availability",err); slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Could not load availability"))+'</span>';
         }
       }
 
@@ -524,9 +536,9 @@
 
         if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
-        if(intro) intro.textContent=mode==="quote"
+        if(intro) intro.textContent=tt(mode==="quote"
           ?"For custom or variable-price work. Choose a quote-only service and tell us about the job."
-          :"Choose a service with upfront pricing, then pick a real available time.";
+          :"Choose a service with upfront pricing, then pick a real available time.");
         if(submit){
           submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
           submit.disabled=!services.length;
@@ -540,14 +552,14 @@
           select.value="";
           select.disabled=!services.length;
           select.innerHTML=services.length
-            ? '<option value="">'+(mode==="quote"?"Choose a custom job type":"Choose a service")+'</option>'+services.map(s=>
+            ? '<option value="">'+esc(tt(mode==="quote"?"Choose a custom job type":"Choose a service"))+'</option>'+services.map(s=>
                 '<option value="'+esc(s.id)+'">'+esc(s.name)+
-                (mode==="quote"?" · Custom quote":s.base_price!=null?" · "+money(s.base_price):"")+
+                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+money(s.base_price):"")+
                 '</option>'
               ).join("")
-            : '<option value="">'+(mode==="quote"
+            : '<option value="">'+esc(tt(mode==="quote"
                 ?"No quote-only services available yet"
-                :"No priced services available for online booking")+'</option>';
+                :"No priced services available for online booking"))+'</option>';
         }
 
         if(slotInput) slotInput.value="";
@@ -557,8 +569,8 @@
           summary.innerHTML=services.length
             ? ""
             : mode==="quote"
-              ? '<span>No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.</span><button type="button" class="primary-btn" data-switch-public-mode="book">Book a Cleaning</button>'
-              : '<span>No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.</span><button type="button" class="primary-btn" data-switch-public-mode="quote">Request a Quote</button>';
+              ? '<span>'+esc(tt("No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing."))+'</span><button type="button" class="primary-btn" data-switch-public-mode="book">'+esc(tt("Book a Cleaning"))+'</button>'
+              : '<span>'+esc(tt("No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote."))+'</span><button type="button" class="primary-btn" data-switch-public-mode="quote">'+esc(tt("Request a Quote"))+'</button>';
         }
 
         renderAddons();
@@ -690,11 +702,11 @@
             }
             form.hidden=true;
             $("#publicSuccess").hidden=false;
-            $("#publicSuccessCopy").textContent=mode==="quote"
+            $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
-              :"Your booking request was sent. The business will review it and confirm the appointment.";
+              :"Your booking request was sent. The business will review it and confirm the appointment.");
           }catch(err){
-            alert(err.message||"Could not send request");
+            console.warn("[TLE] public request submit",err); alert(tt("Could not send request"));
             submit.disabled=false;
             submit.textContent=old;
           }
@@ -702,13 +714,23 @@
       }
     }catch(err){
       $("#publicBusinessName").textContent=tt("Page unavailable");
-      $("#publicIntro").textContent=err.message||tt("This page is not available.");
+      console.warn("[TLE] public booking",err); $("#publicIntro").textContent=tt("This page is not available.");
       $("#publicRequestForm").hidden=true;
     }
   }
 
   async function boot(){
     showPublicShell();
+    window.addEventListener("tle:languagechange",event=>{
+      const chosen=String(event?.detail?.language||"").toLowerCase();
+      if(!supportedPublicLanguages.includes(chosen)) return;
+      publicLocale=({en:"en-US",es:"es-US",pt:"pt-BR",fr:"fr-FR"})[chosen]||publicLocale;
+      try{
+        const next=new URL(window.location.href);
+        next.searchParams.set("lang",chosen);
+        history.replaceState(history.state||{},"",next.pathname+next.search+next.hash);
+      }catch{}
+    });
     await track();
 
     if(validQuoteReview) await bootQuoteReview();
