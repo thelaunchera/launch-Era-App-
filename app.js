@@ -21,12 +21,78 @@ const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
 const CANONICAL_APP_ORIGIN = "https://app.thelaunchera.com";
 const APP_VERSION = "20260928-unified-83";
 
+const TLE_AUTH_DB="tle_cleaning_app_auth_v1";
+const TLE_AUTH_STORE="session";
+function openAuthDb(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB){ reject(new Error("IndexedDB unavailable")); return; }
+    const req=indexedDB.open(TLE_AUTH_DB,1);
+    req.onupgradeneeded=()=>{ if(!req.result.objectStoreNames.contains(TLE_AUTH_STORE)) req.result.createObjectStore(TLE_AUTH_STORE); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error("IndexedDB open failed"));
+  });
+}
+async function authDbGet(key){
+  const db=await openAuthDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(TLE_AUTH_STORE,"readonly");
+    const req=tx.objectStore(TLE_AUTH_STORE).get(key);
+    req.onsuccess=()=>resolve(req.result??null);
+    req.onerror=()=>reject(req.error);
+    tx.oncomplete=()=>db.close();
+  });
+}
+async function authDbSet(key,value){
+  const db=await openAuthDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(TLE_AUTH_STORE,"readwrite");
+    tx.objectStore(TLE_AUTH_STORE).put(value,key);
+    tx.oncomplete=()=>{db.close();resolve();};
+    tx.onerror=()=>{const err=tx.error;db.close();reject(err);};
+  });
+}
+async function authDbRemove(key){
+  const db=await openAuthDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(TLE_AUTH_STORE,"readwrite");
+    tx.objectStore(TLE_AUTH_STORE).delete(key);
+    tx.oncomplete=()=>{db.close();resolve();};
+    tx.onerror=()=>{const err=tx.error;db.close();reject(err);};
+  });
+}
+const resilientAuthStorage={
+  async getItem(key){
+    let local=null;
+    try{local=window.localStorage.getItem(key);}catch{}
+    if(local){
+      authDbSet(key,local).catch(()=>{});
+      return local;
+    }
+    try{
+      const durable=await authDbGet(key);
+      if(durable){
+        try{window.localStorage.setItem(key,durable);}catch{}
+        return durable;
+      }
+    }catch(err){console.warn("[TLE] auth IndexedDB read",err);}
+    return null;
+  },
+  async setItem(key,value){
+    try{window.localStorage.setItem(key,value);}catch{}
+    try{await authDbSet(key,value);}catch(err){console.warn("[TLE] auth IndexedDB write",err);}
+  },
+  async removeItem(key){
+    try{window.localStorage.removeItem(key);}catch{}
+    try{await authDbRemove(key);}catch(err){console.warn("[TLE] auth IndexedDB remove",err);}
+  }
+};
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
     persistSession:true,
     autoRefreshToken:true,
     detectSessionInUrl:true,
-    storage:window.localStorage
+    storage:resilientAuthStorage
   }
 });
 
