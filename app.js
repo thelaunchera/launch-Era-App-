@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-119";
+const APP_VERSION = "20260928-stable-120";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4484,7 +4484,7 @@ function renderServices(){
         <span>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${escapeHtml(s.pricing_type)}</span>
         <b>${s.pricing_type==="quote"?"Quote":money(s.base_price)}</b>
         <div class="addon-list">
-          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>Included by default · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Incluído por padrão","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
         </div>
         <div class="card-actions">
           <button data-edit="service" data-id="${s.id}">Edit service</button>
@@ -5465,10 +5465,10 @@ function renderBookingRequests(){
   const pill=$("#bookingRequestCountPill");
   const visible=visibleBookingRequests();
   const pending=visible.filter(b=>b.status==="requested");
-  if(pill) pill.textContent=pending.length+" new";
+  if(pill) pill.textContent=pending.length+" "+langPick("new","nueva","nova","nouvelle");
   if(!list) return;
   if(!visible.length){
-    list.innerHTML=`<div class="empty-inline"><strong>No booking requests waiting.</strong><span>Reviewed requests leave this list automatically after 12 hours.</span></div>`;
+    list.innerHTML=`<div class="empty-inline"><strong>${escapeHtml(langPick("No booking requests waiting.","No hay solicitudes de reserva pendientes.","Não há solicitações de reserva pendentes.","Aucune demande de réservation en attente."))}</strong><span>${escapeHtml(langPick("Reviewed requests leave this list automatically after 12 hours.","Las solicitudes revisadas salen de esta lista automáticamente después de 12 horas.","As solicitações revisadas saem desta lista automaticamente após 12 horas.","Les demandes examinées quittent automatiquement cette liste après 12 heures."))}</span></div>`;
     return;
   }
   list.innerHTML=visible.slice(0,20).map(b=>{
@@ -5478,7 +5478,7 @@ function renderBookingRequests(){
       name:b.customer_name
     });
     const linkedCopy=b.status==="converted" && linkedClient
-      ? `<small class="booking-linked-client">Linked to existing client: <strong>${escapeHtml(linkedClient.name)}</strong></small>`
+      ? `<small class="booking-linked-client">${escapeHtml(langPick("Linked to existing client:","Vinculado al cliente existente:","Vinculado ao cliente existente:","Lié au client existant :"))} <strong>${escapeHtml(linkedClient.name)}</strong></small>`
       : "";
     return `
     <div class="booking-request-row">
@@ -5489,9 +5489,9 @@ function renderBookingRequests(){
       </div>
       <div class="record-actions booking-request-actions">
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
-        ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">Open client</button>`:""}
-        <button class="booking-action" data-check-booking-client="${b.id}">${b.reviewed_at?"Checked":"Check client"}</button>
-        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">Approve booking</button><button class="booking-action danger-link" data-decline-booking="${b.id}">Decline</button>`:""}
+        ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">${escapeHtml(langPick("Open client","Abrir cliente","Abrir cliente","Ouvrir le client"))}</button>`:""}
+        <button class="booking-action" data-check-booking-client="${b.id}">${escapeHtml(b.reviewed_at?langPick("Checked","Revisado","Revisado","Vérifié"):langPick("Check client","Revisar cliente","Verificar cliente","Vérifier le client"))}</button>
+        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Approve booking","Aprobar reserva","Aprovar reserva","Approuver la réservation"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Recusar","Refuser"))}</button>`:""}
       </div>
     </div>`;
   }).join("");
@@ -6034,18 +6034,18 @@ async function initializePublicRequest(mode,slug){
     const selected=services.find(s=>s.id===serviceSelect.value);
     const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
     addonBox.innerHTML=available.length
-      ? `<div class="public-addon-note"><strong>Included with this service</strong><span>Service add-ons are selected automatically. Uncheck anything this job does not need.</span></div>`+
+      ? `<div class="public-addon-note"><strong>${escapeHtml(langPick("Included with this service","Incluido con este servicio","Incluído com este serviço","Inclus avec ce service"))}</strong><span>${escapeHtml(langPick("Service add-ons are selected automatically. Uncheck anything this job does not need.","Los add-ons del servicio se seleccionan automáticamente. Desmarca lo que este trabajo no necesite.","Os adicionais do serviço são selecionados automaticamente. Desmarque o que este trabalho não precisar.","Les options du service sont sélectionnées automatiquement. Décochez ce dont ce travail n’a pas besoin."))}</span></div>`+
         available.map(a=>{
           const includedByDefault=Boolean(selected && a.service_id===selected.id);
           return `<label class="addon-choice ${includedByDefault?"addon-default":""}">
             <input type="checkbox" name="addon" value="${escapeHtml(a.id)}" ${includedByDefault?"checked":""}>
             <span>
               <strong>${escapeHtml(a.name)}</strong>
-              <small>${includedByDefault?"Included by default · ":"Optional · "}+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small>
+              <small>${escapeHtml(includedByDefault?langPick("Included by default · ","Incluido por defecto · ","Incluído por padrão · ","Inclus par défaut · "):langPick("Optional · ","Opcional · ","Opcional · ","Optionnel · "))}+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small>
             </span>
           </label>`;
         }).join("")
-      : '<span class="muted-line">No add-ons for this service.</span>';
+      : '<span class="muted-line">'+escapeHtml(langPick("No add-ons for this service.","No hay add-ons para este servicio.","Não há adicionais para este serviço.","Aucune option pour ce service."))+'</span>';
     updatePublicSummary();
   }
 
@@ -6409,7 +6409,16 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="addon"){
-    modalHeader("ADD-ON",record?"Edit add-on":"Add add-on","Assign it to a service to include it automatically. It can still be removed for any individual booking.");
+    modalHeader(
+      langPick("ADD-ON","ADD-ON","ADICIONAL","OPTION"),
+      record?langPick("Edit add-on","Editar add-on","Editar adicional","Modifier l’option"):langPick("Add add-on","Añadir add-on","Adicionar adicional","Ajouter une option"),
+      langPick(
+        "Assign it to a service to include it automatically. It can still be removed for any individual booking.",
+        "Asígnalo a un servicio para incluirlo automáticamente. Aun así se puede quitar en una reserva individual.",
+        "Atribua-o a um serviço para incluí-lo automaticamente. Ainda assim, ele pode ser removido de uma reserva individual.",
+        "Associez-le à un service pour l’inclure automatiquement. Il peut toujours être retiré d’une réservation individuelle."
+      )
+    );
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>Service<select name="service_id"><option value="">General / all services</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
@@ -6689,8 +6698,13 @@ entityForm.addEventListener("submit",async e=>{
         if(footer) footer.before(confirmation);
         else entityForm.prepend(confirmation);
       }
-      confirmation.innerHTML="<strong>Quote sent.</strong><br>Waiting for the customer to accept. This window will stay open until you close it.";
-      showToast("Quote emailed to customer");
+      confirmation.innerHTML="<strong>"+escapeHtml(langPick("Quote sent.","Cotización enviada.","Orçamento enviado.","Devis envoyé."))+"</strong><br>"+escapeHtml(langPick(
+        "Waiting for the customer to accept. This window will stay open until you close it.",
+        "Esperando que el cliente acepte. Esta ventana permanecerá abierta hasta que la cierres.",
+        "Aguardando o cliente aceitar. Esta janela permanecerá aberta até você fechá-la.",
+        "En attente de l’acceptation du client. Cette fenêtre restera ouverte jusqu’à ce que vous la fermiez."
+      ));
+      showToast(langPick("Quote emailed to customer","Cotización enviada por email al cliente","Orçamento enviado por email ao cliente","Devis envoyé au client par e-mail"));
       return;
     }
 
