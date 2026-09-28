@@ -358,6 +358,7 @@
         <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
         <button class="nav-item" data-view="quotes" data-admin-only>Quotes <span>◫</span></button>
         <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
+        <button class="nav-item" data-view="followups" data-admin-only>Follow-ups <span>↻</span></button>
 
         <div class="nav-label">Operations</div>
         <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
@@ -674,6 +675,57 @@
           <div class="table-row table-head"><span>Invoice</span><span>Client</span><span>Amount</span><span>Status</span><span>Actions</span></div>
           <div id="invoicesTable"></div>
         </div>
+      </section>
+
+      <section class="view" data-page="followups" data-admin-only>
+        <div class="section-intro followup-intro">
+          <div>
+            <p class="eyebrow">FOLLOW-UPS</p>
+            <h2>Know exactly who needs the next touch.</h2>
+            <p>Leads, quotes, invoices, reviews and rebooking — organized without chasing notes.</p>
+          </div>
+          <button class="ghost-btn" id="followUpRefreshBtn" type="button">Refresh follow-ups</button>
+        </div>
+
+        <div class="metric-grid compact followup-metrics">
+          <article class="metric-card"><span>Due now</span><strong id="followUpDueCount">0</strong><small>Needs attention</small></article>
+          <article class="metric-card"><span>Snoozed</span><strong id="followUpSnoozedCount">0</strong><small>Coming back later</small></article>
+          <article class="metric-card"><span>Sent this month</span><strong id="followUpSentCount">0</strong><small>Completed follow-ups</small></article>
+        </div>
+
+        <div class="followup-layout">
+          <article class="panel followup-rules-panel">
+            <div class="panel-heading-row">
+              <div><p class="eyebrow">FOLLOW-UP RULES</p><h3>Choose how each follow-up works.</h3></div>
+              <span class="pill blue">Default: Remind me</span>
+            </div>
+            <p class="followup-rules-copy">Auto email sends only after you choose it. Remind me keeps the follow-up in this list. Off disables that category.</p>
+            <div class="followup-rule-list">
+              <label class="followup-rule"><span><strong>New lead</strong><small>2 days after inquiry/contact</small></span><select data-followup-mode="lead_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+              <label class="followup-rule"><span><strong>Quote</strong><small>2 days after quote is sent</small></span><select data-followup-mode="quote_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+              <label class="followup-rule"><span><strong>Invoice</strong><small>1 day after due date</small></span><select data-followup-mode="invoice_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+              <label class="followup-rule"><span><strong>After cleaning</strong><small>1 day after a completed job</small></span><select data-followup-mode="review_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+              <label class="followup-rule"><span><strong>Rebooking</strong><small>30 days after the last completed cleaning</small></span><select data-followup-mode="rebook_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+            </div>
+          </article>
+
+          <article class="panel followup-queue-panel">
+            <div class="panel-heading-row">
+              <div><p class="eyebrow">NEEDS FOLLOW-UP</p><h3>Today’s queue</h3></div>
+              <span class="pill yellow" id="followUpQueuePill">0 due</span>
+            </div>
+            <div id="followUpList" class="followup-list">
+              <div class="empty-inline"><strong>Loading follow-ups…</strong><span>Checking what needs attention.</span></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel followup-sent-panel">
+          <div class="panel-heading-row">
+            <div><p class="eyebrow">RECENTLY SENT</p><h3>Follow-up history</h3></div>
+          </div>
+          <div id="followUpSentList" class="followup-sent-list"></div>
+        </article>
       </section>
 
       <section class="view" data-page="route">
