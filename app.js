@@ -1939,8 +1939,14 @@ function setSidebarOpen(open){
 }
 $("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.contains("open")));
 sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));
+let tleCalendarWideMode=window.innerWidth>=721;
 window.addEventListener("resize",()=>{
   if(window.innerWidth>860 && sidebar.classList.contains("open")) setSidebarOpen(false);
+  const nextCalendarWideMode=window.innerWidth>=721;
+  if(nextCalendarWideMode!==tleCalendarWideMode){
+    tleCalendarWideMode=nextCalendarWideMode;
+    if(state.business) renderJobs();
+  }
 });
 
 if(backBtn) backBtn.addEventListener("click",()=>{
@@ -4561,37 +4567,82 @@ function renderJobs(){
   const week=$("#calendarWeekRow");
   if(week){
     const now=new Date();
-    const start=startOfWeek(now);
-    const end=new Date(start);
-    end.setDate(start.getDate()+13);
-
+    const fullMonth=window.matchMedia("(min-width: 721px)").matches;
     const range=$("#calendarRangeLabel");
-    if(range){
-      const sameMonth=start.getMonth()===end.getMonth();
-      range.textContent=sameMonth
-        ? new Intl.DateTimeFormat(appLocale(),{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
-        : new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(end);
+    const rangePill=document.querySelector(".calendar-range-pill");
+    const rangeEyebrow=document.querySelector(".calendar-range-head .eyebrow");
+    const monthActions=document.querySelector(".calendar-month-actions");
+
+    if(fullMonth){
+      const offset=Number(state.calendarMonthOffset||0);
+      const monthDate=new Date(now.getFullYear(),now.getMonth()+offset,1);
+      const monthStart=new Date(monthDate.getFullYear(),monthDate.getMonth(),1);
+      const gridStart=new Date(monthStart);
+      gridStart.setDate(monthStart.getDate()-monthStart.getDay());
+
+      if(range){
+        range.textContent=new Intl.DateTimeFormat(appLocale(),{month:"long",year:"numeric"}).format(monthDate);
+      }
+      if(rangePill) rangePill.textContent=langPick("Month","Mes","Mês","Mois");
+      if(rangeEyebrow) rangeEyebrow.textContent=langPick("MONTH VIEW","VISTA MENSUAL","VISÃO MENSAL","VUE MENSUELLE");
+      if(monthActions) monthActions.hidden=false;
+
+      week.classList.add("month-calendar");
+      week.innerHTML=Array.from({length:42},(_,i)=>{
+        const d=new Date(gridStart);
+        d.setDate(gridStart.getDate()+i);
+        const dayJobs=visible.filter(j=>sameLocalDay(j.starts_at,d));
+        const dateKey=tleCalendarDateKey(d);
+        const selected=sameLocalDay(d,now)?"selected":"";
+        const hasJobs=dayJobs.length?" has-jobs":"";
+        const active=state.calendarSelectedDate===dateKey?" calendar-active":"";
+        const outside=d.getMonth()!==monthDate.getMonth()?" calendar-outside":"";
+        const count=dayJobs.length
+          ? `<small class="calendar-job-count">${dayJobs.length} ${dayJobs.length===1?"job":"jobs"}</small>`
+          : `<small class="calendar-job-count empty">—</small>`;
+
+        return `<span class="${selected}${hasJobs}${active}${outside}" data-calendar-day="${dateKey}" role="button" tabindex="0" aria-pressed="${state.calendarSelectedDate===dateKey?"true":"false"}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
+          <em>${new Intl.DateTimeFormat(appLocale(),{weekday:"short"}).format(d).toUpperCase()}</em>
+          <strong>${d.getDate()}</strong>
+          ${count}
+        </span>`;
+      }).join("");
+    }else{
+      const start=startOfWeek(now);
+      const end=new Date(start);
+      end.setDate(start.getDate()+13);
+
+      if(range){
+        const sameMonth=start.getMonth()===end.getMonth();
+        range.textContent=sameMonth
+          ? new Intl.DateTimeFormat(appLocale(),{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
+          : new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(end);
+      }
+      if(rangePill) rangePill.textContent=langPick("14 days","14 días","14 dias","14 jours");
+      if(rangeEyebrow) rangeEyebrow.textContent=langPick("NEXT 2 WEEKS","PRÓXIMAS 2 SEMANAS","PRÓXIMAS 2 SEMANAS","2 PROCHAINES SEMAINES");
+      if(monthActions) monthActions.hidden=true;
+
+      week.classList.remove("month-calendar");
+      week.innerHTML=Array.from({length:14},(_,i)=>{
+        const d=new Date(start);
+        d.setDate(start.getDate()+i);
+        const dayJobs=visible.filter(j=>sameLocalDay(j.starts_at,d));
+        const dateKey=tleCalendarDateKey(d);
+        const selected=sameLocalDay(d,now)?"selected":"";
+        const hasJobs=dayJobs.length?" has-jobs":"";
+        const active=state.calendarSelectedDate===dateKey?" calendar-active":"";
+        const count=dayJobs.length
+          ? `<small class="calendar-job-count">${dayJobs.length} ${dayJobs.length===1?"job":"jobs"}</small>`
+          : `<small class="calendar-job-count empty">—</small>`;
+
+        return `<span class="${selected}${hasJobs}${active}" data-calendar-day="${dateKey}" role="button" tabindex="0" aria-pressed="${state.calendarSelectedDate===dateKey?"true":"false"}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
+          <em>${new Intl.DateTimeFormat(appLocale(),{weekday:"short"}).format(d).toUpperCase()}</em>
+          <strong>${d.getDate()}</strong>
+          ${count}
+        </span>`;
+      }).join("");
     }
-
-    week.innerHTML=Array.from({length:14},(_,i)=>{
-      const d=new Date(start);
-      d.setDate(start.getDate()+i);
-      const dayJobs=visible.filter(j=>sameLocalDay(j.starts_at,d));
-      const dateKey=tleCalendarDateKey(d);
-      const selected=sameLocalDay(d,now)?"selected":"";
-      const hasJobs=dayJobs.length?" has-jobs":"";
-      const active=state.calendarSelectedDate===dateKey?" calendar-active":"";
-      const count=dayJobs.length
-        ? `<small class="calendar-job-count">${dayJobs.length} ${dayJobs.length===1?"job":"jobs"}</small>`
-        : `<small class="calendar-job-count empty">—</small>`;
-
-      return `<span class="${selected}${hasJobs}${active}" data-calendar-day="${dateKey}" role="button" tabindex="0" aria-pressed="${state.calendarSelectedDate===dateKey?"true":"false"}" title="${dayJobs.length?dayJobs.length+" scheduled job"+(dayJobs.length===1?"":"s"):"No jobs"}">
-        <em>${new Intl.DateTimeFormat(appLocale(),{weekday:"short"}).format(d).toUpperCase()}</em>
-        <strong>${d.getDate()}</strong>
-        ${count}
-      </span>`;
-    }).join("");
-    if(state.calendarSelectedDate) renderCalendarDayDetails(state.calendarSelectedDate);
+    if(state.calendarSelectedDate) renderCalendarDayDetails(state.calendarSelectedDate,{scroll:false});
   }
 
   const recurring=$("#recurringJobsList");
@@ -6482,7 +6533,7 @@ function openEntityForm(type,id=null){
     const recurrenceRule=record?.recurrence_rule_id?state.recurrenceRules.find(r=>r.id===record.recurrence_rule_id):null;
     modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration, travel buffer and an optional recurring schedule.");
     entityForm.innerHTML=`
-      <div class="form-grid">
+      <div class="form-grid job-form-grid">
         <label>Client<select name="client_id" data-job-client-picker><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
         <label>Service<select name="service_id"><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
         <label>Assigned teammate<select name="team_member_id"><option value="">Unassigned</option>${optionList(state.teamMembers,"id","name",record?.job_assignments?.[0]?.team_member_id)}</select></label>
@@ -7333,6 +7384,13 @@ document.addEventListener("click",async e=>{
   const calendarClose=e.target.closest("[data-calendar-close]");
   if(calendarClose){
     clearCalendarDayDetails();
+    return;
+  }
+  const calendarMonth=e.target.closest("[data-calendar-month]");
+  if(calendarMonth){
+    state.calendarMonthOffset=Number(state.calendarMonthOffset||0)+Number(calendarMonth.dataset.calendarMonth||0);
+    clearCalendarDayDetails();
+    renderJobs();
     return;
   }
   if(calendarDay){
