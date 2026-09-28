@@ -15,27 +15,8 @@
         localStorage.setItem("tle_last_admin_email","dailinsegura17@gmail.com");
         localStorage.setItem("tle_admin_emails",JSON.stringify(["dailinsegura17@gmail.com"]));
       }
-      for(var i=localStorage.length-1;i>=0;i--){
-        var key=localStorage.key(i);
-        if(!key) continue;
-        if(key.indexOf("auth-token")===-1) continue;
-        var value=localStorage.getItem(key)||"";
-        if(value.toLowerCase().indexOf("dailinsegura04@gmail.com")!==-1){
-          localStorage.removeItem(key);
-          continue;
-        }
-        if(key==="sb-bowacxhmjvrqixtwaikv-auth-token"){
-          try{
-            var storedSession=JSON.parse(value);
-            var storedAccess=storedSession&&storedSession.access_token;
-            if(storedAccess && String(storedAccess).split(".").length!==3){
-              localStorage.removeItem(key);
-            }
-          }catch(parseError){
-            localStorage.removeItem(key);
-          }
-        }
-      }
+      // Never delete Supabase auth storage during page bootstrap. Session validity
+      // belongs to supabase-js, which can refresh persisted iOS/PWA sessions.
     }catch(e){}
   })();
 </script>
@@ -85,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-unified-81" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-unified-82" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -1121,7 +1102,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-unified-81";
+    window.__tleShellVersion="20260928-unified-82";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1140,9 +1121,9 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-unified-81"></script>
-  <script src="./i18n.js?v=20260928-unified-81"></script>
-  <script src="./public.js?v=20260928-unified-81"></script>
-  <script src="./app.js?v=20260928-unified-81"></script>
+  <script src="./vendor/supabase.js?v=20260928-unified-82"></script>
+  <script src="./i18n.js?v=20260928-unified-82"></script>
+  <script src="./public.js?v=20260928-unified-82"></script>
+  <script src="./app.js?v=20260928-unified-82"></script>
 </body>
 </html>
