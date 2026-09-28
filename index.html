@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-stable-107" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-stable-108" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -226,9 +226,13 @@
         <p class="eyebrow" id="publicModeLabel">BOOK A CLEANING</p>
         <h1 id="publicBusinessName">Cleaning service</h1>
         <p class="public-copy" id="publicIntro">Choose your service and send your request.</p>
+        <nav class="public-request-switch" id="publicRequestSwitch" aria-label="Choose request type">
+          <a id="publicBookTab" class="public-request-tab" href="#">Book a Cleaning</a>
+          <a id="publicQuoteTab" class="public-request-tab" href="#">Request a Quote</a>
+        </nav>
         <form id="publicRequestForm" class="entity-form">
           <div class="form-grid">
-            <label class="full">Service<select name="service_id" id="publicService" required><option value="">Choose a service</option></select></label>
+            <label class="full" id="publicServiceField"><span id="publicServiceLabel">Service</span><select name="service_id" id="publicService" required><option value="">Choose a service</option></select></label>
             <div class="full" id="publicAddonsWrap">
               <span class="field-label">Add-ons</span>
               <div id="publicAddons" class="public-addons"></div>
@@ -582,9 +586,9 @@
           </article>
 
           <article class="panel full booking-experience-compact">
-            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Simple booking flow</h3></div><span class="pill blue">No account required</span></div>
+            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Fixed price or custom quote</h3></div><span class="pill blue">No account required</span></div>
             <div class="flow-row compact-flow">
-              <span>Service</span><b>→</b><span>Time</span><b>→</b><span>Details</span><b>→</b><span>Confirm</span>
+              <span>Fixed price</span><b>→</b><span>Book</span><b>→</b><span>Custom job</span><b>→</b><span>Quote</span>
             </div>
             <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Other</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
           </article>
@@ -1148,7 +1152,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-stable-107";
+    window.__tleShellVersion="20260928-stable-108";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1167,10 +1171,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-stable-107"></script>
-  <script src="./i18n.js?v=20260928-stable-107"></script>
-  <script src="./public.js?v=20260928-stable-107"></script>
-  <script src="./app.js?v=20260928-stable-107"></script>
-  <script src="./followups.js?v=20260928-stable-107"></script>
+  <script src="./vendor/supabase.js?v=20260928-stable-108"></script>
+  <script src="./i18n.js?v=20260928-stable-108"></script>
+  <script src="./public.js?v=20260928-stable-108"></script>
+  <script src="./app.js?v=20260928-stable-108"></script>
+  <script src="./followups.js?v=20260928-stable-108"></script>
 </body>
 </html>
