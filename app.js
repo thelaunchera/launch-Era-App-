@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-109";
+const APP_VERSION = "20260928-stable-110";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -6055,9 +6055,19 @@ async function initializePublicRequest(mode,slug){
     const fd=new FormData(form);
     const preferred=fd.get("preferred_contact");
     const phone=String(fd.get("phone")||"").trim();
+    const propertyType=String(fd.get("property_type")||"").trim().toLowerCase();
+    const squareFeet=String(fd.get("square_feet")||"").trim();
+    const customerNotes=String(fd.get("notes")||"").trim();
     setBusy(submit,true,"Sending…");
     try{
       if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
+      if(!["residential","commercial"].includes(propertyType)) throw new Error("Choose Residential or Commercial.");
+      if(squareFeet && (!/^\d+$/.test(squareFeet) || Number(squareFeet)<1)) throw new Error("Square feet must be a positive number.");
+      const requestNotes=[
+        "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
+        squareFeet ? "Approx. square feet: "+squareFeet : "",
+        customerNotes ? "Notes: "+customerNotes : ""
+      ].filter(Boolean).join("\n");
 
       if(mode==="quote"){
         const {error:submitError}=await supabase.rpc("submit_public_quote_request",{
@@ -6070,7 +6080,7 @@ async function initializePublicRequest(mode,slug){
           p_service_address:String(fd.get("address")).trim(),
           p_preferred_date:fd.get("date"),
           p_preferred_time:String(fd.get("time")||"").trim()||null,
-          p_notes:String(fd.get("notes")||"").trim()||null
+          p_notes:requestNotes||null
         });
         if(submitError) throw submitError;
       }else{
@@ -6086,7 +6096,7 @@ async function initializePublicRequest(mode,slug){
           p_preferred_contact:preferred,
           p_service_address:String(fd.get("address")).trim(),
           p_requested_start_at:selectedSlot,
-          p_notes:String(fd.get("notes")||"").trim()||null
+          p_notes:requestNotes||null
         });
         if(submitError) throw submitError;
       }
@@ -6570,7 +6580,7 @@ entityForm.addEventListener("submit",async e=>{
         p_token:token,
         p_job_id:state.modalId,
         p_miles:miles,
-        p_notes:String(fd.get("notes")||"").trim()||null
+        p_notes:requestNotes||null
       });
       if(error) throw error;
       modal.hidden=true;
