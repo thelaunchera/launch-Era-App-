@@ -5561,3 +5561,33 @@ body.shell-auth{overflow-anchor:none}
     margin-top:0!important;
   }
 }
+
+
+/* 2026-09-28 — deterministic Safari drawer v71 */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    left:0!important;
+    right:auto!important;
+    transform:none!important;
+    -webkit-transform:none!important;
+    translate:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transition:opacity .18s ease,visibility 0s linear .18s!important;
+    will-change:opacity;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+    transform:none!important;
+    -webkit-transform:none!important;
+    translate:none!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transition:opacity .18s ease!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:860px){
+  body.shell-app #appShell>.sidebar{transition:none!important}
+}
