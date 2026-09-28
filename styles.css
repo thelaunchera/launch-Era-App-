@@ -7016,3 +7016,170 @@ body.shell-auth{overflow-anchor:none}
     grid-column:1/-1;
   }
 }
+
+/* Compact operational cards · stable-114 */
+@media(max-width:860px){
+  /* Clients */
+  [data-page="clients"] .client-grid{gap:10px!important}
+  [data-page="clients"] .client-card.client-card-compact{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="clients"] .client-card-head{gap:9px!important}
+  [data-page="clients"] .client-avatar{
+    width:42px!important;height:42px!important;min-width:42px!important;
+    font-size:16px!important;border-radius:13px!important;
+  }
+  [data-page="clients"] .client-card-identity strong{font-size:17px!important;line-height:1.1!important}
+  [data-page="clients"] .client-card-identity span,
+  [data-page="clients"] .client-location{font-size:12px!important;line-height:1.25!important}
+  [data-page="clients"] .client-location{margin-top:1px!important}
+  [data-page="clients"] .client-card-actions{
+    margin-top:7px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="clients"] .client-card-actions .safe-actions{gap:6px!important}
+  [data-page="clients"] .client-card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="clients"] .record-delete-btn{margin-top:0!important}
+
+  /* Quotes */
+  [data-page="quotes"] .kanban{gap:10px!important}
+  [data-page="quotes"] .kanban-col{
+    padding:12px!important;
+    border-radius:18px!important;
+  }
+  [data-page="quotes"] .kanban-col h3{margin:0 1px 7px!important;font-size:16px!important}
+  [data-page="quotes"] .kanban-col article{
+    padding:13px!important;
+    border-radius:16px!important;
+    gap:5px!important;
+  }
+  [data-page="quotes"] .kanban-col article>strong{font-size:17px!important;line-height:1.15!important}
+  [data-page="quotes"] .kanban-col article>small{font-size:12px!important;line-height:1.25!important}
+  [data-page="quotes"] .kanban-col article>b{font-size:12px!important;line-height:1.2!important}
+  [data-page="quotes"] .record-card-actions{
+    margin-top:8px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="quotes"] .record-card-actions .safe-actions{gap:6px!important}
+  [data-page="quotes"] .record-card-actions button{
+    min-height:42px!important;
+    padding:9px 11px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Invoice / Mileage / Time rows */
+  [data-page="invoices"] .table-card,
+  [data-page="mileage"] .table-card,
+  [data-page="time"] .table-card{
+    padding:8px!important;
+    border-radius:18px!important;
+  }
+  [data-page="invoices"] .mobile-record-card,
+  [data-page="mileage"] .mobile-record-card,
+  [data-page="time"] .mobile-record-card{
+    padding:12px!important;
+    border-radius:15px!important;
+    gap:7px!important;
+    margin:0 0 7px!important;
+  }
+  [data-page="invoices"] .record-primary strong,
+  [data-page="mileage"] .record-primary strong,
+  [data-page="time"] .record-primary strong{font-size:15px!important;line-height:1.15!important}
+  [data-page="invoices"] .record-primary small,
+  [data-page="mileage"] .record-primary small,
+  [data-page="time"] .record-primary small,
+  [data-page="invoices"] .record-field,
+  [data-page="mileage"] .record-field,
+  [data-page="time"] .record-field{
+    font-size:12px!important;
+    line-height:1.25!important;
+  }
+  [data-page="invoices"] .record-actions{margin-top:5px!important;gap:6px!important}
+  [data-page="invoices"] .record-actions .safe-actions{gap:6px!important}
+  [data-page="invoices"] .record-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="time"] .time-hide-btn{
+    min-height:38px!important;
+    padding:7px 9px!important;
+    font-size:11px!important;
+  }
+  [data-page="time"] .timer-card{
+    padding:14px!important;
+    border-radius:18px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="time"] .timer-card h3{margin:4px 0!important;font-size:18px!important}
+  [data-page="time"] .timer-empty{margin-bottom:10px!important;padding:16px!important}
+
+  /* Supplies */
+  [data-page="supplies"] .supplies-grid{gap:10px!important}
+  [data-page="supplies"] .supply-card{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="supplies"] .supply-head{gap:8px!important}
+  [data-page="supplies"] .supply-head strong{font-size:16px!important;line-height:1.15!important}
+  [data-page="supplies"] .supply-head small,
+  [data-page="supplies"] .supply-meta,
+  [data-page="supplies"] .muted-line{font-size:11px!important;line-height:1.25!important}
+  [data-page="supplies"] .supply-qty{margin:2px 0!important}
+  [data-page="supplies"] .supply-qty strong{font-size:24px!important}
+  [data-page="supplies"] .card-actions{margin-top:6px!important;gap:6px!important}
+  [data-page="supplies"] .card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Compact summary metrics only on the requested operational pages */
+  [data-page="invoices"] .metric-grid.compact,
+  [data-page="mileage"] .metric-grid.compact,
+  [data-page="supplies"] .metric-grid.compact{
+    gap:8px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card,
+  [data-page="mileage"] .metric-grid.compact .metric-card,
+  [data-page="supplies"] .metric-grid.compact .metric-card{
+    min-height:88px!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card strong,
+  [data-page="mileage"] .metric-grid.compact .metric-card strong,
+  [data-page="supplies"] .metric-grid.compact .metric-card strong{
+    font-size:24px!important;
+    margin:5px 0 0!important;
+  }
+}
+
+@media(max-width:620px){
+  [data-page="clients"] .client-card-actions .safe-actions,
+  [data-page="quotes"] .record-card-actions .safe-actions,
+  [data-page="invoices"] .record-actions .safe-actions{
+    grid-template-columns:1fr 1fr!important;
+  }
+  [data-page="clients"] .client-card-actions button,
+  [data-page="quotes"] .record-card-actions button,
+  [data-page="invoices"] .record-actions button,
+  [data-page="supplies"] .card-actions button{
+    min-height:44px!important;
+  }
+}
+
