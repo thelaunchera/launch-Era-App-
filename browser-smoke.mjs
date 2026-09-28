@@ -138,8 +138,13 @@ try{
         event.stopImmediatePropagation();
       },{once:true,capture:true});
     });
-    // Wait for the splash fade and auth panel layout to settle before the
-    // physical tap gate. This preserves the real hit-test instead of masking it.
+    // A real auth decision dismisses the launch splash before sign-in becomes
+    // interactive. The smoke harness has no persisted Supabase session, so
+    // emulate that completed decision, then preserve the real physical hit-test.
+    await page.evaluate(()=>{
+      const splash=document.querySelector("#sessionSplash");
+      if(splash){ splash.hidden=true; splash.style.pointerEvents="none"; splash.setAttribute("aria-hidden","true"); }
+    });
     await page.waitForFunction(()=>{
       const splash=document.querySelector("#sessionSplash");
       const btn=document.querySelector("#authSubmit");
