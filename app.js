@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-80";
+const APP_VERSION = "20260928-unified-81";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4723,7 +4723,24 @@ function dashboardWeatherContext(now,remainingJobs){
 function renderTodayClock(){
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
-  renderTodayClock();
+  const datePill=$("#todayDatePill");
+  const clockTime=$("#todayClockTime");
+  if(datePill){
+    const formatted=new Intl.DateTimeFormat(appLocale(),{
+      weekday:"short",
+      month:"short",
+      day:"numeric",
+      timeZone:businessTimeZone
+    }).format(now);
+    datePill.textContent=formatted.charAt(0).toUpperCase()+formatted.slice(1);
+  }
+  if(clockTime){
+    clockTime.textContent=new Intl.DateTimeFormat(appLocale(),{
+      hour:"numeric",
+      minute:"2-digit",
+      timeZone:businessTimeZone
+    }).format(now);
+  }
 }
 function installTodayClock(){
   renderTodayClock();
