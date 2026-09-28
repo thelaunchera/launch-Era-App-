@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-107";
+const APP_VERSION = "20260928-stable-108";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4113,8 +4113,8 @@ function renderBookingServices(){
   list.innerHTML=active.map(s=>{
     const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
     return `<div class="booking-service-row">
-      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${s.pricing_type==="quote"?"Quote required":money(s.base_price)}</small></span>
-      <span class="booking-addon-chips">${addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>"}</span>
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${s.pricing_type==="quote"?"Custom quote":money(s.base_price)} · ${s.pricing_type==="quote"?"Request a Quote":"Book a Cleaning"}</small></span>
+      <span class="booking-addon-chips">${s.pricing_type==="quote"?"<i>Quote path</i>":(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>")}</span>
     </div>`;
   }).join("");
 }
