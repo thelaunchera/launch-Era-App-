@@ -630,10 +630,26 @@
           const fd=new FormData(form);
           const preferred=fd.get("preferred_contact");
           const phone=String(fd.get("phone")||"").trim();
+          const propertyType=String(fd.get("property_type")||"").trim().toLowerCase();
+          const squareFeet=String(fd.get("square_feet")||"").trim();
+          const customerNotes=String(fd.get("notes")||"").trim();
           if((preferred==="text"||preferred==="whatsapp")&&!phone){
             alert(tt("Phone is required for Text or WhatsApp."));
             return;
           }
+          if(!["residential","commercial"].includes(propertyType)){
+            alert(tt("Choose Residential or Commercial."));
+            return;
+          }
+          if(squareFeet && (!/^\d+$/.test(squareFeet) || Number(squareFeet)<1)){
+            alert(tt("Square feet must be a positive number."));
+            return;
+          }
+          const requestNotes=[
+            "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
+            squareFeet ? "Approx. square feet: "+squareFeet : "",
+            customerNotes ? "Notes: "+customerNotes : ""
+          ].filter(Boolean).join("\n");
           const old=submit.textContent;
           submit.disabled=true;
           submit.textContent=tt("Sending…");
@@ -649,7 +665,7 @@
                 p_service_address:String(fd.get("address")).trim(),
                 p_preferred_date:fd.get("date"),
                 p_preferred_time:String(fd.get("time")||"").trim()||null,
-                p_notes:String(fd.get("notes")||"").trim()||null
+                p_notes:requestNotes||null
               });
             }else{
               const selectedSlot=String(fd.get("slot_start")||"").trim();
@@ -664,7 +680,7 @@
                 p_preferred_contact:preferred,
                 p_service_address:String(fd.get("address")).trim(),
                 p_requested_start_at:selectedSlot,
-                p_notes:String(fd.get("notes")||"").trim()||null,
+                p_notes:requestNotes||null,
                 p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time")
               });
             }
