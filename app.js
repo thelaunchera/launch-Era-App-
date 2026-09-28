@@ -3255,26 +3255,48 @@ async function initialize(){
     state.publicLinks=null;
   }
 
+  // Critical boot path: never expose an authenticated shell backed by empty
+  // arrays. Safari cold-launch must finish workspace hydration before showApp().
+  let coreLoaded=false;
+  for(let attempt=0;attempt<2 && !coreLoaded;attempt++){
+    try{
+      await withTimeout(loadCoreData(),"Workspace data",18000);
+      coreLoaded=true;
+    }catch(err){
+      console.warn("[TLE] critical workspace hydrate",attempt+1,err);
+      if(attempt===0){
+        try{
+          const refreshed=await withTimeout(supabase.auth.refreshSession(),"Session refresh",5000);
+          if(refreshed?.data?.session){
+            state.session=refreshed.data.session;
+            saveOwnerSessionBackup(state.session);
+          }
+        }catch(refreshErr){ console.warn("[TLE] hydrate token refresh",refreshErr); }
+      }
+    }
+  }
+  if(!coreLoaded){
+    throw new Error(langPick(
+      "Your workspace could not finish loading. Please try again.",
+      "Tu espacio no pudo terminar de cargar. Intenta de nuevo.",
+      "Seu espaço não conseguiu terminar de carregar. Tente novamente.",
+      "Votre espace n’a pas pu finir de charger. Réessayez."
+    ));
+  }
+
+  // Render from hydrated state first, then reveal the workspace atomically.
+  renderTodaySummary();
+  renderOperations();
+  renderSettings();
+  renderPublicLinks();
   showApp();
 
-  // Welcome email is retried safely until the backend confirms delivery.
+  // Secondary work must never hold or empty the authenticated workspace.
   ensureTrialWelcomeEmail().catch(err=>console.warn("[TLE] trial welcome retry",err));
-
-  // Never leave the static HTML placeholder visible on launch.
-  try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
   loadBusinessWeather(true).catch(err=>console.warn("[TLE] first weather load",err));
-
   setupInvoiceRealtime();
-  showToast("Loading your workspace…");
-  loadCoreData().then(()=>{
-    try{renderTodaySummary();renderOperations();renderSettings();renderPublicLinks();}catch(err){console.warn("[TLE] post-load render",err);}
-  }).catch(err=>{
-    console.warn("[TLE] workspace load",err);
-    // Retry once automatically; owners should not need Refresh after cold launch.
-    setTimeout(()=>loadCoreData().catch(retryErr=>console.warn("[TLE] workspace retry",retryErr)),1200);
-  });
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
-  await trackVisit("/app/"+($(".view.active")?.dataset.page||"today"));
+  trackVisit("/app/"+($(".view.active")?.dataset.page||"today")).catch(()=>{});
 }
 window.addEventListener("pageshow",()=>{
   // Restore only the shell class. Do not force-scroll on resume: iOS fires
