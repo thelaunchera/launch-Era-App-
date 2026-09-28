@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-111";
+const APP_VERSION = "20260928-stable-112";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -6606,14 +6606,33 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="businessProfile") await saveBusinessProfile(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     if(state.modalType==="startTimer") await saveStartTimer(fd);
+    // Sending a quote from Edit Quote is a deliberate review moment:
+    // keep the modal exactly where the owner left it, confirm success inline,
+    // refresh the Quotes board behind it, and let the owner close the modal.
+    if(state.modalType==="quote" && quoteResult?.sent){
+      await loadCoreData();
+      const statusField=entityForm.querySelector('[name="status"]');
+      if(statusField) statusField.value="sent";
+      let confirmation=entityForm.querySelector("[data-quote-send-confirmation]");
+      if(!confirmation){
+        confirmation=document.createElement("div");
+        confirmation.className="permission-note";
+        confirmation.dataset.quoteSendConfirmation="true";
+        const footer=entityForm.querySelector(".form-footer");
+        if(footer) footer.before(confirmation);
+        else entityForm.prepend(confirmation);
+      }
+      confirmation.innerHTML="<strong>Quote sent.</strong><br>Waiting for the customer to accept. This window will stay open until you close it.";
+      showToast("Quote emailed to customer");
+      return;
+    }
+
     modal.hidden=true;
     await loadCoreData();
     showToast(
       invoiceResult?.sent
         ? "Invoice emailed to client"
-        : quoteResult?.sent
-          ? "Quote emailed to customer"
-          : paymentResult?.status==="paid" && paymentResult?.confirmation_queued
+        : paymentResult?.status==="paid" && paymentResult?.confirmation_queued
           ? "Payment confirmed · confirmation email queued"
           : paymentResult
             ? "Payment recorded"
