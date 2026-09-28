@@ -1542,22 +1542,6 @@ function showApp(){
   scheduleQuarterHourCardColors();
   installTodayClock();
 
-  // On every authenticated app open, point owners to the in-app Refresh control.
-  // This is a lightweight recovery cue while iOS/PWA cold-launch behavior is
-  // being hardened; it never blocks the workspace or changes the active page.
-  setTimeout(()=>{
-    const refreshBtn=$("#appRefreshBtn");
-    if(!refreshBtn || appShell.hidden) return;
-    refreshBtn.classList.add("refresh-attention");
-    showToast(langPick(
-      "Tap Refresh ↻ to load the latest updates.",
-      "Toca Actualizar ↻ para cargar la información más reciente.",
-      "Toque Atualizar ↻ para carregar as atualizações mais recentes.",
-      "Touchez Actualiser ↻ pour charger les dernières mises à jour."
-    ));
-    setTimeout(()=>refreshBtn.classList.remove("refresh-attention"),6500);
-  },450);
-
   // Safari/iOS may restore the previous page scroll position before the hidden
   // app shell becomes visible. Force the authenticated dashboard to start at
   // the real document top instead of leaving a blank viewport above Today.
