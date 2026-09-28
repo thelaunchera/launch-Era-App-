@@ -277,6 +277,15 @@
     const field=select.dataset.followupMode;
     if(!Object.prototype.hasOwnProperty.call(DEFAULTS,field)) return;
     const previous=(preferences||DEFAULTS)[field]||"remind";
+    if(select.value==="auto"){
+      const ok=window.confirm(langPick(
+        "Auto email can send due follow-ups to real customers within the next hour. Turn it on?",
+        "El email automático puede enviar seguimientos a clientes reales dentro de la próxima hora. ¿Activarlo?",
+        "O e-mail automático pode enviar acompanhamentos a clientes reais dentro da próxima hora. Ativar?",
+        "L’e-mail automatique peut envoyer des suivis à de vrais clients dans l’heure. L’activer ?"
+      ));
+      if(!ok){select.value=previous;return;}
+    }
     select.disabled=true;
     try{
       await setMode(field,select.value);
