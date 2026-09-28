@@ -112,11 +112,9 @@ if(app.includes("resilientAuthStorage") || app.includes("indexedDB.open(TLE_AUTH
 if(!app.includes("restoreWorkspaceView();") || !app.includes("saveWorkspaceView(id)")){
   throw new Error("Workspace regression: active page restore is missing");
 }
-if(app.includes('$("[data-account-billing]").forEach') || app.includes('$$("[data-account-billing]").forEach')){
-  throw new Error("App boot regression: account billing selector must use the querySelectorAll helper");
-}
-if((app.match(/\$\$\("\[data-account-billing\]"\)\.forEach/g)||[]).length<2){
-  throw new Error("App boot regression: account billing collections are not wired with $");
+const billingCollectionLines=app.split("\n").filter(line=>line.includes("[data-account-billing]")&&line.includes(".forEach"));
+if(billingCollectionLines.length<2 || billingCollectionLines.some(line=>!line.includes('$$("[data-account-billing]").forEach'))){
+  throw new Error("App boot regression: account billing collections must use the querySelectorAll helper");
 }
 // stable-92: inactivity is checked before activity can refresh the owner timestamp.
 if(!app.includes('if(ownerIdleExpired()){') || !app.includes('expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err))')){
