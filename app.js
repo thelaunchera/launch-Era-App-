@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-59";
+const APP_VERSION = "20260927-unified-60";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -89,6 +89,15 @@ const authForm = $("#authForm");
 const businessForm = $("#businessForm");
 const entityForm = $("#entityForm");
 const modal = $("#modalBackdrop");
+const sessionSplash=$("#sessionSplash");
+function dismissSessionSplash(){
+  if(!sessionSplash || sessionSplash.hidden) return;
+  sessionSplash.classList.add("is-leaving");
+  setTimeout(()=>{
+    sessionSplash.hidden=true;
+    sessionSplash.classList.remove("is-leaving");
+  },180);
+}
 
 let __tleModalScrollY=0;
 function syncModalScrollLock(){
@@ -1170,6 +1179,7 @@ function markAuthWelcomeSeen(){
   try{localStorage.setItem(AUTH_WELCOME_SEEN_KEY,"1");}catch{}
 }
 function prepareDirectAuth(){
+  dismissSessionSplash();
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1230,6 +1240,7 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
+  dismissSessionSplash();
   const remembered=rememberedOwnerEmail();
   // Returning owners can go straight to Sign in. Everyone else always sees
   // the product page before Create account.
@@ -1294,6 +1305,7 @@ setTimeout(syncAuthWelcomeCopy,0);
 
 function showAuth(){ showAuthWelcome(); }
 function showSetup(){
+  dismissSessionSplash();
   setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
@@ -1324,6 +1336,7 @@ function scheduleQuarterHourCardColors(){
 }
 
 function showApp(){
+  dismissSessionSplash();
   setShellState("app");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
@@ -2435,6 +2448,7 @@ async function initializeWorkerPortal(activationToken=null){
     window.TLE_I18N.setLanguage(workerLanguage);
   }
   renderWorkerPortal();
+  dismissSessionSplash();
   await loadWorkerMessages(true).catch(err=>console.warn("[TLE] worker messages",err));
   installWorkerMessagePolling();
 }
