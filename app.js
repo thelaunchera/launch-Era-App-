@@ -712,8 +712,20 @@ async function resolveSignupTimeZone(area){
   return (await resolveBusinessLocale(area)).timezone;
 }
 
-function getDeviceWeatherGeo(){
-  if(!("geolocation" in navigator)) return Promise.resolve(null);
+async function getDeviceWeatherGeo(){
+  if(!("geolocation" in navigator)) return null;
+  // Never prompt for location during auth or automated/first-paint flows.
+  // Use device coordinates only when permission has already been granted.
+  try{
+    if(navigator.permissions?.query){
+      const permission=await navigator.permissions.query({name:"geolocation"});
+      if(permission.state!=="granted") return null;
+    }else{
+      return null;
+    }
+  }catch{
+    return null;
+  }
   return new Promise(resolve=>{
     navigator.geolocation.getCurrentPosition(pos=>{
       const latitude=Number(pos.coords?.latitude);
@@ -728,7 +740,7 @@ function getDeviceWeatherGeo(){
         timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||"auto",
         source:"device"
       });
-    },()=>resolve(null),{enableHighAccuracy:false,maximumAge:10*60*1000,timeout:3500});
+    },()=>resolve(null),{enableHighAccuracy:false,maximumAge:10*60*1000,timeout:1500});
   });
 }
 async function loadBusinessWeather(force=false){
@@ -2875,6 +2887,28 @@ async function initialize(){
   // user's 24-hour activity window.
   if(!session){
     session=await restoreOwnerSessionFromBackup();
+  }
+
+  // iOS/PWA can briefly report no session while Supabase is refreshing its
+  // persisted token after a cold launch. Give auth one final refresh/read
+  // before ever exposing the password screen.
+  if(!session){
+    try{
+      const refreshed=await supabase.auth.refreshSession();
+      session=refreshed?.data?.session||null;
+      if(session) saveOwnerSessionBackup(session);
+    }catch(err){
+      console.warn("[TLE] cold-launch session refresh",err);
+    }
+  }
+  if(!session){
+    await new Promise(resolve=>setTimeout(resolve,450));
+    try{
+      const finalRead=await supabase.auth.getSession();
+      session=finalRead?.data?.session||null;
+    }catch(err){
+      console.warn("[TLE] final persisted session read",err);
+    }
   }
 
   state.session=session;
