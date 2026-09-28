@@ -40,6 +40,19 @@ body{display:block}
 .demo-stage .demo-role{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:11px}
 .demo-stage .demo-role b:first-child{width:44px;height:44px;border-radius:13px;background:#F0EEE8;display:grid;place-items:center}
 
+
+.demo-stage.showcase-demo{width:960px;height:720px}
+.demo-stage.showcase-demo .app-shell{grid-template-columns:1fr}
+.demo-stage.showcase-demo .sidebar{display:none!important}
+.demo-stage.showcase-demo .main{height:720px;overflow:hidden;padding:22px 26px}
+.demo-stage.showcase-demo .topbar{padding:0 0 18px;min-height:auto}
+.demo-stage.showcase-demo .topbar h1{font-size:34px}
+.demo-stage.showcase-demo .metric-card strong{font-size:28px}
+.demo-stage.showcase-demo .hero-card{padding:24px}
+.demo-stage.showcase-demo .hero-card h2{font-size:30px}
+.demo-stage.showcase-demo .section-intro h2{font-size:30px}
+.demo-stage.showcase-demo .panel{padding:18px}
+.demo-stage.showcase-demo .nav-list{display:none}
 </style>
 </head>
 <body>
@@ -257,6 +270,8 @@ const requestedView=params.get("view")||"today";
 const view=allowedViews.includes(requestedView)?requestedView:"today";
 const lang=params.get("lang")==="es"?"es":"en";
 if(params.get("neutral")==="1") document.getElementById("demoStage").classList.add("neutral-demo");
+const showcase=params.get("showcase")==="1";
+if(showcase) document.getElementById("demoStage").classList.add("showcase-demo");
 document.documentElement.lang=lang;
 document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(I18N[lang][k])el.textContent=I18N[lang][k]});
 document.querySelectorAll("[data-demo-view]").forEach(el=>el.classList.toggle("active",el.dataset.demoView===view));
@@ -265,10 +280,11 @@ const titles={today:I18N[lang].today,booking:I18N[lang].bookingCenter,clients:I1
 document.getElementById("demoTitle").textContent=titles[view]||I18N[lang].today;
 function fit(){
  const stage=document.getElementById("demoStage");
- const scale=Math.min(innerWidth/1365,innerHeight/900);
+ const stageW=showcase?960:1365, stageH=showcase?720:900;
+ const scale=Math.min(innerWidth/stageW,innerHeight/stageH);
  stage.style.transform="scale("+scale+")";
- stage.style.left=((innerWidth-1365*scale)/2)+"px";
- stage.style.top=((innerHeight-900*scale)/2)+"px";
+ stage.style.left=((innerWidth-stageW*scale)/2)+"px";
+ stage.style.top=((innerHeight-stageH*scale)/2)+"px";
 }
 addEventListener("resize",fit);fit();
 </script>
