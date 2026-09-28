@@ -252,6 +252,14 @@
               <span class="field-label">Add-ons</span>
               <div id="publicAddons" class="public-addons"></div>
             </div>
+            <label class="full" id="publicRecurrenceWrap">Frequency
+              <select name="recurrence_pattern" id="publicRecurrencePattern">
+                <option value="one_time">One time</option>
+                <option value="weekly">Every week</option>
+                <option value="biweekly">Every 2 weeks</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </label>
             <label>Date<input name="date" type="date" required></label>
             <label id="publicQuoteTimeWrap">Preferred time <span class="field-optional">(optional)</span><input name="time" type="time"></label>
             <div class="full public-slots-wrap" id="publicSlotsWrap" hidden>
