@@ -53,6 +53,8 @@ const state = {
   supplies: [],
   jobs: [],
   quotes: [],
+  followUpTasks: [],
+  followUpPreferences: null,
   disputes: [],
   teamMembers: [],
   members: [],
@@ -150,7 +152,7 @@ window.__tleAuthUiReady=true;
 
 const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
-  calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices",
+  calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices", followups:"Follow-ups",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
   reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
 };
@@ -189,6 +191,10 @@ const ONBOARDING_COPY={
   invoices:{
     en:{title:"Invoices",text:"Create and send invoices, then record the payment method your business accepts when the client pays."},
     es:{title:"Facturas",text:"Crea y envía facturas y registra la forma de pago que acepta tu negocio cuando el cliente pague."}
+  },
+  followups:{
+    en:{title:"Follow-ups",text:"See which leads, quotes, invoices, completed cleanings and past clients need the next touch."},
+    es:{title:"Seguimientos",text:"Mira qué leads, cotizaciones, facturas, limpiezas terminadas y clientes anteriores necesitan el próximo contacto."}
   },
   route:{
     en:{title:"Today’s Route",text:"See today’s stops in order so you and your team know where to go next."},
