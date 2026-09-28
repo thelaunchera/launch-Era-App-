@@ -5173,3 +5173,282 @@ body.shell-auth{overflow-anchor:none}
     padding:8px 12px;
   }
 }
+
+
+/* 2026-09-28 — Weather-style Today header v68 */
+#todayHeroCard .hero-assistant-meta{
+  position:relative;
+  align-items:flex-start!important;
+  gap:10px!important;
+  overflow:visible!important;
+}
+#todayHeroCard .hero-weather-compact{
+  display:grid!important;
+  grid-template-columns:1fr;
+  flex:0 1 250px;
+  width:min(250px,100%)!important;
+  max-width:250px!important;
+  min-width:190px;
+  padding:11px 12px!important;
+  border-radius:22px!important;
+  border:1px solid rgba(25,25,25,.10)!important;
+  background:rgba(255,255,255,.52)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  box-shadow:0 8px 24px rgba(25,25,25,.045)!important;
+}
+#todayHeroCard .hero-weather-compact .weather-module-top{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) 24px;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%;
+}
+#todayHeroCard .hero-weather-compact .weather-icon{
+  display:grid!important;
+  place-items:center;
+  width:42px!important;
+  height:42px!important;
+  flex-basis:42px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:31px!important;
+  filter:drop-shadow(0 4px 8px rgba(25,25,25,.08));
+}
+#todayHeroCard .hero-weather-compact .weather-now-copy{
+  display:grid!important;
+  gap:2px!important;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact #weatherLocation{
+  display:block!important;
+  color:#777169!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  letter-spacing:.10em!important;
+  text-transform:uppercase;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row>strong{
+  font-size:31px!important;
+  line-height:.95!important;
+  letter-spacing:-.055em!important;
+  color:#191919;
+}
+#todayHeroCard .weather-condition-stack{
+  display:grid;
+  gap:1px;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+  display:block!important;
+  max-width:104px!important;
+  font-size:10px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  color:#4E4943!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+  color:#706A63;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.2;
+  white-space:nowrap;
+}
+#todayHeroCard .hero-weather-compact .weather-open-hint{
+  width:24px!important;
+  height:24px!important;
+  flex-basis:24px!important;
+  align-self:start;
+  margin-top:1px;
+  font-size:11px!important;
+  border:0!important;
+  background:rgba(255,255,255,.72)!important;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note{
+  display:block!important;
+  margin-top:7px;
+  padding:7px 8px!important;
+  border-radius:11px!important;
+  border:0!important;
+  background:rgba(255,255,255,.44)!important;
+  color:#514C46;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note[hidden]{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note span{
+  display:block!important;
+  color:#514C46!important;
+  font-size:9px!important;
+  line-height:1.28!important;
+  font-weight:800;
+}
+#todayHeroCard .hero-weather-compact #weatherFeels,
+#todayHeroCard .hero-weather-compact .weather-forecast,
+#todayHeroCard .hero-weather-compact .weather-updated{
+  display:none!important;
+}
+
+#todayHeroCard .today-clock{
+  flex:0 0 auto;
+  min-width:106px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-left:auto;
+  margin-top:-7px;
+  padding:8px 10px;
+  border:1px solid rgba(25,25,25,.11);
+  border-radius:18px;
+  background:rgba(255,255,255,.44);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#191919;
+  box-shadow:0 6px 18px rgba(25,25,25,.035);
+}
+#todayHeroCard .today-clock-mark{
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  flex:0 0 27px;
+  border-radius:50%;
+  border:1px solid rgba(25,25,25,.12);
+  background:rgba(255,255,255,.62);
+  font-size:15px;
+  font-weight:900;
+}
+#todayHeroCard .today-clock-copy{
+  display:grid;
+  gap:1px;
+  min-width:0;
+}
+#todayHeroCard #todayClockTime{
+  font-size:12px;
+  line-height:1.05;
+  font-weight:900;
+  white-space:nowrap;
+}
+#todayHeroCard #todayDatePill{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#6E6961!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  line-height:1.15;
+  white-space:nowrap;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin-top:22px!important;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    display:grid!important;
+    grid-template-columns:60px minmax(0,1fr) auto;
+    gap:7px!important;
+    align-items:start!important;
+    min-height:86px;
+  }
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:60px;
+    height:48px;
+    flex-basis:60px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:9px 10px!important;
+    border-radius:18px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    grid-template-columns:35px minmax(0,1fr) 20px;
+    gap:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-icon{
+    width:35px!important;
+    height:35px!important;
+    flex-basis:35px!important;
+    font-size:26px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    gap:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong{
+    font-size:27px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:72px!important;
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:8px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact #weatherLocation{
+    font-size:7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-business-note{
+    margin-top:6px;
+    padding:6px 7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-business-note span{
+    font-size:8px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:88px;
+    margin-top:-10px;
+    padding:7px 8px;
+    gap:5px;
+    border-radius:16px;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    width:24px;
+    height:24px;
+    flex-basis:24px;
+    font-size:13px;
+  }
+  [data-page="today"] #todayHeroCard #todayClockTime{
+    font-size:10px;
+  }
+  [data-page="today"] #todayHeroCard #todayDatePill{
+    font-size:7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:2/4;
+    justify-self:start;
+    margin-top:0;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin-top:13px!important;
+  }
+}
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:55px minmax(0,1fr) 82px;
+    gap:5px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:82px;
+    padding:6px 7px;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    display:none;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:58px!important;
+  }
+}
