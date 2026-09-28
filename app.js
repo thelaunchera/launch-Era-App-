@@ -3204,8 +3204,15 @@ async function initialize(){
 
   await handleBillingReturn(params);
 
-  const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
-  state.publicLinks=linkSettings||null;
+  // Public-link settings are secondary UI data. Never let a slow mobile
+  // request hold the entire authenticated workspace on its loading skeleton.
+  try{
+    const linkSettingsResult=await withTimeout(supabase.rpc("get_my_public_link_settings"),"Public links",3500);
+    state.publicLinks=linkSettingsResult?.data||null;
+  }catch(err){
+    console.warn("[TLE] public links bootstrap",err);
+    state.publicLinks=null;
+  }
 
   showApp();
 
@@ -4044,8 +4051,19 @@ async function loadCoreData(){
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
   renderInvoices();
-  await loadInquirySeenState();
-  await loadInquiryReadIds();
+
+  // The core dashboard is ready at this point. Paint it immediately before
+  // notification metadata or other secondary requests so iPhone cold-launch
+  // can never leave real counts hidden behind the initial zero placeholders.
+  renderTodaySummary();
+  renderOperations();
+  renderSettings();
+  renderPublicLinks();
+
+  await Promise.all([
+    withTimeout(loadInquirySeenState(),"Notification state",3000).catch(err=>console.warn("[TLE] notification state bootstrap",err)),
+    withTimeout(loadInquiryReadIds(),"Notification reads",3000).catch(err=>console.warn("[TLE] notification reads bootstrap",err))
+  ]);
   renderInquiryNotifications();
   renderTodaySummary();
   renderOperations();
