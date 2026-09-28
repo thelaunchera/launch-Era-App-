@@ -93,10 +93,15 @@ const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
 function dismissSessionSplash(){
   if(!sessionSplash || sessionSplash.hidden) return;
+  // Never let the loading layer intercept taps once an auth/app screen is ready.
+  // The visual fade can continue, but interaction must be available immediately.
+  sessionSplash.style.pointerEvents="none";
+  sessionSplash.setAttribute("aria-hidden","true");
   sessionSplash.classList.add("is-leaving");
   setTimeout(()=>{
     sessionSplash.hidden=true;
     sessionSplash.classList.remove("is-leaving");
+    sessionSplash.style.pointerEvents="";
   },180);
 }
 
