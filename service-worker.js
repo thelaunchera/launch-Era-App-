@@ -1,13 +1,13 @@
-const CACHE_NAME="tle-cleaning-app-20260928-stable-94";
+const CACHE_NAME="tle-cleaning-app-20260928-stable-95";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260928-stable-94",
-  "./app.js?v=20260928-stable-94",
-  "./i18n.js?v=20260928-stable-94",
-  "./public.js?v=20260928-stable-94",
-  "./vendor/supabase.js?v=20260928-stable-94",
-  "./manifest.webmanifest?v=20260928-stable-94"
+  "./styles.css?v=20260928-stable-95",
+  "./app.js?v=20260928-stable-95",
+  "./i18n.js?v=20260928-stable-95",
+  "./public.js?v=20260928-stable-95",
+  "./vendor/supabase.js?v=20260928-stable-95",
+  "./manifest.webmanifest?v=20260928-stable-95"
 ];
 
 self.addEventListener("install",event=>{
