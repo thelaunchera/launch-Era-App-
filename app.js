@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-61";
+const APP_VERSION = "20260927-unified-62";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -49,6 +49,7 @@ const state = {
   services: [],
   serviceAddons: [],
   availabilityRules: [],
+  recurrenceRules: [],
   supplies: [],
   jobs: [],
   quotes: [],
@@ -3568,18 +3569,37 @@ async function loadCoreData(){
   renderBookingServices();
   renderAvailabilityEditor();
 
-  const [jobs,quotes,team,supplies,disputes]=await Promise.all([
+  const [jobs,quotes,team,supplies,disputes,recurrences]=await Promise.all([
     safe("jobs",supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),state.jobs),
     safe("quotes",supabase.from("quotes").select("*, quote_items(*)").eq("business_id",businessId).order("created_at",{ascending:false}),state.quotes),
     safe("team",supabase.from("team_members").select("*").eq("business_id",businessId).eq("active",true).order("name"),state.teamMembers),
     safe("supplies",supabase.from("supplies").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.supplies),
-    safe("customer disputes",supabase.from("customer_disputes").select("*").eq("business_id",businessId).order("created_at",{ascending:false}),state.disputes)
+    safe("customer disputes",supabase.from("customer_disputes").select("*").eq("business_id",businessId).order("created_at",{ascending:false}),state.disputes),
+    safe("recurring schedules",supabase.from("recurrence_rules").select("*").eq("business_id",businessId).order("starts_on",{ascending:true}),state.recurrenceRules)
   ]);
   state.jobs=jobs;
   state.quotes=quotes;
   state.teamMembers=team;
   state.supplies=supplies;
   state.disputes=disputes;
+  state.recurrenceRules=recurrences;
+
+  if(["owner","admin"].includes(String(state.business?.role||"")) && state.recurrenceRules.some(r=>r.active)){
+    try{
+      const added=await ensureRecurringJobHorizon();
+      if(added>0){
+        const refreshed=await safe(
+          "recurring jobs refresh",
+          supabase.from("jobs").select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))").eq("business_id",businessId).order("starts_at",{ascending:true}),
+          state.jobs
+        );
+        state.jobs=refreshed;
+      }
+    }catch(err){
+      console.warn("[TLE] recurring schedule refresh",err);
+    }
+  }
+
   renderJobs();
   renderQuotes();
   renderTeam();
@@ -4137,7 +4157,7 @@ function renderJobs(){
   if(recurring){
     const upcoming=visible.filter(j=>j.recurrence_rule_id&&new Date(j.starts_at)>=new Date()).slice(0,8);
     recurring.innerHTML=upcoming.length?upcoming.map(j=>`
-      <div class="recurring-item"><strong>${escapeHtml(j.clients?.name||"Recurring job")}</strong><span>${escapeHtml(j.services?.name||"Cleaning")} · ${formatDateTime(j.starts_at)}</span></div>
+      <div class="recurring-item" data-calendar-job="${j.id}" role="button" tabindex="0"><strong>${escapeHtml(j.clients?.name||"Recurring job")}</strong><span>${escapeHtml(j.services?.name||"Cleaning")} · ${formatDateTime(j.starts_at)}</span></div>
     `).join(""):`<div class="empty-inline"><strong>No recurring jobs yet.</strong><span>Recurring appointments will appear here.</span></div>`;
   }
 }
@@ -5483,6 +5503,114 @@ async function initializePublicRequest(mode,slug){
   };
 }
 
+
+function clientServiceAddress(client){
+  if(!client) return "";
+  return [client.address_line1,client.address_line2,client.city,client.state,client.postal_code].filter(Boolean).join(", ");
+}
+
+function recurrencePatternConfig(pattern){
+  if(pattern==="weekly") return {frequency:"weekly",interval_count:1};
+  if(pattern==="biweekly") return {frequency:"biweekly",interval_count:1};
+  if(pattern==="every_4_weeks") return {frequency:"weekly",interval_count:4};
+  if(pattern==="monthly") return {frequency:"monthly",interval_count:1};
+  return null;
+}
+
+function recurrencePatternFromRule(rule){
+  if(!rule) return "one_time";
+  if(rule.frequency==="monthly") return "monthly";
+  if(rule.frequency==="biweekly") return "biweekly";
+  if(rule.frequency==="weekly" && Number(rule.interval_count||1)===4) return "every_4_weeks";
+  if(rule.frequency==="weekly") return "weekly";
+  return "one_time";
+}
+
+function recurrenceDateForIndex(startsOn,rule,index){
+  const parts=String(startsOn||"").split("-").map(Number);
+  if(parts.length!==3 || parts.some(Number.isNaN)) return "";
+  const [year,month,day]=parts;
+  const interval=Math.max(1,Number(rule?.interval_count||1));
+  if(rule?.frequency==="monthly"){
+    const monthIndex=(month-1)+(index*interval);
+    const targetYear=year+Math.floor(monthIndex/12);
+    const targetMonth=((monthIndex%12)+12)%12;
+    const lastDay=new Date(targetYear,targetMonth+1,0).getDate();
+    const d=new Date(targetYear,targetMonth,Math.min(day,lastDay));
+    return tleCalendarDateKey(d);
+  }
+  const stepDays=rule?.frequency==="biweekly" ? 14*interval : 7*interval;
+  const d=new Date(year,month-1,day+(index*stepDays));
+  return tleCalendarDateKey(d);
+}
+
+async function ensureRecurringJobHorizon(){
+  if(!state.business || !["owner","admin"].includes(String(state.business.role||""))) return 0;
+  const now=new Date();
+  const horizon=new Date(now);
+  horizon.setDate(horizon.getDate()+180);
+  const todayKey=tleCalendarDateKey(now);
+  let added=0;
+
+  for(const rule of state.recurrenceRules.filter(r=>r.active)){
+    const series=state.jobs
+      .filter(j=>j.recurrence_rule_id===rule.id)
+      .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+    if(!series.length) continue;
+
+    const template=series[0];
+    const local=zonedDateTimeParts(template.starts_at);
+    const teamId=template.job_assignments?.[0]?.team_member_id||null;
+    const existingSlots=new Set(series.map(j=>String(j.recurrence_occurrence_date||"")).filter(Boolean));
+    const seriesLimit=rule.ends_on && rule.ends_on<tleCalendarDateKey(horizon) ? rule.ends_on : tleCalendarDateKey(horizon);
+
+    for(let index=0; index<160; index++){
+      const dateKey=recurrenceDateForIndex(rule.starts_on,rule,index);
+      if(!dateKey || dateKey>seriesLimit) break;
+      if(dateKey<todayKey || existingSlots.has(dateKey)) continue;
+
+      const startsIso=businessLocalDateTimeToIso(dateKey,local.time);
+      const payload={
+        business_id:state.business.id,
+        client_id:template.client_id||null,
+        service_id:template.service_id||null,
+        recurrence_rule_id:rule.id,
+        recurrence_occurrence_date:dateKey,
+        status:"scheduled",
+        service_address:template.service_address,
+        starts_at:startsIso,
+        duration_minutes:Number(template.duration_minutes),
+        travel_buffer_before_minutes:Number(template.travel_buffer_before_minutes||0),
+        travel_buffer_after_minutes:Number(template.travel_buffer_after_minutes||0),
+        notes:template.notes||null
+      };
+
+      const {data,error}=await supabase.from("jobs").insert(payload).select("id").single();
+      if(error){
+        if(error.code==="23505") continue;
+        throw error;
+      }
+      existingSlots.add(dateKey);
+      added++;
+      if(teamId){
+        const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+          p_job_id:data.id,
+          p_team_member_id:teamId
+        });
+        if(assignmentError) console.warn("[TLE] recurring assignment",assignmentError);
+      }
+    }
+  }
+  return added;
+}
+
+function syncRecurrenceControls(){
+  const select=entityForm?.querySelector('[name="recurrence_pattern"]');
+  const options=entityForm?.querySelector("[data-recurrence-options]");
+  if(!select || !options) return;
+  options.hidden=select.value==="one_time";
+}
+
 function optionList(items,valueKey,labelKey,selected){
   return items.map(item=>`<option value="${escapeHtml(item[valueKey])}" ${item[valueKey]===selected?"selected":""}>${escapeHtml(item[labelKey])}</option>`).join("");
 }
@@ -5634,10 +5762,11 @@ function openEntityForm(type,id=null){
     const localParts=record?.starts_at?zonedDateTimeParts(record.starts_at):{date:"",time:""};
     const date=localParts.date;
     const time=localParts.time;
-    modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration and travel buffer.");
+    const recurrenceRule=record?.recurrence_rule_id?state.recurrenceRules.find(r=>r.id===record.recurrence_rule_id):null;
+    modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration, travel buffer and an optional recurring schedule.");
     entityForm.innerHTML=`
       <div class="form-grid">
-        <label>Client<select name="client_id"><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
+        <label>Client<select name="client_id" data-job-client-picker><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
         <label>Service<select name="service_id"><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
         <label>Assigned teammate<select name="team_member_id"><option value="">Unassigned</option>${optionList(state.teamMembers,"id","name",record?.job_assignments?.[0]?.team_member_id)}</select></label>
         <label>Date<input name="date" type="date" required value="${date}"></label>
@@ -5645,19 +5774,45 @@ function openEntityForm(type,id=null){
         <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||120}"></label>
         <label>Travel buffer (minutes)<input name="travel_buffer" type="number" min="0" step="5" value="${record?.travel_buffer_before_minutes??state.business.default_travel_buffer_minutes??30}"></label>
         <label class="full">Service address<input name="service_address" required value="${escapeHtml(record?.service_address||"")}"></label>
+        ${!record?`
+          <label class="full">Repeat
+            <select name="recurrence_pattern" data-recurrence-pattern>
+              <option value="one_time">Does not repeat</option>
+              <option value="weekly">Every week</option>
+              <option value="biweekly">Every 2 weeks</option>
+              <option value="every_4_weeks">Every 4 weeks</option>
+              <option value="monthly">Every month</option>
+            </select>
+          </label>
+          <div class="recurrence-options full" data-recurrence-options hidden>
+            <label>End date <span class="field-optional">optional</span><input name="recurrence_ends_on" type="date"></label>
+            <p>Leave the end date blank to keep the schedule ongoing. Future visits are kept generated automatically.</p>
+          </div>
+        `:recurrenceRule?`
+          <div class="recurrence-existing-note full">
+            <strong>Recurring job · ${escapeHtml(recurrencePatternFromRule(recurrenceRule).replaceAll("_"," "))}</strong>
+            <span>You are editing this visit only. The recurring schedule stays active.</span>
+          </div>
+        `:""}
         <label>Status<select name="status">
           ${["scheduled","on_the_way","in_progress","completed","canceled","no_show"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v.replaceAll("_"," ")}</option>`).join("")}
         </select></label>
         <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
       </div>${formSubmit(record?"Save changes":"Add job")}`;
+    syncRecurrenceControls();
   }
 
   if(type==="quote"){
     const item=record?.quote_items?.[0];
-    modalHeader("QUOTE",record?"Edit quote":"Create quote","A quote stays here until it is accepted. Acceptance creates the client, job and invoice.");
+    modalHeader("QUOTE",record?"Edit quote":"Create quote","Use an existing client or enter a new customer. The quote stays here until it is accepted.");
     entityForm.innerHTML=`
       <div class="form-grid">
-        <input type="hidden" name="client_id" value="${escapeHtml(record?.client_id||"")}">
+        <label class="full">Existing client
+          <select name="client_id" data-quote-client-picker>
+            <option value="">New customer / enter manually</option>
+            ${optionList(state.clients,"id","name",record?.client_id)}
+          </select>
+        </label>
         <label>Name<input name="customer_name" required value="${escapeHtml(record?.customer_name||"")}"></label>
         <label>Email<input name="customer_email" type="email" required value="${escapeHtml(record?.customer_email||"")}"></label>
         <label>Phone<input name="customer_phone" value="${escapeHtml(record?.customer_phone||"")}"></label>
@@ -5728,6 +5883,38 @@ async function saveFeedback(fd){
   if(!data?.submitted) throw new Error(data?.error||"Could not send feedback.");
   return data;
 }
+
+entityForm.addEventListener("change",e=>{
+  const quoteClient=e.target.closest?.("[data-quote-client-picker]");
+  if(quoteClient){
+    const client=state.clients.find(c=>c.id===quoteClient.value);
+    if(client){
+      const fields={
+        customer_name:client.name||"",
+        customer_email:client.email||"",
+        customer_phone:client.phone||"",
+        service_address:clientServiceAddress(client)
+      };
+      Object.entries(fields).forEach(([name,value])=>{
+        const input=entityForm.querySelector(`[name="${name}"]`);
+        if(input) input.value=value;
+      });
+    }
+    return;
+  }
+
+  const jobClient=e.target.closest?.("[data-job-client-picker]");
+  if(jobClient){
+    const client=state.clients.find(c=>c.id===jobClient.value);
+    const address=entityForm.querySelector('[name="service_address"]');
+    if(client && address && !String(address.value||"").trim()) address.value=clientServiceAddress(client);
+    return;
+  }
+
+  if(e.target.closest?.("[data-recurrence-pattern]")){
+    syncRecurrenceControls();
+  }
+});
 
 entityForm.addEventListener("submit",async e=>{
   e.preventDefault();
@@ -6043,7 +6230,17 @@ async function saveMileage(fd){
 }
 
 async function saveJob(fd){
-  const startsIso=businessLocalDateTimeToIso(fd.get("date"),fd.get("time"));
+  const date=String(fd.get("date")||"");
+  const time=String(fd.get("time")||"");
+  const startsIso=businessLocalDateTimeToIso(date,time);
+  const recurrencePattern=String(fd.get("recurrence_pattern")||"one_time");
+  const recurrenceConfig=!state.modalId?recurrencePatternConfig(recurrencePattern):null;
+  const recurrenceEndsOn=String(fd.get("recurrence_ends_on")||"").trim()||null;
+
+  if(recurrenceConfig && recurrenceEndsOn && recurrenceEndsOn<date){
+    throw new Error("Recurring end date cannot be before the first job.");
+  }
+
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id")||null,
@@ -6057,13 +6254,36 @@ async function saveJob(fd){
     notes:String(fd.get("notes")||"").trim()||null
   };
 
-  let result;
-  if(state.modalId){
-    result=await supabase.from("jobs").update(payload).eq("id",state.modalId).select("id").single();
-  }else{
-    result=await supabase.from("jobs").insert(payload).select("id").single();
+  let recurrenceRuleId=null;
+  if(recurrenceConfig){
+    const {data:rule,error:ruleError}=await supabase.from("recurrence_rules").insert({
+      business_id:state.business.id,
+      frequency:recurrenceConfig.frequency,
+      interval_count:recurrenceConfig.interval_count,
+      starts_on:date,
+      ends_on:recurrenceEndsOn,
+      active:true
+    }).select("id").single();
+    if(ruleError) throw ruleError;
+    recurrenceRuleId=rule.id;
+    payload.recurrence_rule_id=recurrenceRuleId;
+    payload.recurrence_occurrence_date=date;
   }
-  if(result.error) throw result.error;
+
+  let result;
+  try{
+    if(state.modalId){
+      result=await supabase.from("jobs").update(payload).eq("id",state.modalId).select("id").single();
+    }else{
+      result=await supabase.from("jobs").insert(payload).select("id").single();
+    }
+    if(result.error) throw result.error;
+  }catch(err){
+    if(recurrenceRuleId){
+      await supabase.from("recurrence_rules").delete().eq("id",recurrenceRuleId);
+    }
+    throw err;
+  }
 
   const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
     p_job_id:result.data.id,
