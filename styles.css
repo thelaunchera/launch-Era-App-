@@ -6962,3 +6962,57 @@ body.shell-auth{overflow-anchor:none}
   -webkit-tap-highlight-color:transparent;
 }
 .public-request-tab:active{transform:scale(.985)}
+
+
+/* Booking requests: mobile-safe actions and visible client linkage */
+.booking-request-copy{min-width:0}
+.booking-linked-client{
+  display:block;
+  margin-top:6px;
+  color:#3f6750!important;
+  font-size:11px!important;
+  line-height:1.35;
+}
+.booking-request-actions{
+  gap:8px!important;
+}
+.booking-request-actions .booking-action{
+  min-height:44px;
+  padding:10px 14px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+  line-height:1.1;
+}
+.booking-request-actions .booking-action-primary{
+  background:var(--green)!important;
+  color:#245A36!important;
+}
+.booking-request-actions .booking-action-client{
+  background:var(--ink)!important;
+  color:#fff!important;
+}
+@media(max-width:620px){
+  .booking-request-row{
+    padding:16px!important;
+    gap:14px!important;
+  }
+  .booking-request-row>.record-actions.booking-request-actions{
+    width:100%;
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:10px!important;
+  }
+  .booking-request-actions .status{
+    grid-column:1/-1;
+    justify-self:start;
+  }
+  .booking-request-actions .booking-action{
+    width:100%;
+    min-height:50px;
+    padding:12px 14px!important;
+    font-size:14px!important;
+  }
+  .booking-request-actions .booking-action-primary{
+    grid-column:1/-1;
+  }
+}
