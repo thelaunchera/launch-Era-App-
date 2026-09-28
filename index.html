@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-stable-106" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-stable-107" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -563,17 +563,35 @@
         </div>
 
         <div class="booking-grid">
-          <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share anywhere</h3></div></div>
+          <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share your booking page</h3></div></div>
             <label class="field-label">Booking link</label>
             <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
             <label class="field-label">Quote request link</label>
             <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy</button></div>
           </article>
 
-          <article class="panel">
+          <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Requests waiting for review</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
+            <div id="bookingRequestsList" class="booking-requests-list"></div>
+          </article>
+
+          <article class="panel full">
+            <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>What clients can book</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
+            <div id="bookingServicesList" class="booking-services-list"></div>
+          </article>
+
+          <article class="panel full booking-experience-compact">
+            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Simple booking flow</h3></div><span class="pill blue">No account required</span></div>
+            <div class="flow-row compact-flow">
+              <span>Service</span><b>→</b><span>Time</span><b>→</b><span>Details</span><b>→</b><span>Confirm</span>
+            </div>
+            <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Other</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
+          </article>
+
+          <article class="panel full availability-compact">
             <div class="panel-head">
-              <div><p class="eyebrow">AVAILABILITY</p><h3>Only show real openings</h3></div>
+              <div><p class="eyebrow">AVAILABILITY</p><h3>When clients can book</h3></div>
               <button class="text-btn" id="saveAvailabilityBtn">Save</button>
             </div>
             <div class="availability-settings">
@@ -586,7 +604,7 @@
                   <option value="60">60 min</option>
                 </select>
               </label>
-              <label>Minimum booking notice
+              <label>Minimum notice
                 <select id="bookingNoticeHours">
                   <option value="0">Same-day allowed</option>
                   <option value="2">2 hours</option>
@@ -597,29 +615,7 @@
               </label>
             </div>
             <div class="availability-week" id="availabilityWeek"></div>
-            <p class="helper">If a day is off, clients will never see slots on that day. Service duration, add-ons, travel buffer, scheduled jobs and pending requests are all checked before a time is shown.</p>
-          </article>
-
-          <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Requests waiting for review</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
-            <div id="bookingRequestsList" class="booking-requests-list"></div>
-          </article>
-
-          <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>Services + add-ons shown to clients</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
-            <div id="bookingServicesList" class="booking-services-list"></div>
-          </article>
-
-          <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">CLIENT EXPERIENCE</p><h3>What the customer sees</h3></div><span class="pill blue">No account required</span></div>
-            <div class="flow-row">
-              <span>Choose service</span><b>→</b><span>Pick available time</span><b>→</b><span>Enter details</span><b>→</b><span>Review</span><b>→</b><span>Booking / Quote</span>
-            </div>
-            <div class="mini-settings">
-              <div><strong>Preferred contact</strong><span>Email · Text · WhatsApp</span></div>
-              <div><strong>Payment methods</strong><span id="bookingPaymentMethods">Cash · Check · Other</span></div>
-              <div><strong>Quote behavior</strong><span>Request stays in Quotes until accepted</span></div>
-            </div>
+            <p class="helper">Clients only see times that fit your hours, service length, travel buffer and existing bookings.</p>
           </article>
         </div>
       </section>
@@ -649,7 +645,7 @@
               <span class="calendar-range-pill">14 days</span>
             </div>
             <div class="week-row two-week-calendar" id="calendarWeekRow"></div>
-            <div class="calendar-jobs-heading"><strong>Upcoming jobs</strong><span>Tap Edit to change a job.</span></div>
+            <div class="calendar-jobs-heading"><strong>Upcoming jobs</strong><span>Recurring series are shown once in Recurring.</span></div>
             <div id="jobsList" class="jobs-list"></div>
           </article>
           <article class="panel">
@@ -1152,7 +1148,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-stable-106";
+    window.__tleShellVersion="20260928-stable-107";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1171,10 +1167,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-stable-106"></script>
-  <script src="./i18n.js?v=20260928-stable-106"></script>
-  <script src="./public.js?v=20260928-stable-106"></script>
-  <script src="./app.js?v=20260928-stable-106"></script>
-  <script src="./followups.js?v=20260928-stable-106"></script>
+  <script src="./vendor/supabase.js?v=20260928-stable-107"></script>
+  <script src="./i18n.js?v=20260928-stable-107"></script>
+  <script src="./public.js?v=20260928-stable-107"></script>
+  <script src="./app.js?v=20260928-stable-107"></script>
+  <script src="./followups.js?v=20260928-stable-107"></script>
 </body>
 </html>
