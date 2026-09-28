@@ -1704,7 +1704,9 @@ document.addEventListener("keydown",e=>{
 });
 const sidebarScrim=$("#sidebarScrim");
 function setSidebarOpen(open){
-  const shouldOpen=!!open && window.matchMedia("(max-width: 860px)").matches;
+  const isMobileNav=window.innerWidth<=860 || window.matchMedia("(max-width: 860px)").matches;
+  const shouldOpen=!!open && isMobileNav;
+  if(!sidebar) return;
   sidebar.classList.toggle("open",shouldOpen);
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
   document.body.classList.toggle("sidebar-is-open",shouldOpen);
