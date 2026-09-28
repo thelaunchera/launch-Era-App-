@@ -79,7 +79,11 @@ try{
       throw new Error(profile.name+": welcome-first auth screen failed: "+JSON.stringify(welcomeState));
     }
 
-    // Dispatch the same user interaction path without relying on Puppeteer's\n    // coordinate click on an animated mobile welcome CTA. The delegated app\n    // click handler is what this gate needs to verify.\n    await page.evaluate(()=>document.querySelector("#authWelcomeStart")?.click());\n    await page.waitForFunction(()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
+    // Dispatch the same user interaction path without relying on Puppeteer's
+    // coordinate click on an animated mobile welcome CTA. The delegated app
+    // click handler is what this gate needs to verify.
+    await page.evaluate(()=>document.querySelector("#authWelcomeStart")?.click());
+    await page.waitForFunction(()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
@@ -120,7 +124,10 @@ try{
     if(layout.scrollWidth>layout.innerWidth+4) throw new Error(profile.name+": horizontal overflow "+layout.scrollWidth+" > "+layout.innerWidth);
     if(layout.appError) throw new Error(profile.name+": app boot error "+layout.appError);
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
-    // The auth panel animates on mobile, so verify the delegated switch action\n    // without making the release gate depend on a transient clickable point.\n    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());\n    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
+    // The auth panel animates on mobile, so verify the delegated switch action
+    // without making the release gate depend on a transient clickable point.
+    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
       window.__tleSmokeAuthSubmitClicked=false;
       const btn=document.querySelector("#authSubmit");
@@ -131,7 +138,24 @@ try{
         event.stopImmediatePropagation();
       },{once:true,capture:true});
     });
-    // Wait for the splash fade and auth panel layout to settle before the\n    // physical tap gate. This preserves the real hit-test instead of masking it.\n    await page.waitForFunction(()=>{\n      const splash=document.querySelector("#sessionSplash");\n      const btn=document.querySelector("#authSubmit");\n      if(!btn) return false;\n      const r=btn.getBoundingClientRect();\n      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") && r.width>0 && r.height>0;\n    },{timeout:3000});\n    const submitHit=await page.evaluate(()=>{\n      const btn=document.querySelector("#authSubmit");\n      if(!btn) return {ok:false,reason:"missing"};\n      const r=btn.getBoundingClientRect();\n      const x=r.left+r.width/2;\n      const y=r.top+r.height/2;\n      const hit=document.elementFromPoint(x,y);\n      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};\n    });
+    // Wait for the splash fade and auth panel layout to settle before the
+    // physical tap gate. This preserves the real hit-test instead of masking it.
+    await page.waitForFunction(()=>{
+      const splash=document.querySelector("#sessionSplash");
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) return false;
+      const r=btn.getBoundingClientRect();
+      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") && r.width>0 && r.height>0;
+    },{timeout:3000});
+    const submitHit=await page.evaluate(()=>{
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) return {ok:false,reason:"missing"};
+      const r=btn.getBoundingClientRect();
+      const x=r.left+r.width/2;
+      const y=r.top+r.height/2;
+      const hit=document.elementFromPoint(x,y);
+      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};
+    });
     if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
     if(profile.viewport.hasTouch){
       await page.touchscreen.tap(submitHit.x,submitHit.y);
