@@ -7498,3 +7498,7 @@ body.shell-auth{overflow-anchor:none}
     margin-top:26px!important;
   }
 }
+
+/* 2026-09-28 — public app brand link v124 */
+.public-app-home{color:inherit;text-decoration:none;cursor:pointer}
+.public-app-home:focus-visible{outline:3px solid rgba(25,25,25,.18);outline-offset:5px;border-radius:12px}
