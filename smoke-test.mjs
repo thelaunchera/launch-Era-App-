@@ -103,8 +103,11 @@ if(app.includes("Date.now()-savedAt>OWNER_IDLE_MS")){
 if(!app.includes("isPermanentSessionRestoreError") || !app.includes("invalid refresh token") || !app.includes("clearOwnerSessionBackup();")){
   throw new Error("Session regression: permanently invalid Supabase refresh tokens must still be discarded");
 }
-if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.localStorage")){
-  throw new Error("Session regression: Supabase persistent browser auth configuration is missing");
+if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:resilientAuthStorage")){
+  throw new Error("Session regression: Supabase resilient persistent auth configuration is missing");
+}
+if(!app.includes("window.localStorage.getItem(key)") || !app.includes("authDbGet(key)") || !app.includes("indexedDB.open(TLE_AUTH_DB")){
+  throw new Error("Session regression: iPhone IndexedDB auth fallback is missing");
 }
 if(!app.includes("dashboardWeatherContext") || !app.includes("weatherPlaceLabel")){
   throw new Error("Dashboard regression: contextual service-area weather is missing");
