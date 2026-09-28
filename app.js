@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-114";
+const APP_VERSION = "20260928-stable-115";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4484,7 +4484,7 @@ function renderServices(){
         <span>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${escapeHtml(s.pricing_type)}</span>
         <b>${s.pricing_type==="quote"?"Quote":money(s.base_price)}</b>
         <div class="addon-list">
-          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>Included by default · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
         </div>
         <div class="card-actions">
           <button data-edit="service" data-id="${s.id}">Edit service</button>
@@ -5997,7 +5997,19 @@ async function initializePublicRequest(mode,slug){
   function renderPublicAddons(){
     const selected=services.find(s=>s.id===serviceSelect.value);
     const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
-    addonBox.innerHTML=available.length?available.map(a=>`<label class="addon-choice"><input type="checkbox" name="addon" value="${escapeHtml(a.id)}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small></span></label>`).join(""):'<span class="muted-line">No add-ons for this service.</span>';
+    addonBox.innerHTML=available.length
+      ? `<div class="public-addon-note"><strong>Included with this service</strong><span>Service add-ons are selected automatically. Uncheck anything this job does not need.</span></div>`+
+        available.map(a=>{
+          const includedByDefault=Boolean(selected && a.service_id===selected.id);
+          return `<label class="addon-choice ${includedByDefault?"addon-default":""}">
+            <input type="checkbox" name="addon" value="${escapeHtml(a.id)}" ${includedByDefault?"checked":""}>
+            <span>
+              <strong>${escapeHtml(a.name)}</strong>
+              <small>${includedByDefault?"Included by default · ":"Optional · "}+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small>
+            </span>
+          </label>`;
+        }).join("")
+      : '<span class="muted-line">No add-ons for this service.</span>';
     updatePublicSummary();
   }
 
@@ -6361,7 +6373,7 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="addon"){
-    modalHeader("ADD-ON",record?"Edit add-on":"Add add-on","Set the extra price and extra time this option adds to a cleaning.");
+    modalHeader("ADD-ON",record?"Edit add-on":"Add add-on","Assign it to a service to include it automatically. It can still be removed for any individual booking.");
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>Service<select name="service_id"><option value="">General / all services</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
