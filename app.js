@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260927-unified-60";
+const APP_VERSION = "20260927-unified-61";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3375,9 +3375,18 @@ function renderInquiryNotifications(){
   const unreadItems=items.filter(item=>!isInquiryNotificationRead(item));
   const unread=unreadItems.length;
 
+  const previousUnread=Number(button.dataset.unreadCount||0);
   badge.textContent=unread>99?"99+":String(unread);
   badge.hidden=unread===0;
   button.classList.toggle("has-notifications",unread>0);
+  button.dataset.unreadCount=String(unread);
+  if(unread>previousUnread){
+    button.classList.remove("notification-arrived");
+    void button.offsetWidth;
+    button.classList.add("notification-arrived");
+    clearTimeout(window.__tleNotificationMotionTimer);
+    window.__tleNotificationMotionTimer=setTimeout(()=>button.classList.remove("notification-arrived"),1700);
+  }
   button.setAttribute("aria-label",unread
     ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" novas notificações",unread+" nouvelles notifications")
     : langPick("Notifications","Notificaciones","Notificações","Notifications"));
@@ -3984,6 +3993,7 @@ function renderClients(){
       <div class="card-actions record-card-actions client-card-actions">
         <span class="safe-actions">
           <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
+          <button data-client-to-quote="${c.id}">${escapeHtml(tr("Quote"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
         </span>
         <button class="record-delete-btn" data-delete-record="client" data-id="${c.id}">${escapeHtml(tr("Delete client"))}</button>
@@ -5520,6 +5530,7 @@ function openEntityForm(type,id=null){
     modalHeader("QUOTE",record?"Edit quote":"Create quote","A quote stays here until it is accepted. Acceptance creates the client, job and invoice.");
     entityForm.innerHTML=`
       <div class="form-grid">
+        <input type="hidden" name="client_id" value="${escapeHtml(record?.client_id||"")}">
         <label>Name<input name="customer_name" required value="${escapeHtml(record?.customer_name||"")}"></label>
         <label>Email<input name="customer_email" type="email" required value="${escapeHtml(record?.customer_email||"")}"></label>
         <label>Phone<input name="customer_phone" value="${escapeHtml(record?.customer_phone||"")}"></label>
@@ -5945,6 +5956,7 @@ async function saveQuote(fd){
   // Do not label a quote as sent until its customer email workflow succeeds.
   const payload={
     business_id:state.business.id,
+    client_id:fd.get("client_id")||current?.client_id||null,
     customer_name:String(fd.get("customer_name")).trim(),
     customer_email:String(fd.get("customer_email")).trim(),
     customer_phone:String(fd.get("customer_phone")||"").trim()||null,
@@ -6440,6 +6452,21 @@ document.addEventListener("click",async e=>{
     openEntityForm("quote");
     setTimeout(()=>{
       [["customer_name",lead?.name],["customer_email",lead?.email],["customer_phone",lead?.phone],["service_address",lead?.address]].forEach(([n,v])=>{const el=entityForm.querySelector(`[name="${n}"]`);if(el&&v)el.value=v;});
+    },0);
+    return;
+  }
+
+  const clientQuote=e.target.closest("[data-client-to-quote]");
+  if(clientQuote){
+    const client=state.clients.find(c=>c.id===clientQuote.dataset.clientToQuote);
+    if(!client){ showToast(langPick("Client not found","Cliente no encontrado","Cliente não encontrado","Client introuvable")); return; }
+    openEntityForm("quote");
+    setTimeout(()=>{
+      const address=[client.address_line1,client.city,client.state,client.postal_code].filter(Boolean).join(", ");
+      [["client_id",client.id],["customer_name",client.name],["customer_email",client.email],["customer_phone",client.phone],["service_address",address]].forEach(([n,v])=>{
+        const el=entityForm.querySelector(`[name="${n}"]`);
+        if(el&&v) el.value=v;
+      });
     },0);
     return;
   }
