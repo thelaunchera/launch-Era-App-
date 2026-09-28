@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-66";
+const APP_VERSION = "20260928-unified-67";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -546,31 +546,47 @@ function weatherDayLabel(dateString,currentDateString){
   if(dateString===tomorrow.toISOString().slice(0,10)) return langPick("Tomorrow","Mañana","Amanhã","Demain");
   return new Intl.DateTimeFormat(appLocale(),{weekday:"short",timeZone:"UTC"}).format(d);
 }
-function nextRainWindow(weather){
+function precipitationKindForCode(code){
+  const n=Number(code);
+  if([71,73,75,77,85,86].includes(n)) return "snow";
+  if([95,96,99].includes(n)) return "storm";
+  if([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(n)) return "rain";
+  return "";
+}
+function nextPrecipitationWindow(weather){
   const times=weather&&weather.hourly&&weather.hourly.time||[];
   const probs=weather&&weather.hourly&&weather.hourly.precipitation_probability||[];
+  const codes=weather&&weather.hourly&&weather.hourly.weather_code||[];
   if(!times.length) return null;
   const current=String(weather&&weather.current&&weather.current.time||"").slice(0,13);
-  let start=Math.max(0,times.findIndex(function(t){return String(t).slice(0,13)>=current;}));
+  let start=times.findIndex(function(t){return String(t).slice(0,13)>=current;});
   if(start<0) start=0;
   const end=Math.min(times.length,start+72);
   for(let i=start;i<end;i++){
     const probability=Number(probs[i]||0);
-    if(probability>=55){
+    let kind=precipitationKindForCode(codes[i]);
+    if(!kind && probability>=55) kind="rain";
+    if(kind && probability>=35){
       const stamp=String(times[i]);
       return {
+        kind,
+        icon:kind==="snow"?"🌨️":kind==="storm"?"⛈️":"🌧️",
         time:stamp,
         date:stamp.slice(0,10),
         hour:Number(stamp.slice(11,13)),
-        probability:probability,
+        probability,
         hoursAhead:i-start
       };
     }
   }
   return null;
 }
+function nextRainWindow(weather){
+  const event=nextPrecipitationWindow(weather);
+  return event&&event.kind==="rain"?event:null;
+}
 function weatherCacheKey(area){
-  return "tle_weather_v2:"+businessTemperatureUnit()+":"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
+  return "tle_weather_v3:"+businessTemperatureUnit()+":"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
 }
 async function fetchJsonWithTimeout(url,ms=5500){
   const controller=new AbortController();
@@ -707,6 +723,8 @@ async function loadBusinessWeather(force=false){
       const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
       if(cached&&cached.weather&&cached.fetchedAt&&now-cached.fetchedAt<15*60*1000){
         state.weather=cached.weather;
+        state.weather.nextPrecip=nextPrecipitationWindow(state.weather);
+        state.weather.nextRain=state.weather.nextPrecip?.kind==="rain"?state.weather.nextPrecip:null;
         state.weatherArea=area;
         state.weatherFetchedAt=cached.fetchedAt;
         renderWeatherBrief();
@@ -736,7 +754,8 @@ async function loadBusinessWeather(force=false){
     });
     const weather=await fetchJsonWithTimeout("https://api.open-meteo.com/v1/forecast?"+params.toString());
     weather.location=geo;
-    weather.nextRain=nextRainWindow(weather);
+    weather.nextPrecip=nextPrecipitationWindow(weather);
+    weather.nextRain=weather.nextPrecip?.kind==="rain"?weather.nextPrecip:null;
     state.weather=weather;
     state.weatherArea=area;
     state.weatherFetchedAt=Date.now();
@@ -829,7 +848,7 @@ function renderWeatherBrief(){
   const meta=weatherCodeMeta(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
   const feels=Math.round(Number(weather.current.apparent_temperature));
-  const rain=weather.nextRain;
+  const rain=weather.nextPrecip||weather.nextRain;
   const currentDate=String(weather.current.time||"").slice(0,10);
   const location=weather.location||{};
   const lang=appLanguage();
@@ -4544,43 +4563,55 @@ function dashboardWeatherContext(now,remainingJobs){
   const place=weatherPlaceLabel();
   const code=Number(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
-  const rain=weather.nextRain||null;
-  const currentRain=[51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(code)||Number(weather.current.precipitation||0)>0;
-  const storm=[95,96,99].includes(code);
-  if(currentRain){
-    const base=storm
-      ? langPick("Storms are affecting","Hay tormentas","Há tempestades em","Des orages touchent")
+  const currentKind=precipitationKindForCode(code);
+  const event=weather.nextPrecip||nextPrecipitationWindow(weather);
+  const currentDate=String(weather.current.time||"").slice(0,10);
+
+  if(currentKind){
+    const base=currentKind==="snow"
+      ? langPick("Snow is affecting","Está nevando en","Está nevando em","Il neige à")
+      : currentKind==="storm"
+      ? langPick("Storms are affecting","Hay tormentas en","Há tempestades em","Des orages touchent")
       : langPick("Rain is affecting","Está lloviendo en","Está chovendo em","Il pleut à");
     const area=place?" "+place:langPick(" your service area"," tu zona de servicio"," sua área de atendimento"," votre zone de service");
     const advice=remainingJobs.length
       ? langPick(
-          " Check the route before the next stop and keep entry supplies dry.",
-          " Revisa la ruta antes de la próxima parada y protege los materiales al entrar.",
-          " Confira a rota antes da próxima parada e mantenha os materiais secos.",
-          " Vérifiez l’itinéraire avant le prochain arrêt et gardez le matériel au sec."
+          " Check GPS before the next stop and allow extra travel time.",
+          " Revisa el GPS antes de la próxima parada y deja tiempo extra para el trayecto.",
+          " Confira o GPS antes da próxima parada e reserve tempo extra para o trajeto.",
+          " Vérifiez le GPS avant le prochain arrêt et prévoyez plus de temps de trajet."
         )
-      : langPick(
-          " No active route right now, but check conditions before heading out.",
-          " No hay una ruta activa ahora, pero revisa el clima antes de salir.",
-          " Não há rota ativa agora, mas confira as condições antes de sair.",
-          " Aucun itinéraire actif pour le moment, mais vérifiez les conditions avant de partir."
-        );
-    return {kind:"rain",icon:storm?"⛈️":"🌧️",text:base+area+"."+advice};
+      : "";
+    return {kind:currentKind,icon:currentKind==="snow"?"🌨️":currentKind==="storm"?"⛈️":"🌧️",text:base+area+"."+advice};
   }
-  if(rain&&rain.hoursAhead<=8){
+
+  if(event&&event.hoursAhead<=48){
     const location=place?langPick(" in "," en "," em "," à ")+place:"";
-    const when=weatherClockLabel(rain.hour);
+    const when=weatherClockLabel(event.hour);
+    const day=weatherDayLabel(event.date,currentDate);
+    const phenomenon=event.kind==="snow"
+      ? langPick("Snow","Nieve","Neve","Neige")
+      : event.kind==="storm"
+      ? langPick("Storms","Tormentas","Tempestades","Orages")
+      : langPick("Rain","Lluvia","Chuva","Pluie");
+    const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
     const first=langPick(
-      "Rain is likely"+location+" around "+when+" ("+rain.probability+"%).",
-      "Lluvia probable"+location+" cerca de las "+when+" ("+rain.probability+"%).",
-      "Chuva provável"+location+" por volta de "+when+" ("+rain.probability+"%).",
-      "Pluie probable"+location+" vers "+when+" ("+rain.probability+"%)."
+      phenomenon+" expected "+day.toLowerCase()+location+" around "+when+probability+".",
+      phenomenon+" probable "+day.toLowerCase()+location+" cerca de las "+when+probability+".",
+      phenomenon+" provável "+day.toLowerCase()+location+" por volta de "+when+probability+".",
+      phenomenon+" probable "+day.toLowerCase()+location+" vers "+when+probability+"."
     );
     const advice=remainingJobs.length
-      ? langPick(" Leave a little extra time between stops."," Deja un poco más de tiempo entre paradas."," Deixe um pouco mais de tempo entre as paradas."," Prévoyez un peu plus de temps entre les arrêts.")
-      : langPick(" Keep it in mind if you add a job today."," Tenlo en cuenta si agregas un trabajo hoy."," Leve isso em conta se adicionar um trabalho hoje."," Gardez cela en tête si vous ajoutez un travail aujourd’hui.");
-    return {kind:"rain",icon:"🌧️",text:first+advice};
+      ? langPick(
+          " Check your best route before leaving.",
+          " Revisa la mejor ruta antes de salir.",
+          " Confira a melhor rota antes de sair.",
+          " Vérifiez le meilleur itinéraire avant de partir."
+        )
+      : "";
+    return {kind:event.kind,icon:event.icon,text:first+advice};
   }
+
   const hotThreshold=businessTemperatureUnit()==="celsius"?31:88;
   if(Number.isFinite(temp)&&temp>=hotThreshold){
     return {
@@ -4605,6 +4636,7 @@ function renderTodaySummary(wakeAssistant=false){
     timeZone:businessTimeZone
   }).format(now));
   const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  renderTodayRouteChip(todayJobs);
   const openQuotes=state.quotes.filter(q=>["requested","draft","sent"].includes(q.status));
   const outstanding=state.invoices.filter(i=>i.status!=="void").reduce((sum,i)=>sum+Math.max(0,Number(i.total||0)-confirmedPaid(i)),0);
   const pendingBookings=visibleBookingRequests().filter(b=>b.status==="requested");
@@ -4662,8 +4694,8 @@ function renderTodaySummary(wakeAssistant=false){
     const tomorrowJobs=state.jobs.filter(function(j){
       return sameLocalDay(j.starts_at,tomorrow)&&j.status!=="canceled";
     });
-    const rain=state.weather&&state.weather.nextRain||null;
-    const rainTomorrow=rain&&rain.hoursAhead>8&&rain.hoursAhead<=32;
+    const nextPrecip=state.weather&&(state.weather.nextPrecip||state.weather.nextRain)||null;
+    const precipTomorrow=nextPrecip&&nextPrecip.hoursAhead>8&&nextPrecip.hoursAhead<=32;
     const weatherContext=dashboardWeatherContext(now,remainingJobs);
 
     hero?.classList.remove("moment-morning","moment-afternoon","moment-night","moment-early","moment-midday","moment-wrap","moment-evening","moment-late");
@@ -4675,7 +4707,7 @@ function renderTodaySummary(wakeAssistant=false){
     let copy="";
     let actionView="calendar";
     let actionText="";
-    let messageState=weatherContext.kind==="rain"?"rain":"calm";
+    let messageState=["rain","snow","storm"].includes(weatherContext.kind)?"rain":"calm";
     let icon=weatherContext.icon || (["evening","late"].includes(daypart)?"🌙":daypart==="wrap"?"✨":"☀️");
 
     const nextJobLine=nextJob
@@ -4687,7 +4719,7 @@ function renderTodaySummary(wakeAssistant=false){
         )
       : "";
 
-    if(weatherContext.kind==="rain"){
+    if(["rain","snow","storm"].includes(weatherContext.kind)){
       copy=weatherContext.text+(nextJobLine?" "+nextJobLine:"");
       actionView=remainingJobs.length?"route":pendingBookings.length?"booking":"calendar";
       messageState="rain";
@@ -4766,13 +4798,19 @@ function renderTodaySummary(wakeAssistant=false){
     }else if(["evening","late"].includes(daypart)){
       messageState="night";
       icon="🌙";
-      if(rainTomorrow){
+      if(precipTomorrow){
         const place=weatherPlaceLabel();
+        const eventName=nextPrecip?.kind==="snow"
+          ? langPick("snow","nieve","neve","neige")
+          : nextPrecip?.kind==="storm"
+          ? langPick("storms","tormentas","tempestades","orages")
+          : langPick("rain","lluvia","chuva","pluie");
+        const eventTime=nextPrecip?weatherClockLabel(nextPrecip.hour):"";
         copy=langPick(
-          "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Rain may move into "+(place||"your service area")+"; check the first route before you switch off.",
-          "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Puede llover"+(place?" en "+place:"")+"; revisa la primera ruta antes de desconectar.",
-          "Amanhã você tem "+tomorrowJobs.length+" trabalho"+(tomorrowJobs.length===1?"":"s")+". Pode chover"+(place?" em "+place:"")+"; confira a primeira rota antes de encerrar.",
-          "Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. De la pluie est possible"+(place?" à "+place:"")+" ; vérifiez le premier itinéraire avant de terminer."
+          "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. "+eventName+" may move into "+(place||"your service area")+(eventTime?" around "+eventTime:"")+"; check the best route before you switch off.",
+          "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Se espera "+eventName+(place?" en "+place:"")+(eventTime?" cerca de las "+eventTime:"")+"; revisa la mejor ruta antes de desconectar.",
+          "Amanhã você tem "+tomorrowJobs.length+" trabalho"+(tomorrowJobs.length===1?"":"s")+". Há previsão de "+eventName+(place?" em "+place:"")+(eventTime?" por volta de "+eventTime:"")+"; confira a melhor rota antes de encerrar.",
+          "Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. "+eventName+" est possible"+(place?" à "+place:"")+(eventTime?" vers "+eventTime:"")+" ; vérifiez le meilleur itinéraire avant de terminer."
         );
       }else if(tomorrowJobs.length){
         copy=langPick(
@@ -4890,6 +4928,43 @@ function renderTodaySummary(wakeAssistant=false){
   }
 }
 
+function googleMapsDirectionsUrl(addresses){
+  const clean=(addresses||[]).map(v=>String(v||"").trim()).filter(Boolean);
+  if(!clean.length) return "";
+  const params=new URLSearchParams({api:"1",destination:clean[clean.length-1],travelmode:"driving",dir_action:"navigate"});
+  if(clean.length>1) params.set("waypoints",clean.slice(0,-1).join("|"));
+  return "https://www.google.com/maps/dir/?"+params.toString();
+}
+function openGpsRoute(addresses){
+  const url=googleMapsDirectionsUrl(addresses);
+  if(!url){
+    showToast(langPick("Add a service address first.","Añade una dirección primero.","Adicione um endereço primeiro.","Ajoutez d’abord une adresse."));
+    return;
+  }
+  window.open(url,"_blank","noopener");
+}
+function todaysRouteJobs(){
+  const now=new Date();
+  return state.jobs
+    .filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled"&&String(j.service_address||"").trim())
+    .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+}
+function renderTodayRouteChip(todayJobs){
+  const chip=$("#todayRouteChip");
+  const label=$("#todayRouteChipText");
+  if(!chip||!label) return;
+  const routable=(todayJobs||[]).filter(j=>String(j.service_address||"").trim());
+  chip.hidden=!routable.length;
+  if(!routable.length) return;
+  label.textContent=langPick("Best route","Mejor ruta","Melhor rota","Meilleur itinéraire");
+  chip.title=langPick(
+    "Open GPS for live traffic and navigation",
+    "Abrir GPS para tráfico en vivo y navegación",
+    "Abrir GPS para trânsito ao vivo e navegação",
+    "Ouvrir le GPS pour le trafic en direct et la navigation"
+  );
+}
+
 function renderOperations(){
   const now=new Date();
   const todayJobs=state.jobs.filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
@@ -4904,11 +4979,26 @@ function renderOperations(){
   const routeVisual=$("#routeVisual");
   if(routeStops){
     routeStops.innerHTML=todayJobs.length?todayJobs.map((j,i)=>`
-      <div class="route-stop"><b>${i+1}</b><div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span><small>${escapeHtml(j.service_address||tr("Address not added"))}</small></div><em>${escapeHtml(translatedStatus(j.status))}</em></div>
+      <div class="route-stop">
+        <b>${i+1}</b>
+        <div>
+          <strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong>
+          <span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span>
+          <small>${escapeHtml(j.service_address||tr("Address not added"))}</small>
+          ${j.service_address?`<button type="button" class="route-gps-btn" data-route-gps-job="${j.id}">⌖ ${escapeHtml(langPick("GPS","GPS","GPS","GPS"))}</button>`:""}
+        </div>
+        <em>${escapeHtml(translatedStatus(j.status))}</em>
+      </div>
       ${i<todayJobs.length-1?`<div class="route-drive">${escapeHtml(tr("Next stop"))}</div>`:""}
     `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
   }
-  if(routeVisual) routeVisual.textContent=todayJobs.length?`${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today`:"Your route appears here when jobs are scheduled.";
+  if(routeVisual){
+    const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
+    routeVisual.innerHTML=todayJobs.length
+      ? `<div class="route-command-summary"><strong>${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today</strong><span>${escapeHtml(langPick("Live traffic opens in GPS.","El tráfico en vivo se abre en GPS.","O trânsito ao vivo abre no GPS.","Le trafic en direct s’ouvre dans le GPS."))}</span>${routable.length?`<button type="button" class="route-best-btn" data-best-route>↗ ${escapeHtml(langPick("Best route","Mejor ruta","Melhor rota","Meilleur itinéraire"))}</button>`:""}</div>`
+      : "Your route appears here when jobs are scheduled.";
+  }
+  renderTodayRouteChip(todayJobs);
 
   const mt=$("#mileageToday"),mw=$("#mileageWeek"),mm=$("#mileageMonth");
   if(mt) mt.textContent=distanceText(todayMiles);
@@ -6729,6 +6819,19 @@ document.addEventListener("click",async e=>{
       archiveActivityBtn.textContent=archiveLabel;
       showToast(err?.message||(archiveLabel==="Clear"?"Could not clear activity":"Could not archive activity"));
     }
+    return;
+  }
+
+  const routeGpsJob=e.target.closest("[data-route-gps-job]");
+  if(routeGpsJob){
+    const job=state.jobs.find(j=>j.id===routeGpsJob.dataset.routeGpsJob);
+    if(job) openGpsRoute([job.service_address]);
+    return;
+  }
+
+  const bestRoute=e.target.closest("[data-best-route]");
+  if(bestRoute){
+    openGpsRoute(todaysRouteJobs().map(j=>j.service_address));
     return;
   }
 
