@@ -139,7 +139,8 @@ try{
       await page.click("#authSubmit");
     }
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());\n    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
+    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
