@@ -2062,29 +2062,44 @@ function readOwnerSessionBackup(){
     return null;
   }
 }
+function isPermanentSessionRestoreError(err){
+  const raw=String(err?.message||err||"").toLowerCase();
+  return /invalid refresh token|refresh token not found|refresh_token_not_found|invalid jwt|jwt expired|session not found|user not found/.test(raw);
+}
 async function restoreOwnerSessionFromBackup(){
   const backup=readOwnerSessionBackup();
   if(!backup) return null;
   const remembered=rememberedOwnerEmail();
   if(remembered && backup.email!==remembered) return null;
 
-  try{
-    const {data,error}=await supabase.auth.setSession({
-      access_token:backup.access_token,
-      refresh_token:backup.refresh_token
-    });
-    if(error || !data?.session){
-      clearOwnerSessionBackup();
-      return null;
+  let lastError=null;
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      const {data,error}=await supabase.auth.setSession({
+        access_token:backup.access_token,
+        refresh_token:backup.refresh_token
+      });
+      if(!error && data?.session){
+        saveOwnerSessionBackup(data.session);
+        localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
+        return data.session;
+      }
+      lastError=error||new Error("Session restore returned no session");
+      if(isPermanentSessionRestoreError(lastError)){
+        clearOwnerSessionBackup();
+        return null;
+      }
+    }catch(err){
+      lastError=err;
+      if(isPermanentSessionRestoreError(err)){
+        clearOwnerSessionBackup();
+        return null;
+      }
     }
-    saveOwnerSessionBackup(data.session);
-    localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-    return data.session;
-  }catch(err){
-    clearOwnerSessionBackup();
-    console.warn("[TLE] session backup restore",err);
-    return null;
+    await new Promise(resolve=>setTimeout(resolve,220));
   }
+  console.warn("[TLE] session backup restore deferred",lastError);
+  return null;
 }
 function markOwnerActivity(){
   if(state.business?.role!=="owner") return;
@@ -2102,6 +2117,18 @@ async function expireOwnerSession(){
 window.addEventListener("tle:languagechange",()=>{
   if(state.session && state.business?.role==="owner"){
     markOwnerActivity();
+  }
+});
+window.addEventListener("pagehide",()=>{
+  if(state.session){
+    saveOwnerSessionBackup(state.session);
+    if(state.business?.role==="owner") markOwnerActivity();
+  }
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden" && state.session){
+    saveOwnerSessionBackup(state.session);
+    if(state.business?.role==="owner") markOwnerActivity();
   }
 });
 
@@ -2796,7 +2823,17 @@ async function initialize(){
 
   trackVisit("/login").catch(()=>{});
 
-  const { data:{session:storedSession} } = await supabase.auth.getSession();
+  let storedSession=null;
+  for(let attempt=0;attempt<3;attempt++){
+    try{
+      const result=await supabase.auth.getSession();
+      storedSession=result?.data?.session||null;
+      if(storedSession) break;
+    }catch(err){
+      console.warn("[TLE] persisted session read",err);
+    }
+    if(attempt<2) await new Promise(resolve=>setTimeout(resolve,180));
+  }
   let session=storedSession||null;
 
   // iOS Home Screen can occasionally fail to surface Supabase's own stored
@@ -7781,9 +7818,18 @@ async function refreshInstalledApp(){
     );
 
     if(shellChanged){
-      showToast(langPick("Updating app…","Actualizando la app…","Atualizando o app…","Mise à jour de l’application…"));
-      await hardRefreshInstalledApp(latest.app||latest.css);
-      return;
+      try{
+        if("serviceWorker" in navigator){
+          const reg=await navigator.serviceWorker.getRegistration();
+          if(reg) await reg.update().catch(()=>{});
+        }
+      }catch{}
+      showToast(langPick(
+        "App update ready. Refreshing your data without signing you out.",
+        "Actualización lista. Refrescando tus datos sin cerrar tu sesión.",
+        "Atualização pronta. Atualizando seus dados sem sair da conta.",
+        "Mise à jour prête. Actualisation des données sans déconnexion."
+      ));
     }
 
     if(state.business?.id){
