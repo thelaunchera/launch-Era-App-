@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-112";
+const APP_VERSION = "20260928-stable-113";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3376,14 +3376,18 @@ function findMatchingClient({email,phone,name}={}){
   const cleanPhone=String(phone||"").replace(/\D/g,"");
   const cleanName=String(name||"").trim().toLowerCase();
 
-  return state.clients.find(c=>{
-    const clientEmail=String(c.email||"").trim().toLowerCase();
-    const clientPhone=String(c.phone||"").replace(/\D/g,"");
-    const clientName=String(c.name||"").trim().toLowerCase();
-    return (cleanEmail && clientEmail===cleanEmail)
-      || (cleanPhone && clientPhone===cleanPhone)
-      || (cleanName && clientName===cleanName);
-  })||null;
+  // Email is the primary identity key. If an email is present, never let a
+  // shared phone number or similar name override a different email.
+  if(cleanEmail){
+    return state.clients.find(c=>String(c.email||"").trim().toLowerCase()===cleanEmail)||null;
+  }
+  if(cleanPhone){
+    return state.clients.find(c=>String(c.phone||"").replace(/\D/g,"")===cleanPhone)||null;
+  }
+  if(cleanName){
+    return state.clients.find(c=>String(c.name||"").trim().toLowerCase()===cleanName)||null;
+  }
+  return null;
 }
 
 function getInquiryNotifications(){
@@ -5431,15 +5435,30 @@ function renderBookingRequests(){
     list.innerHTML=`<div class="empty-inline"><strong>No booking requests waiting.</strong><span>Reviewed requests leave this list automatically after 12 hours.</span></div>`;
     return;
   }
-  list.innerHTML=visible.slice(0,20).map(b=>`
+  list.innerHTML=visible.slice(0,20).map(b=>{
+    const linkedClient=findMatchingClient({
+      email:b.customer_email,
+      phone:b.customer_phone,
+      name:b.customer_name
+    });
+    const linkedCopy=b.status==="converted" && linkedClient
+      ? `<small class="booking-linked-client">Linked to existing client: <strong>${escapeHtml(linkedClient.name)}</strong></small>`
+      : "";
+    return `
     <div class="booking-request-row">
-      <div><strong>${escapeHtml(b.customer_name)}</strong><small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(bookingRecurrenceLabel(b.recurrence_pattern))} · ${escapeHtml(b.service_address)}</small></div>
-      <div class="record-actions">
-        <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
-        <button data-check-booking-client="${b.id}">${b.reviewed_at?"Checked":"Check client"}</button>
-        ${b.status==="requested"?`<button data-approve-booking="${b.id}">Approve</button><button class="danger-link" data-decline-booking="${b.id}">Decline</button>`:""}
+      <div class="booking-request-copy">
+        <strong>${escapeHtml(b.customer_name)}</strong>
+        <small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(bookingRecurrenceLabel(b.recurrence_pattern))} · ${escapeHtml(b.service_address)}</small>
+        ${linkedCopy}
       </div>
-    </div>`).join("");
+      <div class="record-actions booking-request-actions">
+        <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
+        ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">Open client</button>`:""}
+        <button class="booking-action" data-check-booking-client="${b.id}">${b.reviewed_at?"Checked":"Check client"}</button>
+        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">Approve booking</button><button class="booking-action danger-link" data-decline-booking="${b.id}">Decline</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 
