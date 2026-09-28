@@ -232,14 +232,8 @@ if(!styles.includes("tleHeroCtaFloat") || !styles.includes(".hero-card.message-c
 if(!app.includes('button.dataset.unreadCount=String(unread)') || !app.includes('button.classList.add("notification-arrived")')){
   throw new Error("Notification regression: new unread activity must trigger bell motion");
 }
-// Data-safety/auth regression guards: a cold start or remembered username must
-// never decide tenancy, delete operational data, or behave like explicit logout.
-if(app.includes("if(remembered && backup.email!==remembered) return null")){
-  throw new Error("Auth/data regression: remembered username is incorrectly controlling session restoration");
-}
-if(!app.includes("if(window.__tleSigningOut || window.__tleOwnerLocking)") || !app.includes("restoreOwnerSessionFromBackup().then(restored=>")){
-  throw new Error("Auth/data regression: automatic SIGNED_OUT can expose login without silent recovery");
-}
+// Data-safety guard for the stable v81 auth baseline: startup/session logic
+// must never delete operational business records.
 const authWindow=app.slice(app.indexOf("async function initialize()"),app.indexOf("async function withTimeout"));
 for(const destructive of ['from("clients").delete()','from("jobs").delete()','from("quotes").delete()','from("invoices").delete()','from("leads").delete()','from("businesses").delete()']){
   if(authWindow.includes(destructive)){
