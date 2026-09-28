@@ -12,13 +12,13 @@ function isPrimaryPlatformAdminAccount(){
   return String(state?.session?.user?.email||"").trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL;
 }
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
-const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
+const OWNER_IDLE_MS = 24 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-73";
+const APP_VERSION = "20260928-unified-80";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1417,6 +1417,7 @@ function showApp(){
   authShell.hidden = true;
   appShell.hidden = false;
   scheduleQuarterHourCardColors();
+  installTodayClock();
 
   // Safari/iOS may restore the previous page scroll position before the hidden
   // app shell becomes visible. Force the authenticated dashboard to start at
@@ -2801,7 +2802,7 @@ async function initialize(){
   // iOS Home Screen can occasionally fail to surface Supabase's own stored
   // session even while our app storage remains intact. Restore the same
   // access/refresh tokens Supabase already persists, but only inside the
-  // user's 12-hour activity window.
+  // user's 24-hour activity window.
   if(!session){
     session=await restoreOwnerSessionFromBackup();
   }
@@ -4719,6 +4720,17 @@ function dashboardWeatherContext(now,remainingJobs){
   }
   return {kind:"steady",icon:"🌤️",text:""};
 }
+function renderTodayClock(){
+  const now=new Date();
+  const businessTimeZone=activeBusinessTimeZone();
+  renderTodayClock();
+}
+function installTodayClock(){
+  renderTodayClock();
+  if(window.__tleTodayClockTimer) return;
+  window.__tleTodayClockTimer=setInterval(renderTodayClock,30000);
+}
+
 function renderTodaySummary(wakeAssistant=false){
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
@@ -7711,16 +7723,17 @@ function currentCssVersion(){
 }
 
 async function hardRefreshInstalledApp(version){
+  // Refresh the shell without destroying the installed app state.
+  // Keep the Supabase session backup intact so iOS refresh does not ask
+  // a returning owner to sign in again.
+  if(state.session){
+    saveOwnerSessionBackup(state.session);
+    markOwnerActivity();
+  }
   try{
     if("serviceWorker" in navigator){
-      const regs=await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r=>r.unregister()));
-    }
-  }catch{}
-  try{
-    if("caches" in window){
-      const keys=await caches.keys();
-      await Promise.all(keys.map(k=>caches.delete(k)));
+      const reg=await navigator.serviceWorker.getRegistration();
+      if(reg) await reg.update().catch(()=>{});
     }
   }catch{}
 
