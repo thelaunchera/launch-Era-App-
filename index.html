@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260928-tablet-122" />
+  <link rel="stylesheet" href="./styles.css?v=20260928-headings-123" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -385,7 +385,7 @@
         <button class="nav-item" data-view="services" data-admin-only>Services + Add-ons <span>＋</span></button>
         <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
         <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
-        <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner Admin <span>🔒</span></button>
+        <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner settings <span>🔒</span></button>
         <button class="nav-item platform-admin-link" data-view="platform-admin" data-platform-admin-only>Owner View <span>◆</span></button>
         <button class="nav-item" data-view="help">Help & FAQ <span>?</span></button>
       </nav>
@@ -473,7 +473,7 @@
               </div>
 
               <div class="today-greeting-first">
-                <h2 id="todayGreeting">Getting your day ready…</h2>
+                <h2 id="todayGreeting">Today</h2>
                 <p id="todayMomentCopy">Checking your schedule and what’s next.</p>
               </div>
 
@@ -529,7 +529,7 @@
           </article>
 
           <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Move work forward</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Quick actions</h3></div></div>
             <div class="quick-grid">
               <button class="quick-card" data-action="client" data-admin-only>＋<span>Add client</span></button>
               <button class="quick-card" data-action="quote" data-admin-only>◫<span>Create quote</span></button>
@@ -543,7 +543,7 @@
 
         <div class="dashboard-grid lower">
           <article class="panel" data-admin-only>
-            <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Don’t let these slip</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Needs attention</h3></div></div>
             <div class="attention-list" id="attentionList"></div>
           </article>
 
@@ -558,7 +558,7 @@
         <article class="panel presence-panel" data-owner-only>
           <div class="presence-copy">
             <p class="eyebrow">ONLINE PRESENCE</p>
-            <h3>Your business, one tap away.</h3>
+            <h3>Online presence</h3>
             <p id="presenceHint">Add your social profiles in Business Profile.</p>
           </div>
           <div class="presence-actions">
@@ -572,13 +572,13 @@
 
       <section class="view" data-page="booking" data-admin-only>
         <div class="section-intro">
-          <div><p class="eyebrow">BOOKING CENTER</p><h2>Your public front door.</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
+          <div><p class="eyebrow">BOOKING CENTER</p><h2>Booking Page</h2><p>Control what clients can book, when they can book it, and where each request goes next.</p></div>
           <button class="primary-btn" id="copyBooking">Copy booking link</button>
         </div>
 
         <div class="booking-grid">
           <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Share your booking page</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Public links</h3></div></div>
             <label class="field-label">Booking link</label>
             <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
             <label class="field-label">Quote request link</label>
@@ -586,17 +586,17 @@
           </article>
 
           <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Requests waiting for review</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
+            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Booking requests</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
             <div id="bookingRequestsList" class="booking-requests-list"></div>
           </article>
 
           <article class="panel full">
-            <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>What clients can book</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
+            <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>Bookable services</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
             <div id="bookingServicesList" class="booking-services-list"></div>
           </article>
 
           <article class="panel full booking-experience-compact">
-            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Fixed price or custom quote</h3></div><span class="pill blue">No account required</span></div>
+            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Pricing + quotes</h3></div><span class="pill blue">No account required</span></div>
             <div class="flow-row compact-flow">
               <span>Fixed price</span><b>→</b><span>Book</span><b>→</b><span>Custom job</span><b>→</b><span>Quote</span>
             </div>
@@ -605,7 +605,7 @@
 
           <article class="panel full availability-compact">
             <div class="panel-head">
-              <div><p class="eyebrow">AVAILABILITY</p><h3>When clients can book</h3></div>
+              <div><p class="eyebrow">AVAILABILITY</p><h3>Availability</h3></div>
               <button class="text-btn" id="saveAvailabilityBtn">Save</button>
             </div>
             <div class="availability-settings">
@@ -635,7 +635,7 @@
       </section>
 
       <section class="view" data-page="leads" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">LEADS</p><h2>Know who needs a next step.</h2></div><button class="primary-btn" data-action="lead">+ Add lead</button></div>
+        <div class="section-intro"><div><p class="eyebrow">LEADS</p><h2>Lead pipeline</h2></div><button class="primary-btn" data-action="lead">+ Add lead</button></div>
         <div class="table-card">
           <div class="table-row table-head"><span>Name</span><span>Source</span><span>Service</span><span>Status</span><span>Actions</span></div>
           <div id="leadsTable"></div>
@@ -643,12 +643,12 @@
       </section>
 
       <section class="view" data-page="clients" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">CLIENTS</p><h2>Every client, without the scattered notes.</h2></div><button class="primary-btn" data-action="client">+ Add client</button></div>
+        <div class="section-intro"><div><p class="eyebrow">CLIENTS</p><h2>Client records</h2></div><button class="primary-btn" data-action="client">+ Add client</button></div>
         <div class="client-grid" id="clientsGrid"></div>
       </section>
 
       <section class="view" data-page="calendar">
-        <div class="section-intro"><div><p class="eyebrow">CALENDAR + JOBS</p><h2>Your schedule with travel time built in.</h2></div><button class="primary-btn" data-action="job">+ Add job</button></div>
+        <div class="section-intro"><div><p class="eyebrow">CALENDAR + JOBS</p><h2>Calendar + jobs</h2></div><button class="primary-btn" data-action="job">+ Add job</button></div>
         <div class="calendar-layout">
           <article class="panel calendar-panel">
             <div class="calendar-range-head">
@@ -675,12 +675,12 @@
       </section>
 
       <section class="view" data-page="quotes" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">QUOTES</p><h2>Quote first. Create the job after acceptance.</h2><p>Quote requests stay here until the customer accepts.</p></div><button class="primary-btn" data-action="quote">+ New quote</button></div>
+        <div class="section-intro"><div><p class="eyebrow">QUOTES</p><h2>Quotes</h2><p>Quote requests stay here until the customer accepts.</p></div><button class="primary-btn" data-action="quote">+ New quote</button></div>
         <div class="kanban" id="quotesBoard"></div>
       </section>
 
       <section class="view" data-page="invoices" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">INVOICES</p><h2>See what’s paid and what needs follow-up.</h2></div><button class="primary-btn" data-action="invoice">+ New invoice</button></div>
+        <div class="section-intro"><div><p class="eyebrow">INVOICES</p><h2>Invoices</h2></div><button class="primary-btn" data-action="invoice">+ New invoice</button></div>
         <div class="metric-grid compact">
           <article class="metric-card"><span>Outstanding</span><strong id="invoiceOutstanding">$0</strong></article>
           <article class="metric-card"><span>Paid this month</span><strong id="invoicePaid">$0</strong></article>
@@ -696,7 +696,7 @@
         <div class="section-intro followup-intro">
           <div>
             <p class="eyebrow">FOLLOW-UPS</p>
-            <h2>Know exactly who needs the next touch.</h2>
+            <h2>Follow-ups</h2>
             <p>Leads, quotes, invoices, reviews and rebooking — organized without chasing notes.</p>
           </div>
           <button class="ghost-btn" id="followUpRefreshBtn" type="button">Refresh follow-ups</button>
@@ -711,7 +711,7 @@
         <div class="followup-layout">
           <article class="panel followup-rules-panel">
             <div class="panel-heading-row">
-              <div><p class="eyebrow">FOLLOW-UP RULES</p><h3>Choose how each follow-up works.</h3></div>
+              <div><p class="eyebrow">FOLLOW-UP RULES</p><h3>Follow-up rules</h3></div>
               <span class="pill blue">Default: Remind me</span>
             </div>
             <p class="followup-rules-copy">Auto email sends only after you choose it. Remind me keeps the follow-up in this list. Off disables that category.</p>
@@ -726,7 +726,7 @@
 
           <article class="panel followup-queue-panel">
             <div class="panel-heading-row">
-              <div><p class="eyebrow">NEEDS FOLLOW-UP</p><h3>Today’s queue</h3></div>
+              <div><p class="eyebrow">NEEDS FOLLOW-UP</p><h3>Due today</h3></div>
               <span class="pill yellow" id="followUpQueuePill">0 due</span>
             </div>
             <div id="followUpList" class="followup-list">
@@ -737,7 +737,7 @@
 
         <article class="panel followup-sent-panel">
           <div class="panel-heading-row">
-            <div><p class="eyebrow">RECENTLY SENT</p><h3>Follow-up history</h3></div>
+            <div><p class="eyebrow">RECENTLY SENT</p><h3>History</h3></div>
           </div>
           <div id="followUpSentList" class="followup-sent-list"></div>
         </article>
@@ -745,7 +745,7 @@
 
       <section class="view" data-page="route">
         <div class="section-intro">
-          <div><p class="eyebrow">TODAY'S ROUTE</p><h2>Know where you’re going before you leave.</h2></div>
+          <div><p class="eyebrow">TODAY'S ROUTE</p><h2>Today’s route</h2></div>
           <span class="pill blue" id="routeMileagePill">0 today</span>
         </div>
         <div class="route-layout">
@@ -759,7 +759,7 @@
 
       <section class="view" data-page="mileage">
         <div class="section-intro">
-          <div><p class="eyebrow">MILEAGE</p><h2>Keep business distance organized.</h2></div>
+          <div><p class="eyebrow">MILEAGE</p><h2>Mileage log</h2></div>
           <button class="primary-btn" data-action="mileage">+ Log drive</button>
         </div>
         <div class="metric-grid compact">
@@ -775,7 +775,7 @@
 
       <section class="view" data-page="time">
         <div class="section-intro">
-          <div><p class="eyebrow">TIME TRACKING</p><h2>See how long jobs actually take.</h2></div>
+          <div><p class="eyebrow">TIME TRACKING</p><h2>Time tracking</h2></div>
           <button class="primary-btn" id="startTimerBtn">Start timer</button>
         </div>
         <div id="activeTimerWrap"></div>
@@ -789,7 +789,7 @@
         <div class="section-intro">
           <div>
             <p class="eyebrow">SUPPLIES</p>
-            <h2>Know what’s running low before the next job.</h2>
+            <h2>Supplies</h2>
             <p>Keep a lightweight list of cleaning supplies, current quantity, reorder level and cost.</p>
           </div>
           <button class="primary-btn" data-action="supply">+ Add supply</button>
@@ -817,7 +817,7 @@
       </section>
 
       <section class="view" data-page="reports" data-owner-only>
-        <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Simple numbers that help you run the business.</h2></div></div>
+        <div class="section-intro"><div><p class="eyebrow">REPORTS</p><h2>Business reports</h2></div></div>
         <div class="report-grid">
           <article class="panel"><span>Revenue this month</span><strong id="reportRevenue">$0</strong><p>Confirmed payments recorded this month.</p></article>
           <article class="panel"><span>Jobs completed</span><strong id="reportJobs">0</strong><p id="reportJobsCopy">No completed jobs yet.</p></article>
@@ -827,16 +827,16 @@
       </section>
 
       <section class="view" data-page="services" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">SERVICES + ADD-ONS</p><h2>Set pricing and duration once.</h2></div><div class="section-actions"><button class="ghost-btn" data-action="addon">+ Add add-on</button><button class="primary-btn" data-action="service">+ Add service</button></div></div>
+        <div class="section-intro"><div><p class="eyebrow">SERVICES + ADD-ONS</p><h2>Services + add-ons</h2></div><div class="section-actions"><button class="ghost-btn" data-action="addon">+ Add add-on</button><button class="primary-btn" data-action="service">+ Add service</button></div></div>
         <div class="service-grid" id="servicesGrid"></div>
       </section>
 
       <section class="view" data-page="team" data-admin-only>
         <div class="section-intro">
-          <div><p class="eyebrow">TEAM</p><h2>Assign the right person to the right job.</h2><p>Employees use private Guest Employee Access with no password. Admin access stays separate, and you can message employees here.</p></div>
+          <div><p class="eyebrow">TEAM</p><h2>Team</h2><p>Employees use private Guest Employee Access with no password. Admin access stays separate, and you can message employees here.</p></div>
           <div class="section-actions">
             <button class="primary-btn" id="shareAppAccessBtn" data-owner-only>Invite Admin</button>
-            <button class="ghost-btn" data-jump="admin" data-owner-only>Owner Admin</button>
+            <button class="ghost-btn" data-jump="admin" data-owner-only>Owner settings</button>
             <button class="primary-btn" id="addTeamProfileBtn">+ Add team profile</button>
           </div>
         </div>
@@ -872,7 +872,7 @@
       </section>
 
       <section class="view" data-page="settings" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Your business rules live here.</h2></div></div>
+        <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Business settings</h2></div></div>
         <div class="settings-grid">
           <article class="panel">
             <div class="panel-head">
@@ -903,7 +903,7 @@
             <div class="setting-row"><span><strong>Client payment methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
             <div class="setting-row"><span><strong>Automatic client emails</strong><small>Quote review · Service confirmation · Invoice · Payment thank-you</small></span><span class="status success">On</span></div>
             <div class="setting-row"><span><strong>Replies go to</strong><small id="settingsReplyEmail">Business login email</small></span></div>
-            <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner Admin.</small></span></div>
+            <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner settings.</small></span></div>
           </article>
           <article class="panel review-settings-card">
             <div class="panel-head">
@@ -930,7 +930,7 @@
         <div class="section-intro">
           <div>
             <p class="eyebrow">HELP & FAQ</p>
-            <h2>Quick help without the guesswork.</h2>
+            <h2>Help Center</h2>
             <p>Install the app on your phone, share access with your team, and find answers to the most common questions.</p>
           </div>
         </div>
@@ -938,7 +938,7 @@
         <div class="help-grid">
           <article class="panel install-card">
             <span class="pill blue">IPHONE</span>
-            <h3>Put the app on your Home Screen</h3>
+            <h3>iPhone install</h3>
             <ol class="steps-list">
               <li>Open the app in <strong>Safari</strong>.</li>
               <li>Tap the <strong>Share</strong> button.</li>
@@ -950,7 +950,7 @@
 
           <article class="panel install-card">
             <span class="pill yellow">ANDROID</span>
-            <h3>Add the app to your phone</h3>
+            <h3>Android install</h3>
             <ol class="steps-list">
               <li>Open the app in <strong>Chrome</strong>.</li>
               <li>Tap the <strong>⋮</strong> menu.</li>
@@ -961,7 +961,7 @@
 
           <article class="panel full-help" data-owner-only>
             <div class="panel-head">
-              <div><p class="eyebrow">SHARE ACCESS</p><h3>Worker link or Admin invite</h3></div>
+              <div><p class="eyebrow">SHARE ACCESS</p><h3>Access sharing</h3></div>
               <button class="primary-btn" id="helpInviteBtn">Invite Admin</button>
             </div>
             <div class="share-steps">
@@ -974,9 +974,9 @@
 
           <article class="panel full-help">
             <p class="eyebrow">ACCESS LEVELS</p>
-            <h3>Who can see what?</h3>
+            <h3>Access levels</h3>
             <div class="role-legend">
-              <div><strong>Owner</strong><span>Everything, including billing, permissions, reports, integrations and Owner Admin.</span></div>
+              <div><strong>Owner</strong><span>Everything, including billing, permissions, reports, integrations and Owner settings.</span></div>
               <div><strong>Admin</strong><span>Clients, jobs, quotes, invoices, services and day-to-day business operations.</span></div>
               <div><strong>Guest employee</strong><span>No password. Only assigned jobs, route/address, job status, time tracking, mileage, messages with the admin and the client contact needed for that assigned job.</span></div>
             </div>
@@ -986,7 +986,7 @@
             <div class="panel-head">
               <div>
                 <p class="eyebrow">GUIDED TOUR</p>
-                <h3>Need the walkthrough again?</h3>
+                <h3>Guided tour</h3>
               </div>
               <button class="primary-btn" type="button" id="restartOnboardingBtn">Restart tour</button>
             </div>
@@ -997,7 +997,7 @@
             <div class="panel-head">
               <div>
                 <p class="eyebrow">SUPPORT</p>
-                <h3>Need help or want to tell us something?</h3>
+                <h3>Feedback</h3>
               </div>
               <button class="primary-btn" type="button" id="helpFeedbackBtn">Send feedback</button>
             </div>
@@ -1011,7 +1011,7 @@
 
           <article class="panel full-help">
             <p class="eyebrow">FAQ</p>
-            <h3>Common questions</h3>
+            <h3>FAQ</h3>
             <div class="faq-list">
               <details>
                 <summary>How do I share the app with a worker?</summary>
@@ -1031,7 +1031,7 @@
               </details>
               <details>
                 <summary>How do I remove someone’s access?</summary>
-                <p>Open <strong>Owner Admin → Access & Permissions</strong> and remove their app access. Their job history stays in the business records.</p>
+                <p>Open <strong>Owner settings → Access & Permissions</strong> and remove their app access. Their job history stays in the business records.</p>
               </details>
               <details>
                 <summary>How do owners and admins sign in?</summary>
@@ -1046,7 +1046,7 @@
         <div class="section-intro">
           <div>
             <p class="eyebrow">OWNER VIEW</p>
-            <h2>The Launch Era Owner View</h2>
+            <h2>Owner reports</h2>
             <p>Customers, subscriptions and real product visits. Bots, automated checks and internal activity are excluded before counting.</p>
           </div>
           <span class="pill yellow">Internal only</span>
@@ -1062,23 +1062,23 @@
 
         <div class="admin-grid">
           <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">APP CUSTOMERS</p><h3>Who signed up / bought</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">APP CUSTOMERS</p><h3>Customers</h3></div></div>
             <div class="platform-table" id="platformCustomersTable"></div>
           </article>
           <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">VISITOR LOCATION</p><h3>Real visitor states</h3><small class="panel-note">Only real external visits are counted</small></div></div>
+            <div class="panel-head"><div><p class="eyebrow">VISITOR LOCATION</p><h3>Visitor locations</h3><small class="panel-note">Only real external visits are counted</small></div></div>
             <div class="platform-states" id="platformTopStates"></div>
           </article>
           <article class="panel platform-activity-panel">
-            <div class="panel-head activity-panel-head"><div><p class="eyebrow">LOGIN ACTIVITY</p><h3>Recent logins</h3></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">LOGIN ACTIVITY</p><h3>Logins</h3></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
             <div class="platform-visits" id="platformRecentLogins"></div>
           </article>
           <article class="panel platform-activity-panel">
-            <div class="panel-head activity-panel-head"><div><p class="eyebrow">REAL VISITS</p><h3>Recent real visits</h3><small class="panel-note">Bots + internal activity are excluded before counting</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
+            <div class="panel-head activity-panel-head"><div><p class="eyebrow">REAL VISITS</p><h3>Visits</h3><small class="panel-note">Bots + internal activity are excluded before counting</small></div><button class="activity-refresh-btn" type="button" data-refresh-platform-activity>Refresh</button></div>
             <div class="platform-visits" id="platformRecentVisits"></div>
           </article>
           <article class="panel platform-activity-panel">
-            <div class="panel-head"><div><p class="eyebrow">PURCHASES</p><h3>Purchases + activations</h3></div></div>
+            <div class="panel-head"><div><p class="eyebrow">PURCHASES</p><h3>Purchases</h3></div></div>
             <div class="platform-visits" id="platformPurchases"></div>
           </article>
         </div>
@@ -1088,7 +1088,7 @@
         <div class="section-intro">
           <div>
             <p class="eyebrow">OWNER ONLY</p>
-            <h2>Owner Admin</h2>
+            <h2>Owner settings</h2>
             <p>Billing, access, permissions, integrations and sensitive business controls stay with the owner.</p>
           </div>
           <span class="pill yellow">🔒 Private</span>
@@ -1097,7 +1097,7 @@
         <div class="admin-grid">
           <article class="panel">
             <div class="panel-head">
-              <div><p class="eyebrow">ACCESS + PERMISSIONS</p><h3>Who can enter this workspace</h3></div>
+              <div><p class="eyebrow">ACCESS + PERMISSIONS</p><h3>Access</h3></div>
               <button class="primary-btn" id="inviteMemberBtn">+ Invite teammate</button>
             </div>
             <div class="role-legend">
@@ -1118,7 +1118,7 @@
 
           <article class="panel">
             <p class="eyebrow">SECURITY</p>
-            <h3>Protected controls</h3>
+            <h3>Security</h3>
             <div class="setting-row"><span><strong>Workspace ownership</strong><small>Cannot be changed by Admin or Worker.</small></span><span>Owner</span></div>
             <div class="setting-row"><span><strong>Permissions</strong><small>Only the owner can promote, demote or remove access.</small></span><span>Locked</span></div>
             <div class="setting-row"><span><strong>Data protection</strong><small>Business records are isolated by account permissions.</small></span><span>Protected</span></div>
@@ -1126,7 +1126,7 @@
 
           <article class="panel">
             <p class="eyebrow">INTEGRATIONS</p>
-            <h3>Private connections</h3>
+            <h3>Integrations</h3>
             <div class="setting-row" data-account-billing><span><strong>App subscription</strong><small>Subscription access is managed by The Launch Era.</small></span><span>Owner only</span></div>
             <div class="setting-row"><span><strong>Email connections</strong><small>Email delivery and private connection settings stay hidden from teammates.</small></span><span>Owner only</span></div>
           </article>
@@ -1167,7 +1167,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260928-tablet-122";
+    window.__tleShellVersion="20260928-headings-123";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1186,10 +1186,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260928-tablet-122"></script>
-  <script src="./i18n.js?v=20260928-tablet-122"></script>
-  <script src="./public.js?v=20260928-tablet-122"></script>
-  <script src="./app.js?v=20260928-tablet-122"></script>
-  <script src="./followups.js?v=20260928-tablet-122"></script>
+  <script src="./vendor/supabase.js?v=20260928-headings-123"></script>
+  <script src="./i18n.js?v=20260928-headings-123"></script>
+  <script src="./public.js?v=20260928-headings-123"></script>
+  <script src="./app.js?v=20260928-headings-123"></script>
+  <script src="./followups.js?v=20260928-headings-123"></script>
 </body>
 </html>
