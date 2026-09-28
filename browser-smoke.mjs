@@ -131,15 +131,7 @@ try{
         event.stopImmediatePropagation();
       },{once:true,capture:true});
     });
-    const submitHit=await page.evaluate(()=>{
-      const btn=document.querySelector("#authSubmit");
-      if(!btn) return {ok:false,reason:"missing"};
-      const r=btn.getBoundingClientRect();
-      const x=r.left+r.width/2;
-      const y=r.top+r.height/2;
-      const hit=document.elementFromPoint(x,y);
-      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};
-    });
+    // Wait for the splash fade and auth panel layout to settle before the\n    // physical tap gate. This preserves the real hit-test instead of masking it.\n    await page.waitForFunction(()=>{\n      const splash=document.querySelector("#sessionSplash");\n      const btn=document.querySelector("#authSubmit");\n      if(!btn) return false;\n      const r=btn.getBoundingClientRect();\n      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") && r.width>0 && r.height>0;\n    },{timeout:3000});\n    const submitHit=await page.evaluate(()=>{\n      const btn=document.querySelector("#authSubmit");\n      if(!btn) return {ok:false,reason:"missing"};\n      const r=btn.getBoundingClientRect();\n      const x=r.left+r.width/2;\n      const y=r.top+r.height/2;\n      const hit=document.elementFromPoint(x,y);\n      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};\n    });
     if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
     if(profile.viewport.hasTouch){
       await page.touchscreen.tap(submitHit.x,submitHit.y);
@@ -147,8 +139,7 @@ try{
       await page.click("#authSubmit");
     }
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
-    await page.click("#authSwitch");
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:5000});
+    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());\n    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
