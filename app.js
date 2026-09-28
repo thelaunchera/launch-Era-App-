@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-105";
+const APP_VERSION = "20260928-stable-106";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4945,10 +4945,35 @@ function renderTodayClock(){
     }).format(now);
   }
 }
-function installTodayClock(){
+function scheduleTodayClockTick(){
+  if(window.__tleTodayClockTimer){
+    clearTimeout(window.__tleTodayClockTimer);
+    window.__tleTodayClockTimer=null;
+  }
+  const now=Date.now();
+  const delay=(60*1000-(now%(60*1000)))+120;
+  window.__tleTodayClockTimer=setTimeout(function tick(){
+    renderTodayClock();
+    if(state.session&&state.business){
+      try{renderTodaySummary();}catch{}
+    }
+    scheduleTodayClockTick();
+  },delay);
+}
+function wakeTodayClock(){
   renderTodayClock();
-  if(window.__tleTodayClockTimer) return;
-  window.__tleTodayClockTimer=setInterval(renderTodayClock,30000);
+  scheduleTodayClockTick();
+}
+function installTodayClock(){
+  wakeTodayClock();
+  if(window.__tleTodayClockWakeListenersInstalled) return;
+  window.__tleTodayClockWakeListenersInstalled=true;
+
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="visible") wakeTodayClock();
+  });
+  window.addEventListener("focus",wakeTodayClock);
+  window.addEventListener("pageshow",wakeTodayClock);
 }
 
 function renderTodaySummary(wakeAssistant=false){
