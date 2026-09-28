@@ -119,8 +119,14 @@ if(!html.includes('data-view="followups"') || !html.includes('data-page="followu
 if(!app.includes("window.TLE_FOLLOWUPS_BRIDGE") || app.includes('supabase.rpc("refresh_follow_up_tasks"')){
   throw new Error("Follow-ups regression: module bridge is missing or follow-up backend logic leaked into app.js");
 }
-if(!followups.includes('refresh_follow_up_tasks') || !followups.includes('send_follow_up_task') || !followups.includes('data-followup-mode')){
-  throw new Error("Follow-ups regression: queue, send, or preference controls are missing");
+if(
+  !followups.includes('get_follow_up_candidates') ||
+  !followups.includes('send_follow_up_now') ||
+  !followups.includes('update_follow_up_state') ||
+  !followups.includes('follow_up_settings') ||
+  !followups.includes('data-followup-mode')
+){
+  throw new Error("Follow-ups regression: queue, send, state, or preference controls are missing");
 }
 const billingCollectionLines=app.split("\n").filter(line=>line.includes("[data-account-billing]")&&line.includes(".forEach"));
 if(billingCollectionLines.length<2 || billingCollectionLines.some(line=>!line.includes('$$("[data-account-billing]").forEach'))){
