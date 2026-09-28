@@ -6388,3 +6388,40 @@ body.shell-auth{overflow-anchor:none}
     font-size:37px!important;
   }
 }
+
+
+/* 2026-09-28 — Today clock legibility v80 */
+#todayHeroCard #todayClockTime{
+  font-size:14px!important;
+  line-height:1.05!important;
+}
+#todayHeroCard #todayDatePill{
+  font-size:9px!important;
+  line-height:1.2!important;
+}
+#todayHeroCard .today-clock{
+  min-width:132px!important;
+  padding:10px 12px!important;
+}
+#todayHeroCard .today-clock-mark{
+  width:27px!important;
+  height:27px!important;
+  flex-basis:27px!important;
+}
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard #todayClockTime{
+    font-size:13px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayDatePill{
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:122px!important;
+    padding:9px 10px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    width:25px!important;
+    height:25px!important;
+    flex-basis:25px!important;
+  }
+}
