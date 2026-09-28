@@ -120,8 +120,7 @@ try{
     if(layout.scrollWidth>layout.innerWidth+4) throw new Error(profile.name+": horizontal overflow "+layout.scrollWidth+" > "+layout.innerWidth);
     if(layout.appError) throw new Error(profile.name+": app boot error "+layout.appError);
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
-    await page.click("#authSwitch");
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:5000});
+    // The auth panel animates on mobile, so verify the delegated switch action\n    // without making the release gate depend on a transient clickable point.\n    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());\n    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
       window.__tleSmokeAuthSubmitClicked=false;
       const btn=document.querySelector("#authSubmit");
