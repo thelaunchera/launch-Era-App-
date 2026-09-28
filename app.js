@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-100";
+const APP_VERSION = "20260928-stable-101";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5268,12 +5268,18 @@ function renderTodayRouteChip(todayJobs){
   const routable=(todayJobs||[]).filter(j=>String(j.service_address||"").trim());
   chip.hidden=!routable.length;
   if(!routable.length) return;
-  label.textContent=langPick("Best route","Mejor ruta","Melhor rota","Meilleur itinéraire");
+  const count=routable.length;
+  label.textContent=langPick(
+    "Best route · "+count+" stop"+(count===1?"":"s"),
+    "Mejor ruta · "+count+" parada"+(count===1?"":"s"),
+    "Melhor rota · "+count+" parada"+(count===1?"":"s"),
+    "Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s")
+  );
   chip.title=langPick(
-    "Open GPS for live traffic and navigation",
-    "Abrir GPS para tráfico en vivo y navegación",
-    "Abrir GPS para trânsito ao vivo e navegação",
-    "Ouvrir le GPS pour le trafic en direct et la navigation"
+    "Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.",
+    "Empieza desde tu ubicación actual. Google Maps usa tráfico en vivo y mantiene el orden programado.",
+    "Começa na sua localização atual. O Google Maps usa trânsito ao vivo e mantém a ordem agendada.",
+    "Démarre depuis votre position actuelle. Google Maps utilise le trafic en direct et conserve l’ordre prévu."
   );
 }
 
@@ -5306,8 +5312,13 @@ function renderOperations(){
   }
   if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
+    const count=routable.length;
+    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",count===1?"parada pronta para GPS":"paradas prontas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts");
+    const gpsStart=langPick("Starts from your current location · live traffic in Google Maps.","Empieza desde tu ubicación actual · tráfico en vivo en Google Maps.","Começa na sua localização atual · trânsito ao vivo no Google Maps.","Démarre depuis votre position actuelle · trafic en direct dans Google Maps.");
+    const gpsOrder=langPick("Stops stay in scheduled order so appointment times are protected.","Las paradas mantienen el orden programado para proteger las horas de las citas.","As paradas mantêm a ordem agendada para proteger os horários.","Les arrêts restent dans l’ordre prévu afin de respecter les horaires.");
+    const gpsButton=langPick("Open GPS route","Abrir ruta GPS","Abrir rota GPS","Ouvrir l’itinéraire GPS");
     routeVisual.innerHTML=todayJobs.length
-      ? `<div class="route-command-summary"><strong>${todayJobs.length} stop${todayJobs.length===1?"":"s"} scheduled today</strong><span>${escapeHtml(langPick("Stops are shown below in scheduled order.","Las paradas aparecen abajo en el orden programado.","As paradas aparecem abaixo na ordem agendada.","Les arrêts apparaissent ci-dessous dans l’ordre prévu."))}</span></div>`
+      ? `<div class="route-command-summary"><strong>${count} ${escapeHtml(gpsLabel)}</strong><span>${escapeHtml(gpsStart)}</span><span>${escapeHtml(gpsOrder)}</span>${count?`<button type="button" class="route-best-btn" data-best-route>↗ ${escapeHtml(gpsButton)}</button>`:""}</div>`
       : "Your route appears here when jobs are scheduled.";
   }
   renderTodayRouteChip(todayJobs);
