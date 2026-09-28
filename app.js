@@ -4341,7 +4341,7 @@ function renderCalendarDayDetails(dateKey,options={}){
     </div>`;
 
   panel.hidden=false;
-  $("#calendarWeekRow [data-calendar-day]").forEach(el=>{
+  $$("#calendarWeekRow [data-calendar-day]").forEach(el=>{
     const active=el.dataset.calendarDay===dateKey;
     el.classList.toggle("calendar-active",active);
     el.setAttribute("aria-pressed",active?"true":"false");
@@ -4359,7 +4359,7 @@ function clearCalendarDayDetails(){
     panel.hidden=true;
     panel.innerHTML="";
   }
-  $("#calendarWeekRow [data-calendar-day]").forEach(el=>{
+  $$("#calendarWeekRow [data-calendar-day]").forEach(el=>{
     el.classList.remove("calendar-active");
     el.setAttribute("aria-pressed","false");
   });
