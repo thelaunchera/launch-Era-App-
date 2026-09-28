@@ -4076,6 +4076,15 @@ function openClientInfo(clientId){
       title:langPick("Invoice","Factura","Fatura","Facture")+" · "+money(Number(inv.total||0)),
       meta:formatDateTime(inv.updated_at||inv.created_at)+" · "+String(inv.status||"").replaceAll("_"," ")
     })),
+    ...invoices.flatMap(inv=>(inv.payments||[])
+      .filter(payment=>["paid","completed","succeeded"].includes(String(payment.status||"").toLowerCase()))
+      .map(payment=>({
+        at:payment.paid_at||payment.created_at,
+        icon:"💵",
+        title:langPick("Payment","Pago","Pagamento","Paiement")+" · "+money(Number(payment.amount||0)),
+        meta:formatDateTime(payment.paid_at||payment.created_at)+" · "+paymentMethodLabel(payment.method||"")
+      }))
+    ),
     ...bookings.map(b=>({
       at:b.created_at||b.requested_start_at,
       icon:"📅",
@@ -5903,7 +5912,7 @@ function openEntityForm(type,id=null){
         ${!record?`
           <label class="full">Repeat
             <select name="recurrence_pattern" data-recurrence-pattern>
-              <option value="one_time">Does not repeat</option>
+              <option value="one_time">One time</option>
               <option value="weekly">Every week</option>
               <option value="biweekly">Every 2 weeks</option>
               <option value="monthly">Monthly</option>
