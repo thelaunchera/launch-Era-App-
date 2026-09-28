@@ -3306,7 +3306,17 @@ function openInquiryNotificationDetail(notificationId){
 
   if(item.type==="job-status"){
     closeNotificationPopover();
-    openView("route");
+    const job=state.jobs.find(j=>j.id===item.recordId);
+    openView("calendar");
+    if(job){
+      const dateKey=tleCalendarDateKey(job.starts_at);
+      state.calendarSelectedDate=dateKey;
+      requestAnimationFrame(()=>{
+        renderCalendarDayDetails(dateKey,{jobId:job.id});
+      });
+    }else{
+      showToast(langPick("Job details are no longer available.","Los detalles del trabajo ya no están disponibles.","Os detalhes do trabalho não estão mais disponíveis.","Les détails du travail ne sont plus disponibles."));
+    }
     return;
   }
 
@@ -4274,9 +4284,25 @@ function renderJobs(){
 
   const recurring=$("#recurringJobsList");
   if(recurring){
-    const upcoming=visible.filter(j=>j.recurrence_rule_id&&new Date(j.starts_at)>=new Date()).slice(0,8);
-    recurring.innerHTML=upcoming.length?upcoming.map(j=>`
-      <div class="recurring-item" data-calendar-job="${j.id}" role="button" tabindex="0"><strong>${escapeHtml(j.clients?.name||"Recurring job")}</strong><span>${escapeHtml(j.services?.name||"Cleaning")} · ${formatDateTime(j.starts_at)}</span></div>
+    const now=Date.now();
+    const recurringSeries=[...new Set(visible.map(j=>j.recurrence_rule_id).filter(Boolean))]
+      .map(ruleId=>{
+        const series=visible
+          .filter(j=>j.recurrence_rule_id===ruleId)
+          .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+        const next=series.find(j=>new Date(j.starts_at).getTime()>=now) || series[series.length-1];
+        const rule=state.recurrenceRules.find(r=>r.id===ruleId);
+        return next?{job:next,rule}:null;
+      })
+      .filter(Boolean)
+      .sort((a,b)=>new Date(a.job.starts_at)-new Date(b.job.starts_at))
+      .slice(0,8);
+
+    recurring.innerHTML=recurringSeries.length?recurringSeries.map(({job:j,rule})=>`
+      <div class="recurring-item" data-calendar-job="${j.id}" role="button" tabindex="0">
+        <strong>${escapeHtml(j.clients?.name||"Recurring job")}</strong>
+        <span>${escapeHtml(j.services?.name||"Cleaning")} · ${escapeHtml(bookingRecurrenceLabel(recurrencePatternFromRule(rule)))} · ${formatDateTime(j.starts_at)}</span>
+      </div>
     `).join(""):`<div class="empty-inline"><strong>No recurring jobs yet.</strong><span>Recurring appointments will appear here.</span></div>`;
   }
 }
