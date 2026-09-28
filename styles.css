@@ -4805,3 +4805,42 @@ body.shell-auth{overflow-anchor:none}
   .calendar-day-actions{display:grid}
   .calendar-day-actions button{width:100%;min-height:44px}
 }
+
+
+/* Recurring job controls */
+.recurrence-options{
+  display:grid;
+  gap:8px;
+  padding:12px 13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#F8F5EE;
+}
+.recurrence-options[hidden]{display:none}
+.recurrence-options p{
+  margin:0;
+  font-size:11px;
+  line-height:1.45;
+  color:var(--muted);
+}
+.field-optional{
+  font-size:10px;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:none;
+  letter-spacing:0;
+}
+.recurrence-existing-note{
+  display:grid;
+  gap:4px;
+  padding:12px 13px;
+  border:1px solid #D7D1C5;
+  border-radius:14px;
+  background:#FCFBF8;
+}
+.recurrence-existing-note strong{font-size:12px}
+.recurrence-existing-note span{font-size:11px;color:var(--muted);line-height:1.45}
+.recurring-item[data-calendar-job]{cursor:pointer;border-radius:10px;padding-inline:8px}
+@media(hover:hover) and (pointer:fine){
+  .recurring-item[data-calendar-job]:hover{background:#F8F5EE}
+}
