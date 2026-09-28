@@ -18,7 +18,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-unified-68";
+const APP_VERSION = "20260928-unified-69";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1753,13 +1753,17 @@ function setSidebarOpen(open){
   sidebar.classList.toggle("open",shouldOpen);
 
   if(isMobileNav){
-    sidebar.style.setProperty("left",shouldOpen?"0px":"-320px","important");
-    sidebar.style.setProperty("transform","translate3d(0,0,0)","important");
-    sidebar.style.setProperty("-webkit-transform","translate3d(0,0,0)","important");
+    sidebar.style.setProperty("left","0px","important");
+    sidebar.style.setProperty("right","auto","important");
+    sidebar.style.setProperty("transform",shouldOpen?"translate3d(0,0,0)":"translate3d(-110%,0,0)","important");
+    sidebar.style.setProperty("-webkit-transform",shouldOpen?"translate3d(0,0,0)":"translate3d(-110%,0,0)","important");
+    sidebar.style.setProperty("translate","0 0","important");
   }else{
     sidebar.style.removeProperty("left");
+    sidebar.style.removeProperty("right");
     sidebar.style.removeProperty("transform");
     sidebar.style.removeProperty("-webkit-transform");
+    sidebar.style.removeProperty("translate");
   }
 
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
