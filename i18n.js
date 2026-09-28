@@ -1310,6 +1310,84 @@
     }
   };
 
+
+  // 2026-09-28 — concise section labels + complete public Booking Page copy.
+  Object.assign(staticCorrections.es,{
+    "Booking Center":"Centro de reservas","Leads":"Leads","Clients":"Clientes","Calendar":"Calendario",
+    "Quotes":"Cotizaciones","Invoices":"Facturas","Follow-ups":"Seguimientos","Today's Route":"Ruta de hoy",
+    "Mileage":"Millaje","Time Tracking":"Control de tiempo","Supplies":"Suministros","Reports":"Reportes",
+    "Services + Add-ons":"Servicios + extras","Team":"Equipo","Settings":"Ajustes","Help & FAQ":"Ayuda y FAQ",
+    "Owner Reports":"Reportes del dueño","Owner Admin":"Admin del dueño",
+    "Book a Cleaning":"Reservar una limpieza","Request a Quote":"Pedir una cotización","Secure request":"Solicitud segura",
+    "Back":"Atrás","BOOK A CLEANING":"RESERVAR UNA LIMPIEZA","REQUEST A QUOTE":"PEDIR UNA COTIZACIÓN",
+    "Choose request type":"Elige el tipo de solicitud","Choose your service and send your request.":"Elige tu servicio y envía tu solicitud.",
+    "Choose a service with upfront pricing, then pick a real available time.":"Elige un servicio con precio definido y luego selecciona un horario realmente disponible.",
+    "For custom or variable-price work. Choose a quote-only service and tell us about the job.":"Para trabajos personalizados o de precio variable. Elige un servicio de cotización y cuéntanos sobre el trabajo.",
+    "Custom job type":"Tipo de trabajo personalizado","Choose a custom job type":"Elige un tipo de trabajo personalizado","Custom quote":"Cotización personalizada",
+    "No quote-only services available yet":"Aún no hay servicios de cotización disponibles","No priced services available for online booking":"Aún no hay servicios con precio disponibles para reservar online",
+    "No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.":"Aún no hay servicios personalizados configurados para cotización. Usa Reservar una limpieza para servicios con precio definido.",
+    "No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.":"No hay servicios con precio disponibles para reservar online. Los trabajos personalizados o de precio variable van en Pedir una cotización.",
+    "Price provided after review":"Precio después de revisar","No add-ons for this service.":"No hay extras para este servicio.",
+    "Your quote request was sent. The business will review it and contact you.":"Tu solicitud de cotización fue enviada. El negocio la revisará y se pondrá en contacto contigo.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Tu solicitud de reserva fue enviada. El negocio la revisará y confirmará la cita.",
+    "Could not send request":"No se pudo enviar la solicitud","Page unavailable":"Página no disponible","Quote unavailable":"Cotización no disponible",
+    "Invoice unavailable":"Factura no disponible","This page is not available.":"Esta página no está disponible.",
+    "This quote link is invalid or expired.":"Este enlace de cotización no es válido o venció.","This invoice link is invalid or expired.":"Este enlace de factura no es válido o venció.",
+    "Review the details below and choose Accept or Decline.":"Revisa los detalles y elige Aceptar o Rechazar.","Quote for":"Cotización para","your cleaning":"tu limpieza",
+    "Qty":"Cant.","No quote items found.":"No se encontraron artículos en la cotización.","No invoice items found.":"No se encontraron artículos en la factura.",
+    "Could not send dispute.":"No se pudo enviar la disputa.","Due":"Vence","Open Cleaning App":"Abrir Cleaning App"
+  });
+  Object.assign(staticCorrections.pt,{
+    "Booking Center":"Central de reservas","Leads":"Leads","Clients":"Clientes","Calendar":"Calendário",
+    "Quotes":"Orçamentos","Invoices":"Faturas","Follow-ups":"Acompanhamentos","Today's Route":"Rota de hoje",
+    "Mileage":"Quilometragem","Time Tracking":"Controle de tempo","Supplies":"Materiais","Reports":"Relatórios",
+    "Services + Add-ons":"Serviços + extras","Team":"Equipe","Settings":"Configurações","Help & FAQ":"Ajuda e FAQ",
+    "Owner Reports":"Relatórios do proprietário","Owner Admin":"Admin do proprietário",
+    "Book a Cleaning":"Agendar limpeza","Request a Quote":"Pedir orçamento","Secure request":"Solicitação segura",
+    "Back":"Voltar","BOOK A CLEANING":"AGENDAR LIMPEZA","REQUEST A QUOTE":"PEDIR ORÇAMENTO",
+    "Choose request type":"Escolha o tipo de solicitação","Choose your service and send your request.":"Escolha seu serviço e envie sua solicitação.",
+    "Choose a service with upfront pricing, then pick a real available time.":"Escolha um serviço com preço definido e depois selecione um horário realmente disponível.",
+    "For custom or variable-price work. Choose a quote-only service and tell us about the job.":"Para trabalhos personalizados ou de preço variável. Escolha um serviço de orçamento e conte sobre o trabalho.",
+    "Custom job type":"Tipo de trabalho personalizado","Choose a custom job type":"Escolha um tipo de trabalho personalizado","Custom quote":"Orçamento personalizado",
+    "No quote-only services available yet":"Ainda não há serviços de orçamento disponíveis","No priced services available for online booking":"Ainda não há serviços com preço disponíveis para reserva online",
+    "No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.":"Ainda não há serviços personalizados configurados para orçamento. Use Agendar limpeza para serviços com preço definido.",
+    "No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.":"Não há serviços com preço disponíveis para reserva online. Trabalhos personalizados ou de preço variável devem usar Pedir orçamento.",
+    "Price provided after review":"Preço após análise","No add-ons for this service.":"Não há extras para este serviço.",
+    "Your quote request was sent. The business will review it and contact you.":"Seu pedido de orçamento foi enviado. A empresa irá analisá-lo e entrar em contato.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Sua solicitação de reserva foi enviada. A empresa irá analisá-la e confirmar o agendamento.",
+    "Could not send request":"Não foi possível enviar a solicitação","Page unavailable":"Página indisponível","Quote unavailable":"Orçamento indisponível",
+    "Invoice unavailable":"Fatura indisponível","This page is not available.":"Esta página não está disponível.",
+    "This quote link is invalid or expired.":"Este link de orçamento é inválido ou expirou.","This invoice link is invalid or expired.":"Este link de fatura é inválido ou expirou.",
+    "Review the details below and choose Accept or Decline.":"Revise os detalhes abaixo e escolha Aceitar ou Recusar.","Quote for":"Orçamento para","your cleaning":"sua limpeza",
+    "Qty":"Qtd.","No quote items found.":"Nenhum item de orçamento encontrado.","No invoice items found.":"Nenhum item de fatura encontrado.",
+    "Could not send dispute.":"Não foi possível enviar a contestação.","Due":"Vence","Open Cleaning App":"Abrir Cleaning App"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Booking Center":"Centre de réservation","Leads":"Prospects","Clients":"Clients","Calendar":"Calendrier",
+    "Quotes":"Devis","Invoices":"Factures","Follow-ups":"Suivis","Today's Route":"Itinéraire du jour",
+    "Mileage":"Kilométrage","Time Tracking":"Suivi du temps","Supplies":"Fournitures","Reports":"Rapports",
+    "Services + Add-ons":"Services + options","Team":"Équipe","Settings":"Paramètres","Help & FAQ":"Aide et FAQ",
+    "Owner Reports":"Rapports propriétaire","Owner Admin":"Admin propriétaire",
+    "Book a Cleaning":"Réserver un nettoyage","Request a Quote":"Demander un devis","Secure request":"Demande sécurisée",
+    "Back":"Retour","BOOK A CLEANING":"RÉSERVER UN NETTOYAGE","REQUEST A QUOTE":"DEMANDER UN DEVIS",
+    "Choose request type":"Choisissez le type de demande","Choose your service and send your request.":"Choisissez votre service et envoyez votre demande.",
+    "Choose a service with upfront pricing, then pick a real available time.":"Choisissez un service avec un prix défini, puis sélectionnez un créneau réellement disponible.",
+    "For custom or variable-price work. Choose a quote-only service and tell us about the job.":"Pour les travaux personnalisés ou à prix variable. Choisissez un service sur devis et décrivez le travail.",
+    "Custom job type":"Type de travail personnalisé","Choose a custom job type":"Choisissez un type de travail personnalisé","Custom quote":"Devis personnalisé",
+    "No quote-only services available yet":"Aucun service sur devis n’est encore disponible","No priced services available for online booking":"Aucun service tarifé n’est encore disponible à la réservation en ligne",
+    "No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.":"Aucun service personnalisé sur devis n’est encore configuré. Utilisez Réserver un nettoyage pour les services avec un prix défini.",
+    "No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.":"Aucun service tarifé n’est disponible à la réservation en ligne. Les travaux personnalisés ou à prix variable passent par Demander un devis.",
+    "Price provided after review":"Prix après examen","No add-ons for this service.":"Aucune option pour ce service.",
+    "Your quote request was sent. The business will review it and contact you.":"Votre demande de devis a été envoyée. L’entreprise l’examinera et vous contactera.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Votre demande de réservation a été envoyée. L’entreprise l’examinera et confirmera le rendez-vous.",
+    "Could not send request":"Impossible d’envoyer la demande","Page unavailable":"Page indisponible","Quote unavailable":"Devis indisponible",
+    "Invoice unavailable":"Facture indisponible","This page is not available.":"Cette page n’est pas disponible.",
+    "This quote link is invalid or expired.":"Ce lien de devis est invalide ou a expiré.","This invoice link is invalid or expired.":"Ce lien de facture est invalide ou a expiré.",
+    "Review the details below and choose Accept or Decline.":"Vérifiez les détails ci-dessous et choisissez Accepter ou Refuser.","Quote for":"Devis pour","your cleaning":"votre nettoyage",
+    "Qty":"Qté","No quote items found.":"Aucun élément de devis trouvé.","No invoice items found.":"Aucun élément de facture trouvé.",
+    "Could not send dispute.":"Impossible d’envoyer la contestation.","Due":"Échéance","Open Cleaning App":"Ouvrir Cleaning App"
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
