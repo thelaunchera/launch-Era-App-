@@ -1440,7 +1440,11 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
-  $$("[data-account-billing]").forEach(el=>{
+  // Keep the user on the same workspace page after refresh/relaunch.
+  // Role permissions are applied first so a page that is no longer allowed
+  // safely falls back to Today instead of exposing a hidden section.
+  restoreWorkspaceView();
+  $("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
   renderTrialStatus();
@@ -1713,9 +1717,36 @@ function applyRolePermissions(){
   }
 }
 
+function workspaceViewStorageKey(){
+  const businessId=String(state.business?.id||"workspace");
+  const userId=String(state.session?.user?.id||state.session?.user?.email||"user");
+  return "tle_last_workspace_view_v1:"+businessId+":"+userId;
+}
+function canRestoreWorkspaceView(id){
+  if(!id) return false;
+  const view=$(".view").find(v=>v.dataset.page===id);
+  if(!view) return false;
+  const nav=$(".nav-item[data-view]").find(n=>n.dataset.view===id);
+  return !nav || !nav.hidden;
+}
+function saveWorkspaceView(id){
+  if(!canRestoreWorkspaceView(id)) return;
+  try{ localStorage.setItem(workspaceViewStorageKey(),id); }catch{}
+}
+function restoreWorkspaceView(){
+  let id="";
+  try{ id=String(localStorage.getItem(workspaceViewStorageKey())||""); }catch{}
+  if(!canRestoreWorkspaceView(id)){
+    id="today";
+    try{ localStorage.removeItem(workspaceViewStorageKey()); }catch{}
+  }
+  openView(id,{fromRestore:true,skipTrack:true,skipIntro:true});
+  return id;
+}
+
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
-  if(!options.fromBack && current && current!==id){
+  if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
   $$(".view").forEach(v=>{
@@ -1731,14 +1762,15 @@ function openView(id,options={}){
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
-  window.scrollTo({top:0,behavior:"smooth"});
-  trackVisit("/app/"+id).catch(()=>{});
+  saveWorkspaceView(id);
+  window.scrollTo({top:0,behavior:options.fromRestore?"auto":"smooth"});
+  if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="team"){
     loadTeamMessageThreads().then(()=>{
       if(state.activeTeamMessageMemberId) return loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true});
     }).catch(err=>console.warn("[TLE] team messages",err));
   }
-  setTimeout(()=>maybeShowFeatureIntro(id),220);
+  if(!options.skipIntro) setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
 // Delegated navigation keeps dashboard links working even when cards/lists
 // are re-rendered after data loads or iOS restores an older DOM snapshot.
@@ -2935,7 +2967,7 @@ async function initialize(){
   showToast("Loading your workspace…");
   loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
   if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
-  await trackVisit("/app/today");
+  await trackVisit("/app/"+($(".view.active")?.dataset.page||"today"));
 }
 window.addEventListener("pageshow",()=>{
   // Restore only the shell class. Do not force-scroll on resume: iOS fires
