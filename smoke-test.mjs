@@ -57,6 +57,7 @@ if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 if($("#authSubmit")?.textContent!=="Create account") throw new Error("Create account submit label is wrong");
 
 click("#authSwitch");
+await new Promise(r=>setTimeout(r,240));
 if($("#authTitle")?.textContent!=="Sign in") throw new Error("Existing-user sign-in switch failed");
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
