@@ -5070,3 +5070,106 @@ body.shell-auth{overflow-anchor:none}
     max-width:54px;
   }
 }
+
+
+/* 2026-09-28 — route + live traffic markers */
+.hero-route-chip{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+  min-height:32px;
+  padding:7px 10px;
+  border:1px solid rgba(25,25,25,.12);
+  border-radius:999px;
+  background:rgba(255,255,255,.58);
+  color:#191919;
+  font:900 10px/1 Futura,"Avenir Next",Arial,sans-serif;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.hero-route-chip[hidden]{display:none!important}
+.hero-route-chip-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#67A56E;
+  box-shadow:0 0 0 4px rgba(103,165,110,.12);
+}
+.hero-route-chip:active{transform:scale(.98)}
+
+.route-command-summary{
+  display:grid;
+  justify-items:center;
+  gap:7px;
+  width:min(100%,300px);
+}
+.route-command-summary strong{
+  color:#191919;
+  font-size:14px;
+}
+.route-command-summary span{
+  color:var(--muted);
+  font-size:10px;
+}
+.route-best-btn,
+.route-gps-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  border-radius:999px;
+  background:#191919;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.route-best-btn{
+  min-height:40px;
+  padding:10px 16px;
+  font-size:11px;
+}
+.route-gps-btn{
+  justify-self:start;
+  width:max-content;
+  min-height:31px;
+  margin-top:5px;
+  padding:7px 11px;
+  font-size:10px;
+}
+.route-best-btn:active,
+.route-gps-btn:active{transform:scale(.98)}
+.route-stop>div{min-width:0}
+.route-stop small{overflow-wrap:anywhere}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    min-height:29px;
+    padding:6px 8px;
+    gap:5px;
+    font-size:9px;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip-dot{
+    width:6px;
+    height:6px;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta::-webkit-scrollbar{display:none}
+  .route-stop{
+    grid-template-columns:32px minmax(0,1fr) auto;
+    gap:9px;
+    align-items:start;
+  }
+  .route-stop>b{
+    width:32px;
+    height:32px;
+  }
+  .route-gps-btn{
+    min-height:34px;
+    padding:8px 12px;
+  }
+}
