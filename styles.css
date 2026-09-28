@@ -7203,3 +7203,41 @@ body.shell-auth{overflow-anchor:none}
   .addon-choice{min-height:52px;padding:11px!important}
 }
 
+/* Tablet online presence layout · stable-116 */
+@media (min-width:681px) and (max-width:1180px){
+  [data-page="today"] .presence-panel{
+    display:grid!important;
+    grid-template-columns:minmax(210px,.75fr) minmax(0,1.25fr)!important;
+    align-items:center!important;
+    gap:22px!important;
+    padding:22px!important;
+  }
+  [data-page="today"] .presence-copy{
+    max-width:none!important;
+  }
+  [data-page="today"] .presence-copy h3{
+    font-size:21px!important;
+    line-height:1.08!important;
+  }
+  [data-page="today"] .presence-actions{
+    width:100%!important;
+    grid-template-columns:repeat(2,minmax(150px,1fr))!important;
+    gap:10px!important;
+  }
+  [data-page="today"] .presence-btn{
+    min-height:64px!important;
+    padding:12px 14px!important;
+    gap:11px!important;
+  }
+  [data-page="today"] .presence-btn strong{
+    font-size:12px!important;
+  }
+  [data-page="today"] .presence-btn small{
+    font-size:10px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    line-height:1.25!important;
+  }
+}
+
