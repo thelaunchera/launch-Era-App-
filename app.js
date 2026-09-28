@@ -734,16 +734,10 @@ async function getDeviceWeatherGeo(){
   if(!("geolocation" in navigator)) return null;
   // Never prompt for location during auth or automated/first-paint flows.
   // Use device coordinates only when permission has already been granted.
-  try{
-    if(navigator.permissions?.query){
-      const permission=await navigator.permissions.query({name:"geolocation"});
-      if(permission.state!=="granted") return null;
-    }else{
-      return null;
-    }
-  }catch{
-    return null;
-  }
+  // iOS/PWA does not reliably expose geolocation through Permissions API.
+  // Ask the geolocation provider directly. If the user already granted access,
+  // this resolves without another prompt; if denied/unavailable we fall back to
+  // the saved service area.
   return new Promise(resolve=>{
     navigator.geolocation.getCurrentPosition(pos=>{
       const latitude=Number(pos.coords?.latitude);
@@ -758,7 +752,7 @@ async function getDeviceWeatherGeo(){
         timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||"auto",
         source:"device"
       });
-    },()=>resolve(null),{enableHighAccuracy:false,maximumAge:10*60*1000,timeout:1500});
+    },()=>resolve(null),{enableHighAccuracy:true,maximumAge:60*1000,timeout:5000});
   });
 }
 async function loadBusinessWeather(force=false){
@@ -2580,7 +2574,7 @@ businessForm.addEventListener("submit", async (e)=>{
       hasAccountSignupWelcomePending();
     showApp();
     try{ renderTodaySummary(true); }catch(err){ console.warn("[TLE] first dashboard render",err); }
-    loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
+    loadBusinessWeather(true).catch(err=>console.warn("[TLE] first weather load",err));
     setupInvoiceRealtime();
     loadCoreData().catch(err=>console.warn("[TLE] workspace load",err));
     if(state.isPlatformAdmin) loadPlatformAdmin().catch(err=>console.warn("[TLE] platform admin",err));
@@ -3117,7 +3111,7 @@ async function initialize(){
 
   // Never leave the static HTML placeholder visible on launch.
   try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] first dashboard render",err); }
-  loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
+  loadBusinessWeather(true).catch(err=>console.warn("[TLE] first weather load",err));
 
   setupInvoiceRealtime();
   showToast("Loading your workspace…");
