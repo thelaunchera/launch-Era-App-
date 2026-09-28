@@ -30,8 +30,6 @@ jobs:
       - run: npm run check
       - run: npm run verify-local-supabase
       - run: npm run smoke
-      - name: One-time production new-user smoke
-        run: node production-new-user-smoke.mjs
       - run: npm run browser-smoke
 
   cross-browser:
