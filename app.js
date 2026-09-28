@@ -1708,6 +1708,11 @@ function setSidebarOpen(open){
   const shouldOpen=!!open && isMobileNav;
   if(!sidebar) return;
   sidebar.classList.toggle("open",shouldOpen);
+  if(shouldOpen){
+    sidebar.style.setProperty("left","0px","important");
+  }else{
+    sidebar.style.removeProperty("left");
+  }
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
   document.body.classList.toggle("sidebar-is-open",shouldOpen);
   $("#menuToggle")?.setAttribute("aria-expanded",shouldOpen?"true":"false");
