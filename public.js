@@ -426,7 +426,6 @@
       const serviceLabel=$("#publicServiceLabel");
       const dateInput=form?.querySelector('[name="date"]');
       const quoteTimeInput=form?.querySelector('[name="time"]');
-      const basePath=window.location.origin+window.location.pathname;
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(quoteTimeInput) quoteTimeInput.required=false;
@@ -512,21 +511,14 @@
         mode=nextMode;
         services=mode==="quote"?quoteOnlyServices:fixedPriceServices;
 
-        if(updateUrl){
-          const nextUrl=new URL(window.location.href);
-          nextUrl.searchParams.set("public",mode);
-          nextUrl.searchParams.set("slug",slug);
-          history.replaceState({tlePublicMode:mode},"",nextUrl.pathname+nextUrl.search+nextUrl.hash);
-        }
-
         if(bookTab){
-          bookTab.href=basePath+"?public=book&slug="+encodeURIComponent(slug);
           bookTab.classList.toggle("active",mode==="book");
+          bookTab.setAttribute("aria-pressed",mode==="book"?"true":"false");
           bookTab.setAttribute("aria-current",mode==="book"?"page":"false");
         }
         if(quoteTab){
-          quoteTab.href=basePath+"?public=quote&slug="+encodeURIComponent(slug);
           quoteTab.classList.toggle("active",mode==="quote");
+          quoteTab.setAttribute("aria-pressed",mode==="quote"?"true":"false");
           quoteTab.setAttribute("aria-current",mode==="quote"?"page":"false");
         }
 
@@ -570,6 +562,19 @@
         }
 
         renderAddons();
+
+        // URL syncing is secondary. Never allow an iOS/PWA History API issue
+        // to stop the visual mode switch itself.
+        if(updateUrl){
+          try{
+            const nextUrl=new URL(window.location.href);
+            nextUrl.searchParams.set("public",mode);
+            nextUrl.searchParams.set("slug",slug);
+            history.replaceState({tlePublicMode:mode},"",nextUrl.pathname+nextUrl.search+nextUrl.hash);
+          }catch(err){
+            console.warn("[TLE] public mode URL sync",err);
+          }
+        }
       }
 
       function switchMode(nextMode){
@@ -577,13 +582,12 @@
         renderMode(nextMode,{updateUrl:true});
       }
 
-      bookTab?.addEventListener("click",e=>{
+      $("#publicRequestSwitch")?.addEventListener("click",e=>{
+        const control=e.target.closest("[data-public-mode]");
+        if(!control) return;
         e.preventDefault();
-        switchMode("book");
-      });
-      quoteTab?.addEventListener("click",e=>{
-        e.preventDefault();
-        switchMode("quote");
+        e.stopPropagation();
+        switchMode(control.dataset.publicMode);
       });
       summary?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-switch-public-mode]");
