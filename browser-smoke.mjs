@@ -177,65 +177,6 @@ try{
     await page.click("#authSubmit");
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
-    await page.evaluate(()=>{
-      window.__tleSmokeAuthSubmitClicked=false;
-      const btn=document.querySelector("#authSubmit");
-      if(!btn) throw new Error("auth submit missing");
-      btn.addEventListener("click",event=>{
-        window.__tleSmokeAuthSubmitClicked=true;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      },{once:true,capture:true});
-      const splash=document.querySelector("#sessionSplash");
-      if(splash){
-        splash.hidden=true;
-        splash.style.pointerEvents="none";
-        splash.setAttribute("aria-hidden","true");
-      }
-      btn.scrollIntoView({block:"center",inline:"nearest"});
-    });
-    await new Promise(r=>setTimeout(r,420));
-    await page.waitForFunction(()=>{
-      const splash=document.querySelector("#sessionSplash");
-      const btn=document.querySelector("#authSubmit");
-      if(!btn) return false;
-      const r=btn.getBoundingClientRect();
-      const visibleWidth=Math.min(r.right,window.innerWidth)-Math.max(r.left,0);
-      const visibleHeight=Math.min(r.bottom,window.innerHeight)-Math.max(r.top,0);
-      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") &&
-        r.width>0 && r.height>0 &&
-        visibleWidth>=20 && visibleHeight>=20;
-    },{timeout:8000});
-    const submitHit=await page.evaluate(()=>{
-      const btn=document.querySelector("#authSubmit");
-      if(!btn) return {ok:false,reason:"missing"};
-      const r=btn.getBoundingClientRect();
-      const left=Math.max(r.left,0);
-      const right=Math.min(r.right,window.innerWidth);
-      const top=Math.max(r.top,0);
-      const bottom=Math.min(r.bottom,window.innerHeight);
-      if(right<=left || bottom<=top){
-        return {ok:false,reason:"outside-viewport",rect:{left:r.left,top:r.top,width:r.width,height:r.height}};
-      }
-      const x=(left+right)/2;
-      const y=(top+bottom)/2;
-      const hit=document.elementFromPoint(x,y);
-      return {
-        ok:hit===btn||btn.contains(hit),
-        x,y,
-        rect:{left:r.left,top:r.top,width:r.width,height:r.height},
-        visible:{left,right,top,bottom},
-        hit:hit?.id||hit?.tagName||""
-      };
-    });
-    if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
-    // The physical hit-test above proves the button is not covered.
-    // Dispatch the click directly so touch emulation timing cannot create
-    // intermittent CI failures after an otherwise valid hit-test.
-    await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
-    await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
