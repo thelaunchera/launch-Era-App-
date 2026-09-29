@@ -1,25 +1,25 @@
-const CACHE_NAME="tle-cleaning-app-20260929-contrast-fix-206";
+const CACHE_NAME="tle-cleaning-app-20260929-contrast-system-207";
 const CORE=[
-  "./boot.js?v=20260929-contrast-fix-206",
-  "./styles/boot.css?v=20260929-contrast-fix-206",
+  "./boot.js?v=20260929-contrast-system-207",
+  "./styles/boot.css?v=20260929-contrast-system-207",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-contrast-fix-206",
-  "./styles/workspace-components.css?v=20260929-contrast-fix-206",
-  "./styles/workspace-experience.css?v=20260929-contrast-fix-206",
-  "./styles/workspace-operations.css?v=20260929-contrast-fix-206",
-  "./styles/release-overrides.css?v=20260929-contrast-fix-206",
-  "./styles/release-mobile.css?v=20260929-contrast-fix-206",
-  "./styles/release-latest.css?v=20260929-contrast-fix-206",
-  "./styles/responsive-shell.css?v=20260929-contrast-fix-206",
-  "./styles/customer-documents.css?v=20260929-contrast-fix-206",
-  "./app.js?v=20260929-contrast-fix-206",
-  "./followups.js?v=20260929-contrast-fix-206",
-  "./i18n.js?v=20260929-contrast-fix-206",
-  "./onboarding-copy.js?v=20260929-contrast-fix-206",
-  "./public.js?v=20260929-contrast-fix-206",
-  "./vendor/supabase.js?v=20260929-contrast-fix-206",
-  "./manifest.webmanifest?v=20260929-contrast-fix-206"
+  "./styles.css?v=20260929-contrast-system-207",
+  "./styles/workspace-components.css?v=20260929-contrast-system-207",
+  "./styles/workspace-experience.css?v=20260929-contrast-system-207",
+  "./styles/workspace-operations.css?v=20260929-contrast-system-207",
+  "./styles/release-overrides.css?v=20260929-contrast-system-207",
+  "./styles/release-mobile.css?v=20260929-contrast-system-207",
+  "./styles/release-latest.css?v=20260929-contrast-system-207",
+  "./styles/responsive-shell.css?v=20260929-contrast-system-207",
+  "./styles/customer-documents.css?v=20260929-contrast-system-207",
+  "./app.js?v=20260929-contrast-system-207",
+  "./followups.js?v=20260929-contrast-system-207",
+  "./i18n.js?v=20260929-contrast-system-207",
+  "./onboarding-copy.js?v=20260929-contrast-system-207",
+  "./public.js?v=20260929-contrast-system-207",
+  "./vendor/supabase.js?v=20260929-contrast-system-207",
+  "./manifest.webmanifest?v=20260929-contrast-system-207"
 ];
 
 self.addEventListener("install",event=>{
