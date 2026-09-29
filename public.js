@@ -143,16 +143,30 @@
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
       const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle",etransfer:"E-transfer",bank_transfer:"Bank transfer",other:"Other"};
-      const enabledMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
+      const configuredMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
         ? data.payment_methods.map(x=>String(x).toLowerCase())
-        : ["cash","check","other"];
+        : ["cash","check"];
+      const enabledMethods=[...new Set([...configuredMethods,"other"])];
       $("#invoiceViewMethods").textContent=enabledMethods.map(x=>tt(methodLabels[x]||x)).join(" · ");
 
       const choices=$("#invoicePaymentChoices");
       const choiceStatus=$("#invoicePaymentChoiceStatus");
       const submitInvoiceBtn=$("#submitInvoiceBtn");
+      const otherWrap=$("#invoiceOtherPaymentWrap");
+      const otherInput=$("#invoiceOtherPaymentMethod");
+      const otherLabel=$("#invoiceOtherPaymentLabel");
+      const copy={
+        en:{label:"Other payment method",placeholder:"Example: Venmo, Cash App, Apple Pay",required:"Type the payment method before submitting."},
+        es:{label:"Otra forma de pago",placeholder:"Ejemplo: Venmo, Cash App, Apple Pay",required:"Escribe la forma de pago antes de enviarla."},
+        pt:{label:"Outra forma de pagamento",placeholder:"Exemplo: Venmo, Cash App, Apple Pay",required:"Digite a forma de pagamento antes de enviar."},
+        fr:{label:"Autre mode de paiement",placeholder:"Exemple : Venmo, Cash App, Apple Pay",required:"Indiquez le mode de paiement avant l’envoi."}
+      }[currentPublicLanguage()]||{};
+      if(otherLabel) otherLabel.textContent=copy.label||"Other payment method";
+      if(otherInput) otherInput.placeholder=copy.placeholder||"Example: Venmo, Cash App, Apple Pay";
+
       let selected=String(data?.customer_payment_method||"").toLowerCase();
-      const savedMethod=selected;
+      let selectedDetail=String(data?.customer_payment_method_detail||"").trim();
+      if(otherInput) otherInput.value=selectedDetail;
       const isPaid=String(data?.status||"").toLowerCase()==="paid";
 
       if(choices){
@@ -160,6 +174,10 @@
           '<button type="button" data-invoice-payment="'+esc(method)+'">'+esc(tt(methodLabels[method]||method))+'</button>'
         ).join("");
       }
+
+      const selectedDisplay=()=>selected==="other" && selectedDetail
+        ? tt("Other")+" — "+selectedDetail
+        : tt(methodLabels[selected]||selected||"");
 
       function renderPaymentChoice(){
         choices?.querySelectorAll("[data-invoice-payment]").forEach(btn=>{
@@ -169,18 +187,27 @@
           btn.disabled=isPaid;
         });
 
+        const needsOther=selected==="other";
+        if(otherWrap) otherWrap.hidden=!needsOther;
+        if(otherInput){
+          otherInput.disabled=isPaid || !needsOther;
+          otherInput.setAttribute("aria-required",needsOther?"true":"false");
+        }
+
         if(submitInvoiceBtn){
           submitInvoiceBtn.hidden=isPaid;
-          submitInvoiceBtn.disabled=isPaid || !selected;
+          submitInvoiceBtn.disabled=isPaid || !selected || (needsOther && selectedDetail.length<2);
         }
 
         if(!choiceStatus) return;
         if(isPaid){
           choiceStatus.textContent=selected
-            ? "Paid · "+((methodLabels[selected]||selected)||selected)
-            : "Payment confirmed by the cleaning business.";
+            ? tt("Paid")+" · "+selectedDisplay()
+            : tt("Payment confirmed by the cleaning business.");
+        }else if(needsOther && selectedDetail.length<2){
+          choiceStatus.textContent=copy.required||"Type the payment method before submitting.";
         }else if(selected){
-          choiceStatus.textContent=tt("Selected")+": "+((methodLabels[selected]||selected)||selected)+". "+tt("Tap Submit invoice to send this choice.");
+          choiceStatus.textContent=tt("Selected")+": "+selectedDisplay()+". "+tt("Tap Submit invoice to send this choice.");
         }else{
           choiceStatus.textContent=tt("Choose a payment method, then submit your choice.");
         }
@@ -193,27 +220,38 @@
         if(!btn || isPaid) return;
         selected=String(btn.dataset.invoicePayment||"").toLowerCase();
         renderPaymentChoice();
+        if(selected==="other") setTimeout(()=>otherInput?.focus(),0);
+      });
+
+      otherInput?.addEventListener("input",()=>{
+        selectedDetail=String(otherInput.value||"").trim();
+        renderPaymentChoice();
       });
 
       submitInvoiceBtn?.addEventListener("click",async()=>{
-        if(isPaid || !selected) return;
+        if(isPaid || !selected || (selected==="other" && selectedDetail.length<2)) return;
         submitInvoiceBtn.disabled=true;
         choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
+        if(otherInput) otherInput.disabled=true;
         if(choiceStatus) choiceStatus.textContent=tt("Submitting your payment choice…");
         try{
-          const result=await rpc("select_invoice_payment_method",{
+          const result=await rpc("select_invoice_payment_method_v2",{
             p_token:token,
-            p_method:selected
+            p_method:selected,
+            p_other_detail:selected==="other"?selectedDetail:null
           });
           selected=String(result?.payment_method||selected).toLowerCase();
-          if(choiceStatus) choiceStatus.textContent=tt("Submitted")+": "+(methodLabels[selected]||selected)+". "+tt("The business will confirm payment after it is received.");
+          selectedDetail=String(result?.payment_method_detail||selectedDetail||"").trim();
+          if(choiceStatus) choiceStatus.textContent=tt("Submitted")+": "+selectedDisplay()+". "+tt("The business will confirm payment after it is received.");
           submitInvoiceBtn.textContent=tt("Submitted")+" ✓";
           submitInvoiceBtn.disabled=true;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
+          if(otherInput) otherInput.disabled=true;
         }catch(err){
           if(choiceStatus) choiceStatus.textContent=err.message||tt("Could not submit invoice.");
           submitInvoiceBtn.disabled=false;
           choices?.querySelectorAll("button").forEach(x=>x.disabled=false);
+          if(otherInput) otherInput.disabled=selected!=="other";
         }
       });
 
