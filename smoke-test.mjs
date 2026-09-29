@@ -62,10 +62,11 @@ const styles=[
 if(
   !styles.includes("night mobile card contrast safety v206") ||
   !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="leads"] .mobile-record-card') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="invoices"] .mobile-record-card') ||
+  !styles.includes('.app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card') ||
   !styles.includes('.app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel')
+  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel') ||
+  !styles.includes("color:#191919!important") ||
+  !styles.includes("background:#FFFFFF!important")
 ){
   throw new Error("Night contrast regression: light mobile cards must keep readable text after the 7 PM palette switch");
 }
