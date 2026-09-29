@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-weather-livefix-168";
+const APP_VERSION = "20260929-mobile-topbar-169";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -9499,7 +9499,22 @@ document.addEventListener("click",e=>{
   if(!e.target.closest(".notification-shell")) closeNotificationPopover();
 });
 $("#appRefreshBtn")?.addEventListener("click",refreshInstalledApp);
-$("#languageBtn").addEventListener("click",()=>{ window.TLE_I18N?.toggle(); });
+$("#languageBtn").addEventListener("click",()=>{
+  window.TLE_I18N?.toggle();
+  setTimeout(()=>{
+    const code=$("#languageBtn .top-icon")?.textContent||String(appLanguage()||"en").toUpperCase();
+    const sidebarCode=$("#sidebarLanguageCode");
+    if(sidebarCode) sidebarCode.textContent=code;
+  },0);
+});
+$("#sidebarLanguageBtn")?.addEventListener("click",()=>{
+  $("#languageBtn")?.click();
+  setTimeout(()=>{
+    const code=$("#languageBtn .top-icon")?.textContent||String(appLanguage()||"en").toUpperCase();
+    const sidebarCode=$("#sidebarLanguageCode");
+    if(sidebarCode) sidebarCode.textContent=code;
+  },0);
+});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;if(typeof setSidebarOpen==="function") setSidebarOpen(false);else sidebar.classList.remove("open")}});
 
 if("serviceWorker" in navigator){
