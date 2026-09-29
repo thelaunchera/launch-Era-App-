@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-email-alerts-174";
+const APP_VERSION = "20260929-weather-layout-175";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -929,11 +929,23 @@ async function loadBusinessWeather(force=false){
 }
 function currentWeatherVisual(weather){
   const code=Number(weather?.current?.weather_code);
-  const precipitation=Number(weather?.current?.precipitation||0);
+  const current15=weather?.current_15m||{};
+  const precipitation=Math.max(
+    Number(weather?.current?.precipitation||0),
+    Number(weather?.current?.rain||0),
+    Number(weather?.current?.showers||0),
+    Number(current15?.precipitation||0),
+    Number(current15?.rain||0),
+    Number(current15?.showers||0)
+  );
+  const snowfall=Math.max(
+    Number(weather?.current?.snowfall||0),
+    Number(current15?.snowfall||0)
+  );
   const windSpeed=Number(weather?.current?.wind_speed_10m||0);
 
   if([95,96,99].includes(code)) return {kind:"storm",intensity:[96,99].includes(code)?"heavy":"normal"};
-  if([71,73,75,77,85,86].includes(code)) return {kind:"snow",intensity:code===75||code===86?"heavy":"normal"};
+  if(snowfall>0 || [71,73,75,77,85,86].includes(code)) return {kind:"snow",intensity:(snowfall>=1||code===75||code===86)?"heavy":"normal"};
   if([51,53,55,56,57].includes(code)) return {kind:"drizzle",intensity:[55,57].includes(code)?"normal":"light"};
   if([61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain",intensity:[65,67,82].includes(code)?"heavy":"normal"};
   if(precipitation>0){
@@ -1009,6 +1021,11 @@ function renderHeroWeatherEffects(){
   hero.dataset.season=season;
   hero.dataset.weather=visual.kind;
   hero.dataset.weatherIntensity=visual.intensity;
+  const shell=$("#appShell");
+  if(shell){
+    shell.dataset.weatherMood=visual.kind;
+    shell.dataset.weatherIntensity=visual.intensity;
+  }
 
   const activeWeather=["storm","rain","drizzle","snow","fog","wind"].includes(visual.kind);
   const seasonCounts={spring:9,summer:6,fall:9,winter:7};
