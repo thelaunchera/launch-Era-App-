@@ -30,6 +30,12 @@ if(!appVersion || !shellVersion || !swVersion || versions.some(v=>v!==appVersion
 if(manifest.start_url!=="./") fail("manifest start_url must remain version-agnostic './'");
 else pass("manifest start_url is version-agnostic");
 
+if(fs.existsSync("admin-reset.html")){
+  fail("legacy admin-reset.html must not be shipped in the public app");
+}else{
+  pass("legacy public admin reset page is absent");
+}
+
 if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   fail("active language set must be EN/ES/FR/HT");
 }else{
