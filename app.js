@@ -5218,7 +5218,50 @@ function installTodayClock(){
   window.addEventListener("pageshow",wakeTodayClock);
 }
 
+
+/* 2026-09-29 — first-win onboarding. UX-only: existing data model and booking flows remain unchanged. */
+function firstWinKey(suffix="state"){
+  return "tle_first_win_v1:"+String(state.business?.id||"workspace")+":"+suffix;
+}
+function firstWinLocalGet(suffix){
+  try{return localStorage.getItem(firstWinKey(suffix));}catch{return null;}
+}
+function firstWinLocalSet(suffix,value){
+  try{localStorage.setItem(firstWinKey(suffix),String(value));}catch{}
+}
+function firstWinStatus(){
+  const hasService=Array.isArray(state.services)&&state.services.length>0;
+  const links=state.publicLinks||{};
+  const hasAvailability=firstWinLocalGet("availability")==="1";
+  const previewed=firstWinLocalGet("preview")==="1";
+  const shared=firstWinLocalGet("share")==="1";
+  return {hasService,hasAvailability,previewed,shared,complete:hasService&&hasAvailability&&previewed&&shared};
+}
+function renderFirstWin(){
+  const shell=$("#firstWinShell");
+  if(!shell||!state.business||!["owner","admin"].includes(state.business.role)) return;
+  const dismissed=firstWinLocalGet("dismissed")==="1";
+  const s=firstWinStatus();
+  shell.hidden=dismissed||s.complete;
+  const done=[s.hasService,s.hasAvailability,s.previewed,s.shared];
+  $(".first-win-step",shell).forEach((el,i)=>el.classList.toggle("is-done",!!done[i]));
+  const bar=$("#firstWinProgressBar"); if(bar) bar.style.width=(done.filter(Boolean).length/4*100)+"%";
+  const ready=$("#firstWinReady"); if(ready) ready.hidden=!s.complete;
+}
+$("#firstWinDismiss")?.addEventListener("click",()=>{firstWinLocalSet("dismissed","1");renderFirstWin();});
+$("#firstWinCopyLink")?.addEventListener("click",()=>{firstWinLocalSet("share","1");$("#copyBooking")?.click();renderFirstWin();});
+$("#copyBooking")?.addEventListener("click",()=>{firstWinLocalSet("share","1");setTimeout(renderFirstWin,100);});
+document.addEventListener("click",e=>{
+  const step=e.target.closest?.("[data-first-win]");
+  if(!step) return;
+  const kind=step.dataset.firstWin;
+  if(kind==="preview") firstWinLocalSet("preview","1");
+  if(kind==="share") firstWinLocalSet("share","1");
+  setTimeout(renderFirstWin,0);
+});
+
 function renderTodaySummary(wakeAssistant=false){
+  try{ renderFirstWin(); }catch{}
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
   const businessHour=Number(new Intl.DateTimeFormat("en-US",{
@@ -8231,6 +8274,7 @@ if(testGoogleReviewBtn) testGoogleReviewBtn.addEventListener("click",()=>{
 });
 
 const saveAvailabilityBtn=$("#saveAvailabilityBtn");
+$("#saveAvailabilityBtn")?.addEventListener("click",()=>{firstWinLocalSet("availability","1");setTimeout(renderFirstWin,250);});
 if(saveAvailabilityBtn) saveAvailabilityBtn.addEventListener("click",async ()=>{
   try{
     saveAvailabilityBtn.disabled=true;
