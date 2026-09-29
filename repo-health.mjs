@@ -68,8 +68,12 @@ const limits={
 };
 for(const [file,limit] of Object.entries(limits)){
   const size=fs.statSync(file).size;
-  if(size>limit) fail(file+" grew beyond guardrail "+limit+" bytes (current "+size+")");
-  else pass(file+" size "+size+" / "+limit);
+  if(size>limit){
+    fail(file+" grew beyond guardrail "+limit+" bytes (current "+size+")");
+  }else{
+    pass(file+" size "+size+" / "+limit);
+    if(size>=limit*0.85) warn(file+" is above 85% of its size guardrail; refactor before adding more code");
+  }
 }
 
 const selectorModules={
@@ -101,6 +105,7 @@ for(const [file,config] of Object.entries(selectorModules)){
       fail(file+" · "+selector+" grew beyond module baseline "+cap+" to "+count);
     }else{
       pass(file+" · "+selector+" count "+count+" / "+cap);
+      if(count>=cap*0.85) warn(file+" · "+selector+" is near its duplication cap; consolidate selectors before adding another override");
     }
   }
 }
