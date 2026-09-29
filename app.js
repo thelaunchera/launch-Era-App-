@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-email-settings-stable-150";
+const APP_VERSION = "20260929-customer-email-settings-stable-151";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1995,7 +1995,7 @@ document.addEventListener("keydown",e=>{
 const sidebarScrim=$("#sidebarScrim");
 function syncMobileNavGroups(){
   if(window.innerWidth>860) return;
-  const groups=$("details.nav-group");
+  const groups=$$("details.nav-group");
   const active=$(".nav-item.active");
   const activeGroup=active?.closest("details.nav-group")||null;
   groups.forEach(group=>{ group.open=group===activeGroup; });
