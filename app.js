@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-invoice-payment-179";
+const APP_VERSION = "20260929-customer-activity-180";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -801,6 +801,14 @@ function customerPaymentMethodLabel(invoice){
     return langPick("Other","Otro","Outro","Autre")+" — "+detail;
   }
   return paymentMethodLabel(method);
+}
+function customerOpenStatus(record){
+  const count=Number(record?.customer_open_count||0);
+  const last=record?.customer_last_opened_at||record?.customer_first_opened_at||"";
+  if(!count || !last){
+    return {opened:false,text:langPick("Not viewed yet","Aún no lo ha abierto","Ainda não abriu","Pas encore consulté")};
+  }
+  return {opened:true,text:langPick("Viewed","Visto","Visualizado","Consulté")+" · "+formatDateTime(last)+(count>1?" · "+count+"×":"")};
 }
 function currencyForCountry(code){
   const map={
@@ -4771,6 +4779,7 @@ function renderInvoices(){
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
     const methodLabel=customerPaymentMethodLabel(inv);
+    const openStatus=customerOpenStatus(inv);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
@@ -4791,7 +4800,7 @@ function renderInvoices(){
       </span>
       <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
       <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total da fatura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
-      <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
+      <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b><small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions invoice-actions-stable">
         <span class="safe-actions">
           <button data-edit-invoice="${inv.id}">${escapeHtml(tr("Edit"))}</button>
@@ -5268,12 +5277,20 @@ function renderJobs(){
   const list=$("#jobsList");
   const sourceJobs=Array.isArray(state.jobs)?state.jobs:[];
   const visible=sourceJobs.filter(j=>j && j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
-  // Recurring occurrences belong in the dedicated Recurring section. Keeping
-  // them out of Upcoming prevents the same client from filling the main list.
-  const upcomingStandalone=visible.filter(j=>!j.recurrence_rule_id);
+  const nowMs=Date.now();
+  const incomingEndMs=nowMs+(72*60*60*1000);
+  // Incoming contains real job occurrences for the next 72 hours, including
+  // recurring occurrences. The Recurring section below still summarizes each
+  // series once, so the full future series never floods Incoming.
+  const incomingJobs=visible.filter(j=>{
+    const startsAt=new Date(j.starts_at).getTime();
+    if(!Number.isFinite(startsAt)) return false;
+    if(String(j.status||"").toLowerCase()==="completed") return false;
+    return startsAt>=nowMs && startsAt<=incomingEndMs;
+  });
 
   if(list){
-    list.innerHTML=upcomingStandalone.length?upcomingStandalone.slice(0,20).map(j=>`
+    list.innerHTML=incomingJobs.length?incomingJobs.slice(0,30).map(j=>`
       <div class="job-block" data-calendar-job="${j.id}" role="button" tabindex="0" aria-label="${escapeHtml((j.clients?.name||"Cleaning job")+" · "+formatDateTime(j.starts_at))}">
         <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
         <div>
@@ -5287,7 +5304,7 @@ function renderJobs(){
             : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
         </div>
       </div>
-    `).join(""):`<div class="empty-inline"><strong>No one-time jobs scheduled.</strong><span>Recurring jobs are listed once in Recurring.</span><button class="text-btn" data-create="job">Add a job →</button></div>`;
+    `).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No incoming jobs in the next 3 days.","No hay trabajos próximos en los siguientes 3 días.","Não há trabalhos nos próximos 3 dias.","Aucun travail prévu dans les 3 prochains jours."))}</strong><span>${escapeHtml(langPick("One-time and recurring jobs will appear here when they fall inside the 72-hour window.","Los trabajos únicos y recurrentes aparecerán aquí cuando estén dentro de la ventana de 72 horas.","Trabalhos únicos e recorrentes aparecerão aqui quando estiverem dentro da janela de 72 horas.","Les travaux ponctuels et récurrents apparaîtront ici lorsqu’ils entreront dans la fenêtre de 72 heures."))}</span><button class="text-btn" data-create="job">${escapeHtml(langPick("Add a job →","Añadir trabajo →","Adicionar trabalho →","Ajouter un travail →"))}</button></div>`;
   }
 
   const week=$("#calendarWeekRow");
@@ -5512,6 +5529,7 @@ function quoteColumn(status,label){
     ${items.length?items.map(q=>{
       const service=state.services.find(s=>s.id===q.quote_items?.[0]?.service_id);
       const total=Number(q.total||0);
+      const openStatus=customerOpenStatus(q);
       const dispute=state.disputes.find(d=>d.resource_type==="quote"&&d.quote_id===q.id&&d.status==="open");
       const paymentCopy=q.payment_status==="paid"?langPick("Paid","Pagado","Pago","Payé"):q.payment_status==="partial"?langPick("Partial payment","Pago parcial","Pagamento parcial","Paiement partiel"):"";
       const stateCopy=status==="accepted"
@@ -5543,6 +5561,7 @@ function quoteColumn(status,label){
           ${bookingPropertySnapshot(q)?`<small class="quote-property-summary">${escapeHtml(bookingPropertySnapshot(q))}</small>`:""}
         </div>
         <div class="quote-next-step"><span>${escapeHtml(stateCopy)}</span><b>${escapeHtml(nextCopy)}</b></div>
+        <small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>
         ${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}
         <div class="card-actions record-card-actions">
           <span class="safe-actions">
