@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-ui-stable-165";
+const APP_VERSION = "20260929-weather-ambience-166";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -890,7 +890,7 @@ async function loadBusinessWeather(force=false){
     const params=new URLSearchParams({
       latitude:String(geo.latitude),
       longitude:String(geo.longitude),
-      current:"temperature_2m,apparent_temperature,weather_code,precipitation,rain,showers,snowfall",
+      current:"temperature_2m,apparent_temperature,weather_code,precipitation,rain,showers,snowfall,wind_speed_10m",
       minutely_15:"precipitation,rain,showers,snowfall,weather_code",
       past_minutely_15:"4",
       forecast_minutely_15:"12",
@@ -929,15 +929,21 @@ async function loadBusinessWeather(force=false){
 function currentWeatherVisual(weather){
   const code=Number(weather?.current?.weather_code);
   const precipitation=Number(weather?.current?.precipitation||0);
+  const windSpeed=Number(weather?.current?.wind_speed_10m||0);
 
+  if([95,96,99].includes(code)) return {kind:"storm",intensity:[96,99].includes(code)?"heavy":"normal"};
   if([71,73,75,77,85,86].includes(code)) return {kind:"snow",intensity:code===75||code===86?"heavy":"normal"};
-  if([95,96,99].includes(code)) return {kind:"rain",intensity:"heavy"};
+  if([51,53,55,56,57].includes(code)) return {kind:"drizzle",intensity:[55,57].includes(code)?"normal":"light"};
   if([61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain",intensity:[65,67,82].includes(code)?"heavy":"normal"};
-  if([51,53,55,56,57].includes(code)) return {kind:"rain",intensity:"light"};
   if(precipitation>0){
     const heavyThreshold=businessTemperatureUnit()==="celsius"?4:0.15;
     return {kind:"rain",intensity:precipitation>=heavyThreshold?"heavy":"light"};
   }
+  if([45,48].includes(code)) return {kind:"fog",intensity:"normal"};
+  if(code===3) return {kind:"cloudy",intensity:"normal"};
+  if([1,2].includes(code)) return {kind:"partly",intensity:"light"};
+  if(code===0) return {kind:"clear",intensity:"light"};
+  if(Number.isFinite(windSpeed)&&windSpeed>=28) return {kind:"wind",intensity:windSpeed>=45?"heavy":"normal"};
   return {kind:"none",intensity:"none"};
 }
 
@@ -945,12 +951,11 @@ function currentWeatherMeta(weather){
   const code=Number(weather?.current?.weather_code);
   const rawKind=precipitationKindForCode(code);
   const visual=currentWeatherVisual(weather);
-  if(!rawKind&&visual.kind==="rain"){
-    return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  }
-  if(!rawKind&&visual.kind==="snow"){
-    return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  }
+  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
+  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
+  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
+  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
+  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",pt:"Ventoso",fr:"Venteux"};
   return weatherCodeMeta(code);
 }
 
@@ -995,16 +1000,30 @@ function renderHeroWeatherEffects(){
   hero.dataset.weather=visual.kind;
   hero.dataset.weatherIntensity=visual.intensity;
 
+  const activeWeather=["storm","rain","drizzle","snow","fog","wind"].includes(visual.kind);
   const seasonCounts={spring:9,summer:6,fall:9,winter:7};
-  seasonLayer.innerHTML=particleMarkup(seasonCounts[season]||7,"season-particle");
+  seasonLayer.innerHTML=activeWeather?"":particleMarkup(seasonCounts[season]||7,"season-particle");
   seasonLayer.className="hero-season-layer season-"+season;
 
-  if(visual.kind==="rain"){
+  if(visual.kind==="storm"){
+    const count=visual.intensity==="heavy"?30:22;
+    precipLayer.innerHTML=particleMarkup(count,"rain-drop")+'<span class="lightning-flash"></span>';
+  }else if(visual.kind==="rain"){
     const count=visual.intensity==="heavy"?28:visual.intensity==="light"?12:20;
     precipLayer.innerHTML=particleMarkup(count,"rain-drop");
+  }else if(visual.kind==="drizzle"){
+    precipLayer.innerHTML=particleMarkup(12,"drizzle-drop");
   }else if(visual.kind==="snow"){
     const count=visual.intensity==="heavy"?24:16;
     precipLayer.innerHTML=particleMarkup(count,"snow-flake");
+  }else if(visual.kind==="fog"){
+    precipLayer.innerHTML=particleMarkup(5,"mist-band");
+  }else if(visual.kind==="cloudy"||visual.kind==="partly"){
+    precipLayer.innerHTML=particleMarkup(visual.kind==="cloudy"?5:3,"cloud-puff");
+  }else if(visual.kind==="clear"){
+    precipLayer.innerHTML='<span class="sun-glow"></span>';
+  }else if(visual.kind==="wind"){
+    precipLayer.innerHTML=particleMarkup(visual.intensity==="heavy"?11:7,"wind-streak");
   }else{
     precipLayer.innerHTML="";
   }
@@ -1155,7 +1174,7 @@ function renderWeatherBrief(){
     let text="";
 
     const currentVisual=currentWeatherVisual(weather);
-    const currentKind=precipitationKindForCode(Number(weather.current.weather_code))||(currentVisual.kind==="snow"?"snow":currentVisual.kind==="rain"?"rain":"");
+    const currentKind=precipitationKindForCode(Number(weather.current.weather_code))||(currentVisual.kind==="snow"?"snow":currentVisual.kind==="storm"?"storm":(["rain","drizzle"].includes(currentVisual.kind)?"rain":""));
     if(currentKind){
       text=currentKind==="snow"
         ? langPick("Snow now in your area.","Está nevando ahora en tu zona.","Está nevando agora na sua área.","Il neige maintenant dans votre zone.")
@@ -5552,7 +5571,7 @@ function dashboardWeatherContext(now,remainingJobs){
   const code=Number(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
   const visual=currentWeatherVisual(weather);
-  const currentKind=precipitationKindForCode(code)||(visual.kind==="snow"?"snow":visual.kind==="rain"?"rain":"");
+  const currentKind=precipitationKindForCode(code)||(visual.kind==="snow"?"snow":visual.kind==="storm"?"storm":(["rain","drizzle"].includes(visual.kind)?"rain":""));
   const event=weather.nextPrecip||nextPrecipitationWindow(weather);
   const currentDate=String(weather.current.time||"").slice(0,10);
 
