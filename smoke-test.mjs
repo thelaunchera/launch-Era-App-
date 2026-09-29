@@ -196,15 +196,17 @@ if(
   throw new Error("Public localization regression: booking/quote/invoice states bypass translation");
 }
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
-const releaseVersionPattern=/20260928-(?:unified|stable)-\\d+/g;
-const releaseVersions=[
-  appVersion,
-  ...[...html.matchAll(releaseVersionPattern)].map(m=>m[0]),
-  ...[...serviceWorker.matchAll(releaseVersionPattern)].map(m=>m[0]),
-  ...[...manifest.matchAll(releaseVersionPattern)].map(m=>m[0])
-].filter(Boolean);
-if(!appVersion || releaseVersions.some(v=>v!==appVersion)){
-  throw new Error("Release version mismatch across app shell/runtime/service worker");
+const shellVersion=(html.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
+const serviceWorkerVersion=(serviceWorker.match(/CACHE_NAME="tle-cleaning-app-([^"]+)"/)||[])[1];
+const htmlAssetVersions=[...html.matchAll(/\\?v=(202609\\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
+const serviceWorkerAssetVersions=[...serviceWorker.matchAll(/\\?v=(202609\\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
+const releaseVersions=[appVersion,shellVersion,serviceWorkerVersion,...htmlAssetVersions,...serviceWorkerAssetVersions].filter(Boolean);
+if(!appVersion || !shellVersion || !serviceWorkerVersion || releaseVersions.some(v=>v!==appVersion)){
+  throw new Error("Release version mismatch across app shell/runtime/service worker/assets");
+}
+const manifestData=JSON.parse(manifest);
+if(manifestData.start_url!=="./"){
+  throw new Error("PWA regression: manifest start_url must stay version-agnostic");
 }
 if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","worker","billing","slug","public"]')){
   throw new Error("PWA regression: sensitive navigation URLs can be cached");
