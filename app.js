@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-activity-180";
+const APP_VERSION = "20260929-tablet-social-180";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -6925,9 +6925,10 @@ function renderBusinessPresence(){
   const igState=$("#presenceInstagramState");
   const fbState=$("#presenceFacebookState");
   const googleState=$("#presenceGoogleState");
-  if(igState) igState.textContent=ig?tr("Open profile"):tr("Add profile");
-  if(fbState) fbState.textContent=fb?tr("Open page"):tr("Add page");
-  if(googleState) googleState.textContent=googleUrl?tr("Open reviews"):tr("Add link");
+  const connectedLabel=langPick("Connected","Conectado","Conectado","Connecté");
+  if(igState) igState.textContent=ig?connectedLabel:tr("Add profile");
+  if(fbState) fbState.textContent=fb?connectedLabel:tr("Add page");
+  if(googleState) googleState.textContent=googleUrl?connectedLabel:tr("Add link");
 
   if(hint){
     hint.textContent=ig||fb||googleUrl
