@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-quote-slots-183";
+const CACHE_NAME="tle-cleaning-app-20260929-signup-polish-185";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-quote-slots-183",
-  "./app.js?v=20260929-quote-slots-183",
-  "./followups.js?v=20260929-quote-slots-183",
-  "./i18n.js?v=20260929-quote-slots-183",
-  "./public.js?v=20260929-quote-slots-183",
-  "./vendor/supabase.js?v=20260929-quote-slots-183",
-  "./manifest.webmanifest?v=20260929-quote-slots-183"
+  "./styles.css?v=20260929-signup-polish-185",
+  "./app.js?v=20260929-signup-polish-185",
+  "./followups.js?v=20260929-signup-polish-185",
+  "./i18n.js?v=20260929-signup-polish-185",
+  "./public.js?v=20260929-signup-polish-185",
+  "./vendor/supabase.js?v=20260929-signup-polish-185",
+  "./manifest.webmanifest?v=20260929-signup-polish-185"
 ];
 
 self.addEventListener("install",event=>{
