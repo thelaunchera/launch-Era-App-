@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-email-settings-nav-fix-141";
+const APP_VERSION = "20260929-customer-email-settings-nav-fix-142";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1924,7 +1924,7 @@ function openView(id,options={}){
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $(".view").forEach(v=>{
+  $$(".view").forEach(v=>{
     const active=v.dataset.page===id;
     v.classList.toggle("active",active);
     if(active){
@@ -1934,7 +1934,7 @@ function openView(id,options={}){
     }
   });
   let activeNav=null;
-  $(".nav-item").forEach(n=>{
+  $$(".nav-item").forEach(n=>{
     const active=n.dataset.view===id;
     n.classList.toggle("active",active);
     if(active) activeNav=n;
@@ -2000,10 +2000,10 @@ function syncMobileNavGroups(){
   const activeGroup=active?.closest("details.nav-group")||null;
   groups.forEach(group=>{ group.open=group===activeGroup; });
 }
-$("details.nav-group").forEach(group=>{
+$$("details.nav-group").forEach(group=>{
   group.addEventListener("toggle",()=>{
     if(window.innerWidth>860 || !group.open) return;
-    $("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
+    $$("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
   });
 });
 function setSidebarOpen(open){
@@ -4331,7 +4331,7 @@ function invoicePaidAmount(inv){
 
 function enhanceMobileRecordActions(){
   if(!window.matchMedia("(max-width: 680px)").matches) return;
-  $$(".mobile-record-card .record-actions").forEach(actions=>{
+  $$$(".mobile-record-card .record-actions").forEach(actions=>{
     if(actions.dataset.compactReady==="1") return;
     const safe=actions.querySelector(".safe-actions");
     if(!safe) return;
@@ -4348,7 +4348,7 @@ function enhanceMobileRecordActions(){
   });
 }
 document.addEventListener("click",e=>{
-  if(!e.target.closest(".record-actions")) $$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
+  if(!e.target.closest(".record-actions")) $$$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
 });
 
 function renderInvoices(){
@@ -5434,16 +5434,16 @@ function installGlobalWorkspaceSearch(){
 }
 function setBookingStep(step){
   const valid=["links","services","availability","preferences"]; if(!valid.includes(step))step="links";
-  $$("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
-  $$("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
+  $$$("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
+  $$$("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
   try{localStorage.setItem("tle_booking_step",step);}catch{}
 }
 function installProgressiveBooking(){
-  $$("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
+  $$$("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
   let saved="links";try{saved=localStorage.getItem("tle_booking_step")||"links";}catch{} setBookingStep(saved);
 }
 function installSettingsAccordion(){
-  $$(".settings-accordion>.settings-section").forEach((panel,i)=>{
+  $$$(".settings-accordion>.settings-section").forEach((panel,i)=>{
     if(panel.dataset.accordionReady)return; panel.dataset.accordionReady="1";
     const head=panel.querySelector(".panel-head")||panel.querySelector("h3"); if(!head)return;
     panel.classList.toggle("settings-open",i===0);
@@ -8620,7 +8620,7 @@ $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
 
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
-$$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
+$$$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
