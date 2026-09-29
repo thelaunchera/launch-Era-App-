@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-tablet-search-178" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-invoice-payment-179" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -398,6 +398,10 @@
               <button type="button" data-invoice-payment="check">Check</button>
               <button type="button" data-invoice-payment="other">Other</button>
             </div>
+            <label class="invoice-other-payment" id="invoiceOtherPaymentWrap" hidden>
+              <span id="invoiceOtherPaymentLabel">Other payment method</span>
+              <input id="invoiceOtherPaymentMethod" type="text" maxlength="80" autocomplete="off" placeholder="Example: Venmo, Cash App, Apple Pay">
+            </label>
             <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option, then submit it to the business.</p>
             <button class="primary-btn public-submit public-confirm-submit" type="button" id="submitInvoiceBtn" disabled>Submit invoice</button>
           </div>
@@ -1435,7 +1439,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-tablet-search-178";
+    window.__tleShellVersion="20260929-invoice-payment-179";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1454,10 +1458,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260929-tablet-search-178"></script>
-  <script src="./i18n.js?v=20260929-tablet-search-178"></script>
-  <script src="./public.js?v=20260929-tablet-search-178"></script>
-  <script src="./app.js?v=20260929-tablet-search-178"></script>
-  <script src="./followups.js?v=20260929-tablet-search-178"></script>
+  <script src="./vendor/supabase.js?v=20260929-invoice-payment-179"></script>
+  <script src="./i18n.js?v=20260929-invoice-payment-179"></script>
+  <script src="./public.js?v=20260929-invoice-payment-179"></script>
+  <script src="./app.js?v=20260929-invoice-payment-179"></script>
+  <script src="./followups.js?v=20260929-invoice-payment-179"></script>
 </body>
 </html>
