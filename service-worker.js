@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-invoice-payment-179";
+const CACHE_NAME="tle-cleaning-app-20260929-customer-activity-180";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-invoice-payment-179",
-  "./app.js?v=20260929-invoice-payment-179",
-  "./followups.js?v=20260929-invoice-payment-179",
-  "./i18n.js?v=20260929-invoice-payment-179",
-  "./public.js?v=20260929-invoice-payment-179",
-  "./vendor/supabase.js?v=20260929-invoice-payment-179",
-  "./manifest.webmanifest?v=20260929-invoice-payment-179"
+  "./styles.css?v=20260929-customer-activity-180",
+  "./app.js?v=20260929-customer-activity-180",
+  "./followups.js?v=20260929-customer-activity-180",
+  "./i18n.js?v=20260929-customer-activity-180",
+  "./public.js?v=20260929-customer-activity-180",
+  "./vendor/supabase.js?v=20260929-customer-activity-180",
+  "./manifest.webmanifest?v=20260929-customer-activity-180"
 ];
 
 self.addEventListener("install",event=>{
