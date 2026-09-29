@@ -36,6 +36,12 @@ if(fs.existsSync("admin-reset.html")){
   pass("legacy public admin reset page is absent");
 }
 
+if(/PRIMARY_PLATFORM_ADMIN_EMAIL|LEGACY_PLATFORM_ADMIN_EMAIL|isPrimaryPlatformAdminAccount/.test(app)){
+  fail("platform admin identity shortcuts must not be embedded in public app.js");
+}else{
+  pass("platform admin identity is delegated to backend authorization");
+}
+
 if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   fail("active language set must be EN/ES/FR/HT");
 }else{

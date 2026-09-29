@@ -1,16 +1,16 @@
-const CACHE_NAME="tle-cleaning-app-20260929-simplify-booking-settings-192";
+const CACHE_NAME="tle-cleaning-app-20260929-backend-admin-auth-193";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-simplify-booking-settings-192",
-  "./styles/responsive-shell.css?v=20260929-simplify-booking-settings-192",
-  "./styles/customer-documents.css?v=20260929-simplify-booking-settings-192",
-  "./app.js?v=20260929-simplify-booking-settings-192",
-  "./followups.js?v=20260929-simplify-booking-settings-192",
-  "./i18n.js?v=20260929-simplify-booking-settings-192",
-  "./public.js?v=20260929-simplify-booking-settings-192",
-  "./vendor/supabase.js?v=20260929-simplify-booking-settings-192",
-  "./manifest.webmanifest?v=20260929-simplify-booking-settings-192"
+  "./styles.css?v=20260929-backend-admin-auth-193",
+  "./styles/responsive-shell.css?v=20260929-backend-admin-auth-193",
+  "./styles/customer-documents.css?v=20260929-backend-admin-auth-193",
+  "./app.js?v=20260929-backend-admin-auth-193",
+  "./followups.js?v=20260929-backend-admin-auth-193",
+  "./i18n.js?v=20260929-backend-admin-auth-193",
+  "./public.js?v=20260929-backend-admin-auth-193",
+  "./vendor/supabase.js?v=20260929-backend-admin-auth-193",
+  "./manifest.webmanifest?v=20260929-backend-admin-auth-193"
 ];
 
 self.addEventListener("install",event=>{

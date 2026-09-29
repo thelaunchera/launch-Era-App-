@@ -7,11 +7,6 @@ const { createClient } = window.supabase;
 
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
-const PRIMARY_PLATFORM_ADMIN_EMAIL = "dailinsegura17@gmail.com";
-function isPrimaryPlatformAdminAccount(){
-  return String(state?.session?.user?.email||"").trim().toLowerCase()===PRIMARY_PLATFORM_ADMIN_EMAIL;
-}
-const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
 const OWNER_HOME_IDLE_MS = 2 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
@@ -20,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-simplify-booking-settings-192";
+const APP_VERSION = "20260929-backend-admin-auth-193";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -30,14 +25,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
     storage:window.localStorage
   }
 });
-
-try{
-  const lastAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
-  if(lastAdmin===LEGACY_PLATFORM_ADMIN_EMAIL){
-    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
-    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
-  }
-}catch{}
 
 const state = {
   session: null,
@@ -1828,7 +1815,7 @@ function showApp(){
   // top-bar controls at runtime so the visible UI always matches the live app.
   $("#topHelpBtn")?.remove();
   $("#topFeedbackBtn")?.remove();
-  document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
+  document.body.classList.toggle("platform-owner-no-billing",state.isPlatformAdmin);
   applyRolePermissions();
   // A fresh app entry always starts on Today/Home. A true browser refresh
   // keeps the current workspace section so Refresh does not interrupt work.
@@ -1844,7 +1831,7 @@ function showApp(){
     openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
   }
   $$("[data-account-billing]").forEach(el=>{
-    el.hidden=isPrimaryPlatformAdminAccount();
+    el.hidden=state.isPlatformAdmin;
   });
   renderTrialStatus();
   if(state.business?.role==="owner" && state.session?.user?.email){
@@ -1961,7 +1948,7 @@ async function handleBillingReturn(params){
 }
 
 function showSubscriptionGate(){
-  if(isPrimaryPlatformAdminAccount() || state.isPlatformAdmin){
+  if(state.isPlatformAdmin){
     if(state.modalType==="subscriptionGate"){
       modal.hidden=true;
       modalClose.hidden=false;
@@ -2030,7 +2017,7 @@ function renderTrialStatus(){
   const pill=$("#trialDaysPill");
   const trialCard=pill?.closest(".trial-card");
   const warning=$("#trialExpiryBanner");
-  if(isPrimaryPlatformAdminAccount() || state.isPlatformAdmin){
+  if(state.isPlatformAdmin){
     if(trialCard) trialCard.hidden=true;
     if(warning) warning.hidden=true;
     $("#trialSubscribeBtn")?.remove();
@@ -2604,7 +2591,7 @@ function rememberedOwnerEmail(){
   const owner=String(localStorage.getItem(OWNER_EMAIL_KEY)||"").trim().toLowerCase();
   if(owner) return owner;
   const platformAdmin=String(localStorage.getItem("tle_last_admin_email")||"").trim().toLowerCase();
-  return platformAdmin===PRIMARY_PLATFORM_ADMIN_EMAIL ? platformAdmin : "";
+  return platformAdmin;
 }
 function syncRememberUsernameControl(){
   const row=$("#rememberUsernameRow");
@@ -3158,10 +3145,6 @@ async function signOutCurrentUser(event){
     prepareAdminShortcut();
     setAuthStatus("");
 
-    if(ownerEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
-      localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
-      localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
-    }
   }catch(err){
     showToast(err?.message||"Could not sign out");
     if(state.session) showApp();
@@ -3621,21 +3604,6 @@ async function initialize(){
   const signedInEmail=String(session.user?.email||"").trim().toLowerCase();
   localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
 
-  if(signedInEmail===LEGACY_PLATFORM_ADMIN_EMAIL){
-    try{ await supabase.auth.signOut({scope:"local"}); }catch{}
-    clearOwnerSessionBackup();
-    state.session=null;
-    localStorage.setItem("tle_last_admin_email",PRIMARY_PLATFORM_ADMIN_EMAIL);
-    localStorage.setItem("tle_admin_emails",JSON.stringify([PRIMARY_PLATFORM_ADMIN_EMAIL]));
-    showAuth();
-    setAuthMode("signin");
-    const emailInput=$("#authEmail");
-    if(emailInput) emailInput.value=PRIMARY_PLATFORM_ADMIN_EMAIL;
-    prepareAdminShortcut();
-    setAuthStatus(window.TLE_I18N?.t("Use your current admin email to continue.")||"Use your current admin email to continue.","success");
-    return;
-  }
-
   await identifyPlatformAdmin();
 
   const inviteToken=params.get("invite");
@@ -3655,7 +3623,7 @@ async function initialize(){
   if(error){ showToast(error.message); showAuth(); return; }
   let context=contexts?.[0];
 
-  if(!context && signedInEmail===PRIMARY_PLATFORM_ADMIN_EMAIL){
+  if(!context && state.isPlatformAdmin){
     const {data:b,error:businessError}=await supabase
       .from("businesses")
       .select("id,name,timezone,default_language,customer_email_language,service_area,default_travel_buffer_minutes,trial_ends_at,subscription_status,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
@@ -4694,7 +4662,7 @@ async function loadCoreData(){
 
 async function loadOwnerAdmin(){
   $$("[data-account-billing]").forEach(el=>{
-    el.hidden=isPrimaryPlatformAdminAccount();
+    el.hidden=state.isPlatformAdmin;
   });
   const [membersRes,invitesRes]=await Promise.all([
     supabase.from("business_members").select("*").eq("business_id",state.business.id).order("created_at"),
