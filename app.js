@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-growth-dashboard-139";
+const APP_VERSION = "20260929-growth-money-cards-139";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1080,6 +1080,10 @@ function refreshDynamicLanguageContent(){
   try{ renderTodaySummary(); }catch{}
   try{ renderWeatherBrief(); }catch{}
   try{ renderOperations(); }catch{}
+  try{ renderClients(); }catch{}
+  try{ renderServices(); }catch{}
+  try{ renderQuotes(); }catch{}
+  try{ renderInvoices(); }catch{}
   try{ renderSettings(); }catch{}
   try{ renderPublicLinks(); }catch{}
   try{ if(state.business.role==="owner") loadOwnerAdmin().catch(()=>{}); }catch{}
@@ -4300,22 +4304,36 @@ function renderInvoices(){
   if(a) a.textContent=money(outstanding); if(b) b.textContent=money(paidThisMonth); if(d) d.textContent=open;
 
   if(!state.invoices.length){
-    table.innerHTML=`<div class="empty-table"><strong>No invoices yet.</strong><span>Create one manually or accept a quote to prepare a draft invoice.</span><button class="text-btn" data-action="invoice">+ New invoice</button></div>`;
+    table.innerHTML=`<div class="empty-table"><strong>${escapeHtml(langPick("No invoices yet.","Aún no hay facturas.","Ainda não há faturas.","Aucune facture pour le moment."))}</strong><span>${escapeHtml(langPick("Create one manually or accept a quote to prepare a draft invoice.","Crea una manualmente o acepta una cotización para preparar una factura.","Crie uma manualmente ou aceite um orçamento para preparar uma fatura.","Créez-en une manuellement ou acceptez un devis pour préparer une facture."))}</span><button class="text-btn" data-action="invoice">+ ${escapeHtml(langPick("New invoice","Nueva factura","Nova fatura","Nouvelle facture"))}</button></div>`;
     return;
   }
   table.innerHTML=state.invoices.map(inv=>{
     const paid=invoicePaidAmount(inv);
+    const remaining=Math.max(0,Number(inv.total||0)-paid);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
     const methodLabel=paymentMethodLabel(chosenMethod);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
-    return `<div class="table-row mobile-record-card">
-      <span class="record-primary"><strong>#${inv.invoice_number||String(inv.id).slice(0,6)}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
-      <span class="record-field" data-label="${escapeHtml(tr("Client"))}">${escapeHtml(inv.clients?.name||tr("No client"))}</span>
-      <span class="record-field" data-label="${escapeHtml(tr("Amount"))}"><strong>${money(inv.total)}</strong><small>${paid?money(paid)+" "+tr("paid"):""}</small></span>
-      <span class="record-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
+    const actionHint=inv.status==="paid"
+      ? langPick("Paid in full","Pagada completa","Pago integral","Payée intégralement")
+      : overdue
+        ? langPick("Collect now","Cobrar ahora","Cobrar agora","Encaisser maintenant")
+        : inv.status==="draft"
+          ? langPick("Ready to send","Lista para enviar","Pronta para enviar","Prête à envoyer")
+          : inv.status==="partial"
+            ? langPick("Balance left","Saldo pendiente","Saldo restante","Solde restant")
+            : langPick("Awaiting payment","Esperando pago","Aguardando pagamento","En attente de paiement");
+    return `<div class="table-row mobile-record-card invoice-growth-row">
+      <span class="record-primary invoice-growth-primary">
+        <small class="invoice-number">#${inv.invoice_number||String(inv.id).slice(0,6)}</small>
+        <strong class="invoice-growth-amount">${money(remaining||Number(inv.total||0))}</strong>
+        <small>${remaining>0?escapeHtml(langPick("remaining","pendiente","restante","restant")):escapeHtml(langPick("total","total","total","total"))}</small>
+      </span>
+      <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
+      <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total da fatura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
+      <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions">
         <span class="safe-actions">
           <button data-edit-invoice="${inv.id}">${escapeHtml(tr("Edit"))}</button>
@@ -4329,7 +4347,6 @@ function renderInvoices(){
   }).join("");
   enhanceMobileRecordActions();
 }
-
 function renderBookingServices(){
   const list=$("#bookingServicesList");
   if(!list) return;
@@ -5022,23 +5039,40 @@ function clearCalendarDayDetails(){
 
 function quoteColumn(status,label){
   const items=state.quotes.filter(q=>q.status===status);
-  return `<div class="kanban-col"><h3>${label} <span>${items.length}</span></h3>
+  return `<div class="kanban-col quote-growth-col"><h3>${escapeHtml(label)} <span>${items.length}</span></h3>
     ${items.length?items.map(q=>{
       const service=state.services.find(s=>s.id===q.quote_items?.[0]?.service_id);
       const total=Number(q.total||0);
       const dispute=state.disputes.find(d=>d.resource_type==="quote"&&d.quote_id===q.id&&d.status==="open");
-      const paymentCopy=q.payment_status==="paid"?" · PAID":q.payment_status==="partial"?" · PARTIAL PAYMENT":"";
+      const paymentCopy=q.payment_status==="paid"?langPick("Paid","Pagado","Pago","Payé"):q.payment_status==="partial"?langPick("Partial payment","Pago parcial","Pagamento parcial","Paiement partiel"):"";
       const stateCopy=status==="accepted"
-        ? "Client + job + invoice created"+paymentCopy
+        ? langPick("Booked + invoice created","Reservado + factura creada","Reservado + fatura criada","Réservé + facture créée")+(paymentCopy?" · "+paymentCopy:"")
         : status==="sent"
-          ? "Waiting for customer"
+          ? langPick("Waiting for customer","Esperando al cliente","Aguardando cliente","En attente du client")
           : status==="declined"
-            ? "Declined by customer"
-            : escapeHtml(status);
-      return `<article class="${status==="accepted"?"accepted":""}">
-        <strong>${escapeHtml(q.customer_name)}</strong>
-        <small>${escapeHtml(service?.name || "Cleaning service")} · ${money(total)}</small>
-        <b>${stateCopy}</b>
+            ? langPick("Declined by customer","Rechazada por el cliente","Recusado pelo cliente","Refusé par le client")
+            : status==="requested"
+              ? langPick("Needs your price","Necesita tu precio","Precisa do seu preço","Prix à définir")
+              : langPick("Ready to finish","Lista para terminar","Pronto para finalizar","Prêt à finaliser");
+      const nextCopy=status==="sent"
+        ? langPick("Next: follow up","Siguiente: dar seguimiento","Próximo: acompanhar","Suite : relancer")
+        : status==="requested"
+          ? langPick("Next: build quote","Siguiente: preparar cotización","Próximo: criar orçamento","Suite : préparer le devis")
+          : status==="draft"
+            ? langPick("Next: send to client","Siguiente: enviar al cliente","Próximo: enviar ao cliente","Suite : envoyer au client")
+            : status==="accepted"
+              ? langPick("Converted to work","Convertida en trabajo","Convertido em trabalho","Converti en prestation")
+              : langPick("Review when useful","Revisar cuando convenga","Revisar quando necessário","Revoir si nécessaire");
+      return `<article class="quote-growth-card ${status==="accepted"?"accepted":""}">
+        <div class="quote-growth-top">
+          <span class="quote-status-pill quote-status-${escapeHtml(status)}">${escapeHtml(translatedStatus(status))}</span>
+          <strong class="quote-amount">${money(total)}</strong>
+        </div>
+        <div class="quote-growth-customer">
+          <strong>${escapeHtml(q.customer_name)}</strong>
+          <small>${escapeHtml(service?.name || langPick("Cleaning service","Servicio de limpieza","Serviço de limpeza","Service de nettoyage"))}</small>
+        </div>
+        <div class="quote-next-step"><span>${escapeHtml(stateCopy)}</span><b>${escapeHtml(nextCopy)}</b></div>
         ${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}
         <div class="card-actions record-card-actions">
           <span class="safe-actions">
@@ -5057,11 +5091,11 @@ function renderQuotes(){
   const board=$("#quotesBoard");
   if(!board) return;
   board.innerHTML=[
-    quoteColumn("requested","Requested"),
-    quoteColumn("draft","Draft"),
-    quoteColumn("sent","Sent"),
-    quoteColumn("accepted","Accepted"),
-    quoteColumn("declined","Declined")
+    quoteColumn("requested",langPick("Requested","Solicitadas","Solicitados","Demandés")),
+    quoteColumn("draft",langPick("Draft","Borrador","Rascunho","Brouillon")),
+    quoteColumn("sent",langPick("Sent","Enviadas","Enviados","Envoyés")),
+    quoteColumn("accepted",langPick("Accepted","Aceptadas","Aceitos","Acceptés")),
+    quoteColumn("declined",langPick("Declined","Rechazadas","Recusados","Refusés"))
   ].join("");
 }
 
