@@ -1,24 +1,24 @@
-const CACHE_NAME="tle-cleaning-app-20260929-langpick-cleanup-203";
+const CACHE_NAME="tle-cleaning-app-20260929-repo-cleanup-204";
 const CORE=[
-  "./boot.js?v=20260929-langpick-cleanup-203",
-  "./styles/boot.css?v=20260929-langpick-cleanup-203",
+  "./boot.js?v=20260929-repo-cleanup-204",
+  "./styles/boot.css?v=20260929-repo-cleanup-204",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-langpick-cleanup-203",
-  "./styles/workspace-components.css?v=20260929-langpick-cleanup-203",
-  "./styles/workspace-experience.css?v=20260929-langpick-cleanup-203",
-  "./styles/workspace-operations.css?v=20260929-langpick-cleanup-203",
-  "./styles/release-overrides.css?v=20260929-langpick-cleanup-203",
-  "./styles/release-mobile.css?v=20260929-langpick-cleanup-203",
-  "./styles/release-latest.css?v=20260929-langpick-cleanup-203",
-  "./styles/responsive-shell.css?v=20260929-langpick-cleanup-203",
-  "./styles/customer-documents.css?v=20260929-langpick-cleanup-203",
-  "./app.js?v=20260929-langpick-cleanup-203",
-  "./followups.js?v=20260929-langpick-cleanup-203",
-  "./i18n.js?v=20260929-langpick-cleanup-203",
-  "./public.js?v=20260929-langpick-cleanup-203",
-  "./vendor/supabase.js?v=20260929-langpick-cleanup-203",
-  "./manifest.webmanifest?v=20260929-langpick-cleanup-203"
+  "./styles.css?v=20260929-repo-cleanup-204",
+  "./styles/workspace-components.css?v=20260929-repo-cleanup-204",
+  "./styles/workspace-experience.css?v=20260929-repo-cleanup-204",
+  "./styles/workspace-operations.css?v=20260929-repo-cleanup-204",
+  "./styles/release-overrides.css?v=20260929-repo-cleanup-204",
+  "./styles/release-mobile.css?v=20260929-repo-cleanup-204",
+  "./styles/release-latest.css?v=20260929-repo-cleanup-204",
+  "./styles/responsive-shell.css?v=20260929-repo-cleanup-204",
+  "./styles/customer-documents.css?v=20260929-repo-cleanup-204",
+  "./app.js?v=20260929-repo-cleanup-204",
+  "./followups.js?v=20260929-repo-cleanup-204",
+  "./i18n.js?v=20260929-repo-cleanup-204",
+  "./public.js?v=20260929-repo-cleanup-204",
+  "./vendor/supabase.js?v=20260929-repo-cleanup-204",
+  "./manifest.webmanifest?v=20260929-repo-cleanup-204"
 ];
 
 self.addEventListener("install",event=>{
