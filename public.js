@@ -4,7 +4,7 @@
   const slug = params.get("slug");
   const token = params.get("token");
   const requestedLanguage=String(params.get("lang")||"").toLowerCase();
-  const supportedPublicLanguages=["en","es","pt","fr"];
+  const supportedPublicLanguages=["en","es","fr","ht"];
   if(supportedPublicLanguages.includes(requestedLanguage) && window.TLE_I18N?.setLanguage){
     window.TLE_I18N.setLanguage(requestedLanguage);
   }
@@ -38,7 +38,7 @@
         : supportedPublicLanguages.includes(business)
           ? business
           : "en";
-    const localeByLanguage={en:"en-US",es:"es-US",pt:"pt-BR",fr:"fr-FR"};
+    const localeByLanguage={en:"en-US",es:"es-US",fr:"fr-FR",ht:"ht-HT"};
     publicLocale=localeByLanguage[chosen]||String(locale||publicLocale||"en-US");
     if(window.TLE_I18N?.setLanguage && current!==chosen) window.TLE_I18N.setLanguage(chosen);
   }
@@ -186,8 +186,8 @@
       const copy={
         en:{label:"Other payment method",placeholder:"Example: Venmo, Cash App, Apple Pay",required:"Type the payment method before submitting."},
         es:{label:"Otra forma de pago",placeholder:"Ejemplo: Venmo, Cash App, Apple Pay",required:"Escribe la forma de pago antes de enviarla."},
-        pt:{label:"Outra forma de pagamento",placeholder:"Exemplo: Venmo, Cash App, Apple Pay",required:"Digite a forma de pagamento antes de enviar."},
-        fr:{label:"Autre mode de paiement",placeholder:"Exemple : Venmo, Cash App, Apple Pay",required:"Indiquez le mode de paiement avant l’envoi."}
+        fr:{label:"Autre mode de paiement",placeholder:"Exemple : Venmo, Cash App, Apple Pay",required:"Indiquez le mode de paiement avant l’envoi."},
+        ht:{label:"Lòt metòd peman",placeholder:"Egzanp: Venmo, Cash App, Apple Pay",required:"Ekri metòd peman an anvan ou voye."}
       }[currentPublicLanguage()]||{};
       if(otherLabel) otherLabel.textContent=copy.label||"Other payment method";
       if(otherInput) otherInput.placeholder=copy.placeholder||"Example: Venmo, Cash App, Apple Pay";
@@ -998,7 +998,7 @@
     window.addEventListener("tle:languagechange",event=>{
       const chosen=String(event?.detail?.language||"").toLowerCase();
       if(!supportedPublicLanguages.includes(chosen)) return;
-      publicLocale=({en:"en-US",es:"es-US",pt:"pt-BR",fr:"fr-FR"})[chosen]||publicLocale;
+      publicLocale=({en:"en-US",es:"es-US",fr:"fr-FR",ht:"ht-HT"})[chosen]||publicLocale;
       try{
         const next=new URL(window.location.href);
         next.searchParams.set("lang",chosen);
