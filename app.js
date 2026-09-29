@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-social-idle-home-127";
+const APP_VERSION = "20260929-funnel-tracking-128";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1317,6 +1317,7 @@ function markAuthWelcomeSeen(){
 }
 function prepareDirectAuth(){
   dismissSessionSplash();
+  trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1405,10 +1406,18 @@ function showAuthWelcome(){
   window.__tleAuthWelcomeSessionActive=true;
   setAuthStatus("");
   syncAuthWelcomeCopy();
+  trackFunnelStep("/funnel/welcome");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
   markAuthWelcomeSeen();
+  if(mode==="signup"){
+    trackFunnelStep("/funnel/trial-cta-clicked");
+    trackFunnelStep("/funnel/signup-viewed");
+  }else{
+    trackFunnelStep("/funnel/signin-clicked");
+    trackFunnelStep("/funnel/signin-viewed");
+  }
   const email=$("#authEmail");
   if(mode==="signin"){
     const remembered=rememberedOwnerEmail();
@@ -1443,6 +1452,7 @@ setTimeout(syncAuthWelcomeCopy,0);
 function showAuth(){ showAuthWelcome(); }
 function showSetup(){
   dismissSessionSplash();
+  trackFunnelStep("/funnel/business-setup-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
@@ -1573,6 +1583,7 @@ function showApp(){
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
     `;
   }
+  trackFunnelStep("/funnel/dashboard-reached");
   scheduleOnboardingWelcome();
   installLiveDashboardUpdates();
   installTeamMessagePolling();
@@ -2056,6 +2067,64 @@ async function trackVisit(page=window.location.pathname+window.location.search){
     });
   }catch{}
 }
+function trackFunnelStep(step,{repeat=false}={}){
+  const page=String(step||"").trim();
+  if(!page) return Promise.resolve();
+  try{
+    const key="tle_funnel_seen:"+page;
+    if(!repeat && sessionStorage.getItem(key)==="1") return Promise.resolve();
+    if(!repeat) sessionStorage.setItem(key,"1");
+  }catch{}
+  return trackVisit(page);
+}
+function funnelStepLabel(page=""){
+  const labels={
+    "/funnel/welcome":"Welcome viewed",
+    "/funnel/trial-cta-clicked":"Free trial CTA clicked",
+    "/funnel/signup-viewed":"Signup form viewed",
+    "/funnel/signup-attempted":"Signup submitted",
+    "/funnel/account-created":"Account created",
+    "/funnel/signup-error":"Signup error",
+    "/funnel/signin-clicked":"Sign in clicked",
+    "/funnel/signin-viewed":"Sign-in form viewed",
+    "/funnel/signin-attempted":"Sign-in submitted",
+    "/funnel/signin-success":"Sign-in successful",
+    "/funnel/signin-error":"Sign-in error",
+    "/funnel/business-setup-viewed":"Business setup viewed",
+    "/funnel/business-setup-submitted":"Business setup submitted",
+    "/funnel/workspace-created":"Workspace created",
+    "/funnel/dashboard-reached":"Dashboard reached",
+    "/login":"Legacy login/welcome event"
+  };
+  if(labels[page]) return labels[page];
+  if(page.startsWith("/app/")){
+    const leaf=page.slice(5).replaceAll("-"," ");
+    return "App · "+leaf.replace(/\b\w/g,c=>c.toUpperCase());
+  }
+  if(page.startsWith("/public/")){
+    const leaf=page.slice(8).replaceAll("-"," ");
+    return "Public · "+leaf.replace(/\b\w/g,c=>c.toUpperCase());
+  }
+  return page;
+}
+function funnelProgressLabel(pages=[]){
+  const set=new Set(pages.map(p=>p.page));
+  if(set.has("/funnel/dashboard-reached") || [...set].some(p=>p.startsWith("/app/"))) return "Reached dashboard";
+  if(set.has("/funnel/workspace-created")) return "Workspace created";
+  if(set.has("/funnel/business-setup-submitted")) return "Business setup submitted";
+  if(set.has("/funnel/business-setup-viewed")) return "Business setup started";
+  if(set.has("/funnel/account-created")) return "Account created · not through setup yet";
+  if(set.has("/funnel/signup-error")) return "Signup error";
+  if(set.has("/funnel/signup-attempted")) return "Signup submitted · not completed";
+  if(set.has("/funnel/signup-viewed")) return "Signup form viewed · not submitted";
+  if(set.has("/funnel/trial-cta-clicked")) return "Free trial clicked · signup not reached";
+  if(set.has("/funnel/signin-error")) return "Sign-in error";
+  if(set.has("/funnel/signin-attempted")) return "Sign-in submitted · not successful";
+  if(set.has("/funnel/signin-viewed")) return "Sign-in form viewed";
+  if(set.has("/funnel/welcome")) return "Welcome viewed · no CTA click";
+  if(set.size===1 && set.has("/login")) return "Legacy visit · old tracking";
+  return pages.length===1?"1 page":pages.length+" pages";
+}
 
 async function identifyPlatformAdmin(){
   const {data,error}=await supabase.rpc("get_platform_admin_status");
@@ -2512,6 +2581,8 @@ authForm.addEventListener("submit", async (e)=>{
       return;
     }
     const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
+    if(state.authMode==="signup") trackFunnelStep("/funnel/signup-attempted",{repeat:true});
+    else if(state.authMode==="signin") trackFunnelStep("/funnel/signin-attempted",{repeat:true});
     setAuthStatus(state.authMode==="signup"?"Creating your account…":"Signing you in…","loading");
     if(state.authMode === "recovery"){
       const { error } = await supabase.auth.updateUser({password});
@@ -2535,6 +2606,7 @@ authForm.addEventListener("submit", async (e)=>{
         state.session=null;
       }
       const createdEmail=email;
+      trackFunnelStep("/funnel/account-created");
       markSignupWelcomePending(createdEmail);
       setAuthMode("signin");
       const emailInput=$("#authEmail");
@@ -2555,12 +2627,15 @@ authForm.addEventListener("submit", async (e)=>{
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
       setAuthStatus("Signed in.","success");
+      trackFunnelStep("/funnel/signin-success");
       window.__tleShowSignupWelcome=hasLocalSignupWelcomePending() || hasAccountSignupWelcomePending();
       trackGoogleEvent("login",{method:"password"});
       await enterAuthenticatedApp();
     }
   }catch(err){
     const email=$("#authEmail")?.value?.trim()?.toLowerCase()||"";
+    if(state.authMode==="signup") trackFunnelStep("/funnel/signup-error",{repeat:true});
+    else if(state.authMode==="signin") trackFunnelStep("/funnel/signin-error",{repeat:true});
     showAuthFailure(err,state.authMode,email);
   }finally{
     setBusy(button,false);
@@ -2660,6 +2735,7 @@ $("#businessSetupRetryButton")?.addEventListener("click",()=>{
 
 businessForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  trackFunnelStep("/funnel/business-setup-submitted",{repeat:true});
   const button = e.submitter;
   const setupRetry=$("#businessSetupRetryButton");
   if(setupRetry) setupRetry.hidden=true;
@@ -2714,6 +2790,7 @@ businessForm.addEventListener("submit", async (e)=>{
       window.__tleShowSignupWelcome===true ||
       hasLocalSignupWelcomePending() ||
       hasAccountSignupWelcomePending();
+    trackFunnelStep("/funnel/workspace-created");
     showApp();
     try{ renderTodaySummary(true); }catch(err){ console.warn("[TLE] first dashboard render",err); }
     loadBusinessWeather(false).catch(err=>console.warn("[TLE] first weather load",err));
@@ -3037,8 +3114,6 @@ async function initialize(){
     await initializePublicRequest(publicMode,publicSlug);
     return;
   }
-
-  trackVisit("/login").catch(()=>{});
 
   let storedSession=null;
   for(let attempt=0;attempt<3;attempt++){
@@ -5936,13 +6011,10 @@ async function loadPlatformAdmin(){
 
     visits.innerHTML=groups.length?groups.slice(0,10).map(g=>{
       const location=[g.city,g.state].filter(Boolean).join(", ")||(g.country||"");
-      const loginOnly=g.pages.length>0&&g.pages.every(p=>p.page==="/login");
-      const pageLabel=loginOnly
-        ?"Login page only · no sign-in"
-        :(g.pages.length===1?"1 page":g.pages.length+" pages");
-      const details=g.pages.slice(0,8).map(p=>`
+      const pageLabel=funnelProgressLabel(g.pages);
+      const details=g.pages.slice(0,12).map(p=>`
         <div class="visit-detail-row">
-          <span>${escapeHtml(p.page)}</span>
+          <span>${escapeHtml(funnelStepLabel(p.page))}</span>
           <time>${formatDateTime(p.created_at)}</time>
         </div>`).join("");
       return `
