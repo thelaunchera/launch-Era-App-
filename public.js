@@ -418,8 +418,8 @@
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
 
       const allServices=data?.services||[];
-      const fixedPriceServices=allServices.filter(s=>s.pricing_type!=="quote" && Number(s.base_price)>0);
-      const quoteOnlyServices=allServices.filter(s=>s.pricing_type==="quote");
+      const fixedPriceServices=allServices.filter(s=>s.pricing_type==="flat" && Number(s.base_price)>0);
+      const quoteOnlyServices=allServices.filter(s=>!(s.pricing_type==="flat" && Number(s.base_price)>0));
       const addons=data?.addons||[];
       let services=[];
 
@@ -537,7 +537,7 @@
         const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
         const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
         summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
-          (mode==="quote"?" · "+tt("Price provided after review"):" · "+money(total))+
+          (mode==="quote"?" · "+tt("Price provided after review"):" · "+tt("Total")+": "+money(total))+
           '</span>';
       }
 
