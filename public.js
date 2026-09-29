@@ -443,6 +443,13 @@
       const dateInput=form?.querySelector('[name="date"]');
       const quoteTimeInput=form?.querySelector('[name="time"]');
       const preferredLanguageSelect=$("#publicPreferredLanguage");
+      const propertyTypeSelect=$("#publicPropertyType");
+      const residentialDetails=$("#publicResidentialDetails");
+      const commercialDetails=$("#publicCommercialDetails");
+      const propertySizeInput=$("#publicPropertySize");
+      const propertySizeUnit=$("#publicPropertySizeUnit");
+      const propertySizeOptional=$("#publicPropertySizeOptional");
+      const timeZoneNotice=$("#publicTimeZoneNotice");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(preferredLanguageSelect){
@@ -450,6 +457,53 @@
         preferredLanguageSelect.value=["en","es","fr","ht"].includes(configured)?configured:"en";
       }
       if(quoteTimeInput) quoteTimeInput.required=false;
+
+      const businessZone=data?.business?.timezone||"UTC";
+      const businessCountry=String(data?.business?.country_code||"").toUpperCase();
+      if(propertySizeUnit){
+        propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
+      }
+
+      function businessTimeZoneLabel(){
+        try{
+          const parts=new Intl.DateTimeFormat(publicLocale,{
+            timeZone:businessZone,
+            timeZoneName:"long"
+          }).formatToParts(new Date());
+          const name=parts.find(part=>part.type==="timeZoneName")?.value||businessZone;
+          return name===businessZone?name:name+" · "+businessZone;
+        }catch{
+          return businessZone;
+        }
+      }
+
+      function renderBusinessTimeZoneNotice(){
+        if(!timeZoneNotice) return;
+        timeZoneNotice.textContent=tt("Times shown in the cleaning business’s local time")+" · "+businessTimeZoneLabel();
+      }
+
+      function syncPropertyDetails(){
+        const type=String(propertyTypeSelect?.value||"").toLowerCase();
+        if(residentialDetails) residentialDetails.hidden=type!=="residential";
+        if(commercialDetails) commercialDetails.hidden=type!=="commercial";
+
+        const bedrooms=form?.querySelector('[name="bedrooms"]');
+        const bathrooms=form?.querySelector('[name="bathrooms"]');
+        const commercialType=form?.querySelector('[name="commercial_space_type"]');
+        if(bedrooms) bedrooms.required=type==="residential";
+        if(bathrooms) bathrooms.required=type==="residential";
+        if(commercialType) commercialType.required=type==="commercial";
+
+        // Size is highly useful for quoting, but remains optional to keep
+        // fixed-price booking fast and to support countries where customers
+        // may not know the exact floor area.
+        if(propertySizeInput) propertySizeInput.required=false;
+        if(propertySizeOptional) propertySizeOptional.hidden=false;
+      }
+
+      renderBusinessTimeZoneNotice();
+      syncPropertyDetails();
+      propertyTypeSelect?.addEventListener("change",syncPropertyDetails);
 
       function chosenAddonIds(){
         return addonBox ? $$('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
@@ -490,9 +544,8 @@
       }
 
       function formatSlot(iso){
-        const tz=data?.business?.timezone||"UTC";
         return new Intl.DateTimeFormat(publicLocale,{
-          timeZone:tz,hour:"numeric",minute:"2-digit"
+          timeZone:businessZone,hour:"numeric",minute:"2-digit"
         }).format(new Date(iso));
       }
 
@@ -583,6 +636,8 @@
         }
 
         renderAddons();
+        syncPropertyDetails();
+        renderBusinessTimeZoneNotice();
 
         // URL syncing is secondary. Never allow an iOS/PWA History API issue
         // to stop the visual mode switch itself.
@@ -633,7 +688,6 @@
       });
 
       if(dateInput){
-        const businessZone=data?.business?.timezone||"UTC";
         const dateInBusinessZone=value=>{
           const parts=new Intl.DateTimeFormat("en-CA",{
             timeZone:businessZone,year:"numeric",month:"2-digit",day:"2-digit"
@@ -656,8 +710,18 @@
           const preferred=fd.get("preferred_contact");
           const phone=String(fd.get("phone")||"").trim();
           const propertyType=String(fd.get("property_type")||"").trim().toLowerCase();
-          const squareFeet=String(fd.get("square_feet")||"").trim();
+          const propertySize=String(fd.get("property_size")||"").trim();
+          const propertySizeUnit=String(fd.get("property_size_unit")||"").trim()==="sqm"?"m²":"sq ft";
+          const bedrooms=String(fd.get("bedrooms")||"").trim();
+          const bathrooms=String(fd.get("bathrooms")||"").trim();
+          const floors=String(fd.get(propertyType==="commercial"?"commercial_floors":"floors")||"").trim();
+          const pets=String(fd.get("pets")||"").trim();
+          const commercialSpaceType=String(fd.get("commercial_space_type")||"").trim();
+          const restrooms=String(fd.get("restrooms")||"").trim();
+          const lastClean=String(fd.get("last_professional_clean")||"").trim();
+          const accessNotes=String(fd.get("access_notes")||"").trim();
           const customerNotes=String(fd.get("notes")||"").trim();
+
           if((preferred==="text"||preferred==="whatsapp")&&!phone){
             alert(tt("Phone is required for Text or WhatsApp."));
             return;
@@ -666,14 +730,54 @@
             alert(tt("Choose Residential or Commercial."));
             return;
           }
-          if(squareFeet && (!/^\d+$/.test(squareFeet) || Number(squareFeet)<1)){
-            alert(tt("Square feet must be a positive number."));
+          if(propertySize && (!/^\d+(?:\.\d+)?$/.test(propertySize) || Number(propertySize)<=0)){
+            alert(tt("Property size must be greater than 0."));
             return;
           }
+          if(propertyType==="residential"){
+            if(!/^\d+$/.test(bedrooms) || Number(bedrooms)<0){
+              alert(tt("Enter the number of bedrooms."));
+              return;
+            }
+            if(!/^\d+(?:\.5)?$/.test(bathrooms) || Number(bathrooms)<0){
+              alert(tt("Enter the number of bathrooms."));
+              return;
+            }
+          }
+          if(propertyType==="commercial" && !commercialSpaceType){
+            alert(tt("Choose the commercial space type."));
+            return;
+          }
+
+          const lastCleanLabels={
+            under_month:"Less than a month ago",
+            one_three_months:"1–3 months ago",
+            three_six_months:"3–6 months ago",
+            over_six_months:"More than 6 months ago",
+            never_unsure:"Never / not sure"
+          };
+          const commercialLabels={
+            office:"Office",
+            retail:"Retail / storefront",
+            medical:"Medical / dental",
+            restaurant:"Restaurant / food service",
+            warehouse:"Warehouse / industrial",
+            other:"Other"
+          };
+          const petLabels={none:"No pets",yes:"Yes",prefer_not:"Prefer not to say"};
+
           const requestNotes=[
             "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
-            squareFeet ? "Approx. square feet: "+squareFeet : "",
-            customerNotes ? "Notes: "+customerNotes : ""
+            propertySize ? "Approx. size: "+propertySize+" "+propertySizeUnit : "",
+            propertyType==="residential" ? "Bedrooms: "+bedrooms : "",
+            propertyType==="residential" ? "Bathrooms: "+bathrooms : "",
+            floors ? "Floors / levels: "+floors : "",
+            propertyType==="residential" && pets ? "Pets: "+(petLabels[pets]||pets) : "",
+            propertyType==="commercial" ? "Space type: "+(commercialLabels[commercialSpaceType]||commercialSpaceType) : "",
+            propertyType==="commercial" && restrooms ? "Restrooms: "+restrooms : "",
+            lastClean ? "Last professional clean: "+(lastCleanLabels[lastClean]||lastClean) : "",
+            accessNotes ? "Access / parking: "+accessNotes : "",
+            customerNotes ? "Special requests: "+customerNotes : ""
           ].filter(Boolean).join("\n");
           const old=submit.textContent;
           submit.disabled=true;
