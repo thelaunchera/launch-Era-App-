@@ -9997,3 +9997,68 @@ body.shell-auth{overflow-anchor:none}
   background:#F1EEE8;
   color:#716B62!important;
 }
+
+
+/* Public invoice confirmation */
+.public-confirmation-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:rgba(25,25,25,.36);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+.public-confirmation-card{
+  width:min(420px,100%);
+  display:grid;
+  gap:12px;
+  text-align:center;
+  padding:28px;
+  border:1px solid rgba(25,25,25,.10);
+  border-radius:24px;
+  background:#FAF8F3;
+  box-shadow:0 24px 70px rgba(25,25,25,.20);
+}
+.public-confirmation-mark{
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 2px;
+  border-radius:50%;
+  background:#191919;
+  color:#fff;
+  font-size:28px;
+  font-weight:900;
+}
+.public-confirmation-card h2{
+  margin:2px 0 0;
+  font-size:26px;
+  letter-spacing:-.04em;
+}
+.public-confirmation-card p{
+  margin:0;
+  color:#625D56;
+  line-height:1.5;
+}
+.public-confirmation-card>strong{
+  padding:11px 13px;
+  border-radius:12px;
+  background:#F1EEE8;
+  font-size:13px;
+  line-height:1.4;
+}
+.public-confirmation-card .primary-btn{
+  width:100%;
+  min-height:46px;
+  margin-top:4px;
+}
+
+/* Quote/invoice documents do not need the booking-mode switch. */
+body:has(#publicInvoiceView:not([hidden])) #publicRequestSwitch,
+body:has(#publicQuoteReview:not([hidden])) #publicRequestSwitch{
+  display:none!important;
+}
