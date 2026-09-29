@@ -1,3 +1,5 @@
+> **Status note — 2026-09-29:** This document is architectural/reference material, not the live product specification. The production runtime and live Supabase schema are the source of truth. Current production includes GitHub Pages PWA hosting, EN/ES/FR/Haitian Creole, public booking + quote availability validation, invoices/payment-method selection, follow-ups, worker access, and transactional email flows.
+
 # The Launch Era Cleaning App — Migration-Friendly Data Model
 
 This document defines the target relational model. It is intentionally backend-agnostic so production data can be imported later.
