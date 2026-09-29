@@ -8,7 +8,13 @@ const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
-const styles=fs.readFileSync("styles.css","utf8");
+const styles=[
+  "styles.css",
+  "styles/workspace-components.css",
+  "styles/release-overrides.css",
+  "styles/responsive-shell.css",
+  "styles/customer-documents.css"
+].map(file=>fs.readFileSync(file,"utf8")).join("\n");
 
 const dom=new JSDOM(html,{
   // Run the auth smoke test on the canonical production origin. The app
