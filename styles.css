@@ -7713,15 +7713,16 @@ body.shell-auth{overflow-anchor:none}
   box-shadow:0 9px 22px rgba(25,25,25,.12);
 }
 .auth-welcome-existing{
-  margin-top:-5px!important;
-  color:#8A857E!important;
-  font-size:11px!important;
+  margin-top:-3px!important;
+  color:#6F6A62!important;
+  font-size:12.5px!important;
+  line-height:1.5!important;
 }
 .auth-welcome-existing #authWelcomeSignIn{
-  padding:3px 1px!important;
-  color:#625E58!important;
-  font-size:11px!important;
-  font-weight:700!important;
+  padding:4px 2px!important;
+  color:#393631!important;
+  font-size:12.5px!important;
+  font-weight:750!important;
   text-decoration:none!important;
   border-bottom:1px solid #BDB7AE!important;
   border-radius:0!important;
@@ -7733,8 +7734,8 @@ body.shell-auth{overflow-anchor:none}
 }
 @media(max-width:620px){
   #authWelcomeStart{min-height:56px!important}
-  .auth-welcome-existing{font-size:10.5px!important}
-  .auth-welcome-existing #authWelcomeSignIn{font-size:10.5px!important}
+  .auth-welcome-existing{font-size:12.5px!important}
+  .auth-welcome-existing #authWelcomeSignIn{font-size:12.5px!important}
 }
 
 
