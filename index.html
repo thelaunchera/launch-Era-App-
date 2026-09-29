@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-quote-slots-183" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-signup-polish-184" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -142,7 +142,7 @@
         <p class="auth-copy">This creates your private workspace and starts the 30-day trial.</p>
         <form id="businessForm" class="auth-form">
           <label>Business name<input id="businessName" required placeholder="Bright Home Cleaning"></label>
-          <label>Phone<input id="businessPhone" placeholder="(561) 555-0000"></label>
+          <label>Phone (optional)<input id="businessPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(561) 555-0000"></label>
           <label>Service area<input id="businessArea" required placeholder="City, region, country"></label>
           <button class="primary-btn" type="submit">Create my workspace</button>
         </form>
@@ -1439,7 +1439,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-quote-slots-183";
+    window.__tleShellVersion="20260929-signup-polish-184";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1458,10 +1458,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260929-quote-slots-183"></script>
-  <script src="./i18n.js?v=20260929-quote-slots-183"></script>
-  <script src="./public.js?v=20260929-quote-slots-183"></script>
-  <script src="./app.js?v=20260929-quote-slots-183"></script>
-  <script src="./followups.js?v=20260929-quote-slots-183"></script>
+  <script src="./vendor/supabase.js?v=20260929-signup-polish-184"></script>
+  <script src="./i18n.js?v=20260929-signup-polish-184"></script>
+  <script src="./public.js?v=20260929-signup-polish-184"></script>
+  <script src="./app.js?v=20260929-signup-polish-184"></script>
+  <script src="./followups.js?v=20260929-signup-polish-184"></script>
 </body>
 </html>
