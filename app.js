@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-growth-dashboard-138";
+const APP_VERSION = "20260929-growth-dashboard-139";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4140,6 +4140,9 @@ async function loadCoreData(){
   state.bookingRequests=bookingRequests;
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
+  // Client cards depend on jobs + invoices for next cleaning and balance,
+  // so render them again only after those datasets are available.
+  renderClients();
   renderInvoices();
   await loadInquirySeenState();
   await loadInquiryReadIds();
