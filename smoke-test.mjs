@@ -195,8 +195,8 @@ if(spanishOnlyBranches!==1){
 if(!app.includes("function langPick(en,es,_pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
-if(/\bpt:\s*\{/.test(i18n) || i18n.includes("Português") || i18n.includes("Portuguese")){
-  throw new Error("Localization regression: legacy Portuguese dictionaries or labels returned");
+if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18n)){
+  throw new Error("Localization regression: legacy Portuguese dictionaries, assignments, or labels returned");
 }
 if(
   !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||

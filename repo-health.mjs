@@ -86,6 +86,12 @@ if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
 if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){
   fail("Portuguese is still exposed as an active runtime language choice");
 }
+if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|Português|Portuguese/.test(i18n)){
+  fail("inactive Portuguese translation code remains in i18n.js");
+}else{
+  pass("inactive Portuguese translation payload is absent");
+}
+
 if(/\bpt:\s*\{/.test(i18n) || /Português|Portuguese/.test(i18n)){
   fail("legacy Portuguese dictionaries or labels must not ship in i18n.js");
 }else{

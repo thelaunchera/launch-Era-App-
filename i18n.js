@@ -1733,31 +1733,6 @@
     "Qty":"Cant.","No quote items found.":"No se encontraron artículos en la cotización.","No invoice items found.":"No se encontraron artículos en la factura.",
     "Could not send dispute.":"No se pudo enviar la disputa.","Due":"Vence","Open Cleaning App":"Abrir Cleaning App"
   });
-  Object.assign(staticCorrections.pt,{
-    "Booking Center":"Central de reservas","Leads":"Leads","Clients":"Clientes","Calendar":"Calendário",
-    "Quotes":"Orçamentos","Invoices":"Faturas","Follow-ups":"Acompanhamentos","Today's Route":"Rota de hoje",
-    "Mileage":"Quilometragem","Time Tracking":"Controle de tempo","Supplies":"Materiais","Reports":"Relatórios",
-    "Services + Add-ons":"Serviços + extras","Team":"Equipe","Settings":"Configurações","Help & FAQ":"Ajuda e FAQ",
-    "Owner Reports":"Relatórios do proprietário","Owner Admin":"Admin do proprietário",
-    "Book a Cleaning":"Agendar limpeza","Request a Quote":"Pedir orçamento","Secure request":"Solicitação segura",
-    "Back":"Voltar","BOOK A CLEANING":"AGENDAR LIMPEZA","REQUEST A QUOTE":"PEDIR ORÇAMENTO",
-    "Choose request type":"Escolha o tipo de solicitação","Choose your service and send your request.":"Escolha seu serviço e envie sua solicitação.",
-    "Choose a service with upfront pricing, then pick a real available time.":"Escolha um serviço com preço definido e depois selecione um horário realmente disponível.",
-    "For custom or variable-price work. Choose a quote-only service and tell us about the job.":"Para trabalhos personalizados ou de preço variável. Escolha um serviço de orçamento e conte sobre o trabalho.",
-    "Custom job type":"Tipo de trabalho personalizado","Choose a custom job type":"Escolha um tipo de trabalho personalizado","Custom quote":"Orçamento personalizado",
-    "No quote-only services available yet":"Ainda não há serviços de orçamento disponíveis","No priced services available for online booking":"Ainda não há serviços com preço disponíveis para reserva online",
-    "No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.":"Ainda não há serviços personalizados configurados para orçamento. Use Agendar limpeza para serviços com preço definido.",
-    "No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.":"Não há serviços com preço disponíveis para reserva online. Trabalhos personalizados ou de preço variável devem usar Pedir orçamento.",
-    "Price provided after review":"Preço após análise","No add-ons for this service.":"Não há extras para este serviço.",
-    "Your quote request was sent. The business will review it and contact you.":"Seu pedido de orçamento foi enviado. A empresa irá analisá-lo e entrar em contato.",
-    "Your booking request was sent. The business will review it and confirm the appointment.":"Sua solicitação de reserva foi enviada. A empresa irá analisá-la e confirmar o agendamento.",
-    "Could not send request":"Não foi possível enviar a solicitação","Page unavailable":"Página indisponível","Quote unavailable":"Orçamento indisponível",
-    "Invoice unavailable":"Fatura indisponível","This page is not available.":"Esta página não está disponível.",
-    "This quote link is invalid or expired.":"Este link de orçamento é inválido ou expirou.","This invoice link is invalid or expired.":"Este link de fatura é inválido ou expirou.",
-    "Review the details below and choose Accept or Decline.":"Revise os detalhes abaixo e escolha Aceitar ou Recusar.","Quote for":"Orçamento para","your cleaning":"sua limpeza",
-    "Qty":"Qtd.","No quote items found.":"Nenhum item de orçamento encontrado.","No invoice items found.":"Nenhum item de fatura encontrado.",
-    "Could not send dispute.":"Não foi possível enviar a contestação.","Due":"Vence","Open Cleaning App":"Abrir Cleaning App"
-  });
   Object.assign(staticCorrections.fr,{
     "Booking Center":"Centre de réservation","Leads":"Prospects","Clients":"Clients","Calendar":"Calendrier",
     "Quotes":"Devis","Invoices":"Factures","Follow-ups":"Suivis","Today's Route":"Itinéraire du jour",
@@ -1786,7 +1761,6 @@
 
 
   Object.assign(staticCorrections.es,{"Access":"Acceso","Security":"Seguridad","Integrations":"Integraciones"});
-  Object.assign(staticCorrections.pt,{"Access":"Acesso","Security":"Segurança","Integrations":"Integrações"});
   Object.assign(staticCorrections.fr,{"Access":"Accès","Security":"Sécurité","Integrations":"Intégrations"});
 
   const canonicalTranslations=new Map();
@@ -1854,18 +1828,6 @@
     "Kreyòl Ayisyen":"Kreyòl Ayisyen"
   });
 
-  Object.assign(extra.pt,{
-    "Keep the app, client communication, booking rules and payments easy to control from one place.":"Controle facilmente o app, a comunicação com clientes, as reservas e os pagamentos em um só lugar.",
-    "BUSINESS":"EMPRESA","Business basics":"Dados básicos da empresa","The information clients and your workspace use.":"As informações usadas pelos clientes e pelo seu espaço de trabalho.",
-    "Business":"Empresa","YOUR APP":"SEU APP","App preferences":"Preferências do app","These only change what the business owner sees inside the app.":"Isso só muda o que o proprietário vê dentro do app.","App language":"Idioma do app","Edit app preferences":"Editar preferências",
-    "CLIENT COMMUNICATION":"COMUNICAÇÃO COM CLIENTES","Emails to your clients":"E-mails para seus clientes","This is separate from the language you use inside the app.":"Isso é separado do idioma que você usa dentro do app.","Automatic":"Automático","Default client email language":"Idioma padrão dos e-mails","Change default":"Alterar padrão","Save language":"Salvar idioma",
-    "A client can have their own preferred email language. Their preference overrides this default without changing your app language.":"Cada cliente pode ter seu próprio idioma de e-mail. A preferência dele substitui este padrão sem mudar o idioma do app.",
-    "BOOKING":"RESERVAS","Booking + availability":"Reservas + disponibilidade","Control when clients can book and how much travel time you need.":"Controle quando os clientes podem reservar e quanto tempo de deslocamento você precisa.","Open booking settings →":"Abrir configurações de reservas →",
-    "PAYMENTS":"PAGAMENTOS","Client payment options":"Opções de pagamento do cliente","These are the choices clients see on invoices.":"Estas são as opções que os clientes veem nas faturas.","Enabled methods":"Métodos ativados","Edit payment options →":"Editar opções de pagamento →",
-    "Used after confirmed payments and review follow-ups.":"Usado após pagamentos confirmados e acompanhamentos de avaliação.",
-    "TEAM ACCESS":"ACESSO DA EQUIPE","Who can use the app":"Quem pode usar o app","Admins and guest employees are managed separately from client settings.":"Administradores e funcionários convidados são gerenciados separadamente das configurações de clientes.","Open Team →":"Abrir Equipe →",
-    "Email language":"Idioma do e-mail","Business default":"Padrão da empresa","Kreyòl Ayisyen":"Kreyòl Ayisyen"
-  });
 
   Object.assign(extra.fr,{
     "Keep the app, client communication, booking rules and payments easy to control from one place.":"Gérez facilement l’application, la communication client, les réservations et les paiements depuis un seul endroit.",
@@ -1917,42 +1879,6 @@
     "Choose the commercial space type.":"Elige el tipo de espacio comercial."
   });
 
-  Object.assign(extra.pt,{
-    "Property details":"Detalhes do imóvel",
-    "Enough detail for the business to price and prepare the job correctly.":"Informações suficientes para a empresa calcular e preparar o serviço corretamente.",
-    "Approx. property size":"Tamanho aproximado do imóvel",
-    "Property size unit":"Unidade de tamanho",
-    "Bedrooms":"Quartos",
-    "Bathrooms":"Banheiros",
-    "Floors / levels":"Andares / níveis",
-    "Pets in the home":"Animais em casa",
-    "No pets":"Sem animais",
-    "Yes":"Sim",
-    "Prefer not to say":"Prefiro não informar",
-    "Space type":"Tipo de espaço",
-    "Retail / storefront":"Loja / comércio",
-    "Medical / dental":"Médico / odontológico",
-    "Restaurant / food service":"Restaurante / alimentação",
-    "Warehouse / industrial":"Armazém / industrial",
-    "Restrooms":"Banheiros",
-    "When was it last professionally cleaned?":"Quando foi a última limpeza profissional?",
-    "Less than a month ago":"Há menos de um mês",
-    "1–3 months ago":"Há 1–3 meses",
-    "3–6 months ago":"Há 3–6 meses",
-    "More than 6 months ago":"Há mais de 6 meses",
-    "Never / not sure":"Nunca / não tenho certeza",
-    "Access / parking":"Acesso / estacionamento",
-    "Gate, parking, building access, stairs, elevator…":"Portão, estacionamento, acesso ao prédio, escadas, elevador…",
-    "Contact":"Contato",
-    "Where the business should send confirmations and follow-ups.":"Onde a empresa deve enviar confirmações e acompanhamentos.",
-    "Special requests":"Pedidos especiais",
-    "Pets, fragile items, priority rooms, add-ons, or anything else we should know.":"Animais, itens frágeis, cômodos prioritários, extras ou qualquer outra informação importante.",
-    "Times shown in the cleaning business’s local time":"Os horários são exibidos no horário local da empresa de limpeza",
-    "Property size must be greater than 0.":"O tamanho do imóvel deve ser maior que 0.",
-    "Enter the number of bedrooms.":"Informe o número de quartos.",
-    "Enter the number of bathrooms.":"Informe o número de banheiros.",
-    "Choose the commercial space type.":"Escolha o tipo de espaço comercial."
-  });
 
   Object.assign(extra.fr,{
     "Property details":"Détails du logement",
@@ -2045,20 +1971,6 @@
     "(optional)":"(opcional)"
   });
 
-  Object.assign(extra.pt,{
-    "Property details":"Detalhes da propriedade",
-    "Enough detail for the business to price and prepare the job correctly.":"Informações suficientes para a empresa calcular e preparar o serviço corretamente.",
-    "Property type":"Tipo de propriedade","Choose one":"Escolha uma opção","Residential":"Residencial","Commercial":"Comercial",
-    "Approx. property size":"Tamanho aproximado da propriedade","Approximate is fine if you do not know the exact size.":"Um tamanho aproximado está ótimo se você não souber a medida exata.","Property size unit":"Unidade de área",
-    "Bedrooms":"Quartos","Bathrooms":"Banheiros","Floors / levels":"Andares / níveis","Pets in the home":"Animais na propriedade","No pets":"Sem animais","Yes":"Sim","Prefer not to say":"Prefiro não informar","Pet details":"Detalhes dos animais","e.g. 2 dogs, 1 cat":"Ex. 2 cães, 1 gato",
-    "Space type":"Tipo de espaço","Retail / storefront":"Loja / comércio","Medical / dental":"Médico / odontológico","Restaurant / food service":"Restaurante / alimentação","Warehouse / industrial":"Armazém / industrial","Restrooms":"Banheiros",
-    "Business hours":"Horário de funcionamento","e.g. Mon–Fri 9:00–5:00":"Ex. seg–sex 9:00–17:00","Clean during business hours?":"Pode limpar durante o horário de funcionamento?","No":"Não","Flexible":"Flexível",
-    "Current condition":"Condição atual","Regular upkeep":"Manutenção regular","Needs extra attention":"Precisa de atenção extra","Heavy buildup":"Acúmulo intenso","Move-in / move-out":"Mudança: entrada / saída","Not sure":"Não tenho certeza",
-    "When was it last professionally cleaned?":"Quando foi a última limpeza profissional?","Less than a month ago":"Há menos de um mês","1–3 months ago":"Há 1–3 meses","3–6 months ago":"Há 3–6 meses","More than 6 months ago":"Há mais de 6 meses","Never / not sure":"Nunca / não tenho certeza",
-    "Access / parking":"Acesso / estacionamento","Gate, parking, building access, stairs, elevator…":"Portão, estacionamento, acesso ao prédio, escadas, elevador…",
-    "Contact":"Contato","Where the business should send confirmations and follow-ups.":"Onde a empresa deve enviar confirmações e acompanhamentos.","Email language":"Idioma do e-mail","Special requests":"Pedidos especiais","Pets, fragile items, priority rooms, add-ons, or anything else we should know.":"Animais, itens frágeis, cômodos prioritários, extras ou qualquer outra informação importante.",
-    "Times shown in the cleaning business’s local time":"Os horários são exibidos no fuso horário local da empresa de limpeza","Your device time zone":"Fuso horário do seu dispositivo","(optional)":"(opcional)"
-  });
 
   Object.assign(extra.fr,{
     "Property details":"Détails du logement",
@@ -2076,18 +1988,12 @@
   });
 
   Object.assign(exact,{"Phone (optional)":"Teléfono (opcional)"});
-  Object.assign(extra.pt,{"Phone (optional)":"Telefone (opcional)"});
   Object.assign(extra.fr,{"Phone (optional)":"Téléphone (facultatif)"});
 
   Object.assign(exact,{
     "Street, city, region, postal code, country":"Calle, ciudad, región, código postal, país",
     "Parking, doorman, stairs, elevator…":"Estacionamiento, portero, escaleras, elevador…",
     "Do not enter door, lockbox or alarm codes here.":"No escribas aquí códigos de puerta, caja de llaves ni alarma."
-  });
-  Object.assign(extra.pt,{
-    "Street, city, region, postal code, country":"Rua, cidade, região, código postal, país",
-    "Parking, doorman, stairs, elevator…":"Estacionamento, porteiro, escadas, elevador…",
-    "Do not enter door, lockbox or alarm codes here.":"Não informe aqui códigos de porta, caixa de chaves ou alarme."
   });
   Object.assign(extra.fr,{
     "Street, city, region, postal code, country":"Rue, ville, région, code postal, pays",

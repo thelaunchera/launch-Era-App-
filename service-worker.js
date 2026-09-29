@@ -1,24 +1,24 @@
-const CACHE_NAME="tle-cleaning-app-20260929-language-cleanup-201";
+const CACHE_NAME="tle-cleaning-app-20260929-i18n-deadcode-202";
 const CORE=[
-  "./boot.js?v=20260929-language-cleanup-201",
-  "./styles/boot.css?v=20260929-language-cleanup-201",
+  "./boot.js?v=20260929-i18n-deadcode-202",
+  "./styles/boot.css?v=20260929-i18n-deadcode-202",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-language-cleanup-201",
-  "./styles/workspace-components.css?v=20260929-language-cleanup-201",
-  "./styles/workspace-experience.css?v=20260929-language-cleanup-201",
-  "./styles/workspace-operations.css?v=20260929-language-cleanup-201",
-  "./styles/release-overrides.css?v=20260929-language-cleanup-201",
-  "./styles/release-mobile.css?v=20260929-language-cleanup-201",
-  "./styles/release-latest.css?v=20260929-language-cleanup-201",
-  "./styles/responsive-shell.css?v=20260929-language-cleanup-201",
-  "./styles/customer-documents.css?v=20260929-language-cleanup-201",
-  "./app.js?v=20260929-language-cleanup-201",
-  "./followups.js?v=20260929-language-cleanup-201",
-  "./i18n.js?v=20260929-language-cleanup-201",
-  "./public.js?v=20260929-language-cleanup-201",
-  "./vendor/supabase.js?v=20260929-language-cleanup-201",
-  "./manifest.webmanifest?v=20260929-language-cleanup-201"
+  "./styles.css?v=20260929-i18n-deadcode-202",
+  "./styles/workspace-components.css?v=20260929-i18n-deadcode-202",
+  "./styles/workspace-experience.css?v=20260929-i18n-deadcode-202",
+  "./styles/workspace-operations.css?v=20260929-i18n-deadcode-202",
+  "./styles/release-overrides.css?v=20260929-i18n-deadcode-202",
+  "./styles/release-mobile.css?v=20260929-i18n-deadcode-202",
+  "./styles/release-latest.css?v=20260929-i18n-deadcode-202",
+  "./styles/responsive-shell.css?v=20260929-i18n-deadcode-202",
+  "./styles/customer-documents.css?v=20260929-i18n-deadcode-202",
+  "./app.js?v=20260929-i18n-deadcode-202",
+  "./followups.js?v=20260929-i18n-deadcode-202",
+  "./i18n.js?v=20260929-i18n-deadcode-202",
+  "./public.js?v=20260929-i18n-deadcode-202",
+  "./vendor/supabase.js?v=20260929-i18n-deadcode-202",
+  "./manifest.webmanifest?v=20260929-i18n-deadcode-202"
 ];
 
 self.addEventListener("install",event=>{
