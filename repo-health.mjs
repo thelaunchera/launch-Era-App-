@@ -105,4 +105,20 @@ for(const [file,config] of Object.entries(selectorModules)){
   }
 }
 
+
+const ciWorkflow=read(".github/workflows/ci.yml");
+const vendorWorkflow=read(".github/workflows/vendor-supabase.yml");
+for(const [name,workflow] of [["CI",ciWorkflow],["Vendor Supabase",vendorWorkflow]]){
+  if(/actions\/(?:checkout|setup-node)@v4/.test(workflow)){
+    fail(name+" workflow still uses Node-20-era GitHub Actions v4");
+  }else{
+    pass(name+" workflow uses current GitHub Actions major versions");
+  }
+  if(/npm install --no-audit --no-fund/.test(workflow)){
+    fail(name+" workflow must use npm ci for deterministic lockfile installs");
+  }else{
+    pass(name+" workflow uses deterministic npm ci installs");
+  }
+}
+
 if(process.exitCode) process.exit(process.exitCode);
