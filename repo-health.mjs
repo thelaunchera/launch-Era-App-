@@ -8,6 +8,7 @@ const sw = read("service-worker.js");
 const i18n = read("i18n.js");
 const publicJs = read("public.js");
 const onboardingCopy = read("onboarding-copy.js");
+const followups = read("followups.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 
 const fail = message => {
@@ -111,6 +112,14 @@ if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(
   fail("inactive Portuguese payload remains in app.js or onboarding-copy.js");
 }else{
   pass("inactive Portuguese payload is absent from app and onboarding copy");
+}
+
+const followupPortuguese=/\bpt\s*:|Português|Portuguese|Orçamento|Orçamentos|Fatura|Faturas|Após a limpeza|Nova reserva|Enviar agora|Abrir origem|MENSAGEM PERSONALIZADA|Escreva o e-mail|Idioma do cliente|Assunto \(opcional\)|Você pode usar|Salvar mensagem|Usar padrão|Atrasado|Vence agora|Para amanhã|Lembrar-me|Precisa de acompanhamento|Adiar 2 dias|Concluído|Editar mensagem|Mensagem personalizada|Usando a mensagem padrão/;
+const legacyFollowupLangPick=/langPick\(\s*["'][^"'\n]*["']\s*,\s*["'][^"'\n]*["']\s*,\s*["'][^"'\n]*["']\s*,/;
+if(followupPortuguese.test(followups) || legacyFollowupLangPick.test(followups)){
+  fail("legacy Portuguese or four-language follow-up copy remains in followups.js");
+}else{
+  pass("follow-up UI contains only the active EN/ES/FR language arguments; HT resolves through i18n");
 }
 
 if(
