@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-back-always-home-135";
+const APP_VERSION = "20260929-entry-always-home-136";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1561,13 +1561,18 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
-  // Keep a recent workspace page after a quick refresh/relaunch, but after
-  // five minutes without activity always reopen on Today (Home).
-  // This is separate from the 12-hour authentication timeout.
-  if(ownerHomeIdleExpired()){
-    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
-  }else{
+  // A fresh app entry always starts on Today/Home. A true browser refresh
+  // keeps the current workspace section so Refresh does not interrupt work.
+  let isTrueReload=false;
+  try{
+    isTrueReload=performance.getEntriesByType?.("navigation")?.[0]?.type==="reload";
+  }catch{}
+  if(isTrueReload && !ownerHomeIdleExpired()){
     restoreWorkspaceView();
+  }else{
+    navHistory.length=1;
+    navHistory[0]="today";
+    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
   }
   $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
@@ -2350,6 +2355,26 @@ function returnOwnerToHomeAfterIdle(){
   scheduleOwnerHomeIdleReturn();
   return true;
 }
+function returnOwnerToHomeOnResume(){
+  if(!state.session || state.business?.role!=="owner") return false;
+  // Do not discard an unfinished form/modal when iOS briefly backgrounds the app.
+  if(typeof modal!=="undefined" && modal && !modal.hidden) return false;
+  try{ if(typeof closeNotificationPopover==="function") closeNotificationPopover(); }catch{}
+  try{ if(typeof setSidebarOpen==="function") setSidebarOpen(false); }catch{}
+  navHistory.length=1;
+  navHistory[0]="today";
+  const current=$(".view.active")?.dataset.page;
+  if(current!=="today"){
+    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
+  }else{
+    const main=$("#appShell>.main");
+    if(main) main.scrollTo({top:0,behavior:"auto"});
+    try{ window.scrollTo({top:0,behavior:"auto"}); }catch{}
+  }
+  try{ localStorage.setItem(workspaceViewStorageKey(),"today"); }catch{}
+  return true;
+}
+
 async function expireOwnerSession(){
   if(window.__tleOwnerLocking) return;
   window.__tleOwnerLocking=true;
@@ -2421,7 +2446,7 @@ function installOwnerActivityTracker(){
         expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
         return;
       }
-      returnOwnerToHomeAfterIdle();
+      returnOwnerToHomeOnResume();
       markOwnerActivity();
       markOwnerHomeActivity();
       return;
@@ -2437,7 +2462,7 @@ function installOwnerActivityTracker(){
       expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
       return;
     }
-    returnOwnerToHomeAfterIdle();
+    returnOwnerToHomeOnResume();
     markOwnerActivity();
     markOwnerHomeActivity();
   },{passive:true});
