@@ -9037,3 +9037,35 @@ body.shell-auth{overflow-anchor:none}
     letter-spacing:.08em!important;
   }
 }
+
+
+/* 2026-09-29 audit fix v170 — keep critical mobile controls visible */
+.moon-glow{
+  position:absolute;
+  width:150px;
+  height:150px;
+  right:-48px;
+  top:-62px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.42) 0%,rgba(226,225,255,.22) 38%,rgba(255,255,255,0) 72%);
+  animation:tleMoonFloat 7s ease-in-out infinite;
+}
+@media(max-width:680px){
+  body.shell-app .global-search-shell{display:none!important}
+  body.shell-app #appRefreshBtn{display:inline-flex!important}
+  body.shell-app .notification-shell{display:block!important}
+}
+@media(max-width:390px){
+  body.shell-app #appRefreshBtn{display:inline-flex!important}
+  body.shell-app .notification-shell{display:block!important}
+  body.shell-app .top-actions{gap:3px!important}
+  body.shell-app .top-tool-btn{
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .moon-glow{animation:none!important}
+}
