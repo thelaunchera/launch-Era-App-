@@ -276,6 +276,38 @@ if(html.includes('document.addEventListener("visibilitychange",function(){\n    
 if(!app.includes('data-client-to-quote="') || !app.includes('const clientQuote=e.target.closest("[data-client-to-quote]")') || !app.includes('client_id:fd.get("client_id")||current?.client_id||null')){
   throw new Error("Client quote regression: saved clients must be able to start a linked quote inside the app");
 }
+
+if(
+  !publicJs.includes('select_invoice_payment_method_v2') ||
+  !publicJs.includes('p_other_detail:selected==="other"?selectedDetail:null') ||
+  !publicJs.includes('customer_payment_method_detail') ||
+  !publicJs.includes('showPublicConfirmation(')
+){
+  throw new Error("Invoice payment regression: custom Other payment method or confirmation flow is missing");
+}
+if(
+  !app.includes("function customerOpenStatus(record)") ||
+  !app.includes("customer_open_count") ||
+  !app.includes("customer_last_opened_at") ||
+  !styles.includes(".customer-open-status")
+){
+  throw new Error("Customer-view regression: quote/invoice Viewed status is not wired end to end");
+}
+if(
+  !app.includes("const incomingEndMs=nowMs+(72*60*60*1000)") ||
+  !app.includes("const incomingJobs=visible.filter") ||
+  !app.includes("startsAt>=nowMs && startsAt<=incomingEndMs")
+){
+  throw new Error("Incoming Jobs regression: list must stay limited to the next 72 hours");
+}
+if(
+  !app.includes("Never overwrite Open-Meteo's true current condition") ||
+  !app.includes("weather.current_15m={") ||
+  !app.includes("},60*1000);") ||
+  !app.includes('window.addEventListener("focus",function(){')
+){
+  throw new Error("Weather regression: stale 15-minute rain data or slow refresh behavior returned");
+}
 if(!styles.includes("tleHeroCtaFloat") || !styles.includes(".hero-card.message-calm #todayHeroAction") || !styles.includes("tleNotificationRing")){
   throw new Error("Dashboard polish regression: compact adaptive CTA or notification motion is missing");
 }
