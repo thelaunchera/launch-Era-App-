@@ -203,6 +203,12 @@ if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-languag
 if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(onboardingCopy) || /Português|Portuguese/.test(onboardingCopy)){
   throw new Error("Localization regression: inactive Portuguese payload returned in app or onboarding copy");
 }
+if(
+  /\bpt\s*:|Português|Portuguese|Orçamento|Orçamentos|Fatura|Faturas|Após a limpeza|Nova reserva|Enviar agora|Abrir origem|MENSAGEM PERSONALIZADA|Escreva o e-mail|Idioma do cliente|Assunto \(opcional\)|Você pode usar|Salvar mensagem|Usar padrão|Atrasado|Vence agora|Para amanhã|Lembrar-me|Precisa de acompanhamento|Adiar 2 dias|Concluído|Editar mensagem|Mensagem personalizada|Usando a mensagem padrão/.test(followups) ||
+  /langPick\(\s*["'][^"'\n]*["']\s*,\s*["'][^"'\n]*["']\s*,\s*["'][^"'\n]*["']\s*,/.test(followups)
+){
+  throw new Error("Localization regression: Portuguese or legacy four-language follow-up copy returned");
+}
 if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
   throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
 }
