@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-language-141";
+const APP_VERSION = "20260929-customer-email-language-settings-140";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -492,6 +492,23 @@ function appIsSpanish(){
 function langPick(en,es,pt,fr){
   const map={en,en:en,es,pt,fr};
   return map[appLanguage()] ?? en;
+}
+function customerEmailLanguageLabel(code){
+  return ({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"})[String(code||"").toLowerCase()]||"English";
+}
+function customerEmailLanguageOptions(selected="",allowDefault=true){
+  const value=String(selected||"").toLowerCase();
+  const options=[
+    ["en","English"],["es","Español"],["fr","Français"],["ht","Kreyòl Ayisyen"]
+  ];
+  const fallback=allowDefault
+    ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Padrão da empresa","Valeur par défaut"))}</option>`
+    : "";
+  return fallback+options.map(([code,label])=>`<option value="${code}" ${value===code?"selected":""}>${escapeHtml(label)}</option>`).join("");
+}
+function normalizedCustomerEmailLanguage(value){
+  const code=String(value||"").trim().toLowerCase();
+  return ["en","es","fr","ht"].includes(code)?code:null;
 }
 function appLocale(){
   return state.business?.locale_code
@@ -2806,7 +2823,7 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit: globalSetup.distance_unit,
       temperature_unit: globalSetup.temperature_unit,
       default_language: globalSetup.default_language,
-      customer_email_language: globalSetup.default_language,
+      customer_email_language: globalSetup.customer_email_language,
       payment_methods:paymentMethodsForCountry(globalSetup.country_code),
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
@@ -6148,7 +6165,7 @@ async function saveBusinessProfile(fd){
     timezone:detected.timezone||state.business.timezone||"UTC",
     country_code:country,
     default_language:language,
-    customer_email_language:String(fd.get("customer_email_language")||state.business.customer_email_language||language).toLowerCase(),
+    customer_email_language:["en","es","fr"].includes(language)?language:"en",
     locale_code:localeForCountry(country,language),
     currency_code:String(fd.get("currency_code")||detected.currency_code||"USD").trim().toUpperCase(),
     distance_unit:String(fd.get("distance_unit")||detected.distance_unit||"km"),
@@ -6188,7 +6205,8 @@ function renderSettings(){
         country=$("#settingsBusinessCountry"),
         tz=$("#settingsBusinessTimezone"),
         lang=$("#settingsBusinessLanguage"),
-        emailLang=$("#settingsClientEmailLanguage"),
+        emailLang=$("#settingsCustomerEmailLanguage"),
+        customerEmailSelect=$("#customerEmailLanguageSelect"),
         currency=$("#settingsBusinessCurrency"),
         distance=$("#settingsBusinessDistance"),
         temperature=$("#settingsBusinessTemperature"),
@@ -6204,7 +6222,8 @@ function renderSettings(){
   if(country) country.textContent=state.business?.country_code||"—";
   if(tz) tz.textContent=state.business?.timezone||"UTC";
   if(lang) lang.textContent=({en:"English",es:"Español",pt:"Português",fr:"Français"}[state.business?.default_language]||"English");
-  if(emailLang) emailLang.textContent=({en:"English",es:"Español",pt:"Português",fr:"Français"}[state.business?.customer_email_language||state.business?.default_language]||"English");
+  if(emailLang) emailLang.textContent=customerEmailLanguageLabel(state.business?.customer_email_language||"en");
+  if(customerEmailSelect && document.activeElement!==customerEmailSelect) customerEmailSelect.value=normalizedCustomerEmailLanguage(state.business?.customer_email_language)||"en";
   if(currency) currency.textContent=state.business?.currency_code||"USD";
   if(distance) distance.textContent=state.business?.distance_unit==="km"?"Kilometers":"Miles";
   if(temperature) temperature.textContent=state.business?.temperature_unit==="celsius"?"Celsius":"Fahrenheit";
@@ -6913,6 +6932,7 @@ function openEntityForm(type,id=null){
           <option value="text" ${record?.preferred_contact==="text"?"selected":""}>Text</option>
           <option value="whatsapp" ${record?.preferred_contact==="whatsapp"?"selected":""}>WhatsApp</option>
         </select></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label>Source<input name="source" value="${escapeHtml(record?.source||"")}" placeholder="Instagram, referral, website…"></label>
         <label>Status<select name="status">${["new","contacted","qualified","quoted","booked","lost"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v}</option>`).join("")}</select></label>
         <label class="full">Service interest<input name="service_interest" value="${escapeHtml(record?.service_interest||"")}"></label>
@@ -6947,6 +6967,7 @@ function openEntityForm(type,id=null){
           <option value="text" ${record?.preferred_contact==="text"?"selected":""}>Text</option>
           <option value="whatsapp" ${record?.preferred_contact==="whatsapp"?"selected":""}>WhatsApp</option>
         </select></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label class="full">Street address<input name="address_line1" value="${escapeHtml(record?.address_line1||"")}"></label>
         <label>City<input name="city" value="${escapeHtml(record?.city||"")}"></label>
         <label>Region / State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
@@ -7094,6 +7115,7 @@ function openEntityForm(type,id=null){
         <label>Name<input name="customer_name" required value="${escapeHtml(record?.customer_name||"")}"></label>
         <label>Email<input name="customer_email" type="email" required value="${escapeHtml(record?.customer_email||"")}"></label>
         <label>Phone<input name="customer_phone" value="${escapeHtml(record?.customer_phone||"")}"></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label>Service<select name="service_id" required><option value="">Choose service</option>${optionList(state.services.filter(s=>s.active),"id","name",item?.service_id)}</select></label>
         <label>Price<input name="price" type="number" min="0" step="0.01" required value="${item?.unit_price??record?.total??""}"></label>
         <label>Status<select name="status">
@@ -7171,6 +7193,7 @@ entityForm.addEventListener("change",e=>{
         customer_name:client.name||"",
         customer_email:client.email||"",
         customer_phone:client.phone||"",
+        preferred_language:client.preferred_language||"",
         service_address:clientServiceAddress(client)
       };
       Object.entries(fields).forEach(([name,value])=>{
@@ -7298,6 +7321,7 @@ async function saveLead(fd){
     email:String(fd.get("email")).trim(),
     phone:phone||null,
     preferred_contact:preferred,
+    preferred_language:normalizedCustomerEmailLanguage(fd.get("preferred_language")),
     source:String(fd.get("source")||"").trim()||null,
     status:fd.get("status"),
     service_interest:String(fd.get("service_interest")||"").trim()||null,
@@ -7409,6 +7433,7 @@ async function saveClient(fd){
     email:String(fd.get("email")).trim(),
     phone:phone||null,
     preferred_contact:preferred,
+    preferred_language:normalizedCustomerEmailLanguage(fd.get("preferred_language")),
     address_line1:String(fd.get("address_line1")||"").trim()||null,
     city:String(fd.get("city")||"").trim()||null,
     state:String(fd.get("state")||"").trim()||null,
@@ -7609,6 +7634,7 @@ async function saveQuote(fd){
     customer_name:String(fd.get("customer_name")).trim(),
     customer_email:String(fd.get("customer_email")).trim(),
     customer_phone:String(fd.get("customer_phone")||"").trim()||null,
+    preferred_language:normalizedCustomerEmailLanguage(fd.get("preferred_language")),
     service_address:String(fd.get("service_address")).trim(),
     preferred_date:fd.get("preferred_date"),
     preferred_time:fd.get("preferred_time"),
@@ -8560,6 +8586,37 @@ $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
 
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
+$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
+
+const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
+if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
+  if(!state.business || state.business.role!=="owner"){
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    return;
+  }
+  const select=$("#customerEmailLanguageSelect");
+  const language=normalizedCustomerEmailLanguage(select?.value)||"en";
+  try{
+    saveCustomerEmailLanguageBtn.disabled=true;
+    const original=saveCustomerEmailLanguageBtn.textContent;
+    saveCustomerEmailLanguageBtn.dataset.originalText=original;
+    saveCustomerEmailLanguageBtn.textContent=langPick("Saving…","Guardando…","Salvando…","Enregistrement…");
+    const {data,error}=await supabase.from("businesses")
+      .update({customer_email_language:language,updated_at:new Date().toISOString()})
+      .eq("id",state.business.id)
+      .select("customer_email_language")
+      .single();
+    if(error) throw error;
+    state.business.customer_email_language=data?.customer_email_language||language;
+    renderSettings();
+    showToast(langPick("Client email language saved","Idioma de emails guardado","Idioma dos e-mails salvo","Langue des e-mails enregistrée"));
+  }catch(err){
+    showToast(err.message||langPick("Could not save language","No se pudo guardar el idioma","Não foi possível salvar o idioma","Impossible d’enregistrer la langue"));
+  }finally{
+    saveCustomerEmailLanguageBtn.disabled=false;
+    saveCustomerEmailLanguageBtn.textContent=saveCustomerEmailLanguageBtn.dataset.originalText||langPick("Save language","Guardar idioma","Salvar idioma","Enregistrer");
+  }
+});
 
 const saveGoogleReviewBtn=$("#saveGoogleReviewBtn");
 if(saveGoogleReviewBtn) saveGoogleReviewBtn.addEventListener("click",async ()=>{
