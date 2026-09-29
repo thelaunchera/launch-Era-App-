@@ -1763,6 +1763,2327 @@
   Object.assign(staticCorrections.es,{"Access":"Acceso","Security":"Seguridad","Integrations":"Integraciones"});
   Object.assign(staticCorrections.fr,{"Access":"Accès","Security":"Sécurité","Integrations":"Intégrations"});
 
+  // 2026-09-29 — full visible UI + Booking Page language coverage v208
+  const coverageV208={
+  "Lead": {
+    "es": "Prospecto",
+    "fr": "Prospect",
+    "ht": "Pwospè"
+  },
+  "Leads": {
+    "es": "Prospectos",
+    "fr": "Prospects",
+    "ht": "Pwospè"
+  },
+  "LEADS": {
+    "es": "PROSPECTOS",
+    "fr": "PROSPECTS",
+    "ht": "PWOSPÈ"
+  },
+  "Lead pipeline": {
+    "es": "Pipeline de prospectos",
+    "fr": "Pipeline de prospects",
+    "ht": "Pipeline pwospè"
+  },
+  "+ Add lead": {
+    "es": "+ Añadir prospecto",
+    "fr": "+ Ajouter un prospect",
+    "ht": "+ Ajoute pwospè"
+  },
+  "Add lead": {
+    "es": "Añadir prospecto",
+    "fr": "Ajouter un prospect",
+    "ht": "Ajoute pwospè"
+  },
+  "Source": {
+    "es": "Fuente",
+    "fr": "Source",
+    "ht": "Sous"
+  },
+  "Status": {
+    "es": "Estado",
+    "fr": "Statut",
+    "ht": "Estati"
+  },
+  "Booked": {
+    "es": "Reservado",
+    "fr": "Réservé",
+    "ht": "Rezève"
+  },
+  "Booking link": {
+    "es": "Enlace de reservas",
+    "fr": "Lien de réservation",
+    "ht": "Lyen rezèvasyon"
+  },
+  "Quote link": {
+    "es": "Enlace de cotización",
+    "fr": "Lien de devis",
+    "ht": "Lyen devis"
+  },
+  "Edit": {
+    "es": "Editar",
+    "fr": "Modifier",
+    "ht": "Modifye"
+  },
+  "Archive": {
+    "es": "Archivar",
+    "fr": "Archiver",
+    "ht": "Achive"
+  },
+  "Delete lead": {
+    "es": "Borrar prospecto",
+    "fr": "Supprimer le prospect",
+    "ht": "Efase pwospè"
+  },
+  "Client": {
+    "es": "Cliente",
+    "fr": "Client",
+    "ht": "Kliyan"
+  },
+  "CLIENTS": {
+    "es": "CLIENTES",
+    "fr": "CLIENTS",
+    "ht": "KLIYAN"
+  },
+  "Client records": {
+    "es": "Registros de clientes",
+    "fr": "Fiches clients",
+    "ht": "Dosye kliyan"
+  },
+  "+ Add client": {
+    "es": "+ Añadir cliente",
+    "fr": "+ Ajouter un client",
+    "ht": "+ Ajoute kliyan"
+  },
+  "No client": {
+    "es": "Sin cliente",
+    "fr": "Sans client",
+    "ht": "Pa gen kliyan"
+  },
+  "No email": {
+    "es": "Sin correo",
+    "fr": "Sans e-mail",
+    "ht": "Pa gen imèl"
+  },
+  "No address yet": {
+    "es": "Sin dirección todavía",
+    "fr": "Pas encore d’adresse",
+    "ht": "Pa gen adrès ankò"
+  },
+  "No due date": {
+    "es": "Sin fecha de vencimiento",
+    "fr": "Sans date d’échéance",
+    "ht": "Pa gen dat limit"
+  },
+  "Amount": {
+    "es": "Monto",
+    "fr": "Montant",
+    "ht": "Montan"
+  },
+  "Paid up": {
+    "es": "Al día",
+    "fr": "À jour",
+    "ht": "Ajou"
+  },
+  "Next cleaning": {
+    "es": "Próxima limpieza",
+    "fr": "Prochain nettoyage",
+    "ht": "Pwochen netwayaj"
+  },
+  "Last cleaning": {
+    "es": "Última limpieza",
+    "fr": "Dernier nettoyage",
+    "ht": "Dènye netwayaj"
+  },
+  "Not scheduled": {
+    "es": "Sin programar",
+    "fr": "Non planifié",
+    "ht": "Pa pwograme"
+  },
+  "Info": {
+    "es": "Información",
+    "fr": "Infos",
+    "ht": "Enfòmasyon"
+  },
+  "Edit client": {
+    "es": "Editar cliente",
+    "fr": "Modifier le client",
+    "ht": "Modifye kliyan"
+  },
+  "Client notes": {
+    "es": "Notas del cliente",
+    "fr": "Notes client",
+    "ht": "Nòt kliyan"
+  },
+  "Client not found": {
+    "es": "Cliente no encontrado",
+    "fr": "Client introuvable",
+    "ht": "Kliyan pa jwenn"
+  },
+  "Delete client": {
+    "es": "Borrar cliente",
+    "fr": "Supprimer le client",
+    "ht": "Efase kliyan"
+  },
+  "Completed": {
+    "es": "Completado",
+    "fr": "Terminé",
+    "ht": "Fini"
+  },
+  "Upcoming": {
+    "es": "Próximos",
+    "fr": "À venir",
+    "ht": "K ap vini"
+  },
+  "Invoiced": {
+    "es": "Facturado",
+    "fr": "Facturé",
+    "ht": "Faktire"
+  },
+  "History": {
+    "es": "Historial",
+    "fr": "Historique",
+    "ht": "Istwa"
+  },
+  "No history yet.": {
+    "es": "Todavía no hay historial.",
+    "fr": "Pas encore d’historique.",
+    "ht": "Pa gen istwa ankò."
+  },
+  "Requested": {
+    "es": "Solicitada",
+    "fr": "Demandé",
+    "ht": "Mande"
+  },
+  "Draft": {
+    "es": "Borrador",
+    "fr": "Brouillon",
+    "ht": "Bouyon"
+  },
+  "Sent": {
+    "es": "Enviada",
+    "fr": "Envoyé",
+    "ht": "Voye"
+  },
+  "Accepted": {
+    "es": "Aceptada",
+    "fr": "Accepté",
+    "ht": "Aksepte"
+  },
+  "Declined": {
+    "es": "Rechazada",
+    "fr": "Refusé",
+    "ht": "Refize"
+  },
+  "Overdue": {
+    "es": "Vencida",
+    "fr": "En retard",
+    "ht": "Anreta"
+  },
+  "outstanding": {
+    "es": "pendiente",
+    "fr": "à encaisser",
+    "ht": "poko peye"
+  },
+  "Customer chose": {
+    "es": "Cliente eligió",
+    "fr": "Le client a choisi",
+    "ht": "Kliyan chwazi"
+  },
+  "Resolve dispute": {
+    "es": "Resolver disputa",
+    "fr": "Résoudre la contestation",
+    "ht": "Rezoud kontestasyon"
+  },
+  "Send invoice": {
+    "es": "Enviar factura",
+    "fr": "Envoyer la facture",
+    "ht": "Voye fakti"
+  },
+  "Add payment": {
+    "es": "Añadir pago",
+    "fr": "Ajouter un paiement",
+    "ht": "Ajoute peman"
+  },
+  "Confirm payment": {
+    "es": "Confirmar pago",
+    "fr": "Confirmer le paiement",
+    "ht": "Konfime peman"
+  },
+  "Record payment": {
+    "es": "Registrar pago",
+    "fr": "Enregistrer le paiement",
+    "ht": "Anrejistre peman"
+  },
+  "Delete invoice": {
+    "es": "Borrar factura",
+    "fr": "Supprimer la facture",
+    "ht": "Efase fakti"
+  },
+  "Send quote": {
+    "es": "Enviar cotización",
+    "fr": "Envoyer le devis",
+    "ht": "Voye devis"
+  },
+  "Resend quote": {
+    "es": "Reenviar cotización",
+    "fr": "Renvoyer le devis",
+    "ht": "Voye devis ankò"
+  },
+  "Delete quote": {
+    "es": "Borrar cotización",
+    "fr": "Supprimer le devis",
+    "ht": "Efase devis"
+  },
+  "Next stop": {
+    "es": "Próxima parada",
+    "fr": "Prochain arrêt",
+    "ht": "Pwochen arè"
+  },
+  "Extra job": {
+    "es": "Trabajo extra",
+    "fr": "Travail supplémentaire",
+    "ht": "Travay anplis"
+  },
+  "Planned": {
+    "es": "Planeado",
+    "fr": "Prévu",
+    "ht": "Planifye"
+  },
+  "Actual": {
+    "es": "Real",
+    "fr": "Réel",
+    "ht": "Reyèl"
+  },
+  "Remove from this list": {
+    "es": "Quitar de esta lista",
+    "fr": "Retirer de cette liste",
+    "ht": "Retire nan lis sa a"
+  },
+  "No time entries yet.": {
+    "es": "Todavía no hay registros de tiempo.",
+    "fr": "Aucun temps enregistré pour le moment.",
+    "ht": "Pa gen anrejistreman tan ankò."
+  },
+  "Time worked will appear here.": {
+    "es": "El tiempo trabajado aparecerá aquí.",
+    "fr": "Le temps travaillé apparaîtra ici.",
+    "ht": "Tan travay la ap parèt isit la."
+  },
+  "No mileage logged yet.": {
+    "es": "Todavía no hay millaje registrado.",
+    "fr": "Aucun kilométrage enregistré.",
+    "ht": "Pa gen distans anrejistre ankò."
+  },
+  "Add profile": {
+    "es": "Añadir perfil",
+    "fr": "Ajouter le profil",
+    "ht": "Ajoute pwofil"
+  },
+  "Add page": {
+    "es": "Añadir página",
+    "fr": "Ajouter la page",
+    "ht": "Ajoute paj"
+  },
+  "Add link": {
+    "es": "Añadir enlace",
+    "fr": "Ajouter le lien",
+    "ht": "Ajoute lyen"
+  },
+  "Client view": {
+    "es": "Vista del cliente",
+    "fr": "Vue client",
+    "ht": "Vizyalizasyon kliyan"
+  },
+  "Keep your client-facing links close while you run the day.": {
+    "es": "Ten a mano los enlaces para clientes mientras manejas el día.",
+    "fr": "Gardez les liens destinés aux clients à portée de main pendant la journée.",
+    "ht": "Kenbe lyen kliyan yo toupre pandan w ap jere jounen an."
+  },
+  "Add Instagram, Facebook and your review link in Business Profile.": {
+    "es": "Añade Instagram, Facebook y tu enlace de reseñas en el perfil del negocio.",
+    "fr": "Ajoutez Instagram, Facebook et votre lien d’avis dans le profil de l’entreprise.",
+    "ht": "Ajoute Instagram, Facebook ak lyen revizyon ou nan pwofil biznis la."
+  },
+  "MILEAGE": {
+    "es": "MILLAJE",
+    "fr": "KILOMÉTRAGE",
+    "ht": "KILOMETRAJ"
+  },
+  "Mileage log": {
+    "es": "Registro de millaje",
+    "fr": "Journal de kilométrage",
+    "ht": "Jounal kilometraj"
+  },
+  "+ Log drive": {
+    "es": "+ Registrar viaje",
+    "fr": "+ Enregistrer un trajet",
+    "ht": "+ Anrejistre vwayaj"
+  },
+  "This month": {
+    "es": "Este mes",
+    "fr": "Ce mois-ci",
+    "ht": "Mwa sa a"
+  },
+  "Date / note": {
+    "es": "Fecha / nota",
+    "fr": "Date / note",
+    "ht": "Dat / nòt"
+  },
+  "No specific job": {
+    "es": "Sin trabajo específico",
+    "fr": "Aucun travail précis",
+    "ht": "Pa gen travay espesifik"
+  },
+  "Extra job type": {
+    "es": "Tipo de trabajo extra",
+    "fr": "Type de travail supplémentaire",
+    "ht": "Kalite travay anplis"
+  },
+  "Choose type": {
+    "es": "Elige el tipo",
+    "fr": "Choisir le type",
+    "ht": "Chwazi kalite"
+  },
+  "Store": {
+    "es": "Tienda",
+    "fr": "Magasin",
+    "ht": "Magazen"
+  },
+  "School": {
+    "es": "Escuela",
+    "fr": "École",
+    "ht": "Lekòl"
+  },
+  "Office": {
+    "es": "Oficina",
+    "fr": "Bureau",
+    "ht": "Biwo"
+  },
+  "Supply run": {
+    "es": "Compra de suministros",
+    "fr": "Achat de fournitures",
+    "ht": "Ale pran founiti"
+  },
+  "Office / home / previous stop": {
+    "es": "Oficina / casa / parada anterior",
+    "fr": "Bureau / domicile / arrêt précédent",
+    "ht": "Biwo / lakay / arè anvan"
+  },
+  "Client / supply store": {
+    "es": "Cliente / tienda de suministros",
+    "fr": "Client / magasin de fournitures",
+    "ht": "Kliyan / magazen founiti"
+  },
+  "e.g. pick up supplies": {
+    "es": "Ej. recoger suministros",
+    "fr": "Ex. récupérer des fournitures",
+    "ht": "Eg. pran founiti"
+  },
+  "Enter a distance greater than 0.": {
+    "es": "Escribe una distancia mayor que 0.",
+    "fr": "Saisissez une distance supérieure à 0.",
+    "ht": "Antre yon distans ki pi gran pase 0."
+  },
+  "Complete From and To.": {
+    "es": "Completa Desde y Hasta.",
+    "fr": "Complétez De et À.",
+    "ht": "Ranpli Soti ak Rive."
+  },
+  "Choose the extra job type.": {
+    "es": "Elige el tipo de trabajo extra.",
+    "fr": "Choisissez le type de travail supplémentaire.",
+    "ht": "Chwazi kalite travay anplis la."
+  },
+  "Removing…": {
+    "es": "Quitando…",
+    "fr": "Suppression…",
+    "ht": "N ap retire…"
+  },
+  "Removed from Time Tracking only.": {
+    "es": "Quitado solo del control de tiempo.",
+    "fr": "Retiré uniquement du suivi du temps.",
+    "ht": "Retire sèlman nan Suivi tan."
+  },
+  "Could not remove it from this list.": {
+    "es": "No se pudo quitar de esta lista.",
+    "fr": "Impossible de le retirer de cette liste.",
+    "ht": "Pa t ka retire li nan lis sa a."
+  },
+  "TIME TRACKING": {
+    "es": "CONTROL DE TIEMPO",
+    "fr": "SUIVI DU TEMPS",
+    "ht": "SWIV TAN"
+  },
+  "Time tracking": {
+    "es": "Control de tiempo",
+    "fr": "Suivi du temps",
+    "ht": "Swiv tan"
+  },
+  "Job / team": {
+    "es": "Trabajo / equipo",
+    "fr": "Travail / équipe",
+    "ht": "Travay / ekip"
+  },
+  "Current job": {
+    "es": "Trabajo actual",
+    "fr": "Travail en cours",
+    "ht": "Travay aktyèl"
+  },
+  "Running": {
+    "es": "Activo",
+    "fr": "En cours",
+    "ht": "Ap kouri"
+  },
+  "Finish timer": {
+    "es": "Finalizar temporizador",
+    "fr": "Arrêter le minuteur",
+    "ht": "Fini kronomèt"
+  },
+  "No timer running.": {
+    "es": "No hay temporizador activo.",
+    "fr": "Aucun minuteur actif.",
+    "ht": "Pa gen kronomèt k ap mache."
+  },
+  "Start time from an assigned job when work begins.": {
+    "es": "Inicia el tiempo desde un trabajo asignado cuando empiece el trabajo.",
+    "fr": "Démarrez le temps depuis un travail attribué lorsque le travail commence.",
+    "ht": "Kòmanse tan an nan yon travay asiyen lè travay la kòmanse."
+  },
+  "Tomorrow": {
+    "es": "Mañana",
+    "fr": "Demain",
+    "ht": "Demen"
+  },
+  "Current location": {
+    "es": "Ubicación actual",
+    "fr": "Position actuelle",
+    "ht": "Kote aktyèl"
+  },
+  "Not viewed yet": {
+    "es": "Aún no visto",
+    "fr": "Pas encore vu",
+    "ht": "Poko wè"
+  },
+  "Viewed": {
+    "es": "Visto",
+    "fr": "Vu",
+    "ht": "Wè"
+  },
+  "Weather unavailable": {
+    "es": "Clima no disponible",
+    "fr": "Météo indisponible",
+    "ht": "Tan an pa disponib"
+  },
+  "Updating weather…": {
+    "es": "Actualizando clima…",
+    "fr": "Mise à jour de la météo…",
+    "ht": "N ap mete tan an ajou…"
+  },
+  "Snow now in your area.": {
+    "es": "Está nevando ahora en tu zona.",
+    "fr": "Il neige actuellement dans votre zone.",
+    "ht": "Nèj ap tonbe nan zòn ou kounye a."
+  },
+  "Storms are active now in your area.": {
+    "es": "Hay tormentas activas ahora en tu zona.",
+    "fr": "Des orages sont actifs dans votre zone.",
+    "ht": "Gen tanpèt nan zòn ou kounye a."
+  },
+  "Rain now in your area.": {
+    "es": "Está lloviendo ahora en tu zona.",
+    "fr": "Il pleut actuellement dans votre zone.",
+    "ht": "Lapli ap tonbe nan zòn ou kounye a."
+  },
+  "Snow expected": {
+    "es": "Se espera nieve",
+    "fr": "Neige prévue",
+    "ht": "Nèj prevwa"
+  },
+  "Storms expected": {
+    "es": "Se esperan tormentas",
+    "fr": "Orages prévus",
+    "ht": "Tanpèt prevwa"
+  },
+  "Rain expected": {
+    "es": "Se espera lluvia",
+    "fr": "Pluie prévue",
+    "ht": "Lapli prevwa"
+  },
+  "Your cleaning business shouldn’t live in DMs, notes and memory.": {
+    "es": "Tu negocio de limpieza no debería vivir entre mensajes, notas y memoria.",
+    "fr": "Votre entreprise de nettoyage ne devrait pas vivre dans les messages, les notes et votre mémoire.",
+    "ht": "Biznis netwayaj ou pa ta dwe rete nan mesaj, nòt ak memwa."
+  },
+  "Keep clients, quotes, bookings, jobs and invoices in one organized place.": {
+    "es": "Mantén clientes, cotizaciones, reservas, trabajos y facturas en un solo lugar organizado.",
+    "fr": "Gardez clients, devis, réservations, travaux et factures dans un seul endroit organisé.",
+    "ht": "Kenbe kliyan, devis, rezèvasyon, travay ak fakti nan yon sèl kote òganize."
+  },
+  "Simple setup": {
+    "es": "Configuración sencilla",
+    "fr": "Configuration simple",
+    "ht": "Konfigirasyon senp"
+  },
+  "No card required": {
+    "es": "No se requiere tarjeta",
+    "fr": "Aucune carte requise",
+    "ht": "Pa bezwen kat"
+  },
+  "Get 30 days free": {
+    "es": "Obtén 30 días gratis",
+    "fr": "Profitez de 30 jours gratuits",
+    "ht": "Jwenn 30 jou gratis"
+  },
+  "Already have an account?": {
+    "es": "¿Ya tienes una cuenta?",
+    "fr": "Vous avez déjà un compte ?",
+    "ht": "Ou deja gen yon kont?"
+  },
+  "No card required · Then $5.99/month": {
+    "es": "Sin tarjeta · Luego $5.99/mes",
+    "fr": "Sans carte · Puis 5,99 $/mois",
+    "ht": "Pa bezwen kat · Apre sa $5.99/mwa"
+  },
+  "← Back": {
+    "es": "← Atrás",
+    "fr": "← Retour",
+    "ht": "← Retounen"
+  },
+  "BUSINESS ACCESS": {
+    "es": "ACCESO AL NEGOCIO",
+    "fr": "ACCÈS À L’ENTREPRISE",
+    "ht": "AKSÈ BIZNIS"
+  },
+  "Email address": {
+    "es": "Correo electrónico",
+    "fr": "E-mail",
+    "ht": "Adrès imèl"
+  },
+  "Remember username": {
+    "es": "Recordar usuario",
+    "fr": "Mémoriser l’identifiant",
+    "ht": "Sonje non itilizatè"
+  },
+  "By creating an account, you agree to our": {
+    "es": "Al crear una cuenta, aceptas nuestros",
+    "fr": "En créant un compte, vous acceptez nos",
+    "ht": "Lè w kreye yon kont, ou dakò ak"
+  },
+  "and acknowledge our": {
+    "es": "y reconoces nuestra",
+    "fr": "et reconnaissez notre",
+    "ht": "epi ou rekonèt"
+  },
+  "Privacy Policy": {
+    "es": "Política de privacidad",
+    "fr": "Politique de confidentialité",
+    "ht": "Règleman sou vi prive"
+  },
+  "This creates your private workspace and starts the 30-day trial.": {
+    "es": "Esto crea tu espacio privado e inicia la prueba de 30 días.",
+    "fr": "Cela crée votre espace privé et démarre l’essai de 30 jours.",
+    "ht": "Sa kreye espas prive ou epi kòmanse esè 30 jou a."
+  },
+  "Try again": {
+    "es": "Intentar de nuevo",
+    "fr": "Réessayer",
+    "ht": "Eseye ankò"
+  },
+  "TODAY + UPCOMING": {
+    "es": "HOY + PRÓXIMOS",
+    "fr": "AUJOURD’HUI + À VENIR",
+    "ht": "JODI A + K AP VINI"
+  },
+  "My assigned jobs": {
+    "es": "Mis trabajos asignados",
+    "fr": "Mes travaux attribués",
+    "ht": "Travay mwen asiyen"
+  },
+  "MESSAGES": {
+    "es": "MENSAJES",
+    "fr": "MESSAGES",
+    "ht": "MESAJ"
+  },
+  "Message your admin": {
+    "es": "Escribe a tu admin",
+    "fr": "Écrire à votre administrateur",
+    "ht": "Ekri admin ou"
+  },
+  "Use this for job questions or quick updates.": {
+    "es": "Úsalo para preguntas del trabajo o actualizaciones rápidas.",
+    "fr": "Utilisez ceci pour les questions sur le travail ou les mises à jour rapides.",
+    "ht": "Sèvi avè l pou kesyon sou travay oswa mizajou rapid."
+  },
+  "No messages yet.": {
+    "es": "Todavía no hay mensajes.",
+    "fr": "Aucun message pour le moment.",
+    "ht": "Pa gen mesaj ankò."
+  },
+  "Your conversation with the admin will appear here.": {
+    "es": "Tu conversación con el admin aparecerá aquí.",
+    "fr": "Votre conversation avec l’administrateur apparaîtra ici.",
+    "ht": "Konvèsasyon ou ak admin ap parèt isit la."
+  },
+  "✓ Assigned jobs": {
+    "es": "✓ Trabajos asignados",
+    "fr": "✓ Travaux attribués",
+    "ht": "✓ Travay asiyen"
+  },
+  "✓ Route + address": {
+    "es": "✓ Ruta + dirección",
+    "fr": "✓ Itinéraire + adresse",
+    "ht": "✓ Wout + adrès"
+  },
+  "✓ Job status": {
+    "es": "✓ Estado del trabajo",
+    "fr": "✓ Statut du travail",
+    "ht": "✓ Estati travay"
+  },
+  "✓ Time tracking": {
+    "es": "✓ Control de tiempo",
+    "fr": "✓ Suivi du temps",
+    "ht": "✓ Swiv tan"
+  },
+  "✓ Mileage": {
+    "es": "✓ Millaje",
+    "fr": "✓ Kilométrage",
+    "ht": "✓ Kilometraj"
+  },
+  "✓ Messages with admin": {
+    "es": "✓ Mensajes con admin",
+    "fr": "✓ Messages avec l’administrateur",
+    "ht": "✓ Mesaj ak admin"
+  },
+  "This is guest employee access only. You cannot see leads, quotes, invoices, pricing, reports, billing, settings or clients outside your assigned jobs.": {
+    "es": "Este acceso es solo para empleados invitados. No puedes ver prospectos, cotizaciones, facturas, precios, reportes, facturación, ajustes ni clientes fuera de tus trabajos asignados.",
+    "fr": "Cet accès est réservé aux employés invités. Vous ne pouvez pas voir les prospects, devis, factures, prix, rapports, facturation, paramètres ni les clients hors de vos travaux attribués.",
+    "ht": "Sa a se aksè anplwaye envite sèlman. Ou pa ka wè pwospè, devis, fakti, pri, rapò, bòdwo, paramèt oswa kliyan ki pa nan travay ou asiyen yo."
+  },
+  "One time": {
+    "es": "Una vez",
+    "fr": "Une fois",
+    "ht": "Yon sèl fwa"
+  },
+  "Every week": {
+    "es": "Cada semana",
+    "fr": "Chaque semaine",
+    "ht": "Chak semèn"
+  },
+  "Every 2 weeks": {
+    "es": "Cada 2 semanas",
+    "fr": "Toutes les 2 semaines",
+    "ht": "Chak 2 semèn"
+  },
+  "Other payment method": {
+    "es": "Otro método de pago",
+    "fr": "Autre mode de paiement",
+    "ht": "Lòt metòd peman"
+  },
+  "Choose one option, then submit it to the business.": {
+    "es": "Elige una opción y envíala al negocio.",
+    "fr": "Choisissez une option puis envoyez-la à l’entreprise.",
+    "ht": "Chwazi yon opsyon, epi voye l bay biznis la."
+  },
+  "Submitting only sends your payment choice. The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.": {
+    "es": "Enviar solo comunica tu forma de pago. El negocio confirmará el pago en la app cuando realmente lo reciba. Solo entonces recibirás el correo de confirmación.",
+    "fr": "L’envoi transmet uniquement votre choix de paiement. L’entreprise confirmera le paiement dans l’application après réception réelle. Vous recevrez ensuite l’e-mail de confirmation.",
+    "ht": "Voye a sèlman voye chwa peman ou. Biznis la ap konfime peman an nan aplikasyon an apre li resevwa li toutbon. Se lè sa a sèlman w ap resevwa imèl konfimasyon an."
+  },
+  "The cleaning business received your request and will follow up with you.": {
+    "es": "El negocio de limpieza recibió tu solicitud y se comunicará contigo.",
+    "fr": "L’entreprise de nettoyage a reçu votre demande et vous contactera.",
+    "ht": "Biznis netwayaj la resevwa demann ou epi l ap kontakte ou."
+  },
+  "Owner View": {
+    "es": "Vista del dueño",
+    "fr": "Vue propriétaire",
+    "ht": "Vizyalizasyon pwopriyetè"
+  },
+  "30 days left": {
+    "es": "Quedan 30 días",
+    "fr": "30 jours restants",
+    "ht": "30 jou rete"
+  },
+  "$5.99/month after your trial": {
+    "es": "$5.99/mes después de la prueba",
+    "fr": "5,99 $/mois après l’essai",
+    "ht": "$5.99/mwa apre esè a"
+  },
+  "Full access during the trial. No card required to start.": {
+    "es": "Acceso completo durante la prueba. No necesitas tarjeta para comenzar.",
+    "fr": "Accès complet pendant l’essai. Aucune carte requise pour commencer.",
+    "ht": "Aksè konplè pandan esè a. Pa bezwen kat pou kòmanse."
+  },
+  "Search your workspace": {
+    "es": "Buscar en tu espacio",
+    "fr": "Rechercher dans votre espace",
+    "ht": "Chèche nan espas travay ou"
+  },
+  "Find anything fast.": {
+    "es": "Encuentra todo rápido.",
+    "fr": "Trouvez rapidement ce qu’il vous faut.",
+    "ht": "Jwenn nenpòt bagay vit."
+  },
+  "Search clients, jobs, quotes and invoices.": {
+    "es": "Busca clientes, trabajos, cotizaciones y facturas.",
+    "fr": "Recherchez clients, travaux, devis et factures.",
+    "ht": "Chèche kliyan, travay, devis ak fakti."
+  },
+  "INQUIRIES": {
+    "es": "SOLICITUDES",
+    "fr": "DEMANDES",
+    "ht": "DEMANN"
+  },
+  "+ Add New": {
+    "es": "+ Añadir",
+    "fr": "+ Ajouter",
+    "ht": "+ Ajoute"
+  },
+  "FREE ACCESS": {
+    "es": "ACCESO GRATIS",
+    "fr": "ACCÈS GRATUIT",
+    "ht": "AKSÈ GRATIS"
+  },
+  "Free access reminder": {
+    "es": "Recordatorio de acceso gratis",
+    "fr": "Rappel d’accès gratuit",
+    "ht": "Rapèl aksè gratis"
+  },
+  "YOUR WORKSPACE IS READY": {
+    "es": "TU ESPACIO ESTÁ LISTO",
+    "fr": "VOTRE ESPACE EST PRÊT",
+    "ht": "ESPAS TRAVAY OU PARE"
+  },
+  "Get ready for your first booking.": {
+    "es": "Prepárate para tu primera reserva.",
+    "fr": "Préparez votre première réservation.",
+    "ht": "Prepare pou premye rezèvasyon ou."
+  },
+  "Set up what clients can book, when they can book, then share your link.": {
+    "es": "Configura qué pueden reservar tus clientes, cuándo pueden hacerlo y luego comparte tu enlace.",
+    "fr": "Configurez ce que les clients peuvent réserver, quand ils peuvent le faire, puis partagez votre lien.",
+    "ht": "Mete sa kliyan ka rezève, kilè yo ka rezève, epi pataje lyen ou."
+  },
+  "Set up booking →": {
+    "es": "Configurar reservas →",
+    "fr": "Configurer les réservations →",
+    "ht": "Konfigire rezèvasyon →"
+  },
+  "Checking your schedule and what’s next.": {
+    "es": "Revisando tu agenda y lo que sigue.",
+    "fr": "Vérification du planning et de la suite.",
+    "ht": "N ap tcheke orè ou ak sa k ap vini."
+  },
+  "One moment…": {
+    "es": "Un momento…",
+    "fr": "Un instant…",
+    "ht": "Yon moman…"
+  },
+  "Loading weather…": {
+    "es": "Cargando clima…",
+    "fr": "Chargement de la météo…",
+    "ht": "N ap chaje tan an…"
+  },
+  "Best route": {
+    "es": "Mejor ruta",
+    "fr": "Meilleur itinéraire",
+    "ht": "Pi bon wout"
+  },
+  "Est. scheduled this week": {
+    "es": "Estimado programado esta semana",
+    "fr": "Estimation planifiée cette semaine",
+    "ht": "Estimasyon pwograme semèn sa a"
+  },
+  "Based on scheduled services": {
+    "es": "Según servicios programados",
+    "fr": "Selon les services planifiés",
+    "ht": "Dapre sèvis pwograme"
+  },
+  "Collected this week": {
+    "es": "Cobrado esta semana",
+    "fr": "Encaissé cette semaine",
+    "ht": "Kolekte semèn sa a"
+  },
+  "Confirmed payments": {
+    "es": "Pagos confirmados",
+    "fr": "Paiements confirmés",
+    "ht": "Peman konfime"
+  },
+  "Jobs this week": {
+    "es": "Trabajos esta semana",
+    "fr": "Travaux cette semaine",
+    "ht": "Travay semèn sa a"
+  },
+  "On the schedule": {
+    "es": "En la agenda",
+    "fr": "Au planning",
+    "ht": "Sou orè a"
+  },
+  "New clients": {
+    "es": "Clientes nuevos",
+    "fr": "Nouveaux clients",
+    "ht": "Nouvo kliyan"
+  },
+  "Added this week": {
+    "es": "Añadidos esta semana",
+    "fr": "Ajoutés cette semaine",
+    "ht": "Ajoute semèn sa a"
+  },
+  "TODAY": {
+    "es": "HOY",
+    "fr": "AUJOURD’HUI",
+    "ht": "JODI A"
+  },
+  "Schedule + route": {
+    "es": "Agenda + ruta",
+    "fr": "Planning + itinéraire",
+    "ht": "Orè + wout"
+  },
+  "Full calendar →": {
+    "es": "Calendario completo →",
+    "fr": "Calendrier complet →",
+    "ht": "Kalandriye konplè →"
+  },
+  "CAPACITY": {
+    "es": "CAPACIDAD",
+    "fr": "CAPACITÉ",
+    "ht": "KAPASITE"
+  },
+  "This week": {
+    "es": "Esta semana",
+    "fr": "Cette semaine",
+    "ht": "Semèn sa a"
+  },
+  "Your availability will appear here.": {
+    "es": "Tu disponibilidad aparecerá aquí.",
+    "fr": "Vos disponibilités apparaîtront ici.",
+    "ht": "Disponiblite ou ap parèt isit la."
+  },
+  "See open time →": {
+    "es": "Ver horarios libres →",
+    "fr": "Voir les créneaux libres →",
+    "ht": "Gade lè ki lib →"
+  },
+  "YOUR NEXT MOVE": {
+    "es": "TU PRÓXIMO PASO",
+    "fr": "VOTRE PROCHAINE ÉTAPE",
+    "ht": "PWOCHEN ETAP OU"
+  },
+  "Everything is caught up.": {
+    "es": "Todo está al día.",
+    "fr": "Tout est à jour.",
+    "ht": "Tout bagay ajou."
+  },
+  "Nothing urgent needs your attention right now.": {
+    "es": "Nada urgente necesita tu atención ahora.",
+    "fr": "Rien d’urgent ne demande votre attention pour le moment.",
+    "ht": "Pa gen anyen ijan ki bezwen atansyon ou kounye a."
+  },
+  "View calendar →": {
+    "es": "Ver calendario →",
+    "fr": "Voir le calendrier →",
+    "ht": "Gade kalandriye →"
+  },
+  "FOLLOW THROUGH": {
+    "es": "SEGUIMIENTO",
+    "fr": "SUIVI",
+    "ht": "SWIVI"
+  },
+  "Open items": {
+    "es": "Pendientes",
+    "fr": "Éléments ouverts",
+    "ht": "Bagay ouvè"
+  },
+  "Your weekly activity will build here.": {
+    "es": "Tu actividad semanal aparecerá aquí.",
+    "fr": "Votre activité hebdomadaire apparaîtra ici.",
+    "ht": "Aktivite semèn ou ap parèt isit la."
+  },
+  "Work hours": {
+    "es": "Horas trabajadas",
+    "fr": "Heures travaillées",
+    "ht": "Lè travay"
+  },
+  "CLIENT-FACING LINKS": {
+    "es": "ENLACES PARA CLIENTES",
+    "fr": "LIENS CLIENTS",
+    "ht": "LYEN POU KLIYAN"
+  },
+  "Your business online": {
+    "es": "Tu negocio online",
+    "fr": "Votre entreprise en ligne",
+    "ht": "Biznis ou sou entènèt"
+  },
+  "BOOKING CENTER": {
+    "es": "CENTRO DE RESERVAS",
+    "fr": "CENTRE DE RÉSERVATION",
+    "ht": "SANT REZÈVASYON"
+  },
+  "Booking Page": {
+    "es": "Página de reservas",
+    "fr": "Page de réservation",
+    "ht": "Paj rezèvasyon"
+  },
+  "Control what clients can book, when they can book it, and where each request goes next.": {
+    "es": "Controla qué pueden reservar los clientes, cuándo pueden hacerlo y qué pasa con cada solicitud.",
+    "fr": "Contrôlez ce que les clients peuvent réserver, quand ils peuvent le faire et la suite de chaque demande.",
+    "ht": "Kontwole sa kliyan ka rezève, kilè yo ka rezève, ak kote chak demann ale apre sa."
+  },
+  "Copy booking link": {
+    "es": "Copiar enlace de reservas",
+    "fr": "Copier le lien de réservation",
+    "ht": "Kopye lyen rezèvasyon"
+  },
+  "PUBLIC LINKS": {
+    "es": "ENLACES PÚBLICOS",
+    "fr": "LIENS PUBLICS",
+    "ht": "LYEN PIBLIK"
+  },
+  "Public links": {
+    "es": "Enlaces públicos",
+    "fr": "Liens publics",
+    "ht": "Lyen piblik"
+  },
+  "Copy link": {
+    "es": "Copiar enlace",
+    "fr": "Copier le lien",
+    "ht": "Kopye lyen"
+  },
+  "Quote request link": {
+    "es": "Enlace para pedir cotización",
+    "fr": "Lien de demande de devis",
+    "ht": "Lyen demann devis"
+  },
+  "BOOKING REQUESTS": {
+    "es": "SOLICITUDES DE RESERVA",
+    "fr": "DEMANDES DE RÉSERVATION",
+    "ht": "DEMANN REZÈVASYON"
+  },
+  "BOOKABLE SERVICES": {
+    "es": "SERVICIOS RESERVABLES",
+    "fr": "SERVICES RÉSERVABLES",
+    "ht": "SÈVIS KI KA REZÈVE"
+  },
+  "Bookable services": {
+    "es": "Servicios reservables",
+    "fr": "Services réservables",
+    "ht": "Sèvis ki ka rezève"
+  },
+  "Edit services →": {
+    "es": "Editar servicios →",
+    "fr": "Modifier les services →",
+    "ht": "Modifye sèvis →"
+  },
+  "CUSTOMER EXPERIENCE": {
+    "es": "EXPERIENCIA DEL CLIENTE",
+    "fr": "EXPÉRIENCE CLIENT",
+    "ht": "EKSPERYANS KLIYAN"
+  },
+  "Pricing + quotes": {
+    "es": "Precios + cotizaciones",
+    "fr": "Prix + devis",
+    "ht": "Pri + devis"
+  },
+  "No account required": {
+    "es": "Sin cuenta necesaria",
+    "fr": "Aucun compte requis",
+    "ht": "Pa bezwen kont"
+  },
+  "Fixed price": {
+    "es": "Precio fijo",
+    "fr": "Prix fixe",
+    "ht": "Pri fiks"
+  },
+  "Custom job": {
+    "es": "Trabajo personalizado",
+    "fr": "Travail personnalisé",
+    "ht": "Travay pèsonalize"
+  },
+  "Quotes stay in Quotes until accepted.": {
+    "es": "Las cotizaciones permanecen en Cotizaciones hasta ser aceptadas.",
+    "fr": "Les devis restent dans Devis jusqu’à leur acceptation.",
+    "ht": "Devis yo rete nan Devis jiskaske yo aksepte."
+  },
+  "AVAILABILITY": {
+    "es": "DISPONIBILIDAD",
+    "fr": "DISPONIBILITÉS",
+    "ht": "DISPONIBLITE"
+  },
+  "Travel buffer": {
+    "es": "Tiempo de traslado",
+    "fr": "Marge de déplacement",
+    "ht": "Tan vwayaj"
+  },
+  "No buffer": {
+    "es": "Sin margen",
+    "fr": "Sans marge",
+    "ht": "Pa gen tan anplis"
+  },
+  "Minimum notice": {
+    "es": "Aviso mínimo",
+    "fr": "Préavis minimum",
+    "ht": "Avi minimòm"
+  },
+  "Same-day allowed": {
+    "es": "Permitir el mismo día",
+    "fr": "Même jour autorisé",
+    "ht": "Menm jou pèmèt"
+  },
+  "2 hours": {
+    "es": "2 horas",
+    "fr": "2 heures",
+    "ht": "2 èdtan"
+  },
+  "12 hours": {
+    "es": "12 horas",
+    "fr": "12 heures",
+    "ht": "12 èdtan"
+  },
+  "24 hours": {
+    "es": "24 horas",
+    "fr": "24 heures",
+    "ht": "24 èdtan"
+  },
+  "48 hours": {
+    "es": "48 horas",
+    "fr": "48 heures",
+    "ht": "48 èdtan"
+  },
+  "Clients only see times that fit your hours, service length, travel buffer and existing bookings.": {
+    "es": "Los clientes solo ven horarios que encajan con tus horas, duración del servicio, traslado y reservas existentes.",
+    "fr": "Les clients ne voient que les créneaux compatibles avec vos horaires, la durée du service, le déplacement et les réservations existantes.",
+    "ht": "Kliyan yo sèlman wè lè ki mache ak orè ou, dire sèvis la, tan vwayaj ak rezèvasyon ki deja egziste."
+  },
+  "CALENDAR + JOBS": {
+    "es": "CALENDARIO + TRABAJOS",
+    "fr": "CALENDRIER + TRAVAUX",
+    "ht": "KALANDRIYE + TRAVAY"
+  },
+  "Calendar + jobs": {
+    "es": "Calendario + trabajos",
+    "fr": "Calendrier + travaux",
+    "ht": "Kalandriye + travay"
+  },
+  "+ Add job": {
+    "es": "+ Añadir trabajo",
+    "fr": "+ Ajouter un travail",
+    "ht": "+ Ajoute travay"
+  },
+  "14-day schedule": {
+    "es": "Agenda de 14 días",
+    "fr": "Planning sur 14 jours",
+    "ht": "Orè 14 jou"
+  },
+  "14 days": {
+    "es": "14 días",
+    "fr": "14 jours",
+    "ht": "14 jou"
+  },
+  "Upcoming jobs": {
+    "es": "Próximos trabajos",
+    "fr": "Travaux à venir",
+    "ht": "Travay k ap vini"
+  },
+  "Recurring series are shown once in Recurring.": {
+    "es": "Las series recurrentes se muestran una sola vez en Recurrentes.",
+    "fr": "Les séries récurrentes apparaissent une seule fois dans Récurrents.",
+    "ht": "Seri repete yo parèt yon sèl fwa nan Repete."
+  },
+  "RECURRING": {
+    "es": "RECURRENTES",
+    "fr": "RÉCURRENTS",
+    "ht": "REPETE"
+  },
+  "Upcoming recurring jobs": {
+    "es": "Próximos trabajos recurrentes",
+    "fr": "Travaux récurrents à venir",
+    "ht": "Travay repete k ap vini"
+  },
+  "Month": {
+    "es": "Mes",
+    "fr": "Mois",
+    "ht": "Mwa"
+  },
+  "MONTH VIEW": {
+    "es": "VISTA MENSUAL",
+    "fr": "VUE MENSUELLE",
+    "ht": "VIZYON MWA"
+  },
+  "No jobs are scheduled for this day.": {
+    "es": "No hay trabajos programados para este día.",
+    "fr": "Aucun travail n’est prévu ce jour.",
+    "ht": "Pa gen travay pwograme pou jou sa a."
+  },
+  "DAY DETAILS": {
+    "es": "DETALLES DEL DÍA",
+    "fr": "DÉTAILS DU JOUR",
+    "ht": "DETAY JOU"
+  },
+  "Close day details": {
+    "es": "Cerrar detalles del día",
+    "fr": "Fermer les détails du jour",
+    "ht": "Fèmen detay jou"
+  },
+  "Not assigned": {
+    "es": "Sin asignar",
+    "fr": "Non attribué",
+    "ht": "Pa asiyen"
+  },
+  "Unassigned client": {
+    "es": "Cliente sin asignar",
+    "fr": "Client non attribué",
+    "ht": "Kliyan pa asiyen"
+  },
+  "Assigned to": {
+    "es": "Asignado a",
+    "fr": "Attribué à",
+    "ht": "Asiyen bay"
+  },
+  "Edit job": {
+    "es": "Editar trabajo",
+    "fr": "Modifier le travail",
+    "ht": "Modifye travay"
+  },
+  "QUOTES": {
+    "es": "COTIZACIONES",
+    "fr": "DEVIS",
+    "ht": "DEVIS"
+  },
+  "Quote requests stay here until the customer accepts.": {
+    "es": "Las solicitudes de cotización permanecen aquí hasta que el cliente acepte.",
+    "fr": "Les demandes de devis restent ici jusqu’à l’acceptation du client.",
+    "ht": "Demann devis yo rete isit la jiskaske kliyan an aksepte."
+  },
+  "+ New quote": {
+    "es": "+ Nueva cotización",
+    "fr": "+ Nouveau devis",
+    "ht": "+ Nouvo devis"
+  },
+  "Booked + invoice created": {
+    "es": "Reservado + factura creada",
+    "fr": "Réservé + facture créée",
+    "ht": "Rezève + fakti kreye"
+  },
+  "Waiting for customer": {
+    "es": "Esperando al cliente",
+    "fr": "En attente du client",
+    "ht": "Ap tann kliyan"
+  },
+  "Declined by customer": {
+    "es": "Rechazado por el cliente",
+    "fr": "Refusé par le client",
+    "ht": "Kliyan refize"
+  },
+  "Needs your price": {
+    "es": "Necesita tu precio",
+    "fr": "Prix à définir",
+    "ht": "Bezwen pri ou"
+  },
+  "Ready to finish": {
+    "es": "Listo para terminar",
+    "fr": "Prêt à finaliser",
+    "ht": "Pare pou fini"
+  },
+  "Next: follow up": {
+    "es": "Siguiente: seguimiento",
+    "fr": "Suite : relance",
+    "ht": "Apre: fè swivi"
+  },
+  "Next: build quote": {
+    "es": "Siguiente: preparar cotización",
+    "fr": "Suite : créer le devis",
+    "ht": "Apre: prepare devis"
+  },
+  "Next: send to client": {
+    "es": "Siguiente: enviar al cliente",
+    "fr": "Suite : envoyer au client",
+    "ht": "Apre: voye bay kliyan"
+  },
+  "Converted to work": {
+    "es": "Convertido en trabajo",
+    "fr": "Converti en travail",
+    "ht": "Konvèti an travay"
+  },
+  "Review when useful": {
+    "es": "Revisar cuando sea útil",
+    "fr": "À revoir si utile",
+    "ht": "Revize lè sa itil"
+  },
+  "Nothing needs attention here.": {
+    "es": "Nada necesita atención aquí.",
+    "fr": "Rien ne demande votre attention ici.",
+    "ht": "Pa gen anyen ki bezwen atansyon isit la."
+  },
+  "INVOICES": {
+    "es": "FACTURAS",
+    "fr": "FACTURES",
+    "ht": "FAKTI"
+  },
+  "Partial payment": {
+    "es": "Pago parcial",
+    "fr": "Paiement partiel",
+    "ht": "Peman pasyèl"
+  },
+  "Customer": {
+    "es": "Cliente",
+    "fr": "Client",
+    "ht": "Kliyan"
+  },
+  "Payment": {
+    "es": "Pago",
+    "fr": "Paiement",
+    "ht": "Peman"
+  },
+  "Payment choice": {
+    "es": "Forma de pago",
+    "fr": "Choix de paiement",
+    "ht": "Chwa peman"
+  },
+  "Dispute": {
+    "es": "Disputa",
+    "fr": "Contestation",
+    "ht": "Kontestasyon"
+  },
+  "FOLLOW-UPS": {
+    "es": "SEGUIMIENTOS",
+    "fr": "SUIVIS",
+    "ht": "SWIVI"
+  },
+  "After cleaning": {
+    "es": "Después de la limpieza",
+    "fr": "Après le nettoyage",
+    "ht": "Apre netwayaj"
+  },
+  "Rebooking": {
+    "es": "Nueva reserva",
+    "fr": "Nouvelle réservation",
+    "ht": "Rezèvasyon ankò"
+  },
+  "Due now": {
+    "es": "Para ahora",
+    "fr": "À faire maintenant",
+    "ht": "Pou kounye a"
+  },
+  "Due tomorrow": {
+    "es": "Para mañana",
+    "fr": "Pour demain",
+    "ht": "Pou demen"
+  },
+  "Due today": {
+    "es": "Para hoy",
+    "fr": "Pour aujourd’hui",
+    "ht": "Pou jodi a"
+  },
+  "Auto email": {
+    "es": "Email automático",
+    "fr": "E-mail automatique",
+    "ht": "Imèl otomatik"
+  },
+  "Remind me": {
+    "es": "Recordarme",
+    "fr": "Me rappeler",
+    "ht": "Fè m sonje"
+  },
+  "Needs follow-up": {
+    "es": "Necesita seguimiento",
+    "fr": "Relance nécessaire",
+    "ht": "Bezwen swivi"
+  },
+  "Send now": {
+    "es": "Enviar ahora",
+    "fr": "Envoyer maintenant",
+    "ht": "Voye kounye a"
+  },
+  "Snooze 2 days": {
+    "es": "Posponer 2 días",
+    "fr": "Reporter de 2 jours",
+    "ht": "Ranvwaye 2 jou"
+  },
+  "Open source": {
+    "es": "Abrir origen",
+    "fr": "Ouvrir la source",
+    "ht": "Louvri sous"
+  },
+  "CUSTOM MESSAGE": {
+    "es": "MENSAJE PERSONALIZADO",
+    "fr": "MESSAGE PERSONNALISÉ",
+    "ht": "MESAJ PÈSONALIZE"
+  },
+  "Write the email in the customer’s language. Leave a field blank to keep the default.": {
+    "es": "Escribe el email en el idioma del cliente. Deja un campo vacío para mantener el valor predeterminado.",
+    "fr": "Écrivez l’e-mail dans la langue du client. Laissez un champ vide pour conserver le message par défaut.",
+    "ht": "Ekri imèl la nan lang kliyan an. Kite yon chan vid pou kenbe mesaj pa defo a."
+  },
+  "Customer language": {
+    "es": "Idioma del cliente",
+    "fr": "Langue du client",
+    "ht": "Lang kliyan"
+  },
+  "Subject (optional)": {
+    "es": "Asunto (opcional)",
+    "fr": "Objet (facultatif)",
+    "ht": "Sijè (opsyonèl)"
+  },
+  "Message": {
+    "es": "Mensaje",
+    "fr": "Message",
+    "ht": "Mesaj"
+  },
+  "Save message": {
+    "es": "Guardar mensaje",
+    "fr": "Enregistrer le message",
+    "ht": "Sove mesaj"
+  },
+  "Use default": {
+    "es": "Usar predeterminado",
+    "fr": "Utiliser par défaut",
+    "ht": "Sèvi ak pa defo"
+  },
+  "Edit message": {
+    "es": "Editar mensaje",
+    "fr": "Modifier le message",
+    "ht": "Modifye mesaj"
+  },
+  "Nothing needs follow-up.": {
+    "es": "Nada necesita seguimiento.",
+    "fr": "Aucune relance nécessaire.",
+    "ht": "Pa gen anyen ki bezwen swivi."
+  },
+  "New items will appear here automatically.": {
+    "es": "Los nuevos elementos aparecerán aquí automáticamente.",
+    "fr": "Les nouveaux éléments apparaîtront ici automatiquement.",
+    "ht": "Nouvo bagay yo ap parèt isit la otomatikman."
+  },
+  "No follow-ups sent yet.": {
+    "es": "Todavía no se han enviado seguimientos.",
+    "fr": "Aucune relance envoyée pour le moment.",
+    "ht": "Pa gen swivi ki voye ankò."
+  },
+  "Loading follow-ups…": {
+    "es": "Cargando seguimientos…",
+    "fr": "Chargement des suivis…",
+    "ht": "N ap chaje swivi…"
+  },
+  "Checking what needs attention.": {
+    "es": "Revisando qué necesita atención.",
+    "fr": "Vérification des éléments à suivre.",
+    "ht": "N ap tcheke sa ki bezwen atansyon."
+  },
+  "Could not load follow-ups.": {
+    "es": "No se pudieron cargar los seguimientos.",
+    "fr": "Impossible de charger les suivis.",
+    "ht": "Pa t ka chaje swivi yo."
+  },
+  "Tap Refresh follow-ups to try again.": {
+    "es": "Toca Actualizar seguimientos para intentarlo de nuevo.",
+    "fr": "Touchez Actualiser les suivis pour réessayer.",
+    "ht": "Peze Rafrechi swivi pou eseye ankò."
+  },
+  "Follow-up rule updated": {
+    "es": "Regla de seguimiento actualizada",
+    "fr": "Règle de suivi mise à jour",
+    "ht": "Règ swivi mete ajou"
+  },
+  "Follow-up message saved": {
+    "es": "Mensaje de seguimiento guardado",
+    "fr": "Message de suivi enregistré",
+    "ht": "Mesaj swivi sove"
+  },
+  "Default follow-up restored": {
+    "es": "Seguimiento predeterminado restaurado",
+    "fr": "Suivi par défaut restauré",
+    "ht": "Swivi pa defo retabli"
+  },
+  "Follow-ups refreshed": {
+    "es": "Seguimientos actualizados",
+    "fr": "Suivis actualisés",
+    "ht": "Swivi rafrechi"
+  },
+  "Follow-up emailed": {
+    "es": "Seguimiento enviado por email",
+    "fr": "Relance envoyée par e-mail",
+    "ht": "Swivi voye pa imèl"
+  },
+  "Snoozed for 2 days": {
+    "es": "Pospuesto 2 días",
+    "fr": "Reporté de 2 jours",
+    "ht": "Ranvwaye pou 2 jou"
+  },
+  "Follow-up marked done": {
+    "es": "Seguimiento marcado como listo",
+    "fr": "Suivi marqué terminé",
+    "ht": "Swivi make fini"
+  },
+  "TODAY'S ROUTE": {
+    "es": "RUTA DE HOY",
+    "fr": "ITINÉRAIRE DU JOUR",
+    "ht": "WOUT JODI A"
+  },
+  "Today’s route": {
+    "es": "Ruta de hoy",
+    "fr": "Itinéraire du jour",
+    "ht": "Wout jodi a"
+  },
+  "Your route appears here when jobs are scheduled.": {
+    "es": "Tu ruta aparecerá aquí cuando haya trabajos programados.",
+    "fr": "Votre itinéraire apparaîtra ici lorsque des travaux seront planifiés.",
+    "ht": "Wout ou ap parèt isit la lè gen travay pwograme."
+  },
+  "SUPPLIES": {
+    "es": "SUMINISTROS",
+    "fr": "FOURNITURES",
+    "ht": "FOUNITI"
+  },
+  "Keep a lightweight list of cleaning supplies, current quantity, reorder level and cost.": {
+    "es": "Lleva una lista simple de suministros, cantidad actual, nivel de reposición y costo.",
+    "fr": "Gardez une liste simple des fournitures, quantités, seuils de réapprovisionnement et coûts.",
+    "ht": "Kenbe yon lis senp founiti netwayaj, kantite aktyèl, nivo pou rekòmande ak pri."
+  },
+  "+ Add supply": {
+    "es": "+ Añadir suministro",
+    "fr": "+ Ajouter une fourniture",
+    "ht": "+ Ajoute founiti"
+  },
+  "Active supplies": {
+    "es": "Suministros activos",
+    "fr": "Fournitures actives",
+    "ht": "Founiti aktif"
+  },
+  "Items being tracked": {
+    "es": "Artículos en seguimiento",
+    "fr": "Articles suivis",
+    "ht": "Atik n ap swiv"
+  },
+  "Low stock": {
+    "es": "Poco inventario",
+    "fr": "Stock faible",
+    "ht": "Stòk ba"
+  },
+  "At or below reorder level": {
+    "es": "En o por debajo del nivel de reposición",
+    "fr": "Au niveau de réapprovisionnement ou en dessous",
+    "ht": "Nan oswa anba nivo pou rekòmande"
+  },
+  "Inventory value": {
+    "es": "Valor del inventario",
+    "fr": "Valeur du stock",
+    "ht": "Valè envantè"
+  },
+  "Estimated from unit costs": {
+    "es": "Estimado según costos unitarios",
+    "fr": "Estimée à partir des coûts unitaires",
+    "ht": "Estimasyon dapre pri pa inite"
+  },
+  "REPORTS": {
+    "es": "REPORTES",
+    "fr": "RAPPORTS",
+    "ht": "RAPÒ"
+  },
+  "Business reports": {
+    "es": "Reportes del negocio",
+    "fr": "Rapports de l’entreprise",
+    "ht": "Rapò biznis"
+  },
+  "Revenue this month": {
+    "es": "Ingresos este mes",
+    "fr": "Revenus ce mois-ci",
+    "ht": "Revni mwa sa a"
+  },
+  "Confirmed payments recorded this month.": {
+    "es": "Pagos confirmados registrados este mes.",
+    "fr": "Paiements confirmés enregistrés ce mois-ci.",
+    "ht": "Peman konfime anrejistre mwa sa a."
+  },
+  "Jobs completed": {
+    "es": "Trabajos completados",
+    "fr": "Travaux terminés",
+    "ht": "Travay fini"
+  },
+  "No completed jobs yet.": {
+    "es": "Todavía no hay trabajos completados.",
+    "fr": "Aucun travail terminé pour le moment.",
+    "ht": "Pa gen travay fini ankò."
+  },
+  "Tracked driving this month.": {
+    "es": "Distancia registrada este mes.",
+    "fr": "Distance enregistrée ce mois-ci.",
+    "ht": "Distans kondwi anrejistre mwa sa a."
+  },
+  "Tracked team time this month.": {
+    "es": "Tiempo del equipo registrado este mes.",
+    "fr": "Temps d’équipe enregistré ce mois-ci.",
+    "ht": "Tan ekip anrejistre mwa sa a."
+  },
+  "SERVICES + ADD-ONS": {
+    "es": "SERVICIOS + EXTRAS",
+    "fr": "SERVICES + OPTIONS",
+    "ht": "SÈVIS + OPSYON"
+  },
+  "Services + add-ons": {
+    "es": "Servicios + extras",
+    "fr": "Services + options",
+    "ht": "Sèvis + opsyon"
+  },
+  "+ Add add-on": {
+    "es": "+ Añadir extra",
+    "fr": "+ Ajouter une option",
+    "ht": "+ Ajoute opsyon"
+  },
+  "+ Add service": {
+    "es": "+ Añadir servicio",
+    "fr": "+ Ajouter un service",
+    "ht": "+ Ajoute sèvis"
+  },
+  "Inactive": {
+    "es": "Inactivo",
+    "fr": "Inactif",
+    "ht": "Inaktif"
+  },
+  "Quote required": {
+    "es": "Requiere cotización",
+    "fr": "Devis requis",
+    "ht": "Devis obligatwa"
+  },
+  "Bookable": {
+    "es": "Reservable",
+    "fr": "Réservable",
+    "ht": "Ka rezève"
+  },
+  "Custom": {
+    "es": "Personalizado",
+    "fr": "Personnalisé",
+    "ht": "Pèsonalize"
+  },
+  "Duration": {
+    "es": "Duración",
+    "fr": "Durée",
+    "ht": "Dire"
+  },
+  "Pricing": {
+    "es": "Precios",
+    "fr": "Tarification",
+    "ht": "Pri"
+  },
+  "Upfront": {
+    "es": "Precio directo",
+    "fr": "Prix affiché",
+    "ht": "Pri dirèk"
+  },
+  "Included by default": {
+    "es": "Incluido por defecto",
+    "fr": "Inclus par défaut",
+    "ht": "Enkli pa defo"
+  },
+  "No add-ons yet": {
+    "es": "Todavía no hay extras",
+    "fr": "Aucune option pour le moment",
+    "ht": "Pa gen opsyon ankò"
+  },
+  "Edit service": {
+    "es": "Editar servicio",
+    "fr": "Modifier le service",
+    "ht": "Modifye sèvis"
+  },
+  "Add-on": {
+    "es": "Extra",
+    "fr": "Option",
+    "ht": "Opsyon"
+  },
+  "General add-ons": {
+    "es": "Extras generales",
+    "fr": "Options générales",
+    "ht": "Opsyon jeneral"
+  },
+  "Available across services": {
+    "es": "Disponibles en todos los servicios",
+    "fr": "Disponibles pour tous les services",
+    "ht": "Disponib pou tout sèvis"
+  },
+  "Add service": {
+    "es": "Añadir servicio",
+    "fr": "Ajouter un service",
+    "ht": "Ajoute sèvis"
+  },
+  "Set price, duration and booking basics.": {
+    "es": "Define precio, duración y datos básicos de reserva.",
+    "fr": "Définissez le prix, la durée et les bases de réservation.",
+    "ht": "Mete pri, dire ak baz rezèvasyon."
+  },
+  "TEAM": {
+    "es": "EQUIPO",
+    "fr": "ÉQUIPE",
+    "ht": "EKIP"
+  },
+  "+ Add team profile": {
+    "es": "+ Añadir perfil de equipo",
+    "fr": "+ Ajouter un profil d’équipe",
+    "ht": "+ Ajoute pwofil ekip"
+  },
+  "Create the worker profile, assign jobs, then use": {
+    "es": "Crea el perfil del empleado, asigna trabajos y luego usa",
+    "fr": "Créez le profil de l’employé, attribuez des travaux, puis utilisez",
+    "ht": "Kreye pwofil anplwaye a, asiyen travay, epi sèvi ak"
+  },
+  "on that person’s card. The link only opens their assigned work.": {
+    "es": "en la tarjeta de esa persona. El enlace solo abre sus trabajos asignados.",
+    "fr": "sur sa carte. Le lien ouvre uniquement ses travaux attribués.",
+    "ht": "sou kat moun sa a. Lyen an sèlman ouvri travay li asiyen yo."
+  },
+  "Invite an Admin →": {
+    "es": "Invitar un Admin →",
+    "fr": "Inviter un Admin →",
+    "ht": "Envite yon Admin →"
+  },
+  "MESSAGE CENTER": {
+    "es": "CENTRO DE MENSAJES",
+    "fr": "CENTRE DE MESSAGES",
+    "ht": "SANT MESAJ"
+  },
+  "Admin ↔ Employee": {
+    "es": "Admin ↔ Empleado",
+    "fr": "Admin ↔ Employé",
+    "ht": "Admin ↔ Anplwaye"
+  },
+  "Private messages stay inside this business workspace.": {
+    "es": "Los mensajes privados permanecen dentro de este negocio.",
+    "fr": "Les messages privés restent dans cet espace de travail.",
+    "ht": "Mesaj prive yo rete andedan espas travay biznis sa a."
+  },
+  "Choose an employee.": {
+    "es": "Elige un empleado.",
+    "fr": "Choisissez un employé.",
+    "ht": "Chwazi yon anplwaye."
+  },
+  "The conversation will appear here.": {
+    "es": "La conversación aparecerá aquí.",
+    "fr": "La conversation apparaîtra ici.",
+    "ht": "Konvèsasyon an ap parèt isit la."
+  },
+  "SETTINGS": {
+    "es": "AJUSTES",
+    "fr": "PARAMÈTRES",
+    "ht": "PARAMÈT"
+  },
+  "Business settings": {
+    "es": "Ajustes del negocio",
+    "fr": "Paramètres de l’entreprise",
+    "ht": "Paramèt biznis"
+  },
+  "Keep the app, client communication, booking rules and payments easy to control from one place.": {
+    "es": "Controla fácilmente la app, la comunicación con clientes, las reservas y los pagos desde un solo lugar.",
+    "fr": "Gérez facilement l’application, la communication client, les réservations et les paiements depuis un seul endroit.",
+    "ht": "Kontwole fasil aplikasyon an, kominikasyon kliyan, règ rezèvasyon ak peman nan yon sèl kote."
+  },
+  "Business basics": {
+    "es": "Datos básicos del negocio",
+    "fr": "Informations de l’entreprise",
+    "ht": "Baz biznis"
+  },
+  "The information clients and your workspace use.": {
+    "es": "La información que usan tus clientes y tu espacio de trabajo.",
+    "fr": "Les informations utilisées par vos clients et votre espace de travail.",
+    "ht": "Enfòmasyon kliyan ak espas travay ou itilize."
+  },
+  "Edit →": {
+    "es": "Editar →",
+    "fr": "Modifier →",
+    "ht": "Modifye →"
+  },
+  "CLIENT COMMUNICATION": {
+    "es": "COMUNICACIÓN CON CLIENTES",
+    "fr": "COMMUNICATION CLIENT",
+    "ht": "KOMINIKASYON KLIYAN"
+  },
+  "Emails to your clients": {
+    "es": "Emails para tus clientes",
+    "fr": "E-mails à vos clients",
+    "ht": "Imèl pou kliyan ou"
+  },
+  "This is separate from the language you use inside the app.": {
+    "es": "Esto es independiente del idioma que usas dentro de la app.",
+    "fr": "Ceci est indépendant de la langue utilisée dans l’application.",
+    "ht": "Sa separe ak lang ou itilize andedan aplikasyon an."
+  },
+  "Default client email language": {
+    "es": "Idioma predeterminado de emails",
+    "fr": "Langue par défaut des e-mails",
+    "ht": "Lang imèl kliyan pa defo"
+  },
+  "Change default": {
+    "es": "Cambiar predeterminado",
+    "fr": "Modifier la langue",
+    "ht": "Chanje pa defo"
+  },
+  "A client can have their own preferred email language. Their preference overrides this default without changing your app language.": {
+    "es": "Cada cliente puede tener su propio idioma de email. Su preferencia reemplaza este valor sin cambiar el idioma de la app.",
+    "fr": "Chaque client peut avoir sa langue d’e-mail préférée. Elle remplace ce choix sans changer la langue de l’application.",
+    "ht": "Yon kliyan ka gen pwòp lang imèl li. Preferans li ranplase valè sa a san chanje lang aplikasyon ou."
+  },
+  "Replies go to": {
+    "es": "Las respuestas llegan a",
+    "fr": "Les réponses vont à",
+    "ht": "Repons ale nan"
+  },
+  "Business login email": {
+    "es": "Correo de acceso del negocio",
+    "fr": "E-mail de connexion de l’entreprise",
+    "ht": "Imèl koneksyon biznis"
+  },
+  "BOOKING": {
+    "es": "RESERVAS",
+    "fr": "RÉSERVATIONS",
+    "ht": "REZÈVASYON"
+  },
+  "Booking + availability": {
+    "es": "Reservas + disponibilidad",
+    "fr": "Réservations + disponibilités",
+    "ht": "Rezèvasyon + disponiblite"
+  },
+  "Control when clients can book and how much travel time you need.": {
+    "es": "Controla cuándo pueden reservar los clientes y cuánto tiempo necesitas para trasladarte.",
+    "fr": "Contrôlez quand les clients peuvent réserver et le temps de déplacement nécessaire.",
+    "ht": "Kontwole kilè kliyan ka rezève ak konbyen tan vwayaj ou bezwen."
+  },
+  "Open booking settings →": {
+    "es": "Abrir ajustes de reservas →",
+    "fr": "Ouvrir les paramètres de réservation →",
+    "ht": "Louvri paramèt rezèvasyon →"
+  },
+  "These are the choices clients see on invoices.": {
+    "es": "Estas son las opciones que los clientes ven en las facturas.",
+    "fr": "Ce sont les options que les clients voient sur les factures.",
+    "ht": "Sa yo se chwa kliyan wè sou fakti yo."
+  },
+  "Edit payment options →": {
+    "es": "Editar opciones de pago →",
+    "fr": "Modifier les options de paiement →",
+    "ht": "Modifye opsyon peman →"
+  },
+  "REVIEWS": {
+    "es": "RESEÑAS",
+    "fr": "AVIS",
+    "ht": "REVIZYON"
+  },
+  "Google review link": {
+    "es": "Enlace de reseña de Google",
+    "fr": "Lien d’avis Google",
+    "ht": "Lyen revizyon Google"
+  },
+  "Used after confirmed payments and review follow-ups.": {
+    "es": "Se usa después de pagos confirmados y seguimientos de reseñas.",
+    "fr": "Utilisé après les paiements confirmés et les suivis d’avis.",
+    "ht": "Yo itilize sa apre peman konfime ak swivi revizyon."
+  },
+  "Not added": {
+    "es": "Sin añadir",
+    "fr": "Non ajouté",
+    "ht": "Pa ajoute"
+  },
+  "Google review URL": {
+    "es": "URL de reseña de Google",
+    "fr": "URL d’avis Google",
+    "ht": "URL revizyon Google"
+  },
+  "Save review link": {
+    "es": "Guardar enlace de reseña",
+    "fr": "Enregistrer le lien d’avis",
+    "ht": "Sove lyen revizyon"
+  },
+  "Open link": {
+    "es": "Abrir enlace",
+    "fr": "Ouvrir le lien",
+    "ht": "Louvri lyen"
+  },
+  "TEAM ACCESS": {
+    "es": "ACCESO DEL EQUIPO",
+    "fr": "ACCÈS ÉQUIPE",
+    "ht": "AKSÈ EKIP"
+  },
+  "Who can use the app": {
+    "es": "Quién puede usar la app",
+    "fr": "Qui peut utiliser l’application",
+    "ht": "Ki moun ki ka itilize aplikasyon an"
+  },
+  "Admins and guest employees are managed separately from client settings.": {
+    "es": "Los administradores y empleados invitados se gestionan por separado de los ajustes de clientes.",
+    "fr": "Les administrateurs et employés invités sont gérés séparément des paramètres clients.",
+    "ht": "Admin ak anplwaye envite yo jere separeman ak paramèt kliyan."
+  },
+  "Open Team →": {
+    "es": "Abrir Equipo →",
+    "fr": "Ouvrir Équipe →",
+    "ht": "Louvri Ekip →"
+  },
+  "HELP & FAQ": {
+    "es": "AYUDA Y PREGUNTAS",
+    "fr": "AIDE ET FAQ",
+    "ht": "ÈD AK FAQ"
+  },
+  "Help Center": {
+    "es": "Centro de ayuda",
+    "fr": "Centre d’aide",
+    "ht": "Sant èd"
+  },
+  "Install the app on your phone, share access with your team, and find answers to the most common questions.": {
+    "es": "Instala la app en tu teléfono, comparte acceso con tu equipo y encuentra respuestas a las preguntas más comunes.",
+    "fr": "Installez l’application sur votre téléphone, partagez l’accès avec votre équipe et trouvez les réponses aux questions courantes.",
+    "ht": "Enstale aplikasyon an sou telefòn ou, pataje aksè ak ekip ou epi jwenn repons pou kesyon ki pi komen yo."
+  },
+  "iPhone install": {
+    "es": "Instalación en iPhone",
+    "fr": "Installation sur iPhone",
+    "ht": "Enstalasyon sou iPhone"
+  },
+  "Android install": {
+    "es": "Instalación en Android",
+    "fr": "Installation sur Android",
+    "ht": "Enstalasyon sou Android"
+  },
+  "Open the app in": {
+    "es": "Abre la app en",
+    "fr": "Ouvrez l’application dans",
+    "ht": "Louvri aplikasyon an nan"
+  },
+  "Tap the": {
+    "es": "Toca",
+    "fr": "Touchez",
+    "ht": "Peze"
+  },
+  "Scroll and tap": {
+    "es": "Desliza y toca",
+    "fr": "Faites défiler puis touchez",
+    "ht": "Desann epi peze"
+  },
+  "Add to Home Screen": {
+    "es": "Añadir a pantalla de inicio",
+    "fr": "Ajouter à l’écran d’accueil",
+    "ht": "Ajoute sou ekran dakèy"
+  },
+  "Add to Home screen": {
+    "es": "Añadir a pantalla de inicio",
+    "fr": "Ajouter à l’écran d’accueil",
+    "ht": "Ajoute sou ekran dakèy"
+  },
+  "Install app": {
+    "es": "Instalar app",
+    "fr": "Installer l’application",
+    "ht": "Enstale aplikasyon"
+  },
+  "It will open from your Home Screen like an app.": {
+    "es": "Se abrirá desde tu pantalla de inicio como una app.",
+    "fr": "Elle s’ouvrira depuis votre écran d’accueil comme une application.",
+    "ht": "Li ap ouvri sou ekran dakèy ou tankou yon aplikasyon."
+  },
+  "SHARE ACCESS": {
+    "es": "COMPARTIR ACCESO",
+    "fr": "PARTAGER L’ACCÈS",
+    "ht": "PATAJE AKSÈ"
+  },
+  "Access sharing": {
+    "es": "Compartir acceso",
+    "fr": "Partage d’accès",
+    "ht": "Pataje aksè"
+  },
+  "Add the worker": {
+    "es": "Añade al empleado",
+    "fr": "Ajoutez l’employé",
+    "ht": "Ajoute anplwaye a"
+  },
+  "Create their Team profile.": {
+    "es": "Crea su perfil en Equipo.",
+    "fr": "Créez son profil dans Équipe.",
+    "ht": "Kreye pwofil Ekip li."
+  },
+  "Assign jobs": {
+    "es": "Asigna trabajos",
+    "fr": "Attribuez des travaux",
+    "ht": "Asiyen travay"
+  },
+  "Only assigned jobs will be visible.": {
+    "es": "Solo serán visibles los trabajos asignados.",
+    "fr": "Seuls les travaux attribués seront visibles.",
+    "ht": "Se sèlman travay asiyen yo ki ap vizib."
+  },
+  "Send the private link by text or WhatsApp.": {
+    "es": "Envía el enlace privado por SMS o WhatsApp.",
+    "fr": "Envoyez le lien privé par SMS ou WhatsApp.",
+    "ht": "Voye lyen prive a pa SMS oswa WhatsApp."
+  },
+  "No password. They see assigned work and can message the admin.": {
+    "es": "Sin contraseña. Ven sus trabajos asignados y pueden escribir al admin.",
+    "fr": "Sans mot de passe. Ils voient leurs travaux attribués et peuvent écrire à l’administrateur.",
+    "ht": "Pa bezwen modpas. Yo wè travay asiyen yo epi yo ka ekri admin."
+  },
+  "ACCESS LEVELS": {
+    "es": "NIVELES DE ACCESO",
+    "fr": "NIVEAUX D’ACCÈS",
+    "ht": "NIVO AKSÈ"
+  },
+  "Access levels": {
+    "es": "Niveles de acceso",
+    "fr": "Niveaux d’accès",
+    "ht": "Nivo aksè"
+  },
+  "GUIDED TOUR": {
+    "es": "RECORRIDO GUIADO",
+    "fr": "VISITE GUIDÉE",
+    "ht": "GID ETAP PA ETAP"
+  },
+  "Guided tour": {
+    "es": "Recorrido guiado",
+    "fr": "Visite guidée",
+    "ht": "Gid etap pa etap"
+  },
+  "The first-time tips explain each section in a few words. Restart them anytime without changing your business data.": {
+    "es": "Los consejos iniciales explican cada sección en pocas palabras. Puedes reiniciarlos cuando quieras sin cambiar los datos del negocio.",
+    "fr": "Les conseils de première utilisation expliquent chaque section en quelques mots. Relancez-les à tout moment sans modifier vos données.",
+    "ht": "Konsèy premye itilizasyon yo eksplike chak seksyon an kèk mo. Ou ka rekòmanse yo nenpòt lè san chanje done biznis ou."
+  },
+  "Request failed": {
+    "es": "La solicitud falló.",
+    "fr": "La demande a échoué.",
+    "ht": "Demann lan echwe."
+  },
+  "Done": {
+    "es": "Listo",
+    "fr": "Terminé",
+    "ht": "Fini"
+  },
+  "Cleaning business": {
+    "es": "Negocio de limpieza",
+    "fr": "Entreprise de nettoyage",
+    "ht": "Biznis netwayaj"
+  },
+  "partial": {
+    "es": "parcial",
+    "fr": "partiel",
+    "ht": "pasyèl"
+  },
+  "Void": {
+    "es": "Anulada",
+    "fr": "Annulé",
+    "ht": "Anile"
+  },
+  "No invoice items found.": {
+    "es": "No se encontraron artículos en la factura.",
+    "fr": "Aucun élément de facture trouvé.",
+    "ht": "Pa jwenn okenn atik nan fakti a."
+  },
+  "Payment confirmed by the cleaning business.": {
+    "es": "Pago confirmado por el negocio de limpieza.",
+    "fr": "Paiement confirmé par l’entreprise de nettoyage.",
+    "ht": "Biznis netwayaj la konfime peman an."
+  },
+  "Payment method sent": {
+    "es": "Forma de pago enviada",
+    "fr": "Mode de paiement envoyé",
+    "ht": "Metòd peman voye"
+  },
+  "Selected": {
+    "es": "Seleccionado",
+    "fr": "Sélectionné",
+    "ht": "Chwazi"
+  },
+  "Tap Submit invoice to send this choice.": {
+    "es": "Toca Enviar factura para enviar esta opción.",
+    "fr": "Touchez Envoyer la facture pour transmettre ce choix.",
+    "ht": "Peze Voye fakti pou voye chwa sa a."
+  },
+  "We received your payment choice.": {
+    "es": "Recibimos tu forma de pago.",
+    "fr": "Nous avons reçu votre choix de paiement.",
+    "ht": "Nou resevwa chwa peman ou."
+  },
+  "The business will confirm it once the payment is received.": {
+    "es": "El negocio lo confirmará cuando reciba el pago.",
+    "fr": "L’entreprise le confirmera une fois le paiement reçu.",
+    "ht": "Biznis la ap konfime li lè peman an resevwa."
+  },
+  "Could not submit invoice.": {
+    "es": "No se pudo enviar la factura.",
+    "fr": "Impossible d’envoyer la facture.",
+    "ht": "Pa t ka voye fakti a."
+  },
+  "Please explain what you would like reviewed.": {
+    "es": "Explica qué te gustaría que revisaran.",
+    "fr": "Expliquez ce que vous souhaitez faire vérifier.",
+    "ht": "Tanpri esplike sa ou ta renmen yo revize."
+  },
+  "Sending dispute…": {
+    "es": "Enviando disputa…",
+    "fr": "Envoi de la contestation…",
+    "ht": "N ap voye kontestasyon an…"
+  },
+  "Dispute sent. The cleaning business can now review your message.": {
+    "es": "Disputa enviada. El negocio de limpieza ya puede revisar tu mensaje.",
+    "fr": "Contestation envoyée. L’entreprise de nettoyage peut maintenant examiner votre message.",
+    "ht": "Kontestasyon an voye. Biznis netwayaj la ka revize mesaj ou kounye a."
+  },
+  "Could not send dispute.": {
+    "es": "No se pudo enviar la disputa.",
+    "fr": "Impossible d’envoyer la contestation.",
+    "ht": "Pa t ka voye kontestasyon an."
+  },
+  "This invoice link is invalid or expired.": {
+    "es": "Este enlace de factura no es válido o venció.",
+    "fr": "Ce lien de facture est invalide ou a expiré.",
+    "ht": "Lyen fakti sa a pa valab oswa li ekspire."
+  },
+  "No quote items found.": {
+    "es": "No se encontraron artículos en la cotización.",
+    "fr": "Aucun élément de devis trouvé.",
+    "ht": "Pa jwenn okenn atik nan devis la."
+  },
+  "Accepted. Your service is confirmed.": {
+    "es": "Aceptado. Tu servicio está confirmado.",
+    "fr": "Accepté. Votre service est confirmé.",
+    "ht": "Aksepte. Sèvis ou konfime."
+  },
+  "This quote was declined.": {
+    "es": "Esta cotización fue rechazada.",
+    "fr": "Ce devis a été refusé.",
+    "ht": "Devis sa a te refize."
+  },
+  "This quote is not currently awaiting a response.": {
+    "es": "Esta cotización no está esperando respuesta.",
+    "fr": "Ce devis n’attend pas de réponse actuellement.",
+    "ht": "Devis sa a pa ap tann yon repons kounye a."
+  },
+  "Submitting your acceptance…": {
+    "es": "Enviando aceptación…",
+    "fr": "Envoi de votre acceptation…",
+    "ht": "N ap voye akseptasyon ou…"
+  },
+  "Submitting your decline…": {
+    "es": "Enviando rechazo…",
+    "fr": "Envoi de votre refus…",
+    "ht": "N ap voye refi ou…"
+  },
+  "Could not submit quote.": {
+    "es": "No se pudo enviar la cotización.",
+    "fr": "Impossible d’envoyer le devis.",
+    "ht": "Pa t ka voye devis la."
+  },
+  "This quote link is invalid or expired.": {
+    "es": "Este enlace de cotización no es válido o venció.",
+    "fr": "Ce lien de devis est invalide ou a expiré.",
+    "ht": "Lyen devis sa a pa valab oswa li ekspire."
+  },
+  "Checking availability…": {
+    "es": "Comprobando disponibilidad…",
+    "fr": "Vérification des disponibilités…",
+    "ht": "N ap tcheke disponiblite…"
+  },
+  "No openings on this date. Try another day.": {
+    "es": "No hay horarios disponibles en esta fecha. Prueba otro día.",
+    "fr": "Aucun créneau disponible à cette date. Essayez un autre jour.",
+    "ht": "Pa gen lè ki disponib nan dat sa a. Eseye yon lòt jou."
+  },
+  "Could not load availability": {
+    "es": "No se pudo cargar la disponibilidad",
+    "fr": "Impossible de charger les disponibilités",
+    "ht": "Pa t ka chaje disponiblite"
+  },
+  "No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing.": {
+    "es": "Aún no hay servicios personalizados configurados para cotización. Usa Reservar una limpieza para servicios con precio definido.",
+    "fr": "Aucun service personnalisé sur devis n’est encore configuré. Utilisez Réserver un nettoyage pour les services avec un prix défini.",
+    "ht": "Pa gen sèvis pèsonalize pou devis ki konfigire ankò. Sèvi ak Rezève yon netwayaj pou sèvis ki gen pri dirèk."
+  },
+  "No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote.": {
+    "es": "No hay servicios con precio disponibles para reservar online. Los trabajos personalizados o de precio variable van en Pedir una cotización.",
+    "fr": "Aucun service tarifé n’est disponible à la réservation en ligne. Les travaux personnalisés ou à prix variable passent par Demander un devis.",
+    "ht": "Pa gen sèvis ki gen pri disponib pou rezèvasyon sou entènèt. Travay pèsonalize oswa pri varyab ale nan Mande yon devis."
+  },
+  "Phone is required for Text or WhatsApp.": {
+    "es": "El teléfono es obligatorio para SMS o WhatsApp.",
+    "fr": "Le téléphone est obligatoire pour SMS ou WhatsApp.",
+    "ht": "Telefòn obligatwa pou SMS oswa WhatsApp."
+  },
+  "Choose Residential or Commercial.": {
+    "es": "Elige Residencial o Comercial.",
+    "fr": "Choisissez Résidentiel ou Commercial.",
+    "ht": "Chwazi Rezidansyèl oswa Komèsyal."
+  },
+  "Property size must be greater than 0.": {
+    "es": "El tamaño de la propiedad debe ser mayor que 0.",
+    "fr": "La surface doit être supérieure à 0.",
+    "ht": "Gwosè pwopriyete a dwe pi gran pase 0."
+  },
+  "Enter the number of bedrooms.": {
+    "es": "Escribe el número de habitaciones.",
+    "fr": "Indiquez le nombre de chambres.",
+    "ht": "Antre kantite chanm yo."
+  },
+  "Enter the number of bathrooms.": {
+    "es": "Escribe el número de baños.",
+    "fr": "Indiquez le nombre de salles de bain.",
+    "ht": "Antre kantite twalèt yo."
+  },
+  "Choose the commercial space type.": {
+    "es": "Elige el tipo de espacio comercial.",
+    "fr": "Choisissez le type d’espace commercial.",
+    "ht": "Chwazi kalite espas komèsyal la."
+  },
+  "Choose one of the available times.": {
+    "es": "Elige uno de los horarios disponibles.",
+    "fr": "Choisissez l’un des créneaux disponibles.",
+    "ht": "Chwazi youn nan lè ki disponib yo."
+  },
+  "This page is not available.": {
+    "es": "Esta página no está disponible.",
+    "fr": "Cette page n’est pas disponible.",
+    "ht": "Paj sa a pa disponib."
+  },
+  "Price provided after review": {
+    "es": "Precio después de revisar",
+    "fr": "Prix après examen",
+    "ht": "Pri apre revizyon"
+  },
+  "No add-ons for this service.": {
+    "es": "No hay extras para este servicio.",
+    "fr": "Aucune option pour ce service.",
+    "ht": "Pa gen opsyon pou sèvis sa a."
+  },
+  "Choose a service and date first.": {
+    "es": "Primero elige un servicio y una fecha.",
+    "fr": "Choisissez d’abord un service et une date.",
+    "ht": "Chwazi yon sèvis ak yon dat an premye."
+  },
+  "Book a Cleaning": {
+    "es": "Reservar una limpieza",
+    "fr": "Réserver un nettoyage",
+    "ht": "Rezève yon netwayaj"
+  },
+  "Request a Quote": {
+    "es": "Pedir una cotización",
+    "fr": "Demander un devis",
+    "ht": "Mande yon devis"
+  },
+  "BOOK A CLEANING": {
+    "es": "RESERVAR UNA LIMPIEZA",
+    "fr": "RÉSERVER UN NETTOYAGE",
+    "ht": "REZÈVE YON NETWAYAJ"
+  },
+  "REQUEST A QUOTE": {
+    "es": "PEDIR UNA COTIZACIÓN",
+    "fr": "DEMANDER UN DEVIS",
+    "ht": "MANDE YON DEVIS"
+  },
+  "Choose request type": {
+    "es": "Elige el tipo de solicitud",
+    "fr": "Choisissez le type de demande",
+    "ht": "Chwazi kalite demann"
+  },
+  "Choose your service and send your request.": {
+    "es": "Elige tu servicio y envía tu solicitud.",
+    "fr": "Choisissez votre service et envoyez votre demande.",
+    "ht": "Chwazi sèvis ou epi voye demann ou."
+  },
+  "Choose a service with upfront pricing, then pick a real available time.": {
+    "es": "Elige un servicio con precio definido y luego selecciona un horario realmente disponible.",
+    "fr": "Choisissez un service avec un prix défini, puis sélectionnez un créneau réellement disponible.",
+    "ht": "Chwazi yon sèvis ak pri dirèk, apre sa chwazi yon lè ki vrèman disponib."
+  },
+  "For custom or variable-price work. Choose a quote-only service and tell us about the job.": {
+    "es": "Para trabajos personalizados o de precio variable. Elige un servicio de cotización y cuéntanos sobre el trabajo.",
+    "fr": "Pour les travaux personnalisés ou à prix variable. Choisissez un service sur devis et décrivez le travail.",
+    "ht": "Pou travay pèsonalize oswa pri varyab. Chwazi yon sèvis devis sèlman epi di nou sou travay la."
+  },
+  "Custom job type": {
+    "es": "Tipo de trabajo personalizado",
+    "fr": "Type de travail personnalisé",
+    "ht": "Kalite travay pèsonalize"
+  },
+  "Choose a custom job type": {
+    "es": "Elige un tipo de trabajo personalizado",
+    "fr": "Choisissez un type de travail personnalisé",
+    "ht": "Chwazi yon kalite travay pèsonalize"
+  },
+  "Custom quote": {
+    "es": "Cotización personalizada",
+    "fr": "Devis personnalisé",
+    "ht": "Devis pèsonalize"
+  },
+  "No quote-only services available yet": {
+    "es": "Aún no hay servicios de cotización disponibles",
+    "fr": "Aucun service sur devis n’est encore disponible",
+    "ht": "Pa gen sèvis devis sèlman ki disponib ankò"
+  },
+  "No priced services available for online booking": {
+    "es": "Aún no hay servicios con precio disponibles para reservar online",
+    "fr": "Aucun service tarifé n’est encore disponible à la réservation en ligne",
+    "ht": "Pa gen sèvis ki gen pri disponib pou rezèvasyon sou entènèt ankò"
+  },
+  "Your quote request was sent. The business will review it and contact you.": {
+    "es": "Tu solicitud de cotización fue enviada. El negocio la revisará y se pondrá en contacto contigo.",
+    "fr": "Votre demande de devis a été envoyée. L’entreprise l’examinera et vous contactera.",
+    "ht": "Demann devis ou voye. Biznis la ap revize li epi kontakte ou."
+  },
+  "Your booking request was sent. The business will review it and confirm the appointment.": {
+    "es": "Tu solicitud de reserva fue enviada. El negocio la revisará y confirmará la cita.",
+    "fr": "Votre demande de réservation a été envoyée. L’entreprise l’examinera et confirmera le rendez-vous.",
+    "ht": "Demann rezèvasyon ou voye. Biznis la ap revize li epi konfime randevou a."
+  },
+  "Could not send request": {
+    "es": "No se pudo enviar la solicitud",
+    "fr": "Impossible d’envoyer la demande",
+    "ht": "Pa t ka voye demann lan"
+  },
+  "Page unavailable": {
+    "es": "Página no disponible",
+    "fr": "Page indisponible",
+    "ht": "Paj pa disponib"
+  },
+  "Quote unavailable": {
+    "es": "Cotización no disponible",
+    "fr": "Devis indisponible",
+    "ht": "Devis pa disponib"
+  },
+  "Invoice unavailable": {
+    "es": "Factura no disponible",
+    "fr": "Facture indisponible",
+    "ht": "Fakti pa disponib"
+  },
+  "Review the details below and choose Accept or Decline.": {
+    "es": "Revisa los detalles y elige Aceptar o Rechazar.",
+    "fr": "Vérifiez les détails ci-dessous et choisissez Accepter ou Refuser.",
+    "ht": "Revize detay ki anba yo epi chwazi Aksepte oswa Refize."
+  },
+  "Quote for": {
+    "es": "Cotización para",
+    "fr": "Devis pour",
+    "ht": "Devis pou"
+  },
+  "your cleaning": {
+    "es": "tu limpieza",
+    "fr": "votre nettoyage",
+    "ht": "netwayaj ou"
+  },
+  "Qty": {
+    "es": "Cant.",
+    "fr": "Qté",
+    "ht": "Kant."
+  },
+  "Due": {
+    "es": "Vence",
+    "fr": "Échéance",
+    "ht": "Dat limit"
+  },
+  "Open Cleaning App": {
+    "es": "Abrir Cleaning App",
+    "fr": "Ouvrir Cleaning App",
+    "ht": "Louvri Cleaning App"
+  }
+};
+  for(const [source,translations] of Object.entries(coverageV208)){
+    for(const lang of ["es","fr","ht"]){
+      staticCorrections[lang]=staticCorrections[lang]||{};
+      const value=translations?.[lang];
+      if(typeof value==="string" && value.trim()) staticCorrections[lang][source]=value;
+    }
+  }
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
