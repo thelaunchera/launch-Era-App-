@@ -8,6 +8,12 @@ const i18n = read("i18n.js");
 const publicJs = read("public.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 
+const retiredArtifacts=[
+  "demo.html",
+  "admin-reset.html",
+  "docs/PRODUCT_BLUEPRINT.md"
+];
+
 const fail = message => {
   console.error("REPO_HEALTH_FAIL · "+message);
   process.exitCode = 1;
@@ -37,6 +43,13 @@ if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
 }
 if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){
   fail("Portuguese is still exposed as an active runtime language choice");
+}
+
+for(const file of retiredArtifacts){
+  if(fs.existsSync(file)) fail("retired repository artifact returned: "+file);
+}
+if(!retiredArtifacts.some(file=>fs.existsSync(file))){
+  pass("retired demo/recovery/duplicate blueprint artifacts are absent");
 }
 
 const sensitiveParams='sensitiveParams=["token","session_id","invite","worker","billing","slug","public"]';
