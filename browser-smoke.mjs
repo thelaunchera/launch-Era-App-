@@ -185,7 +185,10 @@ try{
        !submitState.withinViewport || !submitState.hitSelf){
       throw new Error(profile.name+": Sign in button is not usable "+JSON.stringify(submitState));
     }
-    await page.click("#authSubmit");
+    // Cross-browser Playwright owns the physical hit-test. Here we verify the
+    // visible enabled control is wired to the real submit handler without
+    // depending on Puppeteer's mobile clickablePoint heuristics.
+    await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
