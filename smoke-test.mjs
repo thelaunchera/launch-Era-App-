@@ -41,6 +41,10 @@ function hasLegacyFourArgLangPick(source){
   return false;
 }
 
+if(!hasLegacyFourArgLangPick('langPick("A", flag ? "B" : "C", flag ? "P" : "Q", "D")')){
+  throw new Error("Localization regression: four-argument language guard missed expression arguments");
+}
+
 const styles=[
   "styles/boot.css",
   "styles.css",
