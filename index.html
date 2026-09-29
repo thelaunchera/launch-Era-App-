@@ -349,8 +349,13 @@
                 <option value="never_unsure">Never / not sure</option>
               </select>
             </label>
-            <label class="full">Service address<input name="address" required autocomplete="street-address"></label>
-            <label class="full">Access / parking <span class="field-optional">(optional)</span><input name="access_notes" placeholder="Gate, parking, building access, stairs, elevator…"></label>
+            <label class="full">Service address
+              <input name="address" required autocomplete="street-address" placeholder="Street, city, region, postal code, country">
+            </label>
+            <label class="full">Access / parking <span class="field-optional">(optional)</span>
+              <input name="access_notes" placeholder="Parking, doorman, stairs, elevator…">
+              <small>Do not enter door, lockbox or alarm codes here.</small>
+            </label>
 
             <div class="full public-form-section-head">
               <span>Contact</span>
