@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-invoice-viewed-186";
+const APP_VERSION = "20260929-weather-now-187";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -746,34 +746,30 @@ function syncCurrentWeatherFromMinutely(weather){
   const series=weather?.minutely_15;
   const times=series?.time||[];
   if(!weather?.current||!times.length) return weather;
-  const currentStamp=String(weather.current.time||"").slice(0,16);
-  let index=times.findIndex(t=>String(t).slice(0,16)>=currentStamp);
-  if(index<0) index=times.length-1;
-  if(index>0 && String(times[index]).slice(0,16)>currentStamp) index-=1;
-  index=Math.max(0,index);
 
-  const precipitation=Number(series.precipitation?.[index]||0);
-  const rain=Number(series.rain?.[index]||0);
-  const showers=Number(series.showers?.[index]||0);
-  const snowfall=Number(series.snowfall?.[index]||0);
-  const minutelyCode=Number(series.weather_code?.[index]);
-  const wet=precipitation>0||rain>0||showers>0||snowfall>0;
-  const minutelyKind=precipitationKindForCode(minutelyCode);
+  // Keep the nearest 15-minute sample only as secondary context.
+  // Never overwrite Open-Meteo's true current condition with the previous
+  // 15-minute bucket; otherwise "Rain now" can linger after rain has stopped.
+  const currentMs=Date.parse(String(weather.current.time||""));
+  let index=0;
+  let bestDistance=Infinity;
+  times.forEach((stamp,i)=>{
+    const sampleMs=Date.parse(String(stamp||""));
+    if(!Number.isFinite(sampleMs)||!Number.isFinite(currentMs)) return;
+    const distance=Math.abs(sampleMs-currentMs);
+    if(distance<bestDistance){
+      bestDistance=distance;
+      index=i;
+    }
+  });
 
-  weather.current.precipitation=Math.max(Number(weather.current.precipitation||0),precipitation,rain,showers);
-  if(Number.isFinite(minutelyCode) && (wet||minutelyKind)){
-    weather.current.weather_code=minutelyCode;
-  }
-  if(wet && !precipitationKindForCode(weather.current.weather_code)){
-    weather.current.weather_code=snowfall>0?71:61;
-  }
   weather.current_15m={
     time:times[index]||weather.current.time,
-    precipitation,
-    rain,
-    showers,
-    snowfall,
-    weather_code:Number.isFinite(minutelyCode)?minutelyCode:null
+    precipitation:Number(series.precipitation?.[index]||0),
+    rain:Number(series.rain?.[index]||0),
+    showers:Number(series.showers?.[index]||0),
+    snowfall:Number(series.snowfall?.[index]||0),
+    weather_code:Number.isFinite(Number(series.weather_code?.[index]))?Number(series.weather_code[index]):null
   };
   return weather;
 }
@@ -939,26 +935,48 @@ async function loadBusinessWeather(force=false){
   }catch(err){
     console.warn("[TLE] weather",err);
     window.__tleWeatherRetryCount=Number(window.__tleWeatherRetryCount||0)+1;
-    if(state.weather) renderWeatherCoreSnapshot(state.weather);
-    else renderWeatherPending(window.__tleWeatherRetryCount>2);
+    const age=Date.now()-(state.weatherFetchedAt||0);
+    if(state.weather && age<=4*60*1000){
+      renderWeatherCoreSnapshot(state.weather);
+      try{renderWeatherBrief();}catch{}
+    }else{
+      // Never keep an old active-rain state indefinitely when the refresh fails.
+      renderWeatherPending(window.__tleWeatherRetryCount>2);
+      const hero=$("#todayHeroCard");
+      if(hero){
+        hero.dataset.weather="none";
+        hero.dataset.weatherIntensity="none";
+      }
+      const shell=$("#appShell");
+      if(shell){
+        shell.dataset.weatherMood="none";
+        shell.dataset.weatherIntensity="none";
+      }
+      const precipLayer=$("#heroPrecipLayer");
+      if(precipLayer){
+        precipLayer.innerHTML="";
+        precipLayer.className="hero-precip-layer weather-none intensity-none";
+      }
+      const note=$("#weatherBusinessNote");
+      if(note){
+        note.hidden=true;
+        note.innerHTML="";
+        note.classList.remove("rain");
+      }
+    }
     if(window.__tleWeatherRetryCount<=2) scheduleWeatherRetry();
   }
 }
 function currentWeatherVisual(weather){
   const code=Number(weather?.current?.weather_code);
-  const current15=weather?.current_15m||{};
+  // "Now" must come only from the provider's current observation.
+  // The 15-minute series is useful for nearby timing, not for overriding now.
   const precipitation=Math.max(
     Number(weather?.current?.precipitation||0),
     Number(weather?.current?.rain||0),
-    Number(weather?.current?.showers||0),
-    Number(current15?.precipitation||0),
-    Number(current15?.rain||0),
-    Number(current15?.showers||0)
+    Number(weather?.current?.showers||0)
   );
-  const snowfall=Math.max(
-    Number(weather?.current?.snowfall||0),
-    Number(current15?.snowfall||0)
-  );
+  const snowfall=Number(weather?.current?.snowfall||0);
   const windSpeed=Number(weather?.current?.wind_speed_10m||0);
 
   if([95,96,99].includes(code)) return {kind:"storm",intensity:[96,99].includes(code)?"heavy":"normal"};
@@ -1279,12 +1297,19 @@ function installLiveDashboardUpdates(){
     if(state.session&&state.business&&document.visibilityState==="visible"){
       loadBusinessWeather(true).catch(function(){});
     }
-  },2*60*1000);
+  },60*1000);
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
     renderTodaySummary(true);
-    if(Date.now()-(state.weatherFetchedAt||0)>90*1000){
+    if(Date.now()-(state.weatherFetchedAt||0)>30*1000){
+      loadBusinessWeather(true).catch(function(){});
+    }
+  });
+
+  window.addEventListener("focus",function(){
+    if(!state.session||!state.business) return;
+    if(Date.now()-(state.weatherFetchedAt||0)>30*1000){
       loadBusinessWeather(true).catch(function(){});
     }
   });
