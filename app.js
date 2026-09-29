@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-langpick-cleanup-203";
+const APP_VERSION = "20260929-portuguese-cleanup-204";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -234,26 +234,6 @@ const ONBOARDING_COPY={
 };
 
 const ONBOARDING_EXTRA={
-  pt:{
-    welcome:{kicker:"BEM-VINDO",title:"Obrigado por usar o The Launch Era Cleaning App.",text:"Sua conta está pronta. Vamos acompanhar seus primeiros passos para você entender onde fica cada coisa sem precisar descobrir tudo sozinho."},
-    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e pendências."},
-    booking:{title:"Reservas",text:"Gerencie pedidos de reserva, disponibilidade e o link público usado pelos clientes."},
-    leads:{title:"Leads",text:"Guarde clientes potenciais aqui antes de virarem clientes ativos ou trabalhos agendados."},
-    clients:{title:"Clientes",text:"Guarde contatos, endereços de serviço e informações necessárias para trabalhos futuros."},
-    calendar:{title:"Calendário + trabalhos",text:"Veja próximos trabalhos e horários livres para organizar a agenda sem reservas duplicadas."},
-    quotes:{title:"Orçamentos",text:"Revise pedidos, crie orçamentos, envie aos clientes e acompanhe se foram aceitos ou recusados."},
-    invoices:{title:"Faturas",text:"Crie e envie faturas e registre a forma de pagamento aceita pela sua empresa."},
-    route:{title:"Rota de hoje",text:"Veja as paradas do dia em ordem para saber para onde ir em seguida."},
-    mileage:{title:"Quilometragem",text:"Registre distâncias de trabalho ligadas aos serviços para manter os deslocamentos organizados."},
-    time:{title:"Controle de tempo",text:"Inicie e finalize cronômetros para acompanhar o tempo trabalhado em cada serviço."},
-    reports:{title:"Relatórios",text:"Veja atividade, totais e desempenho operacional do negócio."},
-    services:{title:"Serviços + extras",text:"Crie serviços, preços e extras usados em reservas, orçamentos e faturas."},
-    supplies:{title:"Materiais",text:"Organize os produtos de limpeza para saber o que precisa ser reposto."},
-    team:{title:"Equipe",text:"Adicione funcionários, atribua trabalhos, compartilhe acesso de convidado e envie mensagens sem expor controles do proprietário."},
-    settings:{title:"Configurações",text:"Edite dados da empresa, regras de reserva, pagamentos, e-mails aos clientes e links."},
-    admin:{title:"Admin do proprietário",text:"Controles sensíveis ficam aqui: acessos, permissões, integrações e configurações da conta."},
-    help:{title:"Ajuda e FAQ",text:"Encontre ajuda de configuração, instruções de acesso e respostas comuns. Você pode reiniciar este tour quando quiser."}
-  },
   fr:{
     welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
     today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
@@ -429,14 +409,14 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
-    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
+    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
+    : ({es:"Solo la primera vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? ({es:"Empezar recorrido",pt:"Iniciar tour",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
-    : ({es:"Entendido",pt:"Entendi",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
+    ? ({es:"Empezar recorrido",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
+    : ({es:"Entendido",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
   $("#onboardingSkipBtn",layer).hidden=isWelcome;
-  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
-  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
   layer.classList.toggle("welcome",isWelcome);
   if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
@@ -591,15 +571,15 @@ function translatedStatus(value=""){
 }
 function weatherCodeMeta(code){
   const n=Number(code);
-  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",pt:"Limpo",fr:"Dégagé"};
-  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",pt:"Parcialmente nublado",fr:"Partiellement nuageux"};
-  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",pt:"Nublado",fr:"Nuageux"};
-  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",pt:"Neblina",fr:"Brume"};
-  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  return {icon:"🌤️",en:"Weather",es:"Clima",pt:"Clima",fr:"Météo"};
+  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",fr:"Dégagé"};
+  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",fr:"Partiellement nuageux"};
+  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",fr:"Nuageux"};
+  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",fr:"Brume"};
+  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  return {icon:"🌤️",en:"Weather",es:"Clima",fr:"Météo"};
 }
 function weatherClockLabel(hour){
   const h=Number(hour);
@@ -1010,11 +990,11 @@ function currentWeatherMeta(weather){
   const code=Number(weather?.current?.weather_code);
   const rawKind=precipitationKindForCode(code);
   const visual=currentWeatherVisual(weather);
-  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",pt:"Ventoso",fr:"Venteux"};
+  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",fr:"Venteux"};
   return weatherCodeMeta(code);
 }
 
@@ -1271,7 +1251,7 @@ function renderWeatherBrief(){
       const m=weatherCodeMeta(shift.code);
       const label=lang==="ht"?(window.TLE_I18N?.t?.(m.en)||m.en):(m[lang]||m.en);
       const when=weatherClockLabel(shift.hour);
-      text=langPick(label+" conditions expected around "+when+".","Se espera "+label.toLowerCase()+" cerca de las "+when+".",(label+" previsto por volta de "+when+".",label+" prévu vers "+when+"."));
+      text=langPick(label+" conditions expected around "+when+".","Se espera "+label.toLowerCase()+" cerca de las "+when+".",label+" prévu vers "+when+".");
     }
 
     if(text){
@@ -3322,7 +3302,6 @@ function renderWorkerPortal(){
   const workerCopy={
     en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
     es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
-    pt:{access:"Acesso de funcionário convidado",pill:"ACESSO DE FUNCIONÁRIO CONVIDADO",welcome:"Bem-vindo, ",guest:"convidado",copy:"Esta é sua área limitada de funcionário. Você só pode usar as funções que o administrador compartilhou com você."},
     ht:{access:"Aksè anplwaye envite",pill:"AKSÈ ANPLWAYE ENVITE",welcome:"Byenveni, ",guest:"envite",copy:"Sa a se espas limite anplwaye ou. Ou ka itilize sèlman zouti admin ou pataje avè w."},
     fr:{access:"Accès employé invité",pill:"ACCÈS EMPLOYÉ INVITÉ",welcome:"Bienvenue, ",guest:"invité",copy:"Ceci est votre espace employé limité. Vous pouvez uniquement utiliser les fonctions partagées par votre administrateur."}
   }[workerLang]||null;
@@ -4337,7 +4316,7 @@ function renderInquiryNotifications(){
     window.__tleNotificationMotionTimer=setTimeout(()=>button.classList.remove("notification-arrived"),1700);
   }
   button.setAttribute("aria-label",unread
-    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",(unread+" novas notificações",unread+" nouvelles notifications"))
+    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" nouvelles notifications")
     : langPick("Notifications","Notificaciones","Notifications"));
 
   if(!unreadItems.length){
@@ -5687,7 +5666,7 @@ function dashboardWeatherContext(now,remainingJobs){
       ? langPick("Storms","Tormentas","Orages")
       : langPick("Rain","Lluvia","Pluie");
     const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
-    const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",(phenomenon+" provável "+day.toLowerCase()+" por volta de "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+"."));
+    const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+".");
     const advice=remainingJobs.length
       ? langPick(" Check your best route before leaving."," Revisa la mejor ruta antes de salir."," Vérifiez le meilleur itinéraire avant de partir.")
       : "";
@@ -5947,7 +5926,7 @@ function renderTodaySummary(wakeAssistant=false){
   if(capMessage){
     const openHours=(capacity.open/60).toFixed(1).replace(".0","");
     capMessage.textContent=capacity.available
-      ? langPick(capacity.percent+"% booked · "+openHours+" hrs still open",capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",(capacity.percent+"% ocupado · "+openHours+" h ainda disponíveis",capacity.percent+"% réservé · "+openHours+" h encore disponibles"))
+      ? langPick(capacity.percent+"% booked · "+openHours+" hrs still open",capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",capacity.percent+"% réservé · "+openHours+" h encore disponibles")
       : langPick("Add availability to see how full your week is.","Añade disponibilidad para ver qué tan llena está tu semana.","Ajoutez vos disponibilités pour voir le remplissage de la semaine.");
   }
   const capAction=$("#capacityAction"); if(capAction) capAction.textContent=langPick("See open time →","Ver espacios →","Voir les créneaux →");
@@ -6025,20 +6004,20 @@ function renderTodaySummary(wakeAssistant=false){
       if(daypart==="early"){
         copy=langPick("You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. "+nextJobLine+" Check the address before you leave.","Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. "+nextJobLine+" Revisa la dirección antes de salir.","Vous avez "+todayJobs.length+" travail"+(todayJobs.length===1?"":"aux")+" aujourd’hui. "+nextJobLine+" Vérifiez l’adresse avant de partir.");
       }else if(daypart==="morning"){
-        copy=langPick(nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",(nextJobLine+" Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+" na agenda de hoje.",nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui."));
+        copy=langPick(nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui.");
       }else if(daypart==="midday"){
         const later=Math.max(0,remainingJobs.length-1);
-        copy=langPick(nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",(nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+".",nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+"."));
+        copy=langPick(nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+".");
       }else if(daypart==="afternoon"||daypart==="wrap"){
-        copy=langPick("You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,"Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,("Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,"Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine));
+        copy=langPick("You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,"Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,"Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine);
       }else{
-        copy=langPick(nextJobLine+" It still shows as pending; check the status before closing the day.",nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",(nextJobLine+" Ele ainda aparece como pendente; confira o status antes de encerrar o dia.",nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée."));
+        copy=langPick(nextJobLine+" It still shows as pending; check the status before closing the day.",nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée.");
       }
       actionView="route";
     }else if(pendingBookings.length){
       messageState="booking";
       icon="📥";
-      copy=langPick("You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),"Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),("Você tem "+pendingBookings.length+" solicitação"+(pendingBookings.length===1?"":"ões")+" de reserva aguardando revisão"+(openQuotes.length?" e "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+".":"."),"Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":".")));
+      copy=langPick("You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),"Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),"Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":"."));
       actionView="booking";
     }else if(openQuotes.length){
       messageState="quotes";
@@ -6115,15 +6094,15 @@ function renderTodaySummary(wakeAssistant=false){
   const nextTitle=$("#nextMoveTitle"),nextCopy=$("#nextMoveCopy"),nextAction=$("#nextMoveAction");
   let nextView="calendar",nextLabel=langPick("View calendar →","Ver calendario →","Voir le calendrier →");
   if(overdueInvoices.length){
-    if(nextTitle) nextTitle.textContent=langPick(money(overdueAmount)+" is still waiting to be collected.","Hay "+money(overdueAmount)+" pendientes de cobro.",(money(overdueAmount)+" ainda estão pendentes de recebimento.",money(overdueAmount)+" restent à encaisser."));
-    if(nextCopy) nextCopy.textContent=langPick(overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",(overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida precisa":"s vencidas precisam")+" de atenção.",overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention."));
+    if(nextTitle) nextTitle.textContent=langPick(money(overdueAmount)+" is still waiting to be collected.","Hay "+money(overdueAmount)+" pendientes de cobro.",money(overdueAmount)+" restent à encaisser.");
+    if(nextCopy) nextCopy.textContent=langPick(overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention.");
     nextView="invoices"; nextLabel=langPick("Collect payment →","Revisar cobros →","Voir les paiements →");
   }else if(sentQuotes.length){
-    if(nextTitle) nextTitle.textContent=langPick(money(sentQuoteValue)+" in quotes could turn into booked work.",money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",(money(sentQuoteValue)+" em orçamentos podem virar trabalhos.",money(sentQuoteValue)+" de devis peuvent devenir des prestations."));
-    if(nextCopy) nextCopy.textContent=langPick(sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",(sentQuotes.length+" orçamento"+(sentQuotes.length===1?" enviado aguarda":"s enviados aguardam")+" resposta.",sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse."));
+    if(nextTitle) nextTitle.textContent=langPick(money(sentQuoteValue)+" in quotes could turn into booked work.",money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",money(sentQuoteValue)+" de devis peuvent devenir des prestations.");
+    if(nextCopy) nextCopy.textContent=langPick(sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse.");
     nextView="quotes"; nextLabel=langPick("Follow up →","Dar seguimiento →","Relancer →");
   }else if(pendingBookings.length){
-    if(nextTitle) nextTitle.textContent=langPick(pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",(pendingBookings.length+" pedido"+(pendingBookings.length===1?" novo está":"s novos estão")+" pronto"+(pendingBookings.length===1?"":"s")+" para você.",pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous."));
+    if(nextTitle) nextTitle.textContent=langPick(pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous.");
     if(nextCopy) nextCopy.textContent=langPick("Review it before the customer keeps looking.","Revísala antes de que el cliente siga buscando.","Examinez-la avant que le client continue ses recherches.");
     nextView="booking"; nextLabel=langPick("Review bookings →","Revisar reservas →","Voir les réservations →");
   }else{
@@ -6151,7 +6130,7 @@ function renderTodaySummary(wakeAssistant=false){
     openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
       items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
     });
-    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",(pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation"))}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
+    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
@@ -6166,7 +6145,7 @@ function renderTodaySummary(wakeAssistant=false){
   const wd=$("#weekDistance"); if(wd) wd.textContent=distanceText(weekMiles);
   const ws=$("#weekSummary");
   if(ws){
-    ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",(weekJobs.length+" trabalho"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" novo":"s novos")+" · "+money(collectedValue)+" recebido.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé."));
+    ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé.");
   }
   const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Voir les rapports →");
 }
@@ -6200,7 +6179,7 @@ function renderTodayRouteChip(todayJobs){
   chip.hidden=!routable.length;
   if(!routable.length) return;
   const count=routable.length;
-  label.textContent=langPick("Best route · "+count+" stop"+(count===1?"":"s"),"Mejor ruta · "+count+" parada"+(count===1?"":"s"),("Melhor rota · "+count+" parada"+(count===1?"":"s"),"Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s")));
+  label.textContent=langPick("Best route · "+count+" stop"+(count===1?"":"s"),"Mejor ruta · "+count+" parada"+(count===1?"":"s"),"Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s"));
   chip.title=langPick("Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.","Empieza desde tu ubicación actual. Google Maps usa tráfico en vivo y mantiene el orden programado.","Démarre depuis votre position actuelle. Google Maps utilise le trafic en direct et conserve l’ordre prévu.");
 }
 
@@ -6234,7 +6213,7 @@ function renderOperations(){
   if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     const count=routable.length;
-    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",(count===1?"parada pronta para GPS":"paradas prontas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts"));
+    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts");
     const gpsStart=langPick("Starts from your current location · live traffic in Google Maps.","Empieza desde tu ubicación actual · tráfico en vivo en Google Maps.","Démarre depuis votre position actuelle · trafic en direct dans Google Maps.");
     const gpsOrder=langPick("Stops stay in scheduled order so appointment times are protected.","Las paradas mantienen el orden programado para proteger las horas de las citas.","Les arrêts restent dans l’ordre prévu afin de respecter les horaires.");
     const gpsButton=langPick("Open GPS route","Abrir ruta GPS","Ouvrir l’itinéraire GPS");
