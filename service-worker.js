@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-mobile-header-182";
+const CACHE_NAME="tle-cleaning-app-20260929-quote-slots-183";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-mobile-header-182",
-  "./app.js?v=20260929-mobile-header-182",
-  "./followups.js?v=20260929-mobile-header-182",
-  "./i18n.js?v=20260929-mobile-header-182",
-  "./public.js?v=20260929-mobile-header-182",
-  "./vendor/supabase.js?v=20260929-mobile-header-182",
-  "./manifest.webmanifest?v=20260929-mobile-header-182"
+  "./styles.css?v=20260929-quote-slots-183",
+  "./app.js?v=20260929-quote-slots-183",
+  "./followups.js?v=20260929-quote-slots-183",
+  "./i18n.js?v=20260929-quote-slots-183",
+  "./public.js?v=20260929-quote-slots-183",
+  "./vendor/supabase.js?v=20260929-quote-slots-183",
+  "./manifest.webmanifest?v=20260929-quote-slots-183"
 ];
 
 self.addEventListener("install",event=>{
