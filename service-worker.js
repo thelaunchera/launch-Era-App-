@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-app-entry-130";
+const CACHE_NAME="tle-cleaning-app-20260929-email-language-131";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-app-entry-130",
-  "./app.js?v=20260929-app-entry-130",
-  "./followups.js?v=20260929-app-entry-130",
-  "./i18n.js?v=20260929-app-entry-130",
-  "./public.js?v=20260929-app-entry-130",
-  "./vendor/supabase.js?v=20260929-app-entry-130",
-  "./manifest.webmanifest?v=20260929-app-entry-130"
+  "./styles.css?v=20260929-email-language-131",
+  "./app.js?v=20260929-email-language-131",
+  "./followups.js?v=20260929-email-language-131",
+  "./i18n.js?v=20260929-email-language-131",
+  "./public.js?v=20260929-email-language-131",
+  "./vendor/supabase.js?v=20260929-email-language-131",
+  "./manifest.webmanifest?v=20260929-email-language-131"
 ];
 
 self.addEventListener("install",event=>{
