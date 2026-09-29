@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-audit-fix-171";
+const APP_VERSION = "20260929-email-alerts-174";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -46,6 +46,7 @@ const state = {
   leads: [],
   invoices: [],
   bookingRequests: [],
+  emailDeliveryIssues: [],
   mileageLogs: [],
   timeEntries: [],
   services: [],
@@ -4116,6 +4117,35 @@ function getInquiryNotifications(){
     });
   });
 
+  const latestEmailIssueByRecipient=new Map();
+  (state.emailDeliveryIssues||[]).forEach(issue=>{
+    if(issue.resolved_at) return;
+    const email=String(issue.customer_email||"").trim().toLowerCase();
+    if(!email || latestEmailIssueByRecipient.has(email)) return;
+    latestEmailIssueByRecipient.set(email,issue);
+  });
+  latestEmailIssueByRecipient.forEach(issue=>{
+    const client=findMatchingClient({email:issue.customer_email,name:issue.customer_name});
+    const issueLabel=String(issue.delivery_status||"").toLowerCase()==="complained"
+      ? langPick("Customer marked this email as spam","El cliente marcó este correo como spam","O cliente marcou este e-mail como spam","Le client a marqué cet e-mail comme indésirable")
+      : langPick("Email needs verification","El email necesita verificación","O e-mail precisa de verificação","L’e-mail doit être vérifié");
+    items.push({
+      id:"email-delivery:"+issue.id,
+      recordId:issue.id,
+      type:"email-delivery",
+      createdAt:issue.occurred_at||issue.created_at,
+      name:client?.name||issue.customer_name||langPick("Customer email","Email del cliente","E-mail do cliente","E-mail du client"),
+      email:issue.customer_email||"",
+      phone:client?.phone||"",
+      address:clientServiceAddress(client)||"",
+      service:issueLabel+(issue.email_subject?" · "+issue.email_subject:""),
+      notes:issue.reason||"",
+      preferredLanguage:client?.preferred_language||"",
+      status:issue.delivery_status||"",
+      clientId:client?.id||""
+    });
+  });
+
   const cutoff=Date.now()-INQUIRY_NOTIFICATION_TTL_MS;
   return items
     .filter(x=>x.createdAt && new Date(x.createdAt).getTime()>=cutoff)
@@ -4131,6 +4161,39 @@ function openInquiryNotificationDetail(notificationId){
 
   if(item.type==="booking"){
     markBookingReviewed(item.recordId).catch(err=>console.warn("[TLE] mark booking reviewed",err));
+  }
+
+  if(item.type==="email-delivery"){
+    closeNotificationPopover();
+    if(item.clientId){
+      openClientInfo(item.clientId);
+      return;
+    }
+    state.modalType="emailDeliveryIssue";
+    state.modalId=item.recordId;
+    modalHeader(
+      langPick("EMAIL DELIVERY ISSUE","PROBLEMA DE ENTREGA DEL EMAIL","PROBLEMA DE ENTREGA DO E-MAIL","PROBLÈME DE LIVRAISON DE L’E-MAIL"),
+      item.email||langPick("Customer email","Email del cliente","E-mail do cliente","E-mail du client"),
+      langPick("Verify the email address before sending again.","Verifica la dirección antes de volver a enviar.","Verifique o endereço antes de enviar novamente.","Vérifiez l’adresse avant de renvoyer.")
+    );
+    entityForm.innerHTML=`
+      <div class="inquiry-detail-card email-delivery-detail">
+        <div class="email-delivery-warning">
+          <strong>${escapeHtml(langPick("Email not delivered","Email no entregado","E-mail não entregue","E-mail non livré"))}</strong>
+          <span>${escapeHtml(item.notes||langPick("The email provider could not deliver this message.","El proveedor de correo no pudo entregar este mensaje.","O provedor de e-mail não conseguiu entregar esta mensagem.","Le fournisseur de messagerie n’a pas pu livrer ce message."))}</span>
+        </div>
+        <div class="inquiry-detail-grid">
+          <div class="full"><small>Email</small><strong>${escapeHtml(item.email||"—")}</strong></div>
+          <div><small>${escapeHtml(langPick("Status","Estado","Status","Statut"))}</small><strong>${escapeHtml(String(item.status||"").replaceAll("_"," "))}</strong></div>
+          <div><small>${escapeHtml(langPick("Detected","Detectado","Detectado","Détecté"))}</small><strong>${escapeHtml(formatDateTime(item.createdAt))}</strong></div>
+        </div>
+        <div class="form-footer inquiry-detail-actions">
+          <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
+          <button type="button" class="primary-btn" data-open-view="clients">${escapeHtml(langPick("Check clients","Revisar clientes","Ver clientes","Voir les clients"))}</button>
+        </div>
+      </div>`;
+    modal.hidden=false;
+    return;
   }
 
   if(item.type==="quote-accepted" || item.type==="quote-declined" || item.type==="quote-request"){
@@ -4245,7 +4308,8 @@ function notificationTypeLabel(item){
     "invoice-payment-choice":langPick("Payment choice","Método de pago","Forma de pagamento","Choix de paiement"),
     dispute:langPick("Dispute","Disputa","Contestação","Contestation"),
     "job-status":langPick("Job update","Actualización del trabajo","Atualização do trabalho","Mise à jour du travail"),
-    "team-message":langPick("Team message","Mensaje del equipo","Mensagem da equipe","Message d’équipe")
+    "team-message":langPick("Team message","Mensaje del equipo","Mensagem da equipe","Message d’équipe"),
+    "email-delivery":langPick("Email delivery issue","Problema de entrega del email","Problema de entrega do e-mail","Problème de livraison de l’e-mail")
   };
   return labels[item.type]||langPick("Notification","Notificación","Notificação","Notification");
 }
@@ -4285,7 +4349,7 @@ function renderInquiryNotifications(){
     const isNew=true;
     const typeLabel=notificationTypeLabel(item);
     return `
-      <button class="notification-item ${isNew?"is-new":""}" type="button" data-notification-id="${escapeHtml(item.id)}">
+      <button class="notification-item ${isNew?"is-new":""} ${item.type==="email-delivery"?"is-email-issue":""}" type="button" data-notification-id="${escapeHtml(item.id)}">
         <span class="notification-dot" aria-hidden="true"></span>
         <span class="notification-copy">
           <strong>${escapeHtml(item.name)}</strong>
@@ -4357,6 +4421,13 @@ function setupInvoiceRealtime(){
               "Orçamento recusado",
               "Devis refusé"
             )+" · "+(newest.name||""));
+          }else if(newest?.type==="email-delivery"){
+            showToast(langPick(
+              "Email delivery issue",
+              "Problema de entrega del email",
+              "Problema de entrega do e-mail",
+              "Problème de livraison de l’e-mail"
+            )+" · "+(newest.email||newest.name||""));
           }else{
             const summary=[newest?.name,newest?.service].filter(Boolean).join(" · ");
             showToast(langPick("New notification","Nueva notificación","Nova notificação","Nouvelle notification")+(summary?" · "+summary:""));
@@ -4381,7 +4452,7 @@ function setupInvoiceRealtime(){
   // business_id, so adding a Postgres Changes filter for it causes Realtime to
   // reject the whole subscription. Team messaging already has its own polling.
   let channel=supabase.channel("workspace-updates-"+state.business.id);
-  ["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries"].forEach(function(table){
+  ["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries","email_delivery_issues"].forEach(function(table){
     channel=channel.on("postgres_changes",{
       event:"*",
       schema:"public",
@@ -4493,16 +4564,18 @@ async function loadCoreData(){
   if(["owner","admin"].includes(String(state.business?.role||""))) await loadTeamMessageThreads().catch(err=>console.warn("[TLE] team messages",err));
   renderSupplies();
 
-  const [invoices,bookingRequests,mileageLogs,timeEntries]=await Promise.all([
+  const [invoices,bookingRequests,mileageLogs,timeEntries,emailDeliveryIssues]=await Promise.all([
     safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(id,method,amount,status,paid_at,created_at)").eq("business_id",businessId).order("created_at",{ascending:false}),state.invoices),
     safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingRequests),
     safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),state.mileageLogs),
-    safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),state.timeEntries)
+    safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),state.timeEntries),
+    safe("email delivery issues",supabase.from("email_delivery_issues").select("*").eq("business_id",businessId).is("resolved_at",null).order("occurred_at",{ascending:false}).limit(25),state.emailDeliveryIssues)
   ]);
   state.invoices=invoices;
   state.bookingRequests=bookingRequests;
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
+  state.emailDeliveryIssues=emailDeliveryIssues||[];
   // Client cards depend on jobs + invoices for next cleaning and balance,
   // so render them again only after those datasets are available.
   renderClients();
@@ -4991,6 +5064,10 @@ function openClientInfo(clientId){
   const invoices=state.invoices.filter(inv=>inv.client_id===clientId);
   const bookings=state.bookingRequests.filter(b=>String(b.customer_email||"").toLowerCase()===String(client.email||"").toLowerCase());
   const leads=state.leads.filter(l=>String(l.email||"").toLowerCase()===String(client.email||"").toLowerCase());
+  const emailIssue=(state.emailDeliveryIssues||[]).find(issue=>
+    !issue.resolved_at &&
+    String(issue.customer_email||"").trim().toLowerCase()===String(client.email||"").trim().toLowerCase()
+  );
 
   const recurringIds=[...new Set(jobs.map(j=>j.recurrence_rule_id).filter(Boolean))];
   const upcoming=jobs.filter(j=>!["completed","canceled","no_show"].includes(j.status) && new Date(j.starts_at)>=new Date()).length;
@@ -5053,6 +5130,10 @@ function openClientInfo(clientId){
 
   entityForm.innerHTML=`
     <div class="client-history-profile">
+      ${emailIssue?`<div class="client-email-warning">
+        <strong>${escapeHtml(langPick("⚠ Email needs verification","⚠ Verifica el email","⚠ Verifique o e-mail","⚠ Vérifiez l’e-mail"))}</strong>
+        <span>${escapeHtml(emailIssue.reason||langPick("A recent email could not be delivered. Confirm or correct this address before sending again.","Un correo reciente no pudo entregarse. Confirma o corrige esta dirección antes de volver a enviar.","Um e-mail recente não pôde ser entregue. Confirme ou corrija este endereço antes de enviar novamente.","Un e-mail récent n’a pas pu être livré. Confirmez ou corrigez cette adresse avant de renvoyer."))}</span>
+      </div>`:""}
       <div class="client-history-contact">
         <div><small>${escapeHtml(langPick("Email","Email","Email","E-mail"))}</small><strong>${escapeHtml(client.email||"—")}</strong></div>
         <div><small>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}</small><strong>${escapeHtml(client.phone||"—")}</strong></div>
