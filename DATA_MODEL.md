@@ -38,7 +38,7 @@ Never rely on email alone as the permanent primary key.
 - business_id
 - email
 - display_name
-- role: owner | admin | cleaner
+- role: owner | admin | worker
 - active
 - preferred_language
 - created_at
@@ -192,10 +192,14 @@ Authentication secrets/password hashes should remain inside the chosen auth prov
 - status: draft | sent | paid | overdue | canceled
 - subtotal
 - total
-- payment_method: cash | check | zelle
+- payment_method: cash | check | zelle | other
+- payment_method_detail nullable (used when method is other)
 - sent_at
 - due_at
 - paid_at
+- customer_first_opened_at nullable
+- customer_last_opened_at nullable
+- customer_open_count
 
 ## invoice_items
 - id
