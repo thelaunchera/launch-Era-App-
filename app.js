@@ -4519,7 +4519,7 @@ function renderClients(){
   const grid=$("#clientsGrid");
   if(!grid) return;
   if(!state.clients.length){
-    grid.innerHTML=`<article class="empty-card"><strong>No clients yet.</strong><span>Add the first real client when you're ready.</span><button class="primary-btn" data-create="client">+ Add client</button></article>`;
+    grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No clients yet.","Aún no hay clientes.","Ainda não há clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add clients automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Reservas confirmadas adicionam clientes automaticamente. Você também pode adicionar manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add client","Añadir cliente","Adicionar cliente","Ajouter un client"))}</button></article>`;
     return;
   }
   grid.innerHTML=state.clients.map(c=>`
@@ -4985,7 +4985,7 @@ function quoteColumn(status,label){
           <button class="record-delete-btn" data-delete-record="quote" data-id="${q.id}">${escapeHtml(tr("Delete quote"))}</button>
         </div>
       </article>`;
-    }).join(""):`<div class="kanban-empty">Nothing here</div>`}
+    }).join(""):`<div class="kanban-empty">${escapeHtml(langPick("Nothing needs attention here.","Nada necesita atención aquí.","Nada precisa de atenção aqui.","Rien ne nécessite votre attention ici."))}</div>`}
   </div>`;
 }
 function renderQuotes(){
@@ -5246,7 +5246,66 @@ function installTodayClock(){
 }
 
 
+
+function workspaceSearchText(value){return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
+function globalWorkspaceResults(query){
+  const q=workspaceSearchText(query).trim(); if(q.length<2) return [];
+  const rows=[];
+  (state.clients||[]).forEach(x=>rows.push({view:"clients",type:langPick("Client","Cliente","Cliente","Client"),title:x.name||"",meta:[x.email,x.phone,x.city,x.state].filter(Boolean).join(" · ")}));
+  (state.jobs||[]).forEach(x=>rows.push({view:"calendar",type:langPick("Job","Trabajo","Trabalho","Travail"),title:x.clients?.name||tr("Cleaning job"),meta:[x.services?.name,x.service_address,formatDateTime(x.starts_at)].filter(Boolean).join(" · ")}));
+  (state.quotes||[]).forEach(x=>rows.push({view:"quotes",type:langPick("Quote","Cotización","Orçamento","Devis"),title:x.customer_name||"",meta:[x.customer_email,money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")}));
+  (state.invoices||[]).forEach(x=>{const cl=(state.clients||[]).find(c=>c.id===x.client_id);rows.push({view:"invoices",type:langPick("Invoice","Factura","Fatura","Facture"),title:cl?.name||("#"+(x.invoice_number||"")),meta:["#"+(x.invoice_number||""),money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")});});
+  return rows.filter(r=>workspaceSearchText(r.type+" "+r.title+" "+r.meta).includes(q)).slice(0,12);
+}
+function renderGlobalWorkspaceSearch(){
+  const input=$("#globalSearchInput"), box=$("#globalSearchResults"); if(!input||!box)return;
+  const rows=globalWorkspaceResults(input.value);
+  if(String(input.value||"").trim().length<2){box.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick("Find anything fast.","Encuentra todo rápido.","Encontre tudo rápido.","Trouvez tout rapidement."))+'</strong><span>'+escapeHtml(langPick("Search clients, jobs, quotes and invoices.","Busca clientes, trabajos, cotizaciones y facturas.","Busque clientes, trabalhos, orçamentos e faturas.","Recherchez clients, travaux, devis et factures."))+'</span></div>';return;}
+  box.innerHTML=rows.length?rows.map((r,i)=>'<button type="button" class="global-search-result" data-search-view="'+r.view+'" data-search-index="'+i+'"><small>'+escapeHtml(r.type)+'</small><strong>'+escapeHtml(r.title)+'</strong><span>'+escapeHtml(r.meta)+'</span></button>').join(""):'<div class="empty-inline"><strong>'+escapeHtml(langPick("No matches.","Sin resultados.","Sem resultados.","Aucun résultat."))+'</strong><span>'+escapeHtml(langPick("Try a name, email, address or number.","Prueba un nombre, email, dirección o número.","Tente um nome, email, endereço ou número.","Essayez un nom, e-mail, adresse ou numéro."))+'</span></div>';
+}
+function installGlobalWorkspaceSearch(){
+  const toggle=$("#globalSearchToggle"), pop=$("#globalSearchPopover"), input=$("#globalSearchInput"); if(!toggle||!pop||toggle.dataset.ready)return;
+  toggle.dataset.ready="1";
+  toggle.addEventListener("click",e=>{e.stopPropagation();pop.hidden=!pop.hidden;if(!pop.hidden)setTimeout(()=>input?.focus(),20);});
+  input?.addEventListener("input",renderGlobalWorkspaceSearch);
+  $("#globalSearchResults")?.addEventListener("click",e=>{const b=e.target.closest("[data-search-view]");if(!b)return;pop.hidden=true;openView(b.dataset.searchView);});
+  document.addEventListener("click",e=>{if(!e.target.closest("#globalSearchShell"))pop.hidden=true;});
+}
+function setBookingStep(step){
+  const valid=["links","services","availability","preferences"]; if(!valid.includes(step))step="links";
+  $("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
+  $("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
+  try{localStorage.setItem("tle_booking_step",step);}catch{}
+}
+function installProgressiveBooking(){
+  $("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
+  let saved="links";try{saved=localStorage.getItem("tle_booking_step")||"links";}catch{} setBookingStep(saved);
+}
+function installSettingsAccordion(){
+  $(".settings-accordion>.settings-section").forEach((panel,i)=>{
+    if(panel.dataset.accordionReady)return; panel.dataset.accordionReady="1";
+    const head=panel.querySelector(".panel-head")||panel.querySelector("h3"); if(!head)return;
+    panel.classList.toggle("settings-open",i===0);
+    head.classList.add("settings-accordion-trigger"); head.setAttribute("role","button"); head.setAttribute("tabindex","0");
+    const toggle=()=>panel.classList.toggle("settings-open");
+    head.addEventListener("click",e=>{if(e.target.closest("button,input,a"))return;toggle();});
+    head.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}});
+  });
+}
+function renderFirstWin(){
+  const card=$("#firstWinCard"); if(!card)return;
+  const noOperationalData=!(state.clients?.length||state.jobs?.length||state.bookingRequests?.length||state.quotes?.length||state.invoices?.length);
+  let dismissed=false;try{dismissed=localStorage.getItem("tle_first_win_done")==="1";}catch{}
+  card.hidden=!noOperationalData||dismissed;
+  const title=$("#firstWinTitle"),copy=$("#firstWinCopy"),action=$("#firstWinAction"),eyebrow=$("#firstWinEyebrow");
+  if(eyebrow)eyebrow.textContent=langPick("YOUR WORKSPACE IS READY","TU ESPACIO ESTÁ LISTO","SEU ESPAÇO ESTÁ PRONTO","VOTRE ESPACE EST PRÊT");
+  if(title)title.textContent=langPick("Get ready for your first booking.","Prepárate para tu primera reserva.","Prepare-se para sua primeira reserva.","Préparez votre première réservation.");
+  if(copy)copy.textContent=langPick("Set up what clients can book, when they can book, then share your link.","Configura qué pueden reservar tus clientes, cuándo pueden reservar y después comparte tu enlace.","Configure o que os clientes podem reservar, quando podem reservar e depois compartilhe seu link.","Configurez ce que vos clients peuvent réserver, quand ils peuvent réserver, puis partagez votre lien.");
+  if(action)action.textContent=langPick("Set up booking →","Configurar reservas →","Configurar reservas →","Configurer les réservations →");
+}
+
 function renderTodaySummary(wakeAssistant=false){
+  renderFirstWin();
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
   const businessHour=Number(new Intl.DateTimeFormat("en-US",{
