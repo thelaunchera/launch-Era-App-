@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-live-weather-164" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-mobile-ui-stable-165" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -757,9 +757,9 @@
           <article class="panel full booking-step-panel" data-booking-panel="links">
             <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Public links</h3></div></div>
             <label class="field-label">Booking link</label>
-            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener" aria-label="Open booking link">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy link</button></div>
+            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener" aria-label="Open booking link">Booking link</a><button class="link-copy-btn" data-copy-target="bookingUrl">Copy link</button></div>
             <label class="field-label">Quote request link</label>
-            <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener" aria-label="Open quote request link">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy link</button></div>
+            <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener" aria-label="Open quote request link">Quote request link</a><button class="link-copy-btn" data-copy-target="quoteUrl">Copy link</button></div>
           </article>
 
           <article class="panel full booking-step-panel booking-requests-always" data-booking-panel="requests">
@@ -1058,24 +1058,6 @@
         </div>
 
         <div class="settings-grid settings-accordion settings-simple-grid">
-          <article class="panel settings-section settings-summary-card">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">BUSINESS</p>
-                <h3>Business basics</h3>
-                <small class="panel-note">The information clients and your workspace use.</small>
-              </div>
-              <button class="text-btn" type="button" id="editBusinessProfileBtn" data-owner-only>Edit →</button>
-            </div>
-            <div class="settings-summary-grid">
-              <div><small>Business</small><strong id="settingsBusinessName">—</strong></div>
-              <div><small>Email</small><strong id="settingsBusinessEmail">—</strong></div>
-              <div><small>Phone</small><strong id="settingsBusinessPhone">—</strong></div>
-              <div><small>Service area</small><strong id="settingsServiceArea">—</strong></div>
-              <div><small>Time zone</small><strong id="settingsBusinessTimezone">—</strong></div>
-            </div>
-          </article>
-
           <article class="panel settings-section settings-summary-card settings-app-preferences-card">
             <div class="panel-head">
               <div>
@@ -1092,6 +1074,24 @@
               <div><small>Temperature</small><strong id="settingsBusinessTemperature">—</strong></div>
             </div>
             <button class="ghost-btn settings-inline-edit" type="button" data-edit-app-preferences data-owner-only>Edit app preferences</button>
+          </article>
+
+          <article class="panel settings-section settings-summary-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">BUSINESS</p>
+                <h3>Business basics</h3>
+                <small class="panel-note">The information clients and your workspace use.</small>
+              </div>
+              <button class="text-btn" type="button" id="editBusinessProfileBtn" data-owner-only>Edit →</button>
+            </div>
+            <div class="settings-summary-grid">
+              <div><small>Business</small><strong id="settingsBusinessName">—</strong></div>
+              <div><small>Email</small><strong id="settingsBusinessEmail">—</strong></div>
+              <div><small>Phone</small><strong id="settingsBusinessPhone">—</strong></div>
+              <div><small>Service area</small><strong id="settingsServiceArea">—</strong></div>
+              <div><small>Time zone</small><strong id="settingsBusinessTimezone">—</strong></div>
+            </div>
           </article>
 
           <article class="panel settings-section settings-communication-card">
@@ -1429,7 +1429,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-live-weather-164";
+    window.__tleShellVersion="20260929-mobile-ui-stable-165";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1449,9 +1449,9 @@
     }
   </script>
   <script src="./vendor/supabase.js?v=20260929-mobile-navigation-data-159"></script>
-  <script src="./i18n.js?v=20260929-mobile-navigation-data-159"></script>
-  <script src="./public.js?v=20260929-mobile-navigation-data-159"></script>
-  <script src="./app.js?v=20260929-live-weather-164"></script>
+  <script src="./i18n.js?v=20260929-mobile-ui-stable-165"></script>
+  <script src="./public.js?v=20260929-mobile-ui-stable-165"></script>
+  <script src="./app.js?v=20260929-mobile-ui-stable-165"></script>
   <script src="./followups.js?v=20260929-mobile-navigation-data-159"></script>
 </body>
 </html>
