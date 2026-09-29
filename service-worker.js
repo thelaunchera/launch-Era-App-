@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260928-tablet-footer-126";
+const CACHE_NAME="tle-cleaning-app-20260929-social-idle-home-127";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260928-tablet-footer-126",
-  "./app.js?v=20260928-tablet-footer-126",
-  "./followups.js?v=20260928-tablet-footer-126",
-  "./i18n.js?v=20260928-tablet-footer-126",
-  "./public.js?v=20260928-tablet-footer-126",
-  "./vendor/supabase.js?v=20260928-tablet-footer-126",
-  "./manifest.webmanifest?v=20260928-tablet-footer-126"
+  "./styles.css?v=20260929-social-idle-home-127",
+  "./app.js?v=20260929-social-idle-home-127",
+  "./followups.js?v=20260929-social-idle-home-127",
+  "./i18n.js?v=20260929-social-idle-home-127",
+  "./public.js?v=20260929-social-idle-home-127",
+  "./vendor/supabase.js?v=20260929-social-idle-home-127",
+  "./manifest.webmanifest?v=20260929-social-idle-home-127"
 ];
 
 self.addEventListener("install",event=>{
