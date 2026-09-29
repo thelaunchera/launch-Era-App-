@@ -1425,6 +1425,70 @@
     return key;
   }
 
+  Object.assign(exact,{
+    "Keep the app, client communication, booking rules and payments easy to control from one place.":"Controla fácilmente la app, la comunicación con clientes, las reservas y los pagos desde un solo lugar.",
+    "BUSINESS":"NEGOCIO",
+    "Business basics":"Datos básicos del negocio",
+    "The information clients and your workspace use.":"La información que usan tus clientes y tu espacio de trabajo.",
+    "Business":"Negocio",
+    "YOUR APP":"TU APP",
+    "App preferences":"Preferencias de la app",
+    "These only change what the business owner sees inside the app.":"Esto solo cambia lo que el dueño ve dentro de la app.",
+    "App language":"Idioma de la app",
+    "Edit app preferences":"Editar preferencias",
+    "CLIENT COMMUNICATION":"COMUNICACIÓN CON CLIENTES",
+    "Emails to your clients":"Emails para tus clientes",
+    "This is separate from the language you use inside the app.":"Esto es independiente del idioma que usas dentro de la app.",
+    "Automatic":"Automático",
+    "Default client email language":"Idioma predeterminado de emails",
+    "Change default":"Cambiar predeterminado",
+    "Save language":"Guardar idioma",
+    "A client can have their own preferred email language. Their preference overrides this default without changing your app language.":"Cada cliente puede tener su propio idioma de email. Su preferencia reemplaza este predeterminado sin cambiar el idioma de tu app.",
+    "BOOKING":"RESERVAS",
+    "Booking + availability":"Reservas + disponibilidad",
+    "Control when clients can book and how much travel time you need.":"Controla cuándo pueden reservar los clientes y cuánto tiempo necesitas para trasladarte.",
+    "Open booking settings →":"Abrir ajustes de reservas →",
+    "PAYMENTS":"PAGOS",
+    "Client payment options":"Opciones de pago del cliente",
+    "These are the choices clients see on invoices.":"Estas son las opciones que los clientes ven en las facturas.",
+    "Enabled methods":"Métodos activados",
+    "Edit payment options →":"Editar opciones de pago →",
+    "Used after confirmed payments and review follow-ups.":"Se usa después de pagos confirmados y seguimientos de reseñas.",
+    "TEAM ACCESS":"ACCESO DEL EQUIPO",
+    "Who can use the app":"Quién puede usar la app",
+    "Admins and guest employees are managed separately from client settings.":"Los administradores y empleados invitados se gestionan por separado de los ajustes de clientes.",
+    "Open Team →":"Abrir Equipo →",
+    "Email language":"Idioma de emails",
+    "Business default":"Predeterminado del negocio",
+    "Kreyòl Ayisyen":"Kreyòl Ayisyen"
+  });
+
+  Object.assign(extra.pt,{
+    "Keep the app, client communication, booking rules and payments easy to control from one place.":"Controle facilmente o app, a comunicação com clientes, as reservas e os pagamentos em um só lugar.",
+    "BUSINESS":"EMPRESA","Business basics":"Dados básicos da empresa","The information clients and your workspace use.":"As informações usadas pelos clientes e pelo seu espaço de trabalho.",
+    "Business":"Empresa","YOUR APP":"SEU APP","App preferences":"Preferências do app","These only change what the business owner sees inside the app.":"Isso só muda o que o proprietário vê dentro do app.","App language":"Idioma do app","Edit app preferences":"Editar preferências",
+    "CLIENT COMMUNICATION":"COMUNICAÇÃO COM CLIENTES","Emails to your clients":"E-mails para seus clientes","This is separate from the language you use inside the app.":"Isso é separado do idioma que você usa dentro do app.","Automatic":"Automático","Default client email language":"Idioma padrão dos e-mails","Change default":"Alterar padrão","Save language":"Salvar idioma",
+    "A client can have their own preferred email language. Their preference overrides this default without changing your app language.":"Cada cliente pode ter seu próprio idioma de e-mail. A preferência dele substitui este padrão sem mudar o idioma do app.",
+    "BOOKING":"RESERVAS","Booking + availability":"Reservas + disponibilidade","Control when clients can book and how much travel time you need.":"Controle quando os clientes podem reservar e quanto tempo de deslocamento você precisa.","Open booking settings →":"Abrir configurações de reservas →",
+    "PAYMENTS":"PAGAMENTOS","Client payment options":"Opções de pagamento do cliente","These are the choices clients see on invoices.":"Estas são as opções que os clientes veem nas faturas.","Enabled methods":"Métodos ativados","Edit payment options →":"Editar opções de pagamento →",
+    "Used after confirmed payments and review follow-ups.":"Usado após pagamentos confirmados e acompanhamentos de avaliação.",
+    "TEAM ACCESS":"ACESSO DA EQUIPE","Who can use the app":"Quem pode usar o app","Admins and guest employees are managed separately from client settings.":"Administradores e funcionários convidados são gerenciados separadamente das configurações de clientes.","Open Team →":"Abrir Equipe →",
+    "Email language":"Idioma do e-mail","Business default":"Padrão da empresa","Kreyòl Ayisyen":"Kreyòl Ayisyen"
+  });
+
+  Object.assign(extra.fr,{
+    "Keep the app, client communication, booking rules and payments easy to control from one place.":"Gérez facilement l’application, la communication client, les réservations et les paiements depuis un seul endroit.",
+    "BUSINESS":"ENTREPRISE","Business basics":"Informations de l’entreprise","The information clients and your workspace use.":"Les informations utilisées par vos clients et votre espace de travail.",
+    "Business":"Entreprise","YOUR APP":"VOTRE APP","App preferences":"Préférences de l’application","These only change what the business owner sees inside the app.":"Cela change uniquement ce que le propriétaire voit dans l’application.","App language":"Langue de l’application","Edit app preferences":"Modifier les préférences",
+    "CLIENT COMMUNICATION":"COMMUNICATION CLIENT","Emails to your clients":"E-mails à vos clients","This is separate from the language you use inside the app.":"Ceci est indépendant de la langue utilisée dans l’application.","Automatic":"Automatique","Default client email language":"Langue par défaut des e-mails","Change default":"Modifier la langue","Save language":"Enregistrer la langue",
+    "A client can have their own preferred email language. Their preference overrides this default without changing your app language.":"Chaque client peut avoir sa langue d’e-mail préférée. Elle remplace ce choix par défaut sans changer la langue de votre application.",
+    "BOOKING":"RÉSERVATIONS","Booking + availability":"Réservations + disponibilités","Control when clients can book and how much travel time you need.":"Contrôlez quand les clients peuvent réserver et le temps de déplacement nécessaire.","Open booking settings →":"Ouvrir les paramètres de réservation →",
+    "PAYMENTS":"PAIEMENTS","Client payment options":"Options de paiement client","These are the choices clients see on invoices.":"Ce sont les options que les clients voient sur les factures.","Enabled methods":"Modes activés","Edit payment options →":"Modifier les options de paiement →",
+    "Used after confirmed payments and review follow-ups.":"Utilisé après les paiements confirmés et les suivis d’avis.",
+    "TEAM ACCESS":"ACCÈS ÉQUIPE","Who can use the app":"Qui peut utiliser l’application","Admins and guest employees are managed separately from client settings.":"Les administrateurs et employés invités sont gérés séparément des paramètres clients.","Open Team →":"Ouvrir Équipe →",
+    "Email language":"Langue des e-mails","Business default":"Valeur par défaut de l’entreprise","Kreyòl Ayisyen":"Kreyòl Ayisyen"
+  });
+
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
