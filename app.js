@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-css-split-196";
+const APP_VERSION = "20260929-auth-viewport-197";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2983,6 +2983,19 @@ $("#authSwitch").addEventListener("click",()=>{
   setAuthStatus("");
   const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
   setAuthMode(enteringSignup?"signup":"signin");
+
+  // Mobile Safari can preserve the old scroll position when the auth mode
+  // changes. Re-anchor the visible form so the primary submit button remains
+  // reachable without the user hunting for it off-screen.
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      const isTouchDevice=window.matchMedia?.("(pointer: coarse)")?.matches;
+      if(isTouchDevice){
+        try{authPanel?.scrollIntoView({block:"start",inline:"nearest",behavior:"auto"});}catch{}
+      }
+    },60);
+  });
+
   if(enteringSignup){
     const email=$("#authEmail");
     const password=$("#authPassword");
