@@ -9749,3 +9749,76 @@ body.shell-auth{overflow-anchor:none}
 .quote-growth-card .customer-open-status{
   margin-top:0;
 }
+
+
+/* 2026-09-29 — tablet social presence polish v180 */
+@media(min-width:681px) and (max-width:1100px){
+  [data-page="today"] .presence-panel-compact{
+    display:grid!important;
+    grid-template-columns:minmax(190px,.62fr) minmax(0,1.38fr)!important;
+    align-items:center!important;
+    gap:18px!important;
+    padding:18px 20px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy{
+    min-width:0!important;
+    max-width:none!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy h3{
+    font-size:18px!important;
+    line-height:1.1!important;
+    margin:2px 0 4px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy p:last-child{
+    font-size:10px!important;
+    line-height:1.35!important;
+    max-width:250px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+    padding:0!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn{
+    display:grid!important;
+    grid-template-columns:38px minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:64px!important;
+    padding:11px 12px!important;
+    border-radius:15px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-mark{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    border-radius:12px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn>span:last-child{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn strong{
+    display:block!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn small{
+    display:block!important;
+    margin-top:3px!important;
+    font-size:9px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
