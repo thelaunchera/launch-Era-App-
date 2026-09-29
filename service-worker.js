@@ -1,20 +1,22 @@
-const CACHE_NAME="tle-cleaning-app-20260929-css-modules-198";
+const CACHE_NAME="tle-cleaning-app-20260929-release-modules-199";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-css-modules-198",
-  "./styles/workspace-components.css?v=20260929-css-modules-198",
-  "./styles/workspace-experience.css?v=20260929-css-modules-198",
-  "./styles/workspace-operations.css?v=20260929-css-modules-198",
-  "./styles/release-overrides.css?v=20260929-css-modules-198",
-  "./styles/responsive-shell.css?v=20260929-css-modules-198",
-  "./styles/customer-documents.css?v=20260929-css-modules-198",
-  "./app.js?v=20260929-css-modules-198",
-  "./followups.js?v=20260929-css-modules-198",
-  "./i18n.js?v=20260929-css-modules-198",
-  "./public.js?v=20260929-css-modules-198",
-  "./vendor/supabase.js?v=20260929-css-modules-198",
-  "./manifest.webmanifest?v=20260929-css-modules-198"
+  "./styles.css?v=20260929-release-modules-199",
+  "./styles/workspace-components.css?v=20260929-release-modules-199",
+  "./styles/workspace-experience.css?v=20260929-release-modules-199",
+  "./styles/workspace-operations.css?v=20260929-release-modules-199",
+  "./styles/release-overrides.css?v=20260929-release-modules-199",
+  "./styles/release-mobile.css?v=20260929-release-modules-199",
+  "./styles/release-latest.css?v=20260929-release-modules-199",
+  "./styles/responsive-shell.css?v=20260929-release-modules-199",
+  "./styles/customer-documents.css?v=20260929-release-modules-199",
+  "./app.js?v=20260929-release-modules-199",
+  "./followups.js?v=20260929-release-modules-199",
+  "./i18n.js?v=20260929-release-modules-199",
+  "./public.js?v=20260929-release-modules-199",
+  "./vendor/supabase.js?v=20260929-release-modules-199",
+  "./manifest.webmanifest?v=20260929-release-modules-199"
 ];
 
 self.addEventListener("install",event=>{

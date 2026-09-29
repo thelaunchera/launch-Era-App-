@@ -1,0 +1,390 @@
+/* 2026-09-29 — centered mobile page title v176 */
+@media(max-width:680px){
+  body.shell-app .topbar{
+    position:sticky!important;
+    isolation:isolate!important;
+  }
+  body.shell-app .topbar-title{
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    transform:translate(-50%,-50%)!important;
+    width:min(36vw,150px)!important;
+    max-width:150px!important;
+    padding:0!important;
+    margin:0!important;
+    text-align:center!important;
+    z-index:1!important;
+    pointer-events:none!important;
+  }
+  body.shell-app .topbar-title h1{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    font-size:18px!important;
+    line-height:1!important;
+  }
+  body.shell-app #menuToggle,
+  body.shell-app #backBtn,
+  body.shell-app .notification-shell,
+  body.shell-app #appRefreshBtn,
+  body.shell-app #quickAddBtn{
+    position:relative!important;
+    z-index:2!important;
+  }
+}
+@media(max-width:390px){
+  body.shell-app .topbar-title{
+    width:min(34vw,132px)!important;
+    max-width:132px!important;
+  }
+  body.shell-app .topbar-title h1{font-size:17px!important}
+}
+
+
+/* 2026-09-29 — unified dynamic Today palette v177 */
+
+/*
+  Today uses one ambient palette at a time.
+  Semantic colors remain reserved for actual status/attention states.
+*/
+[data-page="today"]{
+  --home-surface:#FFFDF9;
+  --home-surface-soft:#F5F3EE;
+  --home-surface-muted:#ECEFF1;
+  --home-border:rgba(25,25,25,.10);
+  --home-accent:#273541;
+  --home-accent-soft:#E6EDF1;
+  --home-copy-muted:#626A70;
+}
+
+/* Clear / partly cloudy: warm but restrained. */
+.app-shell[data-weather-mood="clear"] [data-page="today"],
+.app-shell[data-weather-mood="partly"] [data-page="today"],
+.app-shell:not([data-weather-mood]) [data-page="today"]{
+  --home-surface:#FFFDF9;
+  --home-surface-soft:#F7F3E8;
+  --home-surface-muted:#F1EEE7;
+  --home-border:rgba(77,68,47,.12);
+  --home-accent:#373225;
+  --home-accent-soft:#F1E9CF;
+}
+
+/* Rain / drizzle: one cool blue-grey family. */
+.app-shell[data-weather-mood="rain"] [data-page="today"],
+.app-shell[data-weather-mood="drizzle"] [data-page="today"]{
+  --home-surface:#F8FAFB;
+  --home-surface-soft:#E8EFF3;
+  --home-surface-muted:#DDE8EE;
+  --home-border:rgba(54,76,90,.13);
+  --home-accent:#304A5B;
+  --home-accent-soft:#DCE8EF;
+}
+
+/* Storm: deeper, quieter cool greys. */
+.app-shell[data-weather-mood="storm"] [data-page="today"]{
+  --home-surface:#F5F7F8;
+  --home-surface-soft:#E1E7EB;
+  --home-surface-muted:#D4DEE4;
+  --home-border:rgba(43,58,69,.16);
+  --home-accent:#263944;
+  --home-accent-soft:#D5E0E6;
+}
+
+/* Cloud / fog: near-neutral stone grey. */
+.app-shell[data-weather-mood="cloudy"] [data-page="today"],
+.app-shell[data-weather-mood="fog"] [data-page="today"]{
+  --home-surface:#FBFBF9;
+  --home-surface-soft:#EEEFEF;
+  --home-surface-muted:#E4E7E7;
+  --home-border:rgba(63,67,68,.12);
+  --home-accent:#41494D;
+  --home-accent-soft:#E3E7E8;
+}
+
+/* Snow: clean icy neutral. */
+.app-shell[data-weather-mood="snow"] [data-page="today"]{
+  --home-surface:#FBFDFE;
+  --home-surface-soft:#EDF4F7;
+  --home-surface-muted:#E2EDF2;
+  --home-border:rgba(67,92,105,.12);
+  --home-accent:#365364;
+  --home-accent-soft:#E2EEF3;
+}
+
+/* One visual family across KPI and operating cards. */
+[data-page="today"] .business-pulse .pulse-card{
+  background:var(--home-surface-soft)!important;
+  border-color:var(--home-border)!important;
+  box-shadow:none!important;
+}
+[data-page="today"] .business-pulse .pulse-card span,
+[data-page="today"] .business-pulse .pulse-card small{
+  color:var(--home-copy-muted)!important;
+}
+[data-page="today"] .business-pulse .pulse-card strong{
+  color:var(--ink)!important;
+}
+
+/* Tiny semantic cue only — no four competing card colors. */
+[data-page="today"] .pulse-money,
+[data-page="today"] .pulse-jobs,
+[data-page="today"] .pulse-clients{
+  box-shadow:inset 0 3px 0 color-mix(in srgb,var(--home-accent) 16%,transparent)!important;
+}
+[data-page="today"] .pulse-collected{
+  box-shadow:inset 0 3px 0 rgba(63,124,79,.28)!important;
+}
+
+/* Schedule, capacity, quick actions and supporting panels share the same neutral surface. */
+[data-page="today"] .schedule-panel,
+[data-page="today"] .capacity-card,
+[data-page="today"] .quick-actions-panel,
+[data-page="today"] .attention-panel,
+[data-page="today"] .presence-panel,
+[data-page="today"] .presence-panel-compact{
+  background:var(--home-surface)!important;
+  border-color:var(--home-border)!important;
+}
+[data-page="today"] .capacity-track{background:var(--home-surface-muted)!important}
+[data-page="today"] .capacity-track>span{background:var(--home-accent)!important}
+[data-page="today"] .growth-quick-grid .quick-card{
+  background:var(--home-surface-soft)!important;
+  border-color:var(--home-border)!important;
+}
+[data-page="today"] .quick-icon{
+  background:var(--home-accent-soft)!important;
+  color:var(--home-accent)!important;
+}
+
+/* Next move is neutral when calm, and becomes semantic only when there is something to act on. */
+.app-shell[data-card-mood="calm"] [data-page="today"] .next-move-panel,
+.app-shell[data-card-mood="night"] [data-page="today"] .next-move-panel{
+  background:var(--home-surface-soft)!important;
+  border-color:var(--home-border)!important;
+}
+.app-shell[data-card-mood="jobs"] [data-page="today"] .next-move-panel,
+.app-shell[data-card-mood="booking"] [data-page="today"] .next-move-panel,
+.app-shell[data-card-mood="quotes"] [data-page="today"] .next-move-panel{
+  background:linear-gradient(120deg,var(--home-accent-soft),var(--home-surface))!important;
+  border-color:var(--home-border)!important;
+}
+.app-shell[data-card-mood="invoice"] [data-page="today"] .next-move-panel{
+  background:#FFF3EC!important;
+  border-color:rgba(160,80,56,.18)!important;
+}
+
+/* CTA follows the same ambient accent. */
+[data-page="today"] #todayHeroAction,
+[data-page="today"] .next-move-panel>.dark-btn{
+  background:var(--home-accent)!important;
+  color:#fff!important;
+  border-color:var(--home-accent)!important;
+}
+
+/* Weather icon must agree with the actual weather. */
+#todayHeroCard[data-weather="rain"] .hero-sun-orb,
+#todayHeroCard[data-weather="drizzle"] .hero-sun-orb,
+#todayHeroCard[data-weather="storm"] .hero-sun-orb,
+#todayHeroCard[data-weather="cloudy"] .hero-sun-orb,
+#todayHeroCard[data-weather="fog"] .hero-sun-orb,
+#todayHeroCard[data-weather="snow"] .hero-sun-orb{
+  opacity:0!important;
+}
+#todayHeroCard[data-weather="rain"] .hero-cloud,
+#todayHeroCard[data-weather="drizzle"] .hero-cloud,
+#todayHeroCard[data-weather="storm"] .hero-cloud,
+#todayHeroCard[data-weather="cloudy"] .hero-cloud,
+#todayHeroCard[data-weather="fog"] .hero-cloud{
+  opacity:1!important;
+}
+#todayHeroCard[data-weather="clear"] .hero-cloud{
+  opacity:.22!important;
+}
+#todayHeroCard[data-weather="snow"] .hero-cloud{
+  opacity:.58!important;
+}
+
+/* Hero weather becomes the single dominant atmosphere. */
+#todayHeroCard[data-weather="rain"],
+#todayHeroCard[data-weather="drizzle"]{
+  background:linear-gradient(145deg,#DCE7ED 0%,#E9EEF1 58%,#E1E8EB 100%)!important;
+}
+#todayHeroCard[data-weather="storm"]{
+  background:linear-gradient(145deg,#CBD7DE 0%,#D7DEE3 58%,#CCD8DE 100%)!important;
+}
+#todayHeroCard[data-weather="cloudy"],
+#todayHeroCard[data-weather="fog"]{
+  background:linear-gradient(145deg,#E8EBEA 0%,#F0F0ED 100%)!important;
+}
+#todayHeroCard[data-weather="snow"]{
+  background:linear-gradient(145deg,#EDF5F7 0%,#E4EEF3 100%)!important;
+}
+
+/* Tablet/desktop benefit from slightly calmer spacing and stronger grouping. */
+@media(min-width:681px){
+  [data-page="today"] .business-pulse{gap:10px!important}
+  [data-page="today"] .pulse-card{border-radius:19px!important}
+  [data-page="today"] .dashboard-grid{gap:12px!important}
+  [data-page="today"] .next-move-panel{border-radius:20px!important}
+}
+
+
+/* 2026-09-29 — remove dead tablet search control v178 */
+@media(min-width:681px) and (max-width:1100px){
+  body.shell-app .global-search-shell{
+    display:none!important;
+  }
+  body.shell-app .top-actions{
+    gap:8px!important;
+  }
+}
+
+
+/* 2026-09-29 — cleaner hero spacing and rain treatment v179 */
+/* Give the Today hero breathing room below the sticky header. */
+@media(max-width:680px){
+  [data-page="today"] #todayHeroCard{
+    margin-top:16px!important;
+  }
+}
+@media(min-width:681px) and (max-width:1100px){
+  [data-page="today"] #todayHeroCard{
+    margin-top:18px!important;
+  }
+}
+
+/* Remove the long rain streaks that looked detached from the product UI.
+   Keep weather dynamic through palette, clouds, copy and a very soft atmospheric wash. */
+#todayHeroCard .hero-precip-layer.weather-rain .rain-drop,
+#todayHeroCard .hero-precip-layer.weather-drizzle .drizzle-drop,
+#todayHeroCard .hero-precip-layer.weather-storm .rain-drop{
+  display:none!important;
+}
+#todayHeroCard .hero-precip-layer.weather-rain,
+#todayHeroCard .hero-precip-layer.weather-drizzle{
+  opacity:.32!important;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.35),transparent 24%),
+    radial-gradient(circle at 82% 14%,rgba(133,166,186,.12),transparent 28%),
+    linear-gradient(180deg,rgba(86,122,145,.04),rgba(86,122,145,.10));
+}
+#todayHeroCard .hero-precip-layer.weather-storm{
+  opacity:.38!important;
+  background:
+    radial-gradient(circle at 78% 18%,rgba(94,117,132,.16),transparent 28%),
+    linear-gradient(180deg,rgba(62,84,99,.06),rgba(62,84,99,.14));
+}
+
+/* Clouds stay subtle so the hero feels like the app, not a weather animation. */
+#todayHeroCard[data-weather="rain"] .hero-cloud,
+#todayHeroCard[data-weather="drizzle"] .hero-cloud,
+#todayHeroCard[data-weather="storm"] .hero-cloud{
+  opacity:.72!important;
+  filter:drop-shadow(0 2px 3px rgba(25,25,25,.04))!important;
+}
+
+
+/* Customer document open status */
+.customer-open-status{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  margin-top:6px;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:10px!important;
+  font-weight:850;
+  line-height:1.2;
+}
+.customer-open-status.is-viewed{
+  background:#EEF7EE;
+  color:#35623D!important;
+  border:1px solid #CFE4D1;
+}
+.customer-open-status.is-unviewed{
+  background:#F4F1EA;
+  color:#746F67!important;
+  border:1px solid #E3DED4;
+}
+.quote-growth-card .customer-open-status{
+  margin-top:0;
+}
+
+
+/* 2026-09-29 — tablet social presence polish v180 */
+@media(min-width:681px) and (max-width:1100px){
+  [data-page="today"] .presence-panel-compact{
+    display:grid!important;
+    grid-template-columns:minmax(190px,.62fr) minmax(0,1.38fr)!important;
+    align-items:center!important;
+    gap:18px!important;
+    padding:18px 20px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy{
+    min-width:0!important;
+    max-width:none!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy h3{
+    font-size:18px!important;
+    line-height:1.1!important;
+    margin:2px 0 4px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-copy p:last-child{
+    font-size:10px!important;
+    line-height:1.35!important;
+    max-width:250px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+    padding:0!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn{
+    display:grid!important;
+    grid-template-columns:38px minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:64px!important;
+    padding:11px 12px!important;
+    border-radius:15px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-mark{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    border-radius:12px!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn>span:last-child{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn strong{
+    display:block!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  [data-page="today"] .presence-panel-compact .presence-btn small{
+    display:block!important;
+    margin-top:3px!important;
+    font-size:9px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}

@@ -30,6 +30,31 @@ if(!appVersion || !shellVersion || !swVersion || versions.some(v=>v!==appVersion
 if(manifest.start_url!=="./") fail("manifest start_url must remain version-agnostic './'");
 else pass("manifest start_url is version-agnostic");
 
+
+const expectedStyleOrder=[
+  "styles.css",
+  "styles/workspace-components.css",
+  "styles/workspace-experience.css",
+  "styles/workspace-operations.css",
+  "styles/release-overrides.css",
+  "styles/release-mobile.css",
+  "styles/release-latest.css",
+  "styles/responsive-shell.css",
+  "styles/customer-documents.css"
+];
+let previousStyleIndex=-1;
+for(const file of expectedStyleOrder){
+  const currentIndex=html.indexOf("./"+file+"?v="+appVersion);
+  if(currentIndex<0){
+    fail("missing versioned stylesheet in app shell: "+file);
+    continue;
+  }
+  if(currentIndex<=previousStyleIndex) fail("stylesheet cascade order changed around "+file);
+  previousStyleIndex=currentIndex;
+  if(!sw.includes("./"+file+"?v="+appVersion)) fail("service worker core is missing stylesheet: "+file);
+}
+if(!process.exitCode) pass("stylesheet module order and service-worker cache list are synchronized");
+
 if(fs.existsSync("admin-reset.html")){
   fail("legacy admin-reset.html must not be shipped in the public app");
 }else{
@@ -61,7 +86,9 @@ const limits={
   "styles/workspace-components.css":65000,
   "styles/workspace-experience.css":110000,
   "styles/workspace-operations.css":45000,
-  "styles/release-overrides.css":90000,
+  "styles/release-overrides.css":50000,
+  "styles/release-mobile.css":45000,
+  "styles/release-latest.css":25000,
   "styles/responsive-shell.css":12000,
   "styles/customer-documents.css":12000,
   "i18n.js":190000,
@@ -96,8 +123,16 @@ const selectorModules={
     source:read("styles/workspace-operations.css")
   },
   "styles/release-overrides.css":{
-    caps:{".topbar":24,"#menuToggle":8,".mobile-record-card":22},
+    caps:{".topbar":3,"#menuToggle":3,".mobile-record-card":24},
     source:read("styles/release-overrides.css")
+  },
+  "styles/release-mobile.css":{
+    caps:{".topbar":22,"#menuToggle":6,".mobile-record-card":5},
+    source:read("styles/release-mobile.css")
+  },
+  "styles/release-latest.css":{
+    caps:{".topbar":8,"#menuToggle":4,".mobile-record-card":5},
+    source:read("styles/release-latest.css")
   },
   "styles/responsive-shell.css":{
     caps:{".topbar":12,"#menuToggle":7},

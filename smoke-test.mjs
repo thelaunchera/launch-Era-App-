@@ -14,6 +14,8 @@ const styles=[
   "styles/workspace-experience.css",
   "styles/workspace-operations.css",
   "styles/release-overrides.css",
+  "styles/release-mobile.css",
+  "styles/release-latest.css",
   "styles/responsive-shell.css",
   "styles/customer-documents.css"
 ].map(file=>fs.readFileSync(file,"utf8")).join("\n");
