@@ -1,18 +1,20 @@
-const CACHE_NAME="tle-cleaning-app-20260929-auth-viewport-197";
+const CACHE_NAME="tle-cleaning-app-20260929-css-modules-198";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-auth-viewport-197",
-  "./styles/workspace-components.css?v=20260929-auth-viewport-197",
-  "./styles/release-overrides.css?v=20260929-auth-viewport-197",
-  "./styles/responsive-shell.css?v=20260929-auth-viewport-197",
-  "./styles/customer-documents.css?v=20260929-auth-viewport-197",
-  "./app.js?v=20260929-auth-viewport-197",
-  "./followups.js?v=20260929-auth-viewport-197",
-  "./i18n.js?v=20260929-auth-viewport-197",
-  "./public.js?v=20260929-auth-viewport-197",
-  "./vendor/supabase.js?v=20260929-auth-viewport-197",
-  "./manifest.webmanifest?v=20260929-auth-viewport-197"
+  "./styles.css?v=20260929-css-modules-198",
+  "./styles/workspace-components.css?v=20260929-css-modules-198",
+  "./styles/workspace-experience.css?v=20260929-css-modules-198",
+  "./styles/workspace-operations.css?v=20260929-css-modules-198",
+  "./styles/release-overrides.css?v=20260929-css-modules-198",
+  "./styles/responsive-shell.css?v=20260929-css-modules-198",
+  "./styles/customer-documents.css?v=20260929-css-modules-198",
+  "./app.js?v=20260929-css-modules-198",
+  "./followups.js?v=20260929-css-modules-198",
+  "./i18n.js?v=20260929-css-modules-198",
+  "./public.js?v=20260929-css-modules-198",
+  "./vendor/supabase.js?v=20260929-css-modules-198",
+  "./manifest.webmanifest?v=20260929-css-modules-198"
 ];
 
 self.addEventListener("install",event=>{

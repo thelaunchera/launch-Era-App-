@@ -1,0 +1,1056 @@
+/* Follow-ups module — isolated workspace */
+.followup-intro{
+  align-items:flex-start;
+}
+.followup-metrics{
+  margin-bottom:20px;
+}
+.followup-layout{
+  display:grid;
+  grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);
+  gap:20px;
+  align-items:start;
+}
+.followup-rules-panel,
+.followup-queue-panel,
+.followup-sent-panel{
+  min-width:0;
+}
+.panel-heading-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.panel-heading-row h3{
+  margin:3px 0 0;
+}
+.followup-rules-copy{
+  margin:10px 0 18px;
+  color:var(--muted);
+  line-height:1.5;
+  font-size:13px;
+}
+.followup-rule-list{
+  display:grid;
+  gap:10px;
+}
+.followup-rule{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 0;
+  border-top:1px solid var(--line);
+}
+.followup-rule:first-child{
+  border-top:0;
+}
+.followup-rule>span{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.followup-rule strong{
+  font-size:14px;
+}
+.followup-rule small{
+  color:var(--muted);
+  line-height:1.35;
+}
+.followup-rule select{
+  flex:0 0 132px;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  padding:8px 10px;
+  font-weight:800;
+}
+.followup-rule-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.followup-edit-btn{
+  padding:8px 10px;
+  border-radius:10px;
+  background:#F7F4EE;
+  font-size:11px;
+  white-space:nowrap;
+}
+.followup-edit-btn.has-custom{
+  background:var(--blue);
+  color:var(--ink);
+}
+.followup-message-editor{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#FCFBF8;
+}
+.followup-message-editor[hidden]{display:none!important}
+.followup-editor-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.followup-editor-head h4{
+  margin:2px 0 0;
+  font-size:18px;
+  letter-spacing:-.02em;
+}
+.followup-editor-close{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ink);
+  font-size:22px;
+  line-height:1;
+}
+.followup-editor-help{
+  margin:10px 0 14px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.followup-editor-grid{
+  display:grid;
+  grid-template-columns:minmax(140px,.42fr) minmax(0,1fr);
+  gap:12px;
+}
+.followup-editor-grid label{
+  display:grid;
+  gap:6px;
+  min-width:0;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+.followup-editor-grid input,
+.followup-editor-grid select,
+.followup-editor-grid textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  padding:11px 12px;
+  font:inherit;
+  font-size:13px;
+  outline:none;
+}
+.followup-editor-grid input:focus,
+.followup-editor-grid select:focus,
+.followup-editor-grid textarea:focus{
+  border-color:#AFA89C;
+  box-shadow:0 0 0 3px rgba(25,25,25,.04);
+}
+.followup-editor-grid textarea{
+  min-height:150px;
+  resize:vertical;
+  line-height:1.5;
+}
+.followup-editor-message{
+  grid-column:1/-1;
+}
+.followup-template-note{
+  margin:11px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+.followup-editor-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.followup-editor-actions .primary-btn,
+.followup-editor-actions .ghost-btn{
+  min-height:38px;
+  padding:9px 13px;
+  font-size:11px;
+}
+.followup-editor-status{
+  min-height:18px;
+  margin-top:9px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+}
+.followup-list{
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+.followup-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+}
+.followup-card.is-due{
+  border-color:rgba(242,216,91,.9);
+  box-shadow:0 8px 24px rgba(25,25,25,.04);
+}
+.followup-card-main{
+  min-width:0;
+  display:grid;
+  gap:5px;
+}
+.followup-card-main>strong{
+  font-size:16px;
+}
+.followup-card-main>span{
+  color:#4f4b45;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.followup-card-main>small{
+  color:var(--muted);
+  overflow-wrap:anywhere;
+}
+.followup-card-top{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-bottom:2px;
+}
+.followup-card-top>small{
+  color:var(--muted);
+  font-weight:800;
+}
+.followup-card-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:7px;
+  max-width:340px;
+}
+.followup-card-actions .primary-btn,
+.followup-card-actions .ghost-btn{
+  padding:9px 12px;
+  min-height:36px;
+  font-size:11px;
+}
+.followup-card-actions .text-btn{
+  font-size:11px;
+  padding:7px 8px;
+}
+.followup-sent-panel{
+  margin-top:20px;
+}
+.followup-sent-list{
+  display:grid;
+  gap:0;
+  margin-top:10px;
+}
+.followup-history-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:12px 0;
+  border-top:1px solid var(--line);
+}
+.followup-history-row:first-child{
+  border-top:0;
+}
+.followup-history-row small{
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+@media(max-width:980px){
+  .followup-layout{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:720px){
+  .followup-intro{
+    gap:14px;
+  }
+  .followup-intro #followUpRefreshBtn{
+    width:100%;
+  }
+  .followup-rule{
+    align-items:flex-start;
+  }
+  .followup-rule select{
+    flex-basis:126px;
+  }
+  .followup-rule-controls{
+    width:100%;
+    justify-content:space-between;
+  }
+  .followup-rule-controls select{
+    flex:1 1 120px;
+  }
+  .followup-edit-btn{
+    flex:0 0 auto;
+  }
+  .followup-editor-grid{
+    grid-template-columns:1fr;
+  }
+  .followup-editor-message{
+    grid-column:auto;
+  }
+  .followup-editor-actions .primary-btn,
+  .followup-editor-actions .ghost-btn{
+    flex:1 1 140px;
+  }
+  .followup-card{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .followup-card-actions{
+    justify-content:flex-start;
+    max-width:none;
+  }
+  .followup-card-actions .primary-btn,
+  .followup-card-actions .ghost-btn{
+    flex:1 1 140px;
+  }
+  .followup-history-row{
+    grid-template-columns:auto 1fr;
+  }
+  .followup-history-row small{
+    grid-column:2;
+  }
+}
+
+
+/* Booking Center compact hierarchy — stable-107 */
+.booking-experience-compact .panel-head,
+.availability-compact .panel-head{margin-bottom:12px}
+.compact-flow{gap:7px}
+.compact-flow span{padding:8px 11px;font-size:12px}
+.booking-experience-note{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.booking-experience-note strong{color:var(--ink)}
+.booking-experience-note>span:not(#bookingPaymentMethods){padding:0 3px}
+.availability-compact .availability-settings{margin-bottom:8px}
+.availability-compact .availability-week{gap:0}
+.availability-compact .availability-day{padding:6px 0;min-height:48px}
+.availability-compact .availability-day input[type="time"]{padding:7px 8px;min-height:38px}
+.availability-compact .helper{margin:10px 0 0;font-size:11px;line-height:1.45}
+@media(max-width:620px){
+  .booking-experience-compact,.availability-compact{padding-top:22px;padding-bottom:22px}
+  .booking-experience-compact .panel-head,.availability-compact .panel-head{align-items:flex-start}
+  .compact-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .compact-flow b{display:none}
+  .compact-flow span{width:auto!important;text-align:center;padding:8px 5px;font-size:10px;border-radius:10px}
+  .booking-experience-note{font-size:11px}
+  .availability-compact .availability-settings{grid-template-columns:1fr 1fr;gap:8px}
+  .availability-compact .availability-settings label{font-size:10px}
+  .availability-compact .availability-settings select{padding:8px;font-size:11px}
+  .availability-compact .availability-day{grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);gap:6px;padding:5px 0}
+  .availability-compact .availability-day .day-toggle{font-size:10px;gap:5px}
+  .availability-compact .availability-day input[type="time"]{font-size:11px;padding:6px;min-height:36px}
+}
+
+
+/* Public booking vs quote separation — stable-108 */
+.public-request-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:0 0 18px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#F5F2EC;
+}
+.public-request-tab{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:10px 12px;
+  border-radius:12px;
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.public-request-tab.active{
+  background:var(--ink);
+  color:#fff;
+  box-shadow:0 5px 14px rgba(25,25,25,.12);
+}
+.public-request-tab:not(.active):hover{background:#fff;color:var(--ink)}
+#publicServiceField>span{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:800;
+  color:#5D5952;
+}
+@media(max-width:520px){
+  .public-request-switch{gap:5px;padding:4px;border-radius:14px}
+  .public-request-tab{min-height:42px;padding:8px 7px;font-size:11px}
+}
+
+/* iOS standalone tap reliability — stable-111 */
+.public-request-switch{position:relative;z-index:2}
+.public-request-tab{
+  border:0;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.public-request-tab:active{transform:scale(.985)}
+
+
+/* Booking requests: mobile-safe actions and visible client linkage */
+.booking-request-copy{min-width:0}
+.booking-linked-client{
+  display:block;
+  margin-top:6px;
+  color:#3f6750!important;
+  font-size:11px!important;
+  line-height:1.35;
+}
+.booking-request-actions{
+  gap:8px!important;
+}
+.booking-request-actions .booking-action{
+  min-height:44px;
+  padding:10px 14px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+  line-height:1.1;
+}
+.booking-request-actions .booking-action-primary{
+  background:var(--green)!important;
+  color:#245A36!important;
+}
+.booking-request-actions .booking-action-client{
+  background:var(--ink)!important;
+  color:#fff!important;
+}
+@media(max-width:620px){
+  .booking-request-row{
+    padding:16px!important;
+    gap:14px!important;
+  }
+  .booking-request-row>.record-actions.booking-request-actions{
+    width:100%;
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:10px!important;
+  }
+  .booking-request-actions .status{
+    grid-column:1/-1;
+    justify-self:start;
+  }
+  .booking-request-actions .booking-action{
+    width:100%;
+    min-height:50px;
+    padding:12px 14px!important;
+    font-size:14px!important;
+  }
+  .booking-request-actions .booking-action-primary{
+    grid-column:1/-1;
+  }
+}
+
+/* Compact operational cards · stable-114 */
+@media(max-width:680px){
+  /* Clients */
+  [data-page="clients"] .client-grid{gap:10px!important}
+  [data-page="clients"] .client-card.client-card-compact{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="clients"] .client-card-head{gap:9px!important}
+  [data-page="clients"] .client-avatar{
+    width:42px!important;height:42px!important;min-width:42px!important;
+    font-size:16px!important;border-radius:13px!important;
+  }
+  [data-page="clients"] .client-card-identity strong{font-size:17px!important;line-height:1.1!important}
+  [data-page="clients"] .client-card-identity span,
+  [data-page="clients"] .client-location{font-size:12px!important;line-height:1.25!important}
+  [data-page="clients"] .client-location{margin-top:1px!important}
+  [data-page="clients"] .client-card-actions{
+    margin-top:7px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="clients"] .client-card-actions .safe-actions{gap:6px!important}
+  [data-page="clients"] .client-card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="clients"] .record-delete-btn{margin-top:0!important}
+
+  /* Quotes */
+  [data-page="quotes"] .kanban{gap:10px!important}
+  [data-page="quotes"] .kanban-col{
+    padding:12px!important;
+    border-radius:18px!important;
+  }
+  [data-page="quotes"] .kanban-col h3{margin:0 1px 7px!important;font-size:16px!important}
+  [data-page="quotes"] .kanban-col article{
+    padding:13px!important;
+    border-radius:16px!important;
+    gap:5px!important;
+  }
+  [data-page="quotes"] .kanban-col article>strong{font-size:17px!important;line-height:1.15!important}
+  [data-page="quotes"] .kanban-col article>small{font-size:12px!important;line-height:1.25!important}
+  [data-page="quotes"] .kanban-col article>b{font-size:12px!important;line-height:1.2!important}
+  [data-page="quotes"] .record-card-actions{
+    margin-top:8px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="quotes"] .record-card-actions .safe-actions{gap:6px!important}
+  [data-page="quotes"] .record-card-actions button{
+    min-height:42px!important;
+    padding:9px 11px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Invoice / Mileage / Time rows */
+  [data-page="invoices"] .table-card,
+  [data-page="mileage"] .table-card,
+  [data-page="time"] .table-card{
+    padding:8px!important;
+    border-radius:18px!important;
+  }
+  [data-page="invoices"] .mobile-record-card,
+  [data-page="mileage"] .mobile-record-card,
+  [data-page="time"] .mobile-record-card{
+    padding:12px!important;
+    border-radius:15px!important;
+    gap:7px!important;
+    margin:0 0 7px!important;
+  }
+  [data-page="invoices"] .record-primary strong,
+  [data-page="mileage"] .record-primary strong,
+  [data-page="time"] .record-primary strong{font-size:15px!important;line-height:1.15!important}
+  [data-page="invoices"] .record-primary small,
+  [data-page="mileage"] .record-primary small,
+  [data-page="time"] .record-primary small,
+  [data-page="invoices"] .record-field,
+  [data-page="mileage"] .record-field,
+  [data-page="time"] .record-field{
+    font-size:12px!important;
+    line-height:1.25!important;
+  }
+  [data-page="invoices"] .record-actions{margin-top:5px!important;gap:6px!important}
+  [data-page="invoices"] .record-actions .safe-actions{gap:6px!important}
+  [data-page="invoices"] .record-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="time"] .time-hide-btn{
+    min-height:38px!important;
+    padding:7px 9px!important;
+    font-size:11px!important;
+  }
+  [data-page="time"] .timer-card{
+    padding:14px!important;
+    border-radius:18px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="time"] .timer-card h3{margin:4px 0!important;font-size:18px!important}
+  [data-page="time"] .timer-empty{margin-bottom:10px!important;padding:16px!important}
+
+  /* Supplies */
+  [data-page="supplies"] .supplies-grid{gap:10px!important}
+  [data-page="supplies"] .supply-card{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="supplies"] .supply-head{gap:8px!important}
+  [data-page="supplies"] .supply-head strong{font-size:16px!important;line-height:1.15!important}
+  [data-page="supplies"] .supply-head small,
+  [data-page="supplies"] .supply-meta,
+  [data-page="supplies"] .muted-line{font-size:11px!important;line-height:1.25!important}
+  [data-page="supplies"] .supply-qty{margin:2px 0!important}
+  [data-page="supplies"] .supply-qty strong{font-size:24px!important}
+  [data-page="supplies"] .card-actions{margin-top:6px!important;gap:6px!important}
+  [data-page="supplies"] .card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Compact summary metrics only on the requested operational pages */
+  [data-page="invoices"] .metric-grid.compact,
+  [data-page="mileage"] .metric-grid.compact,
+  [data-page="supplies"] .metric-grid.compact{
+    gap:8px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card,
+  [data-page="mileage"] .metric-grid.compact .metric-card,
+  [data-page="supplies"] .metric-grid.compact .metric-card{
+    min-height:88px!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card strong,
+  [data-page="mileage"] .metric-grid.compact .metric-card strong,
+  [data-page="supplies"] .metric-grid.compact .metric-card strong{
+    font-size:24px!important;
+    margin:5px 0 0!important;
+  }
+}
+
+@media(max-width:620px){
+  [data-page="clients"] .client-card-actions .safe-actions,
+  [data-page="quotes"] .record-card-actions .safe-actions,
+  [data-page="invoices"] .record-actions .safe-actions{
+    grid-template-columns:1fr 1fr!important;
+  }
+  [data-page="clients"] .client-card-actions button,
+  [data-page="quotes"] .record-card-actions button,
+  [data-page="invoices"] .record-actions button,
+  [data-page="supplies"] .card-actions button{
+    min-height:44px!important;
+  }
+}
+
+/* Default service add-ons · stable-115 */
+.public-addon-note{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  margin-bottom:2px;
+  border-radius:13px;
+  background:#F7F4EC;
+  border:1px solid var(--line);
+}
+.public-addon-note strong{font-size:12px;line-height:1.2}
+.public-addon-note span{font-size:11px;line-height:1.35;color:var(--muted)}
+.addon-choice.addon-default{background:#F7FBF5}
+.addon-choice.addon-default input{accent-color:#245A36}
+@media(max-width:620px){
+  .public-addon-note{padding:9px 10px}
+  .addon-choice{min-height:52px;padding:11px!important}
+}
+
+/* Tablet online presence layout · stable-116 */
+@media (min-width:681px) and (max-width:1180px){
+  [data-page="today"] .presence-panel{
+    display:grid!important;
+    grid-template-columns:minmax(210px,.75fr) minmax(0,1.25fr)!important;
+    align-items:center!important;
+    gap:22px!important;
+    padding:22px!important;
+  }
+  [data-page="today"] .presence-copy{
+    max-width:none!important;
+  }
+  [data-page="today"] .presence-copy h3{
+    font-size:21px!important;
+    line-height:1.08!important;
+  }
+  [data-page="today"] .presence-actions{
+    width:100%!important;
+    grid-template-columns:repeat(2,minmax(150px,1fr))!important;
+    gap:10px!important;
+  }
+  [data-page="today"] .presence-btn{
+    min-height:64px!important;
+    padding:12px 14px!important;
+    gap:11px!important;
+  }
+  [data-page="today"] .presence-btn strong{
+    font-size:12px!important;
+  }
+  [data-page="today"] .presence-btn small{
+    font-size:10px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    line-height:1.25!important;
+  }
+}
+
+
+
+/* 2026-09-28 — dedicated tablet Today layout v121 */
+@media (min-width:721px) and (max-width:1100px){
+  /* Use tablet width intentionally instead of scaling the phone layout */
+  [data-page="today"] #todayHeroCard{
+    padding:22px 24px!important;
+    margin-bottom:16px!important;
+    border-radius:26px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr)!important;
+    grid-template-rows:auto auto auto!important;
+    column-gap:20px!important;
+    row-gap:10px!important;
+    align-items:start!important;
+    padding:0!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    grid-column:1/-1!important;
+    grid-row:1!important;
+    margin:0 0 2px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    grid-column:1!important;
+    grid-row:2!important;
+    margin:0!important;
+    align-self:center!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first #todayGreeting{
+    font-size:clamp(34px,4.1vw,48px)!important;
+    line-height:.98!important;
+    margin:0 0 7px!important;
+    max-width:100%!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:14px!important;
+    line-height:1.4!important;
+    max-width:95%!important;
+  }
+  [data-page="today"] #todayHeroCard #todayHeroAction{
+    grid-column:1!important;
+    grid-row:3!important;
+    min-height:48px!important;
+    margin:0!important;
+    border-radius:16px!important;
+    width:100%!important;
+    font-size:13px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-column:2!important;
+    grid-row:2!important;
+    align-self:stretch!important;
+    display:flex!important;
+    align-items:center!important;
+    min-height:84px!important;
+    padding:14px 15px!important;
+    border-radius:18px!important;
+    background:rgba(255,255,255,.62)!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note{
+    grid-column:2!important;
+    grid-row:3!important;
+    margin:0!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:9px 11px!important;
+    border-radius:14px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:2!important;
+    width:100%!important;
+    margin-top:0!important;
+  }
+
+  /* All five KPIs visible at once on tablet */
+  [data-page="today"] > .metric-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:10px!important;
+    margin-bottom:16px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card,
+  [data-page="today"] > .metric-grid .metric-card:last-child{
+    grid-column:auto!important;
+    min-height:108px!important;
+    padding:14px 13px!important;
+    border-radius:17px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card span{
+    font-size:10px!important;
+    line-height:1.2!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card strong{
+    font-size:30px!important;
+    line-height:1!important;
+    margin:9px 0 5px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card small{
+    font-size:10px!important;
+    line-height:1.25!important;
+  }
+
+  /* Bring the useful dashboard modules above the fold on tablet */
+  [data-page="today"] .dashboard-grid{
+    grid-template-columns:minmax(0,1.35fr) minmax(235px,.65fr)!important;
+    gap:14px!important;
+    margin-bottom:14px!important;
+  }
+  [data-page="today"] .dashboard-grid.lower{
+    grid-template-columns:minmax(0,1.2fr) minmax(235px,.8fr)!important;
+  }
+  [data-page="today"] .panel{
+    padding:18px!important;
+    border-radius:20px!important;
+  }
+  [data-page="today"] .panel-head{
+    margin-bottom:14px!important;
+  }
+  [data-page="today"] .quick-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:76px!important;
+    padding:11px!important;
+    font-size:18px!important;
+  }
+  [data-page="today"] .quick-card span{
+    margin-top:10px!important;
+    font-size:10px!important;
+  }
+}
+
+
+/* 2026-09-28 — tablet calendar + form spacing v122 */
+
+/* Weather alert dot participates in layout so it can never cover the copy. */
+#todayHeroCard .hero-weather-alert{
+  display:grid!important;
+  grid-template-columns:10px minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:11px!important;
+  padding:11px 14px!important;
+}
+#todayHeroCard .hero-weather-alert::before{
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  align-self:center!important;
+  grid-column:1!important;
+  grid-row:1!important;
+}
+#todayHeroCard .hero-weather-alert>span{
+  grid-column:2!important;
+  min-width:0!important;
+}
+
+/* Month controls */
+.calendar-month-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.calendar-month-actions[hidden]{display:none!important}
+.calendar-month-btn{
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ink);
+  font-weight:900;
+  cursor:pointer;
+}
+.calendar-month-btn:active{transform:scale(.96)}
+
+/* Full month view for tablet + desktop. Phone keeps the compact 14-day calendar. */
+@media (min-width:721px){
+  .calendar-range-pill-mobile{display:none!important}
+  .two-week-calendar.month-calendar{
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    gap:7px!important;
+    overflow:visible!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day]{
+    min-height:92px!important;
+    padding:10px 7px!important;
+    border-radius:13px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day] em{
+    font-size:8px!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day] strong{
+    font-size:22px!important;
+    margin-top:4px!important;
+  }
+  .two-week-calendar.month-calendar .calendar-job-count{
+    margin-top:auto;
+    font-size:8px!important;
+  }
+  .two-week-calendar.month-calendar .calendar-outside{
+    opacity:.38;
+    background:#F8F6F1;
+  }
+}
+@media (max-width:720px){
+  .calendar-month-actions{display:none!important}
+  .calendar-range-pill-mobile{display:inline-flex!important}
+}
+
+/* Tablet modal audit: all entity forms share .form-grid, so fix spacing once. */
+@media (min-width:621px) and (max-width:1100px){
+  .modal{
+    width:min(720px,calc(100vw - 48px))!important;
+    max-width:calc(100vw - 48px)!important;
+    padding:34px!important;
+  }
+  .entity-form{
+    margin-top:22px!important;
+  }
+  .entity-form .form-grid{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    column-gap:26px!important;
+    row-gap:20px!important;
+  }
+  .entity-form .form-grid>label{
+    min-width:0!important;
+    gap:8px!important;
+  }
+  .entity-form input,
+  .entity-form select,
+  .entity-form textarea{
+    min-width:0!important;
+    min-height:50px!important;
+  }
+  .entity-form textarea{min-height:110px!important}
+  .job-form-grid label:has(input[name="time"]){
+    padding-right:3px;
+  }
+  .job-form-grid label:has(input[name="duration_minutes"]){
+    padding-left:3px;
+  }
+  .form-footer{
+    gap:12px!important;
+    margin-top:26px!important;
+  }
+}
+
+/* 2026-09-28 — public app brand link v124 */
+.public-app-home{color:inherit;text-decoration:none;cursor:pointer}
+.public-app-home:focus-visible{outline:3px solid rgba(25,25,25,.18);outline-offset:5px;border-radius:12px}
+
+
+/* 2026-09-28 — tablet legal footer bottom v126 */
+@media (min-width:621px) and (max-width:1100px){
+  body.shell-app #appShell>.main{
+    min-height:100dvh!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  body.shell-app #appShell>.main>.view.active{
+    flex:1 0 auto!important;
+  }
+  body.shell-app .app-legal-footer{
+    width:100%!important;
+    margin-top:auto!important;
+    padding:18px 4px max(10px,env(safe-area-inset-bottom))!important;
+    border-top:1px solid var(--line)!important;
+    display:grid!important;
+    grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;
+    gap:14px 22px!important;
+    position:static!important;
+    inset:auto!important;
+    background:transparent!important;
+  }
+  body.shell-app .app-legal-footer>div{
+    display:grid!important;
+    gap:2px!important;
+    white-space:nowrap!important;
+  }
+  body.shell-app .app-legal-footer nav{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    gap:7px 14px!important;
+  }
+  body.shell-app .app-legal-footer nav a,
+  body.shell-app .app-legal-footer nav button{
+    font-size:10px!important;
+    line-height:1.3!important;
+  }
+  body.shell-app .footer-share-app-btn{
+    margin:0!important;
+    justify-self:end!important;
+    align-self:center!important;
+  }
+  body.shell-app .sidebar-support-actions{
+    display:none!important;
+  }
+}
+@media (min-width:621px) and (max-width:760px){
+  body.shell-app .app-legal-footer{
+    grid-template-columns:1fr!important;
+    justify-items:start!important;
+    gap:9px!important;
+  }
+  body.shell-app .app-legal-footer nav{
+    justify-content:flex-start!important;
+  }
+  body.shell-app .footer-share-app-btn{
+    justify-self:start!important;
+  }
+}
+
+
+/* 2026-09-29 — welcome CTA hierarchy: acquisition first, sign-in secondary */
+#authWelcomeStart{
+  min-height:58px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  font-weight:850!important;
+  box-shadow:0 9px 22px rgba(25,25,25,.12);
+}
+.auth-welcome-existing{
+  margin-top:-3px!important;
+  color:#6F6A62!important;
+  font-size:12.5px!important;
+  line-height:1.5!important;
+}
+.auth-welcome-existing #authWelcomeSignIn{
+  padding:4px 2px!important;
+  color:#393631!important;
+  font-size:12.5px!important;
+  font-weight:750!important;
+  text-decoration:none!important;
+  border-bottom:1px solid #BDB7AE!important;
+  border-radius:0!important;
+}
+.auth-welcome-existing #authWelcomeSignIn:hover,
+.auth-welcome-existing #authWelcomeSignIn:focus-visible{
+  color:#292723!important;
+  border-bottom-color:#292723!important;
+}
+@media(max-width:620px){
+  #authWelcomeStart{min-height:56px!important}
+  .auth-welcome-existing{font-size:12.5px!important}
+  .auth-welcome-existing #authWelcomeSignIn{font-size:12.5px!important}
+}

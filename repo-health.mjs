@@ -58,7 +58,9 @@ else pass("service worker sensitive URL cache guard is present");
 const limits={
   "app.js":525000,
   "styles.css":80000,
-  "styles/workspace-components.css":180000,
+  "styles/workspace-components.css":65000,
+  "styles/workspace-experience.css":110000,
+  "styles/workspace-operations.css":45000,
   "styles/release-overrides.css":90000,
   "styles/responsive-shell.css":12000,
   "styles/customer-documents.css":12000,
@@ -82,8 +84,16 @@ const selectorModules={
     source:read("styles.css")
   },
   "styles/workspace-components.css":{
-    caps:{".topbar":6,"#menuToggle":4,".mobile-record-card":50},
+    caps:{".topbar":3,"#menuToggle":3,".mobile-record-card":50},
     source:read("styles/workspace-components.css")
+  },
+  "styles/workspace-experience.css":{
+    caps:{".topbar":6,"#menuToggle":6,".mobile-record-card":8},
+    source:read("styles/workspace-experience.css")
+  },
+  "styles/workspace-operations.css":{
+    caps:{".topbar":3,"#menuToggle":3,".mobile-record-card":8},
+    source:read("styles/workspace-operations.css")
   },
   "styles/release-overrides.css":{
     caps:{".topbar":24,"#menuToggle":8,".mobile-record-card":22},
