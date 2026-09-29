@@ -8921,3 +8921,119 @@ body.shell-auth{overflow-anchor:none}
     font-size:12px!important;
   }
 }
+
+
+/* 2026-09-29 — simplified mobile topbar v169 */
+@media(max-width:680px){
+  body.shell-app .topbar{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr) auto auto!important;
+    gap:7px!important;
+    align-items:center!important;
+    padding:10px 0!important;
+    margin-bottom:16px!important;
+  }
+
+  /* On a nested screen, Back replaces the hamburger. Never show both. */
+  body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
+    display:none!important;
+  }
+
+  body.shell-app #menuToggle,
+  body.shell-app #backBtn{
+    grid-column:1!important;
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    margin:0!important;
+  }
+
+  body.shell-app .topbar-title{
+    grid-column:2!important;
+    min-width:0!important;
+    width:100%!important;
+  }
+  body.shell-app .topbar-title .eyebrow{display:none!important}
+  body.shell-app .topbar-title h1{
+    margin:0!important;
+    font-size:19px!important;
+    line-height:1.08!important;
+    letter-spacing:-.035em!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    max-height:2.2em!important;
+  }
+
+  body.shell-app .top-actions{
+    display:contents!important;
+  }
+
+  /* Search and refresh are intentionally removed from the phone header.
+     Refresh is automatic; search remains a desktop/tablet utility. */
+  body.shell-app .global-search-shell,
+  body.shell-app #appRefreshBtn,
+  body.shell-app #languageBtn{
+    display:none!important;
+  }
+
+  /* Keep only the two urgent actions: inquiries + add. */
+  body.shell-app .notification-shell{
+    display:block!important;
+    grid-column:3!important;
+    position:relative!important;
+  }
+  body.shell-app #notificationBellBtn{
+    display:grid!important;
+    place-items:center!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:0!important;
+  }
+  body.shell-app #quickAddBtn{
+    grid-column:4!important;
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0!important;
+    border-radius:50%!important;
+    font-size:0!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  body.shell-app #quickAddBtn::before{
+    content:"+";
+    font-size:22px;
+    line-height:1;
+    font-weight:900;
+  }
+
+  body.shell-app .notification-popover{
+    position:fixed!important;
+    top:74px!important;
+    right:12px!important;
+    left:12px!important;
+    width:auto!important;
+    max-width:none!important;
+  }
+
+  body.shell-app .sidebar-language-btn{
+    display:grid!important;
+    grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    width:100%!important;
+    text-align:left!important;
+  }
+  body.shell-app .sidebar-language-btn strong{
+    font-size:10px!important;
+    letter-spacing:.08em!important;
+  }
+}
