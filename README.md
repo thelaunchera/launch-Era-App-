@@ -72,6 +72,8 @@ Large-file guardrails currently exist because `app.js`, `styles.css`, and `i18n.
 
 Runtime code and the live Supabase schema are the source of truth for current behavior. `PRODUCT_BLUEPRINT.md` and `DATA_MODEL.md` are architecture/reference documents and may describe earlier design stages unless explicitly updated.
 
+`demo.html` is a noindex visual/demo fixture only. It is not the production UI and must not be used as a behavioral source of truth.
+
 ## Current QA priorities
 
 1. Keep CI green before considering a release stable.
