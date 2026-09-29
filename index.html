@@ -246,14 +246,94 @@
             </label>
             <label>Date<input name="date" type="date" required></label>
             <label id="publicQuoteTimeWrap">Preferred time <span class="field-optional">(optional)</span><input name="time" type="time"></label>
+            <div class="full public-timezone-notice" id="publicTimeZoneNotice" aria-live="polite"></div>
             <div class="full public-slots-wrap" id="publicSlotsWrap" hidden>
               <span class="field-label">Available times</span>
               <div id="publicSlots" class="public-slots"><span class="muted-line">Choose a service and date first.</span></div>
               <input type="hidden" name="slot_start" id="publicSlotStart">
             </div>
-            <label>Name<input name="name" required></label>
-            <label>Email<input name="email" type="email" required></label>
-            <label>Phone<input name="phone"></label>
+
+            <div class="full public-form-section-head">
+              <span>Property details</span>
+              <small>Enough detail for the business to price and prepare the job correctly.</small>
+            </div>
+            <label>Property type
+              <select name="property_type" id="publicPropertyType" required>
+                <option value="">Choose one</option>
+                <option value="residential">Residential</option>
+                <option value="commercial">Commercial</option>
+              </select>
+            </label>
+            <label id="publicPropertySizeField">Approx. property size <span class="field-optional" id="publicPropertySizeOptional">(optional)</span>
+              <span class="public-size-input">
+                <input name="property_size" id="publicPropertySize" type="number" min="1" step="1" inputmode="decimal" placeholder="e.g. 1800">
+                <select name="property_size_unit" id="publicPropertySizeUnit" aria-label="Property size unit">
+                  <option value="sqft">sq ft</option>
+                  <option value="sqm">m²</option>
+                </select>
+              </span>
+            </label>
+
+            <div class="full public-property-details" id="publicResidentialDetails" hidden>
+              <label>Bedrooms
+                <input name="bedrooms" type="number" min="0" max="30" step="1" inputmode="numeric" placeholder="e.g. 3">
+              </label>
+              <label>Bathrooms
+                <input name="bathrooms" type="number" min="0" max="30" step="0.5" inputmode="decimal" placeholder="e.g. 2.5">
+              </label>
+              <label>Floors / levels <span class="field-optional">(optional)</span>
+                <input name="floors" type="number" min="1" max="50" step="1" inputmode="numeric" placeholder="e.g. 2">
+              </label>
+              <label>Pets in the home <span class="field-optional">(optional)</span>
+                <select name="pets">
+                  <option value="">Choose one</option>
+                  <option value="none">No pets</option>
+                  <option value="yes">Yes</option>
+                  <option value="prefer_not">Prefer not to say</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="full public-property-details" id="publicCommercialDetails" hidden>
+              <label>Space type
+                <select name="commercial_space_type">
+                  <option value="">Choose one</option>
+                  <option value="office">Office</option>
+                  <option value="retail">Retail / storefront</option>
+                  <option value="medical">Medical / dental</option>
+                  <option value="restaurant">Restaurant / food service</option>
+                  <option value="warehouse">Warehouse / industrial</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <label>Restrooms <span class="field-optional">(optional)</span>
+                <input name="restrooms" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="e.g. 2">
+              </label>
+              <label>Floors / levels <span class="field-optional">(optional)</span>
+                <input name="commercial_floors" type="number" min="1" max="100" step="1" inputmode="numeric" placeholder="e.g. 1">
+              </label>
+            </div>
+
+            <label class="full">When was it last professionally cleaned? <span class="field-optional">(optional)</span>
+              <select name="last_professional_clean">
+                <option value="">Choose one</option>
+                <option value="under_month">Less than a month ago</option>
+                <option value="one_three_months">1–3 months ago</option>
+                <option value="three_six_months">3–6 months ago</option>
+                <option value="over_six_months">More than 6 months ago</option>
+                <option value="never_unsure">Never / not sure</option>
+              </select>
+            </label>
+            <label class="full">Service address<input name="address" required autocomplete="street-address"></label>
+            <label class="full">Access / parking <span class="field-optional">(optional)</span><input name="access_notes" placeholder="Gate, parking, building access, stairs, elevator…"></label>
+
+            <div class="full public-form-section-head">
+              <span>Contact</span>
+              <small>Where the business should send confirmations and follow-ups.</small>
+            </div>
+            <label>Name<input name="name" required autocomplete="name"></label>
+            <label>Email<input name="email" type="email" required autocomplete="email"></label>
+            <label>Phone<input name="phone" autocomplete="tel"></label>
             <label>Preferred contact<select name="preferred_contact"><option value="email">Email</option><option value="text">Text</option><option value="whatsapp">WhatsApp</option></select></label>
             <label>Email language
               <select name="preferred_language" id="publicPreferredLanguage">
@@ -263,18 +343,7 @@
                 <option value="ht">Kreyòl Ayisyen</option>
               </select>
             </label>
-            <label>Property type
-              <select name="property_type" required>
-                <option value="">Choose one</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-              </select>
-            </label>
-            <label>Approx. square feet <span class="field-optional">(optional)</span>
-              <input name="square_feet" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 1800">
-            </label>
-            <label class="full">Service address<input name="address" required></label>
-            <label class="full">Notes <span class="field-optional">(optional)</span><textarea name="notes" placeholder="Access details, pets, special requests, or anything else we should know."></textarea></label>
+            <label class="full">Special requests <span class="field-optional">(optional)</span><textarea name="notes" placeholder="Pets, fragile items, priority rooms, add-ons, or anything else we should know."></textarea></label>
           </div>
           <div class="public-summary" id="publicSummary"></div>
           <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
