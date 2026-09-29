@@ -1165,7 +1165,7 @@ function renderWeatherCoreSnapshot(weather=state.weather){
   const highLow=$("#weatherHighLow");
   const location=$("#weatherLocation");
   if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
-  if(condition) condition.textContent=meta[lang]||meta.en;
+  if(condition) condition.textContent=lang==="ht"?(window.TLE_I18N?.t?.(meta.en)||meta.en):(meta[lang]||meta.en);
   if(highLow) highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
   if(location) location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","CLIMA LOCAL","MÉTÉO LOCALE");
   return true;
@@ -1246,7 +1246,7 @@ function renderWeatherBrief(){
     card.classList.toggle("weather-no-icon",hideIcon);
   }
   if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
-  if(condition) condition.textContent=meta[lang]||meta.en;
+  if(condition) condition.textContent=lang==="ht"?(window.TLE_I18N?.t?.(meta.en)||meta.en):(meta[lang]||meta.en);
   if(highLow){
     highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
   }
@@ -1282,7 +1282,7 @@ function renderWeatherBrief(){
       note.classList.add("rain");
     }else if(shift){
       const m=weatherCodeMeta(shift.code);
-      const label=m[lang]||m.en;
+      const label=lang==="ht"?(window.TLE_I18N?.t?.(m.en)||m.en):(m[lang]||m.en);
       const when=weatherClockLabel(shift.hour);
       text=langPick(
         label+" conditions expected around "+when+".",
@@ -3392,6 +3392,7 @@ function renderWorkerPortal(){
     en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
     es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
     pt:{access:"Acesso de funcionário convidado",pill:"ACESSO DE FUNCIONÁRIO CONVIDADO",welcome:"Bem-vindo, ",guest:"convidado",copy:"Esta é sua área limitada de funcionário. Você só pode usar as funções que o administrador compartilhou com você."},
+    ht:{access:"Aksè anplwaye envite",pill:"AKSÈ ANPLWAYE ENVITE",welcome:"Byenveni, ",guest:"envite",copy:"Sa a se espas limite anplwaye ou. Ou ka itilize sèlman zouti admin ou pataje avè w."},
     fr:{access:"Accès employé invité",pill:"ACCÈS EMPLOYÉ INVITÉ",welcome:"Bienvenue, ",guest:"invité",copy:"Ceci est votre espace employé limité. Vous pouvez uniquement utiliser les fonctions partagées par votre administrateur."}
   }[workerLang]||null;
   const copySet=workerCopy||{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."};
@@ -6749,8 +6750,8 @@ async function openAppPreferencesForm(){
       <label>${escapeHtml(langPick("App language","Idioma de la app","Idioma do app","Langue de l’application"))}<select name="default_language" required>
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
-        <option value="pt" ${record.default_language==="pt"?"selected":""}>Português</option>
         <option value="fr" ${record.default_language==="fr"?"selected":""}>Français</option>
+        <option value="ht" ${record.default_language==="ht"?"selected":""}>Kreyòl Ayisyen</option>
       </select></label>
       <label>${escapeHtml(langPick("Currency","Moneda","Moeda","Devise"))}<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
       <label>${escapeHtml(langPick("Distance","Distancia","Distância","Distance"))}<select name="distance_unit">
@@ -6926,7 +6927,7 @@ function renderSettings(){
   if(a) a.textContent=state.business?.service_area||"Not set";
   if(country) country.textContent=state.business?.country_code||"—";
   if(tz) tz.textContent=state.business?.timezone||"UTC";
-  if(lang) lang.textContent=({en:"English",es:"Español",pt:"Português",fr:"Français"}[state.business?.default_language]||"English");
+  if(lang) lang.textContent=({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"}[state.business?.default_language]||"English");
   if(emailLang) emailLang.textContent=customerEmailLanguageLabel(state.business?.customer_email_language||"en");
   if(customerEmailSelect && document.activeElement!==customerEmailSelect) customerEmailSelect.value=normalizedCustomerEmailLanguage(state.business?.customer_email_language)||"en";
   if(currency) currency.textContent=state.business?.currency_code||"USD";
