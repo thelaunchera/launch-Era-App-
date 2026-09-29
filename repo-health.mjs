@@ -8,6 +8,7 @@ const sw = read("service-worker.js");
 const i18n = read("i18n.js");
 const publicJs = read("public.js");
 const onboardingCopy = read("onboarding-copy.js");
+const followups = read("followups.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 
 const fail = message => {
@@ -16,6 +17,43 @@ const fail = message => {
 };
 const pass = message => console.log("REPO_HEALTH_OK · "+message);
 const warn = message => console.warn("REPO_HEALTH_WARN · "+message);
+function hasLegacyFourArgLangPick(source){
+  let pos=0;
+  while((pos=source.indexOf("langPick(",pos))>=0){
+    let i=pos+"langPick(".length;
+    let paren=1, bracket=0, brace=0, quote=null, escaped=false, topLevelCommas=0;
+    for(;i<source.length;i++){
+      const ch=source[i];
+      if(quote){
+        if(escaped){ escaped=false; continue; }
+        if(ch==="\\"){ escaped=true; continue; }
+        if(ch===quote){ quote=null; }
+        continue;
+      }
+      if(ch==="'" || ch==='"' || ch==="\`"){ quote=ch; continue; }
+      if(ch==="(") paren++;
+      else if(ch===")"){
+        paren--;
+        if(paren===0) break;
+      }else if(ch==="[") bracket++;
+      else if(ch==="]") bracket--;
+      else if(ch==="{") brace++;
+      else if(ch==="}") brace--;
+      else if(ch==="," && paren===1 && bracket===0 && brace===0) topLevelCommas++;
+    }
+    if(paren!==0) return true;
+    if(topLevelCommas>=3) return true;
+    pos=i+1;
+  }
+  return false;
+}
+
+
+if(!hasLegacyFourArgLangPick('langPick("A", flag ? "B" : "C", flag ? "P" : "Q", "D")')){
+  fail("four-argument language guard does not handle expression arguments");
+}else{
+  pass("four-argument language guard handles expression arguments");
+}
 
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const shellVersion=(boot.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
@@ -111,6 +149,13 @@ if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(
   fail("inactive Portuguese payload remains in app.js or onboarding-copy.js");
 }else{
   pass("inactive Portuguese payload is absent from app and onboarding copy");
+}
+
+const followupPortuguese=/\bpt\s*:|Português|Portuguese|Orçamento|Orçamentos|Fatura|Faturas|Após a limpeza|Nova reserva|Enviar agora|Abrir origem|MENSAGEM PERSONALIZADA|Escreva o e-mail|Idioma do cliente|Assunto \(opcional\)|Você pode usar|Salvar mensagem|Usar padrão|Atrasado|Vence agora|Para amanhã|Lembrar-me|Precisa de acompanhamento|Adiar 2 dias|Concluído|Editar mensagem|Mensagem personalizada|Usando a mensagem padrão/;
+if(followupPortuguese.test(followups) || hasLegacyFourArgLangPick(followups)){
+  fail("legacy Portuguese or four-language follow-up copy remains in followups.js");
+}else{
+  pass("follow-up UI contains only the active EN/ES/FR language arguments; HT resolves through i18n");
 }
 
 if(

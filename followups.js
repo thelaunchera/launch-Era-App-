@@ -32,11 +32,11 @@
   }
   function kindLabel(kind){
     return {
-      lead:langPick("Lead","Lead","Lead","Prospect"),
-      quote:langPick("Quote","Cotización","Orçamento","Devis"),
-      invoice:langPick("Invoice","Factura","Fatura","Facture"),
-      review:langPick("After cleaning","Después de limpiar","Após a limpeza","Après le nettoyage"),
-      rebook:langPick("Rebooking","Nueva reserva","Nova reserva","Nouvelle réservation")
+      lead:langPick("Lead","Lead","Prospect"),
+      quote:langPick("Quote","Cotización","Devis"),
+      invoice:langPick("Invoice","Factura","Facture"),
+      review:langPick("After cleaning","Después de limpiar","Après le nettoyage"),
+      rebook:langPick("Rebooking","Nueva reserva","Nouvelle réservation")
     }[kind]||kind;
   }
   function dueTime(task){
@@ -50,24 +50,19 @@
     if(target<=now){
       const overdue=Math.max(0,Math.floor((now-target)/(24*60*60*1000)));
       if(overdue){
-        return langPick(
-          "Overdue "+overdue+"d",
-          "Vencido hace "+overdue+"d",
-          "Atrasado "+overdue+"d",
-          "En retard de "+overdue+"j"
-        );
+        return langPick("Overdue "+overdue+"d","Vencido hace "+overdue+"d","En retard de "+overdue+"j");
       }
-      return langPick("Due now","Toca ahora","Vence agora","À faire maintenant");
+      return langPick("Due now","Toca ahora","À faire maintenant");
     }
     const days=Math.max(1,Math.ceil((target-now)/(24*60*60*1000)));
-    if(days===1) return langPick("Due tomorrow","Para mañana","Para amanhã","Pour demain");
-    return langPick("In "+days+" days","En "+days+" días","Em "+days+" dias","Dans "+days+" jours");
+    if(days===1) return langPick("Due tomorrow","Para mañana","Pour demain");
+    return langPick("In "+days+" days","En "+days+" días","Dans "+days+" jours");
   }
   function modeLabel(kind){
     const mode=modeFor(kind);
     return mode==="auto"
-      ? langPick("Auto email","Email automático","E-mail automático","E-mail automatique")
-      : langPick("Remind me","Recordarme","Lembrar-me","Me rappeler");
+      ? langPick("Auto email","Email automático","E-mail automatique")
+      : langPick("Remind me","Recordarme","Me rappeler");
   }
   function followUpCard(task){
     const due=dueLabel(task);
@@ -79,15 +74,15 @@
           '<span class="pill '+badgeClass+'">'+escapeHtml(kindLabel(task.follow_up_type))+'</span>'+
           '<small>'+escapeHtml(due)+'</small>'+
         '</div>'+
-        '<strong>'+escapeHtml(task.customer_name||task.customer_email||langPick("Customer","Cliente","Cliente","Client"))+'</strong>'+
-        '<span>'+escapeHtml(task.detail||langPick("Needs follow-up","Necesita seguimiento","Precisa de acompanhamento","Nécessite un suivi"))+'</span>'+
+        '<strong>'+escapeHtml(task.customer_name||task.customer_email||langPick("Customer","Cliente","Client"))+'</strong>'+
+        '<span>'+escapeHtml(task.detail||langPick("Needs follow-up","Necesita seguimiento","Nécessite un suivi"))+'</span>'+
         '<small>'+escapeHtml(task.customer_email||"")+' · '+escapeHtml(modeLabel(task.follow_up_type))+'</small>'+
       '</div>'+
       '<div class="followup-card-actions">'+
-        '<button type="button" class="primary-btn followup-send-btn" data-followup-send data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Send now","Enviar ahora","Enviar agora","Envoyer"))+'</button>'+
-        '<button type="button" class="ghost-btn" data-followup-snooze data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Snooze 2 days","Posponer 2 días","Adiar 2 dias","Reporter 2 jours"))+'</button>'+
-        '<button type="button" class="text-btn" data-followup-source="'+escapeHtml(task.source_view||"")+'">'+escapeHtml(langPick("Open source","Ver origen","Abrir origem","Ouvrir la source"))+'</button>'+
-        '<button type="button" class="text-btn" data-followup-done data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Done","Hecho","Concluído","Terminé"))+'</button>'+
+        '<button type="button" class="primary-btn followup-send-btn" data-followup-send data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Send now","Enviar ahora","Envoyer"))+'</button>'+
+        '<button type="button" class="ghost-btn" data-followup-snooze data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Snooze 2 days","Posponer 2 días","Reporter 2 jours"))+'</button>'+
+        '<button type="button" class="text-btn" data-followup-source="'+escapeHtml(task.source_view||"")+'">'+escapeHtml(langPick("Open source","Ver origen","Ouvrir la source"))+'</button>'+
+        '<button type="button" class="text-btn" data-followup-done data-followup-type="'+escapeHtml(task.follow_up_type)+'" data-followup-resource="'+escapeHtml(task.resource_id)+'">'+escapeHtml(langPick("Done","Hecho","Terminé"))+'</button>'+
       '</div>'+
     '</article>';
   }
@@ -130,24 +125,14 @@
 
   function localizeMessageEditor(){
     const labels={
-      followUpEditorEyebrow:langPick("CUSTOM MESSAGE","MENSAJE PERSONALIZADO","MENSAGEM PERSONALIZADA","MESSAGE PERSONNALISÉ"),
-      followUpEditorHelp:langPick(
-        "Write the email in the customer’s language. Leave a field blank to keep the default.",
-        "Escribe el email en el idioma del cliente. Deja un campo vacío para conservar el texto predeterminado.",
-        "Escreva o e-mail no idioma do cliente. Deixe um campo vazio para manter o texto padrão.",
-        "Rédigez l’e-mail dans la langue du client. Laissez un champ vide pour conserver le texte par défaut."
-      ),
-      followUpEditorLanguageLabel:langPick("Customer language","Idioma del cliente","Idioma do cliente","Langue du client"),
-      followUpEditorSubjectLabel:langPick("Subject (optional)","Asunto (opcional)","Assunto (opcional)","Objet (facultatif)"),
-      followUpEditorBodyLabel:langPick("Message","Mensaje","Mensagem","Message"),
-      followUpTemplateNote:langPick(
-        "You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.",
-        "Puedes usar {{name}}, {{business}}, {{amount}} y {{invoice_number}}. Los botones de cotización, factura, reseña y nueva reserva se añaden automáticamente.",
-        "Você pode usar {{name}}, {{business}}, {{amount}} e {{invoice_number}}. Os botões de orçamento, fatura, avaliação e nova reserva são adicionados automaticamente.",
-        "Vous pouvez utiliser {{name}}, {{business}}, {{amount}} et {{invoice_number}}. Les boutons de devis, facture, avis et nouvelle réservation sont ajoutés automatiquement."
-      ),
-      followUpEditorSave:langPick("Save message","Guardar mensaje","Salvar mensagem","Enregistrer"),
-      followUpEditorReset:langPick("Use default","Usar predeterminado","Usar padrão","Utiliser le texte par défaut")
+      followUpEditorEyebrow:langPick("CUSTOM MESSAGE","MENSAJE PERSONALIZADO","MESSAGE PERSONNALISÉ"),
+      followUpEditorHelp:langPick("Write the email in the customer’s language. Leave a field blank to keep the default.","Escribe el email en el idioma del cliente. Deja un campo vacío para conservar el texto predeterminado.","Rédigez l’e-mail dans la langue du client. Laissez un champ vide pour conserver le texte par défaut."),
+      followUpEditorLanguageLabel:langPick("Customer language","Idioma del cliente","Langue du client"),
+      followUpEditorSubjectLabel:langPick("Subject (optional)","Asunto (opcional)","Objet (facultatif)"),
+      followUpEditorBodyLabel:langPick("Message","Mensaje","Message"),
+      followUpTemplateNote:langPick("You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.","Puedes usar {{name}}, {{business}}, {{amount}} y {{invoice_number}}. Los botones de cotización, factura, reseña y nueva reserva se añaden automáticamente.","Vous pouvez utiliser {{name}}, {{business}}, {{amount}} et {{invoice_number}}. Les boutons de devis, facture, avis et nouvelle réservation sont ajoutés automatiquement."),
+      followUpEditorSave:langPick("Save message","Guardar mensaje","Enregistrer"),
+      followUpEditorReset:langPick("Use default","Usar predeterminado","Utiliser le texte par défaut")
     };
     Object.entries(labels).forEach(([id,value])=>{const el=$("#"+id);if(el) el.textContent=value;});
   }
@@ -161,23 +146,13 @@
     if(subject) subject.value=current.subject;
     if(body) body.value=current.body;
     const title=$("#followUpEditorTitle");
-    if(title) title.textContent=langPick("Edit ","Editar ","Editar ","Modifier ")+kindLabel(editingType);
+    if(title) title.textContent=langPick("Edit ","Editar ","Modifier ")+kindLabel(editingType);
     const status=$("#followUpEditorStatus");
     if(status){
       const languageName=$("#followUpEditorLanguage")?.selectedOptions?.[0]?.textContent||language.toUpperCase();
       status.textContent=(current.subject.trim()||current.body.trim())
-        ? langPick(
-            "Custom message saved for "+languageName+".",
-            "Mensaje personalizado guardado para "+languageName+".",
-            "Mensagem personalizada salva para "+languageName+".",
-            "Message personnalisé enregistré pour "+languageName+"."
-          )
-        : langPick(
-            "Using the default message for "+languageName+".",
-            "Usando el mensaje predeterminado para "+languageName+".",
-            "Usando a mensagem padrão para "+languageName+".",
-            "Le message par défaut est utilisé pour "+languageName+"."
-          );
+        ? langPick("Custom message saved for "+languageName+".","Mensaje personalizado guardado para "+languageName+".","Message personnalisé enregistré pour "+languageName+".")
+        : langPick("Using the default message for "+languageName+".","Usando el mensaje predeterminado para "+languageName+".","Le message par défaut est utilisé pour "+languageName+".");
     }
   }
 
@@ -237,8 +212,8 @@
       const custom=hasCustomForType(button.dataset.followupEdit);
       button.classList.toggle("has-custom",custom);
       button.textContent=custom
-        ? langPick("Edit message · Custom","Editar mensaje · Personalizado","Editar mensagem · Personalizada","Modifier · Personnalisé")
-        : langPick("Edit message","Editar mensaje","Editar mensagem","Modifier le message");
+        ? langPick("Edit message · Custom","Editar mensaje · Personalizado","Modifier · Personnalisé")
+        : langPick("Edit message","Editar mensaje","Modifier le message");
     });
 
     const active=candidates
@@ -258,29 +233,14 @@
     if($("#followUpSnoozedCount")) $("#followUpSnoozedCount").textContent=String(snoozed.length);
     if($("#followUpSentCount")) $("#followUpSentCount").textContent=String(sentThisMonth.length);
     if($("#followUpQueuePill")){
-      $("#followUpQueuePill").textContent=String(dueNow.length)+" "+langPick(
-        "due",
-        dueNow.length===1?"pendiente":"pendientes",
-        dueNow.length===1?"pendente":"pendentes",
-        "à faire"
-      );
+      $("#followUpQueuePill").textContent=String(dueNow.length)+" "+langPick("due",dueNow.length===1?"pendiente":"pendientes","à faire");
     }
 
     const list=$("#followUpList");
     if(list){
       list.innerHTML=active.length
         ? active.slice(0,40).map(followUpCard).join("")
-        : '<div class="empty-inline"><strong>'+escapeHtml(langPick(
-            "Nothing needs follow-up.",
-            "No hay seguimientos pendientes.",
-            "Nenhum acompanhamento pendente.",
-            "Aucun suivi en attente."
-          ))+'</strong><span>'+escapeHtml(langPick(
-            "New items will appear here automatically.",
-            "Los nuevos seguimientos aparecerán aquí automáticamente.",
-            "Novos acompanhamentos aparecerão aqui automaticamente.",
-            "Les nouveaux suivis apparaîtront ici automatiquement."
-          ))+'</span></div>';
+        : '<div class="empty-inline"><strong>'+escapeHtml(langPick("Nothing needs follow-up.","No hay seguimientos pendientes.","Aucun suivi en attente."))+'</strong><span>'+escapeHtml(langPick("New items will appear here automatically.","Los nuevos seguimientos aparecerán aquí automáticamente.","Les nouveaux suivis apparaîtront ici automatiquement."))+'</span></div>';
     }
 
     const history=$("#followUpSentList");
@@ -293,16 +253,11 @@
             }).format(new Date(row.created_at));
             return '<div class="followup-history-row">'+
               '<span class="pill success">'+escapeHtml(kindLabel(row.follow_up_type))+'</span>'+
-              '<strong>'+escapeHtml(row.customer_name||row.customer_email||langPick("Customer","Cliente","Cliente","Client"))+'</strong>'+
+              '<strong>'+escapeHtml(row.customer_name||row.customer_email||langPick("Customer","Cliente","Client"))+'</strong>'+
               '<small>'+escapeHtml(when)+'</small>'+
             '</div>';
           }).join("")
-        : '<div class="empty-inline"><strong>'+escapeHtml(langPick(
-            "No follow-ups sent yet.",
-            "Aún no se han enviado seguimientos.",
-            "Nenhum acompanhamento enviado ainda.",
-            "Aucun suivi envoyé pour le moment."
-          ))+'</strong></div>';
+        : '<div class="empty-inline"><strong>'+escapeHtml(langPick("No follow-ups sent yet.","Aún no se han enviado seguimientos.","Aucun suivi envoyé pour le moment."))+'</strong></div>';
     }
   }
 
@@ -323,17 +278,7 @@
     loading=true;
     const list=$("#followUpList");
     if(list&&!candidates.length){
-      list.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick(
-        "Loading follow-ups…",
-        "Cargando seguimientos…",
-        "Carregando acompanhamentos…",
-        "Chargement des suivis…"
-      ))+'</strong><span>'+escapeHtml(langPick(
-        "Checking what needs attention.",
-        "Revisando qué necesita atención.",
-        "Verificando o que precisa de atenção.",
-        "Vérification des éléments à suivre."
-      ))+'</span></div>';
+      list.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick("Loading follow-ups…","Cargando seguimientos…","Chargement des suivis…"))+'</strong><span>'+escapeHtml(langPick("Checking what needs attention.","Revisando qué necesita atención.","Vérification des éléments à suivre."))+'</span></div>';
     }
 
     try{
@@ -370,17 +315,7 @@
     }catch(err){
       console.warn("[TLE] follow-ups",err);
       if(list){
-        list.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick(
-          "Could not load follow-ups.",
-          "No se pudieron cargar los seguimientos.",
-          "Não foi possível carregar os acompanhamentos.",
-          "Impossible de charger les suivis."
-        ))+'</strong><span>'+escapeHtml(langPick(
-          "Tap Refresh follow-ups to try again.",
-          "Toca Actualizar seguimientos para intentarlo otra vez.",
-          "Toque Atualizar acompanhamentos para tentar novamente.",
-          "Touchez Actualiser les suivis pour réessayer."
-        ))+'</span></div>';
+        list.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick("Could not load follow-ups.","No se pudieron cargar los seguimientos.","Impossible de charger les suivis."))+'</strong><span>'+escapeHtml(langPick("Tap Refresh follow-ups to try again.","Toca Actualizar seguimientos para intentarlo otra vez.","Touchez Actualiser les suivis pour réessayer."))+'</span></div>';
       }
       throw err;
     }finally{
@@ -427,12 +362,7 @@
     if(!Object.prototype.hasOwnProperty.call(DEFAULTS,field)) return;
     const previous=(preferences||DEFAULTS)[field]||"remind";
     if(select.value==="auto"){
-      const ok=window.confirm(langPick(
-        "Auto email can send due follow-ups to real customers within the next hour. Turn it on?",
-        "El email automático puede enviar seguimientos a clientes reales dentro de la próxima hora. ¿Activarlo?",
-        "O e-mail automático pode enviar acompanhamentos a clientes reais dentro da próxima hora. Ativar?",
-        "L’e-mail automatique peut envoyer des suivis à de vrais clients dans l’heure. L’activer ?"
-      ));
+      const ok=window.confirm(langPick("Auto email can send due follow-ups to real customers within the next hour. Turn it on?","El email automático puede enviar seguimientos a clientes reales dentro de la próxima hora. ¿Activarlo?","L’e-mail automatique peut envoyer des suivis à de vrais clients dans l’heure. L’activer ?"));
       if(!ok){select.value=previous;return;}
     }
     select.disabled=true;
@@ -440,19 +370,9 @@
       await setMode(field,select.value);
       render();
       if(select.value==="auto"){
-        showToast(langPick(
-          "Auto email enabled · due follow-ups send within an hour.",
-          "Email automático activado · los seguimientos vencidos se envían dentro de una hora.",
-          "E-mail automático ativado · acompanhamentos vencidos são enviados em até uma hora.",
-          "E-mail automatique activé · les suivis dus sont envoyés dans l’heure."
-        ));
+        showToast(langPick("Auto email enabled · due follow-ups send within an hour.","Email automático activado · los seguimientos vencidos se envían dentro de una hora.","E-mail automatique activé · les suivis dus sont envoyés dans l’heure."));
       }else{
-        showToast(langPick(
-          "Follow-up rule updated",
-          "Regla de seguimiento actualizada",
-          "Regra de acompanhamento atualizada",
-          "Règle de suivi mise à jour"
-        ));
+        showToast(langPick("Follow-up rule updated","Regla de seguimiento actualizada","Règle de suivi mise à jour"));
       }
     }catch(err){
       select.value=previous;
@@ -485,12 +405,7 @@
         await saveMessageTemplate(editingType,language,subject,body);
         render();
         fillMessageEditor();
-        showToast(langPick(
-          "Follow-up message saved",
-          "Mensaje de seguimiento guardado",
-          "Mensagem de acompanhamento salva",
-          "Message de suivi enregistré"
-        ));
+        showToast(langPick("Follow-up message saved","Mensaje de seguimiento guardado","Message de suivi enregistré"));
       }catch(err){
         showToast(err.message||"Could not save follow-up message");
       }finally{
@@ -507,12 +422,7 @@
         await saveMessageTemplate(editingType,language,"","");
         render();
         fillMessageEditor();
-        showToast(langPick(
-          "Default follow-up restored",
-          "Mensaje predeterminado restaurado",
-          "Mensagem padrão restaurada",
-          "Message par défaut restauré"
-        ));
+        showToast(langPick("Default follow-up restored","Mensaje predeterminado restaurado","Message par défaut restauré"));
       }catch(err){
         showToast(err.message||"Could not restore default message");
       }finally{
@@ -526,12 +436,7 @@
       refresh.disabled=true;
       try{
         await load();
-        showToast(langPick(
-          "Follow-ups refreshed",
-          "Seguimientos actualizados",
-          "Acompanhamentos atualizados",
-          "Suivis actualisés"
-        ));
+        showToast(langPick("Follow-ups refreshed","Seguimientos actualizados","Suivis actualisés"));
       }catch(err){
         showToast(err.message||"Could not refresh follow-ups");
       }finally{
@@ -544,7 +449,7 @@
     if(send){
       send.disabled=true;
       const original=send.textContent;
-      send.textContent=langPick("Sending…","Enviando…","Enviando…","Envoi…");
+      send.textContent=langPick("Sending…","Enviando…","Envoi…");
       try{
         const result=await supabase.rpc("send_follow_up_now",{
           p_business_id:appState().business.id,
@@ -553,12 +458,7 @@
         });
         if(result.error) throw result.error;
         await load();
-        showToast(langPick(
-          "Follow-up emailed",
-          "Seguimiento enviado por email",
-          "Acompanhamento enviado por e-mail",
-          "Suivi envoyé par e-mail"
-        ));
+        showToast(langPick("Follow-up emailed","Seguimiento enviado por email","Suivi envoyé par e-mail"));
       }catch(err){
         showToast(err.message||"Could not send follow-up");
         send.disabled=false;
@@ -572,12 +472,7 @@
       try{
         await updateState(snooze.dataset.followupType,snooze.dataset.followupResource,"snooze");
         await load();
-        showToast(langPick(
-          "Snoozed for 2 days",
-          "Pospuesto por 2 días",
-          "Adiado por 2 dias",
-          "Reporté de 2 jours"
-        ));
+        showToast(langPick("Snoozed for 2 days","Pospuesto por 2 días","Reporté de 2 jours"));
       }catch(err){
         showToast(err.message||"Could not snooze follow-up");
       }
@@ -589,12 +484,7 @@
       try{
         await updateState(done.dataset.followupType,done.dataset.followupResource,"dismiss");
         await load();
-        showToast(langPick(
-          "Follow-up marked done",
-          "Seguimiento marcado como hecho",
-          "Acompanhamento concluído",
-          "Suivi terminé"
-        ));
+        showToast(langPick("Follow-up marked done","Seguimiento marcado como hecho","Suivi terminé"));
       }catch(err){
         showToast(err.message||"Could not close follow-up");
       }

@@ -10,6 +10,41 @@ const i18n=fs.readFileSync("i18n.js","utf8");
 const onboardingCopy=fs.readFileSync("onboarding-copy.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
+function hasLegacyFourArgLangPick(source){
+  let pos=0;
+  while((pos=source.indexOf("langPick(",pos))>=0){
+    let i=pos+"langPick(".length;
+    let paren=1, bracket=0, brace=0, quote=null, escaped=false, topLevelCommas=0;
+    for(;i<source.length;i++){
+      const ch=source[i];
+      if(quote){
+        if(escaped){ escaped=false; continue; }
+        if(ch==="\\"){ escaped=true; continue; }
+        if(ch===quote){ quote=null; }
+        continue;
+      }
+      if(ch==="'" || ch==='"' || ch==="\`"){ quote=ch; continue; }
+      if(ch==="(") paren++;
+      else if(ch===")"){
+        paren--;
+        if(paren===0) break;
+      }else if(ch==="[") bracket++;
+      else if(ch==="]") bracket--;
+      else if(ch==="{") brace++;
+      else if(ch==="}") brace--;
+      else if(ch==="," && paren===1 && bracket===0 && brace===0) topLevelCommas++;
+    }
+    if(paren!==0) return true;
+    if(topLevelCommas>=3) return true;
+    pos=i+1;
+  }
+  return false;
+}
+
+if(!hasLegacyFourArgLangPick('langPick("A", flag ? "B" : "C", flag ? "P" : "Q", "D")')){
+  throw new Error("Localization regression: four-argument language guard missed expression arguments");
+}
+
 const styles=[
   "styles/boot.css",
   "styles.css",
@@ -202,6 +237,12 @@ if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-languag
 
 if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(onboardingCopy) || /Português|Portuguese/.test(onboardingCopy)){
   throw new Error("Localization regression: inactive Portuguese payload returned in app or onboarding copy");
+}
+if(
+  /\bpt\s*:|Português|Portuguese|Orçamento|Orçamentos|Fatura|Faturas|Após a limpeza|Nova reserva|Enviar agora|Abrir origem|MENSAGEM PERSONALIZADA|Escreva o e-mail|Idioma do cliente|Assunto \(opcional\)|Você pode usar|Salvar mensagem|Usar padrão|Atrasado|Vence agora|Para amanhã|Lembrar-me|Precisa de acompanhamento|Adiar 2 dias|Concluído|Editar mensagem|Mensagem personalizada|Usando a mensagem padrão/.test(followups) ||
+  hasLegacyFourArgLangPick(followups)
+){
+  throw new Error("Localization regression: Portuguese or legacy four-language follow-up copy returned");
 }
 if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
   throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
