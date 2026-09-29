@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-funnel-tracking-128";
+const CACHE_NAME="tle-cleaning-app-20260929-cta-hierarchy-129";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-funnel-tracking-128",
-  "./app.js?v=20260929-funnel-tracking-128",
-  "./followups.js?v=20260929-funnel-tracking-128",
-  "./i18n.js?v=20260929-funnel-tracking-128",
-  "./public.js?v=20260929-funnel-tracking-128",
-  "./vendor/supabase.js?v=20260929-funnel-tracking-128",
-  "./manifest.webmanifest?v=20260929-funnel-tracking-128"
+  "./styles.css?v=20260929-cta-hierarchy-129",
+  "./app.js?v=20260929-cta-hierarchy-129",
+  "./followups.js?v=20260929-cta-hierarchy-129",
+  "./i18n.js?v=20260929-cta-hierarchy-129",
+  "./public.js?v=20260929-cta-hierarchy-129",
+  "./vendor/supabase.js?v=20260929-cta-hierarchy-129",
+  "./manifest.webmanifest?v=20260929-cta-hierarchy-129"
 ];
 
 self.addEventListener("install",event=>{
