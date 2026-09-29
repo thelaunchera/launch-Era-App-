@@ -57,7 +57,8 @@ else pass("service worker sensitive URL cache guard is present");
 
 const limits={
   "app.js":525000,
-  "styles.css":315000,
+  "styles.css":250000,
+  "styles/release-overrides.css":90000,
   "styles/responsive-shell.css":12000,
   "styles/customer-documents.css":12000,
   "i18n.js":190000,
