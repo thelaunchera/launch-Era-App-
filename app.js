@@ -494,12 +494,12 @@ function langPick(en,es,pt,fr){
   return map[appLanguage()] ?? en;
 }
 function customerEmailLanguageLabel(code){
-  return ({en:"English",es:"Español",pt:"Português",fr:"Français"})[String(code||"").toLowerCase()]||"English";
+  return ({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"})[String(code||"").toLowerCase()]||"English";
 }
 function customerEmailLanguageOptions(selected="",allowDefault=true){
   const value=String(selected||"").toLowerCase();
   const options=[
-    ["en","English"],["es","Español"],["pt","Português"],["fr","Français"]
+    ["en","English"],["es","Español"],["fr","Français"],["ht","Kreyòl Ayisyen"]
   ];
   const fallback=allowDefault
     ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Padrão da empresa","Valeur par défaut"))}</option>`
@@ -508,7 +508,7 @@ function customerEmailLanguageOptions(selected="",allowDefault=true){
 }
 function normalizedCustomerEmailLanguage(value){
   const code=String(value||"").trim().toLowerCase();
-  return ["en","es","pt","fr"].includes(code)?code:null;
+  return ["en","es","fr","ht"].includes(code)?code:null;
 }
 function appLocale(){
   return state.business?.locale_code
