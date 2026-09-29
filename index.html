@@ -255,6 +255,14 @@
             <label>Email<input name="email" type="email" required></label>
             <label>Phone<input name="phone"></label>
             <label>Preferred contact<select name="preferred_contact"><option value="email">Email</option><option value="text">Text</option><option value="whatsapp">WhatsApp</option></select></label>
+            <label>Email language
+              <select name="preferred_language" id="publicPreferredLanguage">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="ht">Kreyòl Ayisyen</option>
+              </select>
+            </label>
             <label>Property type
               <select name="property_type" required>
                 <option value="">Choose one</option>
@@ -947,49 +955,122 @@
       </section>
 
       <section class="view" data-page="settings" data-admin-only>
-        <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Business settings</h2></div></div>
-        <div class="settings-grid settings-accordion">
-          <article class="panel settings-section">
+        <div class="section-intro settings-intro">
+          <div>
+            <p class="eyebrow">SETTINGS</p>
+            <h2>Business settings</h2>
+            <p>Keep the app, client communication, booking rules and payments easy to control from one place.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid settings-accordion settings-simple-grid">
+          <article class="panel settings-section settings-summary-card">
             <div class="panel-head">
               <div>
-                <p class="eyebrow">COMPANY DETAILS</p>
-                <h3>Business profile</h3>
+                <p class="eyebrow">BUSINESS</p>
+                <h3>Business basics</h3>
+                <small class="panel-note">The information clients and your workspace use.</small>
               </div>
-              <button class="text-btn" type="button" id="editBusinessProfileBtn" data-owner-only>Edit business details</button>
+              <button class="text-btn" type="button" id="editBusinessProfileBtn" data-owner-only>Edit →</button>
             </div>
-            <div class="setting-row"><span><strong>Business name</strong><small id="settingsBusinessName">—</small></span></div>
-            <div class="setting-row"><span><strong>Business email</strong><small id="settingsBusinessEmail">—</small></span></div>
-            <div class="setting-row"><span><strong>Phone</strong><small id="settingsBusinessPhone">—</small></span></div>
-            <div class="setting-row"><span><strong>Service area</strong><small id="settingsServiceArea">—</small></span></div>
-            <div class="setting-row"><span><strong>Country</strong><small id="settingsBusinessCountry">—</small></span></div>
-            <div class="setting-row"><span><strong>Time zone</strong><small id="settingsBusinessTimezone">—</small></span></div>
-            <div class="setting-row"><span><strong>Default language</strong><small id="settingsBusinessLanguage">—</small></span></div>
-            <div class="setting-row"><span><strong>Client email language</strong><small id="settingsClientEmailLanguage">—</small></span></div>
-            <div class="setting-row"><span><strong>Currency</strong><small id="settingsBusinessCurrency">—</small></span></div>
-            <div class="setting-row"><span><strong>Distance</strong><small id="settingsBusinessDistance">—</small></span></div>
-            <div class="setting-row"><span><strong>Temperature</strong><small id="settingsBusinessTemperature">—</small></span></div>
+            <div class="settings-summary-grid">
+              <div><small>Business</small><strong id="settingsBusinessName">—</strong></div>
+              <div><small>Email</small><strong id="settingsBusinessEmail">—</strong></div>
+              <div><small>Phone</small><strong id="settingsBusinessPhone">—</strong></div>
+              <div><small>Service area</small><strong id="settingsServiceArea">—</strong></div>
+              <div><small>Time zone</small><strong id="settingsBusinessTimezone">—</strong></div>
+            </div>
           </article>
-          <article class="panel settings-section">
-            <h3>Booking rules</h3>
-            <div class="setting-row"><span><strong>Travel buffer</strong><small id="settingsTravelBuffer">—</small></span></div>
-            <div class="setting-row"><span><strong>Minimum notice</strong><small id="settingsBookingNotice">—</small></span></div>
+
+          <article class="panel settings-section settings-summary-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">YOUR APP</p>
+                <h3>App preferences</h3>
+                <small class="panel-note">These only change what the business owner sees inside the app.</small>
+              </div>
+            </div>
+            <div class="settings-summary-grid">
+              <div><small>App language</small><strong id="settingsBusinessLanguage">—</strong></div>
+              <div><small>Country</small><strong id="settingsBusinessCountry">—</strong></div>
+              <div><small>Currency</small><strong id="settingsBusinessCurrency">—</strong></div>
+              <div><small>Distance</small><strong id="settingsBusinessDistance">—</strong></div>
+              <div><small>Temperature</small><strong id="settingsBusinessTemperature">—</strong></div>
+            </div>
+            <button class="ghost-btn settings-inline-edit" type="button" data-edit-business-preferences data-owner-only>Edit app preferences</button>
           </article>
-          <article class="panel settings-section">
-            <h3>Contact + payments</h3>
-            <div class="setting-row"><span><strong>Client payment methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
-            <div class="setting-row"><span><strong>Automatic client emails</strong><small>Quote review · Service confirmation · Invoice · Payment thank-you</small></span><span class="status success">On</span></div>
+
+          <article class="panel settings-section settings-communication-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">CLIENT COMMUNICATION</p>
+                <h3>Emails to your clients</h3>
+                <small class="panel-note">This is separate from the language you use inside the app.</small>
+              </div>
+              <span class="status success">Automatic</span>
+            </div>
+
+            <div class="communication-language-current">
+              <span>
+                <small>Default client email language</small>
+                <strong id="settingsCustomerEmailLanguage">English</strong>
+              </span>
+              <label data-owner-only>
+                <span>Change default</span>
+                <select id="customerEmailLanguageSelect">
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="ht">Kreyòl Ayisyen</option>
+                </select>
+              </label>
+              <button class="primary-btn" type="button" id="saveCustomerEmailLanguageBtn" data-owner-only>Save language</button>
+            </div>
+
+            <div class="settings-email-flow">
+              <span>Quote</span><b>→</b><span>Booking</span><b>→</b><span>Invoice</span><b>→</b><span>Payment</span><b>→</b><span>Follow-up</span>
+            </div>
+
+            <p class="helper">A client can have their own preferred email language. Their preference overrides this default without changing your app language.</p>
             <div class="setting-row"><span><strong>Replies go to</strong><small id="settingsReplyEmail">Business login email</small></span></div>
-            <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner settings.</small></span></div>
           </article>
+
+          <article class="panel settings-section settings-action-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">BOOKING</p>
+                <h3>Booking + availability</h3>
+                <small class="panel-note">Control when clients can book and how much travel time you need.</small>
+              </div>
+              <button class="text-btn" type="button" data-jump="booking">Open booking settings →</button>
+            </div>
+            <div class="settings-summary-grid">
+              <div><small>Travel buffer</small><strong id="settingsTravelBuffer">—</strong></div>
+              <div><small>Minimum notice</small><strong id="settingsBookingNotice">—</strong></div>
+            </div>
+          </article>
+
+          <article class="panel settings-section settings-action-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">PAYMENTS</p>
+                <h3>Client payment options</h3>
+                <small class="panel-note">These are the choices clients see on invoices.</small>
+              </div>
+              <button class="text-btn" type="button" data-edit-business-preferences data-owner-only>Edit payment options →</button>
+            </div>
+            <div class="setting-row"><span><strong>Enabled methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
+          </article>
+
           <article class="panel settings-section review-settings-card">
             <div class="panel-head">
               <div>
                 <p class="eyebrow">REVIEWS</p>
                 <h3>Google review link</h3>
+                <small class="panel-note">Used after confirmed payments and review follow-ups.</small>
               </div>
               <span class="status neutral" id="reviewLinkStatus">Not added</span>
             </div>
-            <p class="helper">Add your own Google review link. After a payment is confirmed, the thank-you email can gently invite happy customers to leave a review.</p>
             <label class="settings-link-field">
               <span>Google review URL</span>
               <input id="googleReviewUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://g.page/r/.../review">
@@ -997,6 +1078,17 @@
             <div class="settings-link-actions">
               <button class="primary-btn" type="button" id="saveGoogleReviewBtn">Save review link</button>
               <button class="ghost-btn" type="button" id="testGoogleReviewBtn" hidden>Open link</button>
+            </div>
+          </article>
+
+          <article class="panel settings-section settings-action-card">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">TEAM ACCESS</p>
+                <h3>Who can use the app</h3>
+                <small class="panel-note">Admins and guest employees are managed separately from client settings.</small>
+              </div>
+              <button class="text-btn" type="button" data-jump="team">Open Team →</button>
             </div>
           </article>
         </div>
