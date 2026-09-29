@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-weather-ambience-167";
+const CACHE_NAME="tle-cleaning-app-20260929-weather-livefix-168";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-weather-ambience-167",
-  "./app.js?v=20260929-weather-ambience-167",
-  "./followups.js?v=20260929-weather-ambience-167",
-  "./i18n.js?v=20260929-weather-ambience-167",
-  "./public.js?v=20260929-weather-ambience-167",
-  "./vendor/supabase.js?v=20260929-weather-ambience-167",
-  "./manifest.webmanifest?v=20260929-weather-ambience-167"
+  "./styles.css?v=20260929-weather-livefix-168",
+  "./app.js?v=20260929-weather-livefix-168",
+  "./followups.js?v=20260929-weather-livefix-168",
+  "./i18n.js?v=20260929-weather-livefix-168",
+  "./public.js?v=20260929-weather-livefix-168",
+  "./vendor/supabase.js?v=20260929-weather-livefix-168",
+  "./manifest.webmanifest?v=20260929-weather-livefix-168"
 ];
 
 self.addEventListener("install",event=>{
