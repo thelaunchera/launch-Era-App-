@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-invoice-mobile-actions-160";
+const APP_VERSION = "20260929-global-request-details-160";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2024,7 +2024,7 @@ function openView(id,options={}){
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $$(".view").forEach(v=>{
+  $$$(".view").forEach(v=>{
     const active=v.dataset.page===id;
     v.classList.toggle("active",active);
     if(active){
@@ -2034,7 +2034,7 @@ function openView(id,options={}){
     }
   });
   let activeNav=null;
-  $$(".nav-item").forEach(n=>{
+  $$$(".nav-item").forEach(n=>{
     const active=n.dataset.view===id;
     n.classList.toggle("active",active);
     if(active) activeNav=n;
@@ -2110,10 +2110,10 @@ function syncMobileNavGroups(){
   const activeGroup=active?.closest("details.nav-group")||null;
   groups.forEach(group=>{ group.open=group===activeGroup; });
 }
-$$("details.nav-group").forEach(group=>{
+$$$("details.nav-group").forEach(group=>{
   group.addEventListener("toggle",()=>{
     if(window.innerWidth>860 || !group.open) return;
-    $$("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
+    $$$("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
   });
 });
 function setSidebarOpen(open){
@@ -6220,6 +6220,25 @@ function bookingRecurrenceLabel(pattern){
   return langPick("One time","Una vez","Uma vez","Une fois");
 }
 
+function bookingPropertySnapshot(notes=""){
+  const rows={};
+  String(notes||"").split(/\r?\n/).forEach(line=>{
+    const idx=line.indexOf(":");
+    if(idx<=0) return;
+    rows[line.slice(0,idx).trim().toLowerCase()]=line.slice(idx+1).trim();
+  });
+  const type=String(rows["property type"]||"");
+  const parts=[];
+  if(type) parts.push(type);
+  if(rows["approx. size"]) parts.push(rows["approx. size"]);
+  if(rows["bedrooms"]) parts.push(rows["bedrooms"]+" "+langPick("bed","hab.","quarto","ch."));
+  if(rows["bathrooms"]) parts.push(rows["bathrooms"]+" "+langPick("bath","baño","banheiro","sdb"));
+  if(rows["space type"]) parts.push(rows["space type"]);
+  if(rows["restrooms"]) parts.push(rows["restrooms"]+" "+langPick("restroom","baño","banheiro","sanitaire"));
+  if(rows["floors / levels"]) parts.push(rows["floors / levels"]+" "+langPick("level","nivel","andar","niveau"));
+  return parts.filter(Boolean).join(" · ");
+}
+
 function renderBookingRequests(){
   const list=$("#bookingRequestsList");
   const pill=$("#bookingRequestCountPill");
@@ -6240,11 +6259,13 @@ function renderBookingRequests(){
     const linkedCopy=b.status==="converted" && linkedClient
       ? `<small class="booking-linked-client">${escapeHtml(langPick("Linked to existing client:","Vinculado al cliente existente:","Vinculado ao cliente existente:","Lié au client existant :"))} <strong>${escapeHtml(linkedClient.name)}</strong></small>`
       : "";
+    const propertySnapshot=bookingPropertySnapshot(b.notes||"");
     return `
     <div class="booking-request-row">
       <div class="booking-request-copy">
         <strong>${escapeHtml(b.customer_name)}</strong>
         <small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(bookingRecurrenceLabel(b.recurrence_pattern))} · ${escapeHtml(b.service_address)}</small>
+        ${propertySnapshot?`<small class="booking-property-summary">${escapeHtml(propertySnapshot)}</small>`:""}
         ${linkedCopy}
       </div>
       <div class="record-actions booking-request-actions">
