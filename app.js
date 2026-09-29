@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-first-win-no-flash-137";
+const APP_VERSION = "20260929-growth-dashboard-138";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4562,14 +4562,25 @@ function renderClients(){
     grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No clients yet.","Aún no hay clientes.","Ainda não há clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add clients automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Reservas confirmadas adicionam clientes automaticamente. Você também pode adicionar manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add client","Añadir cliente","Adicionar cliente","Ajouter un client"))}</button></article>`;
     return;
   }
-  grid.innerHTML=state.clients.map(c=>`
-    <article class="client-card client-card-compact">
+  const now=new Date();
+  grid.innerHTML=state.clients.map(c=>{
+    const jobs=state.jobs.filter(j=>j.client_id===c.id&&j.status!=="canceled").sort((x,y)=>new Date(x.starts_at)-new Date(y.starts_at));
+    const next=jobs.find(j=>new Date(j.starts_at)>=now&&!["completed","no_show"].includes(j.status));
+    const last=[...jobs].reverse().find(j=>new Date(j.starts_at)<now||j.status==="completed");
+    const balance=state.invoices.filter(inv=>inv.client_id===c.id&&inv.status!=="void").reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv)),0);
+    return `
+    <article class="client-card client-card-compact growth-client-card">
       <div class="client-card-head">
         <div class="client-avatar">${escapeHtml(initials(c.name))}</div>
         <div class="client-card-identity">
           <strong>${escapeHtml(c.name)}</strong>
           <span>${escapeHtml(c.email||tr("No email"))}</span>
         </div>
+        <span class="client-balance ${balance>0?"has-balance":""}">${balance>0?money(balance):langPick("Paid up","Al día","Em dia","À jour")}</span>
+      </div>
+      <div class="client-business-snapshot">
+        <span><small>${escapeHtml(langPick("Next cleaning","Próxima limpieza","Próxima limpeza","Prochain nettoyage"))}</small><b>${next?escapeHtml(formatDateTime(next.starts_at)):escapeHtml(langPick("Not scheduled","Sin agendar","Não agendado","Non planifié"))}</b></span>
+        <span><small>${escapeHtml(langPick("Last cleaning","Última limpieza","Última limpeza","Dernier nettoyage"))}</small><b>${last?escapeHtml(new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(last.starts_at))):"—"}</b></span>
       </div>
       <small class="client-location">${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || tr("No address yet"))}</small>
       <div class="card-actions record-card-actions client-card-actions">
@@ -4581,10 +4592,9 @@ function renderClients(){
         </span>
         <button class="record-delete-btn" data-delete-record="client" data-id="${c.id}">${escapeHtml(tr("Delete client"))}</button>
       </div>
-    </article>
-  `).join("");
+    </article>`;
+  }).join("");
 }
-
 function openClientInfo(clientId){
   const client=state.clients.find(c=>c.id===clientId);
   if(!client){
@@ -4699,28 +4709,40 @@ function renderServices(){
   if(!grid) return;
   const cards=state.services.map(s=>{
     const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
+    const isQuote=s.pricing_type==="quote";
+    const statusLabel=!s.active
+      ? langPick("Inactive","Inactivo","Inativo","Inactif")
+      : isQuote
+        ? langPick("Quote required","Requiere cotización","Requer orçamento","Devis requis")
+        : langPick("Bookable","Reservable","Reservável","Réservable");
     return `
-      <article class="service-card ${s.active?"":"inactive-card"}">
-        <strong>${escapeHtml(s.name)}</strong>
-        <span>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${escapeHtml(s.pricing_type)}</span>
-        <b>${s.pricing_type==="quote"?"Quote":money(s.base_price)}</b>
-        <div class="addon-list">
-          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Incluído por padrão","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">No add-ons yet</small>`}
+      <article class="service-card service-catalog-card ${s.active?"":"inactive-card"}">
+        <div class="service-catalog-top">
+          <div><span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span><strong>${escapeHtml(s.name)}</strong></div>
+          <b class="service-price">${isQuote?langPick("Custom","Personalizado","Personalizado","Sur devis"):money(s.base_price)}</b>
         </div>
-        <div class="card-actions">
-          <button data-edit="service" data-id="${s.id}">Edit service</button>
-          <button data-add-addon-for="${s.id}">+ Add-on</button>
-          <button data-toggle-service="${s.id}">${s.active?"Deactivate":"Activate"}</button>
+        <div class="service-catalog-meta">
+          <span><small>${escapeHtml(langPick("Duration","Duración","Duração","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
+          <span><small>${escapeHtml(langPick("Pricing","Precio","Preço","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Orçamento","Devis"):String(s.pricing_type||"flat"))}</b></span>
+          <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Adicionais","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
+        </div>
+        ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
+        <div class="addon-list">
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Incluído por padrão","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Sem adicionais ainda","Aucune option pour le moment"))}</small>`}
+        </div>
+        <div class="card-actions service-card-actions">
+          <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Editar serviço","Modifier"))}</button>
+          <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Adicional","Option"))}</button>
+          <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Desativar","Désactiver"):langPick("Activate","Activar","Ativar","Activer"))}</button>
         </div>
       </article>`;
   }).join("");
 
   const unassigned=state.serviceAddons.filter(a=>!a.service_id);
-  const globalCard=unassigned.length?`<article class="service-card"><strong>General add-ons</strong><span>Available across services</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
+  const globalCard=unassigned.length?`<article class="service-card service-catalog-card"><div class="service-catalog-top"><div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GERAL","GÉNÉRAL"))}</span><strong>${escapeHtml(langPick("General add-ons","Add-ons generales","Adicionais gerais","Options générales"))}</strong></div></div><span>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponíveis em vários serviços","Disponibles sur plusieurs services"))}</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
 
-  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>Add service</strong><span>Set price, duration and booking basics.</span></article>`;
+  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Defina preço, duração e reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
 }
-
 function renderSupplies(){
   const grid=$("#suppliesGrid");
   if(!grid) return;
@@ -5373,6 +5395,47 @@ function renderFirstWin(){
   if(action)action.textContent=langPick("Set up booking →","Configurar reservas →","Configurar reservas →","Configurer les réservations →");
 }
 
+function dashboardEstimatedJobValue(job){
+  const service=(state.services||[]).find(s=>s.id===job?.service_id);
+  if(!service || service.pricing_type==="quote") return 0;
+  const value=Number(service.base_price||0);
+  return Number.isFinite(value)&&value>0?value:0;
+}
+function dashboardScheduledValue(start,end){
+  return (state.jobs||[])
+    .filter(j=>j.status!=="canceled"&&new Date(j.starts_at)>=start&&new Date(j.starts_at)<end)
+    .reduce((sum,j)=>sum+dashboardEstimatedJobValue(j),0);
+}
+function dashboardCollectedValue(start,end){
+  return (state.invoices||[]).flatMap(inv=>inv.payments||[])
+    .filter(p=>p.status==="confirmed"&&(p.paid_at||p.created_at))
+    .filter(p=>{const d=new Date(p.paid_at||p.created_at);return d>=start&&d<end;})
+    .reduce((sum,p)=>sum+Number(p.amount||0),0);
+}
+function dashboardTrendText(current,previous){
+  const cur=Number(current||0),prev=Number(previous||0);
+  if(prev<=0){
+    return cur>0
+      ? langPick("New this week","Nuevo esta semana","Novo esta semana","Nouveau cette semaine")
+      : langPick("Ready to grow","Listo para crecer","Pronto para crescer","Prêt à grandir");
+  }
+  const pct=Math.round(((cur-prev)/prev)*100);
+  if(Math.abs(pct)<3) return langPick("About the same as last week","Similar a la semana pasada","Quase igual à semana passada","Presque comme la semaine dernière");
+  return (pct>0?"↑ ":"↓ ")+Math.abs(pct)+"% "+langPick("vs last week","vs semana pasada","vs semana passada","vs semaine dernière");
+}
+function minutesBetweenTimes(start,end){
+  const parse=v=>{const p=String(v||"").slice(0,5).split(":").map(Number);return Number.isFinite(p[0])&&Number.isFinite(p[1])?p[0]*60+p[1]:0;};
+  return Math.max(0,parse(end)-parse(start));
+}
+function dashboardWeeklyCapacity(weekJobs){
+  const available=(state.availabilityRules||[])
+    .filter(r=>r.active!==false)
+    .reduce((sum,r)=>sum+minutesBetweenTimes(r.start_time,r.end_time),0);
+  const scheduled=(weekJobs||[]).reduce((sum,j)=>sum+Math.max(0,Number(j.duration_minutes||0)),0);
+  const percent=available>0?Math.min(100,Math.round((scheduled/available)*100)):0;
+  return {available,scheduled,percent,open:Math.max(0,available-scheduled)};
+}
+
 function renderTodaySummary(wakeAssistant=false){
   renderFirstWin();
   const now=new Date();
@@ -5389,23 +5452,70 @@ function renderTodaySummary(wakeAssistant=false){
   const pendingBookings=visibleBookingRequests().filter(b=>b.status==="requested");
   const overdueInvoices=state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status));
 
-  const cards=$$(".metric-card", $('[data-page="today"]'));
-  if(cards[0]){
-    cards[0].querySelector("strong").textContent=todayJobs.length;
-    const completed=todayJobs.filter(j=>j.status==="completed").length;
-    cards[0].querySelector("small").textContent=todayJobs.length
+  const weekStart=startOfWeek(now);
+  const weekEnd=new Date(weekStart); weekEnd.setDate(weekEnd.getDate()+7);
+  const prevWeekStart=new Date(weekStart); prevWeekStart.setDate(prevWeekStart.getDate()-7);
+  const weekJobs=state.jobs.filter(j=>j.status!=="canceled"&&new Date(j.starts_at)>=weekStart&&new Date(j.starts_at)<weekEnd);
+  const prevWeekJobs=state.jobs.filter(j=>j.status!=="canceled"&&new Date(j.starts_at)>=prevWeekStart&&new Date(j.starts_at)<weekStart);
+  const scheduledValue=dashboardScheduledValue(weekStart,weekEnd);
+  const prevScheduledValue=dashboardScheduledValue(prevWeekStart,weekStart);
+  const collectedValue=dashboardCollectedValue(weekStart,weekEnd);
+  const prevCollectedValue=dashboardCollectedValue(prevWeekStart,weekStart);
+  const newClients=state.clients.filter(c=>c.created_at&&new Date(c.created_at)>=weekStart&&new Date(c.created_at)<weekEnd).length;
+  const prevNewClients=state.clients.filter(c=>c.created_at&&new Date(c.created_at)>=prevWeekStart&&new Date(c.created_at)<weekStart).length;
+
+  const pulseBooked=$("#pulseBooked"), pulseCollected=$("#pulseCollected"), pulseJobs=$("#pulseJobs"), pulseNewClients=$("#pulseNewClients");
+  if(pulseBooked) pulseBooked.textContent=money(scheduledValue);
+  if(pulseCollected) pulseCollected.textContent=money(collectedValue);
+  if(pulseJobs) pulseJobs.textContent=weekJobs.length;
+  if(pulseNewClients) pulseNewClients.textContent=newClients;
+  const pbt=$("#pulseBookedTrend"); if(pbt) pbt.textContent=dashboardTrendText(scheduledValue,prevScheduledValue);
+  const pct=$("#pulseCollectedTrend"); if(pct) pct.textContent=dashboardTrendText(collectedValue,prevCollectedValue);
+  const pjt=$("#pulseJobsTrend"); if(pjt) pjt.textContent=dashboardTrendText(weekJobs.length,prevWeekJobs.length);
+  const pnt=$("#pulseClientsTrend"); if(pnt) pnt.textContent=dashboardTrendText(newClients,prevNewClients);
+
+  const labels={
+    pulseBookedLabel:langPick("Est. scheduled this week","Estimado agendado esta semana","Estimado agendado esta semana","Estimation planifiée cette semaine"),
+    pulseCollectedLabel:langPick("Collected this week","Cobrado esta semana","Recebido esta semana","Encaissé cette semaine"),
+    pulseJobsLabel:langPick("Jobs this week","Trabajos esta semana","Trabalhos esta semana","Travaux cette semaine"),
+    pulseClientsLabel:langPick("New clients","Clientes nuevos","Novos clientes","Nouveaux clients"),
+    capacityEyebrow:langPick("CAPACITY","CAPACIDAD","CAPACIDADE","CAPACITÉ"),
+    capacityTitle:langPick("This week","Esta semana","Esta semana","Cette semaine"),
+    nextMoveEyebrow:langPick("YOUR NEXT MOVE","TU PRÓXIMO PASO","SEU PRÓXIMO PASSO","VOTRE PROCHAINE ACTION"),
+    quickActionsEyebrow:langPick("QUICK ACTIONS","ACCIONES RÁPIDAS","AÇÕES RÁPIDAS","ACTIONS RAPIDES"),
+    quickActionsTitle:langPick("Keep the day moving","Mantén el día en movimiento","Mantenha o dia em movimento","Gardez la journée en mouvement"),
+    attentionEyebrow:langPick("FOLLOW THROUGH","SEGUIMIENTO","ACOMPANHAMENTO","SUIVI"),
+    attentionTitle:langPick("Open items","Pendientes","Itens pendentes","Éléments ouverts"),
+    weekGrowthEyebrow:langPick("THIS WEEK","ESTA SEMANA","ESTA SEMANA","CETTE SEMAINE"),
+    weekCompletedLabel:langPick("Completed","Completados","Concluídos","Terminés"),
+    weekHoursLabel:langPick("Work hours","Horas","Horas","Heures"),
+    weekDistanceLabel:langPick("Distance","Distancia","Distância","Distance"),
+    presenceEyebrow:langPick("CLIENT-FACING LINKS","ENLACES PARA CLIENTES","LINKS PARA CLIENTES","LIENS CLIENTS"),
+    presenceTitle:langPick("Your business online","Tu negocio online","Seu negócio online","Votre entreprise en ligne")
+  };
+  Object.entries(labels).forEach(([id,value])=>{const el=$("#"+id);if(el)el.textContent=value;});
+
+  const capacity=dashboardWeeklyCapacity(weekJobs);
+  const capPct=$("#capacityPercent"); if(capPct) capPct.textContent=capacity.available?capacity.percent+"%":"—";
+  const capBar=$("#capacityBar"); if(capBar) capBar.style.width=(capacity.available?capacity.percent:0)+"%";
+  const capMessage=$("#capacityMessage");
+  if(capMessage){
+    const openHours=(capacity.open/60).toFixed(1).replace(".0","");
+    capMessage.textContent=capacity.available
       ? langPick(
-          completed+" completed",
-          completed+" completado"+(completed===1?"":"s"),
-          completed+" concluído"+(completed===1?"":"s"),
-          completed+" terminé"+(completed===1?"":"s")
+          capacity.percent+"% booked · "+openHours+" hrs still open",
+          capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",
+          capacity.percent+"% ocupado · "+openHours+" h ainda disponíveis",
+          capacity.percent+"% réservé · "+openHours+" h encore disponibles"
         )
-      : tr("Nothing scheduled");
+      : langPick(
+          "Add availability to see how full your week is.",
+          "Añade disponibilidad para ver qué tan llena está tu semana.",
+          "Adicione disponibilidade para ver quanto da semana está ocupado.",
+          "Ajoutez vos disponibilités pour voir le remplissage de la semaine."
+        );
   }
-  if(cards[1]){ cards[1].querySelector("strong").textContent=state.clients.length; }
-  if(cards[2]){ cards[2].querySelector("strong").textContent=openQuotes.length; }
-  const out=$("#todayOutstanding"); if(out) out.textContent=money(outstanding);
-  const br=$("#todayBookingRequests"); if(br) br.textContent=pendingBookings.length;
+  const capAction=$("#capacityAction"); if(capAction) capAction.textContent=langPick("See open time →","Ver espacios →","Ver horários livres →","Voir les créneaux →");
 
   const datePill=$("#todayDatePill");
   const clockTime=$("#todayClockTime");
@@ -5625,6 +5735,54 @@ function renderTodaySummary(wakeAssistant=false){
     }
   }
 
+  const sentQuotes=openQuotes.filter(q=>q.status==="sent");
+  const sentQuoteValue=sentQuotes.reduce((sum,q)=>sum+Number(q.total||0),0);
+  const overdueAmount=overdueInvoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-confirmedPaid(inv)),0);
+  const nextTitle=$("#nextMoveTitle"),nextCopy=$("#nextMoveCopy"),nextAction=$("#nextMoveAction");
+  let nextView="calendar",nextLabel=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+  if(overdueInvoices.length){
+    if(nextTitle) nextTitle.textContent=langPick(
+      money(overdueAmount)+" is still waiting to be collected.",
+      "Hay "+money(overdueAmount)+" pendientes de cobro.",
+      money(overdueAmount)+" ainda estão pendentes de recebimento.",
+      money(overdueAmount)+" restent à encaisser."
+    );
+    if(nextCopy) nextCopy.textContent=langPick(
+      overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",
+      overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",
+      overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida precisa":"s vencidas precisam")+" de atenção.",
+      overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention."
+    );
+    nextView="invoices"; nextLabel=langPick("Collect payment →","Revisar cobros →","Revisar pagamentos →","Voir les paiements →");
+  }else if(sentQuotes.length){
+    if(nextTitle) nextTitle.textContent=langPick(
+      money(sentQuoteValue)+" in quotes could turn into booked work.",
+      money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",
+      money(sentQuoteValue)+" em orçamentos podem virar trabalhos.",
+      money(sentQuoteValue)+" de devis peuvent devenir des prestations."
+    );
+    if(nextCopy) nextCopy.textContent=langPick(
+      sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",
+      sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",
+      sentQuotes.length+" orçamento"+(sentQuotes.length===1?" enviado aguarda":"s enviados aguardam")+" resposta.",
+      sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse."
+    );
+    nextView="quotes"; nextLabel=langPick("Follow up →","Dar seguimiento →","Fazer acompanhamento →","Relancer →");
+  }else if(pendingBookings.length){
+    if(nextTitle) nextTitle.textContent=langPick(
+      pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",
+      pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",
+      pendingBookings.length+" pedido"+(pendingBookings.length===1?" novo está":"s novos estão")+" pronto"+(pendingBookings.length===1?"":"s")+" para você.",
+      pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous."
+    );
+    if(nextCopy) nextCopy.textContent=langPick("Review it before the customer keeps looking.","Revísala antes de que el cliente siga buscando.","Revise antes que o cliente continue procurando.","Examinez-la avant que le client continue ses recherches.");
+    nextView="booking"; nextLabel=langPick("Review bookings →","Revisar reservas →","Revisar reservas →","Voir les réservations →");
+  }else{
+    if(nextTitle) nextTitle.textContent=langPick("Everything important is caught up.","Todo lo importante está al día.","Tudo importante está em dia.","Tout l’essentiel est à jour.");
+    if(nextCopy) nextCopy.textContent=langPick("Use the open time this week to fill the calendar or follow up with past clients.","Usa los espacios disponibles para llenar la agenda o dar seguimiento a clientes anteriores.","Use os horários livres para preencher a agenda ou retomar clientes antigos.","Utilisez les créneaux libres pour remplir l’agenda ou relancer d’anciens clients.");
+  }
+  if(nextAction){nextAction.dataset.jump=nextView;nextAction.textContent=nextLabel;}
+
   const timeline=$("#todayTimeline");
   if(timeline){
     timeline.innerHTML=todayJobs.length?todayJobs.map(j=>`
@@ -5648,25 +5806,25 @@ function renderTodaySummary(wakeAssistant=false){
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
-  const weekStart=startOfWeek(now);
-  const weekEntries=state.timeEntries.filter(t=>new Date(t.clocked_in_at)>=weekStart);
+  const weekEntries=state.timeEntries.filter(t=>new Date(t.clocked_in_at)>=weekStart&&new Date(t.clocked_in_at)<weekEnd);
   const weekMinutes=weekEntries.reduce((sum,t)=>sum+Number(t.minutes_worked||0),0);
-  const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T00:00:00")>=weekStart).reduce((sum,m)=>sum+Number(m.miles||0),0);
-  const weekCompleted=state.jobs.filter(j=>j.status==="completed"&&new Date(j.starts_at)>=weekStart).length;
-  const wh=$("#weekHours");
-  if(wh){
-    const hours=(weekMinutes/60).toFixed(1).replace(".0","");
-    wh.textContent=langPick(hours+" work hours",hours+" h trabajadas",hours+" h trabalhadas",hours+" h travaillées");
-  }
+  const weekMiles=state.mileageLogs.filter(m=>{const d=new Date(m.log_date+"T00:00:00");return d>=weekStart&&d<weekEnd;}).reduce((sum,m)=>sum+Number(m.miles||0),0);
+  const weekCompleted=weekJobs.filter(j=>j.status==="completed").length;
+  const hours=(weekMinutes/60).toFixed(1).replace(".0","");
+  const weekRevenue=$("#weekRevenue"); if(weekRevenue) weekRevenue.textContent=money(scheduledValue)+" "+langPick("scheduled","agendado","agendado","planifié");
+  const wh=$("#weekHours"); if(wh) wh.textContent=hours;
+  const wc=$("#weekCompleted"); if(wc) wc.textContent=weekCompleted;
+  const wd=$("#weekDistance"); if(wd) wd.textContent=distanceText(weekMiles);
   const ws=$("#weekSummary");
   if(ws){
     ws.textContent=langPick(
-      distanceText(weekMiles)+" logged · "+weekCompleted+" completed job"+(weekCompleted===1?"":"s")+".",
-      distanceText(weekMiles)+" · "+weekCompleted+" trabajo"+(weekCompleted===1?"":"s")+" completado"+(weekCompleted===1?"":"s"),
-      distanceText(weekMiles)+" registrados · "+weekCompleted+" trabalho"+(weekCompleted===1?"":"s")+" concluído"+(weekCompleted===1?"":"s"),
-      distanceText(weekMiles)+" enregistrés · "+weekCompleted+" travail"+(weekCompleted===1?" terminé":"aux terminés")
+      weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",
+      weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",
+      weekJobs.length+" trabalho"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" novo":"s novos")+" · "+money(collectedValue)+" recebido.",
+      weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé."
     );
   }
+  const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Ver relatórios →","Voir les rapports →");
 }
 
 function googleMapsDirectionsUrl(addresses){
