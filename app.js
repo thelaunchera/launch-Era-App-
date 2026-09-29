@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-topbar-169";
+const APP_VERSION = "20260929-audit-fix-170";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -995,6 +995,15 @@ function renderHeroWeatherEffects(){
   const weather=state.weather;
   const season=currentWeatherSeason(weather);
   const visual=currentWeatherVisual(weather);
+  let businessHour=null;
+  try{
+    businessHour=Number(new Intl.DateTimeFormat("en-US",{
+      hour:"2-digit",
+      hour12:false,
+      timeZone:activeBusinessTimeZone()
+    }).format(new Date()));
+  }catch{}
+  const isNight=Number.isFinite(businessHour) && (businessHour>=19 || businessHour<6);
 
   hero.dataset.season=season;
   hero.dataset.weather=visual.kind;
@@ -1021,7 +1030,7 @@ function renderHeroWeatherEffects(){
   }else if(visual.kind==="cloudy"||visual.kind==="partly"){
     precipLayer.innerHTML=particleMarkup(visual.kind==="cloudy"?5:3,"cloud-puff");
   }else if(visual.kind==="clear"){
-    precipLayer.innerHTML='<span class="sun-glow"></span>';
+    precipLayer.innerHTML=isNight?'<span class="moon-glow"></span>':'<span class="sun-glow"></span>';
   }else if(visual.kind==="wind"){
     precipLayer.innerHTML=particleMarkup(visual.intensity==="heavy"?11:7,"wind-streak");
   }else{
@@ -2112,6 +2121,18 @@ async function refreshViewData(id){
               .from("services").select("*").eq("business_id",businessId)
               .order("active",{ascending:false}).order("name");
             if(!seedFetchError) services=seeded||[];
+          }
+        }
+
+        // Prepare safe, editable starter add-ons for every workspace.
+        // They are created inactive with $0 until the owner sets pricing and turns them on.
+        if(["owner","admin"].includes(String(state.business.role||""))){
+          const {data:seededAddonCount,error:seedAddonError}=await supabase.rpc("seed_default_service_addons",{p_business_id:businessId});
+          if(!seedAddonError && Number(seededAddonCount||0)>0){
+            const {data:seededAddons,error:seededAddonsError}=await supabase
+              .from("service_addons").select("*").eq("business_id",businessId)
+              .order("active",{ascending:false}).order("name");
+            if(!seededAddonsError) addons=seededAddons||[];
           }
         }
 
@@ -5465,9 +5486,11 @@ function validIanaTimeZone(value){
   }
 }
 function activeBusinessTimeZone(){
+  // Scheduling must always follow the business timezone. Weather/location
+  // data is display context only and must never move jobs on the calendar.
   const candidates=[
-    state.weather?.location?.timezone,
     state.business?.timezone,
+    state.weather?.location?.timezone,
     Intl.DateTimeFormat().resolvedOptions().timeZone,
     "UTC"
   ];
