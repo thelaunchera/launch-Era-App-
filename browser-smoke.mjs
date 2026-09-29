@@ -160,22 +160,31 @@ try{
       const btn=document.querySelector("#authSubmit");
       if(!btn) return false;
       const r=btn.getBoundingClientRect();
+      const visibleWidth=Math.min(r.right,window.innerWidth)-Math.max(r.left,0);
+      const visibleHeight=Math.min(r.bottom,window.innerHeight)-Math.max(r.top,0);
       return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") &&
         r.width>0 && r.height>0 &&
-        r.left>=0 && r.right<=window.innerWidth &&
-        r.top>=0 && r.bottom<=window.innerHeight;
+        visibleWidth>=20 && visibleHeight>=20;
     },{timeout:8000});
     const submitHit=await page.evaluate(()=>{
       const btn=document.querySelector("#authSubmit");
       if(!btn) return {ok:false,reason:"missing"};
       const r=btn.getBoundingClientRect();
-      const x=r.left+r.width/2;
-      const y=r.top+r.height/2;
+      const left=Math.max(r.left,0);
+      const right=Math.min(r.right,window.innerWidth);
+      const top=Math.max(r.top,0);
+      const bottom=Math.min(r.bottom,window.innerHeight);
+      if(right<=left || bottom<=top){
+        return {ok:false,reason:"outside-viewport",rect:{left:r.left,top:r.top,width:r.width,height:r.height}};
+      }
+      const x=(left+right)/2;
+      const y=(top+bottom)/2;
       const hit=document.elementFromPoint(x,y);
       return {
         ok:hit===btn||btn.contains(hit),
         x,y,
         rect:{left:r.left,top:r.top,width:r.width,height:r.height},
+        visible:{left,right,top,bottom},
         hit:hit?.id||hit?.tagName||""
       };
     });
