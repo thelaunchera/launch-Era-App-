@@ -8252,3 +8252,77 @@ body.shell-auth{overflow-anchor:none}
   .settings-email-flow::-webkit-scrollbar{display:none}
   .settings-email-flow span{white-space:nowrap}
 }
+
+
+/* 2026-09-29 — mobile drawer + data-view reliability fixes */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    padding-bottom:max(20px,env(safe-area-inset-bottom))!important;
+  }
+  body.shell-app #appShell>.sidebar .nav-list{
+    flex:0 0 auto!important;
+    min-height:auto!important;
+    overflow:visible!important;
+    padding-bottom:18px!important;
+  }
+  body.shell-app #appShell>.sidebar .sidebar-session-actions{
+    position:static!important;
+    margin-top:10px!important;
+  }
+}
+
+/* Public booking/quote links must read and behave like real links. */
+.link-box{
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+}
+.link-box a{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--ink);
+  text-decoration:underline;
+  text-underline-offset:3px;
+  font-size:12px;
+  font-weight:750;
+}
+.link-box button{
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid var(--line)!important;
+  border-radius:10px;
+  background:#fff!important;
+}
+@media(max-width:520px){
+  .link-box{
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+  .link-box a{grid-column:1/-1}
+}
+
+/* Keep the phone calendar visibly present even when there are no jobs. */
+[data-page="calendar"].active #calendarWeekRow{
+  display:grid!important;
+  min-height:152px;
+}
+
+/* Custom payment method field */
+.custom-payment-method{
+  display:grid;
+  gap:7px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.custom-payment-method>span{
+  font-size:12px;
+  font-weight:850;
+  color:var(--muted);
+}
+.custom-payment-method input{
+  width:100%;
+}
