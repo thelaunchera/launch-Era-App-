@@ -180,8 +180,8 @@ const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
 if(spanishOnlyBranches!==1){
   throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
 }
-if(!app.includes("function langPick(en,es,pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","pt","fr"]')){
-  throw new Error("Localization regression: EN/ES/PT/FR runtime support is incomplete");
+if(!app.includes("function langPick(en,es,_pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
+  throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
 for(const phrase of ["Today’s jobs","Current client records","Still to collect","Waiting for review","Your scheduled jobs will appear here."]){
   if(!i18n.includes(JSON.stringify(phrase))){
