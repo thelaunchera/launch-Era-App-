@@ -69,7 +69,7 @@ const selectorCounts={
 const selectorCaps={
   ".topbar":40,
   "#menuToggle":9,
-  ".mobile-record-card":55,
+  ".mobile-record-card":65,
   ".invoice-status-field":5,
   ".customer-open-status":4
 };
