@@ -76,6 +76,26 @@ async function assertLayout(page,profile){
   if(languageShape.listed.join(",")!=="fr,ht") throw new Error(profile.name+": secondary language list changed");
   if(languageShape.overflow) throw new Error(profile.name+": language picker overflows viewport");
 
+  // Legacy versions offered Portuguese. A browser that still has pt saved
+  // must normalize to a currently supported language on its next boot.
+  await page.evaluate(()=>localStorage.setItem("tle_language","pt"));
+  await page.reload({waitUntil:"domcontentloaded",timeout:20000});
+  await page.waitForFunction(()=>window.__tleAuthUiReady===true && Boolean(window.TLE_I18N),null,{timeout:10000});
+  const legacyLanguage=await page.evaluate(()=>({
+    runtime:window.TLE_I18N?.language||"",
+    stored:localStorage.getItem("tle_language")||""
+  }));
+  if(!["en","es","fr","ht"].includes(legacyLanguage.runtime) || legacyLanguage.runtime==="pt"){
+    throw new Error(profile.name+": legacy Portuguese language remained active "+JSON.stringify(legacyLanguage));
+  }
+  if(legacyLanguage.stored!==legacyLanguage.runtime){
+    throw new Error(profile.name+": legacy language storage was not normalized "+JSON.stringify(legacyLanguage));
+  }
+
+  const authLanguageAfterLegacy=page.locator("[data-language-toggle]").first();
+  await authLanguageAfterLegacy.click();
+  await page.waitForSelector("#tleLanguageMenu",{state:"visible",timeout:2000});
+
   // Regression guard: switching languages must never keep translated text
   // from the previous language as the new source string.
   await page.locator('#tleLanguageMenu [data-language-choice="fr"]').click();
