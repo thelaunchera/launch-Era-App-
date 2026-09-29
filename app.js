@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-entry-always-home-136";
+const APP_VERSION = "20260929-first-win-no-flash-137";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -78,7 +78,8 @@ const state = {
   currentWorkerLink: null,
   authMode: "signup",
   modalType: null,
-  modalId: null
+  modalId: null,
+  coreDataLoadedFor: null
 };
 
 const $ = (s, root=document) => root.querySelector(s);
@@ -4058,6 +4059,7 @@ function setupInvoiceRealtime(){
 async function loadCoreData(){
   if(!state.business) return;
   const businessId=state.business.id;
+  if(state.coreDataLoadedFor && state.coreDataLoadedFor!==businessId) state.coreDataLoadedFor=null;
 
   const loadFailures=[];
   const safe=async(label,promise,fallback=[])=>{
@@ -4142,6 +4144,7 @@ async function loadCoreData(){
   await loadInquirySeenState();
   await loadInquiryReadIds();
   renderInquiryNotifications();
+  state.coreDataLoadedFor=businessId;
   renderTodaySummary();
   renderOperations();
   renderSettings();
@@ -5329,15 +5332,44 @@ function installSettingsAccordion(){
     head.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}});
   });
 }
+function firstWinStorageKey(){
+  return "tle_first_win_done:"+String(state.business?.id||"workspace");
+}
+function bookingSetupIsComplete(){
+  const hasBookableService=(state.services||[]).some(service=>service.active!==false);
+  const hasAvailability=(state.availabilityRules||[]).some(rule=>rule.active!==false);
+  const hasPublicLink=Boolean(state.publicLinks?.public_slug);
+  return hasBookableService && hasAvailability && hasPublicLink;
+}
 function renderFirstWin(){
   const card=$("#firstWinCard"); if(!card)return;
+
+  // Never decide from the empty startup arrays. On iPhone/PWA those arrays
+  // exist before Supabase has returned, which caused the setup card to flash
+  // for returning owners and then disappear a moment later.
+  if(!state.business?.id || state.coreDataLoadedFor!==state.business.id){
+    card.hidden=true;
+    return;
+  }
+
+  const setupComplete=bookingSetupIsComplete();
   const noOperationalData=!(state.clients?.length||state.jobs?.length||state.bookingRequests?.length||state.quotes?.length||state.invoices?.length);
-  let dismissed=false;try{dismissed=localStorage.getItem("tle_first_win_done")==="1";}catch{}
-  card.hidden=!noOperationalData||dismissed;
+  let dismissed=false;
+  try{
+    dismissed=localStorage.getItem(firstWinStorageKey())==="1";
+    if(setupComplete){
+      localStorage.setItem(firstWinStorageKey(),"1");
+      dismissed=true;
+    }
+  }catch{}
+
+  card.hidden=setupComplete || !noOperationalData || dismissed;
+  if(card.hidden) return;
+
   const title=$("#firstWinTitle"),copy=$("#firstWinCopy"),action=$("#firstWinAction"),eyebrow=$("#firstWinEyebrow");
   if(eyebrow)eyebrow.textContent=langPick("YOUR WORKSPACE IS READY","TU ESPACIO ESTÁ LISTO","SEU ESPAÇO ESTÁ PRONTO","VOTRE ESPACE EST PRÊT");
   if(title)title.textContent=langPick("Get ready for your first booking.","Prepárate para tu primera reserva.","Prepare-se para sua primeira reserva.","Préparez votre première réservation.");
-  if(copy)copy.textContent=langPick("Set up what clients can book, when they can book, then share your link.","Configura qué pueden reservar tus clientes, cuándo pueden reservar y después comparte tu enlace.","Configure o que os clientes podem reservar, quando podem reservar e depois compartilhe seu link.","Configurez ce que vos clients peuvent réserver, quand ils peuvent réserver, puis partagez votre lien.");
+  if(copy)copy.textContent=langPick("Set up what clients can book, when they can book, then share your link.","Configura qué pueden reservar tus clientes, cuándo pueden reservar y después comparte tu enlace.","Configure o que os clientes podem reservar, quando os clientes podem reservar e depois compartilhe seu link.","Configurez ce que vos clients peuvent réserver, quand ils peuvent réserver, puis partagez votre lien.");
   if(action)action.textContent=langPick("Set up booking →","Configurar reservas →","Configurar reservas →","Configurer les réservations →");
 }
 
