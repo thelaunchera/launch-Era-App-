@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-new-owner-first-win-132";
+const APP_VERSION = "20260929-day-night-card-palette-133";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1472,11 +1472,14 @@ function showSetup(){
 function applyQuarterHourCardColors(){
   const now=new Date();
   const quarter=Math.floor(now.getMinutes()/15)%4;
+  const hour=Number(new Intl.DateTimeFormat("en-US",{hour:"2-digit",hour12:false,timeZone:activeBusinessTimeZone()}).format(now));
+  const paletteMode=(hour>=19 || hour<6)?"night":"day";
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
   [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
     el.classList.add("quarter-color-"+quarter);
     el.dataset.colorQuarter=String(quarter);
+    el.dataset.paletteMode=paletteMode;
   });
 }
 
