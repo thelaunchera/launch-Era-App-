@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-tablet-search-178";
+const APP_VERSION = "20260929-invoice-payment-179";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -792,6 +792,15 @@ function paymentMethodLabel(method){
     bank_transfer:"Bank transfer",
     other:"Other"
   }[String(method||"").toLowerCase()]||String(method||"").replace(/_/g," ");
+}
+function customerPaymentMethodLabel(invoice){
+  const method=String(invoice?.customer_payment_method||"").toLowerCase();
+  if(!method) return "";
+  const detail=String(invoice?.customer_payment_method_detail||"").trim();
+  if(method==="other" && detail){
+    return langPick("Other","Otro","Outro","Autre")+" — "+detail;
+  }
+  return paymentMethodLabel(method);
 }
 function currencyForCountry(code){
   const map={
@@ -4063,7 +4072,7 @@ function getInquiryNotifications(){
         type:"invoice-payment-choice",
         createdAt:inv.customer_payment_selected_at,
         name:customerName,
-        service:langPick("Payment method selected","Método de pago seleccionado","Método de pagamento selecionado","Mode de paiement sélectionné")+" · "+String(inv.customer_payment_method||""),
+        service:langPick("Payment method selected","Método de pago seleccionado","Método de pagamento selecionado","Mode de paiement sélectionné")+" · "+customerPaymentMethodLabel(inv),
         status:inv.status||""
       });
     }
@@ -4761,7 +4770,7 @@ function renderInvoices(){
     const remaining=Math.max(0,Number(inv.total||0)-paid);
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
-    const methodLabel=paymentMethodLabel(chosenMethod);
+    const methodLabel=customerPaymentMethodLabel(inv);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
@@ -8056,7 +8065,8 @@ function openPaymentForm(invoiceId){
   if(!inv) return;
   const remaining=Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv));
   const chosen=String(inv.customer_payment_method||"").toLowerCase();
-  const methodLabel=paymentMethodLabel(chosen);
+  const methodLabel=customerPaymentMethodLabel(inv);
+  const paymentOptions=[...new Set([...(state.business.payment_methods||paymentMethodsForCountry(state.business?.country_code)),...(chosen?[chosen]:[])])];
   state.modalType="payment";state.modalId=invoiceId;
   modalHeader("PAYMENT","Record payment",`Invoice #${inv.invoice_number||String(inv.id).slice(0,6)} · ${money(remaining)} remaining`);
   entityForm.innerHTML=`
@@ -8064,7 +8074,7 @@ function openPaymentForm(invoiceId){
     <div class="form-grid">
       <label>Amount<input name="amount" type="number" min="0.01" step="0.01" max="${remaining}" required value="${remaining}"></label>
       <label>Method<select name="method">
-        ${(state.business.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml(paymentMethodLabel(method))}</option>`).join("")}
+        ${paymentOptions.map(method=>`<option value="${escapeHtml(method)}" ${chosen===method?"selected":""}>${escapeHtml(method==="other"&&inv.customer_payment_method_detail?customerPaymentMethodLabel(inv):paymentMethodLabel(method))}</option>`).join("")}
       </select></label>
       <label class="full">Note / reference<textarea name="note" placeholder="Optional reference or payment note"></textarea></label>
     </div>${formSubmit("Confirm payment")}`;
