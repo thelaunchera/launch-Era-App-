@@ -8693,3 +8693,95 @@ body.shell-auth{overflow-anchor:none}
     font-size:17px!important;
   }
 }
+
+
+/* 2026-09-29 — mobile header + booking link clarity v165 */
+[data-page="settings"] .settings-app-preferences-card{order:-20!important}
+
+.link-box{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.link-box .link-copy-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  padding:9px 13px!important;
+  border:1px solid var(--ink)!important;
+  border-radius:11px!important;
+  background:var(--ink)!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+@media(max-width:680px){
+  body.shell-app .global-search-shell,
+  body.shell-app #appRefreshBtn,
+  body.shell-app .notification-shell{
+    display:none!important;
+  }
+  body.shell-app .topbar{
+    display:grid!important;
+    grid-template-columns:auto auto minmax(0,1fr) auto auto!important;
+    gap:6px!important;
+    align-items:center!important;
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+    margin-bottom:16px!important;
+  }
+  body.shell-app .topbar-title{
+    min-width:0!important;
+    width:100%!important;
+  }
+  body.shell-app .topbar-title .eyebrow{display:none!important}
+  body.shell-app .topbar-title h1{
+    margin:0!important;
+    font-size:17px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    max-height:2.2em!important;
+  }
+  body.shell-app #quickAddBtn{
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0!important;
+    border-radius:50%!important;
+    font-size:0!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  body.shell-app #quickAddBtn::before{
+    content:"+";
+    font-size:22px;
+    line-height:1;
+    font-weight:900;
+  }
+  body.shell-app #languageBtn{
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+  }
+  [data-page="booking"] .link-box{
+    grid-template-columns:1fr!important;
+  }
+  [data-page="booking"] .link-box>a,
+  [data-page="booking"] .link-box .link-copy-btn{
+    grid-column:1!important;
+    width:100%!important;
+  }
+  [data-page="booking"] .link-box .link-copy-btn{
+    min-height:46px!important;
+    font-size:12px!important;
+  }
+}
