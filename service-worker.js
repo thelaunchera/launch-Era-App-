@@ -1,16 +1,16 @@
-const CACHE_NAME="tle-cleaning-app-20260929-css-modules-191";
+const CACHE_NAME="tle-cleaning-app-20260929-simplify-booking-settings-192";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-css-modules-191",
-  "./styles/responsive-shell.css?v=20260929-css-modules-191",
-  "./styles/customer-documents.css?v=20260929-css-modules-191",
-  "./app.js?v=20260929-css-modules-191",
-  "./followups.js?v=20260929-css-modules-191",
-  "./i18n.js?v=20260929-css-modules-191",
-  "./public.js?v=20260929-css-modules-191",
-  "./vendor/supabase.js?v=20260929-css-modules-191",
-  "./manifest.webmanifest?v=20260929-css-modules-191"
+  "./styles.css?v=20260929-simplify-booking-settings-192",
+  "./styles/responsive-shell.css?v=20260929-simplify-booking-settings-192",
+  "./styles/customer-documents.css?v=20260929-simplify-booking-settings-192",
+  "./app.js?v=20260929-simplify-booking-settings-192",
+  "./followups.js?v=20260929-simplify-booking-settings-192",
+  "./i18n.js?v=20260929-simplify-booking-settings-192",
+  "./public.js?v=20260929-simplify-booking-settings-192",
+  "./vendor/supabase.js?v=20260929-simplify-booking-settings-192",
+  "./manifest.webmanifest?v=20260929-simplify-booking-settings-192"
 ];
 
 self.addEventListener("install",event=>{
