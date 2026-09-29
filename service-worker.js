@@ -1,9 +1,9 @@
-const CACHE_NAME="tle-cleaning-app-20260929-mobile-navigation-data-159";
+const CACHE_NAME="tle-cleaning-app-20260929-invoice-mobile-actions-160";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-mobile-navigation-data-159",
-  "./app.js?v=20260929-mobile-navigation-data-159",
+  "./styles.css?v=20260929-invoice-mobile-actions-160",
+  "./app.js?v=20260929-invoice-mobile-actions-160",
   "./followups.js?v=20260929-mobile-navigation-data-159",
   "./i18n.js?v=20260929-mobile-navigation-data-159",
   "./public.js?v=20260929-mobile-navigation-data-159",
