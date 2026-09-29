@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { JSDOM } from "jsdom";
 
 const html=fs.readFileSync("index.html","utf8");
+const boot=fs.readFileSync("boot.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
@@ -9,6 +10,7 @@ const i18n=fs.readFileSync("i18n.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 const styles=[
+  "styles/boot.css",
   "styles.css",
   "styles/workspace-components.css",
   "styles/workspace-experience.css",
@@ -223,7 +225,7 @@ if(
   throw new Error("Public localization regression: booking/quote/invoice states bypass translation");
 }
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
-const shellVersion=(html.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
+const shellVersion=(boot.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
 const serviceWorkerVersion=(serviceWorker.match(/CACHE_NAME="tle-cleaning-app-([^"]+)"/)||[])[1];
 const htmlAssetVersions=[...html.matchAll(/\\?v=(202609\\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
 const serviceWorkerAssetVersions=[...serviceWorker.matchAll(/\\?v=(202609\\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
@@ -231,6 +233,13 @@ const releaseVersions=[appVersion,shellVersion,serviceWorkerVersion,...htmlAsset
 if(!appVersion || !shellVersion || !serviceWorkerVersion || releaseVersions.some(v=>v!==appVersion)){
   throw new Error("Release version mismatch across app shell/runtime/service worker/assets");
 }
+if(!html.includes("./boot.js?v="+appVersion) || !serviceWorker.includes("./boot.js?v="+appVersion)){
+  throw new Error("Boot regression: versioned boot.js must be loaded and cached");
+}
+if(/tle_admin_emails|tle_last_admin_email|params\.get\(["']admin["']\)/.test(html)){
+  throw new Error("Auth regression: legacy client-side admin bootstrap returned");
+}
+
 const manifestData=JSON.parse(manifest);
 if(manifestData.start_url!=="./"){
   throw new Error("PWA regression: manifest start_url must stay version-agnostic");
@@ -262,7 +271,7 @@ if(!$("#sessionSplash") || !html.includes("./app-icon.svg") || !app.includes("fu
 if(!app.includes("function showApp(){\n  dismissSessionSplash();") || !app.includes("function showAuthWelcome(){\n  dismissSessionSplash();")){
   throw new Error("Session splash regression: splash must resolve only after auth/session routing decides the next screen");
 }
-if(!html.includes('host==="app.thelaunchera.com"&&!automation') || !html.includes("navigator.webdriver")){
+if(!boot.includes('host==="app.thelaunchera.com"&&!automation') || !boot.includes("navigator.webdriver")){
   throw new Error("Analytics regression: app must block automated/non-production GA4 traffic");
 }
 if(!app.includes("function trackAuthLandingOnHumanInteraction()") ||

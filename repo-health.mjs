@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 const read = file => fs.readFileSync(file,"utf8");
 const app = read("app.js");
+const boot = read("boot.js");
 const html = read("index.html");
 const sw = read("service-worker.js");
 const i18n = read("i18n.js");
@@ -16,7 +17,7 @@ const pass = message => console.log("REPO_HEALTH_OK · "+message);
 const warn = message => console.warn("REPO_HEALTH_WARN · "+message);
 
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
-const shellVersion=(html.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
+const shellVersion=(boot.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
 const swVersion=(sw.match(/CACHE_NAME="tle-cleaning-app-([^"]+)"/)||[])[1];
 const htmlVersions=[...html.matchAll(/\?v=(202609\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
 const swVersions=[...sw.matchAll(/\?v=(202609\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
@@ -32,6 +33,7 @@ else pass("manifest start_url is version-agnostic");
 
 
 const expectedStyleOrder=[
+  "styles/boot.css",
   "styles.css",
   "styles/workspace-components.css",
   "styles/workspace-experience.css",
@@ -54,11 +56,20 @@ for(const file of expectedStyleOrder){
   if(!sw.includes("./"+file+"?v="+appVersion)) fail("service worker core is missing stylesheet: "+file);
 }
 if(!process.exitCode) pass("stylesheet module order and service-worker cache list are synchronized");
+if(!html.includes("./boot.js?v="+appVersion)) fail("boot.js is missing from the versioned app shell");
+if(!sw.includes("./boot.js?v="+appVersion)) fail("service worker core is missing boot.js");
+
 
 if(fs.existsSync("admin-reset.html")){
   fail("legacy admin-reset.html must not be shipped in the public app");
 }else{
   pass("legacy public admin reset page is absent");
+}
+
+if(/tle_admin_emails|tle_last_admin_email|params\.get\(["']admin["']\)/.test(html)){
+  fail("legacy client-side admin bootstrap must not exist in public index.html");
+}else{
+  pass("public shell contains no client-side admin identity bootstrap");
 }
 
 if(/PRIMARY_PLATFORM_ADMIN_EMAIL|LEGACY_PLATFORM_ADMIN_EMAIL|isPrimaryPlatformAdminAccount/.test(app)){
@@ -82,6 +93,8 @@ else pass("service worker sensitive URL cache guard is present");
 
 const limits={
   "app.js":525000,
+  "boot.js":6000,
+  "styles/boot.css":5000,
   "styles.css":80000,
   "styles/workspace-components.css":65000,
   "styles/workspace-experience.css":110000,

@@ -7,19 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <script>
-  (function(){
-    try{
-      var params=new URLSearchParams(location.search);
-      if(params.get("admin")==="1"){
-        localStorage.setItem("tle_last_admin_email","dailinsegura17@gmail.com");
-        localStorage.setItem("tle_admin_emails",JSON.stringify(["dailinsegura17@gmail.com"]));
-      }
-      // Never delete Supabase auth storage during page bootstrap. Session validity
-      // belongs to supabase-js, which can refresh persisted iOS/PWA sessions.
-    }catch(e){}
-  })();
-</script>
+  
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Cleaning App" />
@@ -29,64 +17,18 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for cleaning businesses serving homes, Airbnb and short-term rentals, offices, stores, restaurants and other commercial spaces." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <script>
-    (function(){
-      try{
-        var host=String(location.hostname||"").toLowerCase();
-        var ua=String(navigator.userAgent||"");
-        var params=new URLSearchParams(location.search);
-        var automation=Boolean(
-          navigator.webdriver ||
-          /HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed/i.test(ua) ||
-          params.has("browser-smoke") ||
-          params.has("cross-browser-smoke") ||
-          params.has("ci-smoke")
-        );
-        window.__tleAnalyticsEnabled=host==="app.thelaunchera.com"&&!automation;
-        if(!window.__tleAnalyticsEnabled) return;
-        window.dataLayer=window.dataLayer||[];
-        window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
-        var script=document.createElement("script");
-        script.async=true;
-        script.src="https://www.googletagmanager.com/gtag/js?id=G-N5BHMC432Q";
-        document.head.appendChild(script);
-        window.gtag("js",new Date());
-        window.gtag("config","G-N5BHMC432Q",{send_page_view:false});
-      }catch(e){window.__tleAnalyticsEnabled=false;}
-    })();
-  </script>
-  <style id="tle-session-splash-style">
-    #sessionSplash{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:#FAF8F3;transition:opacity .18s ease,visibility .18s ease}
-    #sessionSplash[hidden]{display:none}
-    #sessionSplash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
-    .session-splash-inner{display:grid;place-items:center;gap:18px}
-    .session-splash-icon{width:84px;height:84px;display:block;filter:drop-shadow(0 10px 24px rgba(25,25,25,.10));animation:tleSplashPulse 1.15s ease-in-out infinite}
-    .session-splash-spinner{width:22px;height:22px;border-radius:50%;border:2px solid rgba(25,25,25,.14);border-top-color:#191919;animation:tleSplashSpin .75s linear infinite}
-    @keyframes tleSplashPulse{0%,100%{transform:scale(.96);opacity:.84}50%{transform:scale(1);opacity:1}}
-    @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
-    @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
-  </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/workspace-components.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/release-overrides.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/release-mobile.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/release-latest.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260929-release-modules-199" />
-  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260929-release-modules-199" />
-  <script>
-    window.__tleBootErrorHandler = true;
-    window.addEventListener("error", function(event){
-      var splash=document.getElementById("sessionSplash");
-      if(splash) splash.hidden=true;
-      var status=document.getElementById("authStatus");
-      if(status && !window.__tleAppReady){
-        status.textContent="App loading failed. Refreshing…";
-        status.dataset.type="error";
-      }
-    });
-  </script>
+  <script src="./boot.js?v=20260929-boot-modules-200"></script>
+  <link rel="stylesheet" href="./styles/boot.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/workspace-components.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/release-overrides.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/release-mobile.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/release-latest.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260929-boot-modules-200" />
+  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260929-boot-modules-200" />
+  
 </head>
 <body class="shell-auth">
   <div id="sessionSplash" role="status" aria-live="polite" aria-label="Loading Cleaning App">
@@ -1436,30 +1378,11 @@
   </div>
 
   <div class="toast" id="toast">Copied</div>
-  <script>
-    window.__tleShellVersion="20260929-release-modules-199";
-    if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
-      window.addEventListener("load",function(){
-        navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
-          .then(function(reg){
-            // Check once on a natural page load. Do not update on focus/visibility:
-            // iOS password autofill and returning from native apps both trigger
-            // those events and previously caused visible reload/jump glitches.
-            reg.update().catch(function(){});
-          })
-          .catch(function(err){console.warn("[TLE] service worker",err);});
-      });
-      navigator.serviceWorker.addEventListener("controllerchange",function(){
-        // The new worker can control the current page without forcing a reload.
-        // The next natural navigation receives the newest shell.
-        try{sessionStorage.setItem("tle_sw_ready_"+window.__tleShellVersion,"1");}catch(e){}
-      });
-    }
-  </script>
-  <script src="./vendor/supabase.js?v=20260929-release-modules-199"></script>
-  <script src="./i18n.js?v=20260929-release-modules-199"></script>
-  <script src="./public.js?v=20260929-release-modules-199"></script>
-  <script src="./app.js?v=20260929-release-modules-199"></script>
-  <script src="./followups.js?v=20260929-release-modules-199"></script>
+  
+  <script src="./vendor/supabase.js?v=20260929-boot-modules-200"></script>
+  <script src="./i18n.js?v=20260929-boot-modules-200"></script>
+  <script src="./public.js?v=20260929-boot-modules-200"></script>
+  <script src="./app.js?v=20260929-boot-modules-200"></script>
+  <script src="./followups.js?v=20260929-boot-modules-200"></script>
 </body>
 </html>

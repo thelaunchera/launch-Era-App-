@@ -1,0 +1,9 @@
+#sessionSplash{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:#FAF8F3;transition:opacity .18s ease,visibility .18s ease}
+#sessionSplash[hidden]{display:none}
+#sessionSplash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+.session-splash-inner{display:grid;place-items:center;gap:18px}
+.session-splash-icon{width:84px;height:84px;display:block;filter:drop-shadow(0 10px 24px rgba(25,25,25,.10));animation:tleSplashPulse 1.15s ease-in-out infinite}
+.session-splash-spinner{width:22px;height:22px;border-radius:50%;border:2px solid rgba(25,25,25,.14);border-top-color:#191919;animation:tleSplashSpin .75s linear infinite}
+@keyframes tleSplashPulse{0%,100%{transform:scale(.96);opacity:.84}50%{transform:scale(1);opacity:1}}
+@keyframes tleSplashSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
