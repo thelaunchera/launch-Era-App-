@@ -1689,6 +1689,21 @@
     "Times shown in the cleaning business’s local time":"Les horaires sont affichés dans le fuseau horaire local de l’entreprise de nettoyage","Your device time zone":"Fuseau horaire de votre appareil","(optional)":"(facultatif)"
   });
 
+  Object.assign(exact,{
+    "Street, city, region, postal code, country":"Calle, ciudad, región, código postal, país",
+    "Parking, doorman, stairs, elevator…":"Estacionamiento, portero, escaleras, elevador…",
+    "Do not enter door, lockbox or alarm codes here.":"No escribas aquí códigos de puerta, caja de llaves ni alarma."
+  });
+  Object.assign(extra.pt,{
+    "Street, city, region, postal code, country":"Rua, cidade, região, código postal, país",
+    "Parking, doorman, stairs, elevator…":"Estacionamento, porteiro, escadas, elevador…",
+    "Do not enter door, lockbox or alarm codes here.":"Não informe aqui códigos de porta, caixa de chaves ou alarme."
+  });
+  Object.assign(extra.fr,{
+    "Street, city, region, postal code, country":"Rue, ville, région, code postal, pays",
+    "Parking, doorman, stairs, elevator…":"Stationnement, concierge, escaliers, ascenseur…",
+    "Do not enter door, lockbox or alarm codes here.":"N’indiquez pas ici de code de porte, de boîte à clés ou d’alarme."
+  });
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
