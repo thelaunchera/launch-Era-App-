@@ -541,55 +541,94 @@
           </div>
         </div>
 
-        <div class="metric-grid">
-          <article class="metric-card metric-link" data-jump="calendar" role="button" tabindex="0"><span>Today’s jobs</span><strong>0</strong><small>Scheduled today</small></article>
-          <article class="metric-card metric-link" data-jump="clients" role="button" tabindex="0"><span>Active clients</span><strong>0</strong><small>Current client records</small></article>
-          <article class="metric-card metric-link" data-jump="quotes" role="button" tabindex="0"><span>Open quotes</span><strong>0</strong><small>Requested, draft or sent</small></article>
-          <article class="metric-card metric-link" data-jump="invoices" role="button" tabindex="0"><span>Outstanding invoices</span><strong id="todayOutstanding">$0</strong><small>Still to collect</small></article>
-          <article class="metric-card metric-link" data-jump="booking" role="button" tabindex="0"><span>Booking requests</span><strong id="todayBookingRequests">0</strong><small>Waiting for review</small></article>
+        <div class="business-pulse" id="businessPulse">
+          <article class="pulse-card pulse-money" data-jump="calendar" role="button" tabindex="0">
+            <span id="pulseBookedLabel">Est. scheduled this week</span>
+            <strong id="pulseBooked">$0</strong>
+            <small id="pulseBookedTrend">Based on scheduled services</small>
+          </article>
+          <article class="pulse-card pulse-collected" data-jump="invoices" role="button" tabindex="0">
+            <span id="pulseCollectedLabel">Collected this week</span>
+            <strong id="pulseCollected">$0</strong>
+            <small id="pulseCollectedTrend">Confirmed payments</small>
+          </article>
+          <article class="pulse-card pulse-jobs" data-jump="calendar" role="button" tabindex="0">
+            <span id="pulseJobsLabel">Jobs this week</span>
+            <strong id="pulseJobs">0</strong>
+            <small id="pulseJobsTrend">On the schedule</small>
+          </article>
+          <article class="pulse-card pulse-clients" data-jump="clients" role="button" tabindex="0">
+            <span id="pulseClientsLabel">New clients</span>
+            <strong id="pulseNewClients">0</strong>
+            <small id="pulseClientsTrend">Added this week</small>
+          </article>
         </div>
 
-        <div class="dashboard-grid">
-          <article class="panel">
+        <div class="dashboard-grid growth-grid">
+          <article class="panel schedule-panel">
             <div class="panel-head">
-              <div><p class="eyebrow">TODAY</p><h3>Schedule + route</h3></div>
-              <button class="text-btn" data-jump="calendar">Full calendar →</button>
+              <div><p class="eyebrow" id="todayScheduleEyebrow">TODAY</p><h3 id="todayScheduleTitle">Schedule + route</h3></div>
+              <button class="text-btn" data-jump="calendar" id="fullCalendarBtn">Full calendar →</button>
             </div>
             <div class="timeline" id="todayTimeline"></div>
           </article>
 
-          <article class="panel">
-            <div class="panel-head"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Quick actions</h3></div></div>
-            <div class="quick-grid">
-              <button class="quick-card" data-action="client" data-admin-only>＋<span>Add client</span></button>
-              <button class="quick-card" data-action="quote" data-admin-only>◫<span>Create quote</span></button>
-              <button class="quick-card" data-jump="booking" data-admin-only>↗<span>Booking link</span></button>
-              <button class="quick-card" data-action="invoice" data-admin-only>$<span>Create invoice</span></button>
-              <button class="quick-card" data-jump="mileage">↔<span>Log distance</span></button>
-              <button class="quick-card" data-jump="time">◷<span>Track time</span></button>
+          <article class="panel capacity-card" data-owner-only>
+            <div class="capacity-top">
+              <div><p class="eyebrow" id="capacityEyebrow">CAPACITY</p><h3 id="capacityTitle">This week</h3></div>
+              <strong id="capacityPercent">0%</strong>
             </div>
+            <div class="capacity-track" aria-hidden="true"><span id="capacityBar"></span></div>
+            <p class="capacity-message" id="capacityMessage">Your availability will appear here.</p>
+            <button class="text-btn" data-jump="calendar" id="capacityAction">See open time →</button>
           </article>
         </div>
 
-        <div class="dashboard-grid lower">
-          <article class="panel" data-admin-only>
-            <div class="panel-head"><div><p class="eyebrow">NEEDS ATTENTION</p><h3>Needs attention</h3></div></div>
+        <article class="panel next-move-panel" data-admin-only>
+          <div class="next-move-copy">
+            <p class="eyebrow" id="nextMoveEyebrow">YOUR NEXT MOVE</p>
+            <h3 id="nextMoveTitle">Everything is caught up.</h3>
+            <p id="nextMoveCopy">Nothing urgent needs your attention right now.</p>
+          </div>
+          <button class="dark-btn" id="nextMoveAction" data-jump="calendar">View calendar →</button>
+        </article>
+
+        <article class="panel quick-actions-panel">
+          <div class="panel-head"><div><p class="eyebrow" id="quickActionsEyebrow">QUICK ACTIONS</p><h3 id="quickActionsTitle">Keep the day moving</h3></div></div>
+          <div class="quick-grid growth-quick-grid">
+            <button class="quick-card" data-action="client" data-admin-only><span class="quick-icon">＋</span><span>Add client</span></button>
+            <button class="quick-card" data-action="quote" data-admin-only><span class="quick-icon">◇</span><span>Create quote</span></button>
+            <button class="quick-card" data-jump="booking" data-admin-only><span class="quick-icon">↗</span><span>Booking link</span></button>
+            <button class="quick-card" data-action="invoice" data-admin-only><span class="quick-icon">$</span><span>Create invoice</span></button>
+            <button class="quick-card" data-jump="mileage"><span class="quick-icon">⌁</span><span>Log distance</span></button>
+            <button class="quick-card" data-jump="time"><span class="quick-icon">◷</span><span>Track time</span></button>
+          </div>
+        </article>
+
+        <div class="dashboard-grid lower growth-lower">
+          <article class="panel attention-panel" data-admin-only>
+            <div class="panel-head"><div><p class="eyebrow" id="attentionEyebrow">FOLLOW THROUGH</p><h3 id="attentionTitle">Open items</h3></div></div>
             <div class="attention-list" id="attentionList"></div>
           </article>
 
-          <article class="panel accent-panel" data-owner-only>
-            <p class="eyebrow">THIS WEEK</p>
-            <h3 id="weekHours">0 work hours</h3>
-            <p id="weekSummary">No completed work logged yet.</p>
-            <button class="dark-btn" data-jump="reports">See reports →</button>
+          <article class="panel week-growth-card" data-owner-only>
+            <p class="eyebrow" id="weekGrowthEyebrow">THIS WEEK</p>
+            <h3 id="weekRevenue">$0 scheduled</h3>
+            <p id="weekSummary">Your weekly activity will build here.</p>
+            <div class="week-growth-stats">
+              <span><small id="weekCompletedLabel">Completed</small><b id="weekCompleted">0</b></span>
+              <span><small id="weekHoursLabel">Work hours</small><b id="weekHours">0</b></span>
+              <span><small id="weekDistanceLabel">Distance</small><b id="weekDistance">0 mi</b></span>
+            </div>
+            <button class="dark-btn" data-jump="reports" id="weekReportsBtn">See reports →</button>
           </article>
         </div>
 
-        <article class="panel presence-panel" data-owner-only>
+        <article class="panel presence-panel presence-panel-compact" data-owner-only>
           <div class="presence-copy">
-            <p class="eyebrow">ONLINE PRESENCE</p>
-            <h3>Online presence</h3>
-            <p id="presenceHint">Add your social profiles in Business Profile.</p>
+            <p class="eyebrow" id="presenceEyebrow">CLIENT-FACING LINKS</p>
+            <h3 id="presenceTitle">Your business online</h3>
+            <p id="presenceHint">Keep your client-facing links close while you run the day.</p>
           </div>
           <div class="presence-actions">
             <button class="presence-btn" type="button" id="presenceInstagramBtn"><span class="presence-mark">◎</span><span><strong>Instagram</strong><small id="presenceInstagramState">Add profile</small></span></button>
