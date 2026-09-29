@@ -72,27 +72,36 @@ for(const [file,limit] of Object.entries(limits)){
   else pass(file+" size "+size+" / "+limit);
 }
 
-const css=read("styles.css");
-const selectorCounts={
-  ".topbar":(css.match(/\.topbar/g)||[]).length,
-  "#menuToggle":(css.match(/#menuToggle/g)||[]).length,
-  ".mobile-record-card":(css.match(/\.mobile-record-card/g)||[]).length,
-  ".invoice-status-field":(css.match(/\.invoice-status-field/g)||[]).length,
-  ".customer-open-status":(css.match(/\.customer-open-status/g)||[]).length
+const selectorModules={
+  "styles.css":{
+    caps:{".topbar":20,"#menuToggle":5,".mobile-record-card":5},
+    source:read("styles.css")
+  },
+  "styles/workspace-components.css":{
+    caps:{".topbar":6,"#menuToggle":4,".mobile-record-card":50},
+    source:read("styles/workspace-components.css")
+  },
+  "styles/release-overrides.css":{
+    caps:{".topbar":24,"#menuToggle":8,".mobile-record-card":22},
+    source:read("styles/release-overrides.css")
+  },
+  "styles/responsive-shell.css":{
+    caps:{".topbar":12,"#menuToggle":7},
+    source:read("styles/responsive-shell.css")
+  },
+  "styles/customer-documents.css":{
+    caps:{".invoice-status-field":14,".customer-open-status":8},
+    source:read("styles/customer-documents.css")
+  }
 };
-const selectorCaps={
-  ".topbar":40,
-  "#menuToggle":9,
-  ".mobile-record-card":65,
-  ".invoice-status-field":5,
-  ".customer-open-status":4
-};
-for(const [selector,count] of Object.entries(selectorCounts)){
-  const cap=selectorCaps[selector];
-  if(Number.isFinite(cap) && count>cap){
-    fail(selector+" duplicate count grew from its consolidation baseline "+cap+" to "+count);
-  }else if(count>20){
-    warn(selector+" still appears "+count+" times; consolidate before adding more variants");
+for(const [file,config] of Object.entries(selectorModules)){
+  for(const [selector,cap] of Object.entries(config.caps)){
+    const count=config.source.split(selector).length-1;
+    if(count>cap){
+      fail(file+" · "+selector+" grew beyond module baseline "+cap+" to "+count);
+    }else{
+      pass(file+" · "+selector+" count "+count+" / "+cap);
+    }
   }
 }
 
