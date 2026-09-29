@@ -58,6 +58,19 @@ const styles=[
   "styles/customer-documents.css"
 ].map(file=>fs.readFileSync(file,"utf8")).join("\n");
 
+
+if(
+  !styles.includes("night mobile card contrast safety v206") ||
+  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
+  !styles.includes('.app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card') ||
+  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card') ||
+  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel') ||
+  !styles.includes("color:#191919!important") ||
+  !styles.includes("background:#FFFFFF!important")
+){
+  throw new Error("Night contrast regression: light mobile cards must keep readable text after the 7 PM palette switch");
+}
+
 const dom=new JSDOM(html,{
   // Run the auth smoke test on the canonical production origin. The app
   // intentionally redirects legacy GitHub Pages traffic before auth UI setup.

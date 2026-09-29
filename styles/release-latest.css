@@ -388,3 +388,62 @@
     text-overflow:ellipsis!important;
   }
 }
+
+
+/* 2026-09-29 — night mobile card contrast safety v206 */
+/* Operational cards stay light on phones even after the 7 PM palette switch.
+   Keep the night atmosphere in the hero/ambient system, but never inherit
+   white night text onto white or ivory record surfaces. */
+@media(max-width:680px){
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact,
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card,
+  .app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card{
+    color:#191919!important;
+    border-color:rgba(25,25,25,.12)!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact{
+    background:#FFFDF9!important;
+  }
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card{
+    background:#FFFFFF!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card{
+    background:#FCFBF8!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] :is(.client-card-identity strong,.client-business-snapshot b),
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell[data-palette-mode="night"] [data-page="invoices"] .invoice-next-action,
+  .app-shell[data-palette-mode="night"] [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b){
+    color:#191919!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] :is(.client-card-identity span,.client-business-snapshot small,.client-location),
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card>.record-primary small,
+  .app-shell[data-palette-mode="night"] [data-page="invoices"] .invoice-growth-row>.record-field>small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
+  .app-shell[data-palette-mode="night"] [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span){
+    color:#6F6A62!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-avatar{
+    color:#191919!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-balance{
+    background:#E8F5E9!important;
+    color:#35623D!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-balance.has-balance{
+    background:#FFF4D6!important;
+    color:#725400!important;
+  }
+
+  /* release-latest intentionally keeps Next Move on a light semantic surface;
+     override the earlier night-copy rule so contrast follows that surface. */
+  .app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel{
+    color:#191919!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel :is(.eyebrow,p){
+    color:#6F6A62!important;
+  }
+}
