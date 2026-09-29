@@ -63,10 +63,12 @@ if(!html.includes("./onboarding-copy.js?v="+appVersion)) fail("onboarding-copy.j
 if(!sw.includes("./onboarding-copy.js?v="+appVersion)) fail("service worker core is missing onboarding-copy.js");
 
 
-if(fs.existsSync("admin-reset.html")){
-  fail("legacy admin-reset.html must not be shipped in the public app");
-}else{
-  pass("legacy public admin reset page is absent");
+const retiredArtifacts=["demo.html","admin-reset.html","docs/PRODUCT_BLUEPRINT.md"];
+for(const file of retiredArtifacts){
+  if(fs.existsSync(file)) fail("retired repository artifact returned: "+file);
+}
+if(!retiredArtifacts.some(file=>fs.existsSync(file))){
+  pass("retired demo/recovery/duplicate blueprint artifacts are absent");
 }
 
 if(/tle_admin_emails|tle_last_admin_email|params\.get\(["']admin["']\)/.test(html)){
