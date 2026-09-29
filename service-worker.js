@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-mobile-view-data-fixes-155";
+const CACHE_NAME="tle-cleaning-app-20260929-nav-language-polish-156";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-mobile-view-data-fixes-155",
-  "./app.js?v=20260929-mobile-view-data-fixes-155",
-  "./followups.js?v=20260929-mobile-view-data-fixes-155",
-  "./i18n.js?v=20260929-mobile-view-data-fixes-155",
-  "./public.js?v=20260929-mobile-view-data-fixes-155",
-  "./vendor/supabase.js?v=20260929-mobile-view-data-fixes-155",
-  "./manifest.webmanifest?v=20260929-mobile-view-data-fixes-155"
+  "./styles.css?v=20260929-nav-language-polish-156",
+  "./app.js?v=20260929-nav-language-polish-156",
+  "./followups.js?v=20260929-nav-language-polish-156",
+  "./i18n.js?v=20260929-nav-language-polish-156",
+  "./public.js?v=20260929-nav-language-polish-156",
+  "./vendor/supabase.js?v=20260929-nav-language-polish-156",
+  "./manifest.webmanifest?v=20260929-nav-language-polish-156"
 ];
 
 self.addEventListener("install",event=>{
