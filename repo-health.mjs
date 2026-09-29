@@ -45,7 +45,9 @@ else pass("service worker sensitive URL cache guard is present");
 
 const limits={
   "app.js":525000,
-  "styles.css":340000,
+  "styles.css":315000,
+  "styles/responsive-shell.css":12000,
+  "styles/customer-documents.css":12000,
   "i18n.js":190000,
   "index.html":100000,
   "public.js":65000
@@ -61,10 +63,23 @@ const selectorCounts={
   ".topbar":(css.match(/\.topbar/g)||[]).length,
   "#menuToggle":(css.match(/#menuToggle/g)||[]).length,
   ".mobile-record-card":(css.match(/\.mobile-record-card/g)||[]).length,
-  ".invoice-status-field":(css.match(/\.invoice-status-field/g)||[]).length
+  ".invoice-status-field":(css.match(/\.invoice-status-field/g)||[]).length,
+  ".customer-open-status":(css.match(/\.customer-open-status/g)||[]).length
+};
+const selectorCaps={
+  ".topbar":40,
+  "#menuToggle":9,
+  ".mobile-record-card":55,
+  ".invoice-status-field":5,
+  ".customer-open-status":4
 };
 for(const [selector,count] of Object.entries(selectorCounts)){
-  if(count>20) warn(selector+" appears "+count+" times; schedule CSS consolidation");
+  const cap=selectorCaps[selector];
+  if(Number.isFinite(cap) && count>cap){
+    fail(selector+" duplicate count grew from its consolidation baseline "+cap+" to "+count);
+  }else if(count>20){
+    warn(selector+" still appears "+count+" times; consolidate before adding more variants");
+  }
 }
 
 if(process.exitCode) process.exit(process.exitCode);
