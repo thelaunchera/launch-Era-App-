@@ -4719,7 +4719,7 @@ function renderBookingServices(){
     const isUpfront=s.pricing_type==="flat" && Number(s.base_price)>0;
     return `<div class="booking-service-row">
       <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${isUpfront?money(s.base_price):langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé")} · ${isUpfront?langPick("Book a Cleaning","Reservar una limpieza","Reservar uma limpeza","Réserver un nettoyage"):langPick("Request a Quote","Pedir una cotización","Solicitar orçamento","Demander un devis")}</small></span>
-      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>"):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Fluxo de orçamento","Parcours devis"))}</i>`}</span>
+      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Sem adicionais","Aucune option"))}</i>`):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Fluxo de orçamento","Parcours devis"))}</i>`}</span>
     </div>`;
   }).join("");
 }
@@ -7497,11 +7497,27 @@ function openEntityForm(type,id=null){
           <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}</option>
           <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé"))}</option>
         </select></label>
-        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?"Not needed":""}"></label>
+        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Não é necessário","Non requis"):""}"></label>
         <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Duração (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Descrição","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
         <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Serviço ativo","Service actif"))}</label>
       </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Salvar alterações","Enregistrer"):langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter le service"))}`;
+    const pricingSelect=entityForm.querySelector('[name="pricing_type"]');
+    const basePriceInput=entityForm.querySelector('[name="base_price"]');
+    const syncServicePriceField=()=>{
+      if(!pricingSelect||!basePriceInput) return;
+      const upfront=pricingSelect.value==="flat";
+      basePriceInput.disabled=!upfront;
+      basePriceInput.required=upfront;
+      if(!upfront){
+        basePriceInput.value="";
+        basePriceInput.placeholder=langPick("Not needed","No hace falta","Não é necessário","Non requis");
+      }else{
+        basePriceInput.placeholder="0.00";
+      }
+    };
+    pricingSelect?.addEventListener("change",syncServicePriceField);
+    syncServicePriceField();
   }
 
   if(type==="addon"){
