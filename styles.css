@@ -7968,3 +7968,123 @@ body.shell-auth{overflow-anchor:none}
   .growth-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   .presence-panel-compact{grid-template-columns:1fr!important}
 }
+
+
+/* 2026-09-29 — premium money hierarchy */
+.quote-growth-col>h3{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.quote-growth-col>h3 span{
+  min-width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:rgba(25,25,25,.06);
+  font-size:10px;
+}
+.quote-growth-card{
+  display:grid;
+  gap:13px;
+  padding:16px!important;
+  border:1px solid rgba(25,25,25,.09)!important;
+  border-radius:18px!important;
+  background:#FCFBF8!important;
+}
+.quote-growth-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.quote-status-pill{
+  width:max-content;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:8px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.quote-status-requested{background:#FFF2CC;color:#765B12}
+.quote-status-draft{background:#ECE9E4;color:#6E675F}
+.quote-status-sent{background:#E7F1FA;color:#315F7E}
+.quote-status-accepted{background:#E5F3E7;color:#35663D}
+.quote-status-declined{background:#F9E7E4;color:#8A433A}
+.quote-amount{
+  font-size:25px!important;
+  line-height:1;
+  letter-spacing:-.04em;
+}
+.quote-growth-customer{display:grid;gap:3px}
+.quote-growth-customer>strong{font-size:16px}
+.quote-growth-customer>small{color:var(--muted);font-size:10px}
+.quote-next-step{
+  display:grid;
+  gap:3px;
+  padding:10px 11px;
+  border-radius:12px;
+  background:rgba(25,25,25,.035);
+}
+.quote-next-step span{font-size:10px;color:var(--muted)}
+.quote-next-step b{font-size:10px}
+
+.invoice-growth-row{
+  grid-template-columns:minmax(132px,.8fr) minmax(180px,1.2fr) minmax(128px,.75fr) minmax(150px,.85fr) auto!important;
+  align-items:center!important;
+}
+.invoice-growth-primary{
+  display:grid!important;
+  gap:3px!important;
+}
+.invoice-growth-primary .invoice-number{
+  font-size:8px!important;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.invoice-growth-amount{
+  font-size:25px!important;
+  line-height:1!important;
+  letter-spacing:-.045em;
+}
+.invoice-client-field,
+.invoice-total-field,
+.invoice-status-field{display:grid!important;gap:4px!important}
+.invoice-client-field>strong{font-size:13px}
+.invoice-total-field>strong{font-size:15px!important}
+.invoice-next-action{
+  font-size:10px;
+  line-height:1.3;
+  color:var(--ink);
+}
+.app-shell[data-palette-mode="night"] .quote-growth-card{
+  background:rgba(255,255,255,.055)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#FFFDF8!important;
+}
+.app-shell[data-palette-mode="night"] .quote-growth-customer small,
+.app-shell[data-palette-mode="night"] .quote-next-step span{color:rgba(255,255,255,.66)!important}
+.app-shell[data-palette-mode="night"] .quote-next-step{background:rgba(255,255,255,.06)}
+.app-shell[data-palette-mode="night"] .quote-growth-col>h3 span{background:rgba(255,255,255,.08)}
+.app-shell[data-palette-mode="night"] .invoice-next-action{color:#FFFDF8}
+
+@media(max-width:680px){
+  .quote-growth-card{padding:14px!important}
+  .quote-amount{font-size:23px!important}
+  .invoice-growth-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+  }
+  .invoice-growth-primary{grid-column:1!important}
+  .invoice-client-field{grid-column:2!important}
+  .invoice-total-field{grid-column:1!important}
+  .invoice-status-field{grid-column:2!important}
+  .invoice-growth-row>.record-actions{grid-column:1/-1!important}
+  .invoice-growth-amount{font-size:24px!important}
+}
