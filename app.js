@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-view-data-fixes-155";
+const APP_VERSION = "20260929-customer-text-translate-141";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -509,6 +509,31 @@ function customerEmailLanguageOptions(selected="",allowDefault=true){
 function normalizedCustomerEmailLanguage(value){
   const code=String(value||"").trim().toLowerCase();
   return ["en","es","fr","ht"].includes(code)?code:null;
+}
+function customerTextTranslationTarget(){
+  const code=appLanguage();
+  return ["en","es","pt","fr"].includes(code)?code:"en";
+}
+function customerTranslateLabel(){
+  return ({
+    en:"Translate to English",
+    es:"Traducir al español",
+    pt:"Traduzir para português",
+    fr:"Traduire en français"
+  })[customerTextTranslationTarget()]||"Translate";
+}
+function customerTranslateLink(text,sourceLanguage=""){
+  const clean=String(text||"").trim();
+  if(!clean) return "";
+  const target=customerTextTranslationTarget();
+  const source=String(sourceLanguage||"").trim().toLowerCase();
+  if(source && source===target) return "";
+  const supportedSource=["en","es","pt","fr","ht"].includes(source)?source:"auto";
+  const url="https://translate.google.com/?sl="+encodeURIComponent(supportedSource)+
+    "&tl="+encodeURIComponent(target)+
+    "&text="+encodeURIComponent(clean.slice(0,5000))+
+    "&op=translate";
+  return `<a class="customer-translate-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(customerTranslateLabel())} ↗</a>`;
 }
 function appLocale(){
   return state.business?.locale_code
@@ -3766,6 +3791,7 @@ function getInquiryNotifications(){
       requestedAt:b.requested_start_at||"",
       notes:b.notes||lead?.notes||"",
       preferredContact:b.preferred_contact||lead?.preferred_contact||"",
+      preferredLanguage:b.preferred_language||lead?.preferred_language||client?.preferred_language||"",
       recurrencePattern:b.recurrence_pattern||"one_time",
       status:b.status||"requested",
       clientId:client?.id||""
@@ -3793,6 +3819,7 @@ function getInquiryNotifications(){
       requestedAt:"",
       notes:l.notes||"",
       preferredContact:l.preferred_contact||"",
+      preferredLanguage:l.preferred_language||client?.preferred_language||"",
       status:l.status||"new",
       clientId:client?.id||""
     });
@@ -3819,6 +3846,7 @@ function getInquiryNotifications(){
       requestedAt:q.preferred_date&&q.preferred_time?q.preferred_date+"T"+q.preferred_time:"",
       notes:q.notes||"",
       preferredContact:"",
+      preferredLanguage:q.preferred_language||state.clients.find(c=>c.id===q.client_id)?.preferred_language||"",
       status,
       clientId:q.client_id||""
     });
@@ -3838,6 +3866,7 @@ function getInquiryNotifications(){
       address:q.service_address||"",
       service:langPick("Quote request","Solicitud de cotización","Pedido de orçamento","Demande de devis"),
       notes:q.notes||"",
+      preferredLanguage:q.preferred_language||state.clients.find(c=>c.id===q.client_id)?.preferred_language||"",
       status,
       clientId:q.client_id||""
     });
@@ -4023,7 +4052,8 @@ function openInquiryNotificationDetail(notificationId){
         ${requested?`<div class="full"><small>${escapeHtml(langPick("Requested date & time","Fecha y hora solicitada","Data e hora solicitadas","Date et heure demandées"))}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
         ${item.type==="booking"?`<div><small>${escapeHtml(langPick("Frequency","Frecuencia","Frequência","Fréquence"))}</small><strong>${escapeHtml(bookingRecurrenceLabel(item.recurrencePattern))}</strong></div>`:""}
         ${contactMethod?`<div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
-        ${item.notes?`<div class="full"><small>${escapeHtml(langPick("Notes","Notas","Observações","Notes"))}</small><p>${escapeHtml(item.notes)}</p></div>`:""}
+        ${item.preferredLanguage?`<div><small>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}</small><strong>${escapeHtml(customerEmailLanguageLabel(item.preferredLanguage))}</strong></div>`:""}
+        ${item.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Notes","Notas","Observações","Notes"))}</small><p>${escapeHtml(item.notes)}</p>${customerTranslateLink(item.notes,item.preferredLanguage)}</div>`:""}
       </div>
 
       <div class="form-footer inquiry-detail-actions">
@@ -4849,7 +4879,7 @@ function openClientInfo(clientId){
         <div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(clientServiceAddress(client)||"—")}</strong></div>
         <div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(client.preferred_contact||"email")}</strong></div>
         <div><small>${escapeHtml(langPick("Recurring","Recurrente","Recorrente","Récurrent"))}</small><strong>${escapeHtml(recurringSummary.join(", ")||langPick("No","No","Não","Non"))}</strong></div>
-        ${client.notes?`<div class="full"><small>${escapeHtml(langPick("Client notes","Notas del cliente","Notas do cliente","Notes client"))}</small><strong>${escapeHtml(client.notes)}</strong></div>`:""}
+        ${client.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Client notes","Notas del cliente","Notas do cliente","Notes client"))}</small><strong>${escapeHtml(client.notes)}</strong>${customerTranslateLink(client.notes,client.preferred_language)}</div>`:""}
       </div>
       <div class="client-history-stats">
         <span><small>${escapeHtml(langPick("Completed","Completados","Concluídos","Terminés"))}</small><b>${completed}</b></span>
@@ -7188,7 +7218,7 @@ function openEntityForm(type,id=null){
         <label>Status<select name="status">${["new","contacted","qualified","quoted","booked","lost"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v}</option>`).join("")}</select></label>
         <label class="full">Service interest<input name="service_interest" value="${escapeHtml(record?.service_interest||"")}"></label>
         <label class="full">Address<input name="address" value="${escapeHtml(record?.address||"")}"></label>
-        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
+        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea>${record?.notes?customerTranslateLink(record.notes,record?.preferred_language):""}</label>
       </div>${formSubmit(record?"Save changes":"Add lead")}`;
   }
 
@@ -7223,7 +7253,7 @@ function openEntityForm(type,id=null){
         <label>City<input name="city" value="${escapeHtml(record?.city||"")}"></label>
         <label>Region / State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
         <label>Postal code<input name="postal_code" value="${escapeHtml(record?.postal_code||"")}"></label>
-        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
+        <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea>${record?.notes?customerTranslateLink(record.notes,record?.preferred_language):""}</label>
       </div>${formSubmit(record?"Save changes":"Add client")}`;
   }
 
