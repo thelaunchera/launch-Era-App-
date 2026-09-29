@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-email-settings-stable-151";
+const APP_VERSION = "20260929-customer-email-settings-stable-152";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -6110,33 +6110,24 @@ function renderBookingRequests(){
 }
 
 
-async function openBusinessProfileForm(){
-  if(!state.business || state.business.role!=="owner"){
-    showToast("Owner access required.");
-    return;
-  }
-
-  state.modalType="businessProfile";
-  state.modalId=state.business.id;
-
+async function loadBusinessSettingsRecord(){
   let record={
-    name:state.business.name||"",
-    email:state.business.email||state.session?.user?.email||"",
-    phone:state.business.phone||"",
-    service_area:state.business.service_area||"",
-    timezone:state.business.timezone||"UTC",
-    default_language:state.business.default_language||"en",
-    customer_email_language:state.business.customer_email_language||"en",
-    country_code:state.business.country_code||"US",
-    locale_code:state.business.locale_code||"en-US",
-    currency_code:state.business.currency_code||"USD",
-    distance_unit:state.business.distance_unit||"mi",
-    temperature_unit:state.business.temperature_unit||"fahrenheit",
-    payment_methods:Array.isArray(state.business.payment_methods)?state.business.payment_methods:paymentMethodsForCountry(state.business?.country_code),
-    instagram_url:state.business.instagram_url||"",
-    facebook_url:state.business.facebook_url||""
+    name:state.business?.name||"",
+    email:state.business?.email||state.session?.user?.email||"",
+    phone:state.business?.phone||"",
+    service_area:state.business?.service_area||"",
+    timezone:state.business?.timezone||"UTC",
+    default_language:state.business?.default_language||"en",
+    customer_email_language:state.business?.customer_email_language||"en",
+    country_code:state.business?.country_code||"US",
+    locale_code:state.business?.locale_code||"en-US",
+    currency_code:state.business?.currency_code||"USD",
+    distance_unit:state.business?.distance_unit||"mi",
+    temperature_unit:state.business?.temperature_unit||"fahrenheit",
+    payment_methods:Array.isArray(state.business?.payment_methods)?state.business.payment_methods:paymentMethodsForCountry(state.business?.country_code),
+    instagram_url:state.business?.instagram_url||"",
+    facebook_url:state.business?.facebook_url||""
   };
-
   try{
     const {data,error}=await supabase
       .from("businesses")
@@ -6146,89 +6137,211 @@ async function openBusinessProfileForm(){
     if(error) throw error;
     if(data) record={...record,...data};
   }catch(err){
-    console.warn("[TLE] business profile load",err);
+    console.warn("[TLE] business settings load",err);
+  }
+  return record;
+}
+
+async function openBusinessProfileForm(){
+  if(!state.business || state.business.role!=="owner"){
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    return;
   }
 
-  modalHeader("COMPANY DETAILS","Edit business details","Update the company information used across your workspace and client-facing flows.");
+  state.modalType="businessProfile";
+  state.modalId=state.business.id;
+  const record=await loadBusinessSettingsRecord();
+
+  modalHeader(
+    langPick("BUSINESS","NEGOCIO","EMPRESA","ENTREPRISE"),
+    langPick("Edit business basics","Editar datos del negocio","Editar dados da empresa","Modifier les informations de l’entreprise"),
+    langPick(
+      "Update your company details. Time zone and country are detected from your service area.",
+      "Actualiza los datos del negocio. La zona horaria y el país se detectan desde tu área de servicio.",
+      "Atualize os dados da empresa. O fuso horário e o país são detectados pela sua área de atendimento.",
+      "Mettez à jour les informations de l’entreprise. Le fuseau horaire et le pays sont détectés depuis votre zone de service."
+    )
+  );
   entityForm.innerHTML=`
     <div class="form-grid">
-      <label>Business name<input name="name" required value="${escapeHtml(record.name||"")}"></label>
-      <label>Business email<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
-      <label>Phone<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
-      <label>Service area<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="City, region, country"></label>
-      <label>Time zone<input name="timezone_display" value="${escapeHtml(record.timezone||"UTC")}" readonly><small>Detected automatically from your service area.</small></label>
-      <label>Default language<select name="default_language" required>
+      <label>${escapeHtml(langPick("Business name","Nombre del negocio","Nome da empresa","Nom de l’entreprise"))}<input name="name" required value="${escapeHtml(record.name||"")}"></label>
+      <label>${escapeHtml(langPick("Business email","Email del negocio","E-mail da empresa","E-mail de l’entreprise"))}<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
+      <label>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
+      <label>${escapeHtml(langPick("Service area","Área de servicio","Área de atendimento","Zone de service"))}<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="${escapeHtml(langPick("City, region, country","Ciudad, región, país","Cidade, região, país","Ville, région, pays"))}"></label>
+      <label class="full">${escapeHtml(langPick("Time zone","Zona horaria","Fuso horário","Fuseau horaire"))}<input name="timezone_display" value="${escapeHtml(record.timezone||"UTC")}" readonly><small>${escapeHtml(langPick("Detected automatically from your service area.","Se detecta automáticamente desde tu área de servicio.","Detectado automaticamente pela sua área de atendimento.","Détecté automatiquement depuis votre zone de service."))}</small></label>
+      <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
+      <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
+    </div>
+    ${formSubmit(langPick("Save business details","Guardar datos","Salvar dados","Enregistrer"))}`;
+  modal.hidden=false;
+}
+
+async function openAppPreferencesForm(){
+  if(!state.business || state.business.role!=="owner"){
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    return;
+  }
+  state.modalType="appPreferences";
+  state.modalId=state.business.id;
+  const record=await loadBusinessSettingsRecord();
+
+  modalHeader(
+    langPick("YOUR APP","TU APP","SEU APP","VOTRE APP"),
+    langPick("App preferences","Preferencias de la app","Preferências do app","Préférences de l’application"),
+    langPick(
+      "These settings change your workspace, not the language your customers receive by email.",
+      "Estos ajustes cambian tu espacio de trabajo, no el idioma de los emails de tus clientes.",
+      "Estas configurações mudam seu espaço de trabalho, não o idioma dos e-mails dos clientes.",
+      "Ces réglages modifient votre espace de travail, pas la langue des e-mails envoyés aux clients."
+    )
+  );
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label>${escapeHtml(langPick("App language","Idioma de la app","Idioma do app","Langue de l’application"))}<select name="default_language" required>
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
         <option value="pt" ${record.default_language==="pt"?"selected":""}>Português</option>
         <option value="fr" ${record.default_language==="fr"?"selected":""}>Français</option>
-      </select><small>${escapeHtml(tr("Controls the language you see inside the app."))}</small></label>
-      <label>Currency<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
-      <label>Distance<select name="distance_unit"><option value="mi" ${record.distance_unit==="mi"?"selected":""}>Miles</option><option value="km" ${record.distance_unit==="km"?"selected":""}>Kilometers</option></select></label>
-      <label>Temperature<select name="temperature_unit"><option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option><option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option></select></label>
-      <fieldset class="full"><legend>Client payment methods</legend>
-        <div class="choice-grid compact">
-          ${[...new Set([...(record.payment_methods||[]),...paymentMethodsForCountry(record.country_code)])].map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
-        </div>
-        <small>No bank details are stored in the app. These are payment labels only; the client arranges payment directly with the business.</small>
-      </fieldset>
-      <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
-      <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
+      </select></label>
+      <label>${escapeHtml(langPick("Currency","Moneda","Moeda","Devise"))}<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
+      <label>${escapeHtml(langPick("Distance","Distancia","Distância","Distance"))}<select name="distance_unit">
+        <option value="mi" ${record.distance_unit==="mi"?"selected":""}>${escapeHtml(langPick("Miles","Millas","Milhas","Miles"))}</option>
+        <option value="km" ${record.distance_unit==="km"?"selected":""}>${escapeHtml(langPick("Kilometers","Kilómetros","Quilômetros","Kilomètres"))}</option>
+      </select></label>
+      <label>${escapeHtml(langPick("Temperature","Temperatura","Temperatura","Température"))}<select name="temperature_unit">
+        <option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option>
+        <option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option>
+      </select></label>
+      <label>${escapeHtml(langPick("Country","País","País","Pays"))}<input value="${escapeHtml(record.country_code||"—")}" readonly></label>
+      <label>${escapeHtml(langPick("Time zone","Zona horaria","Fuso horário","Fuseau horaire"))}<input value="${escapeHtml(record.timezone||"UTC")}" readonly></label>
     </div>
-    <p class="helper">These links appear on your private Dashboard for one-tap access. They do not post automatically.</p>
-    ${formSubmit("Save business details")}`;
+    <p class="helper">${escapeHtml(langPick(
+      "Customer email language is controlled separately in Client Communication.",
+      "El idioma de los emails de clientes se controla por separado en Comunicación con clientes.",
+      "O idioma dos e-mails dos clientes é controlado separadamente em Comunicação com clientes.",
+      "La langue des e-mails clients se règle séparément dans Communication client."
+    ))}</p>
+    ${formSubmit(langPick("Save app preferences","Guardar preferencias","Salvar preferências","Enregistrer les préférences"))}`;
   modal.hidden=false;
 }
 
+async function openPaymentPreferencesForm(){
+  if(!state.business || state.business.role!=="owner"){
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    return;
+  }
+  state.modalType="paymentPreferences";
+  state.modalId=state.business.id;
+  const record=await loadBusinessSettingsRecord();
+  const methods=[...new Set([...(record.payment_methods||[]),...paymentMethodsForCountry(record.country_code)])];
+
+  modalHeader(
+    langPick("PAYMENTS","PAGOS","PAGAMENTOS","PAIEMENTS"),
+    langPick("Client payment options","Opciones de pago del cliente","Opções de pagamento do cliente","Options de paiement client"),
+    langPick(
+      "Choose the payment methods clients can select on invoices.",
+      "Elige las formas de pago que los clientes pueden seleccionar en las facturas.",
+      "Escolha as formas de pagamento que os clientes podem selecionar nas faturas.",
+      "Choisissez les modes de paiement proposés aux clients sur les factures."
+    )
+  );
+  entityForm.innerHTML=`
+    <fieldset class="full"><legend>${escapeHtml(langPick("Enabled methods","Métodos activados","Métodos ativados","Modes activés"))}</legend>
+      <div class="choice-grid compact">
+        ${methods.map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
+      </div>
+      <small>${escapeHtml(langPick(
+        "The app stores the payment choice, not bank credentials.",
+        "La app guarda la forma de pago elegida, no credenciales bancarias.",
+        "O app salva a forma de pagamento escolhida, não credenciais bancárias.",
+        "L’application enregistre le mode de paiement choisi, pas les identifiants bancaires."
+      ))}</small>
+    </fieldset>
+    ${formSubmit(langPick("Save payment options","Guardar opciones de pago","Salvar opções de pagamento","Enregistrer les options de paiement"))}`;
+  modal.hidden=false;
+}
 async function saveBusinessProfile(fd){
   if(!state.business || state.business.role!=="owner"){
-    throw new Error("Owner access required.");
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
   }
 
   const serviceArea=String(fd.get("service_area")||"").trim();
+  if(!serviceArea) throw new Error(langPick("Service area is required.","El área de servicio es obligatoria.","A área de atendimento é obrigatória.","La zone de service est obligatoire."));
   const detected=await resolveBusinessLocale(serviceArea);
-  const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
-  if(!paymentMethods.length) throw new Error("Choose at least one client payment method.");
-  const language=String(fd.get("default_language")||"en");
   const country=detected.country_code||state.business.country_code||"US";
+  const language=state.business.default_language||"en";
   const payload={
     name:String(fd.get("name")||"").trim(),
     email:String(fd.get("email")||"").trim().toLowerCase(),
     phone:String(fd.get("phone")||"").trim()||null,
-    service_area:serviceArea||null,
+    service_area:serviceArea,
     timezone:detected.timezone||state.business.timezone||"UTC",
     country_code:country,
-    default_language:language,
-    customer_email_language:normalizedCustomerEmailLanguage(fd.get("customer_email_language"))||state.business.customer_email_language||language,
     locale_code:localeForCountry(country,language),
-    currency_code:String(fd.get("currency_code")||detected.currency_code||"USD").trim().toUpperCase(),
-    distance_unit:String(fd.get("distance_unit")||detected.distance_unit||"km"),
-    temperature_unit:String(fd.get("temperature_unit")||detected.temperature_unit||"celsius"),
-    payment_methods:paymentMethods,
     instagram_url:String(fd.get("instagram_url")||"").trim()||null,
     facebook_url:String(fd.get("facebook_url")||"").trim()||null,
     updated_at:new Date().toISOString()
   };
 
-  if(!payload.name) throw new Error("Business name is required.");
-  if(!payload.email) throw new Error("Business email is required.");
-  if(!payload.service_area) throw new Error("Service area is required for local weather and business-time updates.");
+  if(!payload.name) throw new Error(langPick("Business name is required.","El nombre del negocio es obligatorio.","O nome da empresa é obrigatório.","Le nom de l’entreprise est obligatoire."));
+  if(!payload.email) throw new Error(langPick("Business email is required.","El email del negocio es obligatorio.","O e-mail da empresa é obrigatório.","L’e-mail de l’entreprise est obligatoire."));
 
-  const {data,error}=await supabase
-    .from("businesses")
+  const {data,error}=await supabase.from("businesses")
     .update(payload)
     .eq("id",state.business.id)
-    .select("name,email,phone,service_area,timezone,default_language,customer_email_language,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,instagram_url,facebook_url")
+    .select("name,email,phone,service_area,timezone,country_code,locale_code,instagram_url,facebook_url")
     .single();
-
   if(error) throw error;
-
   state.business={...state.business,...data};
-  if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(data.default_language)){
-    window.TLE_I18N.setLanguage(data.default_language);
-  }
   renderSettings();
-  showApp();
+}
+
+async function saveAppPreferences(fd){
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+  }
+  const language=String(fd.get("default_language")||"en").toLowerCase();
+  if(!["en","es","pt","fr"].includes(language)) throw new Error("Invalid app language.");
+  const currency=String(fd.get("currency_code")||"USD").trim().toUpperCase();
+  if(!/^[A-Z]{3}$/.test(currency)) throw new Error(langPick("Use a 3-letter currency code.","Usa un código de moneda de 3 letras.","Use um código de moeda de 3 letras.","Utilisez un code devise de 3 lettres."));
+  const distance=String(fd.get("distance_unit")||"mi");
+  const temperature=String(fd.get("temperature_unit")||"fahrenheit");
+  const country=state.business.country_code||"US";
+  const payload={
+    default_language:language,
+    locale_code:localeForCountry(country,language),
+    currency_code:currency,
+    distance_unit:distance==="km"?"km":"mi",
+    temperature_unit:temperature==="celsius"?"celsius":"fahrenheit",
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await supabase.from("businesses")
+    .update(payload)
+    .eq("id",state.business.id)
+    .select("default_language,locale_code,currency_code,distance_unit,temperature_unit")
+    .single();
+  if(error) throw error;
+  state.business={...state.business,...data};
+  if(window.TLE_I18N?.setLanguage) window.TLE_I18N.setLanguage(data.default_language);
+  renderSettings();
+}
+
+async function savePaymentPreferences(fd){
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+  }
+  const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
+  if(!paymentMethods.length){
+    throw new Error(langPick("Choose at least one payment method.","Elige al menos una forma de pago.","Escolha pelo menos uma forma de pagamento.","Choisissez au moins un mode de paiement."));
+  }
+  const {data,error}=await supabase.from("businesses")
+    .update({payment_methods:paymentMethods,updated_at:new Date().toISOString()})
+    .eq("id",state.business.id)
+    .select("payment_methods")
+    .single();
+  if(error) throw error;
+  state.business={...state.business,...data};
+  renderSettings();
 }
 
 function renderSettings(){
@@ -7299,6 +7412,8 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="job") await saveJob(fd);
     if(state.modalType==="team") await saveTeam(fd);
     if(state.modalType==="businessProfile") await saveBusinessProfile(fd);
+    if(state.modalType==="appPreferences") await saveAppPreferences(fd);
+    if(state.modalType==="paymentPreferences") await savePaymentPreferences(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     if(state.modalType==="startTimer") await saveStartTimer(fd);
     // Sending a quote from Edit Quote is a deliberate review moment:
@@ -8620,7 +8735,8 @@ $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
 
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
-$$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
+$("[data-edit-app-preferences]").forEach(btn=>btn.addEventListener("click",openAppPreferencesForm));
+$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
