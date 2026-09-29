@@ -188,6 +188,23 @@ for(const phrase of ["Today’s jobs","Current client records","Still to collect
     throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
   }
 }
+
+for(const [source,translation] of Object.entries({
+  "Clear":"Syèl klè",
+  "Partly cloudy":"Pasyèlman nwaj",
+  "Cloudy":"Nwaj",
+  "Foggy":"Bwouya",
+  "Drizzle":"Ti lapli",
+  "Rain":"Lapli",
+  "Snow":"Nèj",
+  "Thunderstorms":"Tanpèt loraj",
+  "Weather":"Tan",
+  "Windy":"Gen van"
+})){
+  if(!i18n.includes(JSON.stringify(source)+":"+JSON.stringify(translation))){
+    throw new Error("Localization regression: Haitian Creole weather translation missing for "+source);
+  }
+}
 if(
   !publicJs.includes('tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING")') ||
   !publicJs.includes('tt("Could not submit invoice.")') ||
