@@ -9677,3 +9677,47 @@ body.shell-auth{overflow-anchor:none}
     gap:8px!important;
   }
 }
+
+
+/* 2026-09-29 — cleaner hero spacing and rain treatment v179 */
+/* Give the Today hero breathing room below the sticky header. */
+@media(max-width:680px){
+  [data-page="today"] #todayHeroCard{
+    margin-top:16px!important;
+  }
+}
+@media(min-width:681px) and (max-width:1100px){
+  [data-page="today"] #todayHeroCard{
+    margin-top:18px!important;
+  }
+}
+
+/* Remove the long rain streaks that looked detached from the product UI.
+   Keep weather dynamic through palette, clouds, copy and a very soft atmospheric wash. */
+#todayHeroCard .hero-precip-layer.weather-rain .rain-drop,
+#todayHeroCard .hero-precip-layer.weather-drizzle .drizzle-drop,
+#todayHeroCard .hero-precip-layer.weather-storm .rain-drop{
+  display:none!important;
+}
+#todayHeroCard .hero-precip-layer.weather-rain,
+#todayHeroCard .hero-precip-layer.weather-drizzle{
+  opacity:.32!important;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.35),transparent 24%),
+    radial-gradient(circle at 82% 14%,rgba(133,166,186,.12),transparent 28%),
+    linear-gradient(180deg,rgba(86,122,145,.04),rgba(86,122,145,.10));
+}
+#todayHeroCard .hero-precip-layer.weather-storm{
+  opacity:.38!important;
+  background:
+    radial-gradient(circle at 78% 18%,rgba(94,117,132,.16),transparent 28%),
+    linear-gradient(180deg,rgba(62,84,99,.06),rgba(62,84,99,.14));
+}
+
+/* Clouds stay subtle so the hero feels like the app, not a weather animation. */
+#todayHeroCard[data-weather="rain"] .hero-cloud,
+#todayHeroCard[data-weather="drizzle"] .hero-cloud,
+#todayHeroCard[data-weather="storm"] .hero-cloud{
+  opacity:.72!important;
+  filter:drop-shadow(0 2px 3px rgba(25,25,25,.04))!important;
+}
