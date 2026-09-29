@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-i18n-deadcode-202";
+const APP_VERSION = "20260929-langpick-cleanup-203";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -498,7 +498,7 @@ function appLanguage(){
 function appIsSpanish(){
   return appLanguage()==="es";
 }
-function langPick(en,es,_pt,fr){
+function langPick(en,es,fr){
   const lang=appLanguage();
   if(lang==="es") return es;
   if(lang==="fr") return fr;
@@ -514,7 +514,7 @@ function customerEmailLanguageOptions(selected="",allowDefault=true){
     ["en","English"],["es","Español"],["fr","Français"],["ht","Kreyòl Ayisyen"]
   ];
   const fallback=allowDefault
-    ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Padrão da empresa","Valeur par défaut"))}</option>`
+    ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Valeur par défaut"))}</option>`
     : "";
   return fallback+options.map(([code,label])=>`<option value="${code}" ${value===code?"selected":""}>${escapeHtml(label)}</option>`).join("");
 }
@@ -612,8 +612,8 @@ function weatherDayLabel(dateString,currentDateString){
   const d=new Date(dateString+"T12:00:00Z");
   const today=new Date(currentDateString+"T12:00:00Z");
   const tomorrow=new Date(today); tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
-  if(dateString===currentDateString) return langPick("Today","Hoy","Hoje","Aujourd’hui");
-  if(dateString===tomorrow.toISOString().slice(0,10)) return langPick("Tomorrow","Mañana","Amanhã","Demain");
+  if(dateString===currentDateString) return langPick("Today","Hoy","Aujourd’hui");
+  if(dateString===tomorrow.toISOString().slice(0,10)) return langPick("Tomorrow","Mañana","Demain");
   return new Intl.DateTimeFormat(appLocale(),{weekday:"short",timeZone:"UTC"}).format(d);
 }
 function precipitationKindForCode(code){
@@ -728,7 +728,7 @@ function getDeviceWeatherGeo(timeoutMs=4200){
         finish({
           latitude,
           longitude,
-          name:String(state.business?.service_area||"").trim()||langPick("Current location","Ubicación actual","Localização atual","Position actuelle"),
+          name:String(state.business?.service_area||"").trim()||langPick("Current location","Ubicación actual","Position actuelle"),
           admin1:"",
           country:"",
           country_code:String(state.business?.country_code||"").toUpperCase(),
@@ -805,7 +805,7 @@ function customerPaymentMethodLabel(invoice){
   if(!method) return "";
   const detail=String(invoice?.customer_payment_method_detail||"").trim();
   if(method==="other" && detail){
-    return langPick("Other","Otro","Outro","Autre")+" — "+detail;
+    return langPick("Other","Otro","Autre")+" — "+detail;
   }
   return paymentMethodLabel(method);
 }
@@ -813,9 +813,9 @@ function customerOpenStatus(record){
   const count=Number(record?.customer_open_count||0);
   const last=record?.customer_last_opened_at||record?.customer_first_opened_at||"";
   if(!count || !last){
-    return {opened:false,text:langPick("Not viewed yet","Aún no lo ha abierto","Ainda não abriu","Pas encore consulté")};
+    return {opened:false,text:langPick("Not viewed yet","Aún no lo ha abierto","Pas encore consulté")};
   }
-  return {opened:true,text:langPick("Viewed","Visto","Visualizado","Consulté")+" · "+formatDateTime(last)+(count>1?" · "+count+"×":"")};
+  return {opened:true,text:langPick("Viewed","Visto","Consulté")+" · "+formatDateTime(last)+(count>1?" · "+count+"×":"")};
 }
 function currencyForCountry(code){
   const map={
@@ -1154,7 +1154,7 @@ function renderWeatherCoreSnapshot(weather=state.weather){
   if(tempEl) tempEl.textContent=Number.isFinite(temp)?temp+"°":"—";
   if(condition) condition.textContent=lang==="ht"?(window.TLE_I18N?.t?.(meta.en)||meta.en):(meta[lang]||meta.en);
   if(highLow) highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
-  if(location) location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","CLIMA LOCAL","MÉTÉO LOCALE");
+  if(location) location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","MÉTÉO LOCALE");
   return true;
 }
 function renderWeatherPending(finalFailure=false){
@@ -1166,8 +1166,8 @@ function renderWeatherPending(finalFailure=false){
   const tempEl=$("#weatherTemp");
   if(tempEl && !state.weather) tempEl.textContent="—";
   if(condition) condition.textContent=finalFailure
-    ? langPick("Weather unavailable","Clima no disponible","Clima indisponível","Météo indisponible")
-    : langPick("Updating weather…","Actualizando clima…","Atualizando clima…","Mise à jour météo…");
+    ? langPick("Weather unavailable","Clima no disponible","Météo indisponible")
+    : langPick("Updating weather…","Actualizando clima…","Mise à jour météo…");
   if(highLow && !state.weather) highLow.textContent="H:—  L:—";
 }
 function scheduleWeatherRetry(){
@@ -1238,7 +1238,7 @@ function renderWeatherBrief(){
     highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
   }
   if(location){
-    location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","CLIMA LOCAL","MÉTÉO LOCALE");
+    location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","MÉTÉO LOCALE");
   }
 
   const note=$("#weatherBusinessNote");
@@ -1250,33 +1250,28 @@ function renderWeatherBrief(){
     const currentKind=precipitationKindForCode(Number(weather.current.weather_code))||(currentVisual.kind==="snow"?"snow":currentVisual.kind==="storm"?"storm":(["rain","drizzle"].includes(currentVisual.kind)?"rain":""));
     if(currentKind){
       text=currentKind==="snow"
-        ? langPick("Snow now in your area.","Está nevando ahora en tu zona.","Está nevando agora na sua área.","Il neige maintenant dans votre zone.")
+        ? langPick("Snow now in your area.","Está nevando ahora en tu zona.","Il neige maintenant dans votre zone.")
         : currentKind==="storm"
-        ? langPick("Storms are active now in your area.","Hay tormentas ahora en tu zona.","Há tempestades agora na sua área.","Des orages sont actifs maintenant dans votre zone.")
-        : langPick("Rain now in your area.","Está lloviendo ahora en tu zona.","Está chovendo agora na sua área.","Il pleut maintenant dans votre zone.");
+        ? langPick("Storms are active now in your area.","Hay tormentas ahora en tu zona.","Des orages sont actifs maintenant dans votre zone.")
+        : langPick("Rain now in your area.","Está lloviendo ahora en tu zona.","Il pleut maintenant dans votre zone.");
       note.classList.add("rain");
     }else if(event&&event.hoursAhead<=48){
       const day=weatherDayLabel(event.date,currentDate);
       const when=weatherClockLabel(event.hour);
       const label=event.kind==="snow"
-        ? langPick("Snow expected","Nieve probable","Neve prevista","Neige prévue")
+        ? langPick("Snow expected","Nieve probable","Neige prévue")
         : event.kind==="storm"
-        ? langPick("Storms expected","Tormentas probables","Tempestades previstas","Orages prévus")
-        : langPick("Rain expected","Lluvia probable","Chuva prevista","Pluie prévue");
+        ? langPick("Storms expected","Tormentas probables","Orages prévus")
+        : langPick("Rain expected","Lluvia probable","Pluie prévue");
       const dayPart=event.date===currentDate?"":(" "+day);
       const chance=Number.isFinite(Number(event.probability))?" · "+Math.round(Number(event.probability))+"%":"";
-      text=label+dayPart+langPick(" around "," cerca de las "," por volta de "," vers ")+when+chance+".";
+      text=label+dayPart+langPick(" around "," cerca de las "," vers ")+when+chance+".";
       note.classList.add("rain");
     }else if(shift){
       const m=weatherCodeMeta(shift.code);
       const label=lang==="ht"?(window.TLE_I18N?.t?.(m.en)||m.en):(m[lang]||m.en);
       const when=weatherClockLabel(shift.hour);
-      text=langPick(
-        label+" conditions expected around "+when+".",
-        "Se espera "+label.toLowerCase()+" cerca de las "+when+".",
-        label+" previsto por volta de "+when+".",
-        label+" prévu vers "+when+"."
-      );
+      text=langPick(label+" conditions expected around "+when+".","Se espera "+label.toLowerCase()+" cerca de las "+when+".",(label+" previsto por volta de "+when+".",label+" prévu vers "+when+"."));
     }
 
     if(text){
@@ -1432,12 +1427,7 @@ function isUserCorrectableAuthError(err){
   return /invalid login credentials|email not confirmed|user already registered|already been registered|password should be|password.*characters|invalid email|email address.*invalid|signup is disabled|rate limit|too many requests/.test(raw);
 }
 function authRequiredFieldMessage(){
-  return langPick(
-    "Check the required fields above and try again.",
-    "Revisa los campos requeridos arriba y vuelve a intentarlo.",
-    "Confira os campos obrigatórios acima e tente novamente.",
-    "Vérifiez les champs obligatoires ci-dessus et réessayez."
-  );
+  return langPick("Check the required fields above and try again.","Revisa los campos requeridos arriba y vuelve a intentarlo.","Vérifiez les champs obligatoires ci-dessus et réessayez.");
 }
 function authIssueAttemptKey(mode,email,err){
   const fingerprint=String(err?.code||err?.message||"unknown").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,80);
@@ -1497,39 +1487,19 @@ function showAuthFailure(err,mode,email){
   let message=authRequiredFieldMessage();
 
   if(/invalid login credentials/.test(raw)){
-    message=langPick(
-      "The email or password doesn’t match. Check them and try again.",
-      "El correo o la contraseña no coinciden. Revísalos y vuelve a intentarlo.",
-      "O e-mail ou a senha não conferem. Revise e tente novamente.",
-      "L’e-mail ou le mot de passe ne correspond pas. Vérifiez-les et réessayez."
-    );
+    message=langPick("The email or password doesn’t match. Check them and try again.","El correo o la contraseña no coinciden. Revísalos y vuelve a intentarlo.","L’e-mail ou le mot de passe ne correspond pas. Vérifiez-les et réessayez.");
   }else if(/email not confirmed/.test(raw)){
-    message=langPick(
-      "Confirm your email first, then sign in.",
-      "Primero confirma tu correo y después inicia sesión.",
-      "Confirme seu e-mail primeiro e depois entre.",
-      "Confirmez d’abord votre e-mail, puis connectez-vous."
-    );
+    message=langPick("Confirm your email first, then sign in.","Primero confirma tu correo y después inicia sesión.","Confirmez d’abord votre e-mail, puis connectez-vous.");
   }else if(/already registered|already been registered/.test(raw)){
-    message=langPick(
-      "That email already has an account. Sign in instead of creating another one.",
-      "Ese correo ya tiene una cuenta. Inicia sesión en vez de crear otra.",
-      "Esse e-mail já tem uma conta. Entre em vez de criar outra.",
-      "Cet e-mail possède déjà un compte. Connectez-vous au lieu d’en créer un autre."
-    );
+    message=langPick("That email already has an account. Sign in instead of creating another one.","Ese correo ya tiene una cuenta. Inicia sesión en vez de crear otra.","Cet e-mail possède déjà un compte. Connectez-vous au lieu d’en créer un autre.");
   }else if(!correctable){
-    message=langPick(
-      "We couldn’t complete this. Check the required fields and tap “Try again”.",
-      "No pudimos completar esto. Revisa los campos requeridos y toca “Intentar otra vez”.",
-      "Não foi possível concluir. Confira os campos obrigatórios e toque em “Tentar novamente”.",
-      "Impossible de terminer. Vérifiez les champs obligatoires et touchez « Réessayer »."
-    );
+    message=langPick("We couldn’t complete this. Check the required fields and tap “Try again”.","No pudimos completar esto. Revisa los campos requeridos y toca “Intentar otra vez”.","Impossible de terminer. Vérifiez les champs obligatoires et touchez « Réessayer ».");
   }
 
   setAuthStatus(message,"error");
   if(retry){
     retry.hidden=false;
-    retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
+    retry.textContent=langPick("Try again","Intentar otra vez","Réessayer");
   }
 
   const attempt=recordAuthIssueAttempt(mode,email,err);
@@ -1537,12 +1507,7 @@ function showAuthFailure(err,mode,email){
     reportPersistentAuthIssue(mode,email,err,attempt.item.count,attempt.key).then(alerted=>{
       if(alerted){
         setAuthStatus(
-          langPick(
-            "The error is still happening. Support has been alerted. Check the required fields and try again.",
-            "El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo.",
-            "O erro continua. O suporte foi avisado. Confira os campos obrigatórios e tente novamente.",
-            "L’erreur continue. Le support a été prévenu. Vérifiez les champs obligatoires et réessayez."
-          ),
+          langPick("The error is still happening. Support has been alerted. Check the required fields and try again.","El error continúa. Ya se envió una alerta a soporte. Revisa los campos requeridos y vuelve a intentarlo.","L’erreur continue. Le support a été prévenu. Vérifiez les champs obligatoires et réessayez."),
           "error"
         );
       }
@@ -1601,32 +1566,17 @@ function prepareDirectAuth(){
 
 function syncAuthWelcomeCopy(){
   const copy={
-    badge:langPick("CLEANING APP","CLEANING APP","CLEANING APP","CLEANING APP"),
-    title:langPick(
-      "Your cleaning business shouldn’t live in DMs, notes and memory.",
-      "Tu negocio de limpieza no debería vivir entre DMs, notas y tu memoria.",
-      "Seu negócio de limpeza não deveria viver entre DMs, notas e sua memória.",
-      "Votre entreprise de nettoyage ne devrait pas vivre entre les DMs, les notes et votre mémoire."
-    ),
-    text:langPick(
-      "Keep clients, quotes, bookings, jobs and invoices in one organized place.",
-      "Mantén clientes, cotizaciones, reservas, trabajos y facturas organizados en un solo lugar.",
-      "Mantenha clientes, orçamentos, reservas, trabalhos e faturas organizados em um só lugar.",
-      "Gardez clients, devis, réservations, interventions et factures organisés au même endroit."
-    ),
-    trial:langPick("Simple setup","Configuración simple","Configuração simples","Configuration simple"),
-    noCard:langPick("No card required","Sin tarjeta","Sem cartão","Sans carte"),
-    after:langPick("","", "", ""),
-    start:langPick("Get 30 days free","Obtén 30 días gratis","Ganhe 30 dias grátis","Obtenez 30 jours gratuits"),
-    signin:langPick("Sign in","Iniciar sesión","Entrar","Se connecter"),
-    existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Já tem uma conta?","Vous avez déjà un compte ?"),
-    note:langPick(
-      "No card required · Then $5.99/month",
-      "Sin tarjeta · Después $5.99/mes",
-      "Sem cartão · Depois US$ 5,99/mês",
-      "Sans carte · Puis 5,99 $/mois"
-    ),
-    back:langPick("← Back","← Volver","← Voltar","← Retour")
+    badge:langPick("CLEANING APP","CLEANING APP","CLEANING APP"),
+    title:langPick("Your cleaning business shouldn’t live in DMs, notes and memory.","Tu negocio de limpieza no debería vivir entre DMs, notas y tu memoria.","Votre entreprise de nettoyage ne devrait pas vivre entre les DMs, les notes et votre mémoire."),
+    text:langPick("Keep clients, quotes, bookings, jobs and invoices in one organized place.","Mantén clientes, cotizaciones, reservas, trabajos y facturas organizados en un solo lugar.","Gardez clients, devis, réservations, interventions et factures organisés au même endroit."),
+    trial:langPick("Simple setup","Configuración simple","Configuration simple"),
+    noCard:langPick("No card required","Sin tarjeta","Sans carte"),
+    after:langPick("","",""),
+    start:langPick("Get 30 days free","Obtén 30 días gratis","Obtenez 30 jours gratuits"),
+    signin:langPick("Sign in","Iniciar sesión","Se connecter"),
+    existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Vous avez déjà un compte ?"),
+    note:langPick("No card required · Then $5.99/month","Sin tarjeta · Después $5.99/mes","Sans carte · Puis 5,99 $/mois"),
+    back:langPick("← Back","← Volver","← Retour")
   };
   $("#authWelcomeBadge") && ($("#authWelcomeBadge").textContent=copy.badge);
   $("#authWelcomeTitle") && ($("#authWelcomeTitle").textContent=copy.title);
@@ -1771,17 +1721,12 @@ function ensureDashboardBootResolved(){
     greet.textContent=dashboardGreeting(dashboardDaypart(hour));
   }
   if(copy){
-    copy.textContent=langPick(
-      "Your workspace is ready. Check the calendar and what’s next.",
-      "Tu espacio está listo. Revisa el calendario y lo próximo.",
-      "Seu espaço está pronto. Confira o calendário e o que vem a seguir.",
-      "Votre espace est prêt. Consultez le calendrier et la suite."
-    );
+    copy.textContent=langPick("Your workspace is ready. Check the calendar and what’s next.","Tu espacio está listo. Revisa el calendario y lo próximo.","Votre espace est prêt. Consultez le calendrier et la suite.");
   }
   if(action){
     action.disabled=false;
     action.dataset.jump="calendar";
-    action.textContent=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+    action.textContent=langPick("View calendar →","Ver calendario →","Voir le calendrier →");
   }
 }
 
@@ -2602,12 +2547,7 @@ function syncRememberUsernameControl(){
   row.hidden=!signingIn;
   if(signingIn) checkbox.checked=rememberUsernameEnabled();
   if(label){
-    label.textContent=langPick(
-      "Remember username",
-      "Recordar usuario",
-      "Lembrar usuário",
-      "Mémoriser l’identifiant"
-    );
+    label.textContent=langPick("Remember username","Recordar usuario","Mémoriser l’identifiant");
   }
 }
 function persistRememberUsername(email){
@@ -2889,7 +2829,7 @@ function syncAuthPasswordToggle(){
   if(!input||!toggle) return;
   const visible=input.type==="text";
   toggle.setAttribute("aria-pressed",visible?"true":"false");
-  toggle.setAttribute("aria-label",visible?langPick("Hide password","Ocultar contraseña","Ocultar senha","Masquer le mot de passe"):langPick("Show password","Mostrar contraseña","Mostrar senha","Afficher le mot de passe"));
+  toggle.setAttribute("aria-label",visible?langPick("Hide password","Ocultar contraseña","Masquer le mot de passe"):langPick("Show password","Mostrar contraseña","Afficher le mot de passe"));
   toggle.classList.toggle("is-visible",visible);
 }
 function toggleAuthPasswordVisibility(){
@@ -3028,13 +2968,13 @@ authForm.addEventListener("submit", async (e)=>{
     const password = $("#authPassword").value;
     if(state.authMode!=="recovery" && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
       setAuthStatus(authRequiredFieldMessage(),"error");
-      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");}
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Réessayer");}
       $("#authEmail").focus();
       return;
     }
     if(!password || password.length<8){
       setAuthStatus(authRequiredFieldMessage(),"error");
-      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");}
+      const retry=$("#authRetryButton"); if(retry){retry.hidden=false;retry.textContent=langPick("Try again","Intentar otra vez","Réessayer");}
       $("#authPassword").focus();
       return;
     }
@@ -3272,23 +3212,23 @@ businessForm.addEventListener("submit", async (e)=>{
     const area=$("#businessArea")?.value?.trim()||"";
     if(!businessName || !area){
       setBusinessSetupStatus(
-        langPick("Check the required fields and try again.","Revisa los campos requeridos y vuelve a intentarlo.","Confira os campos obrigatórios e tente novamente.","Vérifiez les champs obligatoires et réessayez."),
+        langPick("Check the required fields and try again.","Revisa los campos requeridos y vuelve a intentarlo.","Vérifiez les champs obligatoires et réessayez."),
         "error"
       );
       if(setupRetry){
         setupRetry.hidden=false;
-        setupRetry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
+        setupRetry.textContent=langPick("Try again","Intentar otra vez","Réessayer");
       }
       if(!businessName) $("#businessName")?.focus();
       else $("#businessArea")?.focus();
     }else{
       setBusinessSetupStatus(
-        langPick("We couldn’t create your workspace. Try again.","No pudimos crear tu espacio. Intenta otra vez.","Não foi possível criar seu espaço. Tente novamente.","Impossible de créer votre espace. Réessayez."),
+        langPick("We couldn’t create your workspace. Try again.","No pudimos crear tu espacio. Intenta otra vez.","Impossible de créer votre espace. Réessayez."),
         "error"
       );
       if(setupRetry){
         setupRetry.hidden=false;
-        setupRetry.textContent=langPick("Try again","Intentar otra vez","Tentar novamente","Réessayer");
+        setupRetry.textContent=langPick("Try again","Intentar otra vez","Réessayer");
       }
       const email=String(state.session?.user?.email||"").trim().toLowerCase();
       const attempt=recordAuthIssueAttempt("signup",email,err);
@@ -3296,12 +3236,7 @@ businessForm.addEventListener("submit", async (e)=>{
         reportPersistentAuthIssue("signup",email,err,attempt.item.count,attempt.key).then(reported=>{
           if(reported){
             setBusinessSetupStatus(
-              langPick(
-                "The error is still happening. Support has been alerted. Check the fields and try again.",
-                "El error continúa. Soporte ya recibió una alerta. Revisa los campos y vuelve a intentarlo.",
-                "O erro continua. O suporte foi avisado. Confira os campos e tente novamente.",
-                "L’erreur continue. Le support a été prévenu. Vérifiez les champs et réessayez."
-              ),
+              langPick("The error is still happening. Support has been alerted. Check the fields and try again.","El error continúa. Soporte ya recibió una alerta. Revisa los campos y vuelve a intentarlo.","L’erreur continue. Le support a été prévenu. Vérifiez les champs et réessayez."),
               "error"
             );
           }
@@ -3438,10 +3373,10 @@ function renderMessageList(target,messages,viewer){
   const rows=Array.isArray(messages)?messages:[];
   if(!rows.length){
     target.innerHTML=`<div class="empty-inline"><strong>${viewer==="worker"
-      ? escapeHtml(langPick("No messages yet.","Sin mensajes todavía.","Ainda não há mensagens.","Aucun message pour le moment."))
-      : escapeHtml(langPick("No conversation yet.","Sin conversación todavía.","Ainda não há conversa.","Aucune conversation pour le moment."))}</strong><span>${viewer==="worker"
-      ? escapeHtml(langPick("Messages from your admin will appear here.","Los mensajes de tu administrador aparecerán aquí.","As mensagens do administrador aparecerão aqui.","Les messages de votre administrateur apparaîtront ici."))
-      : escapeHtml(langPick("Write the first message below.","Escribe el primer mensaje abajo.","Escreva a primeira mensagem abaixo.","Écrivez le premier message ci-dessous."))}</span></div>`;
+      ? escapeHtml(langPick("No messages yet.","Sin mensajes todavía.","Aucun message pour le moment."))
+      : escapeHtml(langPick("No conversation yet.","Sin conversación todavía.","Aucune conversation pour le moment."))}</strong><span>${viewer==="worker"
+      ? escapeHtml(langPick("Messages from your admin will appear here.","Los mensajes de tu administrador aparecerán aquí.","Les messages de votre administrateur apparaîtront ici."))
+      : escapeHtml(langPick("Write the first message below.","Escribe el primer mensaje abajo.","Écrivez le premier message ci-dessous."))}</span></div>`;
     return;
   }
   target.innerHTML=rows.map(m=>{
@@ -4065,13 +4000,13 @@ function getInquiryNotifications(){
       recordId:q.id,
       type:"quote-"+status,
       createdAt:eventAt,
-      name:q.customer_name||langPick("Customer","Cliente","Cliente","Client"),
+      name:q.customer_name||langPick("Customer","Cliente","Client"),
       email:q.customer_email||"",
       phone:q.customer_phone||"",
       address:q.service_address||"",
       service:status==="accepted"
-        ? langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté")+" · "+money(Number(q.total||0))
-        : langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé")+" · "+money(Number(q.total||0)),
+        ? langPick("Quote accepted","Cotización aceptada","Devis accepté")+" · "+money(Number(q.total||0))
+        : langPick("Quote declined","Cotización rechazada","Devis refusé")+" · "+money(Number(q.total||0)),
       serviceId:"",
       requestedAt:q.preferred_date&&q.preferred_time?q.preferred_date+"T"+q.preferred_time:"",
       notes:q.notes||"",
@@ -4090,11 +4025,11 @@ function getInquiryNotifications(){
       recordId:q.id,
       type:"quote-request",
       createdAt:q.created_at,
-      name:q.customer_name||langPick("New quote request","Nueva solicitud de cotización","Novo pedido de orçamento","Nouvelle demande de devis"),
+      name:q.customer_name||langPick("New quote request","Nueva solicitud de cotización","Nouvelle demande de devis"),
       email:q.customer_email||"",
       phone:q.customer_phone||"",
       address:q.service_address||"",
-      service:langPick("Quote request","Solicitud de cotización","Pedido de orçamento","Demande de devis"),
+      service:langPick("Quote request","Solicitud de cotización","Demande de devis"),
       notes:q.notes||"",
       preferredLanguage:q.preferred_language||state.clients.find(c=>c.id===q.client_id)?.preferred_language||"",
       status,
@@ -4103,7 +4038,7 @@ function getInquiryNotifications(){
   });
 
   state.invoices.forEach(inv=>{
-    const customerName=inv.clients?.name||langPick("Customer","Cliente","Cliente","Client");
+    const customerName=inv.clients?.name||langPick("Customer","Cliente","Client");
     if(inv.customer_payment_selected_at && inv.customer_payment_method){
       items.push({
         id:"invoice-payment-choice:"+inv.id+":"+inv.customer_payment_selected_at,
@@ -4111,7 +4046,7 @@ function getInquiryNotifications(){
         type:"invoice-payment-choice",
         createdAt:inv.customer_payment_selected_at,
         name:customerName,
-        service:langPick("Payment method selected","Método de pago seleccionado","Método de pagamento selecionado","Mode de paiement sélectionné")+" · "+customerPaymentMethodLabel(inv),
+        service:langPick("Payment method selected","Método de pago seleccionado","Mode de paiement sélectionné")+" · "+customerPaymentMethodLabel(inv),
         status:inv.status||""
       });
     }
@@ -4124,7 +4059,7 @@ function getInquiryNotifications(){
         type:"payment",
         createdAt:p.paid_at||p.created_at,
         name:customerName,
-        service:langPick("Payment received","Pago recibido","Pagamento recebido","Paiement reçu")+" · "+money(Number(p.amount||0)),
+        service:langPick("Payment received","Pago recibido","Paiement reçu")+" · "+money(Number(p.amount||0)),
         status
       });
     });
@@ -4138,9 +4073,9 @@ function getInquiryNotifications(){
       type:"dispute",
       resourceType:d.resource_type||"",
       createdAt:d.created_at,
-      name:d.customer_name||langPick("Customer","Cliente","Cliente","Client"),
+      name:d.customer_name||langPick("Customer","Cliente","Client"),
       email:d.customer_email||"",
-      service:langPick("New dispute","Nueva disputa","Nova contestação","Nouvelle contestation")+" · "+String(d.resource_type||"").replaceAll("_"," "),
+      service:langPick("New dispute","Nueva disputa","Nouvelle contestation")+" · "+String(d.resource_type||"").replaceAll("_"," "),
       notes:d.reason||"",
       status:d.status||"open"
     });
@@ -4152,16 +4087,16 @@ function getInquiryNotifications(){
     const eventAt=j.updated_at||j.created_at;
     if(!eventAt) return;
     const statusText=status==="on_the_way"
-      ? langPick("On the way","En camino","A caminho","En route")
+      ? langPick("On the way","En camino","En route")
       : status==="in_progress"
-      ? langPick("Job started","Trabajo iniciado","Trabalho iniciado","Travail commencé")
-      : langPick("Job completed","Trabajo completado","Trabalho concluído","Travail terminé");
+      ? langPick("Job started","Trabajo iniciado","Travail commencé")
+      : langPick("Job completed","Trabajo completado","Travail terminé");
     items.push({
       id:"job-status:"+status+":"+j.id+":"+eventAt,
       recordId:j.id,
       type:"job-status",
       createdAt:eventAt,
-      name:j.clients?.name||j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"),
+      name:j.clients?.name||j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Prestation de nettoyage"),
       address:j.service_address||"",
       service:statusText,
       status
@@ -4176,8 +4111,8 @@ function getInquiryNotifications(){
       recordId:thread.team_member_id,
       type:"team-message",
       createdAt:thread.last_message_at,
-      name:thread.name||langPick("Employee","Empleado","Funcionário","Employé"),
-      service:thread.last_message||langPick("New team message","Nuevo mensaje del equipo","Nova mensagem da equipe","Nouveau message d’équipe"),
+      name:thread.name||langPick("Employee","Empleado","Employé"),
+      service:thread.last_message||langPick("New team message","Nuevo mensaje del equipo","Nouveau message d’équipe"),
       status:"unread"
     });
   });
@@ -4192,14 +4127,14 @@ function getInquiryNotifications(){
   latestEmailIssueByRecipient.forEach(issue=>{
     const client=findMatchingClient({email:issue.customer_email,name:issue.customer_name});
     const issueLabel=String(issue.delivery_status||"").toLowerCase()==="complained"
-      ? langPick("Customer marked this email as spam","El cliente marcó este correo como spam","O cliente marcou este e-mail como spam","Le client a marqué cet e-mail comme indésirable")
-      : langPick("Email needs verification","El email necesita verificación","O e-mail precisa de verificação","L’e-mail doit être vérifié");
+      ? langPick("Customer marked this email as spam","El cliente marcó este correo como spam","Le client a marqué cet e-mail comme indésirable")
+      : langPick("Email needs verification","El email necesita verificación","L’e-mail doit être vérifié");
     items.push({
       id:"email-delivery:"+issue.id,
       recordId:issue.id,
       type:"email-delivery",
       createdAt:issue.occurred_at||issue.created_at,
-      name:client?.name||issue.customer_name||langPick("Customer email","Email del cliente","E-mail do cliente","E-mail du client"),
+      name:client?.name||issue.customer_name||langPick("Customer email","Email del cliente","E-mail du client"),
       email:issue.customer_email||"",
       phone:client?.phone||"",
       address:clientServiceAddress(client)||"",
@@ -4237,24 +4172,24 @@ function openInquiryNotificationDetail(notificationId){
     state.modalType="emailDeliveryIssue";
     state.modalId=item.recordId;
     modalHeader(
-      langPick("EMAIL DELIVERY ISSUE","PROBLEMA DE ENTREGA DEL EMAIL","PROBLEMA DE ENTREGA DO E-MAIL","PROBLÈME DE LIVRAISON DE L’E-MAIL"),
-      item.email||langPick("Customer email","Email del cliente","E-mail do cliente","E-mail du client"),
-      langPick("Verify the email address before sending again.","Verifica la dirección antes de volver a enviar.","Verifique o endereço antes de enviar novamente.","Vérifiez l’adresse avant de renvoyer.")
+      langPick("EMAIL DELIVERY ISSUE","PROBLEMA DE ENTREGA DEL EMAIL","PROBLÈME DE LIVRAISON DE L’E-MAIL"),
+      item.email||langPick("Customer email","Email del cliente","E-mail du client"),
+      langPick("Verify the email address before sending again.","Verifica la dirección antes de volver a enviar.","Vérifiez l’adresse avant de renvoyer.")
     );
     entityForm.innerHTML=`
       <div class="inquiry-detail-card email-delivery-detail">
         <div class="email-delivery-warning">
-          <strong>${escapeHtml(langPick("Email not delivered","Email no entregado","E-mail não entregue","E-mail non livré"))}</strong>
-          <span>${escapeHtml(item.notes||langPick("The email provider could not deliver this message.","El proveedor de correo no pudo entregar este mensaje.","O provedor de e-mail não conseguiu entregar esta mensagem.","Le fournisseur de messagerie n’a pas pu livrer ce message."))}</span>
+          <strong>${escapeHtml(langPick("Email not delivered","Email no entregado","E-mail non livré"))}</strong>
+          <span>${escapeHtml(item.notes||langPick("The email provider could not deliver this message.","El proveedor de correo no pudo entregar este mensaje.","Le fournisseur de messagerie n’a pas pu livrer ce message."))}</span>
         </div>
         <div class="inquiry-detail-grid">
           <div class="full"><small>Email</small><strong>${escapeHtml(item.email||"—")}</strong></div>
-          <div><small>${escapeHtml(langPick("Status","Estado","Status","Statut"))}</small><strong>${escapeHtml(String(item.status||"").replaceAll("_"," "))}</strong></div>
-          <div><small>${escapeHtml(langPick("Detected","Detectado","Detectado","Détecté"))}</small><strong>${escapeHtml(formatDateTime(item.createdAt))}</strong></div>
+          <div><small>${escapeHtml(langPick("Status","Estado","Statut"))}</small><strong>${escapeHtml(String(item.status||"").replaceAll("_"," "))}</strong></div>
+          <div><small>${escapeHtml(langPick("Detected","Detectado","Détecté"))}</small><strong>${escapeHtml(formatDateTime(item.createdAt))}</strong></div>
         </div>
         <div class="form-footer inquiry-detail-actions">
-          <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
-          <button type="button" class="primary-btn" data-open-view="clients">${escapeHtml(langPick("Check clients","Revisar clientes","Ver clientes","Voir les clients"))}</button>
+          <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fermer"))}</button>
+          <button type="button" class="primary-btn" data-open-view="clients">${escapeHtml(langPick("Check clients","Revisar clientes","Voir les clients"))}</button>
         </div>
       </div>`;
     modal.hidden=false;
@@ -4294,7 +4229,7 @@ function openInquiryNotificationDetail(notificationId){
         renderCalendarDayDetails(dateKey,{jobId:job.id});
       });
     }else{
-      showToast(langPick("Job details are no longer available.","Los detalles del trabajo ya no están disponibles.","Os detalhes do trabalho não estão mais disponíveis.","Les détails du travail ne sont plus disponibles."));
+      showToast(langPick("Job details are no longer available.","Los detalles del trabajo ya no están disponibles.","Les détails du travail ne sont plus disponibles."));
     }
     return;
   }
@@ -4314,8 +4249,8 @@ function openInquiryNotificationDetail(notificationId){
   state.modalId=item.recordId;
 
   const typeLabel=item.type==="booking"
-    ? langPick("BOOKING REQUEST","SOLICITUD DE RESERVA","SOLICITAÇÃO DE RESERVA","DEMANDE DE RÉSERVATION")
-    : langPick("INQUIRY","INQUIRY","CONTATO","DEMANDE");
+    ? langPick("BOOKING REQUEST","SOLICITUD DE RESERVA","DEMANDE DE RÉSERVATION")
+    : langPick("INQUIRY","INQUIRY","DEMANDE");
 
   const statusLabel=String(item.status||"").replaceAll("_"," ");
   const requested=item.requestedAt?formatDateTime(item.requestedAt):"";
@@ -4332,26 +4267,26 @@ function openInquiryNotificationDetail(notificationId){
   entityForm.innerHTML=`
     <div class="inquiry-detail-card">
       <div class="inquiry-detail-service">
-        <span>${escapeHtml(langPick("SERVICE","SERVICIO","SERVIÇO","SERVICE"))}</span>
+        <span>${escapeHtml(langPick("SERVICE","SERVICIO","SERVICE"))}</span>
         <strong>${escapeHtml(item.service)}</strong>
         ${statusLabel?`<small>${escapeHtml(statusLabel)}</small>`:""}
       </div>
 
       <div class="inquiry-detail-grid">
-        ${item.phone?`<div><small>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}</small><strong>${escapeHtml(item.phone)}</strong></div>`:""}
+        ${item.phone?`<div><small>${escapeHtml(langPick("Phone","Teléfono","Téléphone"))}</small><strong>${escapeHtml(item.phone)}</strong></div>`:""}
         ${item.email?`<div><small>Email</small><strong>${escapeHtml(item.email)}</strong></div>`:""}
-        ${item.address?`<div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(item.address)}</strong></div>`:""}
-        ${requested?`<div class="full"><small>${escapeHtml(langPick("Requested date & time","Fecha y hora solicitada","Data e hora solicitadas","Date et heure demandées"))}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
-        ${item.type==="booking"?`<div><small>${escapeHtml(langPick("Frequency","Frecuencia","Frequência","Fréquence"))}</small><strong>${escapeHtml(bookingRecurrenceLabel(item.recurrencePattern))}</strong></div>`:""}
-        ${contactMethod?`<div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
-        ${item.preferredLanguage?`<div><small>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}</small><strong>${escapeHtml(customerEmailLanguageLabel(item.preferredLanguage))}</strong></div>`:""}
-        ${item.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Notes","Notas","Observações","Notes"))}</small><p>${escapeHtml(item.notes)}</p>${customerTranslateLink(item.notes,item.preferredLanguage)}</div>`:""}
+        ${item.address?`<div class="full"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><strong>${escapeHtml(item.address)}</strong></div>`:""}
+        ${requested?`<div class="full"><small>${escapeHtml(langPick("Requested date & time","Fecha y hora solicitada","Date et heure demandées"))}</small><strong>${escapeHtml(requested)}</strong></div>`:""}
+        ${item.type==="booking"?`<div><small>${escapeHtml(langPick("Frequency","Frecuencia","Fréquence"))}</small><strong>${escapeHtml(bookingRecurrenceLabel(item.recurrencePattern))}</strong></div>`:""}
+        ${contactMethod?`<div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contact préféré"))}</small><strong>${escapeHtml(contactMethod)}</strong></div>`:""}
+        ${item.preferredLanguage?`<div><small>${escapeHtml(langPick("Email language","Idioma de emails","Langue des e-mails"))}</small><strong>${escapeHtml(customerEmailLanguageLabel(item.preferredLanguage))}</strong></div>`:""}
+        ${item.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Notes","Notas","Notes"))}</small><p>${escapeHtml(item.notes)}</p>${customerTranslateLink(item.notes,item.preferredLanguage)}</div>`:""}
       </div>
 
       <div class="form-footer inquiry-detail-actions">
-        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
-        ${item.clientId?`<button type="button" class="primary-btn" data-inquiry-open-client="${escapeHtml(item.clientId)}">${escapeHtml(langPick("Open client","Abrir cliente","Abrir cliente","Ouvrir le client"))}</button>`:""}
-        ${item.type==="lead"?`<button type="button" class="primary-btn" data-inquiry-open-lead="${escapeHtml(item.recordId)}">${escapeHtml(langPick("Open lead","Abrir lead","Abrir lead","Ouvrir le prospect"))}</button>`:""}
+        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fermer"))}</button>
+        ${item.clientId?`<button type="button" class="primary-btn" data-inquiry-open-client="${escapeHtml(item.clientId)}">${escapeHtml(langPick("Open client","Abrir cliente","Ouvrir le client"))}</button>`:""}
+        ${item.type==="lead"?`<button type="button" class="primary-btn" data-inquiry-open-lead="${escapeHtml(item.recordId)}">${escapeHtml(langPick("Open lead","Abrir lead","Ouvrir le prospect"))}</button>`:""}
       </div>
     </div>`;
   modal.hidden=false;
@@ -4364,19 +4299,19 @@ function getInquiryUnreadCount(){
 function notificationTypeLabel(item){
   if(!item) return "";
   const labels={
-    booking:langPick("Booking request","Solicitud de reserva","Solicitação de reserva","Demande de réservation"),
-    lead:langPick("Lead","Lead","Lead","Prospect"),
-    "quote-request":langPick("Quote request","Solicitud de cotización","Pedido de orçamento","Demande de devis"),
-    "quote-accepted":langPick("Quote accepted","Cotización aceptada","Orçamento aceito","Devis accepté"),
-    "quote-declined":langPick("Quote declined","Cotización rechazada","Orçamento recusado","Devis refusé"),
-    payment:langPick("Payment","Pago","Pagamento","Paiement"),
-    "invoice-payment-choice":langPick("Payment choice","Método de pago","Forma de pagamento","Choix de paiement"),
-    dispute:langPick("Dispute","Disputa","Contestação","Contestation"),
-    "job-status":langPick("Job update","Actualización del trabajo","Atualização do trabalho","Mise à jour du travail"),
-    "team-message":langPick("Team message","Mensaje del equipo","Mensagem da equipe","Message d’équipe"),
-    "email-delivery":langPick("Email delivery issue","Problema de entrega del email","Problema de entrega do e-mail","Problème de livraison de l’e-mail")
+    booking:langPick("Booking request","Solicitud de reserva","Demande de réservation"),
+    lead:langPick("Lead","Lead","Prospect"),
+    "quote-request":langPick("Quote request","Solicitud de cotización","Demande de devis"),
+    "quote-accepted":langPick("Quote accepted","Cotización aceptada","Devis accepté"),
+    "quote-declined":langPick("Quote declined","Cotización rechazada","Devis refusé"),
+    payment:langPick("Payment","Pago","Paiement"),
+    "invoice-payment-choice":langPick("Payment choice","Método de pago","Choix de paiement"),
+    dispute:langPick("Dispute","Disputa","Contestation"),
+    "job-status":langPick("Job update","Actualización del trabajo","Mise à jour du travail"),
+    "team-message":langPick("Team message","Mensaje del equipo","Message d’équipe"),
+    "email-delivery":langPick("Email delivery issue","Problema de entrega del email","Problème de livraison de l’e-mail")
   };
-  return labels[item.type]||langPick("Notification","Notificación","Notificação","Notification");
+  return labels[item.type]||langPick("Notification","Notificación","Notification");
 }
 
 function renderInquiryNotifications(){
@@ -4402,11 +4337,11 @@ function renderInquiryNotifications(){
     window.__tleNotificationMotionTimer=setTimeout(()=>button.classList.remove("notification-arrived"),1700);
   }
   button.setAttribute("aria-label",unread
-    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" novas notificações",unread+" nouvelles notifications")
-    : langPick("Notifications","Notificaciones","Notificações","Notifications"));
+    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",(unread+" novas notificações",unread+" nouvelles notifications"))
+    : langPick("Notifications","Notificaciones","Notifications"));
 
   if(!unreadItems.length){
-    list.innerHTML=`<div class="notification-empty"><strong>${escapeHtml(langPick("You’re all caught up","Todo al día","Tudo em dia","Tout est à jour"))}</strong><span>${escapeHtml(langPick("Only new notifications will appear here.","Solo las notificaciones nuevas aparecerán aquí.","Somente novas notificações aparecerão aqui.","Seules les nouvelles notifications apparaîtront ici."))}</span></div>`;
+    list.innerHTML=`<div class="notification-empty"><strong>${escapeHtml(langPick("You’re all caught up","Todo al día","Tout est à jour"))}</strong><span>${escapeHtml(langPick("Only new notifications will appear here.","Solo las notificaciones nuevas aparecerán aquí.","Seules les nouvelles notifications apparaîtront ici."))}</span></div>`;
     return;
   }
 
@@ -4473,29 +4408,14 @@ function setupInvoiceRealtime(){
         if(unreadAfter>unreadBefore){
           const newest=getInquiryNotifications()[0];
           if(newest?.type==="quote-accepted"){
-            showToast(langPick(
-              "Quote accepted",
-              "Cotización aceptada",
-              "Orçamento aceito",
-              "Devis accepté"
-            )+" · "+(newest.name||""));
+            showToast(langPick("Quote accepted","Cotización aceptada","Devis accepté")+" · "+(newest.name||""));
           }else if(newest?.type==="quote-declined"){
-            showToast(langPick(
-              "Quote declined",
-              "Cotización rechazada",
-              "Orçamento recusado",
-              "Devis refusé"
-            )+" · "+(newest.name||""));
+            showToast(langPick("Quote declined","Cotización rechazada","Devis refusé")+" · "+(newest.name||""));
           }else if(newest?.type==="email-delivery"){
-            showToast(langPick(
-              "Email delivery issue",
-              "Problema de entrega del email",
-              "Problema de entrega do e-mail",
-              "Problème de livraison de l’e-mail"
-            )+" · "+(newest.email||newest.name||""));
+            showToast(langPick("Email delivery issue","Problema de entrega del email","Problème de livraison de l’e-mail")+" · "+(newest.email||newest.name||""));
           }else{
             const summary=[newest?.name,newest?.service].filter(Boolean).join(" · ");
-            showToast(langPick("New notification","Nueva notificación","Nova notificação","Nouvelle notification")+(summary?" · "+summary:""));
+            showToast(langPick("New notification","Nueva notificación","Nouvelle notification")+(summary?" · "+summary:""));
           }
         }
       }catch(err){
@@ -4663,12 +4583,7 @@ async function loadCoreData(){
     const now=Date.now();
     if(now-Number(window.__tleLastLoadWarningAt||0)>45000){
       window.__tleLastLoadWarningAt=now;
-      showToast(langPick(
-        "Some data couldn’t refresh. Your saved data is safe; tap Refresh to try again.",
-        "Algunos datos no pudieron actualizarse. Lo guardado sigue seguro; toca Actualizar para intentar otra vez.",
-        "Alguns dados não puderam ser atualizados. Seus dados salvos estão seguros; toque em Atualizar para tentar novamente.",
-        "Certaines données n’ont pas pu être actualisées. Vos données enregistrées sont en sécurité ; touchez Actualiser pour réessayer."
-      ));
+      showToast(langPick("Some data couldn’t refresh. Your saved data is safe; tap Refresh to try again.","Algunos datos no pudieron actualizarse. Lo guardado sigue seguro; toca Actualizar para intentar otra vez.","Certaines données n’ont pas pu être actualisées. Vos données enregistrées sont en sécurité ; touchez Actualiser pour réessayer."));
     }
   }
 }
@@ -4778,7 +4693,7 @@ function enhanceMobileRecordActions(){
     primary.classList.add("mobile-primary-action");
     const more=document.createElement("button");
     more.type="button"; more.className="mobile-more-actions"; more.textContent="•••";
-    more.setAttribute("aria-label",langPick("More actions","Más acciones","Mais ações","Plus d’actions"));
+    more.setAttribute("aria-label",langPick("More actions","Más acciones","Plus d’actions"));
     actions.insertBefore(more,actions.querySelector(".record-delete-btn"));
     more.addEventListener("click",e=>{e.stopPropagation();actions.classList.toggle("mobile-actions-open");});
   });
@@ -4801,7 +4716,7 @@ function renderInvoices(){
   if(a) a.textContent=money(outstanding); if(b) b.textContent=money(paidThisMonth); if(d) d.textContent=open;
 
   if(!state.invoices.length){
-    table.innerHTML=`<div class="empty-table"><strong>${escapeHtml(langPick("No invoices yet.","Aún no hay facturas.","Ainda não há faturas.","Aucune facture pour le moment."))}</strong><span>${escapeHtml(langPick("Create one manually or accept a quote to prepare a draft invoice.","Crea una manualmente o acepta una cotización para preparar una factura.","Crie uma manualmente ou aceite um orçamento para preparar uma fatura.","Créez-en une manuellement ou acceptez un devis pour préparer une facture."))}</span><button class="text-btn" data-action="invoice">+ ${escapeHtml(langPick("New invoice","Nueva factura","Nova fatura","Nouvelle facture"))}</button></div>`;
+    table.innerHTML=`<div class="empty-table"><strong>${escapeHtml(langPick("No invoices yet.","Aún no hay facturas.","Aucune facture pour le moment."))}</strong><span>${escapeHtml(langPick("Create one manually or accept a quote to prepare a draft invoice.","Crea una manualmente o acepta una cotización para preparar una factura.","Créez-en une manuellement ou acceptez un devis pour préparer une facture."))}</span><button class="text-btn" data-action="invoice">+ ${escapeHtml(langPick("New invoice","Nueva factura","Nouvelle facture"))}</button></div>`;
     return;
   }
   table.innerHTML=state.invoices.map(inv=>{
@@ -4815,22 +4730,22 @@ function renderInvoices(){
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
     const statusClass=inv.status==="paid"?"success":overdue?"danger":inv.status==="sent"||inv.status==="partial"?"warning":"neutral";
     const actionHint=inv.status==="paid"
-      ? langPick("Paid in full","Pagada completa","Pago integral","Payée intégralement")
+      ? langPick("Paid in full","Pagada completa","Payée intégralement")
       : overdue
-        ? langPick("Collect now","Cobrar ahora","Cobrar agora","Encaisser maintenant")
+        ? langPick("Collect now","Cobrar ahora","Encaisser maintenant")
         : inv.status==="draft"
-          ? langPick("Ready to send","Lista para enviar","Pronta para enviar","Prête à envoyer")
+          ? langPick("Ready to send","Lista para enviar","Prête à envoyer")
           : inv.status==="partial"
-            ? langPick("Balance left","Saldo pendiente","Saldo restante","Solde restant")
-            : langPick("Awaiting payment","Esperando pago","Aguardando pagamento","En attente de paiement");
+            ? langPick("Balance left","Saldo pendiente","Solde restant")
+            : langPick("Awaiting payment","Esperando pago","En attente de paiement");
     return `<div class="table-row mobile-record-card invoice-growth-row">
       <span class="record-primary invoice-growth-primary">
         <small class="invoice-number">#${inv.invoice_number||String(inv.id).slice(0,6)}</small>
         <strong class="invoice-growth-amount">${money(remaining||Number(inv.total||0))}</strong>
-        <small>${remaining>0?escapeHtml(langPick("remaining","pendiente","restante","restant")):escapeHtml(langPick("total","total","total","total"))}</small>
+        <small>${remaining>0?escapeHtml(langPick("remaining","pendiente","restant")):escapeHtml(langPick("total","total","total"))}</small>
       </span>
-      <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
-      <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total da fatura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
+      <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
+      <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
       <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b><small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions invoice-actions-stable">
         <span class="safe-actions">
@@ -4857,8 +4772,8 @@ function renderBookingServices(){
     const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
     const isUpfront=s.pricing_type==="flat" && Number(s.base_price)>0;
     return `<div class="booking-service-row">
-      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${isUpfront?money(s.base_price):langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé")} · ${isUpfront?langPick("Book a Cleaning","Reservar una limpieza","Reservar uma limpeza","Réserver un nettoyage"):langPick("Request a Quote","Pedir una cotización","Solicitar orçamento","Demander un devis")}</small></span>
-      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Sem adicionais","Aucune option"))}</i>`):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Fluxo de orçamento","Parcours devis"))}</i>`}</span>
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${isUpfront?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")} · ${isUpfront?langPick("Book a Cleaning","Reservar una limpieza","Réserver un nettoyage"):langPick("Request a Quote","Pedir una cotización","Demander un devis")}</small></span>
+      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Parcours devis"))}</i>`}</span>
     </div>`;
   }).join("");
 }
@@ -5078,7 +4993,7 @@ function renderClients(){
   const grid=$("#clientsGrid");
   if(!grid) return;
   if(!state.clients.length){
-    grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No clients yet.","Aún no hay clientes.","Ainda não há clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add clients automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Reservas confirmadas adicionam clientes automaticamente. Você também pode adicionar manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add client","Añadir cliente","Adicionar cliente","Ajouter un client"))}</button></article>`;
+    grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No clients yet.","Aún no hay clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add clients automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add client","Añadir cliente","Ajouter un client"))}</button></article>`;
     return;
   }
   const now=new Date();
@@ -5095,16 +5010,16 @@ function renderClients(){
           <strong>${escapeHtml(c.name)}</strong>
           <span>${escapeHtml(c.email||tr("No email"))}</span>
         </div>
-        <span class="client-balance ${balance>0?"has-balance":""}">${balance>0?money(balance):langPick("Paid up","Al día","Em dia","À jour")}</span>
+        <span class="client-balance ${balance>0?"has-balance":""}">${balance>0?money(balance):langPick("Paid up","Al día","À jour")}</span>
       </div>
       <div class="client-business-snapshot">
-        <span><small>${escapeHtml(langPick("Next cleaning","Próxima limpieza","Próxima limpeza","Prochain nettoyage"))}</small><b>${next?escapeHtml(formatDateTime(next.starts_at)):escapeHtml(langPick("Not scheduled","Sin agendar","Não agendado","Non planifié"))}</b></span>
-        <span><small>${escapeHtml(langPick("Last cleaning","Última limpieza","Última limpeza","Dernier nettoyage"))}</small><b>${last?escapeHtml(new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(last.starts_at))):"—"}</b></span>
+        <span><small>${escapeHtml(langPick("Next cleaning","Próxima limpieza","Prochain nettoyage"))}</small><b>${next?escapeHtml(formatDateTime(next.starts_at)):escapeHtml(langPick("Not scheduled","Sin agendar","Non planifié"))}</b></span>
+        <span><small>${escapeHtml(langPick("Last cleaning","Última limpieza","Dernier nettoyage"))}</small><b>${last?escapeHtml(new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(last.starts_at))):"—"}</b></span>
       </div>
       <small class="client-location">${escapeHtml([c.city,c.state].filter(Boolean).join(", ") || c.address_line1 || tr("No address yet"))}</small>
       <div class="card-actions record-card-actions client-card-actions">
         <span class="safe-actions">
-          <button data-client-info="${c.id}">${escapeHtml(langPick("Info","Info","Info","Info"))}</button>
+          <button data-client-info="${c.id}">${escapeHtml(langPick("Info","Info","Info"))}</button>
           <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
           <button data-client-to-quote="${c.id}">${escapeHtml(tr("Quote"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
@@ -5118,7 +5033,7 @@ function renderClients(){
 function openClientInfo(clientId){
   const client=state.clients.find(c=>c.id===clientId);
   if(!client){
-    showToast(langPick("Client not found","Cliente no encontrado","Cliente não encontrado","Client introuvable"));
+    showToast(langPick("Client not found","Cliente no encontrado","Client introuvable"));
     return;
   }
 
@@ -5145,19 +5060,19 @@ function openClientInfo(clientId){
     ...jobs.map(j=>({
       at:j.starts_at,
       icon:"🧹",
-      title:j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"),
-      meta:formatDateTime(j.starts_at)+" · "+translatedStatus(j.status)+(j.recurrence_rule_id?" · "+langPick("Recurring","Recurrente","Recorrente","Récurrent"):"")
+      title:j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Prestation de nettoyage"),
+      meta:formatDateTime(j.starts_at)+" · "+translatedStatus(j.status)+(j.recurrence_rule_id?" · "+langPick("Recurring","Recurrente","Récurrent"):"")
     })),
     ...quotes.map(q=>({
       at:q.updated_at||q.created_at,
       icon:"📝",
-      title:langPick("Quote","Cotización","Orçamento","Devis")+" · "+money(Number(q.total||0)),
+      title:langPick("Quote","Cotización","Devis")+" · "+money(Number(q.total||0)),
       meta:formatDateTime(q.updated_at||q.created_at)+" · "+String(q.status||"").replaceAll("_"," ")
     })),
     ...invoices.map(inv=>({
       at:inv.updated_at||inv.created_at,
       icon:"🧾",
-      title:langPick("Invoice","Factura","Fatura","Facture")+" · "+money(Number(inv.total||0)),
+      title:langPick("Invoice","Factura","Facture")+" · "+money(Number(inv.total||0)),
       meta:formatDateTime(inv.updated_at||inv.created_at)+" · "+String(inv.status||"").replaceAll("_"," ")
     })),
     ...invoices.flatMap(inv=>(inv.payments||[])
@@ -5165,20 +5080,20 @@ function openClientInfo(clientId){
       .map(payment=>({
         at:payment.paid_at||payment.created_at,
         icon:"💵",
-        title:langPick("Payment","Pago","Pagamento","Paiement")+" · "+money(Number(payment.amount||0)),
+        title:langPick("Payment","Pago","Paiement")+" · "+money(Number(payment.amount||0)),
         meta:formatDateTime(payment.paid_at||payment.created_at)+" · "+paymentMethodLabel(payment.method||"")
       }))
     ),
     ...leads.map(l=>({
       at:l.updated_at||l.created_at,
       icon:"◎",
-      title:langPick("Lead / inquiry","Lead / consulta","Lead / consulta","Prospect / demande"),
+      title:langPick("Lead / inquiry","Lead / consulta","Prospect / demande"),
       meta:formatDateTime(l.updated_at||l.created_at)+" · "+String(l.status||"new").replaceAll("_"," ")+(l.source?" · "+l.source:"")
     })),
     ...bookings.map(b=>({
       at:b.created_at||b.requested_start_at,
       icon:"📅",
-      title:langPick("Booking request","Solicitud de reserva","Pedido de reserva","Demande de réservation"),
+      title:langPick("Booking request","Solicitud de reserva","Demande de réservation"),
       meta:formatDateTime(b.requested_start_at)+" · "+bookingRecurrenceLabel(b.recurrence_pattern)+" · "+String(b.status||"")
     }))
   ].filter(item=>item.at).sort((a,b)=>new Date(b.at)-new Date(a.at));
@@ -5189,44 +5104,44 @@ function openClientInfo(clientId){
   }).filter(Boolean);
 
   modalHeader(
-    langPick("CLIENT INFO","INFO DEL CLIENTE","INFO DO CLIENTE","INFO CLIENT"),
+    langPick("CLIENT INFO","INFO DEL CLIENTE","INFO CLIENT"),
     client.name,
-    langPick("Contact details and full activity history in one place.","Datos de contacto e historial completo en un solo lugar.","Dados de contato e histórico completo em um só lugar.","Coordonnées et historique complet au même endroit.")
+    langPick("Contact details and full activity history in one place.","Datos de contacto e historial completo en un solo lugar.","Coordonnées et historique complet au même endroit.")
   );
 
   entityForm.innerHTML=`
     <div class="client-history-profile">
       ${emailIssue?`<div class="client-email-warning">
-        <strong>${escapeHtml(langPick("⚠ Email needs verification","⚠ Verifica el email","⚠ Verifique o e-mail","⚠ Vérifiez l’e-mail"))}</strong>
-        <span>${escapeHtml(emailIssue.reason||langPick("A recent email could not be delivered. Confirm or correct this address before sending again.","Un correo reciente no pudo entregarse. Confirma o corrige esta dirección antes de volver a enviar.","Um e-mail recente não pôde ser entregue. Confirme ou corrija este endereço antes de enviar novamente.","Un e-mail récent n’a pas pu être livré. Confirmez ou corrigez cette adresse avant de renvoyer."))}</span>
+        <strong>${escapeHtml(langPick("⚠ Email needs verification","⚠ Verifica el email","⚠ Vérifiez l’e-mail"))}</strong>
+        <span>${escapeHtml(emailIssue.reason||langPick("A recent email could not be delivered. Confirm or correct this address before sending again.","Un correo reciente no pudo entregarse. Confirma o corrige esta dirección antes de volver a enviar.","Un e-mail récent n’a pas pu être livré. Confirmez ou corrigez cette adresse avant de renvoyer."))}</span>
       </div>`:""}
       <div class="client-history-contact">
-        <div><small>${escapeHtml(langPick("Email","Email","Email","E-mail"))}</small><strong>${escapeHtml(client.email||"—")}</strong></div>
-        <div><small>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}</small><strong>${escapeHtml(client.phone||"—")}</strong></div>
-        <div class="full"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><strong>${escapeHtml(clientServiceAddress(client)||"—")}</strong></div>
-        <div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contato preferido","Contact préféré"))}</small><strong>${escapeHtml(client.preferred_contact||"email")}</strong></div>
-        <div><small>${escapeHtml(langPick("Recurring","Recurrente","Recorrente","Récurrent"))}</small><strong>${escapeHtml(recurringSummary.join(", ")||langPick("No","No","Não","Non"))}</strong></div>
-        ${client.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Client notes","Notas del cliente","Notas do cliente","Notes client"))}</small><strong>${escapeHtml(client.notes)}</strong>${customerTranslateLink(client.notes,client.preferred_language)}</div>`:""}
+        <div><small>${escapeHtml(langPick("Email","Email","E-mail"))}</small><strong>${escapeHtml(client.email||"—")}</strong></div>
+        <div><small>${escapeHtml(langPick("Phone","Teléfono","Téléphone"))}</small><strong>${escapeHtml(client.phone||"—")}</strong></div>
+        <div class="full"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><strong>${escapeHtml(clientServiceAddress(client)||"—")}</strong></div>
+        <div><small>${escapeHtml(langPick("Preferred contact","Contacto preferido","Contact préféré"))}</small><strong>${escapeHtml(client.preferred_contact||"email")}</strong></div>
+        <div><small>${escapeHtml(langPick("Recurring","Recurrente","Récurrent"))}</small><strong>${escapeHtml(recurringSummary.join(", ")||langPick("No","No","Non"))}</strong></div>
+        ${client.notes?`<div class="full customer-authored-text"><small>${escapeHtml(langPick("Client notes","Notas del cliente","Notes client"))}</small><strong>${escapeHtml(client.notes)}</strong>${customerTranslateLink(client.notes,client.preferred_language)}</div>`:""}
       </div>
       <div class="client-history-stats">
-        <span><small>${escapeHtml(langPick("Completed","Completados","Concluídos","Terminés"))}</small><b>${completed}</b></span>
-        <span><small>${escapeHtml(langPick("Upcoming","Próximos","Próximos","À venir"))}</small><b>${upcoming}</b></span>
-        <span><small>${escapeHtml(langPick("Invoiced","Facturado","Faturado","Facturé"))}</small><b>${escapeHtml(money(invoiced))}</b></span>
-        <span><small>${escapeHtml(langPick("Paid","Pagado","Pago","Payé"))}</small><b>${escapeHtml(money(paid))}</b></span>
+        <span><small>${escapeHtml(langPick("Completed","Completados","Terminés"))}</small><b>${completed}</b></span>
+        <span><small>${escapeHtml(langPick("Upcoming","Próximos","À venir"))}</small><b>${upcoming}</b></span>
+        <span><small>${escapeHtml(langPick("Invoiced","Facturado","Facturé"))}</small><b>${escapeHtml(money(invoiced))}</b></span>
+        <span><small>${escapeHtml(langPick("Paid","Pagado","Payé"))}</small><b>${escapeHtml(money(paid))}</b></span>
       </div>
       <div class="client-history-section">
-        <div class="client-history-title"><strong>${escapeHtml(langPick("History","Historial","Histórico","Historique"))}</strong><span>${history.length}</span></div>
+        <div class="client-history-title"><strong>${escapeHtml(langPick("History","Historial","Historique"))}</strong><span>${history.length}</span></div>
         <div class="client-history-list">
           ${history.length?history.map(item=>`
             <div class="client-history-item">
               <span class="client-history-icon">${item.icon}</span>
               <div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small></div>
-            </div>`).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No history yet.","Todavía no hay historial.","Ainda não há histórico.","Aucun historique pour le moment."))}</strong></div>`}
+            </div>`).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No history yet.","Todavía no hay historial.","Aucun historique pour le moment."))}</strong></div>`}
         </div>
       </div>
       <div class="form-footer client-history-footer">
-        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fechar","Fermer"))}</button>
-        <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit client","Editar cliente","Editar cliente","Modifier le client"))}</button>
+        <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fermer"))}</button>
+        <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit client","Editar cliente","Modifier le client"))}</button>
       </div>
     </div>`;
   modal.hidden=false;
@@ -5239,37 +5154,37 @@ function renderServices(){
     const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
     const isQuote=!(s.pricing_type==="flat" && Number(s.base_price)>0);
     const statusLabel=!s.active
-      ? langPick("Inactive","Inactivo","Inativo","Inactif")
+      ? langPick("Inactive","Inactivo","Inactif")
       : isQuote
-        ? langPick("Quote required","Requiere cotización","Requer orçamento","Devis requis")
-        : langPick("Bookable","Reservable","Reservável","Réservable");
+        ? langPick("Quote required","Requiere cotización","Devis requis")
+        : langPick("Bookable","Reservable","Réservable");
     return `
       <article class="service-card service-catalog-card ${s.active?"":"inactive-card"}">
         <div class="service-catalog-top">
           <div><span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span><strong>${escapeHtml(s.name)}</strong></div>
-          <b class="service-price">${isQuote?langPick("Custom","Personalizado","Personalizado","Sur devis"):money(s.base_price)}</b>
+          <b class="service-price">${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b>
         </div>
         <div class="service-catalog-meta">
-          <span><small>${escapeHtml(langPick("Duration","Duración","Duração","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
-          <span><small>${escapeHtml(langPick("Pricing","Precio","Preço","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Orçamento","Devis"):langPick("Upfront","Inmediato","Imediato","Immédiat"))}</b></span>
-          <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Adicionais","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
+          <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
+          <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
+          <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
         </div>
         ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
         <div class="addon-list">
-          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Incluído por padrão","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Sem adicionais ainda","Aucune option pour le moment"))}</small>`}
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Aucune option pour le moment"))}</small>`}
         </div>
         <div class="card-actions service-card-actions">
-          <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Editar serviço","Modifier"))}</button>
-          <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Adicional","Option"))}</button>
-          <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Desativar","Désactiver"):langPick("Activate","Activar","Ativar","Activer"))}</button>
+          <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Modifier"))}</button>
+          <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Option"))}</button>
+          <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Désactiver"):langPick("Activate","Activar","Activer"))}</button>
         </div>
       </article>`;
   }).join("");
 
   const unassigned=state.serviceAddons.filter(a=>!a.service_id);
-  const globalCard=unassigned.length?`<article class="service-card service-catalog-card"><div class="service-catalog-top"><div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GERAL","GÉNÉRAL"))}</span><strong>${escapeHtml(langPick("General add-ons","Add-ons generales","Adicionais gerais","Options générales"))}</strong></div></div><span>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponíveis em vários serviços","Disponibles sur plusieurs services"))}</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
+  const globalCard=unassigned.length?`<article class="service-card service-catalog-card"><div class="service-catalog-top"><div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GÉNÉRAL"))}</span><strong>${escapeHtml(langPick("General add-ons","Add-ons generales","Options générales"))}</strong></div></div><span>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponibles sur plusieurs services"))}</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
 
-  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Defina preço, duração e reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
+  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
 }
 function renderSupplies(){
   const grid=$("#suppliesGrid");
@@ -5335,7 +5250,7 @@ function renderJobs(){
             : `<button data-edit="job" data-id="${j.id}">Edit</button><button class="danger-link" data-cancel-job="${j.id}">Cancel</button>`}
         </div>
       </div>
-    `).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No incoming jobs in the next 3 days.","No hay trabajos próximos en los siguientes 3 días.","Não há trabalhos nos próximos 3 dias.","Aucun travail prévu dans les 3 prochains jours."))}</strong><span>${escapeHtml(langPick("One-time and recurring jobs will appear here when they fall inside the 72-hour window.","Los trabajos únicos y recurrentes aparecerán aquí cuando estén dentro de la ventana de 72 horas.","Trabalhos únicos e recorrentes aparecerão aqui quando estiverem dentro da janela de 72 horas.","Les travaux ponctuels et récurrents apparaîtront ici lorsqu’ils entreront dans la fenêtre de 72 heures."))}</span><button class="text-btn" data-create="job">${escapeHtml(langPick("Add a job →","Añadir trabajo →","Adicionar trabalho →","Ajouter un travail →"))}</button></div>`;
+    `).join(""):`<div class="empty-inline"><strong>${escapeHtml(langPick("No incoming jobs in the next 3 days.","No hay trabajos próximos en los siguientes 3 días.","Aucun travail prévu dans les 3 prochains jours."))}</strong><span>${escapeHtml(langPick("One-time and recurring jobs will appear here when they fall inside the 72-hour window.","Los trabajos únicos y recurrentes aparecerán aquí cuando estén dentro de la ventana de 72 horas.","Les travaux ponctuels et récurrents apparaîtront ici lorsqu’ils entreront dans la fenêtre de 72 heures."))}</span><button class="text-btn" data-create="job">${escapeHtml(langPick("Add a job →","Añadir trabajo →","Ajouter un travail →"))}</button></div>`;
   }
 
   const week=$("#calendarWeekRow");
@@ -5357,8 +5272,8 @@ function renderJobs(){
       if(range){
         range.textContent=new Intl.DateTimeFormat(appLocale(),{month:"long",year:"numeric"}).format(monthDate);
       }
-      if(rangePill) rangePill.textContent=langPick("Month","Mes","Mês","Mois");
-      if(rangeEyebrow) rangeEyebrow.textContent=langPick("MONTH VIEW","VISTA MENSUAL","VISÃO MENSAL","VUE MENSUELLE");
+      if(rangePill) rangePill.textContent=langPick("Month","Mes","Mois");
+      if(rangeEyebrow) rangeEyebrow.textContent=langPick("MONTH VIEW","VISTA MENSUAL","VUE MENSUELLE");
       if(monthActions) monthActions.hidden=false;
 
       week.classList.add("month-calendar");
@@ -5392,8 +5307,8 @@ function renderJobs(){
           ? new Intl.DateTimeFormat(appLocale(),{month:"long"}).format(start)+" "+start.getDate()+"–"+end.getDate()
           : new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(start)+" – "+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(end);
       }
-      if(rangePill) rangePill.textContent=langPick("14 days","14 días","14 dias","14 jours");
-      if(rangeEyebrow) rangeEyebrow.textContent=langPick("NEXT 2 WEEKS","PRÓXIMAS 2 SEMANAS","PRÓXIMAS 2 SEMANAS","2 PROCHAINES SEMAINES");
+      if(rangePill) rangePill.textContent=langPick("14 days","14 días","14 jours");
+      if(rangeEyebrow) rangeEyebrow.textContent=langPick("NEXT 2 WEEKS","PRÓXIMAS 2 SEMANAS","2 PROCHAINES SEMAINES");
       if(monthActions) monthActions.hidden=true;
 
       week.classList.remove("month-calendar");
@@ -5481,50 +5396,45 @@ function renderCalendarDayDetails(dateKey,options={}){
     .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
 
   const title=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"long",day:"numeric"}).format(selectedDate);
-  const emptyCopy=langPick(
-    "No jobs are scheduled for this day.",
-    "No hay trabajos programados para este día.",
-    "Não há trabalhos agendados para este dia.",
-    "Aucun travail n’est prévu ce jour-là."
-  );
+  const emptyCopy=langPick("No jobs are scheduled for this day.","No hay trabajos programados para este día.","Aucun travail n’est prévu ce jour-là.");
   const headingCopy=jobs.length===1
-    ? langPick("1 scheduled job","1 trabajo programado","1 trabalho agendado","1 travail prévu")
-    : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} trabalhos agendados`,`${jobs.length} travaux prévus`);
+    ? langPick("1 scheduled job","1 trabajo programado","1 travail prévu")
+    : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} travaux prévus`);
 
   panel.innerHTML=`
     <div class="calendar-day-details-head">
       <div>
-        <p class="eyebrow">${escapeHtml(langPick("DAY DETAILS","DETALLES DEL DÍA","DETALHES DO DIA","DÉTAILS DU JOUR"))}</p>
+        <p class="eyebrow">${escapeHtml(langPick("DAY DETAILS","DETALLES DEL DÍA","DÉTAILS DU JOUR"))}</p>
         <h3>${escapeHtml(title)}</h3>
         <span>${escapeHtml(jobs.length?headingCopy:emptyCopy)}</span>
       </div>
-      <button type="button" class="calendar-day-close" data-calendar-close aria-label="${escapeHtml(langPick("Close day details","Cerrar detalles del día","Fechar detalhes do dia","Fermer les détails du jour"))}">×</button>
+      <button type="button" class="calendar-day-close" data-calendar-close aria-label="${escapeHtml(langPick("Close day details","Cerrar detalles del día","Fermer les détails du jour"))}">×</button>
     </div>
     <div class="calendar-day-job-list">
       ${jobs.map(j=>{
         const start=new Date(j.starts_at);
         const time=Number.isNaN(start.getTime())?"—":new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(start);
         const duration=Number(j.duration_minutes||0)>0?Math.round(Number(j.duration_minutes)/60*10)/10+"h":"—";
-        const assignee=j.job_assignments?.[0]?.team_members?.name||langPick("Not assigned","Sin asignar","Não atribuído","Non attribué");
-        const address=j.service_address||langPick("Address not added","Dirección no añadida","Endereço não adicionado","Adresse non ajoutée");
+        const assignee=j.job_assignments?.[0]?.team_members?.name||langPick("Not assigned","Sin asignar","Non attribué");
+        const address=j.service_address||langPick("Address not added","Dirección no añadida","Adresse non ajoutée");
         const notes=String(j.notes||"").trim();
         const canEdit=state.business?.role!=="coworker";
         return `
           <article class="calendar-day-job ${options.jobId===j.id?"is-focus":""}">
             <div class="calendar-day-job-top">
               <div>
-                <strong>${escapeHtml(time)} · ${escapeHtml(j.clients?.name||langPick("Unassigned client","Cliente sin asignar","Cliente não atribuído","Client non attribué"))}</strong>
-                <span>${escapeHtml(j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Serviço de limpeza","Prestation de nettoyage"))}</span>
+                <strong>${escapeHtml(time)} · ${escapeHtml(j.clients?.name||langPick("Unassigned client","Cliente sin asignar","Client non attribué"))}</strong>
+                <span>${escapeHtml(j.services?.name||langPick("Cleaning job","Trabajo de limpieza","Prestation de nettoyage"))}</span>
               </div>
               <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
             </div>
             <div class="calendar-day-job-grid">
-              <span><small>${escapeHtml(langPick("Duration","Duración","Duração","Durée"))}</small><b>${escapeHtml(duration)}</b></span>
-              <span><small>${escapeHtml(langPick("Assigned to","Asignado a","Atribuído a","Assigné à"))}</small><b>${escapeHtml(assignee)}</b></span>
-              <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Endereço","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
+              <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${escapeHtml(duration)}</b></span>
+              <span><small>${escapeHtml(langPick("Assigned to","Asignado a","Assigné à"))}</small><b>${escapeHtml(assignee)}</b></span>
+              <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
             </div>
-            ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
-            ${canEdit?`<div class="calendar-day-actions"><button type="button" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Editar trabalho","Modifier le travail"))}</button></div>`:""}
+            ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
+            ${canEdit?`<div class="calendar-day-actions"><button type="button" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
           </article>`;
       }).join("")}
     </div>`;
@@ -5562,25 +5472,25 @@ function quoteColumn(status,label){
       const total=Number(q.total||0);
       const openStatus=customerOpenStatus(q);
       const dispute=state.disputes.find(d=>d.resource_type==="quote"&&d.quote_id===q.id&&d.status==="open");
-      const paymentCopy=q.payment_status==="paid"?langPick("Paid","Pagado","Pago","Payé"):q.payment_status==="partial"?langPick("Partial payment","Pago parcial","Pagamento parcial","Paiement partiel"):"";
+      const paymentCopy=q.payment_status==="paid"?langPick("Paid","Pagado","Payé"):q.payment_status==="partial"?langPick("Partial payment","Pago parcial","Paiement partiel"):"";
       const stateCopy=status==="accepted"
-        ? langPick("Booked + invoice created","Reservado + factura creada","Reservado + fatura criada","Réservé + facture créée")+(paymentCopy?" · "+paymentCopy:"")
+        ? langPick("Booked + invoice created","Reservado + factura creada","Réservé + facture créée")+(paymentCopy?" · "+paymentCopy:"")
         : status==="sent"
-          ? langPick("Waiting for customer","Esperando al cliente","Aguardando cliente","En attente du client")
+          ? langPick("Waiting for customer","Esperando al cliente","En attente du client")
           : status==="declined"
-            ? langPick("Declined by customer","Rechazada por el cliente","Recusado pelo cliente","Refusé par le client")
+            ? langPick("Declined by customer","Rechazada por el cliente","Refusé par le client")
             : status==="requested"
-              ? langPick("Needs your price","Necesita tu precio","Precisa do seu preço","Prix à définir")
-              : langPick("Ready to finish","Lista para terminar","Pronto para finalizar","Prêt à finaliser");
+              ? langPick("Needs your price","Necesita tu precio","Prix à définir")
+              : langPick("Ready to finish","Lista para terminar","Prêt à finaliser");
       const nextCopy=status==="sent"
-        ? langPick("Next: follow up","Siguiente: dar seguimiento","Próximo: acompanhar","Suite : relancer")
+        ? langPick("Next: follow up","Siguiente: dar seguimiento","Suite : relancer")
         : status==="requested"
-          ? langPick("Next: build quote","Siguiente: preparar cotización","Próximo: criar orçamento","Suite : préparer le devis")
+          ? langPick("Next: build quote","Siguiente: preparar cotización","Suite : préparer le devis")
           : status==="draft"
-            ? langPick("Next: send to client","Siguiente: enviar al cliente","Próximo: enviar ao cliente","Suite : envoyer au client")
+            ? langPick("Next: send to client","Siguiente: enviar al cliente","Suite : envoyer au client")
             : status==="accepted"
-              ? langPick("Converted to work","Convertida en trabajo","Convertido em trabalho","Converti en prestation")
-              : langPick("Review when useful","Revisar cuando convenga","Revisar quando necessário","Revoir si nécessaire");
+              ? langPick("Converted to work","Convertida en trabajo","Converti en prestation")
+              : langPick("Review when useful","Revisar cuando convenga","Revoir si nécessaire");
       return `<article class="quote-growth-card ${status==="accepted"?"accepted":""}">
         <div class="quote-growth-top">
           <span class="quote-status-pill quote-status-${escapeHtml(status)}">${escapeHtml(translatedStatus(status))}</span>
@@ -5588,7 +5498,7 @@ function quoteColumn(status,label){
         </div>
         <div class="quote-growth-customer">
           <strong>${escapeHtml(q.customer_name)}</strong>
-          <small>${escapeHtml(service?.name || langPick("Cleaning service","Servicio de limpieza","Serviço de limpeza","Service de nettoyage"))}</small>
+          <small>${escapeHtml(service?.name || langPick("Cleaning service","Servicio de limpieza","Service de nettoyage"))}</small>
           ${bookingPropertySnapshot(q)?`<small class="quote-property-summary">${escapeHtml(bookingPropertySnapshot(q))}</small>`:""}
         </div>
         <div class="quote-next-step"><span>${escapeHtml(stateCopy)}</span><b>${escapeHtml(nextCopy)}</b></div>
@@ -5604,18 +5514,18 @@ function quoteColumn(status,label){
           <button class="record-delete-btn" data-delete-record="quote" data-id="${q.id}">${escapeHtml(tr("Delete quote"))}</button>
         </div>
       </article>`;
-    }).join(""):`<div class="kanban-empty">${escapeHtml(langPick("Nothing needs attention here.","Nada necesita atención aquí.","Nada precisa de atenção aqui.","Rien ne nécessite votre attention ici."))}</div>`}
+    }).join(""):`<div class="kanban-empty">${escapeHtml(langPick("Nothing needs attention here.","Nada necesita atención aquí.","Rien ne nécessite votre attention ici."))}</div>`}
   </div>`;
 }
 function renderQuotes(){
   const board=$("#quotesBoard");
   if(!board) return;
   board.innerHTML=[
-    quoteColumn("requested",langPick("Requested","Solicitadas","Solicitados","Demandés")),
-    quoteColumn("draft",langPick("Draft","Borrador","Rascunho","Brouillon")),
-    quoteColumn("sent",langPick("Sent","Enviadas","Enviados","Envoyés")),
-    quoteColumn("accepted",langPick("Accepted","Aceptadas","Aceitos","Acceptés")),
-    quoteColumn("declined",langPick("Declined","Rechazadas","Recusados","Refusés"))
+    quoteColumn("requested",langPick("Requested","Solicitadas","Demandés")),
+    quoteColumn("draft",langPick("Draft","Borrador","Brouillon")),
+    quoteColumn("sent",langPick("Sent","Enviadas","Envoyés")),
+    quoteColumn("accepted",langPick("Accepted","Aceptadas","Acceptés")),
+    quoteColumn("declined",langPick("Declined","Rechazadas","Refusés"))
   ].join("");
 }
 
@@ -5695,28 +5605,28 @@ function dashboardGreeting(daypart){
 
   const variants={
     morning:[
-      langPick("Good morning · your day is ready","Buenos días · tu día está listo","Bom dia · seu dia está pronto","Bonjour · votre journée est prête"),
-      langPick("Good morning · let’s see what’s ahead","Buenos días · veamos qué viene hoy","Bom dia · vamos ver o que vem hoje","Bonjour · voyons ce qui vous attend"),
-      langPick("Good morning · one clear step at a time","Buenos días · un paso claro a la vez","Bom dia · um passo claro de cada vez","Bonjour · une étape claire à la fois"),
-      langPick("Good morning · here’s your day at a glance","Buenos días · así se ve tu día","Bom dia · veja seu dia de relance","Bonjour · votre journée en un coup d’œil"),
-      langPick("Good morning · let’s get organized","Buenos días · vamos a organizarnos","Bom dia · vamos nos organizar","Bonjour · organisons la journée"),
-      langPick("Good morning · your workspace is ready","Buenos días · tu espacio está listo","Bom dia · seu espaço está pronto","Bonjour · votre espace est prêt")
+      langPick("Good morning · your day is ready","Buenos días · tu día está listo","Bonjour · votre journée est prête"),
+      langPick("Good morning · let’s see what’s ahead","Buenos días · veamos qué viene hoy","Bonjour · voyons ce qui vous attend"),
+      langPick("Good morning · one clear step at a time","Buenos días · un paso claro a la vez","Bonjour · une étape claire à la fois"),
+      langPick("Good morning · here’s your day at a glance","Buenos días · así se ve tu día","Bonjour · votre journée en un coup d’œil"),
+      langPick("Good morning · let’s get organized","Buenos días · vamos a organizarnos","Bonjour · organisons la journée"),
+      langPick("Good morning · your workspace is ready","Buenos días · tu espacio está listo","Bonjour · votre espace est prêt")
     ],
     afternoon:[
-      langPick("Good afternoon · here’s where things stand","Buenas tardes · así va tu día","Boa tarde · veja como está seu dia","Bon après-midi · voici où en est votre journée"),
-      langPick("Good afternoon · let’s check what’s next","Buenas tardes · veamos qué sigue","Boa tarde · vamos ver o que vem a seguir","Bon après-midi · voyons la suite"),
-      langPick("Good afternoon · keep the day moving","Buenas tardes · seguimos con el día","Boa tarde · vamos seguir com o dia","Bon après-midi · continuons la journée"),
-      langPick("Good afternoon · your next steps are here","Buenas tardes · aquí están tus próximos pasos","Boa tarde · seus próximos passos estão aqui","Bon après-midi · vos prochaines étapes sont ici"),
-      langPick("Good afternoon · quick check-in","Buenas tardes · chequeo rápido","Boa tarde · checagem rápida","Bon après-midi · petit point rapide"),
-      langPick("Good afternoon · let’s finish strong","Buenas tardes · terminemos bien el día","Boa tarde · vamos terminar bem o dia","Bon après-midi · finissons bien la journée")
+      langPick("Good afternoon · here’s where things stand","Buenas tardes · así va tu día","Bon après-midi · voici où en est votre journée"),
+      langPick("Good afternoon · let’s check what’s next","Buenas tardes · veamos qué sigue","Bon après-midi · voyons la suite"),
+      langPick("Good afternoon · keep the day moving","Buenas tardes · seguimos con el día","Bon après-midi · continuons la journée"),
+      langPick("Good afternoon · your next steps are here","Buenas tardes · aquí están tus próximos pasos","Bon après-midi · vos prochaines étapes sont ici"),
+      langPick("Good afternoon · quick check-in","Buenas tardes · chequeo rápido","Bon après-midi · petit point rapide"),
+      langPick("Good afternoon · let’s finish strong","Buenas tardes · terminemos bien el día","Bon après-midi · finissons bien la journée")
     ],
     night:[
-      langPick("Good evening · here’s how the day landed","Buenas noches · así cerró tu día","Boa noite · veja como seu dia terminou","Bonsoir · voici comment votre journée s’est terminée"),
-      langPick("Good evening · tomorrow can wait a minute","Buenas noches · mañana puede esperar un momento","Boa noite · amanhã pode esperar um pouco","Bonsoir · demain peut attendre un instant"),
-      langPick("Good evening · one last look before you sign off","Buenas noches · una última mirada antes de cerrar","Boa noite · uma última olhada antes de encerrar","Bonsoir · un dernier regard avant de terminer"),
-      langPick("Good evening · your workspace is caught up","Buenas noches · tu espacio está al día","Boa noite · seu espaço está em dia","Bonsoir · votre espace est à jour"),
-      langPick("Good evening · let’s wrap things up","Buenas noches · vamos cerrando por hoy","Boa noite · vamos encerrar por hoje","Bonsoir · terminons pour aujourd’hui"),
-      langPick("Good evening · the day is almost done","Buenas noches · el día ya casi termina","Boa noite · o dia está quase terminando","Bonsoir · la journée touche à sa fin")
+      langPick("Good evening · here’s how the day landed","Buenas noches · así cerró tu día","Bonsoir · voici comment votre journée s’est terminée"),
+      langPick("Good evening · tomorrow can wait a minute","Buenas noches · mañana puede esperar un momento","Bonsoir · demain peut attendre un instant"),
+      langPick("Good evening · one last look before you sign off","Buenas noches · una última mirada antes de cerrar","Bonsoir · un dernier regard avant de terminer"),
+      langPick("Good evening · your workspace is caught up","Buenas noches · tu espacio está al día","Bonsoir · votre espace est à jour"),
+      langPick("Good evening · let’s wrap things up","Buenas noches · vamos cerrando por hoy","Bonsoir · terminons pour aujourd’hui"),
+      langPick("Good evening · the day is almost done","Buenas noches · el día ya casi termina","Bonsoir · la journée touche à sa fin")
     ]
   };
 
@@ -5758,17 +5668,12 @@ function dashboardWeatherContext(now,remainingJobs){
 
   if(currentKind){
     const base=currentKind==="snow"
-      ? langPick("It’s snowing now.","Está nevando ahora.","Está nevando agora.","Il neige maintenant.")
+      ? langPick("It’s snowing now.","Está nevando ahora.","Il neige maintenant.")
       : currentKind==="storm"
-      ? langPick("Storms are active now.","Hay tormentas ahora.","Há tempestades agora.","Des orages sont actifs maintenant.")
-      : langPick("It’s raining now.","Está lloviendo ahora.","Está chovendo agora.","Il pleut maintenant.");
+      ? langPick("Storms are active now.","Hay tormentas ahora.","Des orages sont actifs maintenant.")
+      : langPick("It’s raining now.","Está lloviendo ahora.","Il pleut maintenant.");
     const advice=remainingJobs.length
-      ? langPick(
-          " Check GPS before the next stop and allow extra travel time.",
-          " Revisa el GPS antes de la próxima parada y deja tiempo extra para el trayecto.",
-          " Confira o GPS antes da próxima parada e reserve tempo extra para o trajeto.",
-          " Vérifiez le GPS avant le prochain arrêt et prévoyez plus de temps de trajet."
-        )
+      ? langPick(" Check GPS before the next stop and allow extra travel time."," Revisa el GPS antes de la próxima parada y deja tiempo extra para el trayecto."," Vérifiez le GPS avant le prochain arrêt et prévoyez plus de temps de trajet.")
       : "";
     return {kind:currentKind,icon:currentKind==="snow"?"🌨️":currentKind==="storm"?"⛈️":"🌧️",text:base+advice};
   }
@@ -5777,24 +5682,14 @@ function dashboardWeatherContext(now,remainingJobs){
     const when=weatherClockLabel(event.hour);
     const day=weatherDayLabel(event.date,currentDate);
     const phenomenon=event.kind==="snow"
-      ? langPick("Snow","Nieve","Neve","Neige")
+      ? langPick("Snow","Nieve","Neige")
       : event.kind==="storm"
-      ? langPick("Storms","Tormentas","Tempestades","Orages")
-      : langPick("Rain","Lluvia","Chuva","Pluie");
+      ? langPick("Storms","Tormentas","Orages")
+      : langPick("Rain","Lluvia","Pluie");
     const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
-    const first=langPick(
-      phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",
-      phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",
-      phenomenon+" provável "+day.toLowerCase()+" por volta de "+when+probability+".",
-      phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+"."
-    );
+    const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",(phenomenon+" provável "+day.toLowerCase()+" por volta de "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+"."));
     const advice=remainingJobs.length
-      ? langPick(
-          " Check your best route before leaving.",
-          " Revisa la mejor ruta antes de salir.",
-          " Confira a melhor rota antes de sair.",
-          " Vérifiez le meilleur itinéraire avant de partir."
-        )
+      ? langPick(" Check your best route before leaving."," Revisa la mejor ruta antes de salir."," Vérifiez le meilleur itinéraire avant de partir.")
       : "";
     return {kind:event.kind,icon:event.icon,text:first+advice};
   }
@@ -5804,12 +5699,7 @@ function dashboardWeatherContext(now,remainingJobs){
     return {
       kind:"heat",
       icon:"☀️",
-      text:langPick(
-        "It’s "+temp+temperatureSuffix()+". If you’re still on the road, leave a few minutes for water between stops.",
-        "Hace "+temp+temperatureSuffix()+". Si sigues en ruta, deja unos minutos para agua entre paradas.",
-        "Está fazendo "+temp+temperatureSuffix()+". Se ainda estiver na rua, reserve alguns minutos para água entre as paradas.",
-        "Il fait "+temp+temperatureSuffix()+". Si vous êtes encore en route, prévoyez quelques minutes pour boire entre les arrêts."
-      )
+      text:langPick("It’s "+temp+temperatureSuffix()+". If you’re still on the road, leave a few minutes for water between stops.","Hace "+temp+temperatureSuffix()+". Si sigues en ruta, deja unos minutos para agua entre paradas.","Il fait "+temp+temperatureSuffix()+". Si vous êtes encore en route, prévoyez quelques minutes pour boire entre les arrêts.")
     };
   }
   return {kind:"steady",icon:"🌤️",text:""};
@@ -5873,17 +5763,17 @@ function workspaceSearchText(value){return String(value||"").toLowerCase().norma
 function globalWorkspaceResults(query){
   const q=workspaceSearchText(query).trim(); if(q.length<2) return [];
   const rows=[];
-  (state.clients||[]).forEach(x=>rows.push({view:"clients",type:langPick("Client","Cliente","Cliente","Client"),title:x.name||"",meta:[x.email,x.phone,x.city,x.state].filter(Boolean).join(" · ")}));
-  (state.jobs||[]).forEach(x=>rows.push({view:"calendar",type:langPick("Job","Trabajo","Trabalho","Travail"),title:x.clients?.name||tr("Cleaning job"),meta:[x.services?.name,x.service_address,formatDateTime(x.starts_at)].filter(Boolean).join(" · ")}));
-  (state.quotes||[]).forEach(x=>rows.push({view:"quotes",type:langPick("Quote","Cotización","Orçamento","Devis"),title:x.customer_name||"",meta:[x.customer_email,money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")}));
-  (state.invoices||[]).forEach(x=>{const cl=(state.clients||[]).find(c=>c.id===x.client_id);rows.push({view:"invoices",type:langPick("Invoice","Factura","Fatura","Facture"),title:cl?.name||("#"+(x.invoice_number||"")),meta:["#"+(x.invoice_number||""),money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")});});
+  (state.clients||[]).forEach(x=>rows.push({view:"clients",type:langPick("Client","Cliente","Client"),title:x.name||"",meta:[x.email,x.phone,x.city,x.state].filter(Boolean).join(" · ")}));
+  (state.jobs||[]).forEach(x=>rows.push({view:"calendar",type:langPick("Job","Trabajo","Travail"),title:x.clients?.name||tr("Cleaning job"),meta:[x.services?.name,x.service_address,formatDateTime(x.starts_at)].filter(Boolean).join(" · ")}));
+  (state.quotes||[]).forEach(x=>rows.push({view:"quotes",type:langPick("Quote","Cotización","Devis"),title:x.customer_name||"",meta:[x.customer_email,money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")}));
+  (state.invoices||[]).forEach(x=>{const cl=(state.clients||[]).find(c=>c.id===x.client_id);rows.push({view:"invoices",type:langPick("Invoice","Factura","Facture"),title:cl?.name||("#"+(x.invoice_number||"")),meta:["#"+(x.invoice_number||""),money(Number(x.total||0)),x.status].filter(Boolean).join(" · ")});});
   return rows.filter(r=>workspaceSearchText(r.type+" "+r.title+" "+r.meta).includes(q)).slice(0,12);
 }
 function renderGlobalWorkspaceSearch(){
   const input=$("#globalSearchInput"), box=$("#globalSearchResults"); if(!input||!box)return;
   const rows=globalWorkspaceResults(input.value);
-  if(String(input.value||"").trim().length<2){box.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick("Find anything fast.","Encuentra todo rápido.","Encontre tudo rápido.","Trouvez tout rapidement."))+'</strong><span>'+escapeHtml(langPick("Search clients, jobs, quotes and invoices.","Busca clientes, trabajos, cotizaciones y facturas.","Busque clientes, trabalhos, orçamentos e faturas.","Recherchez clients, travaux, devis et factures."))+'</span></div>';return;}
-  box.innerHTML=rows.length?rows.map((r,i)=>'<button type="button" class="global-search-result" data-search-view="'+r.view+'" data-search-index="'+i+'"><small>'+escapeHtml(r.type)+'</small><strong>'+escapeHtml(r.title)+'</strong><span>'+escapeHtml(r.meta)+'</span></button>').join(""):'<div class="empty-inline"><strong>'+escapeHtml(langPick("No matches.","Sin resultados.","Sem resultados.","Aucun résultat."))+'</strong><span>'+escapeHtml(langPick("Try a name, email, address or number.","Prueba un nombre, email, dirección o número.","Tente um nome, email, endereço ou número.","Essayez un nom, e-mail, adresse ou numéro."))+'</span></div>';
+  if(String(input.value||"").trim().length<2){box.innerHTML='<div class="empty-inline"><strong>'+escapeHtml(langPick("Find anything fast.","Encuentra todo rápido.","Trouvez tout rapidement."))+'</strong><span>'+escapeHtml(langPick("Search clients, jobs, quotes and invoices.","Busca clientes, trabajos, cotizaciones y facturas.","Recherchez clients, travaux, devis et factures."))+'</span></div>';return;}
+  box.innerHTML=rows.length?rows.map((r,i)=>'<button type="button" class="global-search-result" data-search-view="'+r.view+'" data-search-index="'+i+'"><small>'+escapeHtml(r.type)+'</small><strong>'+escapeHtml(r.title)+'</strong><span>'+escapeHtml(r.meta)+'</span></button>').join(""):'<div class="empty-inline"><strong>'+escapeHtml(langPick("No matches.","Sin resultados.","Aucun résultat."))+'</strong><span>'+escapeHtml(langPick("Try a name, email, address or number.","Prueba un nombre, email, dirección o número.","Essayez un nom, e-mail, adresse ou numéro."))+'</span></div>';
 }
 function installGlobalWorkspaceSearch(){
   const toggle=$("#globalSearchToggle"), pop=$("#globalSearchPopover"), input=$("#globalSearchInput"); if(!toggle||!pop||toggle.dataset.ready)return;
@@ -5946,10 +5836,10 @@ function renderFirstWin(){
   if(card.hidden) return;
 
   const title=$("#firstWinTitle"),copy=$("#firstWinCopy"),action=$("#firstWinAction"),eyebrow=$("#firstWinEyebrow");
-  if(eyebrow)eyebrow.textContent=langPick("YOUR WORKSPACE IS READY","TU ESPACIO ESTÁ LISTO","SEU ESPAÇO ESTÁ PRONTO","VOTRE ESPACE EST PRÊT");
-  if(title)title.textContent=langPick("Get ready for your first booking.","Prepárate para tu primera reserva.","Prepare-se para sua primeira reserva.","Préparez votre première réservation.");
-  if(copy)copy.textContent=langPick("Set up what clients can book, when they can book, then share your link.","Configura qué pueden reservar tus clientes, cuándo pueden reservar y después comparte tu enlace.","Configure o que os clientes podem reservar, quando os clientes podem reservar e depois compartilhe seu link.","Configurez ce que vos clients peuvent réserver, quand ils peuvent réserver, puis partagez votre lien.");
-  if(action)action.textContent=langPick("Set up booking →","Configurar reservas →","Configurar reservas →","Configurer les réservations →");
+  if(eyebrow)eyebrow.textContent=langPick("YOUR WORKSPACE IS READY","TU ESPACIO ESTÁ LISTO","VOTRE ESPACE EST PRÊT");
+  if(title)title.textContent=langPick("Get ready for your first booking.","Prepárate para tu primera reserva.","Préparez votre première réservation.");
+  if(copy)copy.textContent=langPick("Set up what clients can book, when they can book, then share your link.","Configura qué pueden reservar tus clientes, cuándo pueden reservar y después comparte tu enlace.","Configurez ce que vos clients peuvent réserver, quand ils peuvent réserver, puis partagez votre lien.");
+  if(action)action.textContent=langPick("Set up booking →","Configurar reservas →","Configurer les réservations →");
 }
 
 function dashboardEstimatedJobValue(job){
@@ -5973,12 +5863,12 @@ function dashboardTrendText(current,previous){
   const cur=Number(current||0),prev=Number(previous||0);
   if(prev<=0){
     return cur>0
-      ? langPick("New this week","Nuevo esta semana","Novo esta semana","Nouveau cette semaine")
-      : langPick("Ready to grow","Listo para crecer","Pronto para crescer","Prêt à grandir");
+      ? langPick("New this week","Nuevo esta semana","Nouveau cette semaine")
+      : langPick("Ready to grow","Listo para crecer","Prêt à grandir");
   }
   const pct=Math.round(((cur-prev)/prev)*100);
-  if(Math.abs(pct)<3) return langPick("About the same as last week","Similar a la semana pasada","Quase igual à semana passada","Presque comme la semaine dernière");
-  return (pct>0?"↑ ":"↓ ")+Math.abs(pct)+"% "+langPick("vs last week","vs semana pasada","vs semana passada","vs semaine dernière");
+  if(Math.abs(pct)<3) return langPick("About the same as last week","Similar a la semana pasada","Presque comme la semaine dernière");
+  return (pct>0?"↑ ":"↓ ")+Math.abs(pct)+"% "+langPick("vs last week","vs semana pasada","vs semaine dernière");
 }
 function minutesBetweenTimes(start,end){
   const parse=v=>{const p=String(v||"").slice(0,5).split(":").map(Number);return Number.isFinite(p[0])&&Number.isFinite(p[1])?p[0]*60+p[1]:0;};
@@ -6032,21 +5922,21 @@ function renderTodaySummary(wakeAssistant=false){
   const pnt=$("#pulseClientsTrend"); if(pnt) pnt.textContent=dashboardTrendText(newClients,prevNewClients);
 
   const labels={
-    pulseBookedLabel:langPick("Est. scheduled this week","Estimado agendado esta semana","Estimado agendado esta semana","Estimation planifiée cette semaine"),
-    pulseCollectedLabel:langPick("Collected this week","Cobrado esta semana","Recebido esta semana","Encaissé cette semaine"),
-    pulseJobsLabel:langPick("Jobs this week","Trabajos esta semana","Trabalhos esta semana","Travaux cette semaine"),
-    pulseClientsLabel:langPick("New clients","Clientes nuevos","Novos clientes","Nouveaux clients"),
-    capacityEyebrow:langPick("CAPACITY","CAPACIDAD","CAPACIDADE","CAPACITÉ"),
-    capacityTitle:langPick("This week","Esta semana","Esta semana","Cette semaine"),
-    nextMoveEyebrow:langPick("YOUR NEXT MOVE","TU PRÓXIMO PASO","SEU PRÓXIMO PASSO","VOTRE PROCHAINE ACTION"),
-    attentionEyebrow:langPick("FOLLOW THROUGH","SEGUIMIENTO","ACOMPANHAMENTO","SUIVI"),
-    attentionTitle:langPick("Open items","Pendientes","Itens pendentes","Éléments ouverts"),
-    weekGrowthEyebrow:langPick("THIS WEEK","ESTA SEMANA","ESTA SEMANA","CETTE SEMAINE"),
-    weekCompletedLabel:langPick("Completed","Completados","Concluídos","Terminés"),
-    weekHoursLabel:langPick("Work hours","Horas","Horas","Heures"),
-    weekDistanceLabel:langPick("Distance","Distancia","Distância","Distance"),
-    presenceEyebrow:langPick("CLIENT-FACING LINKS","ENLACES PARA CLIENTES","LINKS PARA CLIENTES","LIENS CLIENTS"),
-    presenceTitle:langPick("Your business online","Tu negocio online","Seu negócio online","Votre entreprise en ligne")
+    pulseBookedLabel:langPick("Est. scheduled this week","Estimado agendado esta semana","Estimation planifiée cette semaine"),
+    pulseCollectedLabel:langPick("Collected this week","Cobrado esta semana","Encaissé cette semaine"),
+    pulseJobsLabel:langPick("Jobs this week","Trabajos esta semana","Travaux cette semaine"),
+    pulseClientsLabel:langPick("New clients","Clientes nuevos","Nouveaux clients"),
+    capacityEyebrow:langPick("CAPACITY","CAPACIDAD","CAPACITÉ"),
+    capacityTitle:langPick("This week","Esta semana","Cette semaine"),
+    nextMoveEyebrow:langPick("YOUR NEXT MOVE","TU PRÓXIMO PASO","VOTRE PROCHAINE ACTION"),
+    attentionEyebrow:langPick("FOLLOW THROUGH","SEGUIMIENTO","SUIVI"),
+    attentionTitle:langPick("Open items","Pendientes","Éléments ouverts"),
+    weekGrowthEyebrow:langPick("THIS WEEK","ESTA SEMANA","CETTE SEMAINE"),
+    weekCompletedLabel:langPick("Completed","Completados","Terminés"),
+    weekHoursLabel:langPick("Work hours","Horas","Heures"),
+    weekDistanceLabel:langPick("Distance","Distancia","Distance"),
+    presenceEyebrow:langPick("CLIENT-FACING LINKS","ENLACES PARA CLIENTES","LIENS CLIENTS"),
+    presenceTitle:langPick("Your business online","Tu negocio online","Votre entreprise en ligne")
   };
   Object.entries(labels).forEach(([id,value])=>{const el=$("#"+id);if(el)el.textContent=value;});
 
@@ -6057,20 +5947,10 @@ function renderTodaySummary(wakeAssistant=false){
   if(capMessage){
     const openHours=(capacity.open/60).toFixed(1).replace(".0","");
     capMessage.textContent=capacity.available
-      ? langPick(
-          capacity.percent+"% booked · "+openHours+" hrs still open",
-          capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",
-          capacity.percent+"% ocupado · "+openHours+" h ainda disponíveis",
-          capacity.percent+"% réservé · "+openHours+" h encore disponibles"
-        )
-      : langPick(
-          "Add availability to see how full your week is.",
-          "Añade disponibilidad para ver qué tan llena está tu semana.",
-          "Adicione disponibilidade para ver quanto da semana está ocupado.",
-          "Ajoutez vos disponibilités pour voir le remplissage de la semaine."
-        );
+      ? langPick(capacity.percent+"% booked · "+openHours+" hrs still open",capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",(capacity.percent+"% ocupado · "+openHours+" h ainda disponíveis",capacity.percent+"% réservé · "+openHours+" h encore disponibles"))
+      : langPick("Add availability to see how full your week is.","Añade disponibilidad para ver qué tan llena está tu semana.","Ajoutez vos disponibilités pour voir le remplissage de la semaine.");
   }
-  const capAction=$("#capacityAction"); if(capAction) capAction.textContent=langPick("See open time →","Ver espacios →","Ver horários livres →","Voir les créneaux →");
+  const capAction=$("#capacityAction"); if(capAction) capAction.textContent=langPick("See open time →","Ver espacios →","Voir les créneaux →");
 
   const datePill=$("#todayDatePill");
   const clockTime=$("#todayClockTime");
@@ -6136,102 +6016,47 @@ function renderTodaySummary(wakeAssistant=false){
     let icon=["evening","late"].includes(daypart)?"✦":"✓";
 
     const nextJobLine=nextJob
-      ? langPick(
-          "Next stop at "+nextJobTime+(nextJobArea?" in "+nextJobArea:"")+".",
-          "Próxima parada a las "+nextJobTime+(nextJobArea?" en "+nextJobArea:"")+".",
-          "Próxima parada às "+nextJobTime+(nextJobArea?" em "+nextJobArea:"")+".",
-          "Prochain arrêt à "+nextJobTime+(nextJobArea?" à "+nextJobArea:"")+"."
-        )
+      ? langPick("Next stop at "+nextJobTime+(nextJobArea?" in "+nextJobArea:"")+".","Próxima parada a las "+nextJobTime+(nextJobArea?" en "+nextJobArea:"")+".","Prochain arrêt à "+nextJobTime+(nextJobArea?" à "+nextJobArea:"")+".")
       : "";
 
     if(nextJob){
       messageState="jobs";
       icon="📍";
       if(daypart==="early"){
-        copy=langPick(
-          "You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. "+nextJobLine+" Check the address before you leave.",
-          "Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. "+nextJobLine+" Revisa la dirección antes de salir.",
-          "Você tem "+todayJobs.length+" trabalho"+(todayJobs.length===1?"":"s")+" hoje. "+nextJobLine+" Confira o endereço antes de sair.",
-          "Vous avez "+todayJobs.length+" travail"+(todayJobs.length===1?"":"aux")+" aujourd’hui. "+nextJobLine+" Vérifiez l’adresse avant de partir."
-        );
+        copy=langPick("You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. "+nextJobLine+" Check the address before you leave.","Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. "+nextJobLine+" Revisa la dirección antes de salir.","Vous avez "+todayJobs.length+" travail"+(todayJobs.length===1?"":"aux")+" aujourd’hui. "+nextJobLine+" Vérifiez l’adresse avant de partir.");
       }else if(daypart==="morning"){
-        copy=langPick(
-          nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",
-          nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",
-          nextJobLine+" Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+" na agenda de hoje.",
-          nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui."
-        );
+        copy=langPick(nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",(nextJobLine+" Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+" na agenda de hoje.",nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui."));
       }else if(daypart==="midday"){
         const later=Math.max(0,remainingJobs.length-1);
-        copy=langPick(
-          nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",
-          nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",
-          nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+".",
-          nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+"."
-        );
+        copy=langPick(nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",(nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+".",nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+"."));
       }else if(daypart==="afternoon"||daypart==="wrap"){
-        copy=langPick(
-          "You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,
-          "Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,
-          "Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,
-          "Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine
-        );
+        copy=langPick("You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,"Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,("Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,"Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine));
       }else{
-        copy=langPick(
-          nextJobLine+" It still shows as pending; check the status before closing the day.",
-          nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",
-          nextJobLine+" Ele ainda aparece como pendente; confira o status antes de encerrar o dia.",
-          nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée."
-        );
+        copy=langPick(nextJobLine+" It still shows as pending; check the status before closing the day.",nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",(nextJobLine+" Ele ainda aparece como pendente; confira o status antes de encerrar o dia.",nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée."));
       }
       actionView="route";
     }else if(pendingBookings.length){
       messageState="booking";
       icon="📥";
-      copy=langPick(
-        "You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),
-        "Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),
-        "Você tem "+pendingBookings.length+" solicitação"+(pendingBookings.length===1?"":"ões")+" de reserva aguardando revisão"+(openQuotes.length?" e "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+".":"."),
-        "Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":".")
-      );
+      copy=langPick("You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),"Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),("Você tem "+pendingBookings.length+" solicitação"+(pendingBookings.length===1?"":"ões")+" de reserva aguardando revisão"+(openQuotes.length?" e "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+".":"."),"Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":".")));
       actionView="booking";
     }else if(openQuotes.length){
       messageState="quotes";
       icon="📝";
-      copy=langPick(
-        "You have "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+". Check which one needs the next step.",
-        "Tienes "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+". Revisa cuál necesita el próximo paso.",
-        "Você tem "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+". Veja qual precisa do próximo passo.",
-        "Vous avez "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+". Vérifiez lequel nécessite la prochaine action."
-      );
+      copy=langPick("You have "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+". Check which one needs the next step.","Tienes "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+". Revisa cuál necesita el próximo paso.","Vous avez "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+". Vérifiez lequel nécessite la prochaine action.");
       actionView="quotes";
     }else if(overdueInvoices.length){
       messageState="invoice";
       icon="💳";
-      copy=langPick(
-        "You have "+overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?"":"s")+" that need"+(overdueInvoices.length===1?"s":"")+" attention. Review payment status before you close the day.",
-        "Tienes "+overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida":"s vencidas")+" que necesita"+(overdueInvoices.length===1?"":"n")+" atención. Revisa el pago antes de cerrar el día.",
-        "Você tem "+overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida":"s vencidas")+" que precisa"+(overdueInvoices.length===1?"":"m")+" de atenção. Revise o pagamento antes de encerrar o dia.",
-        "Vous avez "+overdueInvoices.length+" facture"+(overdueInvoices.length===1?" impayée":"s impayées")+" à vérifier. Contrôlez le paiement avant de terminer la journée."
-      );
+      copy=langPick("You have "+overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?"":"s")+" that need"+(overdueInvoices.length===1?"s":"")+" attention. Review payment status before you close the day.","Tienes "+overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida":"s vencidas")+" que necesita"+(overdueInvoices.length===1?"":"n")+" atención. Revisa el pago antes de cerrar el día.","Vous avez "+overdueInvoices.length+" facture"+(overdueInvoices.length===1?" impayée":"s impayées")+" à vérifier. Contrôlez le paiement avant de terminer la journée.");
       actionView="invoices";
     }else if(["evening","late"].includes(daypart)){
       messageState="night";
       icon="✦";
       if(tomorrowJobs.length){
-        copy=langPick(
-          "You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then call it a day.",
-          "Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Deja lista la primera dirección y después descansa.",
-          "Amanhã você tem "+tomorrowJobs.length+" trabalho"+(tomorrowJobs.length===1?"":"s")+". Confira o primeiro endereço e depois encerre o dia.",
-          "Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. Vérifiez la première adresse, puis terminez la journée."
-        );
+        copy=langPick("You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then call it a day.","Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Deja lista la primera dirección y después descansa.","Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. Vérifiez la première adresse, puis terminez la journée.");
       }else{
-        copy=langPick(
-          "Nothing urgent is waiting. Tomorrow is ready for a clean start.",
-          "No hay nada urgente pendiente. Mañana está listo para empezar limpio.",
-          "Não há nada urgente pendente. Amanhã está pronto para começar bem.",
-          "Rien d’urgent n’est en attente. Demain est prêt pour un nouveau départ."
-        );
+        copy=langPick("Nothing urgent is waiting. Tomorrow is ready for a clean start.","No hay nada urgente pendiente. Mañana está listo para empezar limpio.","Rien d’urgent n’est en attente. Demain est prêt pour un nouveau départ.");
       }
       actionView="calendar";
     }else{
@@ -6239,68 +6064,33 @@ function renderTodaySummary(wakeAssistant=false){
       icon="✓";
       const liveWeather=currentWeatherVisual(state.weather);
       if(liveWeather.kind==="storm"){
-        copy=langPick(
-          "Storms are active in your area. Your workspace is calm with no urgent jobs or new requests waiting.",
-          "Hay tormentas en tu zona. Tu operación está tranquila, sin trabajos urgentes ni solicitudes nuevas.",
-          "Há tempestades na sua área. Sua operação está tranquila, sem trabalhos urgentes nem novas solicitações.",
-          "Des orages sont actifs dans votre zone. Votre activité est calme, sans tâche urgente ni nouvelle demande."
-        );
+        copy=langPick("Storms are active in your area. Your workspace is calm with no urgent jobs or new requests waiting.","Hay tormentas en tu zona. Tu operación está tranquila, sin trabajos urgentes ni solicitudes nuevas.","Des orages sont actifs dans votre zone. Votre activité est calme, sans tâche urgente ni nouvelle demande.");
       }else if(liveWeather.kind==="rain"||liveWeather.kind==="drizzle"){
-        copy=langPick(
-          "Rain is moving through your area. No urgent jobs or new requests are waiting.",
-          "Está lloviendo en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.",
-          "Está chovendo na sua área. Não há trabalhos urgentes nem novas solicitações aguardando.",
-          "Il pleut dans votre zone. Aucun travail urgent ni nouvelle demande n’attend."
-        );
+        copy=langPick("Rain is moving through your area. No urgent jobs or new requests are waiting.","Está lloviendo en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.","Il pleut dans votre zone. Aucun travail urgent ni nouvelle demande n’attend.");
       }else if(liveWeather.kind==="snow"){
-        copy=langPick(
-          "Snow is active in your area. No urgent jobs or new requests are waiting.",
-          "Está nevando en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.",
-          "Está nevando na sua área. Não há trabalhos urgentes nem novas solicitações aguardando.",
-          "Il neige dans votre zone. Aucun travail urgent ni nouvelle demande n’attend."
-        );
+        copy=langPick("Snow is active in your area. No urgent jobs or new requests are waiting.","Está nevando en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.","Il neige dans votre zone. Aucun travail urgent ni nouvelle demande n’attend.");
       }else if(liveWeather.kind==="cloudy"||liveWeather.kind==="fog"){
-        copy=langPick(
-          "Cloudy outside, calm inside. No urgent jobs or new requests are waiting.",
-          "Nublado afuera, tranquilo por aquí. No hay trabajos urgentes ni solicitudes nuevas.",
-          "Nublado lá fora, tranquilo por aqui. Não há trabalhos urgentes nem novas solicitações.",
-          "Nuageux dehors, calme ici. Aucun travail urgent ni nouvelle demande n’attend."
-        );
+        copy=langPick("Cloudy outside, calm inside. No urgent jobs or new requests are waiting.","Nublado afuera, tranquilo por aquí. No hay trabajos urgentes ni solicitudes nuevas.","Nuageux dehors, calme ici. Aucun travail urgent ni nouvelle demande n’attend.");
       }else if(daypart==="midday"){
-        copy=langPick(
-          "Midday is clear. No urgent jobs or new requests are waiting.",
-          "El mediodía está tranquilo. No hay trabajos urgentes ni solicitudes nuevas.",
-          "O meio-dia está tranquilo. Não há trabalhos urgentes nem novas solicitações.",
-          "Le milieu de journée est calme. Aucun travail urgent ni nouvelle demande en attente."
-        );
+        copy=langPick("Midday is clear. No urgent jobs or new requests are waiting.","El mediodía está tranquilo. No hay trabajos urgentes ni solicitudes nuevas.","Le milieu de journée est calme. Aucun travail urgent ni nouvelle demande en attente.");
       }else if(daypart==="wrap"){
-        copy=langPick(
-          "The route is clear. Nothing urgent is waiting.",
-          "La ruta está libre. No hay nada urgente pendiente.",
-          "A rota está livre. Não há nada urgente pendente.",
-          "L’itinéraire est libre. Rien d’urgent n’est en attente."
-        );
+        copy=langPick("The route is clear. Nothing urgent is waiting.","La ruta está libre. No hay nada urgente pendiente.","L’itinéraire est libre. Rien d’urgent n’est en attente.");
       }else{
-        copy=langPick(
-          "Everything is up to date. Good time to check the calendar and what’s next.",
-          "Todo está al día. Buen momento para revisar el calendario y lo próximo.",
-          "Tudo está em dia. Bom momento para conferir o calendário e o que vem a seguir.",
-          "Tout est à jour. C’est un bon moment pour consulter le calendrier et la suite."
-        );
+        copy=langPick("Everything is up to date. Good time to check the calendar and what’s next.","Todo está al día. Buen momento para revisar el calendario y lo próximo.","Tout est à jour. C’est un bon moment pour consulter le calendrier et la suite.");
       }
       actionView="calendar";
     }
 
     if(momentIcon) momentIcon.textContent=icon;
     actionText=actionView==="route"
-      ? langPick("Open route →","Abrir ruta →","Abrir rota →","Ouvrir l’itinéraire →")
+      ? langPick("Open route →","Abrir ruta →","Ouvrir l’itinéraire →")
       : actionView==="booking"
-      ? langPick("Review requests →","Revisar solicitudes →","Revisar solicitações →","Examiner les demandes →")
+      ? langPick("Review requests →","Revisar solicitudes →","Examiner les demandes →")
       : actionView==="quotes"
-      ? langPick("Review quotes →","Revisar cotizaciones →","Revisar orçamentos →","Examiner les devis →")
+      ? langPick("Review quotes →","Revisar cotizaciones →","Examiner les devis →")
       : actionView==="invoices"
-      ? langPick("Review invoices →","Revisar facturas →","Revisar faturas →","Examiner les factures →")
-      : langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+      ? langPick("Review invoices →","Revisar facturas →","Examiner les factures →")
+      : langPick("View calendar →","Ver calendario →","Voir le calendrier →");
 
     if(hero){
       const hasPending=Boolean(remainingJobs.length||pendingBookings.length||openQuotes.length||overdueInvoices.length);
@@ -6323,47 +6113,22 @@ function renderTodaySummary(wakeAssistant=false){
   const sentQuoteValue=sentQuotes.reduce((sum,q)=>sum+Number(q.total||0),0);
   const overdueAmount=overdueInvoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-confirmedPaid(inv)),0);
   const nextTitle=$("#nextMoveTitle"),nextCopy=$("#nextMoveCopy"),nextAction=$("#nextMoveAction");
-  let nextView="calendar",nextLabel=langPick("View calendar →","Ver calendario →","Ver calendário →","Voir le calendrier →");
+  let nextView="calendar",nextLabel=langPick("View calendar →","Ver calendario →","Voir le calendrier →");
   if(overdueInvoices.length){
-    if(nextTitle) nextTitle.textContent=langPick(
-      money(overdueAmount)+" is still waiting to be collected.",
-      "Hay "+money(overdueAmount)+" pendientes de cobro.",
-      money(overdueAmount)+" ainda estão pendentes de recebimento.",
-      money(overdueAmount)+" restent à encaisser."
-    );
-    if(nextCopy) nextCopy.textContent=langPick(
-      overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",
-      overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",
-      overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida precisa":"s vencidas precisam")+" de atenção.",
-      overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention."
-    );
-    nextView="invoices"; nextLabel=langPick("Collect payment →","Revisar cobros →","Revisar pagamentos →","Voir les paiements →");
+    if(nextTitle) nextTitle.textContent=langPick(money(overdueAmount)+" is still waiting to be collected.","Hay "+money(overdueAmount)+" pendientes de cobro.",(money(overdueAmount)+" ainda estão pendentes de recebimento.",money(overdueAmount)+" restent à encaisser."));
+    if(nextCopy) nextCopy.textContent=langPick(overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",(overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida precisa":"s vencidas precisam")+" de atenção.",overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention."));
+    nextView="invoices"; nextLabel=langPick("Collect payment →","Revisar cobros →","Voir les paiements →");
   }else if(sentQuotes.length){
-    if(nextTitle) nextTitle.textContent=langPick(
-      money(sentQuoteValue)+" in quotes could turn into booked work.",
-      money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",
-      money(sentQuoteValue)+" em orçamentos podem virar trabalhos.",
-      money(sentQuoteValue)+" de devis peuvent devenir des prestations."
-    );
-    if(nextCopy) nextCopy.textContent=langPick(
-      sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",
-      sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",
-      sentQuotes.length+" orçamento"+(sentQuotes.length===1?" enviado aguarda":"s enviados aguardam")+" resposta.",
-      sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse."
-    );
-    nextView="quotes"; nextLabel=langPick("Follow up →","Dar seguimiento →","Fazer acompanhamento →","Relancer →");
+    if(nextTitle) nextTitle.textContent=langPick(money(sentQuoteValue)+" in quotes could turn into booked work.",money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",(money(sentQuoteValue)+" em orçamentos podem virar trabalhos.",money(sentQuoteValue)+" de devis peuvent devenir des prestations."));
+    if(nextCopy) nextCopy.textContent=langPick(sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",(sentQuotes.length+" orçamento"+(sentQuotes.length===1?" enviado aguarda":"s enviados aguardam")+" resposta.",sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse."));
+    nextView="quotes"; nextLabel=langPick("Follow up →","Dar seguimiento →","Relancer →");
   }else if(pendingBookings.length){
-    if(nextTitle) nextTitle.textContent=langPick(
-      pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",
-      pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",
-      pendingBookings.length+" pedido"+(pendingBookings.length===1?" novo está":"s novos estão")+" pronto"+(pendingBookings.length===1?"":"s")+" para você.",
-      pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous."
-    );
-    if(nextCopy) nextCopy.textContent=langPick("Review it before the customer keeps looking.","Revísala antes de que el cliente siga buscando.","Revise antes que o cliente continue procurando.","Examinez-la avant que le client continue ses recherches.");
-    nextView="booking"; nextLabel=langPick("Review bookings →","Revisar reservas →","Revisar reservas →","Voir les réservations →");
+    if(nextTitle) nextTitle.textContent=langPick(pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",(pendingBookings.length+" pedido"+(pendingBookings.length===1?" novo está":"s novos estão")+" pronto"+(pendingBookings.length===1?"":"s")+" para você.",pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous."));
+    if(nextCopy) nextCopy.textContent=langPick("Review it before the customer keeps looking.","Revísala antes de que el cliente siga buscando.","Examinez-la avant que le client continue ses recherches.");
+    nextView="booking"; nextLabel=langPick("Review bookings →","Revisar reservas →","Voir les réservations →");
   }else{
-    if(nextTitle) nextTitle.textContent=langPick("Everything important is caught up.","Todo lo importante está al día.","Tudo importante está em dia.","Tout l’essentiel est à jour.");
-    if(nextCopy) nextCopy.textContent=langPick("Use the open time this week to fill the calendar or follow up with past clients.","Usa los espacios disponibles para llenar la agenda o dar seguimiento a clientes anteriores.","Use os horários livres para preencher a agenda ou retomar clientes antigos.","Utilisez les créneaux libres pour remplir l’agenda ou relancer d’anciens clients.");
+    if(nextTitle) nextTitle.textContent=langPick("Everything important is caught up.","Todo lo importante está al día.","Tout l’essentiel est à jour.");
+    if(nextCopy) nextCopy.textContent=langPick("Use the open time this week to fill the calendar or follow up with past clients.","Usa los espacios disponibles para llenar la agenda o dar seguimiento a clientes anteriores.","Utilisez les créneaux libres pour remplir l’agenda ou relancer d’anciens clients.");
   }
   if(nextAction){nextAction.dataset.jump=nextView;nextAction.textContent=nextLabel;}
 
@@ -6384,9 +6149,9 @@ function renderTodaySummary(wakeAssistant=false){
       items.push(`<button class="attention-pending" data-jump="invoices"><span class="dot red"></span><strong>${escapeHtml(tr("Invoice"))} #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} ${escapeHtml(tr("outstanding"))}</small></button>`);
     });
     openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
-      items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Orçamento para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
+      items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
     });
-    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
+    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",(pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation"))}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
@@ -6395,20 +6160,15 @@ function renderTodaySummary(wakeAssistant=false){
   const weekMiles=state.mileageLogs.filter(m=>{const d=new Date(m.log_date+"T00:00:00");return d>=weekStart&&d<weekEnd;}).reduce((sum,m)=>sum+Number(m.miles||0),0);
   const weekCompleted=weekJobs.filter(j=>j.status==="completed").length;
   const hours=(weekMinutes/60).toFixed(1).replace(".0","");
-  const weekRevenue=$("#weekRevenue"); if(weekRevenue) weekRevenue.textContent=money(scheduledValue)+" "+langPick("scheduled","agendado","agendado","planifié");
+  const weekRevenue=$("#weekRevenue"); if(weekRevenue) weekRevenue.textContent=money(scheduledValue)+" "+langPick("scheduled","agendado","planifié");
   const wh=$("#weekHours"); if(wh) wh.textContent=hours;
   const wc=$("#weekCompleted"); if(wc) wc.textContent=weekCompleted;
   const wd=$("#weekDistance"); if(wd) wd.textContent=distanceText(weekMiles);
   const ws=$("#weekSummary");
   if(ws){
-    ws.textContent=langPick(
-      weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",
-      weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",
-      weekJobs.length+" trabalho"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" novo":"s novos")+" · "+money(collectedValue)+" recebido.",
-      weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé."
-    );
+    ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",(weekJobs.length+" trabalho"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" novo":"s novos")+" · "+money(collectedValue)+" recebido.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé."));
   }
-  const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Ver relatórios →","Voir les rapports →");
+  const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Voir les rapports →");
 }
 
 function googleMapsDirectionsUrl(addresses){
@@ -6421,7 +6181,7 @@ function googleMapsDirectionsUrl(addresses){
 function openGpsRoute(addresses){
   const url=googleMapsDirectionsUrl(addresses);
   if(!url){
-    showToast(langPick("Add a service address first.","Añade una dirección primero.","Adicione um endereço primeiro.","Ajoutez d’abord une adresse."));
+    showToast(langPick("Add a service address first.","Añade una dirección primero.","Ajoutez d’abord une adresse."));
     return;
   }
   window.open(url,"_blank","noopener");
@@ -6440,18 +6200,8 @@ function renderTodayRouteChip(todayJobs){
   chip.hidden=!routable.length;
   if(!routable.length) return;
   const count=routable.length;
-  label.textContent=langPick(
-    "Best route · "+count+" stop"+(count===1?"":"s"),
-    "Mejor ruta · "+count+" parada"+(count===1?"":"s"),
-    "Melhor rota · "+count+" parada"+(count===1?"":"s"),
-    "Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s")
-  );
-  chip.title=langPick(
-    "Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.",
-    "Empieza desde tu ubicación actual. Google Maps usa tráfico en vivo y mantiene el orden programado.",
-    "Começa na sua localização atual. O Google Maps usa trânsito ao vivo e mantém a ordem agendada.",
-    "Démarre depuis votre position actuelle. Google Maps utilise le trafic en direct et conserve l’ordre prévu."
-  );
+  label.textContent=langPick("Best route · "+count+" stop"+(count===1?"":"s"),"Mejor ruta · "+count+" parada"+(count===1?"":"s"),("Melhor rota · "+count+" parada"+(count===1?"":"s"),"Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s")));
+  chip.title=langPick("Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.","Empieza desde tu ubicación actual. Google Maps usa tráfico en vivo y mantiene el orden programado.","Démarre depuis votre position actuelle. Google Maps utilise le trafic en direct et conserve l’ordre prévu.");
 }
 
 function renderOperations(){
@@ -6463,7 +6213,7 @@ function renderOperations(){
   const weekMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=weekStart).reduce((s,m)=>s+Number(m.miles||0),0);
   const monthMiles=state.mileageLogs.filter(m=>new Date(m.log_date+"T12:00:00")>=monthStart).reduce((s,m)=>s+Number(m.miles||0),0);
 
-  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=distanceText(todayMiles)+langPick(" today"," hoy"," hoje"," aujourd’hui");
+  const routePill=$("#routeMileagePill"); if(routePill) routePill.textContent=distanceText(todayMiles)+langPick(" today"," hoy"," aujourd’hui");
   const routeStops=$("#routeStops");
   const routeVisual=$("#routeVisual");
   if(routeStops){
@@ -6474,7 +6224,7 @@ function renderOperations(){
           <strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong>
           <span>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))} · ${Math.round(j.duration_minutes/60*10)/10}h</span>
           <small>${escapeHtml(j.service_address||tr("Address not added"))}</small>
-          ${j.service_address?`<button type="button" class="route-gps-btn" data-route-gps-job="${j.id}">↗ ${escapeHtml(langPick("Open in Maps","Abrir en Maps","Abrir no Maps","Ouvrir dans Maps"))}</button>`:""}
+          ${j.service_address?`<button type="button" class="route-gps-btn" data-route-gps-job="${j.id}">↗ ${escapeHtml(langPick("Open in Maps","Abrir en Maps","Ouvrir dans Maps"))}</button>`:""}
         </div>
         <em>${escapeHtml(translatedStatus(j.status))}</em>
       </div>
@@ -6484,10 +6234,10 @@ function renderOperations(){
   if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     const count=routable.length;
-    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",count===1?"parada pronta para GPS":"paradas prontas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts");
-    const gpsStart=langPick("Starts from your current location · live traffic in Google Maps.","Empieza desde tu ubicación actual · tráfico en vivo en Google Maps.","Começa na sua localização atual · trânsito ao vivo no Google Maps.","Démarre depuis votre position actuelle · trafic en direct dans Google Maps.");
-    const gpsOrder=langPick("Stops stay in scheduled order so appointment times are protected.","Las paradas mantienen el orden programado para proteger las horas de las citas.","As paradas mantêm a ordem agendada para proteger os horários.","Les arrêts restent dans l’ordre prévu afin de respecter les horaires.");
-    const gpsButton=langPick("Open GPS route","Abrir ruta GPS","Abrir rota GPS","Ouvrir l’itinéraire GPS");
+    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",(count===1?"parada pronta para GPS":"paradas prontas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts"));
+    const gpsStart=langPick("Starts from your current location · live traffic in Google Maps.","Empieza desde tu ubicación actual · tráfico en vivo en Google Maps.","Démarre depuis votre position actuelle · trafic en direct dans Google Maps.");
+    const gpsOrder=langPick("Stops stay in scheduled order so appointment times are protected.","Las paradas mantienen el orden programado para proteger las horas de las citas.","Les arrêts restent dans l’ordre prévu afin de respecter les horaires.");
+    const gpsButton=langPick("Open GPS route","Abrir ruta GPS","Ouvrir l’itinéraire GPS");
     routeVisual.innerHTML=todayJobs.length
       ? `<div class="route-command-summary"><strong>${count} ${escapeHtml(gpsLabel)}</strong><span>${escapeHtml(gpsStart)}</span><span>${escapeHtml(gpsOrder)}</span>${count?`<button type="button" class="route-best-btn" data-best-route>↗ ${escapeHtml(gpsButton)}</button>`:""}</div>`
       : "Your route appears here when jobs are scheduled.";
@@ -6551,10 +6301,10 @@ function renderOperations(){
 
 function bookingRecurrenceLabel(pattern){
   const value=String(pattern||"one_time");
-  if(value==="weekly") return langPick("Every week","Cada semana","Toda semana","Chaque semaine");
-  if(value==="biweekly") return langPick("Every 2 weeks","Cada 2 semanas","A cada 2 semanas","Toutes les 2 semaines");
-  if(value==="monthly") return langPick("Monthly","Mensual","Mensal","Mensuel");
-  return langPick("One time","Una vez","Uma vez","Une fois");
+  if(value==="weekly") return langPick("Every week","Cada semana","Chaque semaine");
+  if(value==="biweekly") return langPick("Every 2 weeks","Cada 2 semanas","Toutes les 2 semaines");
+  if(value==="monthly") return langPick("Monthly","Mensual","Mensuel");
+  return langPick("One time","Una vez","Une fois");
 }
 
 function bookingPropertySnapshot(record={}){
@@ -6577,21 +6327,21 @@ function bookingPropertySnapshot(record={}){
   const restrooms=source.restrooms ?? rows["restrooms"];
   const condition=String(source.cleaning_condition||rows["current condition"]||"");
   const conditionLabel=({
-    regular:langPick("Regular upkeep","Mantenimiento regular","Manutenção regular","Entretien régulier"),
-    extra_attention:langPick("Needs extra attention","Necesita atención extra","Precisa de atenção extra","Nécessite plus d’attention"),
-    heavy_buildup:langPick("Heavy buildup","Acumulación fuerte","Acúmulo intenso","Accumulation importante"),
-    move:langPick("Move-in / move-out","Mudanza entrada / salida","Mudança entrada / saída","Entrée / sortie"),
-    unsure:langPick("Not sure","No sabe","Não sabe","Pas sûr")
+    regular:langPick("Regular upkeep","Mantenimiento regular","Entretien régulier"),
+    extra_attention:langPick("Needs extra attention","Necesita atención extra","Nécessite plus d’attention"),
+    heavy_buildup:langPick("Heavy buildup","Acumulación fuerte","Accumulation importante"),
+    move:langPick("Move-in / move-out","Mudanza entrada / salida","Entrée / sortie"),
+    unsure:langPick("Not sure","No sabe","Pas sûr")
   })[condition]||condition;
 
   const parts=[];
-  if(type) parts.push(type==="commercial"?langPick("Commercial","Comercial","Comercial","Commercial"):langPick("Residential","Residencial","Residencial","Résidentiel"));
+  if(type) parts.push(type==="commercial"?langPick("Commercial","Comercial","Commercial"):langPick("Residential","Residencial","Résidentiel"));
   if(size) parts.push(size);
-  if(bedrooms!==null&&bedrooms!==undefined&&bedrooms!=="") parts.push(bedrooms+" "+langPick("bed","hab.","quarto","ch."));
-  if(bathrooms!==null&&bathrooms!==undefined&&bathrooms!=="") parts.push(bathrooms+" "+langPick("bath","baño","banheiro","sdb"));
+  if(bedrooms!==null&&bedrooms!==undefined&&bedrooms!=="") parts.push(bedrooms+" "+langPick("bed","hab.","ch."));
+  if(bathrooms!==null&&bathrooms!==undefined&&bathrooms!=="") parts.push(bathrooms+" "+langPick("bath","baño","sdb"));
   if(spaceType) parts.push(String(spaceType).replaceAll("_"," "));
-  if(restrooms!==null&&restrooms!==undefined&&restrooms!=="") parts.push(restrooms+" "+langPick("restroom","baño","banheiro","sanitaire"));
-  if(floors!==null&&floors!==undefined&&floors!=="") parts.push(floors+" "+langPick("level","nivel","andar","niveau"));
+  if(restrooms!==null&&restrooms!==undefined&&restrooms!=="") parts.push(restrooms+" "+langPick("restroom","baño","sanitaire"));
+  if(floors!==null&&floors!==undefined&&floors!=="") parts.push(floors+" "+langPick("level","nivel","niveau"));
   if(conditionLabel) parts.push(conditionLabel);
   return parts.filter(Boolean).join(" · ");
 }
@@ -6601,10 +6351,10 @@ function renderBookingRequests(){
   const pill=$("#bookingRequestCountPill");
   const visible=visibleBookingRequests();
   const pending=visible.filter(b=>b.status==="requested");
-  if(pill) pill.textContent=pending.length+" "+langPick("new","nueva","nova","nouvelle");
+  if(pill) pill.textContent=pending.length+" "+langPick("new","nueva","nouvelle");
   if(!list) return;
   if(!visible.length){
-    list.innerHTML=`<div class="empty-inline"><strong>${escapeHtml(langPick("No booking requests waiting.","No hay solicitudes de reserva pendientes.","Não há solicitações de reserva pendentes.","Aucune demande de réservation en attente."))}</strong><span>${escapeHtml(langPick("Reviewed requests leave this list automatically after 12 hours.","Las solicitudes revisadas salen de esta lista automáticamente después de 12 horas.","As solicitações revisadas saem desta lista automaticamente após 12 horas.","Les demandes examinées quittent automatiquement cette liste après 12 heures."))}</span></div>`;
+    list.innerHTML=`<div class="empty-inline"><strong>${escapeHtml(langPick("No booking requests waiting.","No hay solicitudes de reserva pendientes.","Aucune demande de réservation en attente."))}</strong><span>${escapeHtml(langPick("Reviewed requests leave this list automatically after 12 hours.","Las solicitudes revisadas salen de esta lista automáticamente después de 12 horas.","Les demandes examinées quittent automatiquement cette liste après 12 heures."))}</span></div>`;
     return;
   }
   list.innerHTML=visible.slice(0,20).map(b=>{
@@ -6614,7 +6364,7 @@ function renderBookingRequests(){
       name:b.customer_name
     });
     const linkedCopy=b.status==="converted" && linkedClient
-      ? `<small class="booking-linked-client">${escapeHtml(langPick("Linked to existing client:","Vinculado al cliente existente:","Vinculado ao cliente existente:","Lié au client existant :"))} <strong>${escapeHtml(linkedClient.name)}</strong></small>`
+      ? `<small class="booking-linked-client">${escapeHtml(langPick("Linked to existing client:","Vinculado al cliente existente:","Lié au client existant :"))} <strong>${escapeHtml(linkedClient.name)}</strong></small>`
       : "";
     const propertySnapshot=bookingPropertySnapshot(b);
     return `
@@ -6627,9 +6377,9 @@ function renderBookingRequests(){
       </div>
       <div class="record-actions booking-request-actions">
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
-        ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">${escapeHtml(langPick("Open client","Abrir cliente","Abrir cliente","Ouvrir le client"))}</button>`:""}
-        <button class="booking-action" data-check-booking-client="${b.id}">${escapeHtml(b.reviewed_at?langPick("Checked","Revisado","Revisado","Vérifié"):langPick("Check client","Revisar cliente","Verificar cliente","Vérifier le client"))}</button>
-        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Approve booking","Aprobar reserva","Aprovar reserva","Approuver la réservation"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Recusar","Refuser"))}</button>`:""}
+        ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">${escapeHtml(langPick("Open client","Abrir cliente","Ouvrir le client"))}</button>`:""}
+        <button class="booking-action" data-check-booking-client="${b.id}">${escapeHtml(b.reviewed_at?langPick("Checked","Revisado","Vérifié"):langPick("Check client","Revisar cliente","Vérifier le client"))}</button>
+        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Approve booking","Aprobar reserva","Approuver la réservation"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
       </div>
     </div>`;
   }).join("");
@@ -6670,7 +6420,7 @@ async function loadBusinessSettingsRecord(){
 
 async function openBusinessProfileForm(){
   if(!state.business || state.business.role!=="owner"){
-    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
     return;
   }
 
@@ -6679,32 +6429,27 @@ async function openBusinessProfileForm(){
   const record=await loadBusinessSettingsRecord();
 
   modalHeader(
-    langPick("BUSINESS","NEGOCIO","EMPRESA","ENTREPRISE"),
-    langPick("Edit business basics","Editar datos del negocio","Editar dados da empresa","Modifier les informations de l’entreprise"),
-    langPick(
-      "Update your company details. Time zone and country are detected from your service area.",
-      "Actualiza los datos del negocio. La zona horaria y el país se detectan desde tu área de servicio.",
-      "Atualize os dados da empresa. O fuso horário e o país são detectados pela sua área de atendimento.",
-      "Mettez à jour les informations de l’entreprise. Le fuseau horaire et le pays sont détectés depuis votre zone de service."
-    )
+    langPick("BUSINESS","NEGOCIO","ENTREPRISE"),
+    langPick("Edit business basics","Editar datos del negocio","Modifier les informations de l’entreprise"),
+    langPick("Update your company details. Time zone and country are detected from your service area.","Actualiza los datos del negocio. La zona horaria y el país se detectan desde tu área de servicio.","Mettez à jour les informations de l’entreprise. Le fuseau horaire et le pays sont détectés depuis votre zone de service.")
   );
   entityForm.innerHTML=`
     <div class="form-grid">
-      <label>${escapeHtml(langPick("Business name","Nombre del negocio","Nome da empresa","Nom de l’entreprise"))}<input name="name" required value="${escapeHtml(record.name||"")}"></label>
-      <label>${escapeHtml(langPick("Business email","Email del negocio","E-mail da empresa","E-mail de l’entreprise"))}<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
-      <label>${escapeHtml(langPick("Phone","Teléfono","Telefone","Téléphone"))}<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
-      <label>${escapeHtml(langPick("Service area","Área de servicio","Área de atendimento","Zone de service"))}<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="${escapeHtml(langPick("City, region, country","Ciudad, región, país","Cidade, região, país","Ville, région, pays"))}"></label>
-      <label class="full">${escapeHtml(langPick("Time zone","Zona horaria","Fuso horário","Fuseau horaire"))}<input name="timezone_display" value="${escapeHtml(record.timezone||"UTC")}" readonly><small>${escapeHtml(langPick("Detected automatically from your service area.","Se detecta automáticamente desde tu área de servicio.","Detectado automaticamente pela sua área de atendimento.","Détecté automatiquement depuis votre zone de service."))}</small></label>
+      <label>${escapeHtml(langPick("Business name","Nombre del negocio","Nom de l’entreprise"))}<input name="name" required value="${escapeHtml(record.name||"")}"></label>
+      <label>${escapeHtml(langPick("Business email","Email del negocio","E-mail de l’entreprise"))}<input name="email" type="email" required value="${escapeHtml(record.email||"")}"></label>
+      <label>${escapeHtml(langPick("Phone","Teléfono","Téléphone"))}<input name="phone" inputmode="tel" value="${escapeHtml(record.phone||"")}"></label>
+      <label>${escapeHtml(langPick("Service area","Área de servicio","Zone de service"))}<input name="service_area" required value="${escapeHtml(record.service_area||"")}" placeholder="${escapeHtml(langPick("City, region, country","Ciudad, región, país","Ville, région, pays"))}"></label>
+      <label class="full">${escapeHtml(langPick("Time zone","Zona horaria","Fuseau horaire"))}<input name="timezone_display" value="${escapeHtml(record.timezone||"UTC")}" readonly><small>${escapeHtml(langPick("Detected automatically from your service area.","Se detecta automáticamente desde tu área de servicio.","Détecté automatiquement depuis votre zone de service."))}</small></label>
       <label class="full">Instagram<input name="instagram_url" type="url" inputmode="url" value="${escapeHtml(record.instagram_url||"")}" placeholder="https://instagram.com/yourbusiness"></label>
       <label class="full">Facebook<input name="facebook_url" type="url" inputmode="url" value="${escapeHtml(record.facebook_url||"")}" placeholder="https://facebook.com/yourbusiness"></label>
     </div>
-    ${formSubmit(langPick("Save business details","Guardar datos","Salvar dados","Enregistrer"))}`;
+    ${formSubmit(langPick("Save business details","Guardar datos","Enregistrer"))}`;
   modal.hidden=false;
 }
 
 async function openAppPreferencesForm(){
   if(!state.business || state.business.role!=="owner"){
-    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
     return;
   }
   state.modalType="appPreferences";
@@ -6712,48 +6457,38 @@ async function openAppPreferencesForm(){
   const record=await loadBusinessSettingsRecord();
 
   modalHeader(
-    langPick("YOUR APP","TU APP","SEU APP","VOTRE APP"),
-    langPick("App preferences","Preferencias de la app","Preferências do app","Préférences de l’application"),
-    langPick(
-      "These settings change your workspace, not the language your customers receive by email.",
-      "Estos ajustes cambian tu espacio de trabajo, no el idioma de los emails de tus clientes.",
-      "Estas configurações mudam seu espaço de trabalho, não o idioma dos e-mails dos clientes.",
-      "Ces réglages modifient votre espace de travail, pas la langue des e-mails envoyés aux clients."
-    )
+    langPick("YOUR APP","TU APP","VOTRE APP"),
+    langPick("App preferences","Preferencias de la app","Préférences de l’application"),
+    langPick("These settings change your workspace, not the language your customers receive by email.","Estos ajustes cambian tu espacio de trabajo, no el idioma de los emails de tus clientes.","Ces réglages modifient votre espace de travail, pas la langue des e-mails envoyés aux clients.")
   );
   entityForm.innerHTML=`
     <div class="form-grid">
-      <label>${escapeHtml(langPick("App language","Idioma de la app","Idioma do app","Langue de l’application"))}<select name="default_language" required>
+      <label>${escapeHtml(langPick("App language","Idioma de la app","Langue de l’application"))}<select name="default_language" required>
         <option value="en" ${record.default_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.default_language==="es"?"selected":""}>Español</option>
         <option value="fr" ${record.default_language==="fr"?"selected":""}>Français</option>
         <option value="ht" ${record.default_language==="ht"?"selected":""}>Kreyòl Ayisyen</option>
       </select></label>
-      <label>${escapeHtml(langPick("Currency","Moneda","Moeda","Devise"))}<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
-      <label>${escapeHtml(langPick("Distance","Distancia","Distância","Distance"))}<select name="distance_unit">
-        <option value="mi" ${record.distance_unit==="mi"?"selected":""}>${escapeHtml(langPick("Miles","Millas","Milhas","Miles"))}</option>
-        <option value="km" ${record.distance_unit==="km"?"selected":""}>${escapeHtml(langPick("Kilometers","Kilómetros","Quilômetros","Kilomètres"))}</option>
+      <label>${escapeHtml(langPick("Currency","Moneda","Devise"))}<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
+      <label>${escapeHtml(langPick("Distance","Distancia","Distance"))}<select name="distance_unit">
+        <option value="mi" ${record.distance_unit==="mi"?"selected":""}>${escapeHtml(langPick("Miles","Millas","Miles"))}</option>
+        <option value="km" ${record.distance_unit==="km"?"selected":""}>${escapeHtml(langPick("Kilometers","Kilómetros","Kilomètres"))}</option>
       </select></label>
-      <label>${escapeHtml(langPick("Temperature","Temperatura","Temperatura","Température"))}<select name="temperature_unit">
+      <label>${escapeHtml(langPick("Temperature","Temperatura","Température"))}<select name="temperature_unit">
         <option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option>
         <option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option>
       </select></label>
-      <label>${escapeHtml(langPick("Country","País","País","Pays"))}<input value="${escapeHtml(record.country_code||"—")}" readonly></label>
-      <label>${escapeHtml(langPick("Time zone","Zona horaria","Fuso horário","Fuseau horaire"))}<input value="${escapeHtml(record.timezone||"UTC")}" readonly></label>
+      <label>${escapeHtml(langPick("Country","País","Pays"))}<input value="${escapeHtml(record.country_code||"—")}" readonly></label>
+      <label>${escapeHtml(langPick("Time zone","Zona horaria","Fuseau horaire"))}<input value="${escapeHtml(record.timezone||"UTC")}" readonly></label>
     </div>
-    <p class="helper">${escapeHtml(langPick(
-      "Customer email language is controlled separately in Client Communication.",
-      "El idioma de los emails de clientes se controla por separado en Comunicación con clientes.",
-      "O idioma dos e-mails dos clientes é controlado separadamente em Comunicação com clientes.",
-      "La langue des e-mails clients se règle séparément dans Communication client."
-    ))}</p>
-    ${formSubmit(langPick("Save app preferences","Guardar preferencias","Salvar preferências","Enregistrer les préférences"))}`;
+    <p class="helper">${escapeHtml(langPick("Customer email language is controlled separately in Client Communication.","El idioma de los emails de clientes se controla por separado en Comunicación con clientes.","La langue des e-mails clients se règle séparément dans Communication client."))}</p>
+    ${formSubmit(langPick("Save app preferences","Guardar preferencias","Enregistrer les préférences"))}`;
   modal.hidden=false;
 }
 
 async function openPaymentPreferencesForm(){
   if(!state.business || state.business.role!=="owner"){
-    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
     return;
   }
   state.modalType="paymentPreferences";
@@ -6762,41 +6497,31 @@ async function openPaymentPreferencesForm(){
   const methods=[...new Set([...(record.payment_methods||[]),...paymentMethodsForCountry(record.country_code)])];
 
   modalHeader(
-    langPick("PAYMENTS","PAGOS","PAGAMENTOS","PAIEMENTS"),
-    langPick("Client payment options","Opciones de pago del cliente","Opções de pagamento do cliente","Options de paiement client"),
-    langPick(
-      "Choose the payment methods clients can select on invoices.",
-      "Elige las formas de pago que los clientes pueden seleccionar en las facturas.",
-      "Escolha as formas de pagamento que os clientes podem selecionar nas faturas.",
-      "Choisissez les modes de paiement proposés aux clients sur les factures."
-    )
+    langPick("PAYMENTS","PAGOS","PAIEMENTS"),
+    langPick("Client payment options","Opciones de pago del cliente","Options de paiement client"),
+    langPick("Choose the payment methods clients can select on invoices.","Elige las formas de pago que los clientes pueden seleccionar en las facturas.","Choisissez les modes de paiement proposés aux clients sur les factures.")
   );
   entityForm.innerHTML=`
-    <fieldset class="full"><legend>${escapeHtml(langPick("Enabled methods","Métodos activados","Métodos ativados","Modes activés"))}</legend>
+    <fieldset class="full"><legend>${escapeHtml(langPick("Enabled methods","Métodos activados","Modes activés"))}</legend>
       <div class="choice-grid compact">
         ${methods.map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
       </div>
       <label class="custom-payment-method">
-        <span>${escapeHtml(langPick("Add another payment method","Añadir otra forma de pago","Adicionar outra forma de pagamento","Ajouter un autre mode de paiement"))}</span>
-        <input name="custom_payment_method" maxlength="40" placeholder="${escapeHtml(langPick("e.g. Venmo, Cash App","ej. Venmo, Cash App","ex. Pix, Mercado Pago","ex. PayPal, Lydia"))}">
+        <span>${escapeHtml(langPick("Add another payment method","Añadir otra forma de pago","Ajouter un autre mode de paiement"))}</span>
+        <input name="custom_payment_method" maxlength="40" placeholder="${escapeHtml(langPick("e.g. Venmo, Cash App","ej. Venmo, Cash App","ex. PayPal, Lydia"))}">
       </label>
-      <small>${escapeHtml(langPick(
-        "The app stores the payment choice, not bank credentials.",
-        "La app guarda la forma de pago elegida, no credenciales bancarias.",
-        "O app salva a forma de pagamento escolhida, não credenciais bancárias.",
-        "L’application enregistre le mode de paiement choisi, pas les identifiants bancaires."
-      ))}</small>
+      <small>${escapeHtml(langPick("The app stores the payment choice, not bank credentials.","La app guarda la forma de pago elegida, no credenciales bancarias.","L’application enregistre le mode de paiement choisi, pas les identifiants bancaires."))}</small>
     </fieldset>
-    ${formSubmit(langPick("Save payment options","Guardar opciones de pago","Salvar opções de pagamento","Enregistrer les options de paiement"))}`;
+    ${formSubmit(langPick("Save payment options","Guardar opciones de pago","Enregistrer les options de paiement"))}`;
   modal.hidden=false;
 }
 async function saveBusinessProfile(fd){
   if(!state.business || state.business.role!=="owner"){
-    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
   }
 
   const serviceArea=String(fd.get("service_area")||"").trim();
-  if(!serviceArea) throw new Error(langPick("Service area is required.","El área de servicio es obligatoria.","A área de atendimento é obrigatória.","La zone de service est obligatoire."));
+  if(!serviceArea) throw new Error(langPick("Service area is required.","El área de servicio es obligatoria.","La zone de service est obligatoire."));
   const detected=await resolveBusinessLocale(serviceArea);
   const country=detected.country_code||state.business.country_code||"US";
   const language=state.business.default_language||"en";
@@ -6813,8 +6538,8 @@ async function saveBusinessProfile(fd){
     updated_at:new Date().toISOString()
   };
 
-  if(!payload.name) throw new Error(langPick("Business name is required.","El nombre del negocio es obligatorio.","O nome da empresa é obrigatório.","Le nom de l’entreprise est obligatoire."));
-  if(!payload.email) throw new Error(langPick("Business email is required.","El email del negocio es obligatorio.","O e-mail da empresa é obrigatório.","L’e-mail de l’entreprise est obligatoire."));
+  if(!payload.name) throw new Error(langPick("Business name is required.","El nombre del negocio es obligatorio.","Le nom de l’entreprise est obligatoire."));
+  if(!payload.email) throw new Error(langPick("Business email is required.","El email del negocio es obligatorio.","L’e-mail de l’entreprise est obligatoire."));
 
   const {data,error}=await supabase.from("businesses")
     .update(payload)
@@ -6828,12 +6553,12 @@ async function saveBusinessProfile(fd){
 
 async function saveAppPreferences(fd){
   if(!state.business || state.business.role!=="owner"){
-    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
   }
   const language=String(fd.get("default_language")||"en").toLowerCase();
   if(!["en","es","fr","ht"].includes(language)) throw new Error("Invalid app language.");
   const currency=String(fd.get("currency_code")||"USD").trim().toUpperCase();
-  if(!/^[A-Z]{3}$/.test(currency)) throw new Error(langPick("Use a 3-letter currency code.","Usa un código de moneda de 3 letras.","Use um código de moeda de 3 letras.","Utilisez un code devise de 3 lettres."));
+  if(!/^[A-Z]{3}$/.test(currency)) throw new Error(langPick("Use a 3-letter currency code.","Usa un código de moneda de 3 letras.","Utilisez un code devise de 3 lettres."));
   const distance=String(fd.get("distance_unit")||"mi");
   const temperature=String(fd.get("temperature_unit")||"fahrenheit");
   const country=state.business.country_code||"US";
@@ -6858,7 +6583,7 @@ async function saveAppPreferences(fd){
 
 async function savePaymentPreferences(fd){
   if(!state.business || state.business.role!=="owner"){
-    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
   }
   const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
   const custom=String(fd.get("custom_payment_method")||"").trim();
@@ -6867,7 +6592,7 @@ async function savePaymentPreferences(fd){
     if(normalized && !paymentMethods.includes(normalized)) paymentMethods.push(normalized);
   }
   if(!paymentMethods.length){
-    throw new Error(langPick("Choose at least one payment method.","Elige al menos una forma de pago.","Escolha pelo menos uma forma de pagamento.","Choisissez au moins un mode de paiement."));
+    throw new Error(langPick("Choose at least one payment method.","Elige al menos una forma de pago.","Choisissez au moins un mode de paiement."));
   }
   const {data,error}=await supabase.from("businesses")
     .update({payment_methods:paymentMethods,updated_at:new Date().toISOString()})
@@ -6951,7 +6676,7 @@ function renderBusinessPresence(){
   const igState=$("#presenceInstagramState");
   const fbState=$("#presenceFacebookState");
   const googleState=$("#presenceGoogleState");
-  const connectedLabel=langPick("Connected","Conectado","Conectado","Connecté");
+  const connectedLabel=langPick("Connected","Conectado","Connecté");
   if(igState) igState.textContent=ig?connectedLabel:tr("Add profile");
   if(fbState) fbState.textContent=fb?connectedLabel:tr("Add page");
   if(googleState) googleState.textContent=googleUrl?connectedLabel:tr("Add link");
@@ -6969,15 +6694,15 @@ function renderPublicLinks(){
   const be=$("#bookingUrl"),qe=$("#quoteUrl");
 
   if(!slug){
-    if(be){be.textContent=langPick("Loading booking link…","Cargando enlace de reserva…","Carregando link de reserva…","Chargement du lien de réservation…");be.removeAttribute("href");}
-    if(qe){qe.textContent=langPick("Loading quote link…","Cargando enlace de cotización…","Carregando link de orçamento…","Chargement du lien de devis…");qe.removeAttribute("href");}
+    if(be){be.textContent=langPick("Loading booking link…","Cargando enlace de reserva…","Chargement du lien de réservation…");be.removeAttribute("href");}
+    if(qe){qe.textContent=langPick("Loading quote link…","Cargando enlace de cotización…","Chargement du lien de devis…");qe.removeAttribute("href");}
     return;
   }
 
   const booking=`${base}?public=book&slug=${encodeURIComponent(slug)}`;
   const quote=`${base}?public=quote&slug=${encodeURIComponent(slug)}`;
-  if(be){be.textContent=booking;be.href=booking;be.setAttribute("aria-label",langPick("Open booking link","Abrir enlace de reserva","Abrir link de reserva","Ouvrir le lien de réservation"));}
-  if(qe){qe.textContent=quote;qe.href=quote;qe.setAttribute("aria-label",langPick("Open quote request link","Abrir enlace de cotización","Abrir link de orçamento","Ouvrir le lien de devis"));}
+  if(be){be.textContent=booking;be.href=booking;be.setAttribute("aria-label",langPick("Open booking link","Abrir enlace de reserva","Ouvrir le lien de réservation"));}
+  if(qe){qe.textContent=quote;qe.href=quote;qe.setAttribute("aria-label",langPick("Open quote request link","Abrir enlace de cotización","Ouvrir le lien de devis"));}
   renderBusinessPresence();
 }
 
@@ -7304,18 +7029,18 @@ async function initializePublicRequest(mode,slug){
     const selected=services.find(s=>s.id===serviceSelect.value);
     const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
     addonBox.innerHTML=available.length
-      ? `<div class="public-addon-note"><strong>${escapeHtml(langPick("Included with this service","Incluido con este servicio","Incluído com este serviço","Inclus avec ce service"))}</strong><span>${escapeHtml(langPick("Service add-ons are selected automatically. Uncheck anything this job does not need.","Los add-ons del servicio se seleccionan automáticamente. Desmarca lo que este trabajo no necesite.","Os adicionais do serviço são selecionados automaticamente. Desmarque o que este trabalho não precisar.","Les options du service sont sélectionnées automatiquement. Décochez ce dont ce travail n’a pas besoin."))}</span></div>`+
+      ? `<div class="public-addon-note"><strong>${escapeHtml(langPick("Included with this service","Incluido con este servicio","Inclus avec ce service"))}</strong><span>${escapeHtml(langPick("Service add-ons are selected automatically. Uncheck anything this job does not need.","Los add-ons del servicio se seleccionan automáticamente. Desmarca lo que este trabajo no necesite.","Les options du service sont sélectionnées automatiquement. Décochez ce dont ce travail n’a pas besoin."))}</span></div>`+
         available.map(a=>{
           const includedByDefault=Boolean(selected && a.service_id===selected.id);
           return `<label class="addon-choice ${includedByDefault?"addon-default":""}">
             <input type="checkbox" name="addon" value="${escapeHtml(a.id)}" ${includedByDefault?"checked":""}>
             <span>
               <strong>${escapeHtml(a.name)}</strong>
-              <small>${escapeHtml(includedByDefault?langPick("Included by default · ","Incluido por defecto · ","Incluído por padrão · ","Inclus par défaut · "):langPick("Optional · ","Opcional · ","Opcional · ","Optionnel · "))}+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small>
+              <small>${escapeHtml(includedByDefault?langPick("Included by default · ","Incluido por defecto · ","Inclus par défaut · "):langPick("Optional · ","Opcional · ","Optionnel · "))}+${money(a.price)} · +${escapeHtml(a.extra_duration_minutes)} min</small>
             </span>
           </label>`;
         }).join("")
-      : '<span class="muted-line">'+escapeHtml(langPick("No add-ons for this service.","No hay add-ons para este servicio.","Não há adicionais para este serviço.","Aucune option pour ce service."))+'</span>';
+      : '<span class="muted-line">'+escapeHtml(langPick("No add-ons for this service.","No hay add-ons para este servicio.","Aucune option pour ce service."))+'</span>';
     updatePublicSummary();
   }
 
@@ -7621,7 +7346,7 @@ function openEntityForm(type,id=null){
           <option value="text" ${record?.preferred_contact==="text"?"selected":""}>Text</option>
           <option value="whatsapp" ${record?.preferred_contact==="whatsapp"?"selected":""}>WhatsApp</option>
         </select></label>
-        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label>Source<input name="source" value="${escapeHtml(record?.source||"")}" placeholder="Instagram, referral, website…"></label>
         <label>Status<select name="status">${["new","contacted","qualified","quoted","booked","lost"].map(v=>`<option value="${v}" ${record?.status===v?"selected":""}>${v}</option>`).join("")}</select></label>
         <label class="full">Service interest<input name="service_interest" value="${escapeHtml(record?.service_interest||"")}"></label>
@@ -7656,7 +7381,7 @@ function openEntityForm(type,id=null){
           <option value="text" ${record?.preferred_contact==="text"?"selected":""}>Text</option>
           <option value="whatsapp" ${record?.preferred_contact==="whatsapp"?"selected":""}>WhatsApp</option>
         </select></label>
-        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label class="full">Street address<input name="address_line1" value="${escapeHtml(record?.address_line1||"")}"></label>
         <label>City<input name="city" value="${escapeHtml(record?.city||"")}"></label>
         <label>Region / State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
@@ -7668,22 +7393,22 @@ function openEntityForm(type,id=null){
   if(type==="service"){
     const pricingChoice=record?.pricing_type==="flat" && Number(record?.base_price)>0 ? "flat" : "quote";
     modalHeader(
-      langPick("SERVICE","SERVICIO","SERVIÇO","SERVICE"),
-      record?langPick("Edit service","Editar servicio","Editar serviço","Modifier le service"):langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter un service"),
-      langPick("Choose whether customers see a price now or request a custom quote.","Elige si el cliente ve el precio al momento o solicita una cotización personalizada.","Escolha se o cliente vê o preço na hora ou solicita um orçamento personalizado.","Choisissez si le client voit le prix immédiatement ou demande un devis personnalisé.")
+      langPick("SERVICE","SERVICIO","SERVICE"),
+      record?langPick("Edit service","Editar servicio","Modifier le service"):langPick("Add service","Añadir servicio","Ajouter un service"),
+      langPick("Choose whether customers see a price now or request a custom quote.","Elige si el cliente ve el precio al momento o solicita una cotización personalizada.","Choisissez si le client voit le prix immédiatement ou demande un devis personnalisé.")
     );
     entityForm.innerHTML=`
       <div class="form-grid">
-        <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nome do serviço","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>${escapeHtml(langPick("Customer pricing","Precio para el cliente","Preço para o cliente","Tarification client"))}<select name="pricing_type">
-          <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}</option>
-          <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé"))}</option>
+        <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+        <label>${escapeHtml(langPick("Customer pricing","Precio para el cliente","Tarification client"))}<select name="pricing_type">
+          <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}</option>
+          <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Devis personnalisé"))}</option>
         </select></label>
-        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Não é necessário","Non requis"):""}"></label>
-        <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Duração (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
-        <label class="full">${escapeHtml(langPick("Description","Descripción","Descrição","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Serviço ativo","Service actif"))}</label>
-      </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Salvar alterações","Enregistrer"):langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter le service"))}`;
+        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Non requis"):""}"></label>
+        <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
+        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
+      </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Enregistrer"):langPick("Add service","Añadir servicio","Ajouter le service"))}`;
     const pricingSelect=entityForm.querySelector('[name="pricing_type"]');
     const basePriceInput=entityForm.querySelector('[name="base_price"]');
     const syncServicePriceField=()=>{
@@ -7693,7 +7418,7 @@ function openEntityForm(type,id=null){
       basePriceInput.required=upfront;
       if(!upfront){
         basePriceInput.value="";
-        basePriceInput.placeholder=langPick("Not needed","No hace falta","Não é necessário","Non requis");
+        basePriceInput.placeholder=langPick("Not needed","No hace falta","Non requis");
       }else{
         basePriceInput.placeholder="0.00";
       }
@@ -7704,14 +7429,9 @@ function openEntityForm(type,id=null){
 
   if(type==="addon"){
     modalHeader(
-      langPick("ADD-ON","ADD-ON","ADICIONAL","OPTION"),
-      record?langPick("Edit add-on","Editar add-on","Editar adicional","Modifier l’option"):langPick("Add add-on","Añadir add-on","Adicionar adicional","Ajouter une option"),
-      langPick(
-        "Assign it to a service to include it automatically. It can still be removed for any individual booking.",
-        "Asígnalo a un servicio para incluirlo automáticamente. Aun así se puede quitar en una reserva individual.",
-        "Atribua-o a um serviço para incluí-lo automaticamente. Ainda assim, ele pode ser removido de uma reserva individual.",
-        "Associez-le à un service pour l’inclure automatiquement. Il peut toujours être retiré d’une réservation individuelle."
-      )
+      langPick("ADD-ON","ADD-ON","OPTION"),
+      record?langPick("Edit add-on","Editar add-on","Modifier l’option"):langPick("Add add-on","Añadir add-on","Ajouter une option"),
+      langPick("Assign it to a service to include it automatically. It can still be removed for any individual booking.","Asígnalo a un servicio para incluirlo automáticamente. Aun así se puede quitar en una reserva individual.","Associez-le à un service pour l’inclure automatiquement. Il peut toujours être retiré d’une réservation individuelle.")
     );
     entityForm.innerHTML=`
       <div class="form-grid">
@@ -7741,7 +7461,7 @@ function openEntityForm(type,id=null){
 
   if(type==="mileage"){
     const mileageJobs=state.jobs.filter(j=>j.status!=="canceled");
-    modalHeader(tr("MILEAGE"),record?langPick("Edit drive","Editar viaje","Editar trajeto","Modifier le trajet"):langPick("Log drive","Registrar viaje","Registrar trajeto","Enregistrer le trajet"),langPick("Keep business distance simple with separate From and To fields.","Guarda la distancia del negocio con origen y destino separados.","Mantenha a distância do negócio simples com origem e destino separados.","Gardez les déplacements professionnels simples avec un départ et une destination séparés."));
+    modalHeader(tr("MILEAGE"),record?langPick("Edit drive","Editar viaje","Modifier le trajet"):langPick("Log drive","Registrar viaje","Enregistrer le trajet"),langPick("Keep business distance simple with separate From and To fields.","Guarda la distancia del negocio con origen y destino separados.","Gardez les déplacements professionnels simples avec un départ et une destination séparés."));
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>${tr("Date")}<input name="log_date" type="date" required value="${escapeHtml(record?.log_date||new Date().toLocaleDateString("en-CA"))}"></label>
@@ -7766,7 +7486,7 @@ function openEntityForm(type,id=null){
         <label>${tr("From")}<input name="from_location" required value="${escapeHtml(record?.from_location||"")}" placeholder="${tr("Office / home / previous stop")}"></label>
         <label>${tr("To")}<input name="to_location" required value="${escapeHtml(record?.to_location||"")}" placeholder="${tr("Client / supply store")}"></label>
         <label class="full">${tr("Note (optional)")}<input name="notes" value="${escapeHtml(record?.notes||"")}" placeholder="${tr("e.g. pick up supplies")}"></label>
-      </div>${formSubmit(langPick("Save mileage","Guardar millaje","Salvar quilometragem","Enregistrer le kilométrage"))}`;
+      </div>${formSubmit(langPick("Save mileage","Guardar millaje","Enregistrer le kilométrage"))}`;
   }
 
   if(type==="job"){
@@ -7826,7 +7546,7 @@ function openEntityForm(type,id=null){
         <label>Name<input name="customer_name" required value="${escapeHtml(record?.customer_name||"")}"></label>
         <label>Email<input name="customer_email" type="email" required value="${escapeHtml(record?.customer_email||"")}"></label>
         <label>Phone<input name="customer_phone" value="${escapeHtml(record?.customer_phone||"")}"></label>
-        <label>${escapeHtml(langPick("Email language","Idioma de emails","Idioma dos e-mails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
+        <label>${escapeHtml(langPick("Email language","Idioma de emails","Langue des e-mails"))}<select name="preferred_language">${customerEmailLanguageOptions(record?.preferred_language||"",true)}</select></label>
         <label>Service<select name="service_id" required><option value="">Choose service</option>${optionList(state.services.filter(s=>s.active),"id","name",item?.service_id)}</select></label>
         <label>Price<input name="price" type="number" min="0" step="0.01" required value="${item?.unit_price??record?.total??""}"></label>
         <label>Status<select name="status">
@@ -7937,14 +7657,14 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="feedback"){
       await saveFeedback(fd);
       modal.hidden=true;
-      showToast(langPick("Feedback sent. Thank you!","Comentarios enviados. ¡Gracias!","Feedback enviado. Obrigado!","Commentaire envoyé. Merci !"));
+      showToast(langPick("Feedback sent. Thank you!","Comentarios enviados. ¡Gracias!","Commentaire envoyé. Merci !"));
       return;
     }
     if(state.modalType==="workerMileage"){
       const workerUnit=state.workerPortal?.business?.distance_unit==="km"?"km":"mi";
       const entered=Number(fd.get("distance")||0);
       if(!Number.isFinite(entered)||entered<=0){
-        throw new Error(langPick("Enter a valid distance.","Ingresa una distancia válida.","Digite uma distância válida.","Saisissez une distance valide."));
+        throw new Error(langPick("Enter a valid distance.","Ingresa una distancia válida.","Saisissez une distance valide."));
       }
       const miles=workerUnit==="km"?entered/1.609344:entered;
       const token=localStorage.getItem("tle_worker_device_token");
@@ -7957,7 +7677,7 @@ entityForm.addEventListener("submit",async e=>{
       if(error) throw error;
       modal.hidden=true;
       await refreshWorkerPortal();
-      showToast(langPick("Mileage saved","Millaje guardado","Quilometragem salva","Kilométrage enregistré"));
+      showToast(langPick("Mileage saved","Millaje guardado","Kilométrage enregistré"));
       return;
     }
     if(state.modalType==="lead") await saveLead(fd);
@@ -7996,13 +7716,8 @@ entityForm.addEventListener("submit",async e=>{
         if(footer) footer.before(confirmation);
         else entityForm.prepend(confirmation);
       }
-      confirmation.innerHTML="<strong>"+escapeHtml(langPick("Quote sent.","Cotización enviada.","Orçamento enviado.","Devis envoyé."))+"</strong><br>"+escapeHtml(langPick(
-        "Waiting for the customer to accept. This window will stay open until you close it.",
-        "Esperando que el cliente acepte. Esta ventana permanecerá abierta hasta que la cierres.",
-        "Aguardando o cliente aceitar. Esta janela permanecerá aberta até você fechá-la.",
-        "En attente de l’acceptation du client. Cette fenêtre restera ouverte jusqu’à ce que vous la fermiez."
-      ));
-      showToast(langPick("Quote emailed to customer","Cotización enviada por email al cliente","Orçamento enviado por email ao cliente","Devis envoyé au client par e-mail"));
+      confirmation.innerHTML="<strong>"+escapeHtml(langPick("Quote sent.","Cotización enviada.","Devis envoyé."))+"</strong><br>"+escapeHtml(langPick("Waiting for the customer to accept. This window will stay open until you close it.","Esperando que el cliente acepte. Esta ventana permanecerá abierta hasta que la cierres.","En attente de l’acceptation du client. Cette fenêtre restera ouverte jusqu’à ce que vous la fermiez."));
+      showToast(langPick("Quote emailed to customer","Cotización enviada por email al cliente","Devis envoyé au client par e-mail"));
       return;
     }
 
@@ -8435,13 +8150,13 @@ async function saveStartTimer(fd){
   }
 }
 async function finishTimeEntry(id){
-  if(!id) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Temporizador ativo não encontrado.","Minuteur actif introuvable."));
+  if(!id) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Minuteur actif introuvable."));
   const entry=state.timeEntries.find(t=>t.id===id);
   if(entry?.clocked_out_at) return entry;
 
   const result=await withTimeout(
     supabase.rpc("finish_job_time_entry",{p_entry_id:id}),
-    langPick("Finishing timer","Finalizando temporizador","Finalizando cronômetro","Arrêt du minuteur"),
+    langPick("Finishing timer","Finalizando temporizador","Arrêt du minuteur"),
     10000
   );
   const {data,error}=result||{};
@@ -8460,7 +8175,7 @@ async function finishTimeEntry(id){
   }
 
   if(!finished?.clocked_out_at){
-    throw new Error(langPick("Could not confirm that the timer stopped.","No se pudo confirmar el cierre del temporizador.","Não foi possível confirmar o encerramento do cronômetro.","Impossible de confirmer l’arrêt du minuteur."));
+    throw new Error(langPick("Could not confirm that the timer stopped.","No se pudo confirmar el cierre del temporizador.","Impossible de confirmer l’arrêt du minuteur."));
   }
 
   if(entry){
@@ -8474,49 +8189,24 @@ async function finishTimeEntry(id){
 
 async function deleteBusinessRecord(type,id){
   if(!state.business || !["owner","admin"].includes(state.business.role)){
-    throw new Error(langPick(
-      "Only Owner or Admin can delete records.",
-      "Solo Owner o Admin puede borrar registros.",
-      "Somente Owner ou Admin pode excluir registros.",
-      "Seul le propriétaire ou un administrateur peut supprimer des données."
-    ));
+    throw new Error(langPick("Only Owner or Admin can delete records.","Solo Owner o Admin puede borrar registros.","Seul le propriétaire ou un administrateur peut supprimer des données."));
   }
 
   const names={
-    client:langPick("client","cliente","cliente","client"),
-    lead:langPick("lead","lead","lead","prospect"),
-    quote:langPick("quote","cotización","orçamento","devis"),
-    invoice:langPick("invoice","factura","fatura","facture")
+    client:langPick("client","cliente","client"),
+    lead:langPick("lead","lead","prospect"),
+    quote:langPick("quote","cotización","devis"),
+    invoice:langPick("invoice","factura","facture")
   };
 
-  let message=langPick(
-    "Permanently delete this "+names[type]+"? This cannot be undone.",
-    "¿Borrar permanentemente este "+names[type]+"? Esta acción no se puede deshacer.",
-    "Excluir permanentemente este "+names[type]+"? Esta ação não pode ser desfeita.",
-    "Supprimer définitivement ce "+names[type]+" ? Cette action est irréversible."
-  );
+  let message=langPick("Permanently delete this "+names[type]+"? This cannot be undone.","¿Borrar permanentemente este "+names[type]+"? Esta acción no se puede deshacer.","Supprimer définitivement ce "+names[type]+" ? Cette action est irréversible.");
 
   if(type==="client"){
-    message=langPick(
-      "Permanently delete this client? Related jobs and invoices will also be deleted. This cannot be undone.",
-      "¿Borrar permanentemente este cliente? También se borrarán sus trabajos y facturas relacionadas. Esta acción no se puede deshacer.",
-      "Excluir permanentemente este cliente? Os trabalhos e faturas relacionados também serão excluídos. Esta ação não pode ser desfeita.",
-      "Supprimer définitivement ce client ? Les travaux et factures associés seront également supprimés. Cette action est irréversible."
-    );
+    message=langPick("Permanently delete this client? Related jobs and invoices will also be deleted. This cannot be undone.","¿Borrar permanentemente este cliente? También se borrarán sus trabajos y facturas relacionadas. Esta acción no se puede deshacer.","Supprimer définitivement ce client ? Les travaux et factures associés seront également supprimés. Cette action est irréversible.");
   }else if(type==="invoice"){
-    message=langPick(
-      "Permanently delete this invoice? Its payments, items, public link and related disputes will also be deleted.",
-      "¿Borrar permanentemente esta factura? También se borrarán sus pagos, items, link público y disputas relacionadas.",
-      "Excluir permanentemente esta fatura? Pagamentos, itens, link público e contestações relacionadas também serão excluídos.",
-      "Supprimer définitivement cette facture ? Ses paiements, éléments, lien public et litiges associés seront également supprimés."
-    );
+    message=langPick("Permanently delete this invoice? Its payments, items, public link and related disputes will also be deleted.","¿Borrar permanentemente esta factura? También se borrarán sus pagos, items, link público y disputas relacionadas.","Supprimer définitivement cette facture ? Ses paiements, éléments, lien public et litiges associés seront également supprimés.");
   }else if(type==="quote"){
-    message=langPick(
-      "Permanently delete this quote? Its items, public link and related disputes will also be deleted.",
-      "¿Borrar permanentemente esta cotización? Sus items, link público y disputas relacionadas también se borrarán.",
-      "Excluir permanentemente este orçamento? Itens, link público e contestações relacionadas também serão excluídos.",
-      "Supprimer définitivement ce devis ? Ses éléments, lien public et litiges associés seront également supprimés."
-    );
+    message=langPick("Permanently delete this quote? Its items, public link and related disputes will also be deleted.","¿Borrar permanentemente esta cotización? Sus items, link público y disputas relacionadas también se borrarán.","Supprimer définitivement ce devis ? Ses éléments, lien public et litiges associés seront également supprimés.");
   }
 
   if(!window.confirm(message)) return false;
@@ -8528,7 +8218,7 @@ async function deleteBusinessRecord(type,id){
   if(error) throw error;
 
   await loadCoreData();
-  showToast(langPick("Deleted","Borrado","Excluído","Supprimé"));
+  showToast(langPick("Deleted","Borrado","Supprimé"));
   return data||true;
 }
 
@@ -8760,11 +8450,11 @@ document.addEventListener("click",async e=>{
   if(deleteRecordBtn){
     const type=deleteRecordBtn.dataset.deleteRecord;
     const id=deleteRecordBtn.dataset.id;
-    setBusy(deleteRecordBtn,true,langPick("Deleting…","Borrando…","Excluindo…","Suppression…"));
+    setBusy(deleteRecordBtn,true,langPick("Deleting…","Borrando…","Suppression…"));
     try{
       await deleteBusinessRecord(type,id);
     }catch(err){
-      showToast(err?.message||langPick("Could not delete","No se pudo borrar","Não foi possível excluir","Impossible de supprimer"));
+      showToast(err?.message||langPick("Could not delete","No se pudo borrar","Impossible de supprimer"));
     }finally{
       if(document.body.contains(deleteRecordBtn)) setBusy(deleteRecordBtn,false);
     }
@@ -8843,18 +8533,18 @@ document.addEventListener("click",async e=>{
   const workerTimeStop=e.target.closest("[data-worker-time-stop]");
   if(workerTimeStop){
     const token=localStorage.getItem("tle_worker_device_token");
-    setBusy(workerTimeStop,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
+    setBusy(workerTimeStop,true,langPick("Finishing…","Finalizando…","Arrêt…"));
     try{
       const result=await withTimeout(
         supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop}),
-        langPick("Finishing timer","Finalizando temporizador","Finalizando cronômetro","Arrêt du minuteur"),
+        langPick("Finishing timer","Finalizando temporizador","Arrêt du minuteur"),
         10000
       );
       if(result?.error) throw result.error;
       await refreshWorkerPortal();
-      showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
+      showToast(langPick("Timer finished","Temporizador finalizado","Minuteur arrêté"));
     }catch(err){
-      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
+      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Impossible d’arrêter le minuteur"));
     }finally{
       if(document.body.contains(workerTimeStop)) setBusy(workerTimeStop,false);
     }
@@ -8864,12 +8554,12 @@ document.addEventListener("click",async e=>{
   const finishTimeBtn=e.target.closest("[data-finish-time]");
   if(finishTimeBtn){
     const id=finishTimeBtn.dataset.finishTime;
-    setBusy(finishTimeBtn,true,langPick("Finishing…","Finalizando…","Finalizando…","Arrêt…"));
+    setBusy(finishTimeBtn,true,langPick("Finishing…","Finalizando…","Arrêt…"));
     try{
       await finishTimeEntry(id);
-      showToast(langPick("Timer finished","Temporizador finalizado","Cronômetro encerrado","Minuteur arrêté"));
+      showToast(langPick("Timer finished","Temporizador finalizado","Minuteur arrêté"));
     }catch(err){
-      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Não foi possível encerrar o cronômetro","Impossible d’arrêter le minuteur"));
+      showToast(err?.message||langPick("Could not finish timer","No se pudo finalizar el temporizador","Impossible d’arrêter le minuteur"));
     }finally{
       if(document.body.contains(finishTimeBtn)) setBusy(finishTimeBtn,false);
     }
@@ -8902,27 +8592,22 @@ document.addEventListener("click",async e=>{
     state.modalType="workerMileage";
     state.modalId=workerMileage.dataset.workerMileage;
     modalHeader(
-      langPick("MILEAGE","MILLAJE","QUILOMETRAGEM","KILOMÉTRAGE"),
-      langPick("Log drive","Registrar viaje","Registrar trajeto","Enregistrer le trajet"),
-      langPick(
-        "Add the distance driven for this assigned job.",
-        "Agrega la distancia recorrida para este trabajo asignado.",
-        "Adicione a distância percorrida para este trabalho atribuído.",
-        "Ajoutez la distance parcourue pour ce travail attribué."
-      )
+      langPick("MILEAGE","MILLAJE","KILOMÉTRAGE"),
+      langPick("Log drive","Registrar viaje","Enregistrer le trajet"),
+      langPick("Add the distance driven for this assigned job.","Agrega la distancia recorrida para este trabajo asignado.","Ajoutez la distance parcourue pour ce travail attribué.")
     );
     entityForm.innerHTML=`
       <div class="form-grid">
         <label class="full">${workerUnit==="km"
-          ? langPick("Kilometers","Kilómetros","Quilômetros","Kilomètres")
-          : langPick("Miles","Millas","Milhas","Miles")}
+          ? langPick("Kilometers","Kilómetros","Kilomètres")
+          : langPick("Miles","Millas","Miles")}
           <input name="distance" type="number" min="0.1" step="0.1" inputmode="decimal" required placeholder="0.0">
         </label>
-        <label class="full">${langPick("Note (optional)","Nota (opcional)","Nota (opcional)","Note (facultative)")}
-          <input name="notes" maxlength="240" placeholder="${langPick("Example: supply stop","Ej. parada de suministros","Ex.: parada para materiais","Ex. : arrêt fournitures")}">
+        <label class="full">${langPick("Note (optional)","Nota (opcional)","Note (facultative)")}
+          <input name="notes" maxlength="240" placeholder="${langPick("Example: supply stop","Ej. parada de suministros","Ex. : arrêt fournitures")}">
         </label>
       </div>
-      ${formSubmit(langPick("Save mileage","Guardar millaje","Salvar quilometragem","Enregistrer"))}`;
+      ${formSubmit(langPick("Save mileage","Guardar millaje","Enregistrer"))}`;
     modal.hidden=false;
     requestAnimationFrame(()=>entityForm.querySelector('[name="distance"]')?.focus());
     return;
@@ -8980,7 +8665,7 @@ document.addEventListener("click",async e=>{
   const clientQuote=e.target.closest("[data-client-to-quote]");
   if(clientQuote){
     const client=state.clients.find(c=>c.id===clientQuote.dataset.clientToQuote);
-    if(!client){ showToast(langPick("Client not found","Cliente no encontrado","Cliente não encontrado","Client introuvable")); return; }
+    if(!client){ showToast(langPick("Client not found","Cliente no encontrado","Client introuvable")); return; }
     openEntityForm("quote");
     setTimeout(()=>{
       const address=[client.address_line1,client.city,client.state,client.postal_code].filter(Boolean).join(", ");
@@ -9306,7 +8991,7 @@ $$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
   if(!state.business || state.business.role!=="owner"){
-    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
+    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
     return;
   }
   const select=$("#customerEmailLanguageSelect");
@@ -9315,7 +9000,7 @@ if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("
     saveCustomerEmailLanguageBtn.disabled=true;
     const original=saveCustomerEmailLanguageBtn.textContent;
     saveCustomerEmailLanguageBtn.dataset.originalText=original;
-    saveCustomerEmailLanguageBtn.textContent=langPick("Saving…","Guardando…","Salvando…","Enregistrement…");
+    saveCustomerEmailLanguageBtn.textContent=langPick("Saving…","Guardando…","Enregistrement…");
     const {data,error}=await supabase.from("businesses")
       .update({customer_email_language:language,updated_at:new Date().toISOString()})
       .eq("id",state.business.id)
@@ -9324,12 +9009,12 @@ if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("
     if(error) throw error;
     state.business.customer_email_language=data?.customer_email_language||language;
     renderSettings();
-    showToast(langPick("Client email language saved","Idioma de emails guardado","Idioma dos e-mails salvo","Langue des e-mails enregistrée"));
+    showToast(langPick("Client email language saved","Idioma de emails guardado","Langue des e-mails enregistrée"));
   }catch(err){
-    showToast(err.message||langPick("Could not save language","No se pudo guardar el idioma","Não foi possível salvar o idioma","Impossible d’enregistrer la langue"));
+    showToast(err.message||langPick("Could not save language","No se pudo guardar el idioma","Impossible d’enregistrer la langue"));
   }finally{
     saveCustomerEmailLanguageBtn.disabled=false;
-    saveCustomerEmailLanguageBtn.textContent=saveCustomerEmailLanguageBtn.dataset.originalText||langPick("Save language","Guardar idioma","Salvar idioma","Enregistrer");
+    saveCustomerEmailLanguageBtn.textContent=saveCustomerEmailLanguageBtn.dataset.originalText||langPick("Save language","Guardar idioma","Enregistrer");
   }
 });
 
@@ -9473,18 +9158,13 @@ function customerShareAppUrl(){
 async function shareCleaningApp(){
   const url=customerShareAppUrl();
   const title="The Launch Era Cleaning App";
-  const text=langPick(
-    "Keep bookings, clients, jobs, quotes and invoices organized in one place.",
-    "Organiza reservas, clientes, trabajos, cotizaciones y facturas en un solo lugar.",
-    "Organize reservas, clientes, trabalhos, orçamentos e faturas em um só lugar.",
-    "Gardez réservations, clients, travaux, devis et factures organisés au même endroit."
-  );
+  const text=langPick("Keep bookings, clients, jobs, quotes and invoices organized in one place.","Organiza reservas, clientes, trabajos, cotizaciones y facturas en un solo lugar.","Gardez réservations, clients, travaux, devis et factures organisés au même endroit.");
 
   if(navigator.share){
     try{
       await navigator.share({title,text,url});
       trackGoogleEvent("share_app",{share_method:"native",share_location:"footer"});
-      showToast(langPick("App shared","App compartida","App compartilhado","Application partagée"));
+      showToast(langPick("App shared","App compartida","Application partagée"));
       return;
     }catch(err){
       if(err?.name==="AbortError") return;
@@ -9494,7 +9174,7 @@ async function shareCleaningApp(){
   try{
     await navigator.clipboard.writeText(url);
     trackGoogleEvent("share_app",{share_method:"copy",share_location:"footer"});
-    showToast(langPick("App link copied","Link de la app copiado","Link do app copiado","Lien de l’application copié"));
+    showToast(langPick("App link copied","Link de la app copiado","Lien de l’application copié"));
   }catch{
     await copyText(url);
     trackGoogleEvent("share_app",{share_method:"copy_fallback",share_location:"footer"});
@@ -9563,7 +9243,7 @@ async function refreshInstalledApp(){
   button.classList.add("is-refreshing");
   const label=button.querySelector(".top-label");
   const previousLabel=label?.textContent||"Refresh";
-  if(label) label.textContent=langPick("Refreshing…","Actualizando…","Atualizando…","Actualisation…");
+  if(label) label.textContent=langPick("Refreshing…","Actualizando…","Actualisation…");
 
   try{
     const latest=await getLatestAppShellVersion();
@@ -9575,12 +9255,7 @@ async function refreshInstalledApp(){
     );
 
     if(shellChanged){
-      showToast(langPick(
-        "App update ready. Loading the newest version without signing you out.",
-        "Actualización lista. Cargando la versión más reciente sin cerrar tu sesión.",
-        "Atualização pronta. Carregando a versão mais recente sem sair da conta.",
-        "Mise à jour prête. Chargement de la version la plus récente sans déconnexion."
-      ));
+      showToast(langPick("App update ready. Loading the newest version without signing you out.","Actualización lista. Cargando la versión más reciente sin cerrar tu sesión.","Mise à jour prête. Chargement de la version la plus récente sans déconnexion."));
       await hardRefreshInstalledApp(latest?.app||latest?.css||String(Date.now()));
       return;
     }
@@ -9616,13 +9291,13 @@ async function refreshInstalledApp(){
     if(unreadAfter>unreadBefore){
       const newest=getInquiryNotifications()[0];
       const summary=[newest?.name,newest?.service].filter(Boolean).join(" · ");
-      showToast(langPick("New inquiry","Nuevo inquiry","Novo contato","Nouvelle demande")+(summary?" · "+summary:""));
+      showToast(langPick("New inquiry","Nuevo inquiry","Nouvelle demande")+(summary?" · "+summary:""));
     }else{
-      showToast(langPick("Everything is up to date","Todo actualizado","Tudo atualizado","Tout est à jour"));
+      showToast(langPick("Everything is up to date","Todo actualizado","Tout est à jour"));
     }
   }catch(err){
     console.warn("[TLE] manual refresh",err);
-    showToast(langPick("Could not refresh. Try again.","No se pudo actualizar. Intenta otra vez.","Não foi possível atualizar. Tente novamente.","Impossible d’actualiser. Réessayez."));
+    showToast(langPick("Could not refresh. Try again.","No se pudo actualizar. Intenta otra vez.","Impossible d’actualiser. Réessayez."));
   }finally{
     button.disabled=false;
     button.classList.remove("is-refreshing");

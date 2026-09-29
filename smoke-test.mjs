@@ -192,7 +192,7 @@ const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
 if(spanishOnlyBranches!==1){
   throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
 }
-if(!app.includes("function langPick(en,es,_pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
+if(!app.includes("function langPick(en,es,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
 if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18n)){

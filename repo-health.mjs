@@ -80,7 +80,15 @@ if(/PRIMARY_PLATFORM_ADMIN_EMAIL|LEGACY_PLATFORM_ADMIN_EMAIL|isPrimaryPlatformAd
 
 if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   fail("active language set must be EN/ES/FR/HT");
+}
+if(/function langPick\(en,es,_pt,fr\)/.test(app)){
+  fail("legacy Portuguese langPick argument returned");
+}else if(!app.includes("function langPick(en,es,fr)")){
+  fail("langPick must expose EN/ES/FR with Haitian Creole resolved through i18n");
 }else{
+  pass("langPick runtime no longer carries a Portuguese argument");
+}
+else{
   pass("active language set is EN/ES/FR/HT");
 }
 if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){

@@ -1,24 +1,24 @@
-const CACHE_NAME="tle-cleaning-app-20260929-i18n-deadcode-202";
+const CACHE_NAME="tle-cleaning-app-20260929-langpick-cleanup-203";
 const CORE=[
-  "./boot.js?v=20260929-i18n-deadcode-202",
-  "./styles/boot.css?v=20260929-i18n-deadcode-202",
+  "./boot.js?v=20260929-langpick-cleanup-203",
+  "./styles/boot.css?v=20260929-langpick-cleanup-203",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-i18n-deadcode-202",
-  "./styles/workspace-components.css?v=20260929-i18n-deadcode-202",
-  "./styles/workspace-experience.css?v=20260929-i18n-deadcode-202",
-  "./styles/workspace-operations.css?v=20260929-i18n-deadcode-202",
-  "./styles/release-overrides.css?v=20260929-i18n-deadcode-202",
-  "./styles/release-mobile.css?v=20260929-i18n-deadcode-202",
-  "./styles/release-latest.css?v=20260929-i18n-deadcode-202",
-  "./styles/responsive-shell.css?v=20260929-i18n-deadcode-202",
-  "./styles/customer-documents.css?v=20260929-i18n-deadcode-202",
-  "./app.js?v=20260929-i18n-deadcode-202",
-  "./followups.js?v=20260929-i18n-deadcode-202",
-  "./i18n.js?v=20260929-i18n-deadcode-202",
-  "./public.js?v=20260929-i18n-deadcode-202",
-  "./vendor/supabase.js?v=20260929-i18n-deadcode-202",
-  "./manifest.webmanifest?v=20260929-i18n-deadcode-202"
+  "./styles.css?v=20260929-langpick-cleanup-203",
+  "./styles/workspace-components.css?v=20260929-langpick-cleanup-203",
+  "./styles/workspace-experience.css?v=20260929-langpick-cleanup-203",
+  "./styles/workspace-operations.css?v=20260929-langpick-cleanup-203",
+  "./styles/release-overrides.css?v=20260929-langpick-cleanup-203",
+  "./styles/release-mobile.css?v=20260929-langpick-cleanup-203",
+  "./styles/release-latest.css?v=20260929-langpick-cleanup-203",
+  "./styles/responsive-shell.css?v=20260929-langpick-cleanup-203",
+  "./styles/customer-documents.css?v=20260929-langpick-cleanup-203",
+  "./app.js?v=20260929-langpick-cleanup-203",
+  "./followups.js?v=20260929-langpick-cleanup-203",
+  "./i18n.js?v=20260929-langpick-cleanup-203",
+  "./public.js?v=20260929-langpick-cleanup-203",
+  "./vendor/supabase.js?v=20260929-langpick-cleanup-203",
+  "./manifest.webmanifest?v=20260929-langpick-cleanup-203"
 ];
 
 self.addEventListener("install",event=>{
