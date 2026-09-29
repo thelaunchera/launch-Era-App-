@@ -7,6 +7,7 @@ const html = read("index.html");
 const sw = read("service-worker.js");
 const i18n = read("i18n.js");
 const publicJs = read("public.js");
+const onboardingCopy = read("onboarding-copy.js");
 const manifest = JSON.parse(read("manifest.webmanifest"));
 
 const fail = message => {
@@ -58,6 +59,8 @@ for(const file of expectedStyleOrder){
 if(!process.exitCode) pass("stylesheet module order and service-worker cache list are synchronized");
 if(!html.includes("./boot.js?v="+appVersion)) fail("boot.js is missing from the versioned app shell");
 if(!sw.includes("./boot.js?v="+appVersion)) fail("service worker core is missing boot.js");
+if(!html.includes("./onboarding-copy.js?v="+appVersion)) fail("onboarding-copy.js is missing from the versioned app shell");
+if(!sw.includes("./onboarding-copy.js?v="+appVersion)) fail("service worker core is missing onboarding-copy.js");
 
 
 if(fs.existsSync("admin-reset.html")){
@@ -105,6 +108,17 @@ if(/\bpt:\s*\{/.test(i18n) || /Português|Portuguese/.test(i18n)){
 }else{
   pass("legacy Portuguese dictionaries are absent");
 }
+
+if(!app.includes("function langPick(en,es,fr)")){
+  fail("langPick must use the active EN/ES/FR signature; Haitian Creole comes from i18n");
+}else{
+  pass("dynamic language helper uses the active language signature");
+}
+if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(onboardingCopy) || /Português|Portuguese/.test(onboardingCopy)){
+  fail("inactive Portuguese payload remains in app.js or onboarding-copy.js");
+}else{
+  pass("inactive Portuguese payload is absent from app and onboarding copy");
+}
 if(
   !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
   !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
@@ -121,6 +135,7 @@ else pass("service worker sensitive URL cache guard is present");
 
 const limits={
   "app.js":525000,
+  "onboarding-copy.js":18000,
   "boot.js":6000,
   "styles/boot.css":5000,
   "styles.css":80000,
