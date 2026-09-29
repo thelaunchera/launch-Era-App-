@@ -241,10 +241,12 @@ if(!app.includes("function trackAuthLandingOnHumanInteraction()") ||
    !app.includes("HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed")){
   throw new Error("Analytics regression: human login tracking or automated traffic filtering is missing");
 }
-if(!html.includes('Preferred time <span class="field-optional">(optional)</span>') ||
-   !publicJs.includes('quoteTimeInput.required=false') ||
-   !publicJs.includes('p_preferred_time:String(fd.get("time")||"").trim()||null')){
-  throw new Error("Quote regression: preferred time must remain optional and submit null when blank");
+if(!publicJs.includes('if(quoteTimeWrap) quoteTimeWrap.hidden=true;') ||
+   !publicJs.includes('if(slotsWrap) slotsWrap.hidden=false;') ||
+   !publicJs.includes('if(!selectedSlot) throw new Error(tt("Choose one of the available times."));') ||
+   !publicJs.includes('p_preferred_time:slotLocalTimeValue(selectedSlot)') ||
+   publicJs.includes('if(mode==="quote" || !slotsBox || !slotInput) return;')){
+  throw new Error("Quote availability regression: quote requests must use real available slots and reject free-form times");
 }
 if(!app.includes('launcher.href="weather://"') || app.includes('window.location.href="weather://"')){
   throw new Error("iOS regression: Weather must not replace the PWA document");
