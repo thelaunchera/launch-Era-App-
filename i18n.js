@@ -52,6 +52,12 @@
     "Decline selected. Tap Submit quote to confirm.":"Rechazar seleccionado. Toca Enviar cotización para confirmar.",
     "Accept selected. Tap Submit quote to confirm.":"Aceptar seleccionado. Toca Enviar cotización para confirmar.",
     "Submitted ✓":"Enviado ✓",
+    "Review your invoice details below.":"Revisa los detalles de tu factura.",
+    "Payment confirmed by the cleaning business.":"Pago confirmado por el negocio.",
+    "Payment method sent":"Forma de pago enviada",
+    "We received your payment choice.":"Recibimos tu forma de pago.",
+    "The business will confirm it once the payment is received.":"El negocio la confirmará cuando reciba el pago.",
+    "Done":"Listo",
     "Submitting your payment choice…":"Enviando tu forma de pago…",
     "Choose a payment method, then submit your choice.":"Elige una forma de pago y luego envía tu opción.",
     
