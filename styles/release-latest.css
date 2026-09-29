@@ -390,44 +390,78 @@
 }
 
 
-/* 2026-09-29 — night mobile card contrast safety v206 */
-/* Operational cards stay light on phones even after the 7 PM palette switch.
-   Keep the night atmosphere in the hero/ambient system, but never inherit
-   white night text onto white or ivory record surfaces. */
+/* 2026-09-29 — surface-aware contrast system v207 */
+/* Contrast follows the actual card surface, not the global day/night mood.
+   Light operational surfaces always use dark copy. Dark operational surfaces
+   always use light copy. Status pills keep their own semantic colors. */
+:root{
+  --tle-surface-light:#FFFDF9;
+  --tle-surface-white:#FFFFFF;
+  --tle-text-strong:#191919;
+  --tle-text-muted:#6F6A62;
+  --tle-text-on-dark:#FFFDF8;
+  --tle-text-on-dark-muted:rgba(255,253,248,.78);
+}
+
+/* Active Time Tracking is intentionally dark at night, so every label/action
+   inside it must use the on-dark contrast set at every responsive width. */
+.app-shell[data-palette-mode="night"] [data-page="time"] .timer-card{
+  color:var(--tle-text-on-dark)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="time"] .timer-card :is(h3,strong){
+  color:var(--tle-text-on-dark)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="time"] .timer-card>span{
+  color:var(--tle-text-on-dark-muted)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="time"] .timer-card .ghost-btn{
+  background:#FFF8EE!important;
+  color:var(--tle-text-strong)!important;
+  border-color:rgba(255,253,248,.82)!important;
+}
+
+/* Phone record cards stay light even after the 7 PM palette switch. */
 @media(max-width:680px){
   .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact,
-  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card,
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card,
   .app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card{
-    color:#191919!important;
+    color:var(--tle-text-strong)!important;
     border-color:rgba(25,25,25,.12)!important;
   }
 
   .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact{
-    background:#FFFDF9!important;
+    background:var(--tle-surface-light)!important;
   }
-  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card{
-    background:#FFFFFF!important;
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card{
+    background:var(--tle-surface-white)!important;
   }
   .app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card{
     background:#FCFBF8!important;
   }
 
   .app-shell[data-palette-mode="night"] [data-page="clients"] :is(.client-card-identity strong,.client-business-snapshot b),
-  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card :is(.record-primary>strong,.record-field),
   .app-shell[data-palette-mode="night"] [data-page="invoices"] .invoice-next-action,
   .app-shell[data-palette-mode="night"] [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b){
-    color:#191919!important;
+    color:var(--tle-text-strong)!important;
   }
 
-  .app-shell[data-palette-mode="night"] [data-page="clients"] :is(.client-card-identity span,.client-business-snapshot small,.client-location),
-  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card>.record-primary small,
+  .app-shell[data-palette-mode="night"] [data-page="clients"] :is(.client-card-identity span,.client-business-snapshot small),
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card :is(.record-primary>small,.record-note),
   .app-shell[data-palette-mode="night"] [data-page="invoices"] .invoice-growth-row>.record-field>small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
   .app-shell[data-palette-mode="night"] [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span){
-    color:#6F6A62!important;
+    color:var(--tle-text-muted)!important;
   }
 
+  .app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card>.record-field::before{
+    color:var(--tle-text-muted)!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-location{
+    color:var(--tle-text-muted)!important;
+  }
   .app-shell[data-palette-mode="night"] [data-page="clients"] .client-avatar{
-    color:#191919!important;
+    color:var(--tle-text-strong)!important;
   }
   .app-shell[data-palette-mode="night"] [data-page="clients"] .client-balance{
     background:#E8F5E9!important;
@@ -438,12 +472,62 @@
     color:#725400!important;
   }
 
-  /* release-latest intentionally keeps Next Move on a light semantic surface;
-     override the earlier night-copy rule so contrast follows that surface. */
+  /* Empty Mileage / Time states sit inside a dark outer table at night;
+     give the message its own light surface on phones. */
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table{
+    margin:8px!important;
+    border-radius:16px!important;
+    background:var(--tle-surface-white)!important;
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
+    color:var(--tle-text-muted)!important;
+  }
+
+  /* Next Move remains a light semantic surface even when the ambient palette is night. */
   .app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel{
-    color:#191919!important;
+    color:var(--tle-text-strong)!important;
   }
   .app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel :is(.eyebrow,p){
-    color:#6F6A62!important;
+    color:var(--tle-text-muted)!important;
+  }
+}
+
+/* Tablet / desktop: night-mode operational cards are genuinely dark.
+   Explicitly use light copy instead of inheriting daytime muted colors. */
+@media(min-width:681px){
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact{
+    color:var(--tle-text-on-dark)!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location){
+    color:var(--tle-text-on-dark)!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small){
+    color:var(--tle-text-on-dark-muted)!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-avatar{
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card-actions button:not(.record-delete-btn){
+    background:#FFF8EE!important;
+    color:var(--tle-text-strong)!important;
+    border-color:rgba(255,253,248,.42)!important;
+  }
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card-actions .record-delete-btn{
+    background:#FFF3F1!important;
+    color:#8F332C!important;
+    border-color:#E8B8B1!important;
+  }
+
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note),
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
+    color:var(--tle-text-on-dark)!important;
+  }
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-primary>small,
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
+    color:var(--tle-text-on-dark-muted)!important;
+  }
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-field::before{
+    color:var(--tle-text-on-dark-muted)!important;
   }
 }

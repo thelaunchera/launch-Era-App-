@@ -60,15 +60,15 @@ const styles=[
 
 
 if(
-  !styles.includes("night mobile card contrast safety v206") ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="quotes"] .quote-growth-card') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="today"] .next-move-panel') ||
-  !styles.includes("color:#191919!important") ||
-  !styles.includes("background:#FFFFFF!important")
+  !styles.includes("surface-aware contrast system v207") ||
+  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
+  !styles.includes('[data-page="time"] .timer-card .ghost-btn') ||
+  !styles.includes('[data-page="clients"] .client-card.client-card-compact') ||
+  !styles.includes('.table-row:not(.table-head)') ||
+  !styles.includes("var(--tle-text-on-dark)") ||
+  !styles.includes("var(--tle-text-strong)")
 ){
-  throw new Error("Night contrast regression: light mobile cards must keep readable text after the 7 PM palette switch");
+  throw new Error("Contrast regression: card text must follow the actual light or dark surface across phone, tablet and desktop");
 }
 
 const dom=new JSDOM(html,{
