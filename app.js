@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-cta-hierarchy-129";
+const APP_VERSION = "20260929-app-entry-130";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1338,30 +1338,30 @@ function prepareDirectAuth(){
 
 function syncAuthWelcomeCopy(){
   const copy={
-    badge:langPick("30 DAYS FREE","30 DÍAS GRATIS","30 DIAS GRÁTIS","30 JOURS GRATUITS"),
+    badge:langPick("CLEANING APP","CLEANING APP","CLEANING APP","CLEANING APP"),
     title:langPick(
-      "Run your cleaning business with less back-and-forth.",
-      "Maneja tu cleaning business con menos idas y vueltas.",
-      "Gerencie sua empresa de limpeza com menos idas e vindas.",
-      "Gérez votre entreprise de nettoyage avec moins d’allers-retours."
+      "Your cleaning business shouldn’t live in DMs, notes and memory.",
+      "Tu negocio de limpieza no debería vivir entre DMs, notas y tu memoria.",
+      "Seu negócio de limpeza não deveria viver entre DMs, notas e sua memória.",
+      "Votre entreprise de nettoyage ne devrait pas vivre entre les DMs, les notes et votre mémoire."
     ),
     text:langPick(
-      "Bookings, clients, jobs, quotes, invoices, routes and your team — organized in one place.",
-      "Reservas, clientes, trabajos, cotizaciones, facturas, rutas y tu equipo — organizados en un solo lugar.",
-      "Reservas, clientes, trabalhos, orçamentos, faturas, rotas e sua equipe — organizados em um só lugar.",
-      "Réservations, clients, interventions, devis, factures, itinéraires et équipe — réunis au même endroit."
+      "Keep clients, quotes, bookings, jobs and invoices in one organized place.",
+      "Mantén clientes, cotizaciones, reservas, trabajos y facturas organizados en un solo lugar.",
+      "Mantenha clientes, orçamentos, reservas, trabalhos e faturas organizados em um só lugar.",
+      "Gardez clients, devis, réservations, interventions et factures organisés au même endroit."
     ),
-    trial:langPick("30 days free","30 días gratis","30 dias grátis","30 jours gratuits"),
-    noCard:langPick("No card needed","Sin tarjeta","Sem cartão","Sans carte"),
-    after:langPick("Then $5.99/month","Después $5.99/mes","Depois US$ 5,99/mês","Puis 5,99 $/mois"),
+    trial:langPick("Simple setup","Configuración simple","Configuração simples","Configuration simple"),
+    noCard:langPick("No card required","Sin tarjeta","Sem cartão","Sans carte"),
+    after:langPick("","", "", ""),
     start:langPick("Get 30 days free","Obtén 30 días gratis","Ganhe 30 dias grátis","Obtenez 30 jours gratuits"),
     signin:langPick("Sign in","Iniciar sesión","Entrar","Se connecter"),
     existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Já tem uma conta?","Vous avez déjà un compte ?"),
     note:langPick(
-      "Set up your workspace in a few minutes. We’ll guide you through the first steps.",
-      "Configura tu espacio en unos minutos. Te guiamos en los primeros pasos.",
-      "Configure seu espaço em poucos minutos. Nós guiamos seus primeiros passos.",
-      "Configurez votre espace en quelques minutes. Nous vous guidons dans les premières étapes."
+      "No card required · Then $5.99/month",
+      "Sin tarjeta · Después $5.99/mes",
+      "Sem cartão · Depois US$ 5,99/mês",
+      "Sans carte · Puis 5,99 $/mois"
     ),
     back:langPick("← Back","← Volver","← Voltar","← Retour")
   };
