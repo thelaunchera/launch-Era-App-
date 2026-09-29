@@ -1,0 +1,6091 @@
+@media(max-width:680px){
+  /* Sections breathe more like a native app */
+  .section-intro{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    align-items:start!important;
+    gap:14px!important;
+    margin-bottom:18px!important;
+  }
+  .section-intro h2{
+    font-size:clamp(29px,10vw,40px)!important;
+    line-height:1.05!important;
+  }
+  .section-intro>.primary-btn,
+  .section-intro>.section-actions{
+    width:100%;
+  }
+  .section-intro>.primary-btn{
+    min-height:50px;
+  }
+
+  /* Replace desktop tables with clean stacked cards */
+  .table-card{
+    border:0!important;
+    background:transparent!important;
+    overflow:visible!important;
+    border-radius:0!important;
+  }
+  .table-card>.table-head{
+    display:none!important;
+  }
+  #leadsTable,
+  #invoicesTable,
+  #mileageTable,
+  #timeEntriesTable{
+    display:grid;
+    gap:12px;
+  }
+  .mobile-record-card{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+    padding:16px!important;
+    border:1px solid var(--line)!important;
+    border-radius:19px!important;
+    background:#fff!important;
+    box-shadow:0 8px 24px rgba(25,25,25,.025);
+  }
+  .mobile-record-card>.record-primary{
+    padding-bottom:10px;
+    border-bottom:1px solid #EEEAE2;
+  }
+  .mobile-record-card>.record-primary strong{
+    font-size:17px;
+    line-height:1.2;
+  }
+  .mobile-record-card>.record-primary small{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .mobile-record-card>.record-field{
+    display:grid!important;
+    grid-template-columns:minmax(80px,.75fr) minmax(0,1.25fr);
+    align-items:center;
+    gap:12px;
+    min-height:28px;
+    font-size:13px;
+  }
+  .mobile-record-card>.record-field:before{
+    content:attr(data-label);
+    color:#8A857D;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .mobile-record-card>.record-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding-top:11px;
+    border-top:1px solid #EEEAE2;
+  }
+  .mobile-record-card .safe-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+  }
+  .mobile-record-card .safe-actions button{
+    min-height:40px;
+    width:100%;
+    padding:9px 10px!important;
+    font-size:11px!important;
+    border-radius:12px!important;
+  }
+  .mobile-record-card .record-delete-btn,
+  .record-card-actions .record-delete-btn{
+    width:100%;
+    min-height:44px;
+    margin-top:2px;
+  }
+
+  /* Client cards */
+  .client-grid{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .client-card{
+    padding:17px!important;
+    border-radius:19px!important;
+  }
+  .client-card .client-avatar{
+    width:40px;
+    height:40px;
+    margin-bottom:4px;
+  }
+  .client-card>strong{
+    font-size:18px;
+  }
+  .client-card>span,
+  .client-card>small{
+    overflow-wrap:anywhere;
+  }
+  .record-card-actions{
+    padding-top:11px;
+    margin-top:8px!important;
+    border-top:1px solid #EEEAE2;
+  }
+  .record-card-actions .safe-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+  }
+  .record-card-actions .safe-actions button{
+    width:100%;
+    min-height:40px;
+    border-radius:12px!important;
+  }
+
+  /* Quotes: one clean column instead of a squeezed Kanban */
+  .kanban{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .kanban-col{
+    border-radius:18px!important;
+    padding:12px!important;
+  }
+  .kanban-col h3{
+    margin:2px 2px 9px!important;
+  }
+  .kanban-col article{
+    padding:15px!important;
+    border-radius:16px!important;
+  }
+  .kanban-col .record-card-actions{
+    display:grid!important;
+  }
+
+  /* Calendar job list */
+  .job-block{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    align-items:start!important;
+    padding:15px!important;
+    border-radius:17px!important;
+  }
+  .job-block>time{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:900;
+  }
+  .job-block>.record-actions{
+    display:flex!important;
+    grid-column:auto!important;
+    justify-content:flex-start!important;
+    padding-top:9px;
+    border-top:1px solid #EEEAE2;
+  }
+  .buffer-block{
+    padding-left:12px!important;
+  }
+
+  /* Booking request rows and other split rows */
+  .booking-request-row{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .booking-request-row>.record-actions{
+    justify-content:flex-start!important;
+  }
+
+  /* Dashboard feels lighter and faster */
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  [data-page="today"] .metric-card{
+    padding:16px!important;
+    border-radius:18px!important;
+    min-height:125px;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    line-height:1.25;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:29px!important;
+    margin:9px 0 4px!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:11px;
+    line-height:1.35;
+  }
+  [data-page="today"] .metric-card:last-child{
+    grid-column:1/-1;
+    min-height:auto;
+  }
+  .dashboard-grid,
+  .dashboard-grid.lower{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  .quick-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .quick-card{
+    min-height:84px!important;
+    padding:12px!important;
+    border-radius:16px!important;
+    font-size:20px!important;
+  }
+  .quick-card span{
+    font-size:10px!important;
+    line-height:1.25;
+    margin-top:14px!important;
+  }
+  .timeline-item{
+    grid-template-columns:62px 1fr!important;
+    gap:9px!important;
+  }
+  .timeline-item>.status{
+    grid-column:2;
+  }
+
+  /* Social / booking presence stays compact */
+  .presence-panel{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+    padding:18px!important;
+    border-radius:20px!important;
+  }
+  .presence-actions{
+    grid-template-columns:1fr!important;
+    width:100%;
+  }
+  .presence-btn{
+    min-height:56px;
+    padding:10px 12px;
+  }
+}
+
+@media(max-width:410px){
+  [data-page="today"] .metric-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .quick-grid{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .mobile-record-card .safe-actions,
+  .record-card-actions .safe-actions{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .view.view-enter{animation:none!important}
+  .metric-card,.panel,.client-card,.kanban-col article,.job-block,.mobile-record-card,
+  .quick-card,.primary-btn,.dark-btn,.ghost-btn,.text-btn,.card-actions button,.record-actions button,.presence-btn{
+    transition:none!important;
+  }
+}
+
+.table-head.mileage-head{grid-template-columns:1.1fr .7fr 1.1fr .7fr}
+.table-head.time-head{grid-template-columns:1.25fr .7fr .7fr .8fr}
+
+/* 2026-09-27 mobile list hardening + premium dashboard */
+html,body{max-width:100%;overflow-x:hidden}
+.app-shell,.main,.view,.table-card,.client-grid,.kanban,.dashboard-grid{min-width:0;max-width:100%}
+.main{overflow-x:clip}
+
+/* Destructive actions must never look like ordinary actions */
+.record-delete-btn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  width:100%!important;
+  min-height:48px!important;
+  margin-top:4px!important;
+  border:1px solid #E3B9B2!important;
+  background:#FFF1EE!important;
+  color:#8A352E!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+.record-delete-btn::before{
+  content:"Delete";
+  display:none;
+}
+.record-delete-btn:hover{
+  background:#FCE8E4!important;
+  border-color:#D9A59C!important;
+}
+.record-actions>.record-delete-btn,
+.record-card-actions>.record-delete-btn{
+  border-top:1px solid transparent;
+}
+
+/* Dashboard polish */
+[data-page="today"]{
+  --dash-shadow:0 12px 38px rgba(25,25,25,.045);
+}
+[data-page="today"] .hero-card,
+[data-page="today"] .weather-brief,
+[data-page="today"] .metric-card,
+[data-page="today"] .panel{
+  box-shadow:var(--dash-shadow);
+}
+[data-page="today"] .hero-card,
+[data-page="today"] .weather-brief,
+[data-page="today"] .presence-panel{
+  transition:transform .26s cubic-bezier(.2,.8,.2,1),box-shadow .26s ease,background-color .45s ease;
+}
+[data-page="today"] .hero-card:active,
+[data-page="today"] .presence-btn:active{
+  transform:scale(.992);
+}
+.presence-panel{
+  border:1px solid #E9E4DA!important;
+  box-shadow:0 14px 40px rgba(25,25,25,.04);
+}
+.presence-mark{
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#presenceInstagramBtn .presence-mark{font-family:Arial,sans-serif}
+#presenceFacebookBtn .presence-mark{font-family:Arial,sans-serif}
+.presence-btn.connected small::after{
+  content:" · connected";
+  opacity:.72;
+}
+
+@media(max-width:680px){
+  /* No horizontal table UI on phones, anywhere */
+  .table-card{
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  .table-card .table-head{
+    display:none!important;
+  }
+  .table-card .table-row:not(.table-head),
+  #leadsTable .table-row,
+  #invoicesTable .table-row,
+  #mileageTable .table-row,
+  #timeEntriesTable .table-row{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    gap:8px!important;
+    padding:16px!important;
+    overflow:hidden!important;
+    border:1px solid var(--line)!important;
+    border-radius:20px!important;
+    background:#fff!important;
+  }
+  .table-card .table-row:not(.table-head)>*{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  .mobile-record-card>.record-primary{
+    display:grid!important;
+    gap:3px!important;
+    padding-bottom:11px!important;
+  }
+  .mobile-record-card>.record-primary strong{
+    font-size:18px!important;
+    letter-spacing:-.015em;
+  }
+  .mobile-record-card>.record-primary small{
+    font-size:12px!important;
+    line-height:1.35!important;
+    overflow-wrap:anywhere!important;
+  }
+  .mobile-record-card>.record-field{
+    display:flex!important;
+    justify-content:space-between!important;
+    align-items:flex-start!important;
+    gap:14px!important;
+    min-height:0!important;
+    padding:3px 0!important;
+    line-height:1.35!important;
+  }
+  .mobile-record-card>.record-field:before{
+    flex:0 0 auto!important;
+    max-width:42%!important;
+  }
+  .mobile-record-card>.record-field>strong,
+  .mobile-record-card>.record-field>i,
+  .mobile-record-card>.record-field>small{
+    text-align:right!important;
+    overflow-wrap:anywhere!important;
+  }
+  .mobile-record-card>.record-actions{
+    margin-top:5px!important;
+    padding-top:13px!important;
+    gap:13px!important;
+  }
+  .mobile-record-card .safe-actions,
+  .record-card-actions .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .mobile-record-card .safe-actions button,
+  .record-card-actions .safe-actions button{
+    min-width:0!important;
+    min-height:44px!important;
+    padding:10px 8px!important;
+    border-radius:13px!important;
+    font-size:11px!important;
+    white-space:normal!important;
+    line-height:1.2!important;
+  }
+  .record-delete-btn{
+    min-height:50px!important;
+    margin-top:3px!important;
+    border-radius:15px!important;
+    font-size:12px!important;
+  }
+
+  /* Cards outside tables follow the same action hierarchy */
+  .client-card,
+  .kanban-col article{
+    overflow:hidden!important;
+  }
+  .record-card-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+
+  /* Cleaner dashboard rhythm */
+  [data-page="today"] .hero-card{
+    border-radius:26px!important;
+    padding:24px 20px!important;
+    margin-bottom:14px!important;
+  }
+  [data-page="today"] .hero-card h2{
+    font-size:clamp(34px,10.5vw,48px)!important;
+    line-height:.98!important;
+    margin:18px 0 12px!important;
+  }
+  [data-page="today"] .hero-card p{
+    font-size:15px!important;
+    line-height:1.45!important;
+    max-width:90%;
+  }
+  [data-page="today"] .hero-card .dark-btn{
+    margin-top:18px!important;
+    min-height:52px!important;
+    border-radius:17px!important;
+  }
+  [data-page="today"] .weather-brief{
+    box-shadow:0 10px 30px rgba(25,25,25,.035)!important;
+  }
+  [data-page="today"] .metric-grid{
+    gap:9px!important;
+  }
+  [data-page="today"] .metric-card{
+    min-height:112px!important;
+    padding:15px!important;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:10px!important;
+    text-transform:uppercase;
+    letter-spacing:.055em;
+  }
+  [data-page="today"] .metric-card small{
+    color:#8D887F!important;
+  }
+
+  /* Social + booking feels like a polished control center */
+  .presence-panel{
+    padding:16px!important;
+    gap:12px!important;
+    margin-top:4px!important;
+  }
+  .presence-copy h3{
+    font-size:20px!important;
+  }
+  .presence-actions{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .presence-btn{
+    display:grid!important;
+    justify-items:center!important;
+    text-align:center!important;
+    gap:7px!important;
+    min-height:88px!important;
+    padding:11px 7px!important;
+    border-radius:16px!important;
+  }
+  .presence-mark{
+    width:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    border-radius:12px!important;
+  }
+  .presence-btn>span:last-child{
+    justify-items:center!important;
+  }
+  .presence-btn strong{
+    font-size:10px!important;
+  }
+  .presence-btn small{
+    max-width:88px;
+    font-size:9px!important;
+  }
+  .presence-btn.connected small::after{
+    content:""!important;
+  }
+}
+
+@media(max-width:390px){
+  .mobile-record-card .safe-actions,
+  .record-card-actions .safe-actions{
+    grid-template-columns:1fr!important;
+  }
+  .presence-actions{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+
+/* Premium dashboard stagger + 4-way presence controls */
+.view[data-page="today"].view-enter > *{
+  animation:tleDashboardRise .38s cubic-bezier(.2,.8,.2,1) both;
+}
+.view[data-page="today"].view-enter > *:nth-child(1){animation-delay:0ms}
+.view[data-page="today"].view-enter > *:nth-child(2){animation-delay:35ms}
+.view[data-page="today"].view-enter > *:nth-child(3){animation-delay:70ms}
+.view[data-page="today"].view-enter > *:nth-child(4){animation-delay:105ms}
+.view[data-page="today"].view-enter > *:nth-child(5){animation-delay:140ms}
+.view[data-page="today"].view-enter > *:nth-child(6){animation-delay:175ms}
+@keyframes tleDashboardRise{
+  from{opacity:.15;transform:translateY(9px) scale(.995)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.presence-actions{
+  grid-template-columns:repeat(4,minmax(105px,1fr))!important;
+}
+#presenceInstagramBtn.connected .presence-mark{background:#191919}
+#presenceFacebookBtn.connected .presence-mark{background:#191919}
+#presenceGoogleBtn.connected .presence-mark{background:#191919}
+#presenceBookingBtn .presence-mark{background:#191919}
+@media(max-width:680px){
+  .presence-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .presence-btn{
+    min-height:76px!important;
+    grid-template-columns:36px minmax(0,1fr)!important;
+    justify-items:start!important;
+    text-align:left!important;
+    padding:11px!important;
+  }
+  .presence-btn>span:last-child{
+    justify-items:start!important;
+  }
+  .presence-btn small{
+    max-width:none!important;
+  }
+  .view[data-page="today"].view-enter > *{
+    animation-duration:.32s;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .view[data-page="today"].view-enter > *{animation:none!important}
+}
+
+/* Dashboard tap targets */
+.metric-link{
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.metric-link:active{
+  transform:scale(.985);
+}
+.metric-link:focus-visible{
+  outline:3px solid rgba(25,25,25,.16);
+  outline-offset:3px;
+}
+@media(hover:hover){
+  .metric-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px rgba(25,25,25,.06);
+  }
+}
+
+/* FINAL mobile record layout — vertical, readable, no compressed columns */
+@media(max-width:680px){
+  #leadsTable .mobile-record-card,
+  #invoicesTable .mobile-record-card,
+  #mileageTable .mobile-record-card,
+  #timeEntriesTable .mobile-record-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    gap:0!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:18px!important;
+    overflow:visible!important;
+  }
+
+  .mobile-record-card>.record-primary{
+    width:100%!important;
+    min-width:0!important;
+    padding:0 0 13px!important;
+    margin:0 0 11px!important;
+    border-bottom:1px solid #ECE7DD!important;
+  }
+  .mobile-record-card>.record-primary strong{
+    display:block!important;
+    font-size:19px!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+  }
+  .mobile-record-card>.record-primary small{
+    display:block!important;
+    margin-top:5px!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+    color:var(--muted)!important;
+  }
+
+  .mobile-record-card>.record-field{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    justify-content:stretch!important;
+    align-items:start!important;
+    gap:4px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:10px 0!important;
+    border-bottom:1px solid #F1EDE5!important;
+    text-align:left!important;
+    font-size:14px!important;
+    line-height:1.35!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+  }
+
+  .mobile-record-card>.record-field:before{
+    content:attr(data-label)!important;
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    color:#8A857D!important;
+    font-size:9px!important;
+    font-weight:900!important;
+    letter-spacing:.11em!important;
+    line-height:1.2!important;
+    text-transform:uppercase!important;
+    text-align:left!important;
+  }
+
+  .mobile-record-card>.record-field>strong,
+  .mobile-record-card>.record-field>i,
+  .mobile-record-card>.record-field>small{
+    width:auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    text-align:left!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+  }
+
+  /* Money must never break into vertical characters */
+  #invoicesTable .record-field[data-label="Amount"]>strong,
+  #invoicesTable .record-field[data-label="Monto"]>strong{
+    display:block!important;
+    width:max-content!important;
+    max-width:100%!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+    font-size:25px!important;
+    line-height:1!important;
+    letter-spacing:-.035em!important;
+  }
+
+  #invoicesTable .record-field .status{
+    justify-self:start!important;
+    width:max-content!important;
+    white-space:nowrap!important;
+  }
+
+  #invoicesTable .payment-choice-note{
+    display:block!important;
+    margin-top:3px!important;
+    color:#625A36!important;
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+
+  .mobile-record-card>.record-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    width:100%!important;
+    min-width:0!important;
+    padding:15px 0 0!important;
+    margin:2px 0 0!important;
+    border-top:0!important;
+  }
+
+  .mobile-record-card .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+
+  #invoicesTable .safe-actions{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+
+  .mobile-record-card .safe-actions button{
+    width:100%!important;
+    min-width:0!important;
+    min-height:46px!important;
+    padding:11px 12px!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+    white-space:normal!important;
+  }
+
+  .mobile-record-card .record-delete-btn,
+  .record-card-actions .record-delete-btn{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:52px!important;
+    margin:7px 0 0!important;
+    padding:13px 16px!important;
+    border-radius:16px!important;
+    font-size:13px!important;
+    line-height:1.2!important;
+  }
+
+  /* Client + quote cards use the same safe action hierarchy */
+  .client-card .record-card-actions,
+  .kanban-col article .record-card-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    padding-top:14px!important;
+    margin-top:10px!important;
+    border-top:1px solid #ECE7DD!important;
+  }
+  .client-card .record-card-actions .safe-actions,
+  .kanban-col article .record-card-actions .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .client-card .record-delete-btn,
+  .kanban-col article .record-delete-btn{
+    width:100%!important;
+    min-height:50px!important;
+    margin-top:4px!important;
+  }
+}
+
+@media(max-width:390px){
+  .mobile-record-card .safe-actions,
+  .client-card .record-card-actions .safe-actions,
+  .kanban-col article .record-card-actions .safe-actions{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
+
+
+/* Animated dashboard greeting */
+#todayHeroCard{
+  isolation:isolate;
+  border:1px solid rgba(25,25,25,.07);
+  transition:background-color .8s ease,border-color .8s ease,box-shadow .8s ease;
+}
+#todayHeroCard.assistant-arrival{
+  animation:tleGreetingEnter .58s cubic-bezier(.2,.8,.2,1) both;
+}
+#todayHeroCard::before{
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  right:-68px;
+  top:-78px;
+  border-radius:50%;
+  background:rgba(255,255,255,.22);
+  opacity:.42;
+  pointer-events:none;
+  z-index:0;
+  animation:tleGreetingOrb 7s ease-in-out infinite;
+}
+#todayHeroCard::after{
+  content:"";
+  position:absolute;
+  width:120px;
+  height:120px;
+  left:-46px;
+  bottom:-62px;
+  border-radius:50%;
+  background:rgba(255,255,255,.12);
+  opacity:.35;
+  pointer-events:none;
+  z-index:0;
+  animation:tleGreetingOrbSmall 9s ease-in-out infinite;
+}
+#todayHeroCard>div,
+#todayHeroCard>#todayHeroAction,
+#todayHeroCard>.hero-moment-icon{
+  position:relative;
+  z-index:1;
+}
+.hero-assistant-meta{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+@keyframes tleGreetingEnter{
+  0%{opacity:0;transform:translateY(10px) scale(.99)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes tleGreetingColorCycle{
+  0%,24.999%{background-color:#FFF0B7}
+  25%,49.999%{background-color:#DDEBFA}
+  50%,74.999%{background-color:#F8F5EE}
+  75%,99.999%{background-color:#E7E5FF}
+  100%{background-color:#FFF0B7}
+}
+@keyframes tleGreetingOrb{
+  0%,100%{transform:translate3d(0,0,0) scale(.95)}
+  50%{transform:translate3d(-18px,16px,0) scale(1.08)}
+}
+@keyframes tleGreetingOrbSmall{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(15px,-10px,0)}
+}
+@media (prefers-reduced-motion: reduce){
+  #todayHeroCard,
+  #todayHeroCard::before,
+  #todayHeroCard::after,
+  .trial-card{
+    animation:none!important;
+  }
+}
+
+/* Compact grouped visitor activity */
+#platformRecentVisits{
+  gap:0;
+}
+.visit-group{
+  padding:14px 0;
+  border-top:1px solid var(--line);
+}
+.visit-group:first-child{
+  border-top:0;
+  padding-top:4px;
+}
+.visit-group-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:14px;
+  align-items:start;
+}
+.visit-group-main>span{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.visit-group-main strong{
+  font-size:15px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+.visit-group-main small{
+  font-size:11px;
+  color:var(--muted);
+}
+.visit-group-main>time{
+  font-size:10px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.visit-group-details{
+  margin-top:8px;
+}
+.visit-group-details summary{
+  width:max-content;
+  list-style:none;
+  cursor:pointer;
+  font-size:10px;
+  font-weight:900;
+  color:var(--muted);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:6px 9px;
+  background:#fff;
+}
+.visit-group-details summary::-webkit-details-marker{display:none}
+.visit-group-details summary:after{content:" ↓"}
+.visit-group-details[open] summary:after{content:" ↑"}
+.visit-detail-list{
+  margin-top:9px;
+  padding:9px 10px;
+  border-radius:12px;
+  background:var(--ivory);
+  display:grid;
+  gap:7px;
+}
+.visit-detail-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  font-size:11px;
+}
+.visit-detail-row span{
+  color:var(--ink);
+  overflow-wrap:anywhere;
+}
+.visit-detail-row time{
+  color:var(--muted);
+  font-size:9px;
+  white-space:nowrap;
+}
+@media(max-width:620px){
+  .visit-group{
+    padding:13px 0;
+  }
+  .visit-group-main{
+    gap:10px;
+  }
+  .visit-group-main strong{
+    font-size:14px;
+  }
+}
+
+/* Admin activity controls */
+.activity-panel-head{
+  align-items:flex-start;
+  gap:12px;
+}
+.activity-refresh-btn,
+.activity-archive-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:999px;
+  font:900 10px/1 Futura,"Avenir Next",Arial,sans-serif;
+  padding:8px 10px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.activity-refresh-btn{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+.activity-refresh-btn:disabled,
+.activity-archive-btn:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+.activity-row-actions{
+  display:grid;
+  justify-items:end;
+  gap:7px;
+  flex:0 0 auto;
+}
+.activity-row-actions time{
+  white-space:nowrap;
+}
+.visit-group-actions{
+  margin-top:8px;
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.visit-group-actions .visit-group-details{
+  margin-top:0;
+}
+.activity-archive-btn{
+  color:#655F57;
+}
+@media(max-width:620px){
+  .activity-refresh-btn{
+    padding:8px 11px;
+  }
+  .activity-row-actions{
+    gap:6px;
+  }
+}
+
+/* Global installed-app refresh */
+.app-refresh-btn .top-icon{
+  display:inline-block;
+  font-size:18px;
+  line-height:1;
+  transform-origin:50% 50%;
+}
+.app-refresh-btn.is-refreshing .top-icon{
+  animation:tleManualRefreshSpin .8s linear infinite;
+}
+@keyframes tleManualRefreshSpin{
+  to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-refresh-btn.is-refreshing .top-icon{animation:none}
+}
+
+/* Inquiry notification bell */
+.top-actions{position:relative;align-items:center}
+.notification-shell{position:relative}
+.notification-bell-btn{position:relative}
+.notification-bell-icon{
+  display:inline-block;
+  position:relative;
+  width:18px;
+  height:18px;
+  font-size:0;
+}
+.notification-bell-icon:before{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:2px;
+  width:10px;
+  height:11px;
+  border:2px solid currentColor;
+  border-radius:7px 7px 5px 5px;
+  border-bottom-width:2px;
+}
+.notification-bell-icon:after{
+  content:"";
+  position:absolute;
+  left:8px;
+  bottom:0;
+  width:4px;
+  height:2px;
+  border-radius:999px;
+  background:currentColor;
+}
+.notification-bell-btn.has-notifications{
+  background:#FFF3A8;
+  border-color:#D4BC3E;
+}
+.notification-badge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#191919;
+  color:#fff;
+  border:2px solid #FAF8F3;
+  font-size:8px;
+  line-height:1;
+  font-weight:900;
+}
+.notification-popover{
+  position:absolute;
+  z-index:90;
+  right:0;
+  top:calc(100% + 10px);
+  width:min(360px,calc(100vw - 30px));
+  max-height:min(560px,70vh);
+  overflow:auto;
+  background:#fff;
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 22px 60px rgba(25,25,25,.16);
+  padding:12px;
+}
+.notification-popover-head{
+  position:sticky;
+  top:-12px;
+  z-index:2;
+  background:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:12px 8px 11px;
+  border-bottom:1px solid var(--line);
+}
+.notification-popover-head>div{display:grid;gap:2px}
+.notification-popover-head small{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+  color:var(--muted);
+}
+.notification-popover-head strong{font-size:17px}
+.notification-close-btn{
+  width:30px;
+  height:30px;
+  border:0;
+  border-radius:50%;
+  background:var(--ivory);
+  font-size:20px;
+  line-height:1;
+}
+.notification-list{display:grid}
+.notification-item{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  padding:13px 8px;
+  display:grid;
+  grid-template-columns:8px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  text-align:left;
+  cursor:pointer;
+}
+.notification-item:last-child{border-bottom:0}
+.notification-item.is-new{background:#FFFDF2}
+.notification-dot{
+  width:7px;
+  height:7px;
+  margin-top:6px;
+  border-radius:50%;
+  background:#D6D1C8;
+}
+.notification-item.is-new .notification-dot{background:var(--yellow);box-shadow:0 0 0 2px #191919}
+.notification-copy{display:grid;gap:3px;min-width:0}
+.notification-copy strong{font-size:13px;overflow-wrap:anywhere}
+.notification-copy small{font-size:10px;color:#514D46;font-weight:800}
+.notification-copy em{font-size:9px;color:var(--muted);font-style:normal}
+.notification-arrow{align-self:center;font-size:14px}
+.notification-empty{
+  padding:22px 12px;
+  display:grid;
+  gap:4px;
+  text-align:center;
+}
+.notification-empty strong{font-size:13px}
+.notification-empty span{font-size:10px;color:var(--muted)}
+@media(max-width:620px){
+  .notification-popover{
+    position:fixed;
+    top:72px;
+    right:12px;
+    left:12px;
+    width:auto;
+    max-height:66vh;
+  }
+}
+
+/* Inquiry detail opened from notification bell */
+.inquiry-detail-card{
+  display:grid;
+  gap:16px;
+}
+.inquiry-detail-service{
+  padding:18px;
+  border:1px solid var(--ink);
+  border-radius:18px;
+  background:var(--yellow);
+  display:grid;
+  gap:5px;
+}
+.inquiry-detail-service>span{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+}
+.inquiry-detail-service>strong{
+  font-family:Prompt,Arial,sans-serif;
+  font-size:25px;
+  line-height:1.05;
+  letter-spacing:-.03em;
+}
+.inquiry-detail-service>small{
+  width:max-content;
+  max-width:100%;
+  border:1px solid rgba(25,25,25,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.52);
+  padding:5px 8px;
+  font-size:9px;
+  font-weight:900;
+  text-transform:capitalize;
+}
+.inquiry-detail-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.inquiry-detail-grid>div{
+  min-width:0;
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  display:grid;
+  gap:4px;
+}
+.inquiry-detail-grid>div.full{
+  grid-column:1/-1;
+}
+.inquiry-detail-grid small{
+  font-size:9px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.inquiry-detail-grid strong,
+.inquiry-detail-grid p{
+  margin:0;
+  font-size:12px;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.inquiry-detail-actions{
+  flex-wrap:wrap;
+}
+@media(max-width:620px){
+  .inquiry-detail-grid{
+    grid-template-columns:1fr;
+  }
+  .inquiry-detail-grid>div.full{
+    grid-column:auto;
+  }
+  .inquiry-detail-actions{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .inquiry-detail-actions button{
+    width:100%;
+  }
+}
+
+/* Soft animated app atmosphere — Safari-safe, no fixed layers */
+.app-shell{
+  position:relative;
+  isolation:auto;
+  min-height:100vh;
+  min-height:100dvh;
+  background-color:#EEF9FF;
+  background-image:
+    radial-gradient(circle at 15% 18%,rgba(255,255,255,.34) 0 44px,rgba(178,226,250,.10) 45px 64px,transparent 65px),
+    radial-gradient(circle at 82% 28%,rgba(255,255,255,.24) 0 30px,rgba(178,226,250,.08) 31px 46px,transparent 47px),
+    radial-gradient(circle at 74% 72%,rgba(255,255,255,.22) 0 38px,rgba(178,226,250,.07) 39px 56px,transparent 57px),
+    radial-gradient(circle at 24% 82%,rgba(255,255,255,.18) 0 24px,rgba(178,226,250,.06) 25px 38px,transparent 39px),
+    linear-gradient(180deg,#F5FCFF 0%,#EAF7FF 52%,#F7FCFF 100%);
+  background-size:
+    520px 520px,
+    440px 440px,
+    600px 600px,
+    460px 460px,
+    100% 100%;
+  background-repeat:repeat;
+  background-position:
+    0 0,
+    180px 70px,
+    90px 260px,
+    300px 340px,
+    0 0;
+  animation:tleSafeBubbleBackground 36s ease-in-out infinite alternate;
+}
+.app-shell>.main{
+  position:relative;
+}
+.main{
+  background:transparent!important;
+}
+@keyframes tleSafeBubbleBackground{
+  from{
+    background-position:
+      0 0,
+      180px 70px,
+      90px 260px,
+      300px 340px,
+      0 0;
+  }
+  to{
+    background-position:
+      18px -16px,
+      164px 88px,
+      108px 240px,
+      284px 324px,
+      0 0;
+  }
+}
+
+/* Live seasonal + current-weather animation inside greeting card */
+#todayHeroCard{
+  position:relative;
+  overflow:hidden;
+}
+.hero-weather-effects{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  overflow:hidden;
+  border-radius:inherit;
+}
+/* Keep the live-weather canvas covering the full hero. A broader
+   #todayHeroCard>div rule elsewhere sets child divs to position:relative,
+   so this explicit selector prevents the animation layer from collapsing. */
+#todayHeroCard > .hero-weather-effects{
+  position:absolute!important;
+  inset:0!important;
+  width:100%;
+  height:100%;
+  z-index:1!important;
+}
+#todayHeroCard > .hero-ecosystem{
+  position:relative!important;
+  z-index:2!important;
+}
+.hero-season-layer,
+.hero-precip-layer{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.hero-season-layer{
+  opacity:.26;
+}
+.hero-precip-layer{
+  opacity:.48;
+}
+#todayHeroCard .hero-ecosystem,
+#todayHeroCard>.hero-moment-icon{
+  position:relative;
+  z-index:2;
+}
+
+/* seasonal washes stay subtle so text remains the focus */
+#todayHeroCard[data-season="spring"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 84% 18%,rgba(255,255,255,.36),transparent 26%),
+    linear-gradient(135deg,rgba(233,251,242,.22),transparent 58%);
+}
+#todayHeroCard[data-season="summer"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 82% 10%,rgba(255,243,174,.33),transparent 24%),
+    linear-gradient(135deg,rgba(229,247,255,.18),transparent 58%);
+}
+#todayHeroCard[data-season="fall"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 86% 12%,rgba(246,218,166,.30),transparent 24%),
+    linear-gradient(135deg,rgba(255,239,215,.18),transparent 58%);
+}
+#todayHeroCard[data-season="winter"] .hero-season-layer{
+  background:
+    radial-gradient(circle at 82% 10%,rgba(255,255,255,.42),transparent 26%),
+    linear-gradient(135deg,rgba(226,241,255,.24),transparent 58%);
+}
+
+.season-particle,
+.rain-drop,
+.snow-flake{
+  position:absolute;
+  left:var(--x);
+  top:-18px;
+  transform:scale(var(--scale));
+  animation-delay:var(--delay);
+  animation-duration:var(--dur);
+  animation-iteration-count:infinite;
+  animation-timing-function:linear;
+}
+.season-particle{
+  width:8px;
+  height:8px;
+  border-radius:55% 45% 60% 40%;
+  opacity:.42;
+}
+.season-spring .season-particle{
+  background:rgba(255,255,255,.72);
+  box-shadow:0 0 0 1px rgba(188,226,207,.22);
+  animation-name:tleSeasonFloat;
+}
+.season-summer .season-particle{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:rgba(255,245,184,.48);
+  filter:blur(.2px);
+  animation-name:tleSeasonGlow;
+}
+.season-fall .season-particle{
+  width:9px;
+  height:6px;
+  border-radius:70% 20% 70% 30%;
+  background:rgba(211,159,96,.32);
+  animation-name:tleSeasonLeaf;
+}
+.season-winter .season-particle{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(255,255,255,.62);
+  animation-name:tleSeasonFloat;
+}
+
+.rain-drop{
+  width:1.5px;
+  height:24px;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(113,174,214,.72));
+  animation-name:tleLiveRain;
+}
+.intensity-light .rain-drop{height:16px;opacity:.46}
+.intensity-heavy .rain-drop{height:30px;opacity:.72}
+.snow-flake{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 0 7px rgba(255,255,255,.38);
+  animation-name:tleLiveSnow;
+}
+.intensity-heavy .snow-flake{width:9px;height:9px}
+
+.drizzle-drop,
+.cloud-puff,
+.mist-band,
+.wind-streak{
+  position:absolute;
+  left:var(--x);
+  top:-18px;
+  transform:scale(var(--scale));
+  animation-delay:var(--delay);
+  animation-duration:var(--dur);
+  animation-iteration-count:infinite;
+  animation-timing-function:linear;
+}
+.drizzle-drop{
+  width:1px;
+  height:12px;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(128,185,220,.55));
+  animation-name:tleLiveDrizzle;
+  opacity:.48;
+}
+.cloud-puff{
+  width:76px;
+  height:27px;
+  border-radius:999px;
+  background:rgba(255,255,255,.34);
+  filter:blur(6px);
+  animation-name:tleCloudDrift;
+  opacity:.34;
+}
+.weather-partly .cloud-puff{opacity:.20}
+.mist-band{
+  width:130px;
+  height:18px;
+  border-radius:999px;
+  background:rgba(255,255,255,.42);
+  filter:blur(9px);
+  animation-name:tleMistDrift;
+  opacity:.32;
+}
+.wind-streak{
+  width:82px;
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(126,160,183,.40),transparent);
+  animation-name:tleWindSweep;
+  opacity:.34;
+}
+.sun-glow{
+  position:absolute;
+  width:185px;
+  height:185px;
+  right:-66px;
+  top:-82px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,224,107,.34) 0%,rgba(255,236,174,.18) 35%,rgba(255,255,255,0) 72%);
+  animation:tleSunPulse 7s ease-in-out infinite;
+}
+.lightning-flash{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 75% 16%,rgba(255,255,255,.72),rgba(255,255,255,0) 26%),
+    linear-gradient(120deg,transparent 52%,rgba(255,255,255,.44) 54%,transparent 58%);
+  opacity:0;
+  animation:tleLightning 7.2s ease-in-out infinite;
+}
+.weather-storm .rain-drop{
+  animation-duration:calc(var(--dur) * .64);
+}
+
+#todayHeroCard[data-weather="storm"]{
+  box-shadow:inset 0 0 0 999px rgba(138,165,184,.10);
+}
+#todayHeroCard[data-weather="drizzle"]{
+  box-shadow:inset 0 0 0 999px rgba(214,235,247,.05);
+}
+#todayHeroCard[data-weather="fog"]{
+  box-shadow:inset 0 0 0 999px rgba(238,242,242,.08);
+}
+#todayHeroCard[data-weather="cloudy"]{
+  box-shadow:inset 0 0 0 999px rgba(226,233,237,.05);
+}
+
+#todayHeroCard[data-weather="rain"]{
+  box-shadow:inset 0 0 0 999px rgba(205,230,247,.06);
+}
+#todayHeroCard[data-weather="snow"]{
+  box-shadow:inset 0 0 0 999px rgba(241,248,255,.08);
+}
+
+@keyframes tleLiveRain{
+  0%{transform:translate3d(0,-34px,0) rotate(8deg) scale(var(--scale));opacity:0}
+  8%{opacity:.75}
+  100%{transform:translate3d(var(--drift),430px,0) rotate(8deg) scale(var(--scale));opacity:.12}
+}
+@keyframes tleLiveSnow{
+  0%{transform:translate3d(0,-22px,0) scale(var(--scale));opacity:0}
+  12%{opacity:.9}
+  100%{transform:translate3d(var(--drift),430px,0) scale(var(--scale));opacity:.10}
+}
+
+@keyframes tleLiveDrizzle{
+  0%{transform:translate3d(0,-26px,0) rotate(6deg) scale(var(--scale));opacity:0}
+  12%{opacity:.52}
+  100%{transform:translate3d(var(--drift),420px,0) rotate(6deg) scale(var(--scale));opacity:.06}
+}
+@keyframes tleCloudDrift{
+  0%{transform:translate3d(-80px,calc(54px + var(--x) * .25),0) scale(var(--scale));opacity:0}
+  18%{opacity:.34}
+  82%{opacity:.28}
+  100%{transform:translate3d(430px,calc(30px + var(--x) * .18),0) scale(var(--scale));opacity:0}
+}
+@keyframes tleMistDrift{
+  0%{transform:translate3d(-110px,calc(90px + var(--x) * .18),0) scale(var(--scale));opacity:0}
+  20%,80%{opacity:.32}
+  100%{transform:translate3d(390px,calc(70px + var(--x) * .12),0) scale(var(--scale));opacity:0}
+}
+@keyframes tleWindSweep{
+  0%{transform:translate3d(-120px,calc(90px + var(--x) * .24),0) scale(var(--scale));opacity:0}
+  18%{opacity:.38}
+  100%{transform:translate3d(470px,calc(45px + var(--x) * .18),0) scale(var(--scale));opacity:0}
+}
+@keyframes tleSunPulse{
+  0%,100%{transform:scale(.94);opacity:.55}
+  50%{transform:scale(1.06);opacity:.82}
+}
+@keyframes tleLightning{
+  0%,72%,76%,100%{opacity:0}
+  73%{opacity:.78}
+  74%{opacity:.08}
+  75%{opacity:.48}
+}
+@keyframes tleSeasonFloat{
+  0%{transform:translate3d(0,-12px,0) rotate(0deg) scale(var(--scale));opacity:0}
+  14%{opacity:.42}
+  100%{transform:translate3d(var(--drift),390px,0) rotate(160deg) scale(var(--scale));opacity:0}
+}
+@keyframes tleSeasonLeaf{
+  0%{transform:translate3d(0,-12px,0) rotate(0deg) scale(var(--scale));opacity:0}
+  15%{opacity:.42}
+  100%{transform:translate3d(var(--drift),370px,0) rotate(420deg) scale(var(--scale));opacity:0}
+}
+@keyframes tleSeasonGlow{
+  0%,100%{transform:translate3d(0,42px,0) scale(var(--scale));opacity:.12}
+  50%{transform:translate3d(var(--drift),190px,0) scale(calc(var(--scale) * 1.22));opacity:.38}
+}
+
+@media(max-width:680px){
+  .app-shell{
+    background-size:
+      420px 420px,
+      360px 360px,
+      500px 500px,
+      380px 380px,
+      100% 100%;
+  }
+  .hero-season-layer{opacity:.20}
+  .hero-precip-layer{opacity:.40}
+}
+@media(prefers-reduced-motion:reduce){
+  .app-shell,
+  .season-particle,
+  .rain-drop,
+  .snow-flake,
+  .drizzle-drop,
+  .cloud-puff,
+  .mist-band,
+  .wind-streak,
+  .sun-glow,
+  .lightning-flash{
+    animation:none!important;
+  }
+}
+
+
+
+/* Deterministic shell visibility — Safari-safe */
+body.shell-auth #appShell,
+body.shell-auth #workerShell,
+body.shell-auth #publicShell{
+  display:none!important;
+}
+body.shell-auth #authShell{
+  display:grid!important;
+}
+
+body.shell-app #authShell,
+body.shell-app #workerShell,
+body.shell-app #publicShell{
+  display:none!important;
+}
+body.shell-app #appShell{
+  display:grid!important;
+}
+
+body.shell-worker #authShell,
+body.shell-worker #appShell,
+body.shell-worker #publicShell{
+  display:none!important;
+}
+body.shell-worker #workerShell{
+  display:block!important;
+}
+
+body.shell-public #authShell,
+body.shell-public #appShell,
+body.shell-public #workerShell{
+  display:none!important;
+}
+body.shell-public #publicShell{
+  display:block!important;
+}
+
+@media(max-width:860px){
+  body.shell-app #appShell{
+    display:block!important;
+    width:100%!important;
+    min-height:100vh!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body.shell-app #appShell>.main{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+  }
+  body.shell-app #appShell>.sidebar{
+    width:min(84vw,300px)!important;
+    max-width:300px!important;
+    left:calc(-1 * min(84vw,300px) - 20px)!important;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+  }
+}
+
+/* Mobile sidebar must never participate in document flow */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    position:fixed!important;
+    top:0!important;
+    bottom:0!important;
+    left:calc(-1 * min(84vw,300px) - 20px)!important;
+    width:min(84vw,300px)!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    z-index:40!important;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+  }
+  body.shell-app #appShell>.main{
+    position:relative!important;
+    top:0!important;
+    margin:0!important;
+    width:100%!important;
+  }
+}
+
+/* Persistent mobile navigation trigger */
+@media(max-width:860px){
+  body.shell-app #menuToggle{
+    display:grid!important;
+    place-items:center;
+    position:fixed!important;
+    top:max(14px,calc(env(safe-area-inset-top) + 8px))!important;
+    left:max(12px,env(safe-area-inset-left))!important;
+    width:40px!important;
+    min-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+    padding:0!important;
+    margin:0!important;
+    border:1px solid rgba(25,25,25,.12)!important;
+    border-radius:14px!important;
+    background:rgba(250,248,243,.94)!important;
+    color:#191919!important;
+    box-shadow:0 8px 24px rgba(25,25,25,.08)!important;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    z-index:65!important;
+    line-height:1!important;
+    font-size:22px!important;
+  }
+  body.shell-app .topbar{
+    padding-left:52px!important;
+  }
+  body.shell-app #menuToggle:active{
+    transform:scale(.96);
+  }
+}
+@media(max-width:430px){
+  body.shell-app #menuToggle{
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    border-radius:13px!important;
+  }
+  body.shell-app .topbar{
+    padding-left:48px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.shell-app #menuToggle{transition:none!important}
+}
+
+/* Tap-outside drawer close layer */
+.sidebar-scrim{
+  display:none;
+}
+@media(max-width:860px){
+  body.shell-app .sidebar-scrim:not([hidden]){
+    display:block!important;
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    padding:0!important;
+    margin:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:rgba(25,25,25,.14)!important;
+    backdrop-filter:blur(1.5px);
+    -webkit-backdrop-filter:blur(1.5px);
+    z-index:39!important;
+    cursor:default;
+  }
+  body.shell-app.sidebar-is-open{
+    overflow:hidden;
+  }
+}
+
+/* Clock-synced 15-minute card palettes */
+#todayHeroCard.quarter-color-0{background-color:#FFF0B7}
+#todayHeroCard.quarter-color-1{background-color:#DDEBFA}
+#todayHeroCard.quarter-color-2{background-color:#F8F5EE}
+#todayHeroCard.quarter-color-3{background-color:#E7E5FF}
+
+.trial-card.quarter-color-0{
+  background-color:#FFFDF5;
+  border-color:#191919;
+  box-shadow:0 0 0 rgba(25,25,25,0);
+}
+.trial-card.quarter-color-1{
+  background-color:#EAF4FF;
+  border-color:#8DB6DC;
+  box-shadow:0 8px 24px rgba(141,182,220,.16);
+}
+.trial-card.quarter-color-2{
+  background-color:#FFF3A8;
+  border-color:#D4BC3E;
+  box-shadow:0 8px 24px rgba(242,216,91,.18);
+}
+.trial-card.quarter-color-3{
+  background-color:#F2F0FF;
+  border-color:#B7B1DE;
+  box-shadow:0 8px 24px rgba(183,177,222,.16);
+}
+
+[data-page="platform-admin"]>.metric-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.suspected-traffic-row .status{
+  white-space:nowrap;
+}
+@media(max-width:860px){
+  [data-page="platform-admin"]>.metric-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:430px){
+  [data-page="platform-admin"]>.metric-grid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+/* Footer share CTA */
+.footer-share-app-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border:1px solid #191919!important;
+  border-radius:999px!important;
+  background:#191919!important;
+  color:#fff!important;
+  padding:9px 14px!important;
+  margin-left:auto!important;
+  min-height:38px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  cursor:pointer;
+}
+.footer-share-app-btn:hover{
+  color:#fff!important;
+  text-decoration:none!important;
+  transform:translateY(-1px);
+}
+.footer-share-app-btn span:first-child{
+  font-size:14px;
+  line-height:1;
+}
+@media(max-width:680px){
+  .footer-share-app-btn{
+    width:100%!important;
+    margin:8px 0 0!important;
+    min-height:42px!important;
+  }
+}
+
+
+/* 2026-09-27 — contextual greeting card states */
+#todayHeroCard.quarter-color-0{background-color:#F3EBCB}
+#todayHeroCard.quarter-color-1{background-color:#E7EEF2}
+#todayHeroCard.quarter-color-2{background-color:#F3F0EA}
+#todayHeroCard.quarter-color-3{background-color:#ECE9F2}
+
+#todayHeroCard.message-rain{
+  background:linear-gradient(135deg,#DCE8EC 0%,#EEF2F1 58%,#E7E1D4 100%)!important;
+}
+#todayHeroCard.message-jobs{
+  background:linear-gradient(135deg,#F2E8C6 0%,#F7F3E8 100%)!important;
+}
+#todayHeroCard.message-booking{
+  background:linear-gradient(135deg,#E3EDF2 0%,#F5F3ED 100%)!important;
+}
+#todayHeroCard.message-quotes{
+  background:linear-gradient(135deg,#E8EAF1 0%,#F4F1EA 100%)!important;
+}
+#todayHeroCard.message-invoice{
+  background:linear-gradient(135deg,#ECE5D9 0%,#F6F2EB 100%)!important;
+}
+#todayHeroCard.message-hydrate{
+  background:linear-gradient(135deg,#E2EDF1 0%,#F5F2E9 100%)!important;
+}
+#todayHeroCard.message-night{
+  background:linear-gradient(135deg,#E8E7F0 0%,#F3F0EA 100%)!important;
+}
+#todayHeroCard[data-daypart="early"] #todayGreeting,
+#todayHeroCard[data-daypart="morning"] #todayGreeting,
+#todayHeroCard[data-daypart="midday"] #todayGreeting,
+#todayHeroCard[data-daypart="afternoon"] #todayGreeting,
+#todayHeroCard[data-daypart="wrap"] #todayGreeting,
+#todayHeroCard[data-daypart="evening"] #todayGreeting,
+#todayHeroCard[data-daypart="late"] #todayGreeting{
+  letter-spacing:-.035em;
+}
+#todayHeroCard #todayMomentCopy{
+  max-width:640px;
+  line-height:1.55;
+}
+@media(max-width:720px){
+  #todayHeroCard #todayMomentCopy{font-size:15px;line-height:1.5}
+  #todayHeroCard .hero-greeting-zone #todayHeroAction{width:100%;justify-content:center}
+}
+
+/* Auth recovery action */
+.auth-links .auth-retry{
+  border:1px solid var(--ink);
+  background:#F4F1EA;
+  border-radius:999px;
+  padding:8px 12px;
+}
+.auth-links .auth-retry[hidden]{display:none!important}
+@media(max-width:620px){
+  .auth-links{flex-wrap:wrap;align-items:center}
+  .auth-links .auth-retry{order:-1;width:100%;text-align:center}
+}
+
+
+/* 2026-09-27 — unified app card palette */
+.app-shell{--unified-card-bg:#F3F0EA}
+.app-shell.quarter-color-0{--unified-card-bg:#F3EBCB}
+.app-shell.quarter-color-1{--unified-card-bg:#E7EEF2}
+.app-shell.quarter-color-2{--unified-card-bg:#F3F0EA}
+.app-shell.quarter-color-3{--unified-card-bg:#ECE9F2}
+.app-shell[data-card-mood="rain"]{--unified-card-bg:linear-gradient(135deg,#DCE8EC 0%,#EEF2F1 58%,#E7E1D4 100%)}
+.app-shell[data-card-mood="jobs"]{--unified-card-bg:linear-gradient(135deg,#F2E8C6 0%,#F7F3E8 100%)}
+.app-shell[data-card-mood="booking"]{--unified-card-bg:linear-gradient(135deg,#E3EDF2 0%,#F5F3ED 100%)}
+.app-shell[data-card-mood="quotes"]{--unified-card-bg:linear-gradient(135deg,#E8EAF1 0%,#F4F1EA 100%)}
+.app-shell[data-card-mood="invoice"]{--unified-card-bg:linear-gradient(135deg,#ECE5D9 0%,#F6F2EB 100%)}
+.app-shell[data-card-mood="hydrate"]{--unified-card-bg:linear-gradient(135deg,#E2EDF1 0%,#F5F2E9 100%)}
+.app-shell[data-card-mood="night"]{--unified-card-bg:linear-gradient(135deg,#E8E7F0 0%,#F3F0EA 100%)}
+
+.app-shell .metric-card,
+.app-shell .quick-card,
+.app-shell .table-card,
+.app-shell .client-card,
+.app-shell .service-card,
+.app-shell .supply-card,
+.app-shell .share-access-card,
+.app-shell .timer-card,
+.app-shell .empty-card,
+.app-shell .mobile-record-card,
+.app-shell .review-settings-card,
+.app-shell .support-contact-card,
+.app-shell .worker-job-card,
+.app-shell .trial-card,
+.app-shell .inquiry-detail-card,
+.app-shell .install-card,
+.app-shell .onboarding-help-card{
+  background:var(--unified-card-bg)!important;
+  border-color:rgba(87,81,72,.18)!important;
+  box-shadow:none!important;
+  transition:background .28s ease,border-color .28s ease!important;
+}
+
+/* Compact share action — never blocks primary controls */
+.footer-share-app-btn{
+  width:auto!important;
+  max-width:max-content!important;
+  min-height:34px!important;
+  padding:7px 10px!important;
+  gap:5px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  margin-left:auto!important;
+  align-self:center!important;
+  position:static!important;
+  inset:auto!important;
+  z-index:auto!important;
+}
+.footer-share-app-btn span:first-child{font-size:12px!important}
+@media(max-width:680px){
+  .footer-share-app-btn{
+    width:auto!important;
+    max-width:max-content!important;
+    min-height:34px!important;
+    margin:7px 0 0!important;
+    padding:7px 10px!important;
+    align-self:flex-start!important;
+  }
+}
+
+/* Password visibility toggle — subtle eyelid tab, not a literal eye */
+.password-input-wrap{position:relative;display:block}
+.password-input-wrap input{width:100%;padding-right:46px}
+.password-toggle{
+  position:absolute;
+  right:9px;
+  top:50%;
+  transform:translateY(-50%);
+  width:30px;
+  height:24px;
+  border:1px solid rgba(39,37,33,.18);
+  border-radius:10px;
+  background:#F7F4EE;
+  color:var(--ink);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  line-height:1;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease;
+}
+.password-toggle:hover{background:#EFEAE1;border-color:rgba(39,37,33,.28)}
+.password-toggle:active{transform:translateY(-50%) scale(.96)}
+.password-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.password-tab-icon{
+  position:relative;
+  display:block;
+  width:16px;
+  height:9px;
+  border-top:2px solid currentColor;
+  border-radius:50% 50% 0 0;
+  opacity:.78;
+}
+.password-tab-icon:before,
+.password-tab-icon:after{
+  content:"";
+  position:absolute;
+  top:-5px;
+  width:2px;
+  height:5px;
+  border-radius:2px;
+  background:currentColor;
+  opacity:.72;
+}
+.password-tab-icon:before{left:3px;transform:rotate(-20deg)}
+.password-tab-icon:after{right:3px;transform:rotate(20deg)}
+.password-toggle.is-visible .password-tab-icon{
+  border-top-color:transparent;
+  border-bottom:2px solid currentColor;
+  border-radius:0 0 50% 50%;
+}
+.password-toggle.is-visible .password-tab-icon:before,
+.password-toggle.is-visible .password-tab-icon:after{
+  top:5px;
+  transform:rotate(0deg);
+  height:3px;
+  opacity:.45;
+}
+
+/* Registration welcome */
+.onboarding-layer.welcome .onboarding-card{
+  border-radius:24px;
+  box-shadow:0 24px 70px rgba(39,37,33,.14);
+  max-width:520px;
+}
+.onboarding-layer.welcome .onboarding-topline .pill{
+  background:#E7D88A;
+  border-color:#C8B873;
+  color:#292723;
+}
+.onboarding-layer.welcome .onboarding-card h3{
+  font-weight:600;
+  letter-spacing:-.025em;
+  line-height:1.08;
+}
+.onboarding-layer.welcome .onboarding-card p{
+  line-height:1.6;
+}
+.onboarding-layer.welcome .onboarding-close{
+  width:36px;
+  height:36px;
+  border-radius:999px;
+  background:#F5F1E9;
+}
+@media(max-width:620px){
+  .onboarding-layer.welcome{padding:16px}
+  .onboarding-layer.welcome .onboarding-card{border-radius:20px}
+}
+
+/* Mileage route note */
+.record-primary .record-note{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  font-style:normal;
+  line-height:1.4;
+}
+
+/* Team message center */
+.worker-guest-pill{
+  display:inline-flex;
+  margin-bottom:12px;
+  background:#E7D88A!important;
+  border-color:#C5B875!important;
+  color:#292723!important;
+}
+.message-unread-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  min-height:26px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#191919;
+  color:#fff!important;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.message-unread-badge[hidden]{display:none!important}
+.team-message-preview{
+  display:-webkit-box!important;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  color:#777169!important;
+  line-height:1.4;
+}
+.team-message-center{
+  margin-top:20px;
+}
+.message-worker-select{
+  display:grid;
+  gap:7px;
+  max-width:360px;
+  margin-bottom:14px;
+  color:#706D66;
+  font-size:11px;
+  font-weight:850;
+}
+.message-worker-select select{
+  width:100%;
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  padding:10px 12px;
+}
+.message-thread{
+  min-height:220px;
+  max-height:420px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#F8F6F1;
+  overscroll-behavior:contain;
+}
+.message-row{
+  display:flex;
+  width:100%;
+}
+.message-row.mine{justify-content:flex-end}
+.message-row.theirs{justify-content:flex-start}
+.message-bubble{
+  max-width:min(78%,520px);
+  padding:10px 12px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid var(--line);
+}
+.message-row.mine .message-bubble{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+  border-bottom-right-radius:5px;
+}
+.message-row.theirs .message-bubble{
+  border-bottom-left-radius:5px;
+}
+.message-bubble small{
+  display:block;
+  margin-bottom:4px;
+  color:#8A857D;
+  font-size:9px;
+  font-weight:800;
+}
+.message-row.mine .message-bubble small{color:rgba(255,255,255,.64)}
+.message-bubble p{
+  margin:0;
+  font-size:13px;
+  line-height:1.5;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.message-compose{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  margin-top:10px;
+  align-items:end;
+}
+.message-compose textarea{
+  width:100%;
+  min-height:52px;
+  max-height:130px;
+  resize:vertical;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+  background:#fff;
+  color:var(--ink);
+  font:inherit;
+}
+.message-compose button{min-height:48px}
+.worker-message-panel .panel-head{align-items:flex-start}
+.worker-message-thread{background:#FBFAF7}
+@media(max-width:620px){
+  .message-thread{min-height:190px;max-height:360px;padding:10px}
+  .message-bubble{max-width:88%}
+  .message-compose{grid-template-columns:1fr}
+  .message-compose button{width:100%}
+  .worker-guest-pill{font-size:9px}
+}
+
+/* Language picker panel */
+.language-menu{
+  position:fixed;
+  z-index:10020;
+  padding:14px;
+  border:1px solid rgba(39,37,33,.14);
+  border-radius:20px;
+  background:#FFFEFB;
+  box-shadow:0 22px 60px rgba(39,37,33,.16);
+}
+.language-menu[hidden]{display:none!important}
+.language-menu-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:2px 2px 12px;
+}
+.language-menu-head div{display:grid;gap:3px}
+.language-menu-head small,
+.language-more-label{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.11em;
+  color:#777169;
+}
+.language-menu-head strong{
+  font-size:15px;
+  font-weight:650;
+  letter-spacing:-.015em;
+}
+.language-menu-close{
+  width:32px;
+  height:32px;
+  border:1px solid rgba(39,37,33,.12);
+  border-radius:999px;
+  background:#F5F1E9;
+  color:var(--ink);
+  font-size:19px;
+  line-height:1;
+  cursor:pointer;
+}
+.language-featured-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.language-more-label{
+  padding:14px 4px 7px;
+}
+.language-list{
+  display:grid;
+  gap:7px;
+}
+.language-choice{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:46px;
+  padding:11px 13px;
+  border:1px solid rgba(39,37,33,.12);
+  border-radius:13px;
+  background:#FAF8F3;
+  color:var(--ink);
+  text-align:left;
+  cursor:pointer;
+}
+.language-choice.featured{
+  min-height:62px;
+  align-items:flex-start;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  background:#fff;
+}
+.language-choice span{
+  font-size:14px;
+  font-weight:650;
+}
+.language-choice small{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  color:#777169;
+}
+.language-choice:hover{
+  border-color:rgba(39,37,33,.28);
+  background:#F4F0E7;
+}
+.language-choice.active{
+  border-color:#2A2926;
+  box-shadow:inset 0 0 0 1px #2A2926;
+}
+.language-choice.active:after{
+  content:"✓";
+  margin-left:auto;
+  font-size:13px;
+  font-weight:800;
+}
+.language-choice.featured.active:after{
+  position:absolute;
+  align-self:flex-end;
+}
+.language-choice.featured{position:relative}
+@media(max-width:520px){
+  .language-menu{
+    left:12px!important;
+    right:12px;
+    width:auto!important;
+    top:auto!important;
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    border-radius:20px;
+  }
+}
+
+/* Auth touch reliability */
+#authSwitch,#forgotPassword{
+  min-height:44px;
+  padding:10px 2px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  touch-action:manipulation;
+  position:relative;
+  z-index:3;
+}
+#authSubmit{
+  min-height:48px;
+  touch-action:manipulation;
+}
+@media(max-width:620px){
+  .auth-links{gap:6px 14px}
+  #authSwitch,#forgotPassword{font-size:13px}
+}
+
+/* Time Tracking list-only removal */
+.time-hide-btn{
+  display:block;
+  margin-top:8px;
+  padding:0;
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.time-hide-btn:hover{color:var(--ink)}
+
+/* 2026-09-27 — stable mobile modal scroll */
+body.modal-open{
+  position:fixed!important;
+  left:0;
+  right:0;
+  width:100%;
+  overflow:hidden!important;
+  touch-action:none;
+}
+.modal-backdrop{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-top:max(18px,env(safe-area-inset-top));
+  padding-bottom:max(22px,env(safe-area-inset-bottom));
+}
+.modal{
+  flex:0 0 auto;
+  width:min(560px,calc(100vw - 28px));
+  max-width:calc(100vw - 28px);
+  max-height:none!important;
+  overflow:visible!important;
+  margin:auto 0;
+}
+.form-footer{
+  position:static!important;
+  bottom:auto!important;
+  background:transparent;
+  padding-bottom:max(4px,env(safe-area-inset-bottom));
+  z-index:auto;
+}
+@media(max-width:620px){
+  .modal-backdrop{
+    padding-left:12px;
+    padding-right:12px;
+  }
+  .modal{
+    width:100%;
+    max-width:100%;
+    margin:0;
+    border-radius:24px;
+    padding:26px 22px;
+  }
+  .modal h2{
+    padding-right:48px;
+    font-size:clamp(34px,10vw,48px);
+    line-height:1.02;
+  }
+  .modal-close{
+    position:sticky;
+    float:right;
+    top:8px;
+    right:auto;
+    margin-top:-2px;
+    z-index:3;
+  }
+  .entity-form{
+    clear:both;
+  }
+  .form-footer{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    padding-top:18px;
+    margin-top:22px;
+  }
+  .form-footer > button{
+    width:100%;
+    min-height:48px;
+  }
+}
+
+/* Mobile auth tap hardening */
+[data-auth-touch-hardened="true"] #authSubmit,
+[data-auth-touch-hardened="true"] #authSwitch,
+[data-auth-touch-hardened="true"] #forgotPassword,
+[data-auth-touch-hardened="true"] #authRetryButton{
+  position:relative;
+  z-index:2;
+  pointer-events:auto;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+[data-auth-touch-hardened="true"] .auth-form,
+[data-auth-touch-hardened="true"] .auth-links{
+  position:relative;
+  z-index:1;
+}
+
+/* Compact language switcher */
+.compact-header-actions{display:flex;align-items:center;gap:8px}
+.language-mini-toggle{
+  min-width:42px;
+  height:36px;
+  padding:0 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--ink);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.language-mini-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media(max-width:560px){
+  .compact-header-actions{gap:6px}
+  .language-mini-toggle{min-width:38px;height:34px;padding:0 8px}
+}
+
+/* Auth welcome gate */
+.auth-welcome{display:grid;gap:18px;padding:8px 0 4px}
+.auth-welcome[hidden]{display:none!important}
+.auth-welcome-badge{width:max-content;padding:8px 12px;border:1px solid #CBBE78;border-radius:999px;background:#F1E7A7;color:#292723;font-size:11px;font-weight:800;letter-spacing:.09em}
+.auth-welcome h1{max-width:390px;margin:2px 0 0;font-size:clamp(38px,8.5vw,54px);line-height:1.01;letter-spacing:-.045em;font-weight:650}
+.auth-welcome-copy{margin:0;max-width:390px;color:#6F6A62;font-size:17px;line-height:1.55}
+.auth-welcome-trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.auth-welcome-trust span{padding:8px 10px;border:1px solid #DDD6CA;border-radius:999px;background:#FAF8F3;color:#48443F;font-size:11px;font-weight:750}
+.auth-welcome-actions{display:grid;gap:10px;margin-top:4px}
+.auth-welcome-actions .primary-btn,.auth-welcome-actions .ghost-btn{width:100%;min-height:54px;border-radius:999px;font-size:15px;font-weight:800}
+.auth-welcome-signin{border:1px solid #CFC8BD!important;background:#fff!important;color:#292723!important}
+.auth-welcome-note{margin:0;color:#777168;font-size:12px;line-height:1.5;text-align:center}
+.auth-back-welcome{margin:0 0 18px;padding:0;border:0;background:transparent;color:#5E5952;font-size:12px;font-weight:800;cursor:pointer}
+@media(max-width:620px){
+  .auth-card{padding:24px 20px}
+  .auth-brand{margin-bottom:28px}
+  .auth-welcome{gap:16px}
+  .auth-welcome h1{font-size:40px}
+  .auth-welcome-copy{font-size:16px}
+  .auth-welcome-trust{gap:6px}
+  .auth-welcome-trust span{font-size:10px}
+}
+
+/* 2026-09-27 — single-path welcome + compact client cards */
+.auth-welcome{transition:opacity .18s ease,transform .18s ease}
+.auth-welcome.is-leaving{opacity:0;transform:translateY(-8px)}
+.auth-welcome.is-entering{animation:authSoftEnter .32s ease both}
+#authPanel.is-entering{animation:authSoftEnter .32s ease both}
+@keyframes authSoftEnter{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.auth-welcome-actions{display:block}
+.auth-welcome-actions .primary-btn{width:100%}
+.auth-welcome-existing{
+  margin:0;
+  text-align:center;
+  color:#777168;
+  font-size:12px;
+  line-height:1.5;
+}
+.auth-welcome-existing button{
+  border:0;
+  background:transparent;
+  padding:4px 2px;
+  color:#292723;
+  font:inherit;
+  font-weight:800;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+}
+.client-card-compact{
+  gap:9px!important;
+  padding:13px 14px!important;
+  border-radius:17px!important;
+}
+.client-card-head{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+.client-card-compact .client-avatar{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px;
+  margin:0!important;
+  border-radius:11px!important;
+  font-size:12px;
+}
+.client-card-identity{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.client-card-identity strong{
+  font-size:16px;
+  line-height:1.18;
+}
+.client-card-identity span,
+.client-card-compact .client-location{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.client-card-identity span{white-space:nowrap}
+.client-card-compact .client-location{
+  display:block;
+  white-space:nowrap;
+}
+.client-card-compact .record-card-actions{
+  margin-top:2px!important;
+  padding-top:9px!important;
+  gap:7px!important;
+}
+.client-card-compact .safe-actions{
+  gap:7px!important;
+}
+.client-card-compact .safe-actions button,
+.client-card-compact .record-delete-btn{
+  min-height:40px!important;
+  border-radius:12px!important;
+  font-size:11px!important;
+}
+.client-card-compact .record-delete-btn{margin-top:0!important}
+@media(max-width:620px){
+  .client-grid{gap:9px!important}
+  .client-card-compact{padding:12px 13px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .auth-welcome,#authPanel{animation:none!important;transition:none!important}
+}
+
+/* Auth intro → form flow */
+.auth-shell{
+  align-items:start;
+}
+.auth-card{
+  margin:clamp(22px,6vh,64px) auto;
+}
+#authPanel{
+  scroll-margin-top:24px;
+  margin-top:0;
+}
+.auth-welcome-actions .primary-btn{
+  min-height:56px;
+  font-weight:750;
+  letter-spacing:-.01em;
+}
+@media(max-width:620px){
+  .auth-card{margin:14px auto 36px}
+  #authPanel{scroll-margin-top:12px}
+}
+
+/* First-visit intro → auth form */
+.auth-shell.auth-form-open .auth-card{
+  width:min(520px,100%);
+}
+.auth-shell.auth-form-open #authWelcome{
+  padding-bottom:34px;
+  margin-bottom:30px;
+  border-bottom:1px solid #DED7CC;
+}
+.auth-shell.auth-form-open #authPanel{
+  display:block;
+}
+.auth-shell.auth-form-open #authPanel[hidden]{
+  display:none!important;
+}
+@media(max-width:620px){
+  .auth-shell.auth-form-open #authWelcome{
+    padding-bottom:28px;
+    margin-bottom:26px;
+  }
+}
+
+/* Auth marketing-to-form flow */
+#authPanel{scroll-margin-top:22px}
+.auth-welcome-actions .primary-btn{min-height:52px}
+@media(max-width:620px){
+  #authPanel{scroll-margin-top:12px}
+  .auth-welcome-actions .primary-btn{width:100%}
+}
+
+
+/* 2026-09-27 — compact animated greeting v55 */
+#todayHeroCard{
+  padding:22px!important;
+}
+#todayHeroCard .hero-ecosystem{
+  gap:14px;
+}
+#todayHeroCard .hero-greeting-zone{
+  padding:2px 0!important;
+  justify-content:flex-start!important;
+}
+#todayHeroCard .hero-card-topline{
+  margin-top:-6px!important;
+}
+#todayHeroCard .today-greeting-first{
+  margin-top:-2px!important;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin:8px 0 7px!important;
+  line-height:.96;
+}
+#todayHeroCard #todayMomentCopy{
+  line-height:1.4!important;
+}
+#todayHeroCard .hero-greeting-zone #todayHeroAction{
+  margin-top:12px!important;
+}
+
+/* Sun + moving clouds / glowing moon + stars */
+.hero-sky-badge{
+  position:relative;
+  display:inline-block;
+  width:78px;
+  height:52px;
+  flex:0 0 78px;
+  overflow:visible;
+  pointer-events:none;
+}
+.hero-sun-orb,
+.hero-moon-orb,
+.hero-cloud,
+.hero-night-star{
+  position:absolute;
+  display:block;
+  line-height:1;
+  transform-origin:center;
+  will-change:transform,opacity;
+}
+.hero-sun-orb{
+  left:0;
+  top:0;
+  font-size:43px;
+  z-index:1;
+  animation:tleHeroSunSpin 28s linear infinite;
+}
+.hero-cloud{
+  z-index:2;
+  font-size:27px;
+  filter:drop-shadow(0 2px 3px rgba(25,25,25,.08));
+}
+.hero-cloud-a{
+  left:28px;
+  top:21px;
+  animation:tleHeroCloudA 6.5s ease-in-out infinite alternate;
+}
+.hero-cloud-b{
+  left:45px;
+  top:8px;
+  font-size:20px;
+  opacity:.78;
+  animation:tleHeroCloudB 8.2s ease-in-out infinite alternate;
+}
+.hero-moon-orb{
+  left:5px;
+  top:1px;
+  font-size:44px;
+  opacity:0;
+  transform:scale(.9);
+  filter:drop-shadow(0 0 9px rgba(255,255,245,.8));
+}
+.hero-night-star{
+  opacity:0;
+  z-index:2;
+  color:#fffdf0;
+  text-shadow:0 0 8px rgba(255,255,255,.92);
+}
+.hero-night-star.star-a{left:51px;top:3px;font-size:16px}
+.hero-night-star.star-b{left:58px;top:27px;font-size:12px}
+.hero-night-star.star-c{left:31px;top:36px;font-size:10px}
+
+#todayHeroCard[data-celestial="night"] .hero-sun-orb,
+#todayHeroCard[data-celestial="night"] .hero-cloud{
+  opacity:0;
+  pointer-events:none;
+}
+#todayHeroCard[data-celestial="night"] .hero-moon-orb{
+  opacity:1;
+  animation:tleHeroMoonGlow 3.6s ease-in-out infinite;
+}
+#todayHeroCard[data-celestial="night"] .hero-night-star{
+  opacity:1;
+  animation:tleHeroStarTwinkle 2.6s ease-in-out infinite;
+}
+#todayHeroCard[data-celestial="night"] .hero-night-star.star-b{animation-delay:.7s}
+#todayHeroCard[data-celestial="night"] .hero-night-star.star-c{animation-delay:1.35s}
+#todayHeroCard[data-weather="rain"] .hero-sun-orb{opacity:.28}
+#todayHeroCard[data-weather="rain"] .hero-cloud{opacity:1}
+
+@keyframes tleHeroSunSpin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes tleHeroCloudA{
+  from{transform:translate3d(-2px,0,0)}
+  to{transform:translate3d(7px,-2px,0)}
+}
+@keyframes tleHeroCloudB{
+  from{transform:translate3d(2px,0,0)}
+  to{transform:translate3d(-5px,2px,0)}
+}
+@keyframes tleHeroMoonGlow{
+  0%,100%{
+    transform:translateY(0) scale(.98);
+    filter:drop-shadow(0 0 7px rgba(255,255,245,.68));
+  }
+  50%{
+    transform:translateY(-2px) scale(1.05);
+    filter:drop-shadow(0 0 15px rgba(255,255,245,.98));
+  }
+}
+@keyframes tleHeroStarTwinkle{
+  0%,100%{opacity:.28;transform:scale(.82) rotate(0)}
+  50%{opacity:1;transform:scale(1.18) rotate(18deg)}
+}
+
+/* The decorative sky replaces the generic icon when nothing needs action. */
+#todayHeroCard.message-calm>.hero-moment-icon,
+#todayHeroCard.message-night>.hero-moment-icon,
+#todayHeroCard.message-hydrate>.hero-moment-icon{
+  display:none;
+}
+
+/* A real pending item gets a small, occasional nudge — never the whole card. */
+#todayHeroCard.has-pending>.hero-moment-icon{
+  display:block;
+  animation:tleHeroPendingCue 5.4s ease-in-out infinite!important;
+}
+.attention-list button.attention-pending{
+  transform-origin:center;
+  animation:tlePendingAttention 6.2s ease-in-out infinite;
+}
+.attention-list button.attention-pending:nth-child(2){animation-delay:1.45s}
+.attention-list button.attention-pending:nth-child(3){animation-delay:2.9s}
+.attention-list button.attention-pending:nth-child(4){animation-delay:4.1s}
+
+@keyframes tleHeroPendingCue{
+  0%,76%,100%{transform:translate3d(0,0,0) scale(1)}
+  82%{transform:translate3d(0,-3px,0) scale(1.06)}
+  88%{transform:translate3d(2px,0,0) scale(1.03)}
+  94%{transform:translate3d(-2px,0,0) scale(1.03)}
+}
+@keyframes tlePendingAttention{
+  0%,80%,100%{transform:translate3d(0,0,0)}
+  85%{transform:translate3d(0,-2px,0)}
+  90%{transform:translate3d(3px,0,0)}
+  95%{transform:translate3d(-2px,0,0)}
+}
+
+/* Mobile: remove empty vertical space without shrinking readability. */
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:15px 16px 14px!important;
+    border-radius:25px!important;
+    margin-bottom:12px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-ecosystem{
+    gap:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    padding:0!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    gap:7px;
+    min-height:48px;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    font-size:clamp(31px,9.4vw,42px)!important;
+    line-height:.94!important;
+    margin:5px 0 6px!important;
+    padding-right:0!important;
+  }
+  [data-page="today"] #todayHeroCard p#todayMomentCopy{
+    max-width:100%!important;
+    font-size:14px!important;
+    line-height:1.35!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayHeroAction{
+    width:100%;
+    min-height:47px!important;
+    margin-top:10px!important;
+    padding:10px 16px!important;
+    border-radius:16px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-brief{
+    padding:10px!important;
+    gap:6px!important;
+    border-radius:16px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-module-top{
+    gap:7px;
+  }
+  [data-page="today"] #todayHeroCard .weather-now{
+    gap:8px;
+  }
+  [data-page="today"] #todayHeroCard .weather-icon{
+    width:38px!important;
+    height:38px!important;
+    flex-basis:38px!important;
+    border-radius:12px!important;
+    font-size:22px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-temp-row strong{
+    font-size:22px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note{
+    padding:7px 8px!important;
+    border-radius:11px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note strong{
+    line-height:1.2;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note span{
+    line-height:1.25;
+  }
+  [data-page="today"] #todayHeroCard .weather-forecast{
+    gap:5px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-day{
+    padding:6px!important;
+    border-radius:10px!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-updated{
+    margin-top:0!important;
+  }
+  .hero-sky-badge{
+    width:72px;
+    height:48px;
+    flex-basis:72px;
+  }
+  .hero-sun-orb{font-size:40px}
+  .hero-cloud-a{left:26px;top:20px;font-size:25px}
+  .hero-cloud-b{left:43px;top:8px;font-size:18px}
+  .hero-moon-orb{font-size:41px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-sun-orb,
+  .hero-cloud,
+  .hero-moon-orb,
+  .hero-night-star,
+  #todayHeroCard.has-pending>.hero-moment-icon,
+  .attention-list button.attention-pending{
+    animation:none!important;
+  }
+}
+
+
+/* 2026-09-27 — iOS auth stability v56 */
+body.shell-auth{overflow-anchor:none}
+.auth-card,#authPanel,.auth-form{overflow-anchor:none}
+@media(max-width:620px){
+  /* iOS Safari zooms inputs below 16px, which looks like the login screen is
+     jumping. Keep authentication fields at 16px while the keyboard is open. */
+  .auth-form input:not([type="checkbox"]){
+    font-size:16px!important;
+    min-height:48px;
+  }
+  .auth-shell{
+    min-height:100dvh;
+    padding-top:max(14px,env(safe-area-inset-top));
+    padding-bottom:max(20px,env(safe-area-inset-bottom));
+  }
+  .auth-card{
+    scroll-margin-top:0;
+    transform:none!important;
+  }
+}
+
+
+/* Dashboard CTA polish — compact, high-contrast, animated */
+.hero-greeting-zone #todayHeroAction{
+  width:auto;
+  min-width:0;
+  min-height:42px;
+  align-self:flex-start;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid rgba(25,25,25,.22);
+  background:#191919;
+  color:#fff;
+  box-shadow:0 9px 22px rgba(25,25,25,.14);
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform .2s ease,box-shadow .2s ease,background-color .45s ease,color .45s ease,border-color .45s ease;
+  animation:tleHeroCtaFloat 3.8s ease-in-out infinite;
+}
+.hero-greeting-zone #todayHeroAction::after{
+  content:"";
+  position:absolute;
+  inset:-40% auto -40% -36%;
+  width:28%;
+  transform:skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),transparent);
+  pointer-events:none;
+  z-index:-1;
+  animation:tleHeroCtaSheen 5.4s ease-in-out infinite;
+}
+.hero-greeting-zone #todayHeroAction:hover{
+  transform:translateY(-2px);
+  box-shadow:0 13px 28px rgba(25,25,25,.18);
+}
+.hero-greeting-zone #todayHeroAction:active{
+  transform:translateY(0) scale(.98);
+}
+.hero-card.message-afternoon #todayHeroAction,
+.hero-card.message-rain #todayHeroAction,
+.hero-card.message-hydrate #todayHeroAction{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+.hero-card.message-morning #todayHeroAction,
+.hero-card.message-jobs #todayHeroAction{
+  background:#BFE0FF;
+  color:#191919;
+  border-color:#8DBDE8;
+}
+.hero-card.message-calm #todayHeroAction,
+.hero-card.message-booking #todayHeroAction{
+  background:#F2D85B;
+  color:#191919;
+  border-color:#CDB63E;
+}
+.hero-card.message-night #todayHeroAction{
+  background:#191919;
+  color:#fff;
+  border-color:#191919;
+}
+@keyframes tleHeroCtaFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
+@keyframes tleHeroCtaSheen{
+  0%,70%{left:-36%;opacity:0}
+  76%{opacity:1}
+  94%{left:122%;opacity:0}
+  100%{left:122%;opacity:0}
+}
+@media(max-width:680px){
+  .hero-greeting-zone #todayHeroAction{
+    width:auto;
+    max-width:100%;
+    min-height:40px;
+    padding:0 16px;
+    margin-top:14px;
+    font-size:12px;
+  }
+}
+
+/* New-notification motion: ring only when unread count increases */
+.notification-bell-btn.notification-arrived .notification-bell-icon{
+  animation:tleNotificationRing .72s cubic-bezier(.36,.07,.19,.97) 2;
+}
+.notification-bell-btn.notification-arrived .notification-badge{
+  animation:tleNotificationBadgePop .58s cubic-bezier(.2,.9,.25,1.35) 1;
+}
+@keyframes tleNotificationRing{
+  0%,100%{transform:rotate(0)}
+  18%{transform:rotate(14deg)}
+  36%{transform:rotate(-12deg)}
+  54%{transform:rotate(9deg)}
+  72%{transform:rotate(-6deg)}
+  86%{transform:rotate(3deg)}
+}
+@keyframes tleNotificationBadgePop{
+  0%{transform:scale(.72)}
+  55%{transform:scale(1.28)}
+  100%{transform:scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-greeting-zone #todayHeroAction,
+  .hero-greeting-zone #todayHeroAction::after,
+  .notification-bell-btn.notification-arrived .notification-bell-icon,
+  .notification-bell-btn.notification-arrived .notification-badge{
+    animation:none!important;
+  }
+}
+
+
+/* Interactive calendar day details */
+.two-week-calendar>[data-calendar-day]{
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:border-color .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.two-week-calendar>[data-calendar-day].calendar-active{
+  border-color:var(--ink)!important;
+  box-shadow:inset 0 0 0 1px var(--ink);
+}
+@media(hover:hover) and (pointer:fine){
+  .two-week-calendar>[data-calendar-day]:hover{transform:translateY(-1px);border-color:#9B958B}
+  .job-block[data-calendar-job]:hover{border-color:#9B958B;background:#FCFBF8}
+}
+.two-week-calendar>[data-calendar-day]:focus-visible,
+.job-block[data-calendar-job]:focus-visible{
+  outline:3px solid rgba(25,25,25,.18);
+  outline-offset:2px;
+}
+.job-block[data-calendar-job]{cursor:pointer;touch-action:manipulation}
+.calendar-day-details{
+  margin:-6px 0 18px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#F8F5EE;
+}
+.calendar-day-details[hidden]{display:none}
+.calendar-day-details-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:12px;
+}
+.calendar-day-details-head h3{margin:3px 0 4px;font-size:20px;letter-spacing:-.025em;text-transform:capitalize}
+.calendar-day-details-head>div>span{font-size:11px;color:var(--muted)}
+.calendar-day-close{
+  flex:0 0 42px;
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ink);
+  font-size:22px;
+  line-height:1;
+  padding:0;
+}
+.calendar-day-job-list{display:grid;gap:10px}
+.calendar-day-job{
+  display:grid;
+  gap:12px;
+  padding:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.calendar-day-job.is-focus{border-color:var(--ink)}
+.calendar-day-job-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.calendar-day-job-top>div{display:grid;gap:3px;min-width:0}
+.calendar-day-job-top strong{font-size:14px;line-height:1.35}
+.calendar-day-job-top span:not(.status){font-size:12px;color:var(--muted)}
+.calendar-day-job-grid{display:grid;grid-template-columns:.6fr 1fr 2fr;gap:8px}
+.calendar-day-job-grid>span{display:grid;gap:3px;min-width:0;padding:9px 10px;border-radius:11px;background:#F8F6F1}
+.calendar-day-job-grid small,.calendar-day-notes small{font-size:9px;font-weight:900;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.calendar-day-job-grid b{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.calendar-day-notes{margin:0;padding:10px 11px;border-left:3px solid var(--yellow);background:#FFFCED;border-radius:0 10px 10px 0;font-size:12px;line-height:1.5}
+.calendar-day-notes small{display:block;margin-bottom:4px}
+.calendar-day-actions{display:flex;justify-content:flex-end}
+.calendar-day-actions button{min-height:40px}
+@media(max-width:620px){
+  .calendar-day-details{margin:-7px 0 16px;padding:13px;border-radius:14px}
+  .calendar-day-details-head h3{font-size:18px}
+  .calendar-day-job-top{align-items:flex-start}
+  .calendar-day-job-grid{grid-template-columns:1fr 1fr}
+  .calendar-day-address{grid-column:1/-1}
+  .calendar-day-actions{display:grid}
+  .calendar-day-actions button{width:100%;min-height:44px}
+}
+
+
+/* Recurring job controls */
+.recurrence-options{
+  display:grid;
+  gap:8px;
+  padding:12px 13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#F8F5EE;
+}
+.recurrence-options[hidden]{display:none}
+.recurrence-options p{
+  margin:0;
+  font-size:11px;
+  line-height:1.45;
+  color:var(--muted);
+}
+.field-optional{
+  font-size:10px;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:none;
+  letter-spacing:0;
+}
+.recurrence-existing-note{
+  display:grid;
+  gap:4px;
+  padding:12px 13px;
+  border:1px solid #D7D1C5;
+  border-radius:14px;
+  background:#FCFBF8;
+}
+.recurrence-existing-note strong{font-size:12px}
+.recurrence-existing-note span{font-size:11px;color:var(--muted);line-height:1.45}
+.recurring-item[data-calendar-job]{cursor:pointer;border-radius:10px;padding-inline:8px}
+@media(hover:hover) and (pointer:fine){
+  .recurring-item[data-calendar-job]:hover{background:#F8F5EE}
+}
+
+
+/* Client history */
+.client-history-profile{display:grid;gap:16px}
+.client-history-contact{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.client-history-contact>div{
+  min-width:0;
+  display:grid;
+  gap:4px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+}
+.client-history-contact>div.full{grid-column:1/-1}
+.client-history-contact small,
+.client-history-stats small{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.client-history-contact strong{
+  font-size:12px;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.client-history-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+.client-history-stats>span{
+  display:grid;
+  gap:4px;
+  padding:10px;
+  border-radius:12px;
+  background:#F5F2EB;
+  min-width:0;
+}
+.client-history-stats b{font-size:16px;overflow-wrap:anywhere}
+.client-history-section{display:grid;gap:9px}
+.client-history-title{display:flex;justify-content:space-between;align-items:center}
+.client-history-title>span{font-size:10px;color:var(--muted);font-weight:900}
+.client-history-list{display:grid;gap:7px;max-height:310px;overflow:auto;padding-right:2px}
+.client-history-item{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:9px;
+  align-items:center;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+}
+.client-history-icon{
+  width:34px;height:34px;border-radius:10px;background:#F2EFE8;
+  display:grid;place-items:center;font-size:16px
+}
+.client-history-item>div{display:grid;gap:3px;min-width:0}
+.client-history-item strong{font-size:12px}
+.client-history-item small{font-size:10px;color:var(--muted);line-height:1.35}
+.client-history-footer{margin-top:0}
+.recurrence-options{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#F8F6F1;
+}
+.recurrence-options[hidden]{display:none}
+.recurrence-options p,
+.recurrence-existing-note span{
+  margin:0;
+  font-size:11px;
+  line-height:1.45;
+  color:var(--muted);
+}
+.recurrence-existing-note{
+  display:grid;
+  gap:4px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#F8F6F1;
+}
+@media(max-width:620px){
+  .client-history-contact{grid-template-columns:1fr}
+  .client-history-contact>div.full{grid-column:auto}
+  .client-history-stats{grid-template-columns:1fr 1fr}
+  .client-history-footer{display:grid;grid-template-columns:1fr 1fr}
+  .client-history-footer button{width:100%}
+}
+
+
+/* 2026-09-28 — compact Today weather beside sun/moon */
+#todayHeroCard .hero-ecosystem{
+  display:block!important;
+}
+#todayHeroCard .hero-greeting-zone{
+  width:100%;
+  padding:4px 0 6px!important;
+}
+#todayHeroCard .hero-assistant-meta{
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  flex-wrap:nowrap!important;
+  width:100%;
+}
+#todayHeroCard .hero-weather-compact{
+  display:flex;
+  align-items:center;
+  width:auto!important;
+  max-width:230px;
+  min-width:0;
+  flex:0 1 auto;
+  margin:0!important;
+  padding:7px 8px 7px 10px!important;
+  gap:0!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.58)!important;
+  box-shadow:none!important;
+}
+#todayHeroCard .hero-weather-compact .weather-module-top{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  width:100%;
+}
+#todayHeroCard .hero-weather-compact .weather-now{
+  min-width:0;
+  flex:1 1 auto;
+  gap:0!important;
+}
+#todayHeroCard .hero-weather-compact .weather-icon,
+#todayHeroCard .hero-weather-compact #weatherLocation,
+#todayHeroCard .hero-weather-compact #weatherFeels,
+#todayHeroCard .hero-weather-compact .weather-business-note,
+#todayHeroCard .hero-weather-compact .weather-forecast,
+#todayHeroCard .hero-weather-compact .weather-updated{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-compact .weather-now-copy{
+  min-width:0;
+  display:block;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:5px;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row strong{
+  font-size:17px!important;
+  line-height:1;
+  flex:0 0 auto;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row span{
+  display:block;
+  min-width:0;
+  max-width:112px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px!important;
+  font-weight:800;
+  color:#5F5A53;
+}
+#todayHeroCard .hero-weather-compact .weather-open-hint{
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  font-size:11px!important;
+  border:0!important;
+  background:rgba(255,255,255,.68)!important;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin:20px 0 7px!important;
+}
+#todayHeroCard .hero-assistant-meta #todayDatePill{
+  margin-left:auto;
+  flex:0 0 auto;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    gap:6px!important;
+    min-height:48px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    max-width:145px!important;
+    padding:6px 7px 6px 9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row strong{
+    font-size:16px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row span{
+    max-width:70px;
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-open-hint{
+    width:22px!important;
+    height:22px!important;
+    flex-basis:22px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin:17px 0 6px!important;
+  }
+}
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    max-width:126px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row span{
+    max-width:54px;
+  }
+}
+
+
+/* 2026-09-28 — route + live traffic markers */
+.hero-route-chip{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+  min-height:32px;
+  padding:7px 10px;
+  border:1px solid rgba(25,25,25,.12);
+  border-radius:999px;
+  background:rgba(255,255,255,.58);
+  color:#191919;
+  font:900 10px/1 Futura,"Avenir Next",Arial,sans-serif;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.hero-route-chip[hidden]{display:none!important}
+.hero-route-chip-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#67A56E;
+  box-shadow:0 0 0 4px rgba(103,165,110,.12);
+}
+.hero-route-chip:active{transform:scale(.98)}
+
+.route-command-summary{
+  display:grid;
+  justify-items:center;
+  gap:7px;
+  width:min(100%,300px);
+}
+.route-command-summary strong{
+  color:#191919;
+  font-size:14px;
+}
+.route-command-summary span{
+  color:var(--muted);
+  font-size:10px;
+}
+.route-best-btn,
+.route-gps-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  border-radius:999px;
+  background:#191919;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.route-best-btn{
+  min-height:40px;
+  padding:10px 16px;
+  font-size:11px;
+}
+.route-gps-btn{
+  justify-self:start;
+  width:max-content;
+  min-height:31px;
+  margin-top:5px;
+  padding:7px 11px;
+  font-size:10px;
+}
+.route-best-btn:active,
+.route-gps-btn:active{transform:scale(.98)}
+.route-stop>div{min-width:0}
+.route-stop small{overflow-wrap:anywhere}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    min-height:29px;
+    padding:6px 8px;
+    gap:5px;
+    font-size:9px;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip-dot{
+    width:6px;
+    height:6px;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  [data-page="today"] #todayHeroCard .hero-assistant-meta::-webkit-scrollbar{display:none}
+  .route-stop{
+    grid-template-columns:32px minmax(0,1fr) auto;
+    gap:9px;
+    align-items:start;
+  }
+  .route-stop>b{
+    width:32px;
+    height:32px;
+  }
+  .route-gps-btn{
+    min-height:34px;
+    padding:8px 12px;
+  }
+}
+
+
+/* 2026-09-28 — Weather-style Today header v68 */
+#todayHeroCard .hero-assistant-meta{
+  position:relative;
+  align-items:flex-start!important;
+  gap:10px!important;
+  overflow:visible!important;
+}
+#todayHeroCard .hero-weather-compact{
+  display:grid!important;
+  grid-template-columns:1fr;
+  flex:0 1 250px;
+  width:min(250px,100%)!important;
+  max-width:250px!important;
+  min-width:190px;
+  padding:11px 12px!important;
+  border-radius:22px!important;
+  border:1px solid rgba(25,25,25,.10)!important;
+  background:rgba(255,255,255,.52)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  box-shadow:0 8px 24px rgba(25,25,25,.045)!important;
+}
+#todayHeroCard .hero-weather-compact .weather-module-top{
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) 24px;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%;
+}
+#todayHeroCard .hero-weather-compact .weather-icon{
+  display:grid!important;
+  place-items:center;
+  width:42px!important;
+  height:42px!important;
+  flex-basis:42px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  font-size:31px!important;
+  filter:drop-shadow(0 4px 8px rgba(25,25,25,.08));
+}
+#todayHeroCard .hero-weather-compact .weather-now-copy{
+  display:grid!important;
+  gap:2px!important;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact #weatherLocation{
+  display:block!important;
+  color:#777169!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  letter-spacing:.10em!important;
+  text-transform:uppercase;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row>strong{
+  font-size:31px!important;
+  line-height:.95!important;
+  letter-spacing:-.055em!important;
+  color:#191919;
+}
+#todayHeroCard .weather-condition-stack{
+  display:grid;
+  gap:1px;
+  min-width:0;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+  display:block!important;
+  max-width:104px!important;
+  font-size:10px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  color:#4E4943!important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+  color:#706A63;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.2;
+  white-space:nowrap;
+}
+#todayHeroCard .hero-weather-compact .weather-open-hint{
+  width:24px!important;
+  height:24px!important;
+  flex-basis:24px!important;
+  align-self:start;
+  margin-top:1px;
+  font-size:11px!important;
+  border:0!important;
+  background:rgba(255,255,255,.72)!important;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note{
+  display:block!important;
+  margin-top:7px;
+  padding:7px 8px!important;
+  border-radius:11px!important;
+  border:0!important;
+  background:rgba(255,255,255,.44)!important;
+  color:#514C46;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note[hidden]{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-compact .weather-business-note span{
+  display:block!important;
+  color:#514C46!important;
+  font-size:9px!important;
+  line-height:1.28!important;
+  font-weight:800;
+}
+#todayHeroCard .hero-weather-compact #weatherFeels,
+#todayHeroCard .hero-weather-compact .weather-forecast,
+#todayHeroCard .hero-weather-compact .weather-updated{
+  display:none!important;
+}
+
+#todayHeroCard .today-clock{
+  flex:0 0 auto;
+  min-width:106px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-left:auto;
+  margin-top:-7px;
+  padding:8px 10px;
+  border:1px solid rgba(25,25,25,.11);
+  border-radius:18px;
+  background:rgba(255,255,255,.44);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#191919;
+  box-shadow:0 6px 18px rgba(25,25,25,.035);
+}
+#todayHeroCard .today-clock-mark{
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  flex:0 0 27px;
+  border-radius:50%;
+  border:1px solid rgba(25,25,25,.12);
+  background:rgba(255,255,255,.62);
+  font-size:15px;
+  font-weight:900;
+}
+#todayHeroCard .today-clock-copy{
+  display:grid;
+  gap:1px;
+  min-width:0;
+}
+#todayHeroCard #todayClockTime{
+  font-size:12px;
+  line-height:1.05;
+  font-weight:900;
+  white-space:nowrap;
+}
+#todayHeroCard #todayDatePill{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#6E6961!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  line-height:1.15;
+  white-space:nowrap;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin-top:22px!important;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    display:grid!important;
+    grid-template-columns:60px minmax(0,1fr) auto;
+    gap:7px!important;
+    align-items:start!important;
+    min-height:86px;
+  }
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:60px;
+    height:48px;
+    flex-basis:60px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:9px 10px!important;
+    border-radius:18px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    grid-template-columns:35px minmax(0,1fr) 20px;
+    gap:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-icon{
+    width:35px!important;
+    height:35px!important;
+    flex-basis:35px!important;
+    font-size:26px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    gap:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong{
+    font-size:27px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:72px!important;
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:8px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact #weatherLocation{
+    font-size:7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-business-note{
+    margin-top:6px;
+    padding:6px 7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-business-note span{
+    font-size:8px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:88px;
+    margin-top:-10px;
+    padding:7px 8px;
+    gap:5px;
+    border-radius:16px;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    width:24px;
+    height:24px;
+    flex-basis:24px;
+    font-size:13px;
+  }
+  [data-page="today"] #todayHeroCard #todayClockTime{
+    font-size:10px;
+  }
+  [data-page="today"] #todayHeroCard #todayDatePill{
+    font-size:7px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:2/4;
+    justify-self:start;
+    margin-top:0;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin-top:13px!important;
+  }
+}
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:55px minmax(0,1fr) 82px;
+    gap:5px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:82px;
+    padding:6px 7px;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    display:none;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:58px!important;
+  }
+}
+
+
+/* 2026-09-28 — final Safari mobile drawer positioning v69 */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    left:0!important;
+    right:auto!important;
+    transform:translate3d(-110%,0,0)!important;
+    -webkit-transform:translate3d(-110%,0,0)!important;
+    translate:0 0!important;
+    transition:transform .24s ease!important;
+    will-change:transform;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+    transform:translate3d(0,0,0)!important;
+    -webkit-transform:translate3d(0,0,0)!important;
+    translate:0 0!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:860px){
+  body.shell-app #appShell>.sidebar{transition:none!important}
+}
+
+
+/* 2026-09-28 — modern separated weather alert v70 */
+#todayHeroCard .hero-weather-alert{
+  position:relative;
+  width:100%;
+  max-width:none;
+  margin:14px 0 20px;
+  padding:12px 14px 12px 38px;
+  border:1px solid rgba(25,25,25,.10);
+  border-radius:16px;
+  background:rgba(255,255,255,.42);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#4F4A44;
+  box-shadow:0 7px 20px rgba(25,25,25,.035);
+}
+#todayHeroCard .hero-weather-alert[hidden]{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-alert::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:50%;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  transform:translateY(-50%);
+  background:#191919;
+  box-shadow:0 0 0 5px rgba(25,25,25,.07);
+}
+#todayHeroCard .hero-weather-alert.rain::before{
+  background:#6D91BA;
+  box-shadow:0 0 0 5px rgba(109,145,186,.12);
+}
+#todayHeroCard .hero-weather-alert span{
+  display:block;
+  font-size:11px!important;
+  line-height:1.4!important;
+  font-weight:850;
+  letter-spacing:-.005em;
+  color:#4F4A44!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+  grid-template-columns:minmax(0,1fr) 24px!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+  font-size:34px!important;
+}
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-now-copy{
+  padding-left:2px;
+}
+#todayHeroCard .hero-greeting-zone #todayGreeting{
+  margin-top:0!important;
+}
+#todayHeroCard #todayMomentCopy{
+  margin-top:4px;
+  max-width:590px;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    margin:13px 0 18px;
+    padding:11px 12px 11px 34px;
+    border-radius:14px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert::before{
+    left:12px;
+    width:9px;
+    height:9px;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert span{
+    font-size:10px!important;
+    line-height:1.38!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 20px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:30px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin-top:0!important;
+  }
+}
+
+
+/* 2026-09-28 — deterministic Safari drawer v71 */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    left:0!important;
+    right:auto!important;
+    transform:none!important;
+    -webkit-transform:none!important;
+    translate:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    transition:opacity .18s ease,visibility 0s linear .18s!important;
+    will-change:opacity;
+  }
+  body.shell-app #appShell>.sidebar.open{
+    left:0!important;
+    transform:none!important;
+    -webkit-transform:none!important;
+    translate:none!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transition:opacity .18s ease!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:860px){
+  body.shell-app #appShell>.sidebar{transition:none!important}
+}
+
+
+/* 2026-09-28 — Today mobile composition v72 */
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:24px 22px 26px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    width:100%!important;
+    padding:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-auto-rows:auto;
+    gap:12px 12px!important;
+    align-items:start!important;
+    width:100%!important;
+    min-height:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    grid-column:1!important;
+    grid-row:1!important;
+    justify-self:start!important;
+    width:78px!important;
+    height:62px!important;
+    min-width:78px!important;
+    margin:2px 0 0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    grid-column:2!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    align-self:start!important;
+    min-width:112px!important;
+    margin:0!important;
+    padding:9px 11px!important;
+    border-radius:18px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:14px 15px!important;
+    border-radius:20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    display:grid!important;
+    grid-template-columns:40px minmax(0,1fr) 26px!important;
+    gap:10px!important;
+    align-items:center!important;
+    width:100%!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 26px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-now-copy{
+    width:100%!important;
+    min-width:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact #weatherLocation{
+    display:block!important;
+    max-width:none!important;
+    margin:0 0 5px!important;
+    font-size:8px!important;
+    letter-spacing:.12em!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    gap:12px!important;
+    align-items:center!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:42px!important;
+    line-height:.9!important;
+    letter-spacing:-.065em!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .weather-condition-stack{
+    min-width:0!important;
+    gap:3px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    max-width:none!important;
+    width:100%!important;
+    font-size:12px!important;
+    line-height:1.1!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:10px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-open-hint{
+    align-self:center!important;
+    width:28px!important;
+    height:28px!important;
+    flex-basis:28px!important;
+    margin:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    grid-column:1/-1!important;
+    grid-row:3!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:2px 0 8px!important;
+    padding:13px 15px 13px 40px!important;
+    border-radius:16px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-alert span{
+    width:100%!important;
+    max-width:none!important;
+    font-size:11px!important;
+    line-height:1.42!important;
+    white-space:normal!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:1/-1!important;
+    grid-row:4!important;
+    justify-self:start!important;
+    margin:0!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayGreeting{
+    margin:10px 0 6px!important;
+  }
+
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    margin:0 0 2px!important;
+    max-width:none!important;
+  }
+}
+
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:minmax(0,1fr) 104px!important;
+    gap:10px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:70px!important;
+    height:58px!important;
+    min-width:70px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:104px!important;
+    padding:8px 10px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    display:grid!important;
+    width:23px!important;
+    height:23px!important;
+    flex-basis:23px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:39px!important;
+  }
+}
+
+
+/* 2026-09-28 — greeting-first Today layout v73 */
+#todayHeroCard .hero-greeting-zone{
+  width:100%;
+  padding:0!important;
+}
+
+#todayHeroCard .today-greeting-first{
+  display:grid;
+  gap:4px;
+  margin:0 0 18px;
+}
+
+#todayHeroCard .today-greeting-first #todayGreeting{
+  margin:0!important;
+}
+
+#todayHeroCard .today-greeting-first #todayMomentCopy{
+  margin:0!important;
+  max-width:620px!important;
+}
+
+#todayHeroCard .hero-assistant-meta{
+  display:grid!important;
+  grid-template-columns:56px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+
+#todayHeroCard .hero-sky-badge{
+  grid-column:1!important;
+  width:56px!important;
+  height:50px!important;
+  min-width:56px!important;
+  margin:0!important;
+}
+
+#todayHeroCard .hero-weather-compact{
+  grid-column:2!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:9px 11px!important;
+  border-radius:17px!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-module-top{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr) 22px!important;
+  gap:7px!important;
+  align-items:center!important;
+  width:100%!important;
+}
+
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+  grid-template-columns:minmax(0,1fr) 22px!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-icon{
+  width:34px!important;
+  height:34px!important;
+  flex-basis:34px!important;
+  font-size:24px!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-now-copy{
+  min-width:0!important;
+  padding:0!important;
+}
+
+#todayHeroCard .hero-weather-compact #weatherLocation{
+  display:block!important;
+  margin:0 0 2px!important;
+  font-size:7px!important;
+  letter-spacing:.1em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-temp-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+  font-size:29px!important;
+  line-height:.95!important;
+  letter-spacing:-.05em!important;
+  white-space:nowrap!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-condition-stack{
+  display:grid!important;
+  gap:1px!important;
+  min-width:0!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+  display:block!important;
+  max-width:none!important;
+  font-size:10px!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+  font-size:8px!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+}
+
+#todayHeroCard .hero-weather-compact .weather-open-hint{
+  width:22px!important;
+  height:22px!important;
+  flex-basis:22px!important;
+  margin:0!important;
+  align-self:center!important;
+  font-size:10px!important;
+}
+
+#todayHeroCard .today-clock{
+  grid-column:3!important;
+  min-width:92px!important;
+  margin:0!important;
+  padding:7px 9px!important;
+  border-radius:16px!important;
+  align-self:center!important;
+}
+
+#todayHeroCard .today-clock-mark{
+  width:22px!important;
+  height:22px!important;
+  flex-basis:22px!important;
+  font-size:12px!important;
+}
+
+#todayHeroCard #todayClockTime{
+  font-size:10px!important;
+}
+
+#todayHeroCard #todayDatePill{
+  font-size:7px!important;
+}
+
+#todayHeroCard .hero-weather-alert{
+  width:100%!important;
+  max-width:none!important;
+  margin:12px 0 0!important;
+  padding:10px 12px 10px 34px!important;
+  border-radius:14px!important;
+}
+
+#todayHeroCard .hero-weather-alert span{
+  font-size:10px!important;
+  line-height:1.35!important;
+}
+
+#todayHeroCard .hero-route-chip{
+  margin:10px 0 0!important;
+}
+
+#todayHeroCard #todayHeroAction{
+  margin-top:16px!important;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:24px 22px 26px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    margin-bottom:16px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:48px minmax(0,1fr) 88px!important;
+    gap:8px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:48px!important;
+    height:44px!important;
+    min-width:48px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    padding:8px 9px!important;
+    border-radius:16px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    grid-template-columns:30px minmax(0,1fr) 20px!important;
+    gap:6px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-icon{
+    width:30px!important;
+    height:30px!important;
+    flex-basis:30px!important;
+    font-size:21px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:27px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    font-size:9px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:7px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:88px!important;
+    padding:7px 8px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    display:none!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    margin-top:10px!important;
+  }
+
+  [data-page="today"] #todayHeroCard #todayHeroAction{
+    margin-top:14px!important;
+  }
+}
+
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-assistant-meta{
+    grid-template-columns:42px minmax(0,1fr) 82px!important;
+    gap:7px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:42px!important;
+    height:40px!important;
+    min-width:42px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:82px!important;
+    padding:6px 7px!important;
+  }
+
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:25px!important;
+  }
+}
+
+/* 2026-09-28 — Today hero rebuilt v75 */
+#todayHeroCard{
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#todayHeroCard .hero-ecosystem,
+#todayHeroCard .hero-greeting-zone{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+#todayHeroCard .hero-card-topline{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  width:100%!important;
+  gap:18px!important;
+  margin:0 0 24px!important;
+}
+#todayHeroCard .today-clock{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex:0 0 auto!important;
+  min-width:124px!important;
+  margin:0!important;
+  padding:9px 11px!important;
+  border-radius:18px!important;
+}
+#todayHeroCard .today-clock-mark{
+  display:grid!important;
+}
+#todayHeroCard .hero-sky-badge{
+  position:relative!important;
+  flex:0 0 78px!important;
+  width:78px!important;
+  min-width:78px!important;
+  height:60px!important;
+  margin:0 6px 0 0!important;
+}
+#todayHeroCard .today-greeting-first{
+  display:grid!important;
+  gap:7px!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0 0 16px!important;
+}
+#todayHeroCard .today-greeting-first #todayGreeting{
+  margin:0!important;
+}
+#todayHeroCard .today-greeting-first #todayMomentCopy{
+  margin:0!important;
+  max-width:620px!important;
+}
+
+/* Large primary CTA directly below the greeting */
+#todayHeroCard .hero-greeting-zone #todayHeroAction{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:56px!important;
+  margin:0 0 18px!important;
+  padding:0 22px!important;
+  border-radius:18px!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:-.01em!important;
+  align-self:stretch!important;
+}
+
+/* Compact weather card: full width, no overflow, no duplicate celestial icon */
+#todayHeroCard .hero-weather-compact{
+  display:block!important;
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:14px 15px!important;
+  border-radius:19px!important;
+  overflow:hidden!important;
+}
+#todayHeroCard .hero-weather-compact .weather-module-top,
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 30px!important;
+  align-items:center!important;
+  gap:12px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+#todayHeroCard .hero-weather-compact .weather-icon{
+  display:none!important;
+}
+#todayHeroCard .hero-weather-compact .weather-now-copy{
+  display:grid!important;
+  gap:5px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+#todayHeroCard .hero-weather-compact #weatherLocation{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  color:#706A63!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  line-height:1.1!important;
+  letter-spacing:.13em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:14px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+#todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+#todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+  display:block!important;
+  flex:none!important;
+  margin:0!important;
+  color:#191919!important;
+  font-size:42px!important;
+  line-height:.88!important;
+  letter-spacing:-.07em!important;
+  white-space:nowrap!important;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack{
+  display:grid!important;
+  gap:3px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  color:#47433E!important;
+  font-size:12px!important;
+  line-height:1.16!important;
+  font-weight:900!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+#todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+  display:block!important;
+  color:#706A63!important;
+  font-size:10px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#todayHeroCard .hero-weather-compact .weather-open-hint{
+  display:grid!important;
+  place-items:center!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  align-self:center!important;
+}
+#todayHeroCard .hero-weather-compact #weatherFeels,
+#todayHeroCard .hero-weather-compact .weather-forecast,
+#todayHeroCard .hero-weather-compact .weather-updated{
+  display:none!important;
+}
+
+/* Alert remains a separate compact strip beneath weather */
+#todayHeroCard .hero-weather-alert{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  margin:10px 0 0!important;
+  padding:11px 13px 11px 38px!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+}
+#todayHeroCard .hero-weather-alert span{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  font-size:11px!important;
+  line-height:1.38!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+#todayHeroCard .hero-route-chip{
+  margin:10px 0 0!important;
+}
+
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard{
+    padding:22px 20px 24px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    gap:14px!important;
+    margin-bottom:23px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:116px!important;
+    padding:9px 10px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    width:25px!important;
+    height:25px!important;
+    flex-basis:25px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayClockTime{
+    font-size:11px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayDatePill{
+    font-size:8px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    flex-basis:72px!important;
+    width:72px!important;
+    min-width:72px!important;
+    height:58px!important;
+    margin-right:3px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    margin-bottom:15px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayHeroAction{
+    width:100%!important;
+    min-height:55px!important;
+    margin:0 0 17px!important;
+    border-radius:17px!important;
+    font-size:15px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding:13px 14px!important;
+    border-radius:18px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-module-top{
+    grid-template-columns:minmax(0,1fr) 28px!important;
+    gap:10px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    grid-template-columns:auto minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:40px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    font-size:11px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-open-hint{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    margin-top:9px!important;
+    padding:11px 12px 11px 36px!important;
+  }
+}
+
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard{
+    padding-left:18px!important;
+    padding-right:18px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    gap:10px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:108px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-sky-badge{
+    flex-basis:66px!important;
+    width:66px!important;
+    min-width:66px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row{
+    gap:10px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:37px!important;
+  }
+}
+
+
+/* 2026-09-28 — Today clock legibility v80 */
+#todayHeroCard #todayClockTime{
+  font-size:14px!important;
+  line-height:1.05!important;
+}
+#todayHeroCard #todayDatePill{
+  font-size:9px!important;
+  line-height:1.2!important;
+}
+#todayHeroCard .today-clock{
+  min-width:132px!important;
+  padding:10px 12px!important;
+}
+#todayHeroCard .today-clock-mark{
+  width:27px!important;
+  height:27px!important;
+  flex-basis:27px!important;
+}
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard #todayClockTime{
+    font-size:13px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayDatePill{
+    font-size:9px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock{
+    min-width:122px!important;
+    padding:9px 10px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-clock-mark{
+    width:25px!important;
+    height:25px!important;
+    flex-basis:25px!important;
+  }
+}
+
+
+/* 2026-09-28 — Tablet + desktop dashboard density v95 */
+@media (min-width:861px) and (max-width:1199px){
+  body.shell-app #appShell{
+    grid-template-columns:220px minmax(0,1fr)!important;
+  }
+  body.shell-app #appShell>.sidebar{
+    padding:22px 15px!important;
+  }
+  body.shell-app #appShell>.main{
+    width:100%!important;
+    max-width:none!important;
+    padding:0 24px 56px!important;
+  }
+  [data-page="today"]{
+    width:100%!important;
+    max-width:none!important;
+  }
+  [data-page="today"] #todayHeroCard{
+    padding:30px 28px!important;
+    border-radius:30px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(40px,5vw,58px)!important;
+    line-height:.96!important;
+    letter-spacing:-.055em!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:17px!important;
+    max-width:720px!important;
+  }
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:14px!important;
+    margin-bottom:22px!important;
+  }
+  [data-page="today"] .metric-card{
+    grid-column:span 2;
+    min-height:142px!important;
+    padding:20px!important;
+    border-radius:22px!important;
+  }
+  [data-page="today"] .metric-card:nth-child(4),
+  [data-page="today"] .metric-card:nth-child(5){
+    grid-column:span 3;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    letter-spacing:.08em!important;
+    text-transform:uppercase;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:42px!important;
+    line-height:.95!important;
+    margin:14px 0 8px!important;
+    letter-spacing:-.055em!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:12px!important;
+  }
+  [data-page="today"] .dashboard-grid,
+  [data-page="today"] .dashboard-grid.lower{
+    gap:16px!important;
+  }
+  [data-page="today"] .panel{
+    padding:22px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:104px!important;
+  }
+  [data-page="reports"] .report-grid .panel>strong{
+    font-size:46px!important;
+    line-height:.95!important;
+  }
+}
+
+@media (min-width:1200px){
+  body.shell-app #appShell{
+    grid-template-columns:280px minmax(0,1fr)!important;
+  }
+  body.shell-app #appShell>.main{
+    width:100%!important;
+    max-width:none!important;
+    padding:0 44px 76px!important;
+  }
+  body.shell-app .topbar{
+    padding-top:26px!important;
+    margin-bottom:28px!important;
+  }
+  [data-page="today"]{
+    width:100%!important;
+    max-width:1680px!important;
+    margin:0 auto!important;
+  }
+
+  /* Use desktop width horizontally instead of stretching the mobile stack */
+  [data-page="today"] #todayHeroCard{
+    padding:34px 36px!important;
+    border-radius:32px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.55fr) minmax(300px,.72fr)!important;
+    grid-template-areas:
+      "top top"
+      "greeting weather"
+      "action weather"
+      "route alert"!important;
+    column-gap:34px!important;
+    row-gap:12px!important;
+    align-items:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    grid-area:top!important;
+    margin-bottom:6px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    grid-area:greeting!important;
+    margin:0!important;
+    align-self:end!important;
+  }
+  [data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(48px,4.5vw,72px)!important;
+    line-height:.93!important;
+    letter-spacing:-.06em!important;
+    max-width:900px!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:18px!important;
+    line-height:1.4!important;
+    max-width:760px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone #todayHeroAction{
+    grid-area:action!important;
+    width:min(420px,100%)!important;
+    min-height:54px!important;
+    margin:4px 0 0!important;
+    justify-self:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-area:weather!important;
+    align-self:stretch!important;
+    min-height:168px!important;
+    padding:22px 22px!important;
+    border-radius:22px!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-module-top{
+    width:100%!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  [data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:58px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>span{
+    font-size:14px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact .weather-condition-stack>small{
+    font-size:11px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-alert{
+    grid-area:alert!important;
+    margin:0!important;
+    align-self:start!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-area:route!important;
+    margin:2px 0 0!important;
+    justify-self:start!important;
+  }
+
+  [data-page="today"] .metric-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:16px!important;
+    margin-bottom:24px!important;
+  }
+  [data-page="today"] .metric-card,
+  [data-page="today"] .metric-card:last-child{
+    grid-column:auto!important;
+    min-height:154px!important;
+    padding:22px 24px!important;
+    border-radius:24px!important;
+  }
+  [data-page="today"] .metric-card span{
+    font-size:11px!important;
+    letter-spacing:.09em!important;
+    text-transform:uppercase;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:48px!important;
+    line-height:.92!important;
+    margin:16px 0 9px!important;
+    letter-spacing:-.06em!important;
+  }
+  [data-page="today"] .metric-card small{
+    font-size:12px!important;
+    line-height:1.35!important;
+  }
+
+  [data-page="today"] .dashboard-grid{
+    grid-template-columns:minmax(0,1.45fr) minmax(300px,.55fr)!important;
+    gap:22px!important;
+  }
+  [data-page="today"] .dashboard-grid.lower{
+    grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)!important;
+    gap:22px!important;
+  }
+  [data-page="today"] .panel{
+    padding:26px!important;
+    border-radius:26px!important;
+  }
+  [data-page="today"] .panel h3{
+    font-size:24px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:112px!important;
+    padding:18px!important;
+  }
+  [data-page="today"] .quick-card span{
+    font-size:12px!important;
+  }
+  [data-page="today"] .presence-panel{
+    padding:26px!important;
+  }
+  [data-page="reports"] .report-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:20px!important;
+  }
+  [data-page="reports"] .report-grid .panel>strong{
+    font-size:54px!important;
+    line-height:.92!important;
+    letter-spacing:-.055em!important;
+  }
+}
+
+@media (min-width:1500px){
+  body.shell-app #appShell>.main{
+    padding-left:56px!important;
+    padding-right:56px!important;
+  }
+  [data-page="today"] .metric-card strong{
+    font-size:52px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    min-height:180px!important;
+  }
+}
+
+
+/* Follow-ups module — isolated workspace */
+.followup-intro{
+  align-items:flex-start;
+}
+.followup-metrics{
+  margin-bottom:20px;
+}
+.followup-layout{
+  display:grid;
+  grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);
+  gap:20px;
+  align-items:start;
+}
+.followup-rules-panel,
+.followup-queue-panel,
+.followup-sent-panel{
+  min-width:0;
+}
+.panel-heading-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.panel-heading-row h3{
+  margin:3px 0 0;
+}
+.followup-rules-copy{
+  margin:10px 0 18px;
+  color:var(--muted);
+  line-height:1.5;
+  font-size:13px;
+}
+.followup-rule-list{
+  display:grid;
+  gap:10px;
+}
+.followup-rule{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 0;
+  border-top:1px solid var(--line);
+}
+.followup-rule:first-child{
+  border-top:0;
+}
+.followup-rule>span{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.followup-rule strong{
+  font-size:14px;
+}
+.followup-rule small{
+  color:var(--muted);
+  line-height:1.35;
+}
+.followup-rule select{
+  flex:0 0 132px;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  padding:8px 10px;
+  font-weight:800;
+}
+.followup-rule-controls{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.followup-edit-btn{
+  padding:8px 10px;
+  border-radius:10px;
+  background:#F7F4EE;
+  font-size:11px;
+  white-space:nowrap;
+}
+.followup-edit-btn.has-custom{
+  background:var(--blue);
+  color:var(--ink);
+}
+.followup-message-editor{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#FCFBF8;
+}
+.followup-message-editor[hidden]{display:none!important}
+.followup-editor-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.followup-editor-head h4{
+  margin:2px 0 0;
+  font-size:18px;
+  letter-spacing:-.02em;
+}
+.followup-editor-close{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ink);
+  font-size:22px;
+  line-height:1;
+}
+.followup-editor-help{
+  margin:10px 0 14px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.followup-editor-grid{
+  display:grid;
+  grid-template-columns:minmax(140px,.42fr) minmax(0,1fr);
+  gap:12px;
+}
+.followup-editor-grid label{
+  display:grid;
+  gap:6px;
+  min-width:0;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+.followup-editor-grid input,
+.followup-editor-grid select,
+.followup-editor-grid textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--ink);
+  padding:11px 12px;
+  font:inherit;
+  font-size:13px;
+  outline:none;
+}
+.followup-editor-grid input:focus,
+.followup-editor-grid select:focus,
+.followup-editor-grid textarea:focus{
+  border-color:#AFA89C;
+  box-shadow:0 0 0 3px rgba(25,25,25,.04);
+}
+.followup-editor-grid textarea{
+  min-height:150px;
+  resize:vertical;
+  line-height:1.5;
+}
+.followup-editor-message{
+  grid-column:1/-1;
+}
+.followup-template-note{
+  margin:11px 0 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+.followup-editor-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.followup-editor-actions .primary-btn,
+.followup-editor-actions .ghost-btn{
+  min-height:38px;
+  padding:9px 13px;
+  font-size:11px;
+}
+.followup-editor-status{
+  min-height:18px;
+  margin-top:9px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+}
+.followup-list{
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+.followup-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+}
+.followup-card.is-due{
+  border-color:rgba(242,216,91,.9);
+  box-shadow:0 8px 24px rgba(25,25,25,.04);
+}
+.followup-card-main{
+  min-width:0;
+  display:grid;
+  gap:5px;
+}
+.followup-card-main>strong{
+  font-size:16px;
+}
+.followup-card-main>span{
+  color:#4f4b45;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.followup-card-main>small{
+  color:var(--muted);
+  overflow-wrap:anywhere;
+}
+.followup-card-top{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-bottom:2px;
+}
+.followup-card-top>small{
+  color:var(--muted);
+  font-weight:800;
+}
+.followup-card-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:7px;
+  max-width:340px;
+}
+.followup-card-actions .primary-btn,
+.followup-card-actions .ghost-btn{
+  padding:9px 12px;
+  min-height:36px;
+  font-size:11px;
+}
+.followup-card-actions .text-btn{
+  font-size:11px;
+  padding:7px 8px;
+}
+.followup-sent-panel{
+  margin-top:20px;
+}
+.followup-sent-list{
+  display:grid;
+  gap:0;
+  margin-top:10px;
+}
+.followup-history-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:12px 0;
+  border-top:1px solid var(--line);
+}
+.followup-history-row:first-child{
+  border-top:0;
+}
+.followup-history-row small{
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+@media(max-width:980px){
+  .followup-layout{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:720px){
+  .followup-intro{
+    gap:14px;
+  }
+  .followup-intro #followUpRefreshBtn{
+    width:100%;
+  }
+  .followup-rule{
+    align-items:flex-start;
+  }
+  .followup-rule select{
+    flex-basis:126px;
+  }
+  .followup-rule-controls{
+    width:100%;
+    justify-content:space-between;
+  }
+  .followup-rule-controls select{
+    flex:1 1 120px;
+  }
+  .followup-edit-btn{
+    flex:0 0 auto;
+  }
+  .followup-editor-grid{
+    grid-template-columns:1fr;
+  }
+  .followup-editor-message{
+    grid-column:auto;
+  }
+  .followup-editor-actions .primary-btn,
+  .followup-editor-actions .ghost-btn{
+    flex:1 1 140px;
+  }
+  .followup-card{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .followup-card-actions{
+    justify-content:flex-start;
+    max-width:none;
+  }
+  .followup-card-actions .primary-btn,
+  .followup-card-actions .ghost-btn{
+    flex:1 1 140px;
+  }
+  .followup-history-row{
+    grid-template-columns:auto 1fr;
+  }
+  .followup-history-row small{
+    grid-column:2;
+  }
+}
+
+
+/* Booking Center compact hierarchy — stable-107 */
+.booking-experience-compact .panel-head,
+.availability-compact .panel-head{margin-bottom:12px}
+.compact-flow{gap:7px}
+.compact-flow span{padding:8px 11px;font-size:12px}
+.booking-experience-note{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+.booking-experience-note strong{color:var(--ink)}
+.booking-experience-note>span:not(#bookingPaymentMethods){padding:0 3px}
+.availability-compact .availability-settings{margin-bottom:8px}
+.availability-compact .availability-week{gap:0}
+.availability-compact .availability-day{padding:6px 0;min-height:48px}
+.availability-compact .availability-day input[type="time"]{padding:7px 8px;min-height:38px}
+.availability-compact .helper{margin:10px 0 0;font-size:11px;line-height:1.45}
+@media(max-width:620px){
+  .booking-experience-compact,.availability-compact{padding-top:22px;padding-bottom:22px}
+  .booking-experience-compact .panel-head,.availability-compact .panel-head{align-items:flex-start}
+  .compact-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .compact-flow b{display:none}
+  .compact-flow span{width:auto!important;text-align:center;padding:8px 5px;font-size:10px;border-radius:10px}
+  .booking-experience-note{font-size:11px}
+  .availability-compact .availability-settings{grid-template-columns:1fr 1fr;gap:8px}
+  .availability-compact .availability-settings label{font-size:10px}
+  .availability-compact .availability-settings select{padding:8px;font-size:11px}
+  .availability-compact .availability-day{grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);gap:6px;padding:5px 0}
+  .availability-compact .availability-day .day-toggle{font-size:10px;gap:5px}
+  .availability-compact .availability-day input[type="time"]{font-size:11px;padding:6px;min-height:36px}
+}
+
+
+/* Public booking vs quote separation — stable-108 */
+.public-request-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:0 0 18px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#F5F2EC;
+}
+.public-request-tab{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:10px 12px;
+  border-radius:12px;
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+.public-request-tab.active{
+  background:var(--ink);
+  color:#fff;
+  box-shadow:0 5px 14px rgba(25,25,25,.12);
+}
+.public-request-tab:not(.active):hover{background:#fff;color:var(--ink)}
+#publicServiceField>span{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:800;
+  color:#5D5952;
+}
+@media(max-width:520px){
+  .public-request-switch{gap:5px;padding:4px;border-radius:14px}
+  .public-request-tab{min-height:42px;padding:8px 7px;font-size:11px}
+}
+
+/* iOS standalone tap reliability — stable-111 */
+.public-request-switch{position:relative;z-index:2}
+.public-request-tab{
+  border:0;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.public-request-tab:active{transform:scale(.985)}
+
+
+/* Booking requests: mobile-safe actions and visible client linkage */
+.booking-request-copy{min-width:0}
+.booking-linked-client{
+  display:block;
+  margin-top:6px;
+  color:#3f6750!important;
+  font-size:11px!important;
+  line-height:1.35;
+}
+.booking-request-actions{
+  gap:8px!important;
+}
+.booking-request-actions .booking-action{
+  min-height:44px;
+  padding:10px 14px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+  line-height:1.1;
+}
+.booking-request-actions .booking-action-primary{
+  background:var(--green)!important;
+  color:#245A36!important;
+}
+.booking-request-actions .booking-action-client{
+  background:var(--ink)!important;
+  color:#fff!important;
+}
+@media(max-width:620px){
+  .booking-request-row{
+    padding:16px!important;
+    gap:14px!important;
+  }
+  .booking-request-row>.record-actions.booking-request-actions{
+    width:100%;
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:10px!important;
+  }
+  .booking-request-actions .status{
+    grid-column:1/-1;
+    justify-self:start;
+  }
+  .booking-request-actions .booking-action{
+    width:100%;
+    min-height:50px;
+    padding:12px 14px!important;
+    font-size:14px!important;
+  }
+  .booking-request-actions .booking-action-primary{
+    grid-column:1/-1;
+  }
+}
+
+/* Compact operational cards · stable-114 */
+@media(max-width:680px){
+  /* Clients */
+  [data-page="clients"] .client-grid{gap:10px!important}
+  [data-page="clients"] .client-card.client-card-compact{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="clients"] .client-card-head{gap:9px!important}
+  [data-page="clients"] .client-avatar{
+    width:42px!important;height:42px!important;min-width:42px!important;
+    font-size:16px!important;border-radius:13px!important;
+  }
+  [data-page="clients"] .client-card-identity strong{font-size:17px!important;line-height:1.1!important}
+  [data-page="clients"] .client-card-identity span,
+  [data-page="clients"] .client-location{font-size:12px!important;line-height:1.25!important}
+  [data-page="clients"] .client-location{margin-top:1px!important}
+  [data-page="clients"] .client-card-actions{
+    margin-top:7px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="clients"] .client-card-actions .safe-actions{gap:6px!important}
+  [data-page="clients"] .client-card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="clients"] .record-delete-btn{margin-top:0!important}
+
+  /* Quotes */
+  [data-page="quotes"] .kanban{gap:10px!important}
+  [data-page="quotes"] .kanban-col{
+    padding:12px!important;
+    border-radius:18px!important;
+  }
+  [data-page="quotes"] .kanban-col h3{margin:0 1px 7px!important;font-size:16px!important}
+  [data-page="quotes"] .kanban-col article{
+    padding:13px!important;
+    border-radius:16px!important;
+    gap:5px!important;
+  }
+  [data-page="quotes"] .kanban-col article>strong{font-size:17px!important;line-height:1.15!important}
+  [data-page="quotes"] .kanban-col article>small{font-size:12px!important;line-height:1.25!important}
+  [data-page="quotes"] .kanban-col article>b{font-size:12px!important;line-height:1.2!important}
+  [data-page="quotes"] .record-card-actions{
+    margin-top:8px!important;
+    padding-top:9px!important;
+    gap:6px!important;
+  }
+  [data-page="quotes"] .record-card-actions .safe-actions{gap:6px!important}
+  [data-page="quotes"] .record-card-actions button{
+    min-height:42px!important;
+    padding:9px 11px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Invoice / Mileage / Time rows */
+  [data-page="invoices"] .table-card,
+  [data-page="mileage"] .table-card,
+  [data-page="time"] .table-card{
+    padding:8px!important;
+    border-radius:18px!important;
+  }
+  [data-page="invoices"] .mobile-record-card,
+  [data-page="mileage"] .mobile-record-card,
+  [data-page="time"] .mobile-record-card{
+    padding:12px!important;
+    border-radius:15px!important;
+    gap:7px!important;
+    margin:0 0 7px!important;
+  }
+  [data-page="invoices"] .record-primary strong,
+  [data-page="mileage"] .record-primary strong,
+  [data-page="time"] .record-primary strong{font-size:15px!important;line-height:1.15!important}
+  [data-page="invoices"] .record-primary small,
+  [data-page="mileage"] .record-primary small,
+  [data-page="time"] .record-primary small,
+  [data-page="invoices"] .record-field,
+  [data-page="mileage"] .record-field,
+  [data-page="time"] .record-field{
+    font-size:12px!important;
+    line-height:1.25!important;
+  }
+  [data-page="invoices"] .record-actions{margin-top:5px!important;gap:6px!important}
+  [data-page="invoices"] .record-actions .safe-actions{gap:6px!important}
+  [data-page="invoices"] .record-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+  [data-page="time"] .time-hide-btn{
+    min-height:38px!important;
+    padding:7px 9px!important;
+    font-size:11px!important;
+  }
+  [data-page="time"] .timer-card{
+    padding:14px!important;
+    border-radius:18px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="time"] .timer-card h3{margin:4px 0!important;font-size:18px!important}
+  [data-page="time"] .timer-empty{margin-bottom:10px!important;padding:16px!important}
+
+  /* Supplies */
+  [data-page="supplies"] .supplies-grid{gap:10px!important}
+  [data-page="supplies"] .supply-card{
+    padding:13px!important;
+    border-radius:18px!important;
+    gap:7px!important;
+  }
+  [data-page="supplies"] .supply-head{gap:8px!important}
+  [data-page="supplies"] .supply-head strong{font-size:16px!important;line-height:1.15!important}
+  [data-page="supplies"] .supply-head small,
+  [data-page="supplies"] .supply-meta,
+  [data-page="supplies"] .muted-line{font-size:11px!important;line-height:1.25!important}
+  [data-page="supplies"] .supply-qty{margin:2px 0!important}
+  [data-page="supplies"] .supply-qty strong{font-size:24px!important}
+  [data-page="supplies"] .card-actions{margin-top:6px!important;gap:6px!important}
+  [data-page="supplies"] .card-actions button{
+    min-height:42px!important;
+    padding:9px 10px!important;
+    border-radius:13px!important;
+    font-size:12px!important;
+  }
+
+  /* Compact summary metrics only on the requested operational pages */
+  [data-page="invoices"] .metric-grid.compact,
+  [data-page="mileage"] .metric-grid.compact,
+  [data-page="supplies"] .metric-grid.compact{
+    gap:8px!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card,
+  [data-page="mileage"] .metric-grid.compact .metric-card,
+  [data-page="supplies"] .metric-grid.compact .metric-card{
+    min-height:88px!important;
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  [data-page="invoices"] .metric-grid.compact .metric-card strong,
+  [data-page="mileage"] .metric-grid.compact .metric-card strong,
+  [data-page="supplies"] .metric-grid.compact .metric-card strong{
+    font-size:24px!important;
+    margin:5px 0 0!important;
+  }
+}
+
+@media(max-width:620px){
+  [data-page="clients"] .client-card-actions .safe-actions,
+  [data-page="quotes"] .record-card-actions .safe-actions,
+  [data-page="invoices"] .record-actions .safe-actions{
+    grid-template-columns:1fr 1fr!important;
+  }
+  [data-page="clients"] .client-card-actions button,
+  [data-page="quotes"] .record-card-actions button,
+  [data-page="invoices"] .record-actions button,
+  [data-page="supplies"] .card-actions button{
+    min-height:44px!important;
+  }
+}
+
+/* Default service add-ons · stable-115 */
+.public-addon-note{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+  padding:10px 12px;
+  margin-bottom:2px;
+  border-radius:13px;
+  background:#F7F4EC;
+  border:1px solid var(--line);
+}
+.public-addon-note strong{font-size:12px;line-height:1.2}
+.public-addon-note span{font-size:11px;line-height:1.35;color:var(--muted)}
+.addon-choice.addon-default{background:#F7FBF5}
+.addon-choice.addon-default input{accent-color:#245A36}
+@media(max-width:620px){
+  .public-addon-note{padding:9px 10px}
+  .addon-choice{min-height:52px;padding:11px!important}
+}
+
+/* Tablet online presence layout · stable-116 */
+@media (min-width:681px) and (max-width:1180px){
+  [data-page="today"] .presence-panel{
+    display:grid!important;
+    grid-template-columns:minmax(210px,.75fr) minmax(0,1.25fr)!important;
+    align-items:center!important;
+    gap:22px!important;
+    padding:22px!important;
+  }
+  [data-page="today"] .presence-copy{
+    max-width:none!important;
+  }
+  [data-page="today"] .presence-copy h3{
+    font-size:21px!important;
+    line-height:1.08!important;
+  }
+  [data-page="today"] .presence-actions{
+    width:100%!important;
+    grid-template-columns:repeat(2,minmax(150px,1fr))!important;
+    gap:10px!important;
+  }
+  [data-page="today"] .presence-btn{
+    min-height:64px!important;
+    padding:12px 14px!important;
+    gap:11px!important;
+  }
+  [data-page="today"] .presence-btn strong{
+    font-size:12px!important;
+  }
+  [data-page="today"] .presence-btn small{
+    font-size:10px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    line-height:1.25!important;
+  }
+}
+
+
+
+/* 2026-09-28 — dedicated tablet Today layout v121 */
+@media (min-width:721px) and (max-width:1100px){
+  /* Use tablet width intentionally instead of scaling the phone layout */
+  [data-page="today"] #todayHeroCard{
+    padding:22px 24px!important;
+    margin-bottom:16px!important;
+    border-radius:26px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr)!important;
+    grid-template-rows:auto auto auto!important;
+    column-gap:20px!important;
+    row-gap:10px!important;
+    align-items:start!important;
+    padding:0!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{
+    grid-column:1/-1!important;
+    grid-row:1!important;
+    margin:0 0 2px!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first{
+    grid-column:1!important;
+    grid-row:2!important;
+    margin:0!important;
+    align-self:center!important;
+  }
+  [data-page="today"] #todayHeroCard .today-greeting-first #todayGreeting{
+    font-size:clamp(34px,4.1vw,48px)!important;
+    line-height:.98!important;
+    margin:0 0 7px!important;
+    max-width:100%!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:14px!important;
+    line-height:1.4!important;
+    max-width:95%!important;
+  }
+  [data-page="today"] #todayHeroCard #todayHeroAction{
+    grid-column:1!important;
+    grid-row:3!important;
+    min-height:48px!important;
+    margin:0!important;
+    border-radius:16px!important;
+    width:100%!important;
+    font-size:13px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-weather-compact{
+    grid-column:2!important;
+    grid-row:2!important;
+    align-self:stretch!important;
+    display:flex!important;
+    align-items:center!important;
+    min-height:84px!important;
+    padding:14px 15px!important;
+    border-radius:18px!important;
+    background:rgba(255,255,255,.62)!important;
+  }
+  [data-page="today"] #todayHeroCard .weather-business-note{
+    grid-column:2!important;
+    grid-row:3!important;
+    margin:0!important;
+    min-height:48px!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:9px 11px!important;
+    border-radius:14px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-column:2!important;
+    width:100%!important;
+    margin-top:0!important;
+  }
+
+  /* All five KPIs visible at once on tablet */
+  [data-page="today"] > .metric-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:10px!important;
+    margin-bottom:16px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card,
+  [data-page="today"] > .metric-grid .metric-card:last-child{
+    grid-column:auto!important;
+    min-height:108px!important;
+    padding:14px 13px!important;
+    border-radius:17px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card span{
+    font-size:10px!important;
+    line-height:1.2!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card strong{
+    font-size:30px!important;
+    line-height:1!important;
+    margin:9px 0 5px!important;
+  }
+  [data-page="today"] > .metric-grid .metric-card small{
+    font-size:10px!important;
+    line-height:1.25!important;
+  }
+
+  /* Bring the useful dashboard modules above the fold on tablet */
+  [data-page="today"] .dashboard-grid{
+    grid-template-columns:minmax(0,1.35fr) minmax(235px,.65fr)!important;
+    gap:14px!important;
+    margin-bottom:14px!important;
+  }
+  [data-page="today"] .dashboard-grid.lower{
+    grid-template-columns:minmax(0,1.2fr) minmax(235px,.8fr)!important;
+  }
+  [data-page="today"] .panel{
+    padding:18px!important;
+    border-radius:20px!important;
+  }
+  [data-page="today"] .panel-head{
+    margin-bottom:14px!important;
+  }
+  [data-page="today"] .quick-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  [data-page="today"] .quick-card{
+    min-height:76px!important;
+    padding:11px!important;
+    font-size:18px!important;
+  }
+  [data-page="today"] .quick-card span{
+    margin-top:10px!important;
+    font-size:10px!important;
+  }
+}
+
+
+/* 2026-09-28 — tablet calendar + form spacing v122 */
+
+/* Weather alert dot participates in layout so it can never cover the copy. */
+#todayHeroCard .hero-weather-alert{
+  display:grid!important;
+  grid-template-columns:10px minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:11px!important;
+  padding:11px 14px!important;
+}
+#todayHeroCard .hero-weather-alert::before{
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  align-self:center!important;
+  grid-column:1!important;
+  grid-row:1!important;
+}
+#todayHeroCard .hero-weather-alert>span{
+  grid-column:2!important;
+  min-width:0!important;
+}
+
+/* Month controls */
+.calendar-month-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.calendar-month-actions[hidden]{display:none!important}
+.calendar-month-btn{
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:var(--ink);
+  font-weight:900;
+  cursor:pointer;
+}
+.calendar-month-btn:active{transform:scale(.96)}
+
+/* Full month view for tablet + desktop. Phone keeps the compact 14-day calendar. */
+@media (min-width:721px){
+  .calendar-range-pill-mobile{display:none!important}
+  .two-week-calendar.month-calendar{
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    gap:7px!important;
+    overflow:visible!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day]{
+    min-height:92px!important;
+    padding:10px 7px!important;
+    border-radius:13px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day] em{
+    font-size:8px!important;
+  }
+  .two-week-calendar.month-calendar>[data-calendar-day] strong{
+    font-size:22px!important;
+    margin-top:4px!important;
+  }
+  .two-week-calendar.month-calendar .calendar-job-count{
+    margin-top:auto;
+    font-size:8px!important;
+  }
+  .two-week-calendar.month-calendar .calendar-outside{
+    opacity:.38;
+    background:#F8F6F1;
+  }
+}
+@media (max-width:720px){
+  .calendar-month-actions{display:none!important}
+  .calendar-range-pill-mobile{display:inline-flex!important}
+}
+
+/* Tablet modal audit: all entity forms share .form-grid, so fix spacing once. */
+@media (min-width:621px) and (max-width:1100px){
+  .modal{
+    width:min(720px,calc(100vw - 48px))!important;
+    max-width:calc(100vw - 48px)!important;
+    padding:34px!important;
+  }
+  .entity-form{
+    margin-top:22px!important;
+  }
+  .entity-form .form-grid{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    column-gap:26px!important;
+    row-gap:20px!important;
+  }
+  .entity-form .form-grid>label{
+    min-width:0!important;
+    gap:8px!important;
+  }
+  .entity-form input,
+  .entity-form select,
+  .entity-form textarea{
+    min-width:0!important;
+    min-height:50px!important;
+  }
+  .entity-form textarea{min-height:110px!important}
+  .job-form-grid label:has(input[name="time"]){
+    padding-right:3px;
+  }
+  .job-form-grid label:has(input[name="duration_minutes"]){
+    padding-left:3px;
+  }
+  .form-footer{
+    gap:12px!important;
+    margin-top:26px!important;
+  }
+}
+
+/* 2026-09-28 — public app brand link v124 */
+.public-app-home{color:inherit;text-decoration:none;cursor:pointer}
+.public-app-home:focus-visible{outline:3px solid rgba(25,25,25,.18);outline-offset:5px;border-radius:12px}
+
+
+/* 2026-09-28 — tablet legal footer bottom v126 */
+@media (min-width:621px) and (max-width:1100px){
+  body.shell-app #appShell>.main{
+    min-height:100dvh!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  body.shell-app #appShell>.main>.view.active{
+    flex:1 0 auto!important;
+  }
+  body.shell-app .app-legal-footer{
+    width:100%!important;
+    margin-top:auto!important;
+    padding:18px 4px max(10px,env(safe-area-inset-bottom))!important;
+    border-top:1px solid var(--line)!important;
+    display:grid!important;
+    grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;
+    gap:14px 22px!important;
+    position:static!important;
+    inset:auto!important;
+    background:transparent!important;
+  }
+  body.shell-app .app-legal-footer>div{
+    display:grid!important;
+    gap:2px!important;
+    white-space:nowrap!important;
+  }
+  body.shell-app .app-legal-footer nav{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    gap:7px 14px!important;
+  }
+  body.shell-app .app-legal-footer nav a,
+  body.shell-app .app-legal-footer nav button{
+    font-size:10px!important;
+    line-height:1.3!important;
+  }
+  body.shell-app .footer-share-app-btn{
+    margin:0!important;
+    justify-self:end!important;
+    align-self:center!important;
+  }
+  body.shell-app .sidebar-support-actions{
+    display:none!important;
+  }
+}
+@media (min-width:621px) and (max-width:760px){
+  body.shell-app .app-legal-footer{
+    grid-template-columns:1fr!important;
+    justify-items:start!important;
+    gap:9px!important;
+  }
+  body.shell-app .app-legal-footer nav{
+    justify-content:flex-start!important;
+  }
+  body.shell-app .footer-share-app-btn{
+    justify-self:start!important;
+  }
+}
+
+
+/* 2026-09-29 — welcome CTA hierarchy: acquisition first, sign-in secondary */
+#authWelcomeStart{
+  min-height:58px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  font-weight:850!important;
+  box-shadow:0 9px 22px rgba(25,25,25,.12);
+}
+.auth-welcome-existing{
+  margin-top:-3px!important;
+  color:#6F6A62!important;
+  font-size:12.5px!important;
+  line-height:1.5!important;
+}
+.auth-welcome-existing #authWelcomeSignIn{
+  padding:4px 2px!important;
+  color:#393631!important;
+  font-size:12.5px!important;
+  font-weight:750!important;
+  text-decoration:none!important;
+  border-bottom:1px solid #BDB7AE!important;
+  border-radius:0!important;
+}
+.auth-welcome-existing #authWelcomeSignIn:hover,
+.auth-welcome-existing #authWelcomeSignIn:focus-visible{
+  color:#292723!important;
+  border-bottom-color:#292723!important;
+}
+@media(max-width:620px){
+  #authWelcomeStart{min-height:56px!important}
+  .auth-welcome-existing{font-size:12.5px!important}
+  .auth-welcome-existing #authWelcomeSignIn{font-size:12.5px!important}
+}
