@@ -7566,3 +7566,37 @@ body.shell-auth{overflow-anchor:none}
     justify-self:start!important;
   }
 }
+
+
+/* 2026-09-29 — welcome CTA hierarchy: acquisition first, sign-in secondary */
+#authWelcomeStart{
+  min-height:58px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+  font-weight:850!important;
+  box-shadow:0 9px 22px rgba(25,25,25,.12);
+}
+.auth-welcome-existing{
+  margin-top:-5px!important;
+  color:#8A857E!important;
+  font-size:11px!important;
+}
+.auth-welcome-existing #authWelcomeSignIn{
+  padding:3px 1px!important;
+  color:#625E58!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  text-decoration:none!important;
+  border-bottom:1px solid #BDB7AE!important;
+  border-radius:0!important;
+}
+.auth-welcome-existing #authWelcomeSignIn:hover,
+.auth-welcome-existing #authWelcomeSignIn:focus-visible{
+  color:#292723!important;
+  border-bottom-color:#292723!important;
+}
+@media(max-width:620px){
+  #authWelcomeStart{min-height:56px!important}
+  .auth-welcome-existing{font-size:10.5px!important}
+  .auth-welcome-existing #authWelcomeSignIn{font-size:10.5px!important}
+}
