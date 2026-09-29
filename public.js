@@ -449,6 +449,8 @@
       const propertySizeInput=$("#publicPropertySize");
       const propertySizeUnit=$("#publicPropertySizeUnit");
       const propertySizeOptional=$("#publicPropertySizeOptional");
+      const petsSelect=$("#publicPets");
+      const petDetailsWrap=$("#publicPetDetailsWrap");
       const timeZoneNotice=$("#publicTimeZoneNotice");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
@@ -479,7 +481,12 @@
 
       function renderBusinessTimeZoneNotice(){
         if(!timeZoneNotice) return;
-        timeZoneNotice.textContent=tt("Times shown in the cleaning business’s local time")+" · "+businessTimeZoneLabel();
+        const deviceZone=String(Intl.DateTimeFormat().resolvedOptions().timeZone||"").trim();
+        const businessLabel=businessTimeZoneLabel();
+        const differentZone=deviceZone && deviceZone!==businessZone;
+        timeZoneNotice.textContent=differentZone
+          ? tt("Times shown in the cleaning business’s local time")+" · "+businessLabel+" · "+tt("Your device time zone")+": "+deviceZone
+          : tt("Times shown in the cleaning business’s local time")+" · "+businessLabel;
       }
 
       function syncPropertyDetails(){
@@ -501,9 +508,18 @@
         if(propertySizeOptional) propertySizeOptional.hidden=false;
       }
 
+      function syncPetDetails(){
+        if(!petDetailsWrap) return;
+        petDetailsWrap.hidden=String(petsSelect?.value||"")!=="yes";
+        const input=petDetailsWrap.querySelector('input[name="pet_details"]');
+        if(input && petDetailsWrap.hidden) input.value="";
+      }
+
       renderBusinessTimeZoneNotice();
       syncPropertyDetails();
+      syncPetDetails();
       propertyTypeSelect?.addEventListener("change",syncPropertyDetails);
+      petsSelect?.addEventListener("change",syncPetDetails);
 
       function chosenAddonIds(){
         return addonBox ? $$('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
@@ -716,9 +732,13 @@
           const bathrooms=String(fd.get("bathrooms")||"").trim();
           const floors=String(fd.get(propertyType==="commercial"?"commercial_floors":"floors")||"").trim();
           const pets=String(fd.get("pets")||"").trim();
+          const petDetails=String(fd.get("pet_details")||"").trim();
           const commercialSpaceType=String(fd.get("commercial_space_type")||"").trim();
           const restrooms=String(fd.get("restrooms")||"").trim();
+          const businessHours=String(fd.get("business_hours")||"").trim();
+          const cleanDuringBusinessHours=String(fd.get("clean_during_business_hours")||"").trim();
           const lastClean=String(fd.get("last_professional_clean")||"").trim();
+          const cleaningCondition=String(fd.get("cleaning_condition")||"").trim();
           const accessNotes=String(fd.get("access_notes")||"").trim();
           const customerNotes=String(fd.get("notes")||"").trim();
 
@@ -765,6 +785,14 @@
             other:"Other"
           };
           const petLabels={none:"No pets",yes:"Yes",prefer_not:"Prefer not to say"};
+          const conditionLabels={
+            regular:"Regular upkeep",
+            extra_attention:"Needs extra attention",
+            heavy_buildup:"Heavy buildup",
+            move:"Move-in / move-out",
+            unsure:"Not sure"
+          };
+          const duringHoursLabels={yes:"Yes",no:"No",flexible:"Flexible"};
 
           const requestNotes=[
             "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
@@ -773,8 +801,12 @@
             propertyType==="residential" ? "Bathrooms: "+bathrooms : "",
             floors ? "Floors / levels: "+floors : "",
             propertyType==="residential" && pets ? "Pets: "+(petLabels[pets]||pets) : "",
+            propertyType==="residential" && petDetails ? "Pet details: "+petDetails : "",
             propertyType==="commercial" ? "Space type: "+(commercialLabels[commercialSpaceType]||commercialSpaceType) : "",
             propertyType==="commercial" && restrooms ? "Restrooms: "+restrooms : "",
+            propertyType==="commercial" && businessHours ? "Business hours: "+businessHours : "",
+            propertyType==="commercial" && cleanDuringBusinessHours ? "Clean during business hours: "+(duringHoursLabels[cleanDuringBusinessHours]||cleanDuringBusinessHours) : "",
+            cleaningCondition ? "Current condition: "+(conditionLabels[cleaningCondition]||cleaningCondition) : "",
             lastClean ? "Last professional clean: "+(lastCleanLabels[lastClean]||lastClean) : "",
             accessNotes ? "Access / parking: "+accessNotes : "",
             customerNotes ? "Special requests: "+customerNotes : ""
@@ -784,7 +816,7 @@
           submit.textContent=tt("Sending…");
           try{
             if(mode==="quote"){
-              await rpc("submit_public_quote_request_v2",{
+              await rpc("submit_public_quote_request_v3",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_customer_name:String(fd.get("name")).trim(),
@@ -795,12 +827,27 @@
                 p_preferred_date:fd.get("date"),
                 p_preferred_time:String(fd.get("time")||"").trim()||null,
                 p_notes:requestNotes||null,
-                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase()
+                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase(),
+                p_property_type:propertyType,
+                p_property_size:propertySize?Number(propertySize):null,
+                p_property_size_unit:String(fd.get("property_size_unit")||"sqft"),
+                p_bedrooms:propertyType==="residential"&&bedrooms!==""?Number(bedrooms):null,
+                p_bathrooms:propertyType==="residential"&&bathrooms!==""?Number(bathrooms):null,
+                p_floors:floors!==""?Number(floors):null,
+                p_pets:propertyType==="residential"?(pets||null):null,
+                p_pet_details:propertyType==="residential"?(petDetails||null):null,
+                p_commercial_space_type:propertyType==="commercial"?(commercialSpaceType||null):null,
+                p_restrooms:propertyType==="commercial"&&restrooms!==""?Number(restrooms):null,
+                p_last_professional_clean:lastClean||null,
+                p_cleaning_condition:cleaningCondition||null,
+                p_access_notes:accessNotes||null,
+                p_business_hours:propertyType==="commercial"?(businessHours||null):null,
+                p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
               const selectedSlot=String(fd.get("slot_start")||"").trim();
               if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
-              await rpc("submit_public_booking_request_v2",{
+              await rpc("submit_public_booking_request_v3",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),
@@ -812,7 +859,22 @@
                 p_requested_start_at:selectedSlot,
                 p_notes:requestNotes||null,
                 p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time"),
-                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase()
+                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase(),
+                p_property_type:propertyType,
+                p_property_size:propertySize?Number(propertySize):null,
+                p_property_size_unit:String(fd.get("property_size_unit")||"sqft"),
+                p_bedrooms:propertyType==="residential"&&bedrooms!==""?Number(bedrooms):null,
+                p_bathrooms:propertyType==="residential"&&bathrooms!==""?Number(bathrooms):null,
+                p_floors:floors!==""?Number(floors):null,
+                p_pets:propertyType==="residential"?(pets||null):null,
+                p_pet_details:propertyType==="residential"?(petDetails||null):null,
+                p_commercial_space_type:propertyType==="commercial"?(commercialSpaceType||null):null,
+                p_restrooms:propertyType==="commercial"&&restrooms!==""?Number(restrooms):null,
+                p_last_professional_clean:lastClean||null,
+                p_cleaning_condition:cleaningCondition||null,
+                p_access_notes:accessNotes||null,
+                p_business_hours:propertyType==="commercial"?(businessHours||null):null,
+                p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }
             form.hidden=true;
