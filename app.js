@@ -7710,11 +7710,13 @@ async function savePayment(fd){
 async function saveClient(fd){
   const preferred=fd.get("preferred_contact");
   const phone=String(fd.get("phone")||"").trim();
+  const email=String(fd.get("email")||"").trim().toLowerCase();
   if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
+  if(!email) throw new Error("Email is required.");
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
-    email:String(fd.get("email")).trim(),
+    email,
     phone:phone||null,
     preferred_contact:preferred,
     preferred_language:normalizedCustomerEmailLanguage(fd.get("preferred_language")),
@@ -7724,12 +7726,29 @@ async function saveClient(fd){
     postal_code:String(fd.get("postal_code")||"").trim()||null,
     notes:String(fd.get("notes")||"").trim()||null
   };
-  const query=state.modalId
-    ? supabase.from("clients").update(payload).eq("id",state.modalId)
-    : supabase.from("clients").insert(payload);
-  const {error}=await query; if(error) throw error;
-}
 
+  if(state.modalId){
+    const {error}=await supabase.from("clients").update(payload).eq("id",state.modalId);
+    if(error) throw error;
+    return;
+  }
+
+  const {data:existing,error:lookupError}=await supabase
+    .from("clients")
+    .select("id")
+    .eq("business_id",state.business.id)
+    .is("archived_at",null)
+    .eq("email",email)
+    .limit(1)
+    .maybeSingle();
+  if(lookupError) throw lookupError;
+
+  const query=existing?.id
+    ? supabase.from("clients").update(payload).eq("id",existing.id)
+    : supabase.from("clients").insert(payload);
+  const {error}=await query;
+  if(error) throw error;
+}
 async function saveService(fd){
   let pricing=fd.get("pricing_type")==="flat"?"flat":"quote";
   const priceRaw=String(fd.get("base_price")||"").trim();
