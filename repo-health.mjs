@@ -83,42 +83,34 @@ if(/PRIMARY_PLATFORM_ADMIN_EMAIL|LEGACY_PLATFORM_ADMIN_EMAIL|isPrimaryPlatformAd
 
 if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   fail("active language set must be EN/ES/FR/HT");
-}
-if(/function langPick\(en,es,_pt,fr\)/.test(app)){
-  fail("legacy Portuguese langPick argument returned");
-}else if(!app.includes("function langPick(en,es,fr)")){
-  fail("langPick must expose EN/ES/FR with Haitian Creole resolved through i18n");
 }else{
-  pass("langPick runtime no longer carries a Portuguese argument");
-}
-else{
   pass("active language set is EN/ES/FR/HT");
 }
+
 if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){
   fail("Portuguese is still exposed as an active runtime language choice");
 }
+
 if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|Português|Portuguese/.test(i18n)){
   fail("inactive Portuguese translation code remains in i18n.js");
 }else{
   pass("inactive Portuguese translation payload is absent");
 }
 
-if(/\bpt:\s*\{/.test(i18n) || /Português|Portuguese/.test(i18n)){
-  fail("legacy Portuguese dictionaries or labels must not ship in i18n.js");
-}else{
-  pass("legacy Portuguese dictionaries are absent");
-}
-
-if(!app.includes("function langPick(en,es,fr)")){
-  fail("langPick must use the active EN/ES/FR signature; Haitian Creole comes from i18n");
+if(/function langPick\(en,es,_pt,fr\)/.test(app)){
+  fail("legacy Portuguese langPick argument returned");
+}else if(!app.includes("function langPick(en,es,fr)")){
+  fail("langPick must expose EN/ES/FR with Haitian Creole resolved through i18n");
 }else{
   pass("dynamic language helper uses the active language signature");
 }
+
 if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(onboardingCopy) || /Português|Portuguese/.test(onboardingCopy)){
   fail("inactive Portuguese payload remains in app.js or onboarding-copy.js");
 }else{
   pass("inactive Portuguese payload is absent from app and onboarding copy");
 }
+
 if(
   !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
   !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
