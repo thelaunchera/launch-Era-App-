@@ -7,6 +7,7 @@ const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
+const onboardingCopy=fs.readFileSync("onboarding-copy.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 const styles=[
@@ -197,6 +198,13 @@ if(!app.includes("function langPick(en,es,fr)") || !i18n.includes('const SUPPORT
 }
 if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18n)){
   throw new Error("Localization regression: legacy Portuguese dictionaries, assignments, or labels returned");
+}
+
+if(/\bpt\s*:/.test(app) || /Português|Portuguese/.test(app) || /\bpt\s*:/.test(onboardingCopy) || /Português|Portuguese/.test(onboardingCopy)){
+  throw new Error("Localization regression: inactive Portuguese payload returned in app or onboarding copy");
+}
+if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
+  throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
 }
 if(
   !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
