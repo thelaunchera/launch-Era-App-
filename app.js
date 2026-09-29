@@ -4223,7 +4223,7 @@ function invoicePaidAmount(inv){
 
 function enhanceMobileRecordActions(){
   if(!window.matchMedia("(max-width: 680px)").matches) return;
-  $(".mobile-record-card .record-actions").forEach(actions=>{
+  $$(".mobile-record-card .record-actions").forEach(actions=>{
     if(actions.dataset.compactReady==="1") return;
     const safe=actions.querySelector(".safe-actions");
     if(!safe) return;
@@ -4240,7 +4240,7 @@ function enhanceMobileRecordActions(){
   });
 }
 document.addEventListener("click",e=>{
-  if(!e.target.closest(".record-actions")) $(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
+  if(!e.target.closest(".record-actions")) $$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
 });
 
 function renderInvoices(){
@@ -5273,16 +5273,16 @@ function installGlobalWorkspaceSearch(){
 }
 function setBookingStep(step){
   const valid=["links","services","availability","preferences"]; if(!valid.includes(step))step="links";
-  $("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
-  $("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
+  $$("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
+  $$("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
   try{localStorage.setItem("tle_booking_step",step);}catch{}
 }
 function installProgressiveBooking(){
-  $("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
+  $$("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
   let saved="links";try{saved=localStorage.getItem("tle_booking_step")||"links";}catch{} setBookingStep(saved);
 }
 function installSettingsAccordion(){
-  $(".settings-accordion>.settings-section").forEach((panel,i)=>{
+  $$(".settings-accordion>.settings-section").forEach((panel,i)=>{
     if(panel.dataset.accordionReady)return; panel.dataset.accordionReady="1";
     const head=panel.querySelector(".panel-head")||panel.querySelector("h3"); if(!head)return;
     panel.classList.toggle("settings-open",i===0);
