@@ -195,6 +195,16 @@ if(spanishOnlyBranches!==1){
 if(!app.includes("function langPick(en,es,_pt,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
+if(/\bpt:\s*\{/.test(i18n) || i18n.includes("Português") || i18n.includes("Portuguese")){
+  throw new Error("Localization regression: legacy Portuguese dictionaries or labels returned");
+}
+if(
+  !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
+  !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
+  !i18n.includes('localStorage.removeItem(STORAGE_KEY);')
+){
+  throw new Error("Localization regression: unsupported saved languages are not normalized");
+}
 for(const phrase of ["Today’s jobs","Current client records","Still to collect","Waiting for review","Your scheduled jobs will appear here."]){
   if(!i18n.includes(JSON.stringify(phrase))){
     throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
