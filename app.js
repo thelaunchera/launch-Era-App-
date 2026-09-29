@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-email-language-settings-140";
+const APP_VERSION = "20260929-customer-language-142";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -723,7 +723,6 @@ function globalDefaultsFromGeo(geo){
   return {
     country_code:country,
     default_language:language,
-    customer_email_language:language,
     locale_code:localeForCountry(country,language),
     currency_code:currencyForCountry(country),
     distance_unit:["US","GB"].includes(country)?"mi":"km",
@@ -2823,7 +2822,7 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit: globalSetup.distance_unit,
       temperature_unit: globalSetup.temperature_unit,
       default_language: globalSetup.default_language,
-      customer_email_language: globalSetup.customer_email_language,
+      customer_email_language: "en",
       payment_methods:paymentMethodsForCountry(globalSetup.country_code),
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
@@ -2836,7 +2835,7 @@ businessForm.addEventListener("submit", async (e)=>{
     state.business={
       id:data.id,name:data.name,email:data.email,phone:data.phone,role:"owner",team_member_id:null,
       timezone:data.timezone,default_language:data.default_language,
-      customer_email_language:data.customer_email_language||data.default_language,
+      customer_email_language:data.customer_email_language||"en",
       country_code:data.country_code,locale_code:data.locale_code,currency_code:data.currency_code,
       distance_unit:data.distance_unit,temperature_unit:data.temperature_unit,payment_methods:data.payment_methods,
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
@@ -3270,7 +3269,7 @@ async function initialize(){
         team_member_id:null,
         timezone:b.timezone,
         default_language:b.default_language,
-        customer_email_language:b.customer_email_language||b.default_language,
+        customer_email_language:b.customer_email_language||"en",
         country_code:b.country_code,
         locale_code:b.locale_code,
         currency_code:b.currency_code,
@@ -3304,7 +3303,7 @@ async function initialize(){
     team_member_id:context.team_member_id,
     timezone:context.timezone,
     default_language:context.default_language,
-    customer_email_language:context.customer_email_language||context.default_language,
+    customer_email_language:context.customer_email_language||"en",
     country_code:context.country_code,
     locale_code:context.locale_code,
     currency_code:context.currency_code,
@@ -6086,7 +6085,7 @@ async function openBusinessProfileForm(){
     service_area:state.business.service_area||"",
     timezone:state.business.timezone||"UTC",
     default_language:state.business.default_language||"en",
-    customer_email_language:state.business.customer_email_language||state.business.default_language||"en",
+    customer_email_language:state.business.customer_email_language||"en",
     country_code:state.business.country_code||"US",
     locale_code:state.business.locale_code||"en-US",
     currency_code:state.business.currency_code||"USD",
@@ -6126,8 +6125,8 @@ async function openBusinessProfileForm(){
       <label>${escapeHtml(tr("Customer communication language"))}<select name="customer_email_language" required>
         <option value="en" ${record.customer_email_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.customer_email_language==="es"?"selected":""}>Español</option>
-        <option value="pt" ${record.customer_email_language==="pt"?"selected":""}>Português</option>
         <option value="fr" ${record.customer_email_language==="fr"?"selected":""}>Français</option>
+        <option value="ht" ${record.customer_email_language==="ht"?"selected":""}>Kreyòl Ayisyen</option>
       </select><small>${escapeHtml(tr("Default for customer emails, quotes, invoices, booking confirmations, reminders and follow-ups. A customer can keep their own preferred language."))}</small></label>
       <label>Currency<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
       <label>Distance<select name="distance_unit"><option value="mi" ${record.distance_unit==="mi"?"selected":""}>Miles</option><option value="km" ${record.distance_unit==="km"?"selected":""}>Kilometers</option></select></label>
