@@ -363,35 +363,50 @@
         </span>
       </button>
 
-      <nav class="nav-list" aria-label="App navigation">
-        <button class="nav-item active" data-view="today">Today <span>⌂</span></button>
-        <div class="nav-label">Get work</div>
-        <button class="nav-item" data-view="booking" data-admin-only>Booking Center <span>↗</span></button>
-        <button class="nav-item" data-view="leads" data-admin-only>Leads <span>◎</span></button>
-        <button class="nav-item" data-view="quotes" data-admin-only>Quotes <span>◫</span></button>
-        <button class="nav-item" data-view="followups" data-admin-only>Follow-ups <span>↻</span></button>
+      <nav class="nav-list simplified-nav" aria-label="App navigation">
+        <button class="nav-item active nav-primary" data-view="today">Today <span>⌂</span></button>
 
-        <div class="nav-label">Do the work</div>
-        <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
-        <button class="nav-item" data-view="clients" data-admin-only>Clients <span>◌</span></button>
-        <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
-        <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
+        <details class="nav-group" open>
+          <summary>Customers <span>⌄</span></summary>
+          <div class="nav-group-items">
+            <button class="nav-item" data-view="leads" data-admin-only>Leads <span>◎</span></button>
+            <button class="nav-item" data-view="clients" data-admin-only>Clients <span>◌</span></button>
+            <button class="nav-item" data-view="quotes" data-admin-only>Quotes <span>◫</span></button>
+            <button class="nav-item" data-view="followups" data-admin-only>Follow-ups <span>↻</span></button>
+          </div>
+        </details>
 
-        <div class="nav-label">Get paid</div>
-        <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
+        <details class="nav-group" open>
+          <summary>Schedule <span>⌄</span></summary>
+          <div class="nav-group-items">
+            <button class="nav-item" data-view="booking" data-admin-only>Booking <span>↗</span></button>
+            <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
+            <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
+          </div>
+        </details>
 
-        <div class="nav-label">Run the business</div>
-        <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
-        <button class="nav-item" data-view="mileage">Mileage <span>↔</span></button>
-        <button class="nav-item" data-view="supplies" data-admin-only>Supplies <span>▣</span></button>
-        <button class="nav-item" data-view="reports" data-owner-only>Owner Reports <span>↗</span></button>
+        <details class="nav-group">
+          <summary>Money <span>⌄</span></summary>
+          <div class="nav-group-items">
+            <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
+            <button class="nav-item" data-view="reports" data-owner-only>Reports <span>↗</span></button>
+          </div>
+        </details>
 
-        <div class="nav-label">Setup</div>
-        <button class="nav-item" data-view="services" data-admin-only>Services + Add-ons <span>＋</span></button>
-        <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
-        <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner settings <span>🔒</span></button>
-        <button class="nav-item platform-admin-link" data-view="platform-admin" data-platform-admin-only>Owner View <span>◆</span></button>
-        <button class="nav-item" data-view="help">Help & FAQ <span>?</span></button>
+        <details class="nav-group">
+          <summary>More <span>⌄</span></summary>
+          <div class="nav-group-items">
+            <button class="nav-item" data-view="services" data-admin-only>Services + Add-ons <span>＋</span></button>
+            <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
+            <button class="nav-item" data-view="mileage">Mileage <span>↔</span></button>
+            <button class="nav-item" data-view="supplies" data-admin-only>Supplies <span>▣</span></button>
+            <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
+            <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
+            <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner settings <span>🔒</span></button>
+            <button class="nav-item platform-admin-link" data-view="platform-admin" data-platform-admin-only>Owner View <span>◆</span></button>
+            <button class="nav-item" data-view="help">Help & FAQ <span>?</span></button>
+          </div>
+        </details>
       </nav>
 
       <div class="trial-card" data-owner-only data-account-billing>
@@ -419,6 +434,13 @@
           <h1 id="pageTitle">Today</h1>
         </div>
         <div class="top-actions">
+          <div class="global-search-shell" id="globalSearchShell">
+            <button class="top-tool-btn global-search-toggle" id="globalSearchToggle" type="button" aria-label="Search"><span class="top-label">Search</span><span class="top-icon" aria-hidden="true">⌕</span></button>
+            <div class="global-search-popover" id="globalSearchPopover" hidden>
+              <label class="global-search-field"><span>Search your workspace</span><input id="globalSearchInput" type="search" autocomplete="off" placeholder="Client, job, quote, invoice…"></label>
+              <div id="globalSearchResults" class="global-search-results"><div class="empty-inline"><strong>Find anything fast.</strong><span>Search clients, jobs, quotes and invoices.</span></div></div>
+            </div>
+          </div>
           <div class="notification-shell">
             <button class="top-tool-btn notification-bell-btn" id="notificationBellBtn" type="button" aria-label="Inquiries" title="Inquiries" aria-expanded="false">
               <span class="top-label">Inquiries</span>
@@ -449,6 +471,10 @@
       </div>
 
       <section class="view active" data-page="today">
+        <article class="first-win-card" id="firstWinCard" hidden>
+          <div><p class="eyebrow" id="firstWinEyebrow">YOUR WORKSPACE IS READY</p><h3 id="firstWinTitle">Get ready for your first booking.</h3><p id="firstWinCopy">Set up what clients can book, when they can book, then share your link.</p></div>
+          <button class="primary-btn" id="firstWinAction" type="button" data-jump="booking">Set up booking →</button>
+        </article>
         <div class="hero-card moment-afternoon is-loading assistant-arrival" id="todayHeroCard">
           <div class="hero-weather-effects" id="heroWeatherEffects" aria-hidden="true">
             <div class="hero-season-layer" id="heroSeasonLayer"></div>
@@ -580,8 +606,14 @@
           <button class="primary-btn" id="copyBooking">Copy booking link</button>
         </div>
 
-        <div class="booking-grid">
-          <article class="panel full">
+        <div class="booking-step-nav" role="tablist" aria-label="Booking setup">
+          <button class="active" type="button" data-booking-step="links">1 · Link</button>
+          <button type="button" data-booking-step="services">2 · Services</button>
+          <button type="button" data-booking-step="availability">3 · Availability</button>
+          <button type="button" data-booking-step="preferences">4 · Preferences</button>
+        </div>
+        <div class="booking-grid progressive-booking">
+          <article class="panel full booking-step-panel" data-booking-panel="links">
             <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Public links</h3></div></div>
             <label class="field-label">Booking link</label>
             <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
@@ -589,17 +621,17 @@
             <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy</button></div>
           </article>
 
-          <article class="panel full">
+          <article class="panel full booking-step-panel booking-requests-always" data-booking-panel="requests">
             <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Booking requests</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
             <div id="bookingRequestsList" class="booking-requests-list"></div>
           </article>
 
-          <article class="panel full">
+          <article class="panel full booking-step-panel" data-booking-panel="services">
             <div class="panel-head"><div><p class="eyebrow">BOOKABLE SERVICES</p><h3>Bookable services</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
             <div id="bookingServicesList" class="booking-services-list"></div>
           </article>
 
-          <article class="panel full booking-experience-compact">
+          <article class="panel full booking-experience-compact booking-step-panel" data-booking-panel="preferences">
             <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Pricing + quotes</h3></div><span class="pill blue">No account required</span></div>
             <div class="flow-row compact-flow">
               <span>Fixed price</span><b>→</b><span>Book</span><b>→</b><span>Custom job</span><b>→</b><span>Quote</span>
@@ -607,7 +639,7 @@
             <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Other</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
           </article>
 
-          <article class="panel full availability-compact">
+          <article class="panel full availability-compact booking-step-panel" data-booking-panel="availability">
             <div class="panel-head">
               <div><p class="eyebrow">AVAILABILITY</p><h3>Availability</h3></div>
               <button class="text-btn" id="saveAvailabilityBtn">Save</button>
@@ -877,8 +909,8 @@
 
       <section class="view" data-page="settings" data-admin-only>
         <div class="section-intro"><div><p class="eyebrow">SETTINGS</p><h2>Business settings</h2></div></div>
-        <div class="settings-grid">
-          <article class="panel">
+        <div class="settings-grid settings-accordion">
+          <article class="panel settings-section">
             <div class="panel-head">
               <div>
                 <p class="eyebrow">COMPANY DETAILS</p>
@@ -897,19 +929,19 @@
             <div class="setting-row"><span><strong>Distance</strong><small id="settingsBusinessDistance">—</small></span></div>
             <div class="setting-row"><span><strong>Temperature</strong><small id="settingsBusinessTemperature">—</small></span></div>
           </article>
-          <article class="panel">
+          <article class="panel settings-section">
             <h3>Booking rules</h3>
             <div class="setting-row"><span><strong>Travel buffer</strong><small id="settingsTravelBuffer">—</small></span></div>
             <div class="setting-row"><span><strong>Minimum notice</strong><small id="settingsBookingNotice">—</small></span></div>
           </article>
-          <article class="panel">
+          <article class="panel settings-section">
             <h3>Contact + payments</h3>
             <div class="setting-row"><span><strong>Client payment methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
             <div class="setting-row"><span><strong>Automatic client emails</strong><small>Quote review · Service confirmation · Invoice · Payment thank-you</small></span><span class="status success">On</span></div>
             <div class="setting-row"><span><strong>Replies go to</strong><small id="settingsReplyEmail">Business login email</small></span></div>
             <div class="setting-row"><span><strong>App access</strong><small>Manage teammates from Team or Owner settings.</small></span></div>
           </article>
-          <article class="panel review-settings-card">
+          <article class="panel settings-section review-settings-card">
             <div class="panel-head">
               <div>
                 <p class="eyebrow">REVIEWS</p>
