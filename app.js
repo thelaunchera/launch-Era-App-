@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-navigation-data-159";
+const APP_VERSION = "20260929-invoice-mobile-actions-160";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4479,7 +4479,7 @@ function invoicePaidAmount(inv){
 function enhanceMobileRecordActions(){
   if(!window.matchMedia("(max-width: 680px)").matches) return;
   $$(".mobile-record-card .record-actions").forEach(actions=>{
-    if(actions.dataset.compactReady==="1") return;
+    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable")) return;
     const safe=actions.querySelector(".safe-actions");
     if(!safe) return;
     const buttons=[...safe.querySelectorAll("button")];
@@ -4542,7 +4542,7 @@ function renderInvoices(){
       <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
       <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total da fatura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
       <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
-      <span class="record-actions">
+      <span class="record-actions invoice-actions-stable">
         <span class="safe-actions">
           <button data-edit-invoice="${inv.id}">${escapeHtml(tr("Edit"))}</button>
           ${dispute?`<button data-resolve-dispute="${dispute.id}">${escapeHtml(tr("Resolve dispute"))}</button>`:""}
