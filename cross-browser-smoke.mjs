@@ -73,7 +73,7 @@ async function assertLayout(page,profile){
     overflow:document.querySelector("#tleLanguageMenu")?.getBoundingClientRect().right>innerWidth+2
   }));
   if(languageShape.featured.join(",")!=="es,en") throw new Error(profile.name+": primary language order changed");
-  if(languageShape.listed.join(",")!=="pt,fr") throw new Error(profile.name+": secondary language list changed");
+  if(languageShape.listed.join(",")!=="fr,ht") throw new Error(profile.name+": secondary language list changed");
   if(languageShape.overflow) throw new Error(profile.name+": language picker overflows viewport");
 
   // Regression guard: switching languages must never keep translated text
@@ -87,20 +87,19 @@ async function assertLayout(page,profile){
 
   await authLanguage.click();
   await page.waitForSelector("#tleLanguageMenu",{state:"visible",timeout:2000});
-  await page.locator('#tleLanguageMenu [data-language-choice="pt"]').click();
-  await page.waitForFunction(()=>document.documentElement.lang==="pt",null,{timeout:2000});
-  const ptAdmin=await page.locator('[data-page="admin"]').textContent();
+  await page.locator('#tleLanguageMenu [data-language-choice="ht"]').click();
+  await page.waitForFunction(()=>document.documentElement.lang==="ht",null,{timeout:2000});
+  const htAdmin=await page.locator('[data-page="admin"]').textContent();
   if(
-    !ptAdmin.includes("SEGURANÇA") ||
-    !ptAdmin.includes("Segurança") ||
-    !ptAdmin.includes("Integrações") ||
-    !ptAdmin.includes("Administrador") ||
-    !ptAdmin.includes("Funcionário") ||
-    ptAdmin.includes("Administrateur") ||
-    ptAdmin.includes("Sécurité") ||
-    ptAdmin.includes("Intégrations")
+    !htAdmin.includes("SEKIRITE") ||
+    !htAdmin.includes("Sekirite") ||
+    !htAdmin.includes("Entegrasyon") ||
+    !htAdmin.includes("Admin") ||
+    !htAdmin.includes("Anplwaye") ||
+    htAdmin.includes("Segurança") ||
+    htAdmin.includes("Português")
   ){
-    throw new Error(profile.name+": Portuguese owner-admin translation is mixed or incomplete");
+    throw new Error(profile.name+": Haitian Creole owner-admin translation is mixed or incomplete");
   }
 
   await authLanguage.click();
