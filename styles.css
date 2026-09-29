@@ -7679,3 +7679,37 @@ body.shell-auth{overflow-anchor:none}
 #todayHeroCard[data-palette-mode="night"].quarter-color-3{background:linear-gradient(135deg,#271C49,#6240A2)!important}
 #todayHeroCard[data-palette-mode="night"] #todayMomentCopy,
 #todayHeroCard[data-palette-mode="night"] .eyebrow{color:rgba(255,255,255,.78)!important}
+
+/* 2026-09-29 — root mobile scroll ownership fix
+   The authenticated app owns vertical scrolling. Prevent iOS/PWA from
+   scrolling the animated shell behind the dashboard. */
+@media(max-width:860px){
+  html:has(body.shell-app),
+  body.shell-app{
+    height:100%;
+    min-height:100%;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+  }
+  body.shell-app #appShell{
+    height:100dvh!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+  body.shell-app #appShell>.main{
+    height:100dvh!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;
+    padding-bottom:max(30px,env(safe-area-inset-bottom))!important;
+  }
+  body.shell-app #appShell>.main>.view.active{
+    min-height:max-content;
+  }
+  body.shell-app #appShell>.sidebar{
+    overscroll-behavior:contain!important;
+  }
+}
