@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-centered-title-176";
+const CACHE_NAME="tle-cleaning-app-20260929-dynamic-home-177";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-centered-title-176",
-  "./app.js?v=20260929-centered-title-176",
-  "./followups.js?v=20260929-centered-title-176",
-  "./i18n.js?v=20260929-centered-title-176",
-  "./public.js?v=20260929-centered-title-176",
-  "./vendor/supabase.js?v=20260929-centered-title-176",
-  "./manifest.webmanifest?v=20260929-centered-title-176"
+  "./styles.css?v=20260929-dynamic-home-177",
+  "./app.js?v=20260929-dynamic-home-177",
+  "./followups.js?v=20260929-dynamic-home-177",
+  "./i18n.js?v=20260929-dynamic-home-177",
+  "./public.js?v=20260929-dynamic-home-177",
+  "./vendor/supabase.js?v=20260929-dynamic-home-177",
+  "./manifest.webmanifest?v=20260929-dynamic-home-177"
 ];
 
 self.addEventListener("install",event=>{
