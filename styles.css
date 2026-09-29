@@ -7600,3 +7600,15 @@ body.shell-auth{overflow-anchor:none}
   .auth-welcome-existing{font-size:10.5px!important}
   .auth-welcome-existing #authWelcomeSignIn{font-size:10.5px!important}
 }
+
+
+/* 2026-09-29 — first-win onboarding + workflow navigation */
+.first-win-shell{padding:18px 24px 0}
+.first-win-card{border:1px solid #d7d1c8;background:#fff;border-radius:22px;padding:22px;box-shadow:0 10px 30px rgba(25,25,25,.045)}
+.first-win-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.first-win-head h2{margin:5px 0 7px;font-size:clamp(24px,3vw,34px);line-height:1.05}.first-win-head p:last-child{margin:0;color:#6f6961}
+.first-win-dismiss{border:0;background:#f4f1ec;width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer}
+.first-win-progress{height:6px;background:#eeeae3;border-radius:999px;overflow:hidden;margin:18px 0}.first-win-progress span{display:block;height:100%;width:0;background:#F2D85B;transition:width .25s ease}
+.first-win-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.first-win-step{border:1px solid #ddd7cf;background:#faf8f3;border-radius:15px;padding:14px;text-align:left;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;cursor:pointer}.first-win-step>span{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#eaf2fd;font-weight:800}.first-win-step strong,.first-win-step small{display:block}.first-win-step small{margin-top:3px;color:#777168;font-size:11px}.first-win-step.is-done{background:#f7f7f2}.first-win-step.is-done>span{background:#F2D85B}.first-win-step.is-done>span{font-size:0}.first-win-step.is-done>span:after{content:"✓";font-size:13px}.first-win-ready{display:flex;align-items:center;gap:12px;border-top:1px solid #e5dfd7;margin-top:16px;padding-top:16px}.first-win-ready>span{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#F2D85B;font-weight:900}.first-win-ready>div{flex:1}.first-win-ready strong,.first-win-ready small{display:block}.first-win-ready small{color:#6f6961;margin-top:2px}
+.nav-label{margin-top:14px}
+@media(max-width:900px){.first-win-steps{grid-template-columns:1fr 1fr}.first-win-shell{padding:14px 14px 0}}
+@media(max-width:600px){.first-win-steps{grid-template-columns:1fr}.first-win-card{padding:17px;border-radius:18px}.first-win-head h2{font-size:25px}.first-win-ready{align-items:flex-start;flex-wrap:wrap}.first-win-ready .dark-btn{width:100%}}
