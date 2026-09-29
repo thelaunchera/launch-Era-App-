@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-ui-stable-163";
+const APP_VERSION = "20260929-live-weather-164";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -644,7 +644,7 @@ function nextRainWindow(weather){
   return event&&event.kind==="rain"?event:null;
 }
 function weatherCacheKey(area){
-  return "tle_weather_v3:"+businessTemperatureUnit()+":"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
+  return "tle_weather_v4:"+businessTemperatureUnit()+":"+String(area||"").trim().toLowerCase().replace(/\s+/g," ").slice(0,120);
 }
 async function fetchJsonWithTimeout(url,ms=5500){
   const controller=new AbortController();
@@ -691,6 +691,90 @@ async function geocodeBusinessArea(area){
     }catch(e){}
   }
   return null;
+}
+
+function getDeviceWeatherGeo(timeoutMs=4200){
+  return new Promise(resolve=>{
+    if(!navigator.geolocation||!window.isSecureContext||window.__tleWeatherGeoDenied){
+      resolve(null);
+      return;
+    }
+    let settled=false;
+    const finish=value=>{
+      if(settled) return;
+      settled=true;
+      resolve(value);
+    };
+    try{
+      navigator.geolocation.getCurrentPosition(position=>{
+        const latitude=Number(position?.coords?.latitude);
+        const longitude=Number(position?.coords?.longitude);
+        if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){
+          finish(null);
+          return;
+        }
+        finish({
+          latitude,
+          longitude,
+          name:String(state.business?.service_area||"").trim()||langPick("Current location","Ubicación actual","Localização atual","Position actuelle"),
+          admin1:"",
+          country:"",
+          country_code:String(state.business?.country_code||"").toUpperCase(),
+          timezone:String(Intl.DateTimeFormat().resolvedOptions().timeZone||state.business?.timezone||"auto"),
+          source:"device"
+        });
+      },error=>{
+        if(Number(error?.code)===1) window.__tleWeatherGeoDenied=true;
+        finish(null);
+      },{
+        enableHighAccuracy:true,
+        maximumAge:90*1000,
+        timeout:timeoutMs
+      });
+    }catch{
+      finish(null);
+    }
+  });
+}
+async function resolveWeatherGeo(area,force=false){
+  const deviceGeo=await getDeviceWeatherGeo(force?4500:3000).catch(()=>null);
+  if(deviceGeo) return deviceGeo;
+  return geocodeBusinessArea(area);
+}
+function syncCurrentWeatherFromMinutely(weather){
+  const series=weather?.minutely_15;
+  const times=series?.time||[];
+  if(!weather?.current||!times.length) return weather;
+  const currentStamp=String(weather.current.time||"").slice(0,16);
+  let index=times.findIndex(t=>String(t).slice(0,16)>=currentStamp);
+  if(index<0) index=times.length-1;
+  if(index>0 && String(times[index]).slice(0,16)>currentStamp) index-=1;
+  index=Math.max(0,index);
+
+  const precipitation=Number(series.precipitation?.[index]||0);
+  const rain=Number(series.rain?.[index]||0);
+  const showers=Number(series.showers?.[index]||0);
+  const snowfall=Number(series.snowfall?.[index]||0);
+  const minutelyCode=Number(series.weather_code?.[index]);
+  const wet=precipitation>0||rain>0||showers>0||snowfall>0;
+  const minutelyKind=precipitationKindForCode(minutelyCode);
+
+  weather.current.precipitation=Math.max(Number(weather.current.precipitation||0),precipitation,rain,showers);
+  if(Number.isFinite(minutelyCode) && (wet||minutelyKind)){
+    weather.current.weather_code=minutelyCode;
+  }
+  if(wet && !precipitationKindForCode(weather.current.weather_code)){
+    weather.current.weather_code=snowfall>0?71:61;
+  }
+  weather.current_15m={
+    time:times[index]||weather.current.time,
+    precipitation,
+    rain,
+    showers,
+    snowfall,
+    weather_code:Number.isFinite(minutelyCode)?minutelyCode:null
+  };
+  return weather;
 }
 function paymentMethodsForCountry(code){
   const country=String(code||"").toUpperCase();
@@ -779,7 +863,7 @@ async function loadBusinessWeather(force=false){
   if(!force){
     try{
       const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
-      if(cached&&cached.weather&&cached.fetchedAt&&now-cached.fetchedAt<15*60*1000){
+      if(cached&&cached.weather&&cached.fetchedAt&&now-cached.fetchedAt<2*60*1000){
         state.weather=cached.weather;
         state.weather.nextPrecip=nextPrecipitationWindow(state.weather);
         state.weather.nextRain=state.weather.nextPrecip?.kind==="rain"?state.weather.nextPrecip:null;
@@ -794,7 +878,7 @@ async function loadBusinessWeather(force=false){
     }catch(e){}
   }
 
-  const geo=await geocodeBusinessArea(area);
+  const geo=await resolveWeatherGeo(area,force);
   if(!geo){
     window.__tleWeatherRetryCount=Number(window.__tleWeatherRetryCount||0)+1;
     renderWeatherPending(window.__tleWeatherRetryCount>2);
@@ -806,7 +890,10 @@ async function loadBusinessWeather(force=false){
     const params=new URLSearchParams({
       latitude:String(geo.latitude),
       longitude:String(geo.longitude),
-      current:"temperature_2m,apparent_temperature,weather_code,precipitation",
+      current:"temperature_2m,apparent_temperature,weather_code,precipitation,rain,showers,snowfall",
+      minutely_15:"precipitation,rain,showers,snowfall,weather_code",
+      past_minutely_15:"4",
+      forecast_minutely_15:"12",
       hourly:"temperature_2m,precipitation_probability,weather_code",
       daily:"weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
       temperature_unit:businessTemperatureUnit(),
@@ -815,6 +902,7 @@ async function loadBusinessWeather(force=false){
       timezone:"auto"
     });
     const weather=await fetchJsonWithTimeout("https://api.open-meteo.com/v1/forecast?"+params.toString());
+    syncCurrentWeatherFromMinutely(weather);
     weather.location=geo;
     weather.nextPrecip=nextPrecipitationWindow(weather);
     weather.nextRain=weather.nextPrecip?.kind==="rain"?weather.nextPrecip:null;
@@ -851,6 +939,19 @@ function currentWeatherVisual(weather){
     return {kind:"rain",intensity:precipitation>=heavyThreshold?"heavy":"light"};
   }
   return {kind:"none",intensity:"none"};
+}
+
+function currentWeatherMeta(weather){
+  const code=Number(weather?.current?.weather_code);
+  const rawKind=precipitationKindForCode(code);
+  const visual=currentWeatherVisual(weather);
+  if(!rawKind&&visual.kind==="rain"){
+    return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
+  }
+  if(!rawKind&&visual.kind==="snow"){
+    return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
+  }
+  return weatherCodeMeta(code);
 }
 
 function currentWeatherSeason(weather){
@@ -947,7 +1048,7 @@ function renderWeatherCoreSnapshot(weather=state.weather){
   const card=$("#weatherBrief");
   if(!card||!weather||!weather.current) return false;
   card.hidden=false;
-  const meta=weatherCodeMeta(weather.current.weather_code);
+  const meta=currentWeatherMeta(weather);
   const temp=Math.round(Number(weather.current.temperature_2m));
   const highs=weather.daily?.temperature_2m_max||[];
   const lows=weather.daily?.temperature_2m_min||[];
@@ -991,7 +1092,7 @@ function renderWeatherBrief(){
   if(!card||!weather||!weather.current) return;
   renderWeatherCoreSnapshot(weather);
 
-  const meta=weatherCodeMeta(weather.current.weather_code);
+  const meta=currentWeatherMeta(weather);
   const temp=Math.round(Number(weather.current.temperature_2m));
   const currentDate=String(weather.current.time||"").slice(0,10);
   const lang=appLanguage();
@@ -1053,7 +1154,16 @@ function renderWeatherBrief(){
     note.classList.remove("rain");
     let text="";
 
-    if(event&&event.hoursAhead<=48){
+    const currentVisual=currentWeatherVisual(weather);
+    const currentKind=precipitationKindForCode(Number(weather.current.weather_code))||(currentVisual.kind==="snow"?"snow":currentVisual.kind==="rain"?"rain":"");
+    if(currentKind){
+      text=currentKind==="snow"
+        ? langPick("Snow now in your area.","Está nevando ahora en tu zona.","Está nevando agora na sua área.","Il neige maintenant dans votre zone.")
+        : currentKind==="storm"
+        ? langPick("Storms are active now in your area.","Hay tormentas ahora en tu zona.","Há tempestades agora na sua área.","Des orages sont actifs maintenant dans votre zone.")
+        : langPick("Rain now in your area.","Está lloviendo ahora en tu zona.","Está chovendo agora na sua área.","Il pleut maintenant dans votre zone.");
+      note.classList.add("rain");
+    }else if(event&&event.hoursAhead<=48){
       const day=weatherDayLabel(event.date,currentDate);
       const when=weatherClockLabel(event.hour);
       const label=event.kind==="snow"
@@ -1106,12 +1216,12 @@ function installLiveDashboardUpdates(){
     if(state.session&&state.business&&document.visibilityState==="visible"){
       loadBusinessWeather(true).catch(function(){});
     }
-  },5*60*1000);
+  },2*60*1000);
 
   document.addEventListener("visibilitychange",function(){
     if(document.visibilityState!=="visible"||!state.session||!state.business) return;
     renderTodaySummary(true);
-    if(Date.now()-(state.weatherFetchedAt||0)>5*60*1000){
+    if(Date.now()-(state.weatherFetchedAt||0)>90*1000){
       loadBusinessWeather(true).catch(function(){});
     }
   });
@@ -5440,7 +5550,8 @@ function dashboardWeatherContext(now,remainingJobs){
   const place=weatherPlaceLabel();
   const code=Number(weather.current.weather_code);
   const temp=Math.round(Number(weather.current.temperature_2m));
-  const currentKind=precipitationKindForCode(code);
+  const visual=currentWeatherVisual(weather);
+  const currentKind=precipitationKindForCode(code)||(visual.kind==="snow"?"snow":visual.kind==="rain"?"rain":"");
   const event=weather.nextPrecip||nextPrecipitationWindow(weather);
   const currentDate=String(weather.current.time||"").slice(0,10);
 
