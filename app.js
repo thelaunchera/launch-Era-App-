@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-langpick-cleanup-203";
+const APP_VERSION = "20260929-repo-hardening-204";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -150,152 +150,8 @@ const pageTitles = {
 
 
 const ONBOARDING_VERSION=1;
-const ONBOARDING_COPY={
-  welcome:{
-    en:{kicker:"YOU’RE IN",title:"Thanks for choosing The Launch Era Cleaning App.",text:"Your account is ready. We’ll stay with you for the first few steps so you can see where everything lives without having to figure it out alone."},
-    es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
-  },
-  today:{
-    en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and follow-through."},
-    es:{title:"Hoy",text:"Tu resumen diario: trabajos de hoy, solicitudes de reserva, cotizaciones, facturas y pendientes."}
-  },
-  booking:{
-    en:{title:"Booking Center",text:"Manage booking requests, availability and the public booking link your clients use."},
-    es:{title:"Centro de reservas",text:"Maneja solicitudes de reserva, disponibilidad y el enlace público que usan tus clientes."}
-  },
-  leads:{
-    en:{title:"Leads",text:"Keep potential customers here before they become active clients or booked jobs."},
-    es:{title:"Leads",text:"Guarda aquí clientes potenciales antes de convertirlos en clientes activos o trabajos reservados."}
-  },
-  clients:{
-    en:{title:"Clients",text:"Store client contact details, service addresses and the records you need for future jobs."},
-    es:{title:"Clientes",text:"Guarda datos de contacto, direcciones de servicio y la información que necesitas para futuros trabajos."}
-  },
-  calendar:{
-    en:{title:"Calendar + Jobs",text:"See upcoming jobs and open dates so you can plan the schedule without double-booking."},
-    es:{title:"Calendario + trabajos",text:"Mira los próximos trabajos y fechas disponibles para organizarte sin duplicar reservas."}
-  },
-  quotes:{
-    en:{title:"Quotes",text:"Review requests, build estimates, send them to clients and track whether they are accepted or declined."},
-    es:{title:"Cotizaciones",text:"Revisa solicitudes, prepara estimados, envíalos al cliente y controla si fueron aceptados o rechazados."}
-  },
-  invoices:{
-    en:{title:"Invoices",text:"Create and send invoices, then record the payment method your business accepts when the client pays."},
-    es:{title:"Facturas",text:"Crea y envía facturas y registra la forma de pago que acepta tu negocio cuando el cliente pague."}
-  },
-  followups:{
-    en:{title:"Follow-ups",text:"See which leads, quotes, invoices, completed cleanings and past clients need the next touch."},
-    es:{title:"Seguimientos",text:"Mira qué leads, cotizaciones, facturas, limpiezas terminadas y clientes anteriores necesitan el próximo contacto."}
-  },
-  route:{
-    en:{title:"Today’s Route",text:"See today’s stops in order so you and your team know where to go next."},
-    es:{title:"Ruta de hoy",text:"Mira las paradas de hoy en orden para que tú y tu equipo sepan cuál sigue."}
-  },
-  mileage:{
-    en:{title:"Mileage",text:"Log business distance connected to jobs so your driving records stay organized."},
-    es:{title:"Millaje",text:"Registra las millas del negocio vinculadas a trabajos para mantener tus recorridos organizados."}
-  },
-  time:{
-    en:{title:"Time Tracking",text:"Start and stop work timers and keep track of hours worked on jobs."},
-    es:{title:"Control de tiempo",text:"Inicia y detén temporizadores de trabajo y lleva control de las horas trabajadas."}
-  },
-  reports:{
-    en:{title:"Owner Reports",text:"Owner-only view of business activity, totals and operational performance."},
-    es:{title:"Reportes del dueño",text:"Vista solo para el dueño con actividad, totales y desempeño operativo del negocio."}
-  },
-  services:{
-    en:{title:"Services + Add-ons",text:"Create the services, prices and extras used in bookings, quotes and invoices."},
-    es:{title:"Servicios + extras",text:"Crea los servicios, precios y extras que usarás en reservas, cotizaciones y facturas."}
-  },
-  supplies:{
-    en:{title:"Supplies",text:"Keep your cleaning supply list organized so you know what the business needs."},
-    es:{title:"Suministros",text:"Mantén organizada tu lista de productos de limpieza para saber qué necesita el negocio."}
-  },
-  team:{
-    en:{title:"Team",text:"Add employees, assign jobs, share Guest Employee Access and message them without exposing owner controls."},
-    es:{title:"Equipo",text:"Añade empleados, asigna trabajos, comparte acceso de invitado y envíales mensajes sin mostrar controles del dueño."}
-  },
-  settings:{
-    en:{title:"Settings",text:"Edit company details, booking rules, payment options, client emails and your review link."},
-    es:{title:"Configuración",text:"Edita datos de la compañía, reglas de reserva, pagos, correos al cliente y enlace de reseñas."}
-  },
-  admin:{
-    en:{title:"Owner Admin",text:"Sensitive owner controls live here: access, permissions, integrations and account-level settings."},
-    es:{title:"Admin del dueño",text:"Aquí están los controles sensibles del dueño: accesos, permisos, integraciones y ajustes de la cuenta."}
-  },
-  help:{
-    en:{title:"Help & FAQ",text:"Find setup help, access instructions and common answers. You can restart this guided tour here anytime."},
-    es:{title:"Ayuda y preguntas",text:"Encuentra ayuda de configuración, instrucciones de acceso y respuestas comunes. Aquí puedes reiniciar este recorrido cuando quieras."}
-  },
-  "platform-admin":{
-    en:{title:"Owner View",text:"Private owner controls for app customers, subscriptions and real product activity."},
-    es:{title:"Owner View",text:"Vista privada para clientes de la app, suscripciones y actividad real del producto."}
-  }
-};
-
-const ONBOARDING_EXTRA={
-  pt:{
-    welcome:{kicker:"BEM-VINDO",title:"Obrigado por usar o The Launch Era Cleaning App.",text:"Sua conta está pronta. Vamos acompanhar seus primeiros passos para você entender onde fica cada coisa sem precisar descobrir tudo sozinho."},
-    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e pendências."},
-    booking:{title:"Reservas",text:"Gerencie pedidos de reserva, disponibilidade e o link público usado pelos clientes."},
-    leads:{title:"Leads",text:"Guarde clientes potenciais aqui antes de virarem clientes ativos ou trabalhos agendados."},
-    clients:{title:"Clientes",text:"Guarde contatos, endereços de serviço e informações necessárias para trabalhos futuros."},
-    calendar:{title:"Calendário + trabalhos",text:"Veja próximos trabalhos e horários livres para organizar a agenda sem reservas duplicadas."},
-    quotes:{title:"Orçamentos",text:"Revise pedidos, crie orçamentos, envie aos clientes e acompanhe se foram aceitos ou recusados."},
-    invoices:{title:"Faturas",text:"Crie e envie faturas e registre a forma de pagamento aceita pela sua empresa."},
-    route:{title:"Rota de hoje",text:"Veja as paradas do dia em ordem para saber para onde ir em seguida."},
-    mileage:{title:"Quilometragem",text:"Registre distâncias de trabalho ligadas aos serviços para manter os deslocamentos organizados."},
-    time:{title:"Controle de tempo",text:"Inicie e finalize cronômetros para acompanhar o tempo trabalhado em cada serviço."},
-    reports:{title:"Relatórios",text:"Veja atividade, totais e desempenho operacional do negócio."},
-    services:{title:"Serviços + extras",text:"Crie serviços, preços e extras usados em reservas, orçamentos e faturas."},
-    supplies:{title:"Materiais",text:"Organize os produtos de limpeza para saber o que precisa ser reposto."},
-    team:{title:"Equipe",text:"Adicione funcionários, atribua trabalhos, compartilhe acesso de convidado e envie mensagens sem expor controles do proprietário."},
-    settings:{title:"Configurações",text:"Edite dados da empresa, regras de reserva, pagamentos, e-mails aos clientes e links."},
-    admin:{title:"Admin do proprietário",text:"Controles sensíveis ficam aqui: acessos, permissões, integrações e configurações da conta."},
-    help:{title:"Ajuda e FAQ",text:"Encontre ajuda de configuração, instruções de acesso e respostas comuns. Você pode reiniciar este tour quando quiser."}
-  },
-  fr:{
-    welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
-    today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
-    booking:{title:"Réservations",text:"Gérez les demandes de réservation, les disponibilités et le lien public utilisé par vos clients."},
-    leads:{title:"Prospects",text:"Gardez les clients potentiels ici avant qu’ils deviennent des clients actifs ou des travaux réservés."},
-    clients:{title:"Clients",text:"Conservez les coordonnées, adresses de service et informations nécessaires pour les prochains travaux."},
-    calendar:{title:"Calendrier + travaux",text:"Consultez les travaux à venir et les créneaux libres pour éviter les doubles réservations."},
-    quotes:{title:"Devis",text:"Examinez les demandes, créez des devis, envoyez-les et suivez leur acceptation ou leur refus."},
-    invoices:{title:"Factures",text:"Créez et envoyez des factures puis enregistrez le mode de paiement accepté par votre entreprise."},
-    route:{title:"Itinéraire du jour",text:"Voyez les arrêts du jour dans l’ordre pour savoir où aller ensuite."},
-    mileage:{title:"Kilométrage",text:"Enregistrez les déplacements professionnels liés aux travaux pour garder vos trajets organisés."},
-    time:{title:"Suivi du temps",text:"Démarrez et arrêtez les chronomètres pour suivre le temps travaillé sur chaque intervention."},
-    reports:{title:"Rapports",text:"Consultez l’activité, les totaux et les performances opérationnelles de l’entreprise."},
-    services:{title:"Services + options",text:"Créez les services, prix et options utilisés dans les réservations, devis et factures."},
-    supplies:{title:"Fournitures",text:"Organisez les produits de nettoyage pour savoir ce qui doit être réapprovisionné."},
-    team:{title:"Équipe",text:"Ajoutez des employés, attribuez des travaux, partagez un accès invité et échangez des messages sans exposer les contrôles du propriétaire."},
-    settings:{title:"Paramètres",text:"Modifiez les informations de l’entreprise, les règles de réservation, paiements, e-mails clients et liens."},
-    admin:{title:"Administration propriétaire",text:"Les contrôles sensibles sont ici : accès, permissions, intégrations et paramètres du compte."},
-    help:{title:"Aide et FAQ",text:"Trouvez l’aide de configuration, les instructions d’accès et les réponses fréquentes. Vous pouvez relancer ce guide à tout moment."}
-  }
-};
-
-ONBOARDING_EXTRA.ht={
-  welcome:{kicker:"BYENVINI",title:"Mèsi paske w ap itilize The Launch Era Cleaning App.",text:"Kont ou pare. N ap gide w nan premye etap yo pou ou konnen kote tout bagay ye san ou pa bezwen dekouvri tout poukont ou."},
-  today:{title:"Jodi a",text:"Rezime jounen ou: travay, demann rezèvasyon, devis, fakti ak aksyon rapid."},
-  booking:{title:"Rezèvasyon",text:"Jere demann rezèvasyon, disponiblite ak lyen piblik kliyan yo itilize."},
-  leads:{title:"Pwospè",text:"Kenbe kliyan potansyèl yo isit la anvan yo vin kliyan aktif oswa travay pwograme."},
-  clients:{title:"Kliyan",text:"Kenbe kontak, adrès sèvis ak enfòmasyon ou bezwen pou pwochen travay yo."},
-  calendar:{title:"Kalandriye + travay",text:"Gade travay k ap vini ak lè ki lib pou òganize orè a san doub rezèvasyon."},
-  quotes:{title:"Devis",text:"Revize demann, kreye devis, voye yo bay kliyan epi swiv si yo aksepte oswa refize."},
-  invoices:{title:"Fakti",text:"Kreye epi voye fakti, epi anrejistre metòd peman biznis ou aksepte."},
-  route:{title:"Wout jodi a",text:"Gade arè jounen an nan lòd pou konnen ki kote pou ale apre sa."},
-  mileage:{title:"Kilometraj",text:"Anrejistre distans biznis ki lye ak travay yo pou kenbe vwayaj yo òganize."},
-  time:{title:"Suivi tan",text:"Kòmanse epi fini kronomèt pou swiv tan ki pase sou chak travay."},
-  reports:{title:"Rapò",text:"Gade aktivite, total ak pèfòmans operasyon biznis la."},
-  services:{title:"Sèvis + opsyon",text:"Kreye sèvis, pri ak opsyon yo itilize nan rezèvasyon, devis ak fakti."},
-  supplies:{title:"Founiti",text:"Òganize founiti netwayaj pou konnen sa ki bezwen ranplase."},
-  team:{title:"Ekip",text:"Ajoute anplwaye, asiyen travay, pataje aksè envite epi voye mesaj san ekspoze kontwòl pwopriyetè."},
-  settings:{title:"Paramèt",text:"Modifye enfòmasyon konpayi, règ rezèvasyon, peman, imèl kliyan ak lyen."},
-  admin:{title:"Admin pwopriyetè",text:"Kontwòl sansib yo isit la: aksè, pèmisyon, entegrasyon ak paramèt kont."},
-  help:{title:"Èd ak FAQ",text:"Jwenn èd pou konfigirasyon, enstriksyon aksè ak repons komen. Ou ka rekòmanse gid sa a nenpòt lè."}
-};
+const ONBOARDING_COPY=window.TLE_ONBOARDING_COPY||{};
+const ONBOARDING_EXTRA=window.TLE_ONBOARDING_EXTRA||{};
 
 function onboardingLanguage(){
   const language=String(window.TLE_I18N?.language||localStorage.getItem("tle_language")||"en").toLowerCase();
@@ -429,14 +285,14 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
-    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
+    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
+    : ({es:"Solo la primera vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? ({es:"Empezar recorrido",pt:"Iniciar tour",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
-    : ({es:"Entendido",pt:"Entendi",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
+    ? ({es:"Empezar recorrido",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
+    : ({es:"Entendido",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
   $("#onboardingSkipBtn",layer).hidden=isWelcome;
-  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
-  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
   layer.classList.toggle("welcome",isWelcome);
   if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
@@ -591,15 +447,15 @@ function translatedStatus(value=""){
 }
 function weatherCodeMeta(code){
   const n=Number(code);
-  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",pt:"Limpo",fr:"Dégagé"};
-  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",pt:"Parcialmente nublado",fr:"Partiellement nuageux"};
-  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",pt:"Nublado",fr:"Nuageux"};
-  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",pt:"Neblina",fr:"Brume"};
-  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  return {icon:"🌤️",en:"Weather",es:"Clima",pt:"Clima",fr:"Météo"};
+  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",fr:"Dégagé"};
+  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",fr:"Partiellement nuageux"};
+  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",fr:"Nuageux"};
+  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",fr:"Brume"};
+  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  return {icon:"🌤️",en:"Weather",es:"Clima",fr:"Météo"};
 }
 function weatherClockLabel(hour){
   const h=Number(hour);
@@ -1010,11 +866,11 @@ function currentWeatherMeta(weather){
   const code=Number(weather?.current?.weather_code);
   const rawKind=precipitationKindForCode(code);
   const visual=currentWeatherVisual(weather);
-  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",pt:"Ventoso",fr:"Venteux"};
+  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",fr:"Venteux"};
   return weatherCodeMeta(code);
 }
 
@@ -3322,7 +3178,6 @@ function renderWorkerPortal(){
   const workerCopy={
     en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
     es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
-    pt:{access:"Acesso de funcionário convidado",pill:"ACESSO DE FUNCIONÁRIO CONVIDADO",welcome:"Bem-vindo, ",guest:"convidado",copy:"Esta é sua área limitada de funcionário. Você só pode usar as funções que o administrador compartilhou com você."},
     ht:{access:"Aksè anplwaye envite",pill:"AKSÈ ANPLWAYE ENVITE",welcome:"Byenveni, ",guest:"envite",copy:"Sa a se espas limite anplwaye ou. Ou ka itilize sèlman zouti admin ou pataje avè w."},
     fr:{access:"Accès employé invité",pill:"ACCÈS EMPLOYÉ INVITÉ",welcome:"Bienvenue, ",guest:"invité",copy:"Ceci est votre espace employé limité. Vous pouvez uniquement utiliser les fonctions partagées par votre administrateur."}
   }[workerLang]||null;
