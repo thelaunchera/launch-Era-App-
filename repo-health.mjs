@@ -86,6 +86,20 @@ if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
 if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){
   fail("Portuguese is still exposed as an active runtime language choice");
 }
+if(/\bpt:\s*\{/.test(i18n) || /Português|Portuguese/.test(i18n)){
+  fail("legacy Portuguese dictionaries or labels must not ship in i18n.js");
+}else{
+  pass("legacy Portuguese dictionaries are absent");
+}
+if(
+  !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
+  !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
+  !i18n.includes('localStorage.removeItem(STORAGE_KEY);')
+){
+  fail("legacy saved language values are not normalized before runtime translation");
+}else{
+  pass("unsupported saved language values are normalized safely");
+}
 
 const sensitiveParams='sensitiveParams=["token","session_id","invite","worker","billing","slug","public"]';
 if(!sw.includes(sensitiveParams)) fail("service worker sensitive URL cache guard is missing");
