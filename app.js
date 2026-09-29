@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-langpick-cleanup-203";
+const APP_VERSION = "20260929-repo-cleanup-204";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -234,26 +234,7 @@ const ONBOARDING_COPY={
 };
 
 const ONBOARDING_EXTRA={
-  pt:{
-    welcome:{kicker:"BEM-VINDO",title:"Obrigado por usar o The Launch Era Cleaning App.",text:"Sua conta está pronta. Vamos acompanhar seus primeiros passos para você entender onde fica cada coisa sem precisar descobrir tudo sozinho."},
-    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e pendências."},
-    booking:{title:"Reservas",text:"Gerencie pedidos de reserva, disponibilidade e o link público usado pelos clientes."},
-    leads:{title:"Leads",text:"Guarde clientes potenciais aqui antes de virarem clientes ativos ou trabalhos agendados."},
-    clients:{title:"Clientes",text:"Guarde contatos, endereços de serviço e informações necessárias para trabalhos futuros."},
-    calendar:{title:"Calendário + trabalhos",text:"Veja próximos trabalhos e horários livres para organizar a agenda sem reservas duplicadas."},
-    quotes:{title:"Orçamentos",text:"Revise pedidos, crie orçamentos, envie aos clientes e acompanhe se foram aceitos ou recusados."},
-    invoices:{title:"Faturas",text:"Crie e envie faturas e registre a forma de pagamento aceita pela sua empresa."},
-    route:{title:"Rota de hoje",text:"Veja as paradas do dia em ordem para saber para onde ir em seguida."},
-    mileage:{title:"Quilometragem",text:"Registre distâncias de trabalho ligadas aos serviços para manter os deslocamentos organizados."},
-    time:{title:"Controle de tempo",text:"Inicie e finalize cronômetros para acompanhar o tempo trabalhado em cada serviço."},
-    reports:{title:"Relatórios",text:"Veja atividade, totais e desempenho operacional do negócio."},
-    services:{title:"Serviços + extras",text:"Crie serviços, preços e extras usados em reservas, orçamentos e faturas."},
-    supplies:{title:"Materiais",text:"Organize os produtos de limpeza para saber o que precisa ser reposto."},
-    team:{title:"Equipe",text:"Adicione funcionários, atribua trabalhos, compartilhe acesso de convidado e envie mensagens sem expor controles do proprietário."},
-    settings:{title:"Configurações",text:"Edite dados da empresa, regras de reserva, pagamentos, e-mails aos clientes e links."},
-    admin:{title:"Admin do proprietário",text:"Controles sensíveis ficam aqui: acessos, permissões, integrações e configurações da conta."},
-    help:{title:"Ajuda e FAQ",text:"Encontre ajuda de configuração, instruções de acesso e respostas comuns. Você pode reiniciar este tour quando quiser."}
-  },
+
   fr:{
     welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
     today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
@@ -429,14 +410,14 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
-    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
+    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
+    : ({es:"Solo la primera vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? ({es:"Empezar recorrido",pt:"Iniciar tour",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
-    : ({es:"Entendido",pt:"Entendi",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
+    ? ({es:"Empezar recorrido",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
+    : ({es:"Entendido",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
   $("#onboardingSkipBtn",layer).hidden=isWelcome;
-  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
-  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
   layer.classList.toggle("welcome",isWelcome);
   if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
@@ -591,15 +572,15 @@ function translatedStatus(value=""){
 }
 function weatherCodeMeta(code){
   const n=Number(code);
-  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",pt:"Limpo",fr:"Dégagé"};
-  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",pt:"Parcialmente nublado",fr:"Partiellement nuageux"};
-  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",pt:"Nublado",fr:"Nuageux"};
-  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",pt:"Neblina",fr:"Brume"};
-  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  return {icon:"🌤️",en:"Weather",es:"Clima",pt:"Clima",fr:"Météo"};
+  if(n===0) return {icon:"☀️",en:"Clear",es:"Despejado",fr:"Dégagé"};
+  if([1,2].includes(n)) return {icon:"🌤️",en:"Partly cloudy",es:"Parcialmente nublado",fr:"Partiellement nuageux"};
+  if(n===3) return {icon:"☁️",en:"Cloudy",es:"Nublado",fr:"Nuageux"};
+  if([45,48].includes(n)) return {icon:"🌫️",en:"Foggy",es:"Neblina",fr:"Brume"};
+  if([51,53,55,56,57].includes(n)) return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if([61,63,65,66,67,80,81,82].includes(n)) return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if([71,73,75,77,85,86].includes(n)) return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if([95,96,99].includes(n)) return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  return {icon:"🌤️",en:"Weather",es:"Clima",fr:"Météo"};
 }
 function weatherClockLabel(hour){
   const h=Number(hour);
@@ -1010,11 +991,11 @@ function currentWeatherMeta(weather){
   const code=Number(weather?.current?.weather_code);
   const rawKind=precipitationKindForCode(code);
   const visual=currentWeatherVisual(weather);
-  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",pt:"Tempestades",fr:"Orages"};
-  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",pt:"Garoa",fr:"Bruine"};
-  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",pt:"Chuva",fr:"Pluie"};
-  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",pt:"Neve",fr:"Neige"};
-  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",pt:"Ventoso",fr:"Venteux"};
+  if(visual.kind==="storm") return {icon:"⛈️",en:"Thunderstorms",es:"Tormentas",fr:"Orages"};
+  if(visual.kind==="drizzle") return {icon:"🌦️",en:"Drizzle",es:"Llovizna",fr:"Bruine"};
+  if(!rawKind&&visual.kind==="rain") return {icon:"🌧️",en:"Rain",es:"Lluvia",fr:"Pluie"};
+  if(!rawKind&&visual.kind==="snow") return {icon:"🌨️",en:"Snow",es:"Nieve",fr:"Neige"};
+  if(visual.kind==="wind") return {icon:"💨",en:"Windy",es:"Ventoso",fr:"Venteux"};
   return weatherCodeMeta(code);
 }
 
@@ -3322,7 +3303,7 @@ function renderWorkerPortal(){
   const workerCopy={
     en:{access:"Guest Employee Access",pill:"GUEST EMPLOYEE ACCESS",welcome:"Welcome, ",guest:"guest",copy:"This is your limited employee view. You can only use the tools your admin shared with you."},
     es:{access:"Acceso de empleado invitado",pill:"ACCESO LIMITADO · EMPLEADO",welcome:"Bienvenido, ",guest:"invitado",copy:"Esta es tu vista limitada de empleado. Solo puedes usar las funciones que tu administrador compartió contigo."},
-    pt:{access:"Acesso de funcionário convidado",pill:"ACESSO DE FUNCIONÁRIO CONVIDADO",welcome:"Bem-vindo, ",guest:"convidado",copy:"Esta é sua área limitada de funcionário. Você só pode usar as funções que o administrador compartilhou com você."},
+
     ht:{access:"Aksè anplwaye envite",pill:"AKSÈ ANPLWAYE ENVITE",welcome:"Byenveni, ",guest:"envite",copy:"Sa a se espas limite anplwaye ou. Ou ka itilize sèlman zouti admin ou pataje avè w."},
     fr:{access:"Accès employé invité",pill:"ACCÈS EMPLOYÉ INVITÉ",welcome:"Bienvenue, ",guest:"invité",copy:"Ceci est votre espace employé limité. Vous pouvez uniquement utiliser les fonctions partagées par votre administrateur."}
   }[workerLang]||null;
