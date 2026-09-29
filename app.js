@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-centered-title-176";
+const APP_VERSION = "20260929-dynamic-home-177";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -6183,7 +6183,36 @@ function renderTodaySummary(wakeAssistant=false){
     }else{
       messageState="calm";
       icon="✓";
-      if(daypart==="midday"){
+      const liveWeather=currentWeatherVisual(state.weather);
+      if(liveWeather.kind==="storm"){
+        copy=langPick(
+          "Storms are active in your area. Your workspace is calm with no urgent jobs or new requests waiting.",
+          "Hay tormentas en tu zona. Tu operación está tranquila, sin trabajos urgentes ni solicitudes nuevas.",
+          "Há tempestades na sua área. Sua operação está tranquila, sem trabalhos urgentes nem novas solicitações.",
+          "Des orages sont actifs dans votre zone. Votre activité est calme, sans tâche urgente ni nouvelle demande."
+        );
+      }else if(liveWeather.kind==="rain"||liveWeather.kind==="drizzle"){
+        copy=langPick(
+          "Rain is moving through your area. No urgent jobs or new requests are waiting.",
+          "Está lloviendo en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.",
+          "Está chovendo na sua área. Não há trabalhos urgentes nem novas solicitações aguardando.",
+          "Il pleut dans votre zone. Aucun travail urgent ni nouvelle demande n’attend."
+        );
+      }else if(liveWeather.kind==="snow"){
+        copy=langPick(
+          "Snow is active in your area. No urgent jobs or new requests are waiting.",
+          "Está nevando en tu zona. No hay trabajos urgentes ni solicitudes nuevas esperando.",
+          "Está nevando na sua área. Não há trabalhos urgentes nem novas solicitações aguardando.",
+          "Il neige dans votre zone. Aucun travail urgent ni nouvelle demande n’attend."
+        );
+      }else if(liveWeather.kind==="cloudy"||liveWeather.kind==="fog"){
+        copy=langPick(
+          "Cloudy outside, calm inside. No urgent jobs or new requests are waiting.",
+          "Nublado afuera, tranquilo por aquí. No hay trabajos urgentes ni solicitudes nuevas.",
+          "Nublado lá fora, tranquilo por aqui. Não há trabalhos urgentes nem novas solicitações.",
+          "Nuageux dehors, calme ici. Aucun travail urgent ni nouvelle demande n’attend."
+        );
+      }else if(daypart==="midday"){
         copy=langPick(
           "Midday is clear. No urgent jobs or new requests are waiting.",
           "El mediodía está tranquilo. No hay trabajos urgentes ni solicitudes nuevas.",
