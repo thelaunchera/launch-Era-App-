@@ -8542,3 +8542,49 @@ body.shell-auth{overflow-anchor:none}
 @media(max-width:430px){
   .public-property-details{grid-template-columns:1fr}
 }
+
+
+/* 2026-09-29 — stable invoice actions v160 */
+@media(max-width:680px){
+  [data-page="invoices"] .invoice-actions-stable{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+    width:100%!important;
+    margin-top:7px!important;
+    padding-top:8px!important;
+    border-top:1px solid var(--line)!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+    width:100%!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .safe-actions button{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:42px!important;
+    padding:9px 8px!important;
+    border-radius:12px!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+    touch-action:manipulation!important;
+    pointer-events:auto!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .record-delete-btn{
+    display:block!important;
+    width:100%!important;
+    min-height:40px!important;
+    padding:8px 10px!important;
+    border-radius:12px!important;
+    font-size:10px!important;
+    touch-action:manipulation!important;
+    pointer-events:auto!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .mobile-more-actions{
+    display:none!important;
+  }
+}
