@@ -398,9 +398,9 @@
               <button type="button" data-invoice-payment="check">Check</button>
               <button type="button" data-invoice-payment="other">Other</button>
             </div>
-            <label class="invoice-other-payment" id="invoiceOtherPaymentWrap" hidden>
-              <span id="invoiceOtherPaymentLabel">Other payment method</span>
-              <input id="invoiceOtherPaymentMethod" type="text" maxlength="80" autocomplete="off" placeholder="Example: Venmo, Cash App, Apple Pay">
+            <label class="invoice-other-payment" id="invoiceOtherPaymentWrap" hidden style="display:grid;gap:7px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff">
+              <span id="invoiceOtherPaymentLabel" style="font-size:11px;font-weight:850;color:#5D5952">Other payment method</span>
+              <input id="invoiceOtherPaymentMethod" type="text" maxlength="80" autocomplete="off" placeholder="Example: Venmo, Cash App, Apple Pay" style="width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink);font:inherit">
             </label>
             <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option, then submit it to the business.</p>
             <button class="primary-btn public-submit public-confirm-submit" type="button" id="submitInvoiceBtn" disabled>Submit invoice</button>
