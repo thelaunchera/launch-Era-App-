@@ -1,14 +1,16 @@
-const CACHE_NAME="tle-cleaning-app-20260929-followup-editor-190";
+const CACHE_NAME="tle-cleaning-app-20260929-css-modules-191";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-followup-editor-190",
-  "./app.js?v=20260929-followup-editor-190",
-  "./followups.js?v=20260929-followup-editor-190",
-  "./i18n.js?v=20260929-followup-editor-190",
-  "./public.js?v=20260929-followup-editor-190",
-  "./vendor/supabase.js?v=20260929-followup-editor-190",
-  "./manifest.webmanifest?v=20260929-followup-editor-190"
+  "./styles.css?v=20260929-css-modules-191",
+  "./styles/responsive-shell.css?v=20260929-css-modules-191",
+  "./styles/customer-documents.css?v=20260929-css-modules-191",
+  "./app.js?v=20260929-css-modules-191",
+  "./followups.js?v=20260929-css-modules-191",
+  "./i18n.js?v=20260929-css-modules-191",
+  "./public.js?v=20260929-css-modules-191",
+  "./vendor/supabase.js?v=20260929-css-modules-191",
+  "./manifest.webmanifest?v=20260929-css-modules-191"
 ];
 
 self.addEventListener("install",event=>{
