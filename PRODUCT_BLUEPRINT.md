@@ -109,9 +109,10 @@ Statuses:
 Payment-method tracking:
 - Cash on Spot
 - Zelle
-- Cash / Check / Zelle
+- Check
+- Other (customer can type a custom offline payment method)
 
-Do not add card-payment or Stripe integrations. Customer payment tracking is Cash, Check and Zelle only.
+Do not add card-payment or Stripe integrations. The customer selects an offline payment method and the cleaning business confirms payment after it is actually received.
 
 ## Cleaning-operations layer
 
@@ -127,7 +128,7 @@ A daily ordered list of jobs with:
 - assigned cleaner/team
 - job status
 
-Map/optimization can be added after the core route list works.
+The production app includes route/GPS handoff and route guidance. Keep routing optional and non-blocking so core scheduling still works if map/traffic data is unavailable.
 
 ### Mileage
 Phase 1:
@@ -168,12 +169,12 @@ Keep reports simple:
 - recurring vs one-time jobs
 
 ### Team
-- owner/admin
-- cleaner
+- Owner / Admin / Worker
 - active/inactive
 - job assignment
 - schedule
 - time entries
+- worker guest/private access limited to assigned work
 
 Do not build payroll/HR in the first migration.
 
@@ -207,12 +208,13 @@ Each service needs:
 - brand logo/colors later
 
 ## Auth
-Target:
-- email + password
-- email verification / OTP
+Current direction:
+- email + password for Owner/Admin
 - password reset
 - account isolation by business
-- future 24-hour session behavior
+- Owner/Admin session persistence with inactivity protection
+- Worker private/guest access limited to assigned jobs
+- remember username only; never store a password in app fields
 
 ## Billing
 One product plan:
@@ -221,10 +223,9 @@ One product plan:
 - then $5.99/month
 - full feature access during trial
 
-Billing must not be wired until the new app is ready for QA.
+The production app already uses this trial/subscription model. Keep subscription state separate from customer invoice/payment tracking.
 
-## Explicitly out of scope for initial migration
-- live GPS tracking
+## Explicitly out of scope for the current product
 - payroll
 - HR
 - full accounting
@@ -271,7 +272,7 @@ Can operate the business day to day:
 
 Cannot access Owner Admin, subscription ownership, permission management, integration credentials or migration/security controls.
 
-### Coworker
+### Worker
 Needs only what is required to perform assigned work:
 - Today
 - assigned Calendar + Jobs
@@ -293,5 +294,5 @@ Cannot access:
 - security/migration settings
 
 ### Sharing flow
-Owner creates an invite for a specific email and selects **Admin** or **Coworker**.
+Owner creates access for **Admin** or **Worker** according to the active sharing flow.
 The invite token is tied to that email, expires after 14 days, and is claimed only after that email signs in.
