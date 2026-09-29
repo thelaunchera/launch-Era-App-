@@ -7634,3 +7634,48 @@ body.shell-auth{overflow-anchor:none}
 .first-win-card{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:16px 18px;margin-bottom:14px;border:1px solid var(--line);border-radius:18px;background:#fff}.first-win-card[hidden]{display:none!important}.first-win-card h3{margin:2px 0 4px;font-size:20px}.first-win-card p{margin:0;color:var(--muted);max-width:620px}.booking-step-nav{display:flex;gap:7px;overflow:auto;margin-bottom:10px;padding-bottom:2px;scrollbar-width:none}.booking-step-nav::-webkit-scrollbar{display:none}.booking-step-nav button{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-weight:900;font-size:10px}.booking-step-nav button.active{background:var(--ink);color:#fff;border-color:var(--ink)}.booking-step-panel[hidden]{display:none!important}
 .settings-accordion>.settings-section{overflow:hidden}.settings-accordion>.settings-section:not(.settings-open)>:not(.panel-head):not(h3){display:none!important}.settings-accordion>.settings-section:not(.settings-open)>h3{margin-bottom:0}.settings-accordion-trigger{cursor:pointer;position:relative;padding-right:30px}.settings-accordion-trigger:after{content:"+";position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:900}.settings-section.settings-open>.settings-accordion-trigger:after{content:"−"}
 @media(max-width:680px){.nav-group{border-radius:12px}.nav-group summary{padding:9px 10px}.global-search-popover{position:fixed;left:12px;right:12px;top:74px;width:auto}.first-win-card{align-items:flex-start;flex-direction:column;padding:13px;margin-bottom:10px}.first-win-card h3{font-size:17px}.first-win-card p{font-size:11px;line-height:1.4}.first-win-card button{width:100%;min-height:39px}.booking-step-nav{margin:-1px 0 8px}.booking-step-nav button{padding:8px 10px}.booking-requests-always{order:-1}.settings-accordion{gap:7px!important}.settings-accordion>.settings-section{padding:11px!important;border-radius:14px!important}.settings-accordion>.settings-section:not(.settings-open){min-height:48px!important}.settings-accordion-trigger{min-height:28px!important}}
+
+/* 2026-09-29 — time-aware card palette: airy day / rich night */
+.app-shell[data-palette-mode="day"]{--unified-card-bg:#F7F4EE}
+.app-shell[data-palette-mode="day"].quarter-color-0{--unified-card-bg:#FFF7D6}
+.app-shell[data-palette-mode="day"].quarter-color-1{--unified-card-bg:#EDF6FC}
+.app-shell[data-palette-mode="day"].quarter-color-2{--unified-card-bg:#F8F5EE}
+.app-shell[data-palette-mode="day"].quarter-color-3{--unified-card-bg:#F1EEFF}
+#todayHeroCard[data-palette-mode="day"].quarter-color-0{background:#FFF2B8!important;color:#191919!important}
+#todayHeroCard[data-palette-mode="day"].quarter-color-1{background:#E4F2FB!important;color:#191919!important}
+#todayHeroCard[data-palette-mode="day"].quarter-color-2{background:#F7F3E9!important;color:#191919!important}
+#todayHeroCard[data-palette-mode="day"].quarter-color-3{background:#ECE9FF!important;color:#191919!important}
+
+.app-shell[data-palette-mode="night"]{--unified-card-bg:#24202F;color-scheme:dark}
+.app-shell[data-palette-mode="night"].quarter-color-0{--unified-card-bg:#302711}
+.app-shell[data-palette-mode="night"].quarter-color-1{--unified-card-bg:#132C40}
+.app-shell[data-palette-mode="night"].quarter-color-2{--unified-card-bg:#29242D}
+.app-shell[data-palette-mode="night"].quarter-color-3{--unified-card-bg:#2D2350}
+.app-shell[data-palette-mode="night"] .metric-card,
+.app-shell[data-palette-mode="night"] .quick-card,
+.app-shell[data-palette-mode="night"] .table-card,
+.app-shell[data-palette-mode="night"] .client-card,
+.app-shell[data-palette-mode="night"] .service-card,
+.app-shell[data-palette-mode="night"] .supply-card,
+.app-shell[data-palette-mode="night"] .share-access-card,
+.app-shell[data-palette-mode="night"] .timer-card,
+.app-shell[data-palette-mode="night"] .empty-card,
+.app-shell[data-palette-mode="night"] .mobile-record-card,
+.app-shell[data-palette-mode="night"] .review-settings-card,
+.app-shell[data-palette-mode="night"] .support-contact-card,
+.app-shell[data-palette-mode="night"] .worker-job-card,
+.app-shell[data-palette-mode="night"] .trial-card,
+.app-shell[data-palette-mode="night"] .inquiry-detail-card,
+.app-shell[data-palette-mode="night"] .install-card,
+.app-shell[data-palette-mode="night"] .onboarding-help-card{color:#FFFDF8!important;border-color:rgba(255,255,255,.16)!important}
+.app-shell[data-palette-mode="night"] .metric-card span,
+.app-shell[data-palette-mode="night"] .quick-card p,
+.app-shell[data-palette-mode="night"] .empty-card span,
+.app-shell[data-palette-mode="night"] .mobile-record-card small{color:rgba(255,255,255,.72)!important}
+#todayHeroCard[data-palette-mode="night"]{color:#FFFDF8!important;border-color:rgba(255,255,255,.15)!important}
+#todayHeroCard[data-palette-mode="night"].quarter-color-0{background:linear-gradient(135deg,#3D3010,#705B12)!important}
+#todayHeroCard[data-palette-mode="night"].quarter-color-1{background:linear-gradient(135deg,#102C43,#155D7A)!important}
+#todayHeroCard[data-palette-mode="night"].quarter-color-2{background:linear-gradient(135deg,#242028,#4A354F)!important}
+#todayHeroCard[data-palette-mode="night"].quarter-color-3{background:linear-gradient(135deg,#271C49,#6240A2)!important}
+#todayHeroCard[data-palette-mode="night"] #todayMomentCopy,
+#todayHeroCard[data-palette-mode="night"] .eyebrow{color:rgba(255,255,255,.78)!important}
