@@ -442,8 +442,13 @@
       const serviceLabel=$("#publicServiceLabel");
       const dateInput=form?.querySelector('[name="date"]');
       const quoteTimeInput=form?.querySelector('[name="time"]');
+      const preferredLanguageSelect=$("#publicPreferredLanguage");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
+      if(preferredLanguageSelect){
+        const configured=String(data?.business?.customer_email_language||"en").toLowerCase();
+        preferredLanguageSelect.value=["en","es","fr","ht"].includes(configured)?configured:"en";
+      }
       if(quoteTimeInput) quoteTimeInput.required=false;
 
       function chosenAddonIds(){
@@ -686,7 +691,7 @@
                 p_preferred_date:fd.get("date"),
                 p_preferred_time:String(fd.get("time")||"").trim()||null,
                 p_notes:requestNotes||null,
-                p_language:currentPublicLanguage()
+                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase()
               });
             }else{
               const selectedSlot=String(fd.get("slot_start")||"").trim();
@@ -703,7 +708,7 @@
                 p_requested_start_at:selectedSlot,
                 p_notes:requestNotes||null,
                 p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time"),
-                p_language:currentPublicLanguage()
+                p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase()
               });
             }
             form.hidden=true;
