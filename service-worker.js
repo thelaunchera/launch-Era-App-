@@ -1,16 +1,17 @@
-const CACHE_NAME="tle-cleaning-app-20260929-repo-audit-194";
+const CACHE_NAME="tle-cleaning-app-20260929-css-modules-195";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-repo-audit-194",
-  "./styles/responsive-shell.css?v=20260929-repo-audit-194",
-  "./styles/customer-documents.css?v=20260929-repo-audit-194",
-  "./app.js?v=20260929-repo-audit-194",
-  "./followups.js?v=20260929-repo-audit-194",
-  "./i18n.js?v=20260929-repo-audit-194",
-  "./public.js?v=20260929-repo-audit-194",
-  "./vendor/supabase.js?v=20260929-repo-audit-194",
-  "./manifest.webmanifest?v=20260929-repo-audit-194"
+  "./styles.css?v=20260929-css-modules-195",
+  "./styles/release-overrides.css?v=20260929-css-modules-195",
+  "./styles/responsive-shell.css?v=20260929-css-modules-195",
+  "./styles/customer-documents.css?v=20260929-css-modules-195",
+  "./app.js?v=20260929-css-modules-195",
+  "./followups.js?v=20260929-css-modules-195",
+  "./i18n.js?v=20260929-css-modules-195",
+  "./public.js?v=20260929-css-modules-195",
+  "./vendor/supabase.js?v=20260929-css-modules-195",
+  "./manifest.webmanifest?v=20260929-css-modules-195"
 ];
 
 self.addEventListener("install",event=>{
