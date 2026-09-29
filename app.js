@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-language-settings-fix-141";
+const APP_VERSION = "20260929-mobile-nav-money-settings-140";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1901,13 +1901,30 @@ function restoreWorkspaceView(){
 }
 
 const workspaceScrollPositions={};
+function workspaceScrollOwner(){
+  const main=$("#appShell>.main");
+  return (window.innerWidth<=860 && main)?main:window;
+}
+function workspaceScrollTop(){
+  const owner=workspaceScrollOwner();
+  return owner===window ? (window.scrollY||0) : (owner.scrollTop||0);
+}
+function setWorkspaceScrollTop(value=0){
+  const top=Math.max(0,Number(value)||0);
+  const owner=workspaceScrollOwner();
+  if(owner===window){
+    window.scrollTo({top,behavior:"auto"});
+  }else{
+    owner.scrollTo({top,behavior:"auto"});
+  }
+}
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
-  if(current && current!==id) workspaceScrollPositions[current]=window.scrollY||0;
+  if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $$(".view").forEach(v=>{
+  $(".view").forEach(v=>{
     const active=v.dataset.page===id;
     v.classList.toggle("active",active);
     if(active){
@@ -1916,13 +1933,22 @@ function openView(id,options={}){
       setTimeout(()=>v.classList.remove("view-enter"),380);
     }
   });
-  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===id));
+  let activeNav=null;
+  $(".nav-item").forEach(n=>{
+    const active=n.dataset.view===id;
+    n.classList.toggle("active",active);
+    if(active) activeNav=n;
+  });
+  if(activeNav){
+    const group=activeNav.closest("details.nav-group");
+    if(group) group.open=true;
+  }
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
   if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
-  const savedTop=Number(workspaceScrollPositions[id]||0);
-  window.scrollTo({top:savedTop,behavior:"auto"});
+  const targetTop=options.fromRestore ? Number(workspaceScrollPositions[id]||0) : 0;
+  requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="team"){
     loadTeamMessageThreads().then(()=>{
@@ -1967,6 +1993,19 @@ document.addEventListener("keydown",e=>{
   openView(jump.dataset.jump);
 });
 const sidebarScrim=$("#sidebarScrim");
+function syncMobileNavGroups(){
+  if(window.innerWidth>860) return;
+  const groups=$("details.nav-group");
+  const active=$(".nav-item.active");
+  const activeGroup=active?.closest("details.nav-group")||null;
+  groups.forEach(group=>{ group.open=group===activeGroup; });
+}
+$("details.nav-group").forEach(group=>{
+  group.addEventListener("toggle",()=>{
+    if(window.innerWidth>860 || !group.open) return;
+    $("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
+  });
+});
 function setSidebarOpen(open){
   const isMobileNav=window.innerWidth<=860 || window.matchMedia("(max-width: 860px)").matches;
   const shouldOpen=!!open && isMobileNav;
@@ -1991,6 +2030,7 @@ function setSidebarOpen(open){
     sidebar.style.removeProperty("pointer-events");
   }
 
+  if(shouldOpen) syncMobileNavGroups();
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
   document.body.classList.toggle("sidebar-is-open",shouldOpen);
   $("#menuToggle")?.setAttribute("aria-expanded",shouldOpen?"true":"false");
@@ -4610,7 +4650,7 @@ function renderClients(){
     const last=[...jobs].reverse().find(j=>new Date(j.starts_at)<now||j.status==="completed");
     const balance=state.invoices.filter(inv=>inv.client_id===c.id&&inv.status!=="void").reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-invoicePaidAmount(inv)),0);
     return `
-    <article class="client-card client-card-compact growth-client-card">
+    <article class="client-card client-card-compact growth-client-card mobile-record-card">
       <div class="client-card-head">
         <div class="client-avatar">${escapeHtml(initials(c.name))}</div>
         <div class="client-card-identity">
@@ -4635,6 +4675,7 @@ function renderClients(){
       </div>
     </article>`;
   }).join("");
+  enhanceMobileRecordActions();
 }
 function openClientInfo(clientId){
   const client=state.clients.find(c=>c.id===clientId);
