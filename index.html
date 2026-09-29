@@ -66,9 +66,9 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-css-modules-191" />
-  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260929-css-modules-191" />
-  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260929-css-modules-191" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-simplify-booking-settings-192" />
+  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260929-simplify-booking-settings-192" />
+  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260929-simplify-booking-settings-192" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -747,12 +747,6 @@
           <button class="primary-btn" id="copyBooking">Copy booking link</button>
         </div>
 
-        <div class="booking-step-nav" role="tablist" aria-label="Booking setup">
-          <button class="active" type="button" data-booking-step="links">1 · Link</button>
-          <button type="button" data-booking-step="services">2 · Services</button>
-          <button type="button" data-booking-step="availability">3 · Availability</button>
-          <button type="button" data-booking-step="preferences">4 · Preferences</button>
-        </div>
         <div class="booking-grid progressive-booking">
           <article class="panel full booking-step-panel" data-booking-panel="links">
             <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Public links</h3></div></div>
@@ -1084,24 +1078,6 @@
         </div>
 
         <div class="settings-grid settings-accordion settings-simple-grid">
-          <article class="panel settings-section settings-summary-card settings-app-preferences-card">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">YOUR APP</p>
-                <h3>App preferences</h3>
-                <small class="panel-note">These only change what the business owner sees inside the app.</small>
-              </div>
-            </div>
-            <div class="settings-summary-grid">
-              <div><small>App language</small><strong id="settingsBusinessLanguage">—</strong></div>
-              <div><small>Country</small><strong id="settingsBusinessCountry">—</strong></div>
-              <div><small>Currency</small><strong id="settingsBusinessCurrency">—</strong></div>
-              <div><small>Distance</small><strong id="settingsBusinessDistance">—</strong></div>
-              <div><small>Temperature</small><strong id="settingsBusinessTemperature">—</strong></div>
-            </div>
-            <button class="ghost-btn settings-inline-edit" type="button" data-edit-app-preferences data-owner-only>Edit app preferences</button>
-          </article>
-
           <article class="panel settings-section settings-summary-card">
             <div class="panel-head">
               <div>
@@ -1455,7 +1431,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-css-modules-191";
+    window.__tleShellVersion="20260929-simplify-booking-settings-192";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1474,10 +1450,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260929-css-modules-191"></script>
-  <script src="./i18n.js?v=20260929-css-modules-191"></script>
-  <script src="./public.js?v=20260929-css-modules-191"></script>
-  <script src="./app.js?v=20260929-css-modules-191"></script>
-  <script src="./followups.js?v=20260929-css-modules-191"></script>
+  <script src="./vendor/supabase.js?v=20260929-simplify-booking-settings-192"></script>
+  <script src="./i18n.js?v=20260929-simplify-booking-settings-192"></script>
+  <script src="./public.js?v=20260929-simplify-booking-settings-192"></script>
+  <script src="./app.js?v=20260929-simplify-booking-settings-192"></script>
+  <script src="./followups.js?v=20260929-simplify-booking-settings-192"></script>
 </body>
 </html>
