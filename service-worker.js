@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-customer-email-settings-nav-fix-145";
+const CACHE_NAME="tle-cleaning-app-20260929-customer-email-settings-stable-146";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-customer-email-settings-nav-fix-145",
-  "./app.js?v=20260929-customer-email-settings-nav-fix-145",
-  "./followups.js?v=20260929-customer-email-settings-nav-fix-145",
-  "./i18n.js?v=20260929-customer-email-settings-nav-fix-145",
-  "./public.js?v=20260929-customer-email-settings-nav-fix-145",
-  "./vendor/supabase.js?v=20260929-customer-email-settings-nav-fix-145",
-  "./manifest.webmanifest?v=20260929-customer-email-settings-nav-fix-145"
+  "./styles.css?v=20260929-customer-email-settings-stable-146",
+  "./app.js?v=20260929-customer-email-settings-stable-146",
+  "./followups.js?v=20260929-customer-email-settings-stable-146",
+  "./i18n.js?v=20260929-customer-email-settings-stable-146",
+  "./public.js?v=20260929-customer-email-settings-stable-146",
+  "./vendor/supabase.js?v=20260929-customer-email-settings-stable-146",
+  "./manifest.webmanifest?v=20260929-customer-email-settings-stable-146"
 ];
 
 self.addEventListener("install",event=>{
