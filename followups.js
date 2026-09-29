@@ -13,7 +13,8 @@
     quote_mode:"remind",
     invoice_mode:"remind",
     review_mode:"remind",
-    rebook_mode:"remind"
+    rebook_mode:"remind",
+    message_templates:{}
   };
 
   let candidates=[];
@@ -21,6 +22,7 @@
   let followUpStates=[];
   let sentHistory=[];
   let loading=false;
+  let editingType=null;
 
   function appState(){
     return bridge.getState();
@@ -90,11 +92,153 @@
     '</article>';
   }
 
+
+  function messageTemplates(){
+    const raw=preferences?.message_templates;
+    if(raw && typeof raw==="object" && !Array.isArray(raw)) return raw;
+    if(typeof raw==="string"){
+      try{
+        const parsed=JSON.parse(raw);
+        if(parsed && typeof parsed==="object" && !Array.isArray(parsed)) return parsed;
+      }catch{}
+    }
+    return {};
+  }
+
+  function editorDefaultLanguage(){
+    const locale=String(appLocale?.()||"en").toLowerCase();
+    if(locale.startsWith("es")) return "es";
+    if(locale.startsWith("fr")) return "fr";
+    if(locale.startsWith("ht")) return "ht";
+    return "en";
+  }
+
+  function templateFor(type,language){
+    const item=messageTemplates()?.[type]?.[language];
+    if(!item || typeof item!=="object") return {subject:"",body:""};
+    return {subject:String(item.subject||""),body:String(item.body||"")};
+  }
+
+  function hasCustomForType(type){
+    const byLanguage=messageTemplates()?.[type];
+    if(!byLanguage || typeof byLanguage!=="object") return false;
+    return Object.values(byLanguage).some(item=>
+      item && typeof item==="object" &&
+      (String(item.subject||"").trim() || String(item.body||"").trim())
+    );
+  }
+
+  function localizeMessageEditor(){
+    const labels={
+      followUpEditorEyebrow:langPick("CUSTOM MESSAGE","MENSAJE PERSONALIZADO","MENSAGEM PERSONALIZADA","MESSAGE PERSONNALISÉ"),
+      followUpEditorHelp:langPick(
+        "Write the email in the customer’s language. Leave a field blank to keep the default.",
+        "Escribe el email en el idioma del cliente. Deja un campo vacío para conservar el texto predeterminado.",
+        "Escreva o e-mail no idioma do cliente. Deixe um campo vazio para manter o texto padrão.",
+        "Rédigez l’e-mail dans la langue du client. Laissez un champ vide pour conserver le texte par défaut."
+      ),
+      followUpEditorLanguageLabel:langPick("Customer language","Idioma del cliente","Idioma do cliente","Langue du client"),
+      followUpEditorSubjectLabel:langPick("Subject (optional)","Asunto (opcional)","Assunto (opcional)","Objet (facultatif)"),
+      followUpEditorBodyLabel:langPick("Message","Mensaje","Mensagem","Message"),
+      followUpTemplateNote:langPick(
+        "You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.",
+        "Puedes usar {{name}}, {{business}}, {{amount}} y {{invoice_number}}. Los botones de cotización, factura, reseña y nueva reserva se añaden automáticamente.",
+        "Você pode usar {{name}}, {{business}}, {{amount}} e {{invoice_number}}. Os botões de orçamento, fatura, avaliação e nova reserva são adicionados automaticamente.",
+        "Vous pouvez utiliser {{name}}, {{business}}, {{amount}} et {{invoice_number}}. Les boutons de devis, facture, avis et nouvelle réservation sont ajoutés automatiquement."
+      ),
+      followUpEditorSave:langPick("Save message","Guardar mensaje","Salvar mensagem","Enregistrer"),
+      followUpEditorReset:langPick("Use default","Usar predeterminado","Usar padrão","Utiliser le texte par défaut")
+    };
+    Object.entries(labels).forEach(([id,value])=>{const el=$("#"+id);if(el) el.textContent=value;});
+  }
+
+  function fillMessageEditor(){
+    if(!editingType) return;
+    const language=$("#followUpEditorLanguage")?.value||"en";
+    const current=templateFor(editingType,language);
+    const subject=$("#followUpEditorSubject");
+    const body=$("#followUpEditorBody");
+    if(subject) subject.value=current.subject;
+    if(body) body.value=current.body;
+    const title=$("#followUpEditorTitle");
+    if(title) title.textContent=langPick("Edit ","Editar ","Editar ","Modifier ")+kindLabel(editingType);
+    const status=$("#followUpEditorStatus");
+    if(status){
+      const languageName=$("#followUpEditorLanguage")?.selectedOptions?.[0]?.textContent||language.toUpperCase();
+      status.textContent=(current.subject.trim()||current.body.trim())
+        ? langPick(
+            "Custom message saved for "+languageName+".",
+            "Mensaje personalizado guardado para "+languageName+".",
+            "Mensagem personalizada salva para "+languageName+".",
+            "Message personnalisé enregistré pour "+languageName+"."
+          )
+        : langPick(
+            "Using the default message for "+languageName+".",
+            "Usando el mensaje predeterminado para "+languageName+".",
+            "Usando a mensagem padrão para "+languageName+".",
+            "Le message par défaut est utilisé pour "+languageName+"."
+          );
+    }
+  }
+
+  function openMessageEditor(type){
+    editingType=type;
+    const editor=$("#followUpMessageEditor");
+    if(!editor) return;
+    localizeMessageEditor();
+    const language=$("#followUpEditorLanguage");
+    if(language) language.value=editorDefaultLanguage();
+    editor.hidden=false;
+    fillMessageEditor();
+    try{editor.scrollIntoView({behavior:"smooth",block:"nearest"});}catch{}
+  }
+
+  function closeMessageEditor(){
+    const editor=$("#followUpMessageEditor");
+    if(editor) editor.hidden=true;
+    editingType=null;
+  }
+
+  async function saveMessageTemplate(type,language,subject,body){
+    const businessId=appState().business?.id;
+    if(!businessId) return;
+    const next=JSON.parse(JSON.stringify(messageTemplates()||{}));
+    const cleanSubject=String(subject||"").trim();
+    const cleanBody=String(body||"").trim();
+    if(!next[type] || typeof next[type]!=="object") next[type]={};
+    if(cleanSubject||cleanBody){
+      next[type][language]={subject:cleanSubject,body:cleanBody};
+    }else{
+      delete next[type][language];
+      if(!Object.keys(next[type]).length) delete next[type];
+    }
+    const result=await supabase.from("follow_up_settings")
+      .update({message_templates:next,updated_at:new Date().toISOString()})
+      .eq("business_id",businessId)
+      .select("*")
+      .single();
+    if(result.error) throw result.error;
+    preferences=result.data;
+    appState().followUpSettings=preferences;
+  }
+
+  function setMessageEditorBusy(busy){
+    ["followUpEditorSave","followUpEditorReset","followUpEditorLanguage","followUpEditorSubject","followUpEditorBody","followUpEditorClose"]
+      .forEach(id=>{const el=$("#"+id);if(el) el.disabled=busy;});
+  }
+
   function render(){
     const prefs=preferences||DEFAULTS;
     $$("[data-followup-mode]").forEach(select=>{
       const value=prefs[select.dataset.followupMode]||"remind";
       if(select.value!==value) select.value=value;
+    });
+    $("[data-followup-edit]").forEach(button=>{
+      const custom=hasCustomForType(button.dataset.followupEdit);
+      button.classList.toggle("has-custom",custom);
+      button.textContent=custom
+        ? langPick("Edit message · Custom","Editar mensaje · Personalizado","Editar mensagem · Personalizada","Modifier · Personnalisé")
+        : langPick("Edit message","Editar mensaje","Editar mensagem","Modifier le message");
     });
 
     const active=candidates
@@ -272,6 +416,11 @@
   }
 
   document.addEventListener("change",async e=>{
+    const editorLanguage=e.target.closest?.("#followUpEditorLanguage");
+    if(editorLanguage){
+      fillMessageEditor();
+      return;
+    }
     const select=e.target.closest?.("[data-followup-mode]");
     if(!select||!appState().business?.id) return;
     const field=select.dataset.followupMode;
@@ -314,6 +463,64 @@
   });
 
   document.addEventListener("click",async e=>{
+    const edit=e.target.closest?.("[data-followup-edit]");
+    if(edit){
+      openMessageEditor(edit.dataset.followupEdit);
+      return;
+    }
+
+    const editorClose=e.target.closest?.("#followUpEditorClose");
+    if(editorClose){
+      closeMessageEditor();
+      return;
+    }
+
+    const editorSave=e.target.closest?.("#followUpEditorSave");
+    if(editorSave && editingType){
+      const language=$("#followUpEditorLanguage")?.value||"en";
+      const subject=$("#followUpEditorSubject")?.value||"";
+      const body=$("#followUpEditorBody")?.value||"";
+      setMessageEditorBusy(true);
+      try{
+        await saveMessageTemplate(editingType,language,subject,body);
+        render();
+        fillMessageEditor();
+        showToast(langPick(
+          "Follow-up message saved",
+          "Mensaje de seguimiento guardado",
+          "Mensagem de acompanhamento salva",
+          "Message de suivi enregistré"
+        ));
+      }catch(err){
+        showToast(err.message||"Could not save follow-up message");
+      }finally{
+        setMessageEditorBusy(false);
+      }
+      return;
+    }
+
+    const editorReset=e.target.closest?.("#followUpEditorReset");
+    if(editorReset && editingType){
+      const language=$("#followUpEditorLanguage")?.value||"en";
+      setMessageEditorBusy(true);
+      try{
+        await saveMessageTemplate(editingType,language,"","");
+        render();
+        fillMessageEditor();
+        showToast(langPick(
+          "Default follow-up restored",
+          "Mensaje predeterminado restaurado",
+          "Mensagem padrão restaurada",
+          "Message par défaut restauré"
+        ));
+      }catch(err){
+        showToast(err.message||"Could not restore default message");
+      }finally{
+        setMessageEditorBusy(false);
+      }
+      return;
+    }
+
     const refresh=e.target.closest?.("#followUpRefreshBtn");
     if(refresh){
       refresh.disabled=true;
