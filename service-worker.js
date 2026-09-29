@@ -1,25 +1,25 @@
-const CACHE_NAME="tle-cleaning-app-20260929-repo-hardening-204";
+const CACHE_NAME="tle-cleaning-app-20260929-backend-sync-205";
 const CORE=[
-  "./boot.js?v=20260929-repo-hardening-204",
-  "./styles/boot.css?v=20260929-repo-hardening-204",
+  "./boot.js?v=20260929-backend-sync-205",
+  "./styles/boot.css?v=20260929-backend-sync-205",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-repo-hardening-204",
-  "./styles/workspace-components.css?v=20260929-repo-hardening-204",
-  "./styles/workspace-experience.css?v=20260929-repo-hardening-204",
-  "./styles/workspace-operations.css?v=20260929-repo-hardening-204",
-  "./styles/release-overrides.css?v=20260929-repo-hardening-204",
-  "./styles/release-mobile.css?v=20260929-repo-hardening-204",
-  "./styles/release-latest.css?v=20260929-repo-hardening-204",
-  "./styles/responsive-shell.css?v=20260929-repo-hardening-204",
-  "./styles/customer-documents.css?v=20260929-repo-hardening-204",
-  "./app.js?v=20260929-repo-hardening-204",
-  "./followups.js?v=20260929-repo-hardening-204",
-  "./i18n.js?v=20260929-repo-hardening-204",
-  "./onboarding-copy.js?v=20260929-repo-hardening-204",
-  "./public.js?v=20260929-repo-hardening-204",
-  "./vendor/supabase.js?v=20260929-repo-hardening-204",
-  "./manifest.webmanifest?v=20260929-repo-hardening-204"
+  "./styles.css?v=20260929-backend-sync-205",
+  "./styles/workspace-components.css?v=20260929-backend-sync-205",
+  "./styles/workspace-experience.css?v=20260929-backend-sync-205",
+  "./styles/workspace-operations.css?v=20260929-backend-sync-205",
+  "./styles/release-overrides.css?v=20260929-backend-sync-205",
+  "./styles/release-mobile.css?v=20260929-backend-sync-205",
+  "./styles/release-latest.css?v=20260929-backend-sync-205",
+  "./styles/responsive-shell.css?v=20260929-backend-sync-205",
+  "./styles/customer-documents.css?v=20260929-backend-sync-205",
+  "./app.js?v=20260929-backend-sync-205",
+  "./followups.js?v=20260929-backend-sync-205",
+  "./i18n.js?v=20260929-backend-sync-205",
+  "./onboarding-copy.js?v=20260929-backend-sync-205",
+  "./public.js?v=20260929-backend-sync-205",
+  "./vendor/supabase.js?v=20260929-backend-sync-205",
+  "./manifest.webmanifest?v=20260929-backend-sync-205"
 ];
 
 self.addEventListener("install",event=>{
