@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-weather-ambience-167";
+const APP_VERSION = "20260929-weather-livefix-168";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -9346,18 +9346,14 @@ async function refreshInstalledApp(){
     );
 
     if(shellChanged){
-      try{
-        if("serviceWorker" in navigator){
-          const reg=await navigator.serviceWorker.getRegistration();
-          if(reg) await reg.update().catch(()=>{});
-        }
-      }catch{}
       showToast(langPick(
-        "App update ready. Refreshing your data without signing you out.",
-        "Actualización lista. Refrescando tus datos sin cerrar tu sesión.",
-        "Atualização pronta. Atualizando seus dados sem sair da conta.",
-        "Mise à jour prête. Actualisation des données sans déconnexion."
+        "App update ready. Loading the newest version without signing you out.",
+        "Actualización lista. Cargando la versión más reciente sin cerrar tu sesión.",
+        "Atualização pronta. Carregando a versão mais recente sem sair da conta.",
+        "Mise à jour prête. Chargement de la version la plus récente sans déconnexion."
       ));
+      await hardRefreshInstalledApp(latest?.app||latest?.css||String(Date.now()));
+      return;
     }
 
     if(state.business?.id){
