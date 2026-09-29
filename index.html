@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-mobile-view-data-fixes-157" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-mobile-navigation-data-159" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -663,9 +663,9 @@
           <article class="panel full booking-step-panel" data-booking-panel="links">
             <div class="panel-head"><div><p class="eyebrow">PUBLIC LINKS</p><h3>Public links</h3></div></div>
             <label class="field-label">Booking link</label>
-            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
+            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener" aria-label="Open booking link">Booking link</a><button data-open-public="book">Open</button><button data-copy-target="bookingUrl">Copy</button></div>
             <label class="field-label">Quote request link</label>
-            <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy</button></div>
+            <div class="link-box"><a id="quoteUrl" href="#" target="_blank" rel="noopener" aria-label="Open quote request link">Quote request link</a><button data-open-public="quote">Open</button><button data-copy-target="quoteUrl">Copy</button></div>
           </article>
 
           <article class="panel full booking-step-panel booking-requests-always" data-booking-panel="requests">
@@ -1335,7 +1335,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-mobile-view-data-fixes-157";
+    window.__tleShellVersion="20260929-mobile-navigation-data-159";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1354,10 +1354,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260929-mobile-view-data-fixes-157"></script>
-  <script src="./i18n.js?v=20260929-mobile-view-data-fixes-157"></script>
-  <script src="./public.js?v=20260929-mobile-view-data-fixes-157"></script>
-  <script src="./app.js?v=20260929-mobile-view-data-fixes-157"></script>
-  <script src="./followups.js?v=20260929-mobile-view-data-fixes-157"></script>
+  <script src="./vendor/supabase.js?v=20260929-mobile-navigation-data-159"></script>
+  <script src="./i18n.js?v=20260929-mobile-navigation-data-159"></script>
+  <script src="./public.js?v=20260929-mobile-navigation-data-159"></script>
+  <script src="./app.js?v=20260929-mobile-navigation-data-159"></script>
+  <script src="./followups.js?v=20260929-mobile-navigation-data-159"></script>
 </body>
 </html>
