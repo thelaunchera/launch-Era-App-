@@ -66,7 +66,7 @@
     @keyframes tleSplashSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.session-splash-icon,.session-splash-spinner{animation:none}}
   </style>
-  <link rel="stylesheet" href="./styles.css?v=20260929-dashboard-cleanup-189" />
+  <link rel="stylesheet" href="./styles.css?v=20260929-followup-editor-190" />
   <script>
     window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -891,11 +891,37 @@
             </div>
             <p class="followup-rules-copy">Auto email sends only after you choose it. Remind me keeps the follow-up in this list. Off disables that category.</p>
             <div class="followup-rule-list">
-              <label class="followup-rule"><span><strong>New lead</strong><small>2 days after inquiry/contact</small></span><select data-followup-mode="lead_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
-              <label class="followup-rule"><span><strong>Quote</strong><small>2 days after quote is sent</small></span><select data-followup-mode="quote_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
-              <label class="followup-rule"><span><strong>Invoice</strong><small>1 day after due date</small></span><select data-followup-mode="invoice_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
-              <label class="followup-rule"><span><strong>After cleaning</strong><small>1 day after a completed job</small></span><select data-followup-mode="review_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
-              <label class="followup-rule"><span><strong>Rebooking</strong><small>30 days after the last completed cleaning</small></span><select data-followup-mode="rebook_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select></label>
+              <div class="followup-rule" data-followup-rule="lead"><span><strong>New lead</strong><small>2 days after inquiry/contact</small></span><div class="followup-rule-controls"><select data-followup-mode="lead_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select><button type="button" class="text-btn followup-edit-btn" data-followup-edit="lead">Edit message</button></div></div>
+              <div class="followup-rule" data-followup-rule="quote"><span><strong>Quote</strong><small>2 days after quote is sent</small></span><div class="followup-rule-controls"><select data-followup-mode="quote_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select><button type="button" class="text-btn followup-edit-btn" data-followup-edit="quote">Edit message</button></div></div>
+              <div class="followup-rule" data-followup-rule="invoice"><span><strong>Invoice</strong><small>1 day after due date</small></span><div class="followup-rule-controls"><select data-followup-mode="invoice_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select><button type="button" class="text-btn followup-edit-btn" data-followup-edit="invoice">Edit message</button></div></div>
+              <div class="followup-rule" data-followup-rule="review"><span><strong>After cleaning</strong><small>1 day after a completed job</small></span><div class="followup-rule-controls"><select data-followup-mode="review_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select><button type="button" class="text-btn followup-edit-btn" data-followup-edit="review">Edit message</button></div></div>
+              <div class="followup-rule" data-followup-rule="rebook"><span><strong>Rebooking</strong><small>30 days after the last completed cleaning</small></span><div class="followup-rule-controls"><select data-followup-mode="rebook_mode"><option value="remind">Remind me</option><option value="auto">Auto email</option><option value="off">Off</option></select><button type="button" class="text-btn followup-edit-btn" data-followup-edit="rebook">Edit message</button></div></div>
+            </div>
+
+            <div class="followup-message-editor" id="followUpMessageEditor" hidden>
+              <div class="followup-editor-head">
+                <div><p class="eyebrow" id="followUpEditorEyebrow">CUSTOM MESSAGE</p><h4 id="followUpEditorTitle">Edit follow-up</h4></div>
+                <button type="button" class="followup-editor-close" id="followUpEditorClose" aria-label="Close">×</button>
+              </div>
+              <p class="followup-editor-help" id="followUpEditorHelp">Write the email in the customer’s language. Leave a field blank to keep the default.</p>
+              <div class="followup-editor-grid">
+                <label><span id="followUpEditorLanguageLabel">Customer language</span>
+                  <select id="followUpEditorLanguage">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="ht">Kreyòl</option>
+                  </select>
+                </label>
+                <label><span id="followUpEditorSubjectLabel">Subject (optional)</span><input id="followUpEditorSubject" type="text" maxlength="180" placeholder="Use the default subject"></label>
+                <label class="followup-editor-message"><span id="followUpEditorBodyLabel">Message</span><textarea id="followUpEditorBody" rows="7" maxlength="4000" placeholder="Write your custom follow-up message here"></textarea></label>
+              </div>
+              <p class="followup-template-note" id="followUpTemplateNote">You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.</p>
+              <div class="followup-editor-actions">
+                <button type="button" class="primary-btn" id="followUpEditorSave">Save message</button>
+                <button type="button" class="ghost-btn" id="followUpEditorReset">Use default</button>
+              </div>
+              <div class="followup-editor-status" id="followUpEditorStatus" aria-live="polite"></div>
             </div>
           </article>
 
@@ -1427,7 +1453,7 @@
 
   <div class="toast" id="toast">Copied</div>
   <script>
-    window.__tleShellVersion="20260929-dashboard-cleanup-189";
+    window.__tleShellVersion="20260929-followup-editor-190";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
@@ -1446,10 +1472,10 @@
       });
     }
   </script>
-  <script src="./vendor/supabase.js?v=20260929-dashboard-cleanup-189"></script>
-  <script src="./i18n.js?v=20260929-dashboard-cleanup-189"></script>
-  <script src="./public.js?v=20260929-dashboard-cleanup-189"></script>
-  <script src="./app.js?v=20260929-dashboard-cleanup-189"></script>
-  <script src="./followups.js?v=20260929-dashboard-cleanup-189"></script>
+  <script src="./vendor/supabase.js?v=20260929-followup-editor-190"></script>
+  <script src="./i18n.js?v=20260929-followup-editor-190"></script>
+  <script src="./public.js?v=20260929-followup-editor-190"></script>
+  <script src="./app.js?v=20260929-followup-editor-190"></script>
+  <script src="./followups.js?v=20260929-followup-editor-190"></script>
 </body>
 </html>
