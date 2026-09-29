@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: cleaning-app-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   syntax:
     runs-on: ubuntu-latest
