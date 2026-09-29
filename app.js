@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-scroll-root-fix-134";
+const APP_VERSION = "20260929-back-always-home-135";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1981,9 +1981,11 @@ window.addEventListener("resize",()=>{
 });
 
 if(backBtn) backBtn.addEventListener("click",()=>{
-  let previous=navHistory.pop();
-  while(previous && previous===$(".view.active")?.dataset.page) previous=navHistory.pop();
-  openView(previous||"today",{fromBack:true});
+  // The in-app Back button is intentionally a Home button:
+  // from any workspace section, return directly to Today.
+  navHistory.length=1;
+  navHistory[0]="today";
+  openView("today",{fromBack:true});
 });
 
 function getVisitorId(){
