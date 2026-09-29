@@ -155,23 +155,34 @@ try{
       }
     });
     await page.waitForSelector("#authSubmit",{visible:true,timeout:8000});
-    const submitState=await page.evaluate(()=>{
+    const submitState=await page.evaluate(async()=>{
       const btn=document.querySelector("#authSubmit");
-      const style=btn?getComputedStyle(btn):null;
-      const r=btn?.getBoundingClientRect();
+      if(!btn) return {exists:false};
+      btn.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"});
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      const style=getComputedStyle(btn);
+      const r=btn.getBoundingClientRect();
+      const cx=Math.max(0,Math.min(innerWidth-1,r.left+r.width/2));
+      const cy=Math.max(0,Math.min(innerHeight-1,r.top+r.height/2));
+      const hit=document.elementFromPoint(cx,cy);
       return {
-        exists:Boolean(btn),
-        disabled:Boolean(btn?.disabled),
-        pointerEvents:style?.pointerEvents||"",
-        visibility:style?.visibility||"",
-        display:style?.display||"",
-        width:r?.width||0,
-        height:r?.height||0
+        exists:true,
+        disabled:Boolean(btn.disabled),
+        pointerEvents:style.pointerEvents||"",
+        visibility:style.visibility||"",
+        display:style.display||"",
+        width:r.width||0,
+        height:r.height||0,
+        top:r.top,
+        bottom:r.bottom,
+        withinViewport:r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth,
+        hitSelf:Boolean(hit && (hit===btn || btn.contains(hit)))
       };
     });
     if(!submitState.exists || submitState.disabled || submitState.pointerEvents==="none" ||
        submitState.visibility==="hidden" || submitState.display==="none" ||
-       submitState.width<20 || submitState.height<20){
+       submitState.width<20 || submitState.height<20 ||
+       !submitState.withinViewport || !submitState.hitSelf){
       throw new Error(profile.name+": Sign in button is not usable "+JSON.stringify(submitState));
     }
     await page.click("#authSubmit");
