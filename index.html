@@ -272,6 +272,7 @@
                   <option value="sqm">m²</option>
                 </select>
               </span>
+              <small>Approximate is fine if you do not know the exact size.</small>
             </label>
 
             <div class="full public-property-details" id="publicResidentialDetails" hidden>
@@ -285,12 +286,15 @@
                 <input name="floors" type="number" min="1" max="50" step="1" inputmode="numeric" placeholder="e.g. 2">
               </label>
               <label>Pets in the home <span class="field-optional">(optional)</span>
-                <select name="pets">
+                <select name="pets" id="publicPets">
                   <option value="">Choose one</option>
                   <option value="none">No pets</option>
                   <option value="yes">Yes</option>
                   <option value="prefer_not">Prefer not to say</option>
                 </select>
+              </label>
+              <label id="publicPetDetailsWrap" hidden>Pet details <span class="field-optional">(optional)</span>
+                <input name="pet_details" placeholder="e.g. 2 dogs, 1 cat">
               </label>
             </div>
 
@@ -312,8 +316,29 @@
               <label>Floors / levels <span class="field-optional">(optional)</span>
                 <input name="commercial_floors" type="number" min="1" max="100" step="1" inputmode="numeric" placeholder="e.g. 1">
               </label>
+              <label>Business hours <span class="field-optional">(optional)</span>
+                <input name="business_hours" placeholder="e.g. Mon–Fri 9:00–5:00">
+              </label>
+              <label>Clean during business hours? <span class="field-optional">(optional)</span>
+                <select name="clean_during_business_hours">
+                  <option value="">Choose one</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="flexible">Flexible</option>
+                </select>
+              </label>
             </div>
 
+            <label class="full">Current condition
+              <select name="cleaning_condition" required>
+                <option value="">Choose one</option>
+                <option value="regular">Regular upkeep</option>
+                <option value="extra_attention">Needs extra attention</option>
+                <option value="heavy_buildup">Heavy buildup</option>
+                <option value="move">Move-in / move-out</option>
+                <option value="unsure">Not sure</option>
+              </select>
+            </label>
             <label class="full">When was it last professionally cleaned? <span class="field-optional">(optional)</span>
               <select name="last_professional_clean">
                 <option value="">Choose one</option>
