@@ -1403,6 +1403,16 @@
 };
 
   Object.assign(extra.ht,{
+    "Clear":"Syèl klè",
+    "Partly cloudy":"Pasyèlman nwaj",
+    "Cloudy":"Nwaj",
+    "Foggy":"Bwouya",
+    "Drizzle":"Ti lapli",
+    "Rain":"Lapli",
+    "Snow":"Nèj",
+    "Thunderstorms":"Tanpèt loraj",
+    "Weather":"Tan",
+    "Windy":"Gen van",
     "SECURITY":"SEKIRITE",
     "Security":"Sekirite",
     "INTEGRATIONS":"ENTEGRASYON",
