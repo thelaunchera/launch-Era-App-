@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-mobile-view-data-fixes-157";
+const APP_VERSION = "20260929-customer-creole-home-idle-158";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -494,12 +494,12 @@ function langPick(en,es,pt,fr){
   return map[appLanguage()] ?? en;
 }
 function customerEmailLanguageLabel(code){
-  return ({en:"English",es:"Español",pt:"Português",fr:"Français"})[String(code||"").toLowerCase()]||"English";
+  return ({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"})[String(code||"").toLowerCase()]||"English";
 }
 function customerEmailLanguageOptions(selected="",allowDefault=true){
   const value=String(selected||"").toLowerCase();
   const options=[
-    ["en","English"],["es","Español"],["pt","Português"],["fr","Français"]
+    ["en","English"],["es","Español"],["fr","Français"],["ht","Kreyòl Ayisyen"]
   ];
   const fallback=allowDefault
     ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Padrão da empresa","Valeur par défaut"))}</option>`
@@ -508,7 +508,7 @@ function customerEmailLanguageOptions(selected="",allowDefault=true){
 }
 function normalizedCustomerEmailLanguage(value){
   const code=String(value||"").trim().toLowerCase();
-  return ["en","es","pt","fr"].includes(code)?code:null;
+  return ["en","es","fr","ht"].includes(code)?code:null;
 }
 function customerTextTranslationTarget(){
   const code=appLanguage();
@@ -2980,7 +2980,7 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit: globalSetup.distance_unit,
       temperature_unit: globalSetup.temperature_unit,
       default_language: globalSetup.default_language,
-      customer_email_language: globalSetup.default_language,
+      customer_email_language:["en","es","fr"].includes(globalSetup.default_language)?globalSetup.default_language:"en",
       payment_methods:paymentMethodsForCountry(globalSetup.country_code),
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
