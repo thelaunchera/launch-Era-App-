@@ -9666,3 +9666,14 @@ body.shell-auth{overflow-anchor:none}
   [data-page="today"] .dashboard-grid{gap:12px!important}
   [data-page="today"] .next-move-panel{border-radius:20px!important}
 }
+
+
+/* 2026-09-29 — remove dead tablet search control v178 */
+@media(min-width:681px) and (max-width:1100px){
+  body.shell-app .global-search-shell{
+    display:none!important;
+  }
+  body.shell-app .top-actions{
+    gap:8px!important;
+  }
+}
