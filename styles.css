@@ -8088,3 +8088,167 @@ body.shell-auth{overflow-anchor:none}
   .invoice-growth-row>.record-actions{grid-column:1/-1!important}
   .invoice-growth-amount{font-size:24px!important}
 }
+
+
+/* 2026-09-29 — simpler Settings + independent customer email language */
+.settings-intro{margin-bottom:14px!important}
+.settings-simple-grid{gap:10px!important}
+.settings-simple-grid>.settings-section{
+  border-radius:18px!important;
+  border:1px solid rgba(25,25,25,.09)!important;
+  padding:16px 18px!important;
+  background:#fff;
+}
+.settings-simple-grid .panel-head{
+  align-items:flex-start!important;
+  gap:14px!important;
+}
+.settings-simple-grid .panel-head h3{
+  margin:2px 0 2px!important;
+  font-size:19px!important;
+  letter-spacing:-.025em;
+}
+.settings-simple-grid .panel-note{
+  display:block;
+  margin-top:3px;
+  font-size:10px;
+  line-height:1.4;
+  color:var(--muted);
+  font-weight:650;
+  max-width:560px;
+}
+.settings-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.settings-summary-grid>div{
+  display:grid;
+  gap:4px;
+  min-width:0;
+  padding:10px 11px;
+  border-radius:13px;
+  background:#F7F5F0;
+}
+.settings-summary-grid small{
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--muted);
+  font-weight:900;
+}
+.settings-summary-grid strong{
+  font-size:11px;
+  line-height:1.35;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.settings-inline-edit{
+  margin-top:10px;
+  width:max-content;
+}
+
+.communication-language-current{
+  display:grid;
+  grid-template-columns:minmax(160px,1fr) minmax(180px,.8fr) auto;
+  gap:10px;
+  align-items:end;
+  padding:14px;
+  border-radius:16px;
+  background:#F8F6F1;
+  margin-bottom:12px;
+}
+.communication-language-current>span{
+  display:grid;
+  gap:4px;
+}
+.communication-language-current>span small,
+.communication-language-current label>span{
+  font-size:9px;
+  font-weight:850;
+  color:var(--muted);
+}
+.communication-language-current>span strong{
+  font-size:22px;
+  letter-spacing:-.035em;
+}
+.communication-language-current label{
+  display:grid;
+  gap:6px;
+}
+.communication-language-current select{
+  width:100%;
+  min-height:42px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  padding:0 11px;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+}
+.communication-language-current .primary-btn{min-height:42px}
+.settings-email-flow{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:4px 0 10px;
+}
+.settings-email-flow span{
+  padding:6px 9px;
+  border-radius:999px;
+  background:#EEF5FA;
+  font-size:9px;
+  font-weight:900;
+}
+.settings-email-flow b{
+  color:var(--muted);
+  font-size:10px;
+}
+.settings-action-card .setting-row{
+  margin-top:2px;
+}
+.settings-simple-grid .review-settings-card .settings-link-field{
+  margin-top:5px;
+}
+
+/* Settings night mode remains readable without becoming visually heavy. */
+.app-shell[data-palette-mode="night"] .settings-simple-grid>.settings-section{
+  background:#27232C!important;
+  border-color:rgba(255,255,255,.12)!important;
+}
+.app-shell[data-palette-mode="night"] .settings-summary-grid>div,
+.app-shell[data-palette-mode="night"] .communication-language-current{
+  background:rgba(255,255,255,.06)!important;
+}
+.app-shell[data-palette-mode="night"] .communication-language-current select{
+  background:#201D24!important;
+  color:#FFFDF8!important;
+  border-color:rgba(255,255,255,.14)!important;
+}
+.app-shell[data-palette-mode="night"] .settings-email-flow span{
+  background:rgba(88,166,214,.15)!important;
+  color:#EAF6FF!important;
+}
+
+@media(max-width:680px){
+  .settings-simple-grid{gap:8px!important}
+  .settings-simple-grid>.settings-section{padding:13px!important}
+  .settings-summary-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .settings-summary-grid>div{padding:9px 10px}
+  .communication-language-current{
+    grid-template-columns:1fr;
+    align-items:stretch;
+    padding:12px;
+  }
+  .communication-language-current .primary-btn{width:100%}
+  .settings-email-flow{
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .settings-email-flow::-webkit-scrollbar{display:none}
+  .settings-email-flow span{white-space:nowrap}
+}
