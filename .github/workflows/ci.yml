@@ -23,7 +23,7 @@ jobs:
       - name: Prevent tracked secret leakage
         shell: bash
         run: |
-          if git grep -nE 'sk_live_|sb_secret_|SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|hook\.us2\.make\.com' -- ':!vendor/**' ':!package-lock.json'; then
+          if git grep -nE 'sk_live_|sb_secret_|SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|hook\.us2\.make\.com' -- ':!vendor/**' ':!package-lock.json' ':!.github/workflows/ci.yml'; then
             echo "Sensitive backend credential or webhook pattern found in tracked repository files."
             exit 1
           fi
