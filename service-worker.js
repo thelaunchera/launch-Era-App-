@@ -1,9 +1,9 @@
-const CACHE_NAME="tle-cleaning-app-20260929-mobile-ui-stable-163";
+const CACHE_NAME="tle-cleaning-app-20260929-live-weather-164";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-mobile-ui-stable-163",
-  "./app.js?v=20260929-mobile-ui-stable-163",
+  "./styles.css?v=20260929-live-weather-164",
+  "./app.js?v=20260929-live-weather-164",
   "./followups.js?v=20260929-mobile-navigation-data-159",
   "./i18n.js?v=20260929-mobile-navigation-data-159",
   "./public.js?v=20260929-mobile-navigation-data-159",
