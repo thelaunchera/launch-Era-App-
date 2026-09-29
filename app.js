@@ -5913,7 +5913,7 @@ function installGlobalWorkspaceSearch(){
   document.addEventListener("click",e=>{if(!e.target.closest("#globalSearchShell"))pop.hidden=true;});
 }
 function setBookingStep(){
-  $("[data-booking-panel]").forEach(panel=>{panel.hidden=false;});
+  document.querySelectorAll("[data-booking-panel]").forEach(panel=>{panel.hidden=false;});
   try{localStorage.removeItem("tle_booking_step");}catch{}
 }
 function installProgressiveBooking(){
