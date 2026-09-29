@@ -212,8 +212,11 @@ if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","work
 if(!publicJs.includes('functions/v1/track-app-visit')){
   throw new Error("Analytics regression: public pages must use hardened edge tracking");
 }
-if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries"]')){
+if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries","email_delivery_issues"]')){
   throw new Error("Realtime regression: operational table subscriptions changed unexpectedly");
+}
+if(!app.includes('supabase.from("email_delivery_issues").select("*")') || !app.includes('"email-delivery"')){
+  throw new Error("Email alert regression: delivery issues must load into the notification system");
 }
 if(app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","team_messages","job_time_entries"]')){
   throw new Error("Realtime regression: team_messages must not use a business_id Postgres Changes filter");
