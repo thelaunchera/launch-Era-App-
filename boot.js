@@ -36,7 +36,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20260929-i18n-deadcode-202";
+window.__tleShellVersion="20260929-repo-hardening-203";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
