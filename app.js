@@ -396,7 +396,7 @@ function completeCurrentOnboardingTip(){
     saveOnboardingState(progress);
     hideOnboardingTip();
     clearSignupWelcomeMarker().catch(()=>{});
-    setTimeout(()=>maybeShowFeatureIntro($(".view.active")?.dataset.page||"today",true),180);
+    // Feature tips appear only when the user actually opens a section.
     return;
   }
 
@@ -419,8 +419,8 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? ({es:"Cierra este mensaje y te mostramos lo esencial paso a paso.",pt:"Feche esta mensagem e mostraremos o essencial passo a passo.",fr:"Fermez ce message et nous vous montrerons l’essentiel étape par étape.",en:"Close this message and we’ll show you the essentials step by step."}[lang]||"Close this message and we’ll show you the essentials step by step.")
-    : ({es:"Este tip solo aparece una vez.",pt:"Esta dica aparece apenas uma vez.",fr:"Cette astuce n’apparaît qu’une seule fois.",en:"You’ll only see this tip once."}[lang]||"You’ll only see this tip once.");
+    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
+    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
     ? ({es:"Empezar recorrido",pt:"Iniciar tour",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
     : ({es:"Entendido",pt:"Entendi",fr:"Compris",en:"Got it"}[lang]||"Got it");
@@ -1863,8 +1863,10 @@ function restoreWorkspaceView(){
   return id;
 }
 
+const workspaceScrollPositions={};
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
+  if(current && current!==id) workspaceScrollPositions[current]=window.scrollY||0;
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
@@ -1882,7 +1884,8 @@ function openView(id,options={}){
   if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
-  window.scrollTo({top:0,behavior:options.fromRestore?"auto":"smooth"});
+  const savedTop=Number(workspaceScrollPositions[id]||0);
+  window.scrollTo({top:savedTop,behavior:"auto"});
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="team"){
     loadTeamMessageThreads().then(()=>{
@@ -4217,6 +4220,29 @@ function renderLeads(){
 function invoicePaidAmount(inv){
   return (inv.payments||[]).filter(p=>p.status==="confirmed").reduce((sum,p)=>sum+Number(p.amount||0),0);
 }
+
+function enhanceMobileRecordActions(){
+  if(!window.matchMedia("(max-width: 680px)").matches) return;
+  $(".mobile-record-card .record-actions").forEach(actions=>{
+    if(actions.dataset.compactReady==="1") return;
+    const safe=actions.querySelector(".safe-actions");
+    if(!safe) return;
+    const buttons=[...safe.querySelectorAll("button")];
+    if(buttons.length<2) return;
+    actions.dataset.compactReady="1";
+    const primary=buttons.find(b=>b.matches("[data-send-invoice],[data-record-payment],[data-lead-to-quote]"))||buttons[0];
+    primary.classList.add("mobile-primary-action");
+    const more=document.createElement("button");
+    more.type="button"; more.className="mobile-more-actions"; more.textContent="•••";
+    more.setAttribute("aria-label",langPick("More actions","Más acciones","Mais ações","Plus d’actions"));
+    actions.insertBefore(more,actions.querySelector(".record-delete-btn"));
+    more.addEventListener("click",e=>{e.stopPropagation();actions.classList.toggle("mobile-actions-open");});
+  });
+}
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".record-actions")) $(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
+});
+
 function renderInvoices(){
   const table=$("#invoicesTable");
   if(!table) return;
@@ -4258,6 +4284,7 @@ function renderInvoices(){
       </span>
     </div>`;
   }).join("");
+  enhanceMobileRecordActions();
 }
 
 function renderBookingServices(){
@@ -5219,66 +5246,7 @@ function installTodayClock(){
 }
 
 
-/* 2026-09-29 — first-win onboarding. UX-only: existing data model and booking flows remain unchanged. */
-function firstWinKey(suffix="state"){
-  return "tle_first_win_v1:"+String(state.business?.id||"workspace")+":"+suffix;
-}
-function firstWinLocalGet(suffix){
-  try{return localStorage.getItem(firstWinKey(suffix));}catch{return null;}
-}
-function firstWinLocalSet(suffix,value){
-  try{localStorage.setItem(firstWinKey(suffix),String(value));}catch{}
-}
-function firstWinStatus(){
-  const hasService=Array.isArray(state.services)&&state.services.length>0;
-  const links=state.publicLinks||{};
-  const hasAvailability=firstWinLocalGet("availability")==="1";
-  const previewed=firstWinLocalGet("preview")==="1";
-  const shared=firstWinLocalGet("share")==="1";
-  return {hasService,hasAvailability,previewed,shared,complete:hasService&&hasAvailability&&previewed&&shared};
-}
-function renderFirstWin(){
-  const shell=$("#firstWinShell"), launcher=$("#firstWinLauncher");
-  if(!shell||!launcher||!state.business||!["owner","admin"].includes(state.business.role)) return;
-  const s=firstWinStatus(), done=[s.hasService,s.hasAvailability,s.previewed,s.shared], count=done.filter(Boolean).length;
-  launcher.hidden=s.complete;
-  $(".first-win-step",shell).forEach((el,i)=>el.classList.toggle("is-done",!!done[i]));
-  const bar=$("#firstWinProgressBar"); if(bar) bar.style.width=(count/4*100)+"%";
-  const progress=$("#firstWinLauncherProgress"); if(progress) progress.textContent=langPick(count+" of 4 complete",count+" de 4 completados",count+" de 4 concluídos",count+" sur 4 terminés");
-  const title=$("#firstWinLauncherTitle"); if(title) title.textContent=langPick("Finish setup","Terminar configuración","Concluir configuração","Terminer la configuration");
-  const ready=$("#firstWinReady"); if(ready) ready.hidden=!s.complete;
-  const copy={
-    eyebrow:langPick("QUICK START","INICIO RÁPIDO","INÍCIO RÁPIDO","DÉMARRAGE RAPIDE"),
-    title:langPick("Get ready for your first booking","Prepárate para tu primera reserva","Prepare-se para sua primeira reserva","Préparez votre première réservation"),
-    body:langPick("One step at a time. You can use the rest of the app anytime.","Un paso a la vez. Puedes usar el resto de la app cuando quieras.","Um passo de cada vez. Você pode usar o restante do app quando quiser.","Une étape à la fois. Vous pouvez utiliser le reste de l’app à tout moment."),
-    steps:[
-      [langPick("Add your first service","Añade tu primer servicio","Adicione seu primeiro serviço","Ajoutez votre premier service"),langPick("What clients can book","Lo que tus clientes pueden reservar","O que os clientes podem reservar","Ce que les clients peuvent réserver")],
-      [langPick("Set your availability","Configura tu disponibilidad","Defina sua disponibilidade","Définissez vos disponibilités"),langPick("When clients can book","Cuándo pueden reservar","Quando os clientes podem reservar","Quand les clients peuvent réserver")],
-      [langPick("Preview your booking page","Previsualiza tu página de reservas","Visualize sua página de reservas","Prévisualisez votre page de réservation"),langPick("See the client experience","Mira la experiencia del cliente","Veja a experiência do cliente","Voyez l’expérience client")],
-      [langPick("Share your booking link","Comparte tu enlace de reservas","Compartilhe seu link de reservas","Partagez votre lien de réservation"),langPick("Start taking requests","Empieza a recibir solicitudes","Comece a receber solicitações","Commencez à recevoir des demandes")]
-    ]
-  };
-  $("#firstWinEyebrow").textContent=copy.eyebrow; $("#firstWinTitle").textContent=copy.title; $("#firstWinCopy").textContent=copy.body;
-  copy.steps.forEach((x,i)=>{const n=i+1;$("#firstWinStep"+n).textContent=x[0];$("#firstWinStep"+n+"Hint").textContent=x[1];});
-  $("#firstWinReadyTitle").textContent=langPick("Your booking page is ready.","Tu página de reservas está lista.","Sua página de reservas está pronta.","Votre page de réservation est prête.");
-  $("#firstWinReadyCopy").textContent=langPick("Copy your link and start taking requests.","Copia tu enlace y empieza a recibir solicitudes.","Copie seu link e comece a receber solicitações.","Copiez votre lien et commencez à recevoir des demandes.");
-  $("#firstWinCopyLink").textContent=langPick("Copy booking link","Copiar enlace","Copiar link","Copier le lien");
-}
-$("#firstWinDismiss")?.addEventListener("click",()=>{firstWinLocalSet("dismissed","1");renderFirstWin();});
-$("#firstWinCopyLink")?.addEventListener("click",()=>{firstWinLocalSet("share","1");$("#copyBooking")?.click();renderFirstWin();});
-$("#copyBooking")?.addEventListener("click",()=>{firstWinLocalSet("share","1");setTimeout(renderFirstWin,100);});
-document.addEventListener("click",e=>{
-  const step=e.target.closest?.("[data-first-win]");
-  if(!step) return;
-  const kind=step.dataset.firstWin;
-  if(kind==="preview") firstWinLocalSet("preview","1");
-  if(kind==="share") firstWinLocalSet("share","1");
-  if(step.dataset.jump) closeFirstWin();
-  setTimeout(renderFirstWin,0);
-});
-
 function renderTodaySummary(wakeAssistant=false){
-  try{ renderFirstWin(); }catch{}
   const now=new Date();
   const businessTimeZone=activeBusinessTimeZone();
   const businessHour=Number(new Intl.DateTimeFormat("en-US",{
@@ -8291,7 +8259,6 @@ if(testGoogleReviewBtn) testGoogleReviewBtn.addEventListener("click",()=>{
 });
 
 const saveAvailabilityBtn=$("#saveAvailabilityBtn");
-$("#saveAvailabilityBtn")?.addEventListener("click",()=>{firstWinLocalSet("availability","1");setTimeout(renderFirstWin,250);});
 if(saveAvailabilityBtn) saveAvailabilityBtn.addEventListener("click",async ()=>{
   try{
     saveAvailabilityBtn.disabled=true;
