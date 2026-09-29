@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-creole-home-idle-158";
+const APP_VERSION = "20260929-mobile-navigation-data-159";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2050,7 +2050,10 @@ function openView(id,options={}){
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
   requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
-  if(id==="calendar") renderJobs();
+  if(id==="calendar"){
+    renderJobs();
+    requestAnimationFrame(()=>renderJobs());
+  }
   if(id==="services") renderServices();
   if(id==="booking") renderPublicLinks();
   if(id==="settings") renderSettings();
@@ -3000,6 +3003,12 @@ businessForm.addEventListener("submit", async (e)=>{
       trial_ends_at:data.trial_ends_at,trial_days:data.trial_days,trial_promotion:data.trial_promotion,
       subscription_status:data.subscription_status
     };
+    try{
+      const {error:seedError}=await supabase.rpc("seed_default_services",{p_business_id:data.id});
+      if(seedError) console.warn("[TLE] starter services on signup",seedError);
+    }catch(seedErr){
+      console.warn("[TLE] starter services on signup",seedErr);
+    }
     await identifyPlatformAdmin();
     const {data:linkSettings}=await supabase.rpc("get_my_public_link_settings");
     state.publicLinks=linkSettings||null;
@@ -4263,16 +4272,31 @@ async function loadCoreData(){
   };
 
   // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
-  const [clients,leads,services,addons,availability]=await Promise.all([
+  let [clients,leads,services,addons,availability]=await Promise.all([
     safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.clients),
     safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.leads),
     safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.services),
     safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.serviceAddons),
     safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"),state.availabilityRules)
   ]);
+
+  if((services||[]).length===0 && ["owner","admin"].includes(String(state.business?.role||""))){
+    try{
+      const {error:seedError}=await supabase.rpc("seed_default_services",{p_business_id:businessId});
+      if(seedError) throw seedError;
+      const {data:seededServices,error:seedFetchError}=await supabase
+        .from("services").select("*").eq("business_id",businessId)
+        .order("active",{ascending:false}).order("name");
+      if(seedFetchError) throw seedFetchError;
+      services=seededServices||[];
+    }catch(err){
+      console.warn("[TLE] starter services",err);
+    }
+  }
+
   state.clients=clients;
   state.leads=leads;
-  state.services=services;
+  state.services=services||[];
   state.serviceAddons=addons;
   state.availabilityRules=availability;
   renderClients();
@@ -4983,7 +5007,8 @@ function renderSupplies(){
 
 function renderJobs(){
   const list=$("#jobsList");
-  const visible=state.jobs.filter(j=>j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const sourceJobs=Array.isArray(state.jobs)?state.jobs:[];
+  const visible=sourceJobs.filter(j=>j && j.status!=="canceled").sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
   // Recurring occurrences belong in the dedicated Recurring section. Keeping
   // them out of Upcoming prevents the same client from filling the main list.
   const upcomingStandalone=visible.filter(j=>!j.recurrence_rule_id);
@@ -9024,11 +9049,13 @@ function closeEntityModal(){
   state.modalType=null;
   state.modalId=null;
 }
-$("#modalClose")?.addEventListener("click",e=>{
+document.addEventListener("click",e=>{
+  const closer=e.target.closest?.("#modalClose,[data-modal-cancel]");
+  if(!closer || !modal || modal.hidden) return;
   e.preventDefault();
   e.stopPropagation();
   closeEntityModal();
-});
+},true);
 $("#modalBackdrop")?.addEventListener("click",e=>{
   if(e.target?.id==="modalBackdrop") closeEntityModal();
 });
