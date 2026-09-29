@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-language-142";
+const APP_VERSION = "20260929-customer-language-143";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -494,12 +494,12 @@ function langPick(en,es,pt,fr){
   return map[appLanguage()] ?? en;
 }
 function customerEmailLanguageLabel(code){
-  return ({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"})[String(code||"").toLowerCase()]||"English";
+  return ({en:"English",es:"Español",pt:"Português",fr:"Français"})[String(code||"").toLowerCase()]||"English";
 }
 function customerEmailLanguageOptions(selected="",allowDefault=true){
   const value=String(selected||"").toLowerCase();
   const options=[
-    ["en","English"],["es","Español"],["fr","Français"],["ht","Kreyòl Ayisyen"]
+    ["en","English"],["es","Español"],["pt","Português"],["fr","Français"]
   ];
   const fallback=allowDefault
     ? `<option value="" ${!value?"selected":""}>${escapeHtml(langPick("Business default","Predeterminado del negocio","Padrão da empresa","Valeur par défaut"))}</option>`
@@ -508,7 +508,7 @@ function customerEmailLanguageOptions(selected="",allowDefault=true){
 }
 function normalizedCustomerEmailLanguage(value){
   const code=String(value||"").trim().toLowerCase();
-  return ["en","es","fr","ht"].includes(code)?code:null;
+  return ["en","es","pt","fr"].includes(code)?code:null;
 }
 function appLocale(){
   return state.business?.locale_code
@@ -6125,8 +6125,8 @@ async function openBusinessProfileForm(){
       <label>${escapeHtml(tr("Customer communication language"))}<select name="customer_email_language" required>
         <option value="en" ${record.customer_email_language==="en"?"selected":""}>English</option>
         <option value="es" ${record.customer_email_language==="es"?"selected":""}>Español</option>
+        <option value="pt" ${record.customer_email_language==="pt"?"selected":""}>Português</option>
         <option value="fr" ${record.customer_email_language==="fr"?"selected":""}>Français</option>
-        <option value="ht" ${record.customer_email_language==="ht"?"selected":""}>Kreyòl Ayisyen</option>
       </select><small>${escapeHtml(tr("Default for customer emails, quotes, invoices, booking confirmations, reminders and follow-ups. A customer can keep their own preferred language."))}</small></label>
       <label>Currency<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
       <label>Distance<select name="distance_unit"><option value="mi" ${record.distance_unit==="mi"?"selected":""}>Miles</option><option value="km" ${record.distance_unit==="km"?"selected":""}>Kilometers</option></select></label>
@@ -6164,7 +6164,7 @@ async function saveBusinessProfile(fd){
     timezone:detected.timezone||state.business.timezone||"UTC",
     country_code:country,
     default_language:language,
-    customer_email_language:["en","es","fr"].includes(language)?language:"en",
+    customer_email_language:normalizedCustomerEmailLanguage(fd.get("customer_email_language"))||state.business.customer_email_language||language,
     locale_code:localeForCountry(country,language),
     currency_code:String(fd.get("currency_code")||detected.currency_code||"USD").trim().toUpperCase(),
     distance_unit:String(fd.get("distance_unit")||detected.distance_unit||"km"),
