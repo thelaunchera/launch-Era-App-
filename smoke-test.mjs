@@ -11,6 +11,8 @@ const manifest=fs.readFileSync("manifest.webmanifest","utf8");
 const styles=[
   "styles.css",
   "styles/workspace-components.css",
+  "styles/workspace-experience.css",
+  "styles/workspace-operations.css",
   "styles/release-overrides.css",
   "styles/responsive-shell.css",
   "styles/customer-documents.css"
