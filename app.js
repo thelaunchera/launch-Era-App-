@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-home-after-2min-idle-154";
+const APP_VERSION = "20260929-mobile-view-data-fixes-155";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1918,6 +1918,81 @@ function setWorkspaceScrollTop(value=0){
     owner.scrollTo({top,behavior:"auto"});
   }
 }
+const viewRefreshInFlight=new Map();
+async function refreshViewData(id){
+  if(!state.business?.id) return;
+  if(viewRefreshInFlight.has(id)) return viewRefreshInFlight.get(id);
+
+  const task=(async()=>{
+    try{
+      const businessId=state.business.id;
+
+      if(id==="calendar"){
+        // Render immediately from cached state so the calendar never opens blank.
+        renderJobs();
+        const {data,error}=await supabase
+          .from("jobs")
+          .select("*, clients(name,email), services(name), job_assignments(id,team_member_id,team_members(name))")
+          .eq("business_id",businessId)
+          .order("starts_at",{ascending:true});
+        if(error) throw error;
+        state.jobs=data||[];
+        renderJobs();
+        return;
+      }
+
+      if(id==="services" || id==="booking"){
+        let [{data:services,error:servicesError},{data:addons,error:addonsError}]=await Promise.all([
+          supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
+          supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")
+        ]);
+        if(servicesError) throw servicesError;
+        if(addonsError) throw addonsError;
+
+        // New workspaces get editable starter services. The RPC is idempotent,
+        // so a temporary empty screen cannot create duplicates.
+        if((services||[]).length===0 && ["owner","admin"].includes(String(state.business.role||""))){
+          const {error:seedError}=await supabase.rpc("seed_default_services",{p_business_id:businessId});
+          if(!seedError){
+            const {data:seeded,error:seedFetchError}=await supabase
+              .from("services").select("*").eq("business_id",businessId)
+              .order("active",{ascending:false}).order("name");
+            if(!seedFetchError) services=seeded||[];
+          }
+        }
+
+        state.services=services||[];
+        state.serviceAddons=addons||[];
+        renderServices();
+        renderBookingServices();
+
+        if(id==="booking"){
+          const {data:links,error:linksError}=await supabase.rpc("get_my_public_link_settings");
+          if(!linksError){
+            state.publicLinks=links||null;
+            renderPublicLinks();
+          }
+        }
+        return;
+      }
+
+      if(id==="settings"){
+        const record=await loadBusinessSettingsRecord();
+        state.business={...state.business,...record};
+        const {data:links,error:linksError}=await supabase.rpc("get_my_public_link_settings");
+        if(!linksError) state.publicLinks=links||null;
+        renderSettings();
+        return;
+      }
+    }catch(err){
+      console.warn("[TLE] view refresh",id,err);
+    }
+  })().finally(()=>viewRefreshInFlight.delete(id));
+
+  viewRefreshInFlight.set(id,task);
+  return task;
+}
+
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
   if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
@@ -1950,6 +2025,13 @@ function openView(id,options={}){
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
   requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
+  if(id==="calendar") renderJobs();
+  if(id==="services") renderServices();
+  if(id==="booking") renderPublicLinks();
+  if(id==="settings") renderSettings();
+
+  refreshViewData(id).catch(()=>{});
+
   if(id==="team"){
     loadTeamMessageThreads().then(()=>{
       if(state.activeTeamMessageMemberId) return loadTeamMessageThread(state.activeTeamMessageMemberId,{markRead:true});
@@ -6257,6 +6339,10 @@ async function openPaymentPreferencesForm(){
       <div class="choice-grid compact">
         ${methods.map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
       </div>
+      <label class="custom-payment-method">
+        <span>${escapeHtml(langPick("Add another payment method","Añadir otra forma de pago","Adicionar outra forma de pagamento","Ajouter un autre mode de paiement"))}</span>
+        <input name="custom_payment_method" maxlength="40" placeholder="${escapeHtml(langPick("e.g. Venmo, Cash App","ej. Venmo, Cash App","ex. Pix, Mercado Pago","ex. PayPal, Lydia"))}">
+      </label>
       <small>${escapeHtml(langPick(
         "The app stores the payment choice, not bank credentials.",
         "La app guarda la forma de pago elegida, no credenciales bancarias.",
@@ -6338,6 +6424,11 @@ async function savePaymentPreferences(fd){
     throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
   }
   const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
+  const custom=String(fd.get("custom_payment_method")||"").trim();
+  if(custom){
+    const normalized=custom.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40);
+    if(normalized && !paymentMethods.includes(normalized)) paymentMethods.push(normalized);
+  }
   if(!paymentMethods.length){
     throw new Error(langPick("Choose at least one payment method.","Elige al menos una forma de pago.","Escolha pelo menos uma forma de pagamento.","Choisissez au moins un mode de paiement."));
   }
@@ -6435,14 +6526,20 @@ function renderBusinessPresence(){
 }
 
 function renderPublicLinks(){
-  const slug=state.publicLinks?.public_slug;
-  if(!slug) return;
+  const slug=String(state.publicLinks?.public_slug||"").trim();
   const base=window.location.origin+window.location.pathname;
+  const be=$("#bookingUrl"),qe=$("#quoteUrl");
+
+  if(!slug){
+    if(be){be.textContent=langPick("Loading booking link…","Cargando enlace de reserva…","Carregando link de reserva…","Chargement du lien de réservation…");be.removeAttribute("href");}
+    if(qe){qe.textContent=langPick("Loading quote link…","Cargando enlace de cotización…","Carregando link de orçamento…","Chargement du lien de devis…");qe.removeAttribute("href");}
+    return;
+  }
+
   const booking=`${base}?public=book&slug=${encodeURIComponent(slug)}`;
   const quote=`${base}?public=quote&slug=${encodeURIComponent(slug)}`;
-  const be=$("#bookingUrl"),qe=$("#quoteUrl");
-  if(be){be.textContent=booking;be.href=booking;}
-  if(qe){qe.textContent=quote;qe.href=quote;}
+  if(be){be.textContent=booking;be.href=booking;be.setAttribute("aria-label",langPick("Open booking link","Abrir enlace de reserva","Abrir link de reserva","Ouvrir le lien de réservation"));}
+  if(qe){qe.textContent=quote;qe.href=quote;qe.setAttribute("aria-label",langPick("Open quote request link","Abrir enlace de cotización","Abrir link de orçamento","Ouvrir le lien de devis"));}
   renderBusinessPresence();
 }
 
@@ -8504,7 +8601,7 @@ document.addEventListener("click",async e=>{
     if(error) showToast(error.message); else {await loadCoreData();showToast(supply.active?"Supply archived":"Supply restored");}
     return;
   }
-  if(e.target.closest("[data-modal-cancel]")){ modal.hidden=true; return; }
+  if(e.target.closest("[data-modal-cancel]")){ closeEntityModal(); return; }
 
   const archive=e.target.closest("[data-archive-client]");
   if(archive){
@@ -8887,8 +8984,20 @@ if(inviteMemberBtn) inviteMemberBtn.addEventListener("click",openInviteForm);
 const addTeamProfileBtn=$("#addTeamProfileBtn");
 if(addTeamProfileBtn) addTeamProfileBtn.addEventListener("click",()=>openTeamForm());
 
-$("#modalClose").addEventListener("click",()=>modal.hidden=true);
-modal.addEventListener("click",e=>{if(e.target===modal) modal.hidden=true});
+function closeEntityModal(){
+  if(!modal) return;
+  modal.hidden=true;
+  state.modalType=null;
+  state.modalId=null;
+}
+$("#modalClose")?.addEventListener("click",e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeEntityModal();
+});
+$("#modalBackdrop")?.addEventListener("click",e=>{
+  if(e.target?.id==="modalBackdrop") closeEntityModal();
+});
 
 function customerShareAppUrl(){
   const url=new URL(window.location.origin+window.location.pathname);
