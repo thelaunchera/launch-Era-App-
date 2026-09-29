@@ -8369,3 +8369,90 @@ body.shell-auth{overflow-anchor:none}
 @media(max-width:680px){
   .customer-translate-btn{min-height:34px;padding:7px 10px;font-size:10px}
 }
+
+
+/* 2026-09-29 — mobile reliability pass v159 */
+/* Let the complete mobile drawer scroll, including Settings, Help and Log out. */
+@media(max-width:860px){
+  body.shell-app #appShell>.sidebar{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;
+    overscroll-behavior-y:contain!important;
+    max-height:100dvh!important;
+    padding-bottom:max(34px,calc(env(safe-area-inset-bottom) + 22px))!important;
+  }
+  body.shell-app #appShell>.sidebar .nav-list{
+    flex:0 0 auto!important;
+    overflow:visible!important;
+    min-height:max-content!important;
+  }
+  body.shell-app #appShell>.sidebar .sidebar-session-actions{
+    flex:0 0 auto!important;
+    position:static!important;
+    padding-bottom:max(10px,env(safe-area-inset-bottom))!important;
+  }
+}
+
+/* Make public URLs unmistakably tappable, not plain text. */
+.link-box a{
+  display:block!important;
+  width:100%!important;
+  padding:10px 12px!important;
+  border:1px solid var(--line)!important;
+  border-radius:11px!important;
+  background:#F8F6F1!important;
+  color:#145E9A!important;
+  text-decoration:underline!important;
+  text-decoration-thickness:1.5px!important;
+  text-underline-offset:3px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  pointer-events:auto!important;
+}
+
+/* Calendar must remain visible on phones even with zero jobs. */
+@media(max-width:720px){
+  [data-page="calendar"].active .calendar-panel{
+    display:block!important;
+    min-width:0!important;
+  }
+  [data-page="calendar"].active #calendarWeekRow.two-week-calendar{
+    display:grid!important;
+    grid-template-columns:repeat(7,minmax(64px,1fr))!important;
+    gap:7px!important;
+    min-height:190px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:2px 0 8px!important;
+  }
+  [data-page="calendar"].active #calendarWeekRow>[data-calendar-day]{
+    display:flex!important;
+    min-height:82px!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+}
+
+/* iOS: the modal X and Cancel controls always stay above form content. */
+.modal{isolation:isolate!important}
+.modal-close{
+  z-index:20!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.entity-form [data-modal-cancel]{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+
+/* Settings edit controls should remain tappable after iOS restores a PWA view. */
+[data-edit-app-preferences],
+[data-edit-payment-preferences],
+#saveCustomerEmailLanguageBtn{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
