@@ -9069,3 +9069,33 @@ body.shell-auth{overflow-anchor:none}
 @media(prefers-reduced-motion:reduce){
   .moon-glow{animation:none!important}
 }
+
+
+/* Email delivery alerts */
+.notification-item.is-email-issue{
+  border-left:4px solid #B45309;
+  background:#FFF7ED;
+}
+.notification-item.is-email-issue .notification-dot{
+  background:#B45309;
+  box-shadow:0 0 0 4px rgba(180,83,9,.12);
+}
+.email-delivery-warning,
+.client-email-warning{
+  display:grid;
+  gap:6px;
+  padding:14px 16px;
+  border:1px solid rgba(180,83,9,.28);
+  border-left:4px solid #B45309;
+  border-radius:14px;
+  background:#FFF7ED;
+  color:#191919;
+}
+.email-delivery-warning span,
+.client-email-warning span{
+  color:#6B5A45;
+  line-height:1.45;
+}
+.client-email-warning{
+  margin-bottom:14px;
+}
