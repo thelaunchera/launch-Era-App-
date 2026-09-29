@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-public-request-details-164";
+const APP_VERSION = "20260929-mobile-ui-stable-165";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2134,7 +2134,7 @@ function openView(id,options={}){
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
   }
-  $(".view").forEach(v=>{
+  $$(".view").forEach(v=>{
     const active=v.dataset.page===id;
     v.classList.toggle("active",active);
     if(active){
@@ -2144,7 +2144,7 @@ function openView(id,options={}){
     }
   });
   let activeNav=null;
-  $(".nav-item").forEach(n=>{
+  $$(".nav-item").forEach(n=>{
     const active=n.dataset.view===id;
     n.classList.toggle("active",active);
     if(active) activeNav=n;
@@ -2220,10 +2220,10 @@ function syncMobileNavGroups(){
   const activeGroup=active?.closest("details.nav-group")||null;
   groups.forEach(group=>{ group.open=group===activeGroup; });
 }
-$("details.nav-group").forEach(group=>{
+$$("details.nav-group").forEach(group=>{
   group.addEventListener("toggle",()=>{
     if(window.innerWidth>860 || !group.open) return;
-    $("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
+    $$("details.nav-group").forEach(other=>{ if(other!==group) other.open=false; });
   });
 });
 function setSidebarOpen(open){
