@@ -1,60 +1,81 @@
 # The Launch Era Cleaning App
 
-Private migration/rebuild workspace for the future **The Launch Era Cleaning App**.
+Production PWA for cleaning-business operations, hosted on GitHub Pages and backed by the dedicated Supabase project.
 
-## Important
-The current production app hosted in Sites remains live and untouched during this build.
+## Current production scope
 
-## Product direction
-Simple daily operations for residential cleaning business owners. The product should feel like a modern operating system for a small cleaning company, not a bloated CRM.
+The app supports the active owner/admin/worker workflow:
 
-Core workflow:
+- Owner / Admin / Worker access
+- Clients, leads, quotes, invoices and jobs
+- Public Booking Page and Request a Quote flow
+- Real availability checks for bookings and quotes
+- One-time and recurring jobs
+- Calendar, route, mileage and time tracking
+- Services and add-ons
+- Customer payment method tracking: Cash, Zelle, Check and custom Other
+- Quote/invoice customer-view tracking
+- Transactional email flow and delivery-failure alerts
+- Follow-up queue and editable multilingual follow-up messages
+- EN / ES / FR / Haitian Creole UI and customer communications
+- PWA install / service worker support
+- Responsive phone, tablet and desktop layouts
 
-Lead → Quote → Booking → Client → Job → Invoice
+## Runtime architecture
 
-Operational priorities:
-- Today dashboard
-- Public Booking Center
-- Clients
-- Calendar + Jobs
-- Quotes
-- Invoices
-- Today's Route
-- Mileage
-- Time Tracking
-- Reports
-- Services + Add-ons
-- Team
-- Settings
-- Recurring jobs
-- Travel-time blocking
+- Frontend: GitHub Pages PWA
+- Backend/data/auth: Supabase
+- Transactional email: Supabase → Make → Resend
+- Public app domain: app.thelaunchera.com
 
-Not in the first migration phase:
-- live GPS tracking
-- full accounting
-- payroll / HR
-- heavy inventory
-- enterprise complexity
+No Stripe/card payment flow is part of the Cleaning App. Customers select a payment method and the cleaning business confirms payment after receipt.
 
-## Current stage
-The private GitHub build is now connected to the dedicated Supabase project.
+## Core workflow
 
-Functional now in the new build:
-- Email/password authentication
-- First-login business workspace setup
-- 30-day trial dates stored at workspace creation
-- Tenant-isolated Clients CRUD
-- Services create/edit/activate/deactivate
-- Jobs create/edit/cancel
-- Quotes create/edit/status flow
-- Quote acceptance transaction: accepted quote → client → calendar job → draft invoice
-- Real Supabase RLS policies on business data
+Lead → Quote or Booking Request → Client → Job → Invoice → Payment → Follow-up
 
-Still intentionally not cut over:
-- The current Sites production app remains untouched.
-- Production customer migration has not started.
-- Billing is not connected to this replacement yet.
-- Public booking and automations come after the core owner workflow passes QA.
+Quote-only services and variable-price work stay in the quote flow. Fixed-price services can use direct booking when a real available slot is selected.
 
-## Safety
-Do not point production traffic or app.thelaunchera.com here until authentication, tenant isolation, booking, quote, invoice, migration, emails and billing have all passed QA.
+## Languages
+
+The supported app/customer languages are:
+
+- English
+- Spanish
+- French
+- Haitian Creole
+
+Do not reintroduce Portuguese as an active language without an explicit product decision and full translation QA.
+
+## Release safety
+
+Every push to `main` runs:
+
+- JavaScript syntax checks
+- Production dependency audit
+- Frontend secret-pattern scan
+- Local Supabase bundle check
+- Repository health guardrails
+- Functional smoke tests
+- Browser smoke tests
+- Cross-browser Playwright checks for Safari/WebKit, Chrome/Chromium and Firefox
+
+`repo-health.mjs` also protects release-version synchronization, the version-agnostic PWA start URL, the supported language set, sensitive service-worker cache rules, and file-size growth limits.
+
+## Maintenance rule
+
+Avoid adding new “final override” CSS blocks for a component that already has multiple responsive overrides. Consolidate the component instead.
+
+Large-file guardrails currently exist because `app.js`, `styles.css`, and `i18n.js` have accumulated substantial product history. New work should move toward feature modules rather than continuing to grow those files.
+
+## Source of truth
+
+Runtime code and the live Supabase schema are the source of truth for current behavior. `PRODUCT_BLUEPRINT.md` and `DATA_MODEL.md` are architecture/reference documents and may describe earlier design stages unless explicitly updated.
+
+## Current QA priorities
+
+1. Keep CI green before considering a release stable.
+2. Test phone, tablet and desktop after responsive changes.
+3. Keep public booking/quote availability validated in both UI and backend.
+4. Keep all customer-facing flows localized consistently.
+5. Refactor CSS/JS incrementally, without behavior changes, behind passing smoke tests.
