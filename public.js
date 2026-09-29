@@ -603,9 +603,27 @@
         }).format(new Date(iso));
       }
 
+      function slotLocalTimeValue(iso){
+        const parts=new Intl.DateTimeFormat("en-GB",{
+          timeZone:businessZone,
+          hour:"2-digit",
+          minute:"2-digit",
+          hourCycle:"h23"
+        }).formatToParts(new Date(iso));
+        const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+        return (map.hour||"00")+":"+(map.minute||"00");
+      }
+
+      function syncSubmitForSlot(){
+        if(!submit) return;
+        submit.disabled=!services.length || !String(slotInput?.value||"").trim();
+      }
+
       async function refreshSlots(){
-        if(mode==="quote" || !slotsBox || !slotInput) return;
+        if(!slotsBox || !slotInput) return;
         slotInput.value="";
+        if(quoteTimeInput) quoteTimeInput.value="";
+        syncSubmitForSlot();
         const serviceId=select?.value;
         const dateValue=dateInput?.value;
         if(!serviceId || !dateValue){
@@ -619,7 +637,7 @@
             p_slug:slug,
             p_service_id:serviceId,
             p_date:dateValue,
-            p_addon_ids:chosenAddonIds()
+            p_addon_ids:mode==="quote"?[]:chosenAddonIds()
           });
           const slots=Array.isArray(rows)?rows:[];
           if(!slots.length){
@@ -653,16 +671,15 @@
         if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
         if(intro) intro.textContent=tt(mode==="quote"
-          ?"For custom or variable-price work. Choose a quote-only service and tell us about the job."
+          ?"For custom or variable-price work. Choose the service, date, and one of the real available times."
           :"Choose a service with upfront pricing, then pick a real available time.");
         if(submit){
           submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
-          submit.disabled=!services.length;
         }
         if(addWrap) addWrap.hidden=mode==="quote";
-        if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
+        if(quoteTimeWrap) quoteTimeWrap.hidden=true;
         if(recurrenceWrap) recurrenceWrap.hidden=mode==="quote";
-        if(slotsWrap) slotsWrap.hidden=mode==="quote";
+        if(slotsWrap) slotsWrap.hidden=false;
 
         if(select){
           select.value="";
@@ -679,7 +696,9 @@
         }
 
         if(slotInput) slotInput.value="";
+        if(quoteTimeInput) quoteTimeInput.value="";
         if(slotsBox) slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
+        syncSubmitForSlot();
         if(addonBox) addonBox.innerHTML="";
         if(summary){
           summary.innerHTML=services.length
@@ -739,6 +758,8 @@
         if(!btn) return;
         slotsBox.querySelectorAll("[data-slot]").forEach(x=>x.classList.toggle("selected",x===btn));
         slotInput.value=btn.dataset.slot;
+        if(quoteTimeInput) quoteTimeInput.value=slotLocalTimeValue(btn.dataset.slot);
+        syncSubmitForSlot();
       });
 
       if(dateInput){
@@ -853,6 +874,9 @@
           submit.disabled=true;
           submit.textContent=tt("Sending…");
           try{
+            const selectedSlot=String(fd.get("slot_start")||"").trim();
+            if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
+
             if(mode==="quote"){
               await rpc("submit_public_quote_request_v3",{
                 p_slug:slug,
@@ -863,7 +887,7 @@
                 p_preferred_contact:preferred,
                 p_service_address:String(fd.get("address")).trim(),
                 p_preferred_date:fd.get("date"),
-                p_preferred_time:String(fd.get("time")||"").trim()||null,
+                p_preferred_time:slotLocalTimeValue(selectedSlot),
                 p_notes:requestNotes||null,
                 p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase(),
                 p_property_type:propertyType,
@@ -883,8 +907,6 @@
                 p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
-              const selectedSlot=String(fd.get("slot_start")||"").trim();
-              if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
               await rpc("submit_public_booking_request_v3",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
