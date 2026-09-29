@@ -13,14 +13,14 @@ function isPrimaryPlatformAdminAccount(){
 }
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
-const OWNER_HOME_IDLE_MS = 5 * 60 * 1000;
+const OWNER_HOME_IDLE_MS = 2 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_HOME_ACTIVITY_KEY = "tle_owner_home_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-settings-language-nav-stable-153";
+const APP_VERSION = "20260929-home-after-2min-idle-154";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -2403,7 +2403,7 @@ function markOwnerHomeActivity(){
 function returnOwnerToHomeAfterIdle(){
   if(!state.session || state.business?.role!=="owner" || !ownerHomeIdleExpired()) return false;
   // Do not discard an unfinished modal form. The next normal activity will
-  // restart the five-minute clock, while regular workspace screens return Home.
+  // restart the two-minute clock, while regular workspace screens return Home.
   if(typeof modal!=="undefined" && modal && !modal.hidden){
     markOwnerHomeActivity();
     return false;
@@ -2520,7 +2520,7 @@ function installOwnerActivityTracker(){
       markOwnerHomeActivity();
       return;
     }
-    // Leaving the PWA starts the five-minute return-to-Home window without
+    // Leaving the PWA starts the two-minute return-to-Home window without
     // shortening the separate 12-hour authenticated session.
     markOwnerActivity();
     markOwnerHomeActivity();
