@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-social-idle-home-127";
+const CACHE_NAME="tle-cleaning-app-20260929-funnel-tracking-128";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-social-idle-home-127",
-  "./app.js?v=20260929-social-idle-home-127",
-  "./followups.js?v=20260929-social-idle-home-127",
-  "./i18n.js?v=20260929-social-idle-home-127",
-  "./public.js?v=20260929-social-idle-home-127",
-  "./vendor/supabase.js?v=20260929-social-idle-home-127",
-  "./manifest.webmanifest?v=20260929-social-idle-home-127"
+  "./styles.css?v=20260929-funnel-tracking-128",
+  "./app.js?v=20260929-funnel-tracking-128",
+  "./followups.js?v=20260929-funnel-tracking-128",
+  "./i18n.js?v=20260929-funnel-tracking-128",
+  "./public.js?v=20260929-funnel-tracking-128",
+  "./vendor/supabase.js?v=20260929-funnel-tracking-128",
+  "./manifest.webmanifest?v=20260929-funnel-tracking-128"
 ];
 
 self.addEventListener("install",event=>{
