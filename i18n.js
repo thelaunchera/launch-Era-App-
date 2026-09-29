@@ -1402,6 +1402,29 @@
   "Share app": "Pataje aplikasyon"
 };
 
+  Object.assign(extra.ht,{
+    "SECURITY":"SEKIRITE",
+    "Security":"Sekirite",
+    "INTEGRATIONS":"ENTEGRASYON",
+    "Integrations":"Entegrasyon",
+    "ACCESS + PERMISSIONS":"AKSÈ + PÈMISYON",
+    "Access":"Aksè",
+    "Permissions":"Pèmisyon",
+    "Owner":"Pwopriyetè",
+    "Admin":"Admin",
+    "Worker":"Anplwaye",
+    "Admin access":"Aksè admin",
+    "Guest employee":"Anplwaye envite",
+    "OWNER ONLY":"PWOPRIYETÈ SÈLMAN",
+    "PLAN + BILLING":"PLAN + FAKTIRASYON",
+    "Subscription":"Abònman",
+    "Trial":"Esè",
+    "Owner only":"Pwopriyetè sèlman",
+    "Private":"Prive",
+    "Locked":"Bloke",
+    "Protected":"Pwoteje"
+  });
+
   const uiCorrections={
     es:{
     "Visits":"Visitas",
