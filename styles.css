@@ -9430,3 +9430,51 @@ body.shell-auth{overflow-anchor:none}
   font-size:12px;
   line-height:1;
 }
+
+
+/* 2026-09-29 — centered mobile page title v176 */
+@media(max-width:680px){
+  body.shell-app .topbar{
+    position:sticky!important;
+    isolation:isolate!important;
+  }
+  body.shell-app .topbar-title{
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    transform:translate(-50%,-50%)!important;
+    width:min(36vw,150px)!important;
+    max-width:150px!important;
+    padding:0!important;
+    margin:0!important;
+    text-align:center!important;
+    z-index:1!important;
+    pointer-events:none!important;
+  }
+  body.shell-app .topbar-title h1{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    font-size:18px!important;
+    line-height:1!important;
+  }
+  body.shell-app #menuToggle,
+  body.shell-app #backBtn,
+  body.shell-app .notification-shell,
+  body.shell-app #appRefreshBtn,
+  body.shell-app #quickAddBtn{
+    position:relative!important;
+    z-index:2!important;
+  }
+}
+@media(max-width:390px){
+  body.shell-app .topbar-title{
+    width:min(34vw,132px)!important;
+    max-width:132px!important;
+  }
+  body.shell-app .topbar-title h1{font-size:17px!important}
+}
