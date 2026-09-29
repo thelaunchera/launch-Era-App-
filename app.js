@@ -4716,9 +4716,10 @@ function renderBookingServices(){
   }
   list.innerHTML=active.map(s=>{
     const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
+    const isUpfront=s.pricing_type==="flat" && Number(s.base_price)>0;
     return `<div class="booking-service-row">
-      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${s.pricing_type==="quote"?"Custom quote":money(s.base_price)} · ${s.pricing_type==="quote"?"Request a Quote":"Book a Cleaning"}</small></span>
-      <span class="booking-addon-chips">${s.pricing_type==="quote"?"<i>Quote path</i>":(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>")}</span>
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${isUpfront?money(s.base_price):langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé")} · ${isUpfront?langPick("Book a Cleaning","Reservar una limpieza","Reservar uma limpeza","Réserver un nettoyage"):langPick("Request a Quote","Pedir una cotización","Solicitar orçamento","Demander un devis")}</small></span>
+      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||"<i>No add-ons</i>"):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Fluxo de orçamento","Parcours devis"))}</i>`}</span>
     </div>`;
   }).join("");
 }
@@ -5089,7 +5090,7 @@ function renderServices(){
   if(!grid) return;
   const cards=state.services.map(s=>{
     const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
-    const isQuote=s.pricing_type==="quote";
+    const isQuote=!(s.pricing_type==="flat" && Number(s.base_price)>0);
     const statusLabel=!s.active
       ? langPick("Inactive","Inactivo","Inativo","Inactif")
       : isQuote
@@ -5103,7 +5104,7 @@ function renderServices(){
         </div>
         <div class="service-catalog-meta">
           <span><small>${escapeHtml(langPick("Duration","Duración","Duração","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
-          <span><small>${escapeHtml(langPick("Pricing","Precio","Preço","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Orçamento","Devis"):String(s.pricing_type||"flat"))}</b></span>
+          <span><small>${escapeHtml(langPick("Pricing","Precio","Preço","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Orçamento","Devis"):langPick("Upfront","Inmediato","Imediato","Immédiat"))}</b></span>
           <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Adicionais","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
         </div>
         ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
@@ -7066,7 +7067,7 @@ async function initializePublicRequest(mode,slug){
   }
 
   const allServices=data?.services||[];
-  const services=allServices.filter(s=>mode==="quote" ? true : (s.pricing_type!=="quote" && Number(s.base_price)>0));
+  const services=allServices.filter(s=>mode==="quote" ? !(s.pricing_type==="flat" && Number(s.base_price)>0) : (s.pricing_type==="flat" && Number(s.base_price)>0));
   const addons=data?.addons||[];
   const form=$("#publicRequestForm");
   const serviceSelect=$("#publicService");
@@ -7103,7 +7104,7 @@ async function initializePublicRequest(mode,slug){
     });
   }else{
     serviceSelect.disabled=false;
-    serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${s.pricing_type==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+    serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${mode==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
   }
 
   const chosenAddonIds=()=>$$('input[name="addon"]:checked',addonBox).map(x=>x.value);
@@ -7114,7 +7115,7 @@ async function initializePublicRequest(mode,slug){
     const chosen=addons.filter(a=>chosenAddonIds().includes(a.id));
     const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
     const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
-    summary.innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${selected.pricing_type==="quote"?" · Quote will be reviewed":" · Estimated "+money(total)}</span>`;
+    summary.innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${mode==="quote"?" · Quote will be reviewed":" · Total: "+money(total)}</span>`;
   }
 
   function renderPublicAddons(){
@@ -7483,18 +7484,24 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="service"){
-    modalHeader("SERVICE",record?"Edit service":"Add service","Set the price and expected time once so scheduling stays consistent.");
+    const pricingChoice=record?.pricing_type==="flat" && Number(record?.base_price)>0 ? "flat" : "quote";
+    modalHeader(
+      langPick("SERVICE","SERVICIO","SERVIÇO","SERVICE"),
+      record?langPick("Edit service","Editar servicio","Editar serviço","Modifier le service"):langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter un service"),
+      langPick("Choose whether customers see a price now or request a custom quote.","Elige si el cliente ve el precio al momento o solicita una cotización personalizada.","Escolha se o cliente vê o preço na hora ou solicita um orçamento personalizado.","Choisissez si le client voit le prix immédiatement ou demande un devis personnalisé.")
+    );
     entityForm.innerHTML=`
       <div class="form-grid">
-        <label class="full">Service name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>Pricing type<select name="pricing_type">
-          ${["flat","hourly","sqft","quote"].map(v=>`<option value="${v}" ${record?.pricing_type===v?"selected":""}>${v==="quote"?"Quote required":v}</option>`).join("")}
+        <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nome do serviço","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
+        <label>${escapeHtml(langPick("Customer pricing","Precio para el cliente","Preço para o cliente","Tarification client"))}<select name="pricing_type">
+          <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}</option>
+          <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Orçamento personalizado","Devis personnalisé"))}</option>
         </select></label>
-        <label>Base price<input name="base_price" type="number" min="0" step="0.01" value="${record?.base_price??""}"></label>
-        <label>Duration (minutes)<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
-        <label class="full">Description<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active service</label>
-      </div>${formSubmit(record?"Save changes":"Add service")}`;
+        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Preço imediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?"Not needed":""}"></label>
+        <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Duração (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <label class="full">${escapeHtml(langPick("Description","Descripción","Descrição","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
+        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Serviço ativo","Service actif"))}</label>
+      </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Salvar alterações","Enregistrer"):langPick("Add service","Añadir servicio","Adicionar serviço","Ajouter le service"))}`;
   }
 
   if(type==="addon"){
@@ -7955,7 +7962,7 @@ async function saveClient(fd){
 }
 
 async function saveService(fd){
-  let pricing=fd.get("pricing_type");
+  let pricing=fd.get("pricing_type")==="flat"?"flat":"quote";
   const priceRaw=String(fd.get("base_price")||"").trim();
   const numericPrice=priceRaw===""?null:Number(priceRaw);
   if(pricing!=="quote" && (!Number.isFinite(numericPrice) || numericPrice<=0)){
