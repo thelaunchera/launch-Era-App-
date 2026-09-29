@@ -1696,6 +1696,10 @@
     "Times shown in the cleaning business’s local time":"Les horaires sont affichés dans le fuseau horaire local de l’entreprise de nettoyage","Your device time zone":"Fuseau horaire de votre appareil","(optional)":"(facultatif)"
   });
 
+  Object.assign(exact,{"Phone (optional)":"Teléfono (opcional)"});
+  Object.assign(extra.pt,{"Phone (optional)":"Telefone (opcional)"});
+  Object.assign(extra.fr,{"Phone (optional)":"Téléphone (facultatif)"});
+
   Object.assign(exact,{
     "Street, city, region, postal code, country":"Calle, ciudad, región, código postal, país",
     "Parking, doorman, stairs, elevator…":"Estacionamiento, portero, escaleras, elevador…",
