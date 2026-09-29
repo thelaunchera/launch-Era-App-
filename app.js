@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-customer-email-settings-stable-152";
+const APP_VERSION = "20260929-nav-history-144";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1947,7 +1947,7 @@ function openView(id,options={}){
   if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
-  const targetTop=options.fromRestore ? Number(workspaceScrollPositions[id]||0) : 0;
+  const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
   requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="team"){
@@ -2048,11 +2048,18 @@ window.addEventListener("resize",()=>{
 });
 
 if(backBtn) backBtn.addEventListener("click",()=>{
-  // The in-app Back button is intentionally a Home button:
-  // from any workspace section, return directly to Today.
-  navHistory.length=1;
-  navHistory[0]="today";
-  openView("today",{fromBack:true});
+  const current=$(".view.active")?.dataset.page||"today";
+  if(current==="today") return;
+
+  // Move back one workspace level instead of jumping straight Home.
+  // Example: Today → Settings → Booking gives:
+  // Back → Settings, then Back → Today.
+  let previous=navHistory.pop()||"today";
+  while(previous===current && navHistory.length){
+    previous=navHistory.pop()||"today";
+  }
+  if(!canRestoreWorkspaceView(previous)) previous="today";
+  openView(previous,{fromBack:true,skipIntro:true});
 });
 
 function getVisitorId(){
