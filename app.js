@@ -1127,7 +1127,7 @@ function renderWeatherBrief(){
       const m=weatherCodeMeta(shift.code);
       const label=lang==="ht"?(window.TLE_I18N?.t?.(m.en)||m.en):(m[lang]||m.en);
       const when=weatherClockLabel(shift.hour);
-      text=langPick(label+" conditions expected around "+when+".","Se espera "+label.toLowerCase()+" cerca de las "+when+".",(label+" previsto por volta de "+when+".",label+" prévu vers "+when+"."));
+      text=langPick(label+" conditions expected around "+when+".","Se espera "+label.toLowerCase()+" cerca de las "+when+".",label+" prévu vers "+when+".");
     }
 
     if(text){
@@ -4192,7 +4192,7 @@ function renderInquiryNotifications(){
     window.__tleNotificationMotionTimer=setTimeout(()=>button.classList.remove("notification-arrived"),1700);
   }
   button.setAttribute("aria-label",unread
-    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",(unread+" novas notificações",unread+" nouvelles notifications"))
+    ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" nouvelles notifications")
     : langPick("Notifications","Notificaciones","Notifications"));
 
   if(!unreadItems.length){
@@ -5542,7 +5542,7 @@ function dashboardWeatherContext(now,remainingJobs){
       ? langPick("Storms","Tormentas","Orages")
       : langPick("Rain","Lluvia","Pluie");
     const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
-    const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",(phenomenon+" provável "+day.toLowerCase()+" por volta de "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+"."));
+    const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+".");
     const advice=remainingJobs.length
       ? langPick(" Check your best route before leaving."," Revisa la mejor ruta antes de salir."," Vérifiez le meilleur itinéraire avant de partir.")
       : "";
@@ -5802,7 +5802,7 @@ function renderTodaySummary(wakeAssistant=false){
   if(capMessage){
     const openHours=(capacity.open/60).toFixed(1).replace(".0","");
     capMessage.textContent=capacity.available
-      ? langPick(capacity.percent+"% booked · "+openHours+" hrs still open",capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",(capacity.percent+"% ocupado · "+openHours+" h ainda disponíveis",capacity.percent+"% réservé · "+openHours+" h encore disponibles"))
+      ? langPick(capacity.percent+"% booked · "+openHours+" hrs still open",capacity.percent+"% ocupado · "+openHours+" h todavía disponibles",capacity.percent+"% réservé · "+openHours+" h encore disponibles")
       : langPick("Add availability to see how full your week is.","Añade disponibilidad para ver qué tan llena está tu semana.","Ajoutez vos disponibilités pour voir le remplissage de la semaine.");
   }
   const capAction=$("#capacityAction"); if(capAction) capAction.textContent=langPick("See open time →","Ver espacios →","Voir les créneaux →");
@@ -5880,20 +5880,20 @@ function renderTodaySummary(wakeAssistant=false){
       if(daypart==="early"){
         copy=langPick("You have "+todayJobs.length+" job"+(todayJobs.length===1?"":"s")+" today. "+nextJobLine+" Check the address before you leave.","Tienes "+todayJobs.length+" trabajo"+(todayJobs.length===1?"":"s")+" hoy. "+nextJobLine+" Revisa la dirección antes de salir.","Vous avez "+todayJobs.length+" travail"+(todayJobs.length===1?"":"aux")+" aujourd’hui. "+nextJobLine+" Vérifiez l’adresse avant de partir.");
       }else if(daypart==="morning"){
-        copy=langPick(nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",(nextJobLine+" Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+" na agenda de hoje.",nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui."));
+        copy=langPick(nextJobLine+" You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" still on today’s schedule.",nextJobLine+" Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+" en la agenda de hoy.",nextJobLine+" Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+" au programme aujourd’hui.");
       }else if(daypart==="midday"){
         const later=Math.max(0,remainingJobs.length-1);
-        copy=langPick(nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",(nextJobLine+" Depois disso, restam "+later+" parada"+(later===1?"":"s")+".",nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+"."));
+        copy=langPick(nextJobLine+" After that, "+later+" stop"+(later===1?" remains":"s remain")+".",nextJobLine+" Después quedan "+later+" parada"+(later===1?"":"s")+".",nextJobLine+" Ensuite, il reste "+later+" arrêt"+(later===1?"":"s")+".");
       }else if(daypart==="afternoon"||daypart==="wrap"){
-        copy=langPick("You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,"Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,("Você ainda tem "+remainingJobs.length+" trabalho"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,"Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine));
+        copy=langPick("You have "+remainingJobs.length+" job"+(remainingJobs.length===1?"":"s")+" left. "+nextJobLine,"Te quedan "+remainingJobs.length+" trabajo"+(remainingJobs.length===1?"":"s")+". "+nextJobLine,"Il vous reste "+remainingJobs.length+" travail"+(remainingJobs.length===1?"":"aux")+". "+nextJobLine);
       }else{
-        copy=langPick(nextJobLine+" It still shows as pending; check the status before closing the day.",nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",(nextJobLine+" Ele ainda aparece como pendente; confira o status antes de encerrar o dia.",nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée."));
+        copy=langPick(nextJobLine+" It still shows as pending; check the status before closing the day.",nextJobLine+" Todavía aparece pendiente; revisa el estado antes de cerrar el día.",nextJobLine+" Il apparaît encore en attente ; vérifiez le statut avant de terminer la journée.");
       }
       actionView="route";
     }else if(pendingBookings.length){
       messageState="booking";
       icon="📥";
-      copy=langPick("You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),"Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),("Você tem "+pendingBookings.length+" solicitação"+(pendingBookings.length===1?"":"ões")+" de reserva aguardando revisão"+(openQuotes.length?" e "+openQuotes.length+" orçamento"+(openQuotes.length===1?" aberto":"s abertos")+".":"."),"Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":".")));
+      copy=langPick("You have "+pendingBookings.length+" booking request"+(pendingBookings.length===1?"":"s")+" waiting for review"+(openQuotes.length?" and "+openQuotes.length+" open quote"+(openQuotes.length===1?"":"s")+".":"."),"Tienes "+pendingBookings.length+" solicitud"+(pendingBookings.length===1?"":"es")+" de reserva esperando revisión"+(openQuotes.length?" y "+openQuotes.length+" cotización"+(openQuotes.length===1?" abierta":"es abiertas")+".":"."),"Vous avez "+pendingBookings.length+" demande"+(pendingBookings.length===1?"":"s")+" de réservation à examiner"+(openQuotes.length?" et "+openQuotes.length+" devis ouvert"+(openQuotes.length===1?"":"s")+".":"."));
       actionView="booking";
     }else if(openQuotes.length){
       messageState="quotes";
@@ -5970,15 +5970,15 @@ function renderTodaySummary(wakeAssistant=false){
   const nextTitle=$("#nextMoveTitle"),nextCopy=$("#nextMoveCopy"),nextAction=$("#nextMoveAction");
   let nextView="calendar",nextLabel=langPick("View calendar →","Ver calendario →","Voir le calendrier →");
   if(overdueInvoices.length){
-    if(nextTitle) nextTitle.textContent=langPick(money(overdueAmount)+" is still waiting to be collected.","Hay "+money(overdueAmount)+" pendientes de cobro.",(money(overdueAmount)+" ainda estão pendentes de recebimento.",money(overdueAmount)+" restent à encaisser."));
-    if(nextCopy) nextCopy.textContent=langPick(overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",(overdueInvoices.length+" fatura"+(overdueInvoices.length===1?" vencida precisa":"s vencidas precisam")+" de atenção.",overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention."));
+    if(nextTitle) nextTitle.textContent=langPick(money(overdueAmount)+" is still waiting to be collected.","Hay "+money(overdueAmount)+" pendientes de cobro.",money(overdueAmount)+" restent à encaisser.");
+    if(nextCopy) nextCopy.textContent=langPick(overdueInvoices.length+" overdue invoice"+(overdueInvoices.length===1?" needs":"s need")+" attention.",overdueInvoices.length+" factura"+(overdueInvoices.length===1?" vencida necesita":"s vencidas necesitan")+" atención.",overdueInvoices.length+" facture"+(overdueInvoices.length===1?" en retard nécessite":"s en retard nécessitent")+" votre attention.");
     nextView="invoices"; nextLabel=langPick("Collect payment →","Revisar cobros →","Voir les paiements →");
   }else if(sentQuotes.length){
-    if(nextTitle) nextTitle.textContent=langPick(money(sentQuoteValue)+" in quotes could turn into booked work.",money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",(money(sentQuoteValue)+" em orçamentos podem virar trabalhos.",money(sentQuoteValue)+" de devis peuvent devenir des prestations."));
-    if(nextCopy) nextCopy.textContent=langPick(sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",(sentQuotes.length+" orçamento"+(sentQuotes.length===1?" enviado aguarda":"s enviados aguardam")+" resposta.",sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse."));
+    if(nextTitle) nextTitle.textContent=langPick(money(sentQuoteValue)+" in quotes could turn into booked work.",money(sentQuoteValue)+" en cotizaciones pueden convertirse en trabajos.",money(sentQuoteValue)+" de devis peuvent devenir des prestations.");
+    if(nextCopy) nextCopy.textContent=langPick(sentQuotes.length+" sent quote"+(sentQuotes.length===1?" is":"s are")+" waiting for a client response.",sentQuotes.length+" cotización"+(sentQuotes.length===1?" enviada espera":"es enviadas esperan")+" respuesta.",sentQuotes.length+" devis envoyé"+(sentQuotes.length===1?" attend":"s attendent")+" une réponse.");
     nextView="quotes"; nextLabel=langPick("Follow up →","Dar seguimiento →","Relancer →");
   }else if(pendingBookings.length){
-    if(nextTitle) nextTitle.textContent=langPick(pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",(pendingBookings.length+" pedido"+(pendingBookings.length===1?" novo está":"s novos estão")+" pronto"+(pendingBookings.length===1?"":"s")+" para você.",pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous."));
+    if(nextTitle) nextTitle.textContent=langPick(pendingBookings.length+" new booking request"+(pendingBookings.length===1?" is":"s are")+" ready for you.",pendingBookings.length+" solicitud"+(pendingBookings.length===1?" nueva está":"es nuevas están")+" lista"+(pendingBookings.length===1?"":"s")+" para ti.",pendingBookings.length+" nouvelle"+(pendingBookings.length===1?" demande est":"s demandes sont")+" prête"+(pendingBookings.length===1?"":"s")+" pour vous.");
     if(nextCopy) nextCopy.textContent=langPick("Review it before the customer keeps looking.","Revísala antes de que el cliente siga buscando.","Examinez-la avant que le client continue ses recherches.");
     nextView="booking"; nextLabel=langPick("Review bookings →","Revisar reservas →","Voir les réservations →");
   }else{
@@ -6006,7 +6006,7 @@ function renderTodaySummary(wakeAssistant=false){
     openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
       items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
     });
-    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",(pendingBookings.length===1?"solicitação":"solicitações",pendingBookings.length===1?"demande de réservation":"demandes de réservation"))}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
+    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
     attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
   }
 
@@ -6021,7 +6021,7 @@ function renderTodaySummary(wakeAssistant=false){
   const wd=$("#weekDistance"); if(wd) wd.textContent=distanceText(weekMiles);
   const ws=$("#weekSummary");
   if(ws){
-    ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",(weekJobs.length+" trabalho"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" novo":"s novos")+" · "+money(collectedValue)+" recebido.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé."));
+    ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé.");
   }
   const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Voir les rapports →");
 }
@@ -6055,7 +6055,7 @@ function renderTodayRouteChip(todayJobs){
   chip.hidden=!routable.length;
   if(!routable.length) return;
   const count=routable.length;
-  label.textContent=langPick("Best route · "+count+" stop"+(count===1?"":"s"),"Mejor ruta · "+count+" parada"+(count===1?"":"s"),("Melhor rota · "+count+" parada"+(count===1?"":"s"),"Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s")));
+  label.textContent=langPick("Best route · "+count+" stop"+(count===1?"":"s"),"Mejor ruta · "+count+" parada"+(count===1?"":"s"),"Meilleur itinéraire · "+count+" arrêt"+(count===1?"":"s"));
   chip.title=langPick("Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.","Empieza desde tu ubicación actual. Google Maps usa tráfico en vivo y mantiene el orden programado.","Démarre depuis votre position actuelle. Google Maps utilise le trafic en direct et conserve l’ordre prévu.");
 }
 
@@ -6089,7 +6089,7 @@ function renderOperations(){
   if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     const count=routable.length;
-    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",(count===1?"parada pronta para GPS":"paradas prontas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts"));
+    const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts");
     const gpsStart=langPick("Starts from your current location · live traffic in Google Maps.","Empieza desde tu ubicación actual · tráfico en vivo en Google Maps.","Démarre depuis votre position actuelle · trafic en direct dans Google Maps.");
     const gpsOrder=langPick("Stops stay in scheduled order so appointment times are protected.","Las paradas mantienen el orden programado para proteger las horas de las citas.","Les arrêts restent dans l’ordre prévu afin de respecter les horaires.");
     const gpsButton=langPick("Open GPS route","Abrir ruta GPS","Ouvrir l’itinéraire GPS");
