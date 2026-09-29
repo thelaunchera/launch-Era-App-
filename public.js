@@ -585,7 +585,7 @@
           });
           const slots=Array.isArray(rows)?rows:[];
           if(!slots.length){
-            slotsBox.innerHTML='<span class="muted-line">'+esc(tt("No openings on this date. Try another day."))+'</span>';
+            slotsBox.innerHTML='<div class="booking-availability-alert" role="status" aria-live="polite"><strong>'+esc(tt("No openings on this date. Try another day."))+'</strong></div>';
             return;
           }
           slotsBox.innerHTML=slots.map(row=>
@@ -883,7 +883,7 @@
               ?"Your quote request was sent. The business will review it and contact you."
               :"Your booking request was sent. The business will review it and confirm the appointment.");
           }catch(err){
-            console.warn("[TLE] public request submit",err); alert(tt("Could not send request"));
+            console.warn("[TLE] public request submit",err); alert(err?.message||tt("Could not send request"));
             submit.disabled=false;
             submit.textContent=old;
           }
