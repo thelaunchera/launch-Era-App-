@@ -1,17 +1,18 @@
-const CACHE_NAME="tle-cleaning-app-20260929-css-modules-195";
+const CACHE_NAME="tle-cleaning-app-20260929-css-split-196";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-css-modules-195",
-  "./styles/release-overrides.css?v=20260929-css-modules-195",
-  "./styles/responsive-shell.css?v=20260929-css-modules-195",
-  "./styles/customer-documents.css?v=20260929-css-modules-195",
-  "./app.js?v=20260929-css-modules-195",
-  "./followups.js?v=20260929-css-modules-195",
-  "./i18n.js?v=20260929-css-modules-195",
-  "./public.js?v=20260929-css-modules-195",
-  "./vendor/supabase.js?v=20260929-css-modules-195",
-  "./manifest.webmanifest?v=20260929-css-modules-195"
+  "./styles.css?v=20260929-css-split-196",
+  "./styles/workspace-components.css?v=20260929-css-split-196",
+  "./styles/release-overrides.css?v=20260929-css-split-196",
+  "./styles/responsive-shell.css?v=20260929-css-split-196",
+  "./styles/customer-documents.css?v=20260929-css-split-196",
+  "./app.js?v=20260929-css-split-196",
+  "./followups.js?v=20260929-css-split-196",
+  "./i18n.js?v=20260929-css-split-196",
+  "./public.js?v=20260929-css-split-196",
+  "./vendor/supabase.js?v=20260929-css-split-196",
+  "./manifest.webmanifest?v=20260929-css-split-196"
 ];
 
 self.addEventListener("install",event=>{
