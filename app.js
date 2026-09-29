@@ -6122,12 +6122,6 @@ async function openBusinessProfileForm(){
         <option value="pt" ${record.default_language==="pt"?"selected":""}>Português</option>
         <option value="fr" ${record.default_language==="fr"?"selected":""}>Français</option>
       </select><small>${escapeHtml(tr("Controls the language you see inside the app."))}</small></label>
-      <label>${escapeHtml(tr("Customer communication language"))}<select name="customer_email_language" required>
-        <option value="en" ${record.customer_email_language==="en"?"selected":""}>English</option>
-        <option value="es" ${record.customer_email_language==="es"?"selected":""}>Español</option>
-        <option value="pt" ${record.customer_email_language==="pt"?"selected":""}>Português</option>
-        <option value="fr" ${record.customer_email_language==="fr"?"selected":""}>Français</option>
-      </select><small>${escapeHtml(tr("Default for customer emails, quotes, invoices, booking confirmations, reminders and follow-ups. A customer can keep their own preferred language."))}</small></label>
       <label>Currency<input name="currency_code" maxlength="3" required value="${escapeHtml(record.currency_code||"USD")}" placeholder="USD"></label>
       <label>Distance<select name="distance_unit"><option value="mi" ${record.distance_unit==="mi"?"selected":""}>Miles</option><option value="km" ${record.distance_unit==="km"?"selected":""}>Kilometers</option></select></label>
       <label>Temperature<select name="temperature_unit"><option value="fahrenheit" ${record.temperature_unit==="fahrenheit"?"selected":""}>Fahrenheit</option><option value="celsius" ${record.temperature_unit==="celsius"?"selected":""}>Celsius</option></select></label>
@@ -8585,7 +8579,7 @@ $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
 
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
-$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
+$$("[data-edit-business-preferences]").forEach(btn=>btn.addEventListener("click",openBusinessProfileForm));
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
