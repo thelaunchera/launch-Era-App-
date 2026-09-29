@@ -110,6 +110,23 @@
     return new Intl.DateTimeFormat(publicLocale,{hour:"numeric",minute:"2-digit"}).format(d);
   }
 
+  function showPublicConfirmation(title,message,detail=""){
+    document.querySelector(".public-confirmation-overlay")?.remove();
+    const overlay=document.createElement("div");
+    overlay.className="public-confirmation-overlay";
+    overlay.setAttribute("role","dialog");
+    overlay.setAttribute("aria-modal","true");
+    overlay.innerHTML='<div class="public-confirmation-card">'+
+      '<div class="public-confirmation-mark">✓</div>'+
+      '<h2>'+esc(title)+'</h2>'+
+      '<p>'+esc(message)+'</p>'+
+      (detail?'<strong>'+esc(detail)+'</strong>':"")+
+      '<button type="button" class="primary-btn" data-close-public-confirmation>'+esc(tt("Done"))+'</button>'+
+      '</div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-close-public-confirmation]")?.addEventListener("click",()=>overlay.remove());
+  }
+
   async function bootInvoiceView(){
     const form=$("#publicRequestForm");
     const success=$("#publicSuccess");
@@ -119,6 +136,8 @@
     if(success) success.hidden=true;
     if(quoteReview) quoteReview.hidden=true;
     if(invoiceView) invoiceView.hidden=false;
+    const requestSwitch=$("#publicRequestSwitch");
+    if(requestSwitch) requestSwitch.hidden=true;
 
     try{
       const data=await rpc("get_public_invoice_context",{p_token:token});
@@ -127,10 +146,19 @@
       $("#publicModeLabel").textContent=tt("INVOICE");
       $("#publicIntro").textContent=tt("Review your invoice details below.");
       $("#invoiceViewTitle").textContent=tt("Invoice")+" #"+(data?.invoice_number||"");
+      const invoiceStatus=String(data?.status||"").toLowerCase();
+      const invoiceStatusLabel={
+        sent:tt("Sent"),
+        draft:tt("Draft"),
+        paid:tt("Paid"),
+        partial:tt("partial"),
+        overdue:tt("Overdue"),
+        void:tt("Void")
+      }[invoiceStatus]||tt(invoiceStatus.replaceAll("_"," "));
       const meta=[
         data?.customer_name||"",
         data?.due_at ? tt("Due")+" "+new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(new Date(data.due_at)) : "",
-        data?.status ? String(data.status).replaceAll("_"," ") : ""
+        invoiceStatusLabel||""
       ].filter(Boolean).join(" · ");
       $("#invoiceViewMeta").textContent=meta;
 
@@ -168,6 +196,7 @@
       let selectedDetail=String(data?.customer_payment_method_detail||"").trim();
       if(otherInput) otherInput.value=selectedDetail;
       const isPaid=String(data?.status||"").toLowerCase()==="paid";
+      let hasSubmittedChoice=Boolean(data?.customer_payment_selected_at);
 
       if(choices){
         choices.innerHTML=enabledMethods.map(method=>
@@ -180,22 +209,24 @@
         : tt(methodLabels[selected]||selected||"");
 
       function renderPaymentChoice(){
+        const locked=isPaid||hasSubmittedChoice;
         choices?.querySelectorAll("[data-invoice-payment]").forEach(btn=>{
           const active=btn.dataset.invoicePayment===selected;
           btn.classList.toggle("selected",active);
           btn.setAttribute("aria-pressed",active?"true":"false");
-          btn.disabled=isPaid;
+          btn.disabled=locked;
         });
 
         const needsOther=selected==="other";
-        if(otherWrap) otherWrap.hidden=!needsOther;
+        if(choices) choices.hidden=hasSubmittedChoice;
+        if(otherWrap) otherWrap.hidden=hasSubmittedChoice || !needsOther;
         if(otherInput){
-          otherInput.disabled=isPaid || !needsOther;
+          otherInput.disabled=locked || !needsOther;
           otherInput.setAttribute("aria-required",needsOther?"true":"false");
         }
 
         if(submitInvoiceBtn){
-          submitInvoiceBtn.hidden=isPaid;
+          submitInvoiceBtn.hidden=isPaid||hasSubmittedChoice;
           submitInvoiceBtn.disabled=isPaid || !selected || (needsOther && selectedDetail.length<2);
         }
 
@@ -204,6 +235,8 @@
           choiceStatus.textContent=selected
             ? tt("Paid")+" · "+selectedDisplay()
             : tt("Payment confirmed by the cleaning business.");
+        }else if(hasSubmittedChoice){
+          choiceStatus.textContent=tt("Payment method sent")+" ✓ · "+selectedDisplay();
         }else if(needsOther && selectedDetail.length<2){
           choiceStatus.textContent=copy.required||"Type the payment method before submitting.";
         }else if(selected){
@@ -217,7 +250,7 @@
 
       choices?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-invoice-payment]");
-        if(!btn || isPaid) return;
+        if(!btn || isPaid || hasSubmittedChoice) return;
         selected=String(btn.dataset.invoicePayment||"").toLowerCase();
         renderPaymentChoice();
         if(selected==="other") setTimeout(()=>otherInput?.focus(),0);
@@ -229,7 +262,7 @@
       });
 
       submitInvoiceBtn?.addEventListener("click",async()=>{
-        if(isPaid || !selected || (selected==="other" && selectedDetail.length<2)) return;
+        if(isPaid || hasSubmittedChoice || !selected || (selected==="other" && selectedDetail.length<2)) return;
         submitInvoiceBtn.disabled=true;
         choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
         if(otherInput) otherInput.disabled=true;
@@ -242,11 +275,13 @@
           });
           selected=String(result?.payment_method||selected).toLowerCase();
           selectedDetail=String(result?.payment_method_detail||selectedDetail||"").trim();
-          if(choiceStatus) choiceStatus.textContent=tt("Submitted")+": "+selectedDisplay()+". "+tt("The business will confirm payment after it is received.");
-          submitInvoiceBtn.textContent=tt("Submitted")+" ✓";
-          submitInvoiceBtn.disabled=true;
-          choices?.querySelectorAll("button").forEach(x=>x.disabled=true);
-          if(otherInput) otherInput.disabled=true;
+          hasSubmittedChoice=true;
+          renderPaymentChoice();
+          showPublicConfirmation(
+            tt("Payment method sent"),
+            tt("We received your payment choice."),
+            selectedDisplay()+" · "+tt("The business will confirm it once the payment is received.")
+          );
         }catch(err){
           if(choiceStatus) choiceStatus.textContent=err.message||tt("Could not submit invoice.");
           submitInvoiceBtn.disabled=false;
@@ -307,6 +342,8 @@
     if(form) form.hidden=true;
     if(success) success.hidden=true;
     if(review) review.hidden=false;
+    const requestSwitch=$("#publicRequestSwitch");
+    if(requestSwitch) requestSwitch.hidden=true;
 
     try{
       const data=await rpc("get_public_quote_context",{p_token:token});
