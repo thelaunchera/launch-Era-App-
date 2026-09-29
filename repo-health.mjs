@@ -49,6 +49,12 @@ function hasLegacyFourArgLangPick(source){
 }
 
 
+if(!hasLegacyFourArgLangPick('langPick("A", flag ? "B" : "C", flag ? "P" : "Q", "D")')){
+  fail("four-argument language guard does not handle expression arguments");
+}else{
+  pass("four-argument language guard handles expression arguments");
+}
+
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const shellVersion=(boot.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
 const swVersion=(sw.match(/CACHE_NAME="tle-cleaning-app-([^"]+)"/)||[])[1];
