@@ -1,14 +1,14 @@
-const CACHE_NAME="tle-cleaning-app-20260929-instant-pricing-172";
+const CACHE_NAME="tle-cleaning-app-20260929-instant-pricing-173";
 const CORE=[
   "./",
   "./index.html",
-  "./styles.css?v=20260929-instant-pricing-172",
-  "./app.js?v=20260929-instant-pricing-172",
-  "./followups.js?v=20260929-instant-pricing-172",
-  "./i18n.js?v=20260929-instant-pricing-172",
-  "./public.js?v=20260929-instant-pricing-172",
-  "./vendor/supabase.js?v=20260929-instant-pricing-172",
-  "./manifest.webmanifest?v=20260929-instant-pricing-172"
+  "./styles.css?v=20260929-instant-pricing-173",
+  "./app.js?v=20260929-instant-pricing-173",
+  "./followups.js?v=20260929-instant-pricing-173",
+  "./i18n.js?v=20260929-instant-pricing-173",
+  "./public.js?v=20260929-instant-pricing-173",
+  "./vendor/supabase.js?v=20260929-instant-pricing-173",
+  "./manifest.webmanifest?v=20260929-instant-pricing-173"
 ];
 
 self.addEventListener("install",event=>{
