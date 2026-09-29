@@ -133,8 +133,8 @@ try{
     if(layout.scrollWidth>layout.innerWidth+4) throw new Error(profile.name+": horizontal overflow "+layout.scrollWidth+" > "+layout.innerWidth);
     if(layout.appError) throw new Error(profile.name+": app boot error "+layout.appError);
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
-    // The auth panel animates on mobile, so verify the delegated switch action
-    // without making the release gate depend on a transient clickable point.
+    // The auth panel animates on mobile. Follow the real switch path, then wait
+    // for the form to settle inside the viewport before performing a physical hit-test.
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
@@ -146,20 +146,24 @@ try{
         event.preventDefault();
         event.stopImmediatePropagation();
       },{once:true,capture:true});
-    });
-    // A real auth decision dismisses the launch splash before sign-in becomes
-    // interactive. The smoke harness has no persisted Supabase session, so
-    // emulate that completed decision, then preserve the real physical hit-test.
-    await page.evaluate(()=>{
       const splash=document.querySelector("#sessionSplash");
-      if(splash){ splash.hidden=true; splash.style.pointerEvents="none"; splash.setAttribute("aria-hidden","true"); }
+      if(splash){
+        splash.hidden=true;
+        splash.style.pointerEvents="none";
+        splash.setAttribute("aria-hidden","true");
+      }
+      btn.scrollIntoView({block:"center",inline:"nearest"});
     });
+    await new Promise(r=>setTimeout(r,420));
     await page.waitForFunction(()=>{
       const splash=document.querySelector("#sessionSplash");
       const btn=document.querySelector("#authSubmit");
       if(!btn) return false;
       const r=btn.getBoundingClientRect();
-      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") && r.width>0 && r.height>0;
+      return (!splash || splash.hidden || getComputedStyle(splash).pointerEvents==="none") &&
+        r.width>0 && r.height>0 &&
+        r.left>=0 && r.right<=window.innerWidth &&
+        r.top>=0 && r.bottom<=window.innerHeight;
     },{timeout:8000});
     const submitHit=await page.evaluate(()=>{
       const btn=document.querySelector("#authSubmit");
@@ -168,7 +172,12 @@ try{
       const x=r.left+r.width/2;
       const y=r.top+r.height/2;
       const hit=document.elementFromPoint(x,y);
-      return {ok:hit===btn||btn.contains(hit),x,y,hit:hit?.id||hit?.tagName||""};
+      return {
+        ok:hit===btn||btn.contains(hit),
+        x,y,
+        rect:{left:r.left,top:r.top,width:r.width,height:r.height},
+        hit:hit?.id||hit?.tagName||""
+      };
     });
     if(!submitHit.ok) throw new Error(profile.name+": Sign in button is covered or not tappable "+JSON.stringify(submitHit));
     // The physical hit-test above proves the button is not covered.
