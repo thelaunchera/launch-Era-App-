@@ -356,6 +356,14 @@ if(!app.includes('data-client-to-quote="') || !app.includes('const clientQuote=e
 }
 
 if(
+  !app.includes('const email=String(fd.get("email")||"").trim().toLowerCase()') ||
+  !app.includes('.eq("email",email)') ||
+  !app.includes('existing?.id')
+){
+  throw new Error("Client dedupe regression: Add Client must reuse an active client with the same normalized email");
+}
+
+if(
   !publicJs.includes('select_invoice_payment_method_v2') ||
   !publicJs.includes('p_other_detail:selected==="other"?selectedDetail:null') ||
   !publicJs.includes('customer_payment_method_detail') ||
