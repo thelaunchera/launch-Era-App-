@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-language-sync-188";
+const APP_VERSION = "20260929-dashboard-cleanup-189";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -169,8 +169,8 @@ const ONBOARDING_COPY={
     es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
   },
   today:{
-    en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and quick actions."},
-    es:{title:"Hoy",text:"Tu resumen diario: trabajos de hoy, solicitudes de reserva, cotizaciones, facturas y acciones rápidas."}
+    en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and follow-through."},
+    es:{title:"Hoy",text:"Tu resumen diario: trabajos de hoy, solicitudes de reserva, cotizaciones, facturas y pendientes."}
   },
   booking:{
     en:{title:"Booking Center",text:"Manage booking requests, availability and the public booking link your clients use."},
@@ -249,7 +249,7 @@ const ONBOARDING_COPY={
 const ONBOARDING_EXTRA={
   pt:{
     welcome:{kicker:"BEM-VINDO",title:"Obrigado por usar o The Launch Era Cleaning App.",text:"Sua conta está pronta. Vamos acompanhar seus primeiros passos para você entender onde fica cada coisa sem precisar descobrir tudo sozinho."},
-    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e ações rápidas."},
+    today:{title:"Hoje",text:"Seu resumo do dia: trabalhos, pedidos de reserva, orçamentos, faturas e pendências."},
     booking:{title:"Reservas",text:"Gerencie pedidos de reserva, disponibilidade e o link público usado pelos clientes."},
     leads:{title:"Leads",text:"Guarde clientes potenciais aqui antes de virarem clientes ativos ou trabalhos agendados."},
     clients:{title:"Clientes",text:"Guarde contatos, endereços de serviço e informações necessárias para trabalhos futuros."},
@@ -269,7 +269,7 @@ const ONBOARDING_EXTRA={
   },
   fr:{
     welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
-    today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et actions rapides."},
+    today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
     booking:{title:"Réservations",text:"Gérez les demandes de réservation, les disponibilités et le lien public utilisé par vos clients."},
     leads:{title:"Prospects",text:"Gardez les clients potentiels ici avant qu’ils deviennent des clients actifs ou des travaux réservés."},
     clients:{title:"Clients",text:"Conservez les coordonnées, adresses de service et informations nécessaires pour les prochains travaux."},
@@ -6061,8 +6061,6 @@ function renderTodaySummary(wakeAssistant=false){
     capacityEyebrow:langPick("CAPACITY","CAPACIDAD","CAPACIDADE","CAPACITÉ"),
     capacityTitle:langPick("This week","Esta semana","Esta semana","Cette semaine"),
     nextMoveEyebrow:langPick("YOUR NEXT MOVE","TU PRÓXIMO PASO","SEU PRÓXIMO PASSO","VOTRE PROCHAINE ACTION"),
-    quickActionsEyebrow:langPick("QUICK ACTIONS","ACCIONES RÁPIDAS","AÇÕES RÁPIDAS","ACTIONS RAPIDES"),
-    quickActionsTitle:langPick("Keep the day moving","Mantén el día en movimiento","Mantenha o dia em movimento","Gardez la journée en mouvement"),
     attentionEyebrow:langPick("FOLLOW THROUGH","SEGUIMIENTO","ACOMPANHAMENTO","SUIVI"),
     attentionTitle:langPick("Open items","Pendientes","Itens pendentes","Éléments ouverts"),
     weekGrowthEyebrow:langPick("THIS WEEK","ESTA SEMANA","ESTA SEMANA","CETTE SEMAINE"),
