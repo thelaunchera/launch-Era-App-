@@ -13,12 +13,14 @@ function isPrimaryPlatformAdminAccount(){
 }
 const LEGACY_PLATFORM_ADMIN_EMAIL = "dailinsegura04@gmail.com";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
+const OWNER_HOME_IDLE_MS = 5 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
+const OWNER_HOME_ACTIVITY_KEY = "tle_owner_home_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260928-stable-120";
+const APP_VERSION = "20260929-social-idle-home-127";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -1539,10 +1541,14 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",isPrimaryPlatformAdminAccount() || state.isPlatformAdmin);
   applyRolePermissions();
-  // Keep the user on the same workspace page after refresh/relaunch.
-  // Role permissions are applied first so a page that is no longer allowed
-  // safely falls back to Today instead of exposing a hidden section.
-  restoreWorkspaceView();
+  // Keep a recent workspace page after a quick refresh/relaunch, but after
+  // five minutes without activity always reopen on Today (Home).
+  // This is separate from the 12-hour authentication timeout.
+  if(ownerHomeIdleExpired()){
+    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
+  }else{
+    restoreWorkspaceView();
+  }
   $$("[data-account-billing]").forEach(el=>{
     el.hidden=isPrimaryPlatformAdminAccount();
   });
@@ -1552,6 +1558,7 @@ function showApp(){
       localStorage.setItem(OWNER_EMAIL_KEY,String(state.session.user.email).trim().toLowerCase());
     }
     markOwnerActivity();
+    markOwnerHomeActivity();
     installOwnerActivityTracker();
   }
   const chip = $(".workspace-chip");
@@ -2215,6 +2222,50 @@ function ownerIdleExpired(){
   const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
   return Number.isFinite(lastActivity) && lastActivity>0 && Date.now()-lastActivity>=OWNER_IDLE_MS;
 }
+function ownerHomeIdleExpired(){
+  const lastActivity=Number(localStorage.getItem(OWNER_HOME_ACTIVITY_KEY)||0);
+  return Number.isFinite(lastActivity) && lastActivity>0 && Date.now()-lastActivity>=OWNER_HOME_IDLE_MS;
+}
+function scheduleOwnerHomeIdleReturn(){
+  clearTimeout(window.__tleOwnerHomeIdleTimer);
+  if(!state.session || state.business?.role!=="owner") return;
+  const lastActivity=Number(localStorage.getItem(OWNER_HOME_ACTIVITY_KEY)||Date.now());
+  const elapsed=Math.max(0,Date.now()-lastActivity);
+  const wait=Math.max(250,OWNER_HOME_IDLE_MS-elapsed+100);
+  window.__tleOwnerHomeIdleTimer=setTimeout(()=>{
+    if(document.visibilityState!=="visible") return;
+    returnOwnerToHomeAfterIdle();
+  },wait);
+}
+function markOwnerHomeActivity(){
+  if(state.business?.role!=="owner") return;
+  localStorage.setItem(OWNER_HOME_ACTIVITY_KEY,String(Date.now()));
+  scheduleOwnerHomeIdleReturn();
+}
+function returnOwnerToHomeAfterIdle(){
+  if(!state.session || state.business?.role!=="owner" || !ownerHomeIdleExpired()) return false;
+  // Do not discard an unfinished modal form. The next normal activity will
+  // restart the five-minute clock, while regular workspace screens return Home.
+  if(typeof modal!=="undefined" && modal && !modal.hidden){
+    markOwnerHomeActivity();
+    return false;
+  }
+  try{
+    if(typeof closeNotificationPopover==="function") closeNotificationPopover();
+  }catch{}
+  try{
+    if(typeof setSidebarOpen==="function") setSidebarOpen(false);
+  }catch{}
+  const current=$(".view.active")?.dataset.page;
+  if(current!=="today"){
+    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
+  }else{
+    try{ window.scrollTo({top:0,behavior:"auto"}); }catch{}
+  }
+  localStorage.setItem(OWNER_HOME_ACTIVITY_KEY,String(Date.now()));
+  scheduleOwnerHomeIdleReturn();
+  return true;
+}
 async function expireOwnerSession(){
   if(window.__tleOwnerLocking) return;
   window.__tleOwnerLocking=true;
@@ -2259,6 +2310,7 @@ function installOwnerActivityTracker(){
   if(window.__tleOwnerActivityInstalled) return;
   window.__tleOwnerActivityInstalled=true;
   let lastWrite=0;
+  let lastHomeWrite=0;
   const onActivity=()=>{
     if(!state.session || state.business?.role!=="owner") return;
     if(ownerIdleExpired()){
@@ -2270,17 +2322,30 @@ function installOwnerActivityTracker(){
       lastWrite=now;
       markOwnerActivity();
     }
+    if(now-lastHomeWrite>15000){
+      lastHomeWrite=now;
+      markOwnerHomeActivity();
+    }
   };
   ["pointerdown","keydown","touchstart","scroll"].forEach(evt=>{
     window.addEventListener(evt,onActivity,{passive:true});
   });
   document.addEventListener("visibilitychange",()=>{
     if(!state.session || state.business?.role!=="owner") return;
-    if(document.visibilityState==="visible" && ownerIdleExpired()){
-      expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+    if(document.visibilityState==="visible"){
+      if(ownerIdleExpired()){
+        expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
+        return;
+      }
+      returnOwnerToHomeAfterIdle();
+      markOwnerActivity();
+      markOwnerHomeActivity();
       return;
     }
+    // Leaving the PWA starts the five-minute return-to-Home window without
+    // shortening the separate 12-hour authenticated session.
     markOwnerActivity();
+    markOwnerHomeActivity();
   });
   window.addEventListener("pageshow",()=>{
     if(!state.session || state.business?.role!=="owner") return;
@@ -2288,10 +2353,15 @@ function installOwnerActivityTracker(){
       expireOwnerSession().catch(err=>console.warn("[TLE] idle lock",err));
       return;
     }
+    returnOwnerToHomeAfterIdle();
     markOwnerActivity();
+    markOwnerHomeActivity();
   },{passive:true});
   window.addEventListener("pagehide",()=>{
-    if(state.session && state.business?.role==="owner") markOwnerActivity();
+    if(state.session && state.business?.role==="owner"){
+      markOwnerActivity();
+      markOwnerHomeActivity();
+    }
   },{passive:true});
 }
 function prepareAdminShortcut(){
@@ -2546,6 +2616,8 @@ async function signOutCurrentUser(event){
     }
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     localStorage.removeItem(OWNER_ACTIVITY_KEY);
+    localStorage.removeItem(OWNER_HOME_ACTIVITY_KEY);
+    clearTimeout(window.__tleOwnerHomeIdleTimer);
     showAuth();
     setAuthMode("signin");
     const signInEmail=$("#authEmail");
@@ -2637,6 +2709,7 @@ businessForm.addEventListener("submit", async (e)=>{
       localStorage.setItem(OWNER_EMAIL_KEY,String(state.session?.user?.email||"").trim().toLowerCase());
     }
     localStorage.setItem(OWNER_ACTIVITY_KEY,String(Date.now()));
+    localStorage.setItem(OWNER_HOME_ACTIVITY_KEY,String(Date.now()));
     window.__tleShowSignupWelcome=
       window.__tleShowSignupWelcome===true ||
       hasLocalSignupWelcomePending() ||
@@ -7281,6 +7354,92 @@ async function deleteBusinessRecord(type,id){
   return data||true;
 }
 
+function normalizedExternalHttpUrl(raw){
+  const value=String(raw||"").trim();
+  if(!value) return "";
+  try{
+    const url=new URL(value);
+    if(!["http:","https:"].includes(url.protocol)) return "";
+    return url.href;
+  }catch{
+    return "";
+  }
+}
+function openExternalWebLink(raw){
+  const url=normalizedExternalHttpUrl(raw);
+  if(!url) return false;
+  const launcher=document.createElement("a");
+  launcher.href=url;
+  launcher.target="_blank";
+  launcher.rel="noopener noreferrer external";
+  launcher.setAttribute("aria-hidden","true");
+  launcher.tabIndex=-1;
+  launcher.style.position="fixed";
+  launcher.style.width="1px";
+  launcher.style.height="1px";
+  launcher.style.opacity="0";
+  launcher.style.pointerEvents="none";
+  document.body.appendChild(launcher);
+  launcher.click();
+  setTimeout(()=>launcher.remove(),1200);
+  return true;
+}
+function instagramUsernameFromUrl(raw){
+  const url=normalizedExternalHttpUrl(raw);
+  if(!url) return "";
+  try{
+    const parsed=new URL(url);
+    const host=parsed.hostname.toLowerCase().replace(/^www\./,"");
+    if(host!=="instagram.com") return "";
+    const part=parsed.pathname.split("/").filter(Boolean)[0]||"";
+    if(!part || ["p","reel","reels","stories","explore","accounts"].includes(part.toLowerCase())) return "";
+    return part.replace(/^@/,"");
+  }catch{
+    return "";
+  }
+}
+function openInstagramProfileSafely(raw){
+  const url=normalizedExternalHttpUrl(raw);
+  if(!url) return false;
+  const username=instagramUsernameFromUrl(url);
+  const ua=navigator.userAgent||"";
+  const isIOS=/iPad|iPhone|iPod/i.test(ua)
+    || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  const standalone=window.matchMedia?.("(display-mode: standalone)")?.matches
+    || navigator.standalone===true;
+
+  // iOS Home Screen + window.open(Instagram) can leave behind the blank
+  // Safari controller shown by the user. Prefer Instagram's native scheme
+  // from the existing PWA context, and only fall back to the web profile if
+  // no app switch happens.
+  if(isIOS && standalone && username){
+    let switched=false;
+    const onVisibility=()=>{
+      if(document.hidden) switched=true;
+    };
+    document.addEventListener("visibilitychange",onVisibility);
+    const launcher=document.createElement("a");
+    launcher.href="instagram://user?username="+encodeURIComponent(username);
+    launcher.setAttribute("aria-hidden","true");
+    launcher.tabIndex=-1;
+    launcher.style.position="fixed";
+    launcher.style.width="1px";
+    launcher.style.height="1px";
+    launcher.style.opacity="0";
+    launcher.style.pointerEvents="none";
+    document.body.appendChild(launcher);
+    launcher.click();
+    setTimeout(()=>launcher.remove(),500);
+    setTimeout(()=>{
+      document.removeEventListener("visibilitychange",onVisibility);
+      if(!switched && !document.hidden) openExternalWebLink(url);
+    },900);
+    return true;
+  }
+
+  return openExternalWebLink(url);
+}
+
 document.addEventListener("click",async e=>{
   const inquiryClientBtn=e.target.closest("[data-inquiry-open-client]");
   if(inquiryClientBtn){
@@ -7363,13 +7522,14 @@ document.addEventListener("click",async e=>{
     }
     if(presenceBtn.id==="presenceGoogleBtn"){
       const url=String(presenceBtn.dataset.url||"").trim();
-      if(url) window.open(url,"_blank","noopener");
+      if(url) openExternalWebLink(url);
       else openView("settings");
       return;
     }
     const url=String(presenceBtn.dataset.url||"").trim();
     if(url){
-      window.open(url,"_blank","noopener");
+      if(presenceBtn.id==="presenceInstagramBtn") openInstagramProfileSafely(url);
+      else openExternalWebLink(url);
     }else{
       await openBusinessProfileForm();
     }
