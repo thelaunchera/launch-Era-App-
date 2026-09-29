@@ -365,24 +365,29 @@
 
       <nav class="nav-list" aria-label="App navigation">
         <button class="nav-item active" data-view="today">Today <span>⌂</span></button>
+        <div class="nav-label">Get work</div>
         <button class="nav-item" data-view="booking" data-admin-only>Booking Center <span>↗</span></button>
         <button class="nav-item" data-view="leads" data-admin-only>Leads <span>◎</span></button>
-        <button class="nav-item" data-view="clients" data-admin-only>Clients <span>◌</span></button>
-        <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
         <button class="nav-item" data-view="quotes" data-admin-only>Quotes <span>◫</span></button>
-        <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
         <button class="nav-item" data-view="followups" data-admin-only>Follow-ups <span>↻</span></button>
 
-        <div class="nav-label">Operations</div>
+        <div class="nav-label">Do the work</div>
+        <button class="nav-item" data-view="calendar">Calendar + Jobs <span>□</span></button>
+        <button class="nav-item" data-view="clients" data-admin-only>Clients <span>◌</span></button>
         <button class="nav-item" data-view="route">Today's Route <span>⌁</span></button>
-        <button class="nav-item" data-view="mileage">Mileage <span>↔</span></button>
+        <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
+
+        <div class="nav-label">Get paid</div>
+        <button class="nav-item" data-view="invoices" data-admin-only>Invoices <span>$</span></button>
+
+        <div class="nav-label">Run the business</div>
         <button class="nav-item" data-view="time">Time Tracking <span>◷</span></button>
+        <button class="nav-item" data-view="mileage">Mileage <span>↔</span></button>
         <button class="nav-item" data-view="supplies" data-admin-only>Supplies <span>▣</span></button>
         <button class="nav-item" data-view="reports" data-owner-only>Owner Reports <span>↗</span></button>
 
-        <div class="nav-label">Business</div>
+        <div class="nav-label">Setup</div>
         <button class="nav-item" data-view="services" data-admin-only>Services + Add-ons <span>＋</span></button>
-        <button class="nav-item" data-view="team" data-admin-only>Team <span>◉</span></button>
         <button class="nav-item" data-view="settings" data-admin-only>Settings <span>⚙</span></button>
         <button class="nav-item owner-admin-link" data-view="admin" data-owner-only>Owner settings <span>🔒</span></button>
         <button class="nav-item platform-admin-link" data-view="platform-admin" data-platform-admin-only>Owner View <span>◆</span></button>
@@ -442,6 +447,30 @@
         </div>
         <button class="trial-expiry-close" id="trialExpiryClose" type="button" aria-label="Dismiss reminder">×</button>
       </div>
+
+      <section class="first-win-shell" id="firstWinShell" hidden data-admin-only>
+        <div class="first-win-card">
+          <div class="first-win-head">
+            <div>
+              <p class="eyebrow" id="firstWinEyebrow">QUICK START</p>
+              <h2 id="firstWinTitle">Let’s get your business ready to take its first booking.</h2>
+              <p id="firstWinCopy">Four small steps. Your full workspace stays available while you set this up.</p>
+            </div>
+            <button class="first-win-dismiss" id="firstWinDismiss" type="button" aria-label="Hide quick start">×</button>
+          </div>
+          <div class="first-win-progress"><span id="firstWinProgressBar"></span></div>
+          <div class="first-win-steps">
+            <button type="button" class="first-win-step" data-first-win="services" data-jump="services"><span>1</span><div><strong id="firstWinStep1">Add your first service</strong><small id="firstWinStep1Hint">What clients can book</small></div><b>→</b></button>
+            <button type="button" class="first-win-step" data-first-win="availability" data-jump="booking"><span>2</span><div><strong id="firstWinStep2">Set your availability</strong><small id="firstWinStep2Hint">When clients can book</small></div><b>→</b></button>
+            <button type="button" class="first-win-step" data-first-win="preview" data-jump="booking"><span>3</span><div><strong id="firstWinStep3">Preview your booking page</strong><small id="firstWinStep3Hint">See the client experience</small></div><b>→</b></button>
+            <button type="button" class="first-win-step" data-first-win="share" data-jump="booking"><span>4</span><div><strong id="firstWinStep4">Share your booking link</strong><small id="firstWinStep4Hint">Start taking requests</small></div><b>→</b></button>
+          </div>
+          <div class="first-win-ready" id="firstWinReady" hidden>
+            <span>✓</span><div><strong id="firstWinReadyTitle">Your booking page is ready.</strong><small id="firstWinReadyCopy">Copy your link and start taking requests.</small></div>
+            <button type="button" class="dark-btn" id="firstWinCopyLink">Copy booking link</button>
+          </div>
+        </div>
+      </section>
 
       <section class="view active" data-page="today">
         <div class="hero-card moment-afternoon is-loading assistant-arrival" id="todayHeroCard">
