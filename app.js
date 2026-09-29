@@ -291,7 +291,7 @@ const ONBOARDING_EXTRA={
 
 function onboardingLanguage(){
   const language=String(window.TLE_I18N?.language||localStorage.getItem("tle_language")||"en").toLowerCase();
-  return ["en","es","pt","fr"].includes(language)?language:"en";
+  return ["en","es","fr","ht"].includes(language)?language:"en";
 }
 function signupWelcomeKey(email=""){
   return "tle_signup_welcome_pending:"+String(email||"").trim().toLowerCase();
@@ -490,9 +490,12 @@ function appLanguage(){
 function appIsSpanish(){
   return appLanguage()==="es";
 }
-function langPick(en,es,pt,fr){
-  const map={en,en:en,es,pt,fr};
-  return map[appLanguage()] ?? en;
+function langPick(en,es,_pt,fr){
+  const lang=appLanguage();
+  if(lang==="es") return es;
+  if(lang==="fr") return fr;
+  if(lang==="ht") return window.TLE_I18N?.t?.(en)||en;
+  return en;
 }
 function customerEmailLanguageLabel(code){
   return ({en:"English",es:"Español",fr:"Français",ht:"Kreyòl Ayisyen"})[String(code||"").toLowerCase()]||"English";
@@ -513,14 +516,14 @@ function normalizedCustomerEmailLanguage(value){
 }
 function customerTextTranslationTarget(){
   const code=appLanguage();
-  return ["en","es","pt","fr"].includes(code)?code:"en";
+  return ["en","es","fr","ht"].includes(code)?code:"en";
 }
 function customerTranslateLabel(){
   return ({
     en:"Translate to English",
     es:"Traducir al español",
-    pt:"Traduzir para português",
-    fr:"Traduire en français"
+    fr:"Traduire en français",
+    ht:"Tradui an kreyòl"
   })[customerTextTranslationTarget()]||"Translate";
 }
 function customerTranslateLink(text,sourceLanguage=""){
@@ -529,7 +532,7 @@ function customerTranslateLink(text,sourceLanguage=""){
   const target=customerTextTranslationTarget();
   const source=String(sourceLanguage||"").trim().toLowerCase();
   if(source && source===target) return "";
-  const supportedSource=["en","es","pt","fr","ht"].includes(source)?source:"auto";
+  const supportedSource=["en","es","fr","ht"].includes(source)?source:"auto";
   const url="https://translate.google.com/?sl="+encodeURIComponent(supportedSource)+
     "&tl="+encodeURIComponent(target)+
     "&text="+encodeURIComponent(clean.slice(0,5000))+
@@ -538,7 +541,7 @@ function customerTranslateLink(text,sourceLanguage=""){
 }
 function appLocale(){
   return state.business?.locale_code
-    || ({en:"en-US",es:"es-ES",pt:"pt-BR",fr:"fr-FR"}[appLanguage()])
+    || ({en:"en-US",es:"es-ES",fr:"fr-FR",ht:"ht-HT"}[appLanguage()])
     || navigator.language
     || "en-US";
 }
@@ -826,19 +829,19 @@ function currencyForCountry(code){
 function languageForCountry(code){
   const country=String(code||"").toUpperCase();
   if(["ES","MX","CL","CO","AR","PE","UY","PY","BO","CR","DO","GT","HN","NI","PA","EC","SV","VE"].includes(country)) return "es";
-  if(["BR","PT","AO","MZ","CV","GW","ST","TL"].includes(country)) return "pt";
-  if(["FR","BE","LU","MC","SN","CI","CM","HT","GA","CD","CG","BJ","TG","ML","NE","BF","GN","DJ","MG"].includes(country)) return "fr";
+  if(country==="HT") return "ht";
+  if(["FR","BE","LU","MC","SN","CI","CM","GA","CD","CG","BJ","TG","ML","NE","BF","GN","DJ","MG"].includes(country)) return "fr";
   const browser=String(navigator.language||"en").slice(0,2).toLowerCase();
-  return ["en","es","pt","fr"].includes(browser)?browser:"en";
+  return ["en","es","fr","ht"].includes(browser)?browser:"en";
 }
 function localeForCountry(code,language){
   const region=String(code||"").toUpperCase();
-  const lang=["en","es","pt","fr"].includes(language)?language:"en";
+  const lang=["en","es","fr","ht"].includes(language)?language:"en";
   const candidate=region?lang+"-"+region:"";
   if(candidate){
     try{new Intl.NumberFormat(candidate).format(1);return candidate;}catch{}
   }
-  return {en:"en-US",es:"es-ES",pt:"pt-BR",fr:"fr-FR"}[lang];
+  return {en:"en-US",es:"es-ES",fr:"fr-FR",ht:"ht-HT"}[lang];
 }
 function globalDefaultsFromGeo(geo){
   const country=String(geo?.country_code||String(navigator.language||"").split("-")[1]||"US").toUpperCase();
@@ -3344,7 +3347,7 @@ async function initializeWorkerPortal(activationToken=null){
 
   state.workerPortal=data;
   const workerLanguage=String(data?.business?.default_language||"en").toLowerCase();
-  if(window.TLE_I18N?.setLanguage && ["en","es","pt","fr"].includes(workerLanguage)){
+  if(window.TLE_I18N?.setLanguage && ["en","es","fr","ht"].includes(workerLanguage)){
     window.TLE_I18N.setLanguage(workerLanguage);
   }
   renderWorkerPortal();
@@ -6830,7 +6833,7 @@ async function saveAppPreferences(fd){
     throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Acesso do proprietário necessário.","Accès propriétaire requis."));
   }
   const language=String(fd.get("default_language")||"en").toLowerCase();
-  if(!["en","es","pt","fr"].includes(language)) throw new Error("Invalid app language.");
+  if(!["en","es","fr","ht"].includes(language)) throw new Error("Invalid app language.");
   const currency=String(fd.get("currency_code")||"USD").trim().toUpperCase();
   if(!/^[A-Z]{3}$/.test(currency)) throw new Error(langPick("Use a 3-letter currency code.","Usa un código de moneda de 3 letras.","Use um código de moeda de 3 letras.","Utilisez un code devise de 3 lettres."));
   const distance=String(fd.get("distance_unit")||"mi");
