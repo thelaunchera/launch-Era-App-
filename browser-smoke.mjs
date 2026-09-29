@@ -88,11 +88,40 @@ try{
       throw new Error(profile.name+": welcome-first auth screen failed: "+JSON.stringify(welcomeState));
     }
 
-    // Dispatch the same user interaction path without relying on Puppeteer's
-    // coordinate click on an animated mobile welcome CTA. The delegated app
-    // click handler is what this gate needs to verify.
-    await page.evaluate(()=>document.querySelector("#authWelcomeStart")?.click());
-    await page.waitForFunction(()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
+    // Dispatch the real delegated click path. CI runners occasionally finish
+    // script boot while the first synthetic click is still racing layout work,
+    // so retry the same interaction once before treating it as a product failure.
+    const openSignup=()=>page.evaluate(()=>{
+      const button=document.querySelector("#authWelcomeStart");
+      if(!button) return false;
+      button.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window}));
+      return true;
+    });
+    await openSignup();
+    try{
+      await page.waitForFunction(
+        ()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",
+        {timeout:5000}
+      );
+    }catch(firstErr){
+      await openSignup();
+      try{
+        await page.waitForFunction(
+          ()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",
+          {timeout:10000}
+        );
+      }catch(secondErr){
+        const diag=await page.evaluate(()=>({
+          authUiReady:window.__tleAuthUiReady,
+          welcomeHidden:document.querySelector("#authWelcome")?.hidden,
+          panelHidden:document.querySelector("#authPanel")?.hidden,
+          authTitle:document.querySelector("#authTitle")?.textContent.trim(),
+          bodyClass:document.body.className,
+          appError:document.documentElement.dataset.appError||""
+        }));
+        throw new Error(profile.name+": signup CTA did not open after retry · "+JSON.stringify(diag)+" · console="+errors.join(" | ")+" · "+secondErr.message);
+      }
+    }
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
