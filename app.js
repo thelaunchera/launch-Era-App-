@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-dashboard-nav-fix-131";
+const APP_VERSION = "20260929-new-owner-first-win-132";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -438,7 +438,14 @@ function maybeShowOnboardingWelcome(){
   if(!appShell || appShell.hidden) return;
   if(!window.__tleShowSignupWelcome) return;
   window.__tleShowSignupWelcome=false;
-  renderOnboardingTip("welcome","welcome");
+  // New owners should land directly on Today and get one clear first action.
+  // Mark the welcome step complete so contextual first-visit tips still work
+  // when they intentionally open a section such as Booking.
+  progress.welcome=true;
+  progress.disabled=false;
+  saveOnboardingState(progress);
+  clearSignupWelcomeMarker().catch(()=>{});
+  renderFirstWin();
 }
 function maybeShowFeatureIntro(id,force=false){
   if(!state.business || !ONBOARDING_COPY[id]) return;
