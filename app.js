@@ -20,7 +20,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-css-modules-191";
+const APP_VERSION = "20260929-simplify-booking-settings-192";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5912,15 +5912,12 @@ function installGlobalWorkspaceSearch(){
   $("#globalSearchResults")?.addEventListener("click",e=>{const b=e.target.closest("[data-search-view]");if(!b)return;pop.hidden=true;openView(b.dataset.searchView);});
   document.addEventListener("click",e=>{if(!e.target.closest("#globalSearchShell"))pop.hidden=true;});
 }
-function setBookingStep(step){
-  const valid=["links","services","availability","preferences"]; if(!valid.includes(step))step="links";
-  $$("[data-booking-step]").forEach(b=>b.classList.toggle("active",b.dataset.bookingStep===step));
-  $$("[data-booking-panel]").forEach(p=>{p.hidden=!(p.dataset.bookingPanel===step||p.dataset.bookingPanel==="requests");});
-  try{localStorage.setItem("tle_booking_step",step);}catch{}
+function setBookingStep(){
+  $("[data-booking-panel]").forEach(panel=>{panel.hidden=false;});
+  try{localStorage.removeItem("tle_booking_step");}catch{}
 }
 function installProgressiveBooking(){
-  $$("[data-booking-step]").forEach(b=>{if(b.dataset.ready)return;b.dataset.ready="1";b.addEventListener("click",()=>setBookingStep(b.dataset.bookingStep));});
-  let saved="links";try{saved=localStorage.getItem("tle_booking_step")||"links";}catch{} setBookingStep(saved);
+  setBookingStep();
 }
 function installSettingsAccordion(){
   $$(".settings-accordion>.settings-section").forEach((panel,i)=>{
