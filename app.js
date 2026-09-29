@@ -289,6 +289,27 @@ const ONBOARDING_EXTRA={
   }
 };
 
+ONBOARDING_EXTRA.ht={
+  welcome:{kicker:"BYENVINI",title:"Mèsi paske w ap itilize The Launch Era Cleaning App.",text:"Kont ou pare. N ap gide w nan premye etap yo pou ou konnen kote tout bagay ye san ou pa bezwen dekouvri tout poukont ou."},
+  today:{title:"Jodi a",text:"Rezime jounen ou: travay, demann rezèvasyon, devis, fakti ak aksyon rapid."},
+  booking:{title:"Rezèvasyon",text:"Jere demann rezèvasyon, disponiblite ak lyen piblik kliyan yo itilize."},
+  leads:{title:"Pwospè",text:"Kenbe kliyan potansyèl yo isit la anvan yo vin kliyan aktif oswa travay pwograme."},
+  clients:{title:"Kliyan",text:"Kenbe kontak, adrès sèvis ak enfòmasyon ou bezwen pou pwochen travay yo."},
+  calendar:{title:"Kalandriye + travay",text:"Gade travay k ap vini ak lè ki lib pou òganize orè a san doub rezèvasyon."},
+  quotes:{title:"Devis",text:"Revize demann, kreye devis, voye yo bay kliyan epi swiv si yo aksepte oswa refize."},
+  invoices:{title:"Fakti",text:"Kreye epi voye fakti, epi anrejistre metòd peman biznis ou aksepte."},
+  route:{title:"Wout jodi a",text:"Gade arè jounen an nan lòd pou konnen ki kote pou ale apre sa."},
+  mileage:{title:"Kilometraj",text:"Anrejistre distans biznis ki lye ak travay yo pou kenbe vwayaj yo òganize."},
+  time:{title:"Suivi tan",text:"Kòmanse epi fini kronomèt pou swiv tan ki pase sou chak travay."},
+  reports:{title:"Rapò",text:"Gade aktivite, total ak pèfòmans operasyon biznis la."},
+  services:{title:"Sèvis + opsyon",text:"Kreye sèvis, pri ak opsyon yo itilize nan rezèvasyon, devis ak fakti."},
+  supplies:{title:"Founiti",text:"Òganize founiti netwayaj pou konnen sa ki bezwen ranplase."},
+  team:{title:"Ekip",text:"Ajoute anplwaye, asiyen travay, pataje aksè envite epi voye mesaj san ekspoze kontwòl pwopriyetè."},
+  settings:{title:"Paramèt",text:"Modifye enfòmasyon konpayi, règ rezèvasyon, peman, imèl kliyan ak lyen."},
+  admin:{title:"Admin pwopriyetè",text:"Kontwòl sansib yo isit la: aksè, pèmisyon, entegrasyon ak paramèt kont."},
+  help:{title:"Èd ak FAQ",text:"Jwenn èd pou konfigirasyon, enstriksyon aksè ak repons komen. Ou ka rekòmanse gid sa a nenpòt lè."}
+};
+
 function onboardingLanguage(){
   const language=String(window.TLE_I18N?.language||localStorage.getItem("tle_language")||"en").toLowerCase();
   return ["en","es","fr","ht"].includes(language)?language:"en";
@@ -421,14 +442,14 @@ function renderOnboardingTip(key,kind="feature"){
   $("#onboardingTitle",layer).textContent=words.title;
   $("#onboardingText",layer).textContent=words.text;
   $("#onboardingOnceNote",layer).textContent=isWelcome
-    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
-    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
+    ? ({es:"Te daremos ayuda corta cuando abras una sección por primera vez.",pt:"Você verá uma dica curta ao abrir uma seção pela primeira vez.",ht:"W ap wè yon ti konsèy lè ou louvri yon seksyon pou premye fwa.",fr:"Une courte astuce apparaîtra lors de votre première visite dans une section.",en:"You’ll get one short tip when you open a section for the first time."}[lang]||"You’ll get one short tip when you open a section for the first time.")
+    : ({es:"Solo la primera vez.",pt:"Somente na primeira vez.",ht:"Sèlman premye fwa.",fr:"Seulement la première fois.",en:"First visit only."}[lang]||"First visit only.");
   $("#onboardingDoneBtn",layer).textContent=isWelcome
-    ? ({es:"Empezar recorrido",pt:"Iniciar tour",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
-    : ({es:"Entendido",pt:"Entendi",fr:"Compris",en:"Got it"}[lang]||"Got it");
+    ? ({es:"Empezar recorrido",pt:"Iniciar tour",ht:"Kòmanse gid",fr:"Commencer le guide",en:"Start tour"}[lang]||"Start tour")
+    : ({es:"Entendido",pt:"Entendi",ht:"Mwen konprann",fr:"Compris",en:"Got it"}[lang]||"Got it");
   $("#onboardingSkipBtn",layer).hidden=isWelcome;
-  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
-  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",fr:"Fermer",en:"Close"}[lang]||"Close"));
+  if(!isWelcome) $("#onboardingSkipBtn",layer).textContent=({es:"No mostrar más tips",pt:"Não mostrar mais dicas",ht:"Pa montre konsèy ankò",fr:"Ne plus afficher les astuces",en:"Hide tips"}[lang]||"Hide tips");
+  $("#onboardingCloseBtn",layer).setAttribute("aria-label",({es:"Cerrar",pt:"Fechar",ht:"Fèmen",fr:"Fermer",en:"Close"}[lang]||"Close"));
   layer.classList.toggle("welcome",isWelcome);
   if(!isWelcome) $("#onboardingSkipBtn",layer).hidden=false;
   layer.hidden=false;
