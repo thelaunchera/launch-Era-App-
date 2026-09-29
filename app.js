@@ -5238,15 +5238,31 @@ function firstWinStatus(){
   return {hasService,hasAvailability,previewed,shared,complete:hasService&&hasAvailability&&previewed&&shared};
 }
 function renderFirstWin(){
-  const shell=$("#firstWinShell");
-  if(!shell||!state.business||!["owner","admin"].includes(state.business.role)) return;
-  const dismissed=firstWinLocalGet("dismissed")==="1";
-  const s=firstWinStatus();
-  shell.hidden=dismissed||s.complete;
-  const done=[s.hasService,s.hasAvailability,s.previewed,s.shared];
+  const shell=$("#firstWinShell"), launcher=$("#firstWinLauncher");
+  if(!shell||!launcher||!state.business||!["owner","admin"].includes(state.business.role)) return;
+  const s=firstWinStatus(), done=[s.hasService,s.hasAvailability,s.previewed,s.shared], count=done.filter(Boolean).length;
+  launcher.hidden=s.complete;
   $(".first-win-step",shell).forEach((el,i)=>el.classList.toggle("is-done",!!done[i]));
-  const bar=$("#firstWinProgressBar"); if(bar) bar.style.width=(done.filter(Boolean).length/4*100)+"%";
+  const bar=$("#firstWinProgressBar"); if(bar) bar.style.width=(count/4*100)+"%";
+  const progress=$("#firstWinLauncherProgress"); if(progress) progress.textContent=langPick(count+" of 4 complete",count+" de 4 completados",count+" de 4 concluídos",count+" sur 4 terminés");
+  const title=$("#firstWinLauncherTitle"); if(title) title.textContent=langPick("Finish setup","Terminar configuración","Concluir configuração","Terminer la configuration");
   const ready=$("#firstWinReady"); if(ready) ready.hidden=!s.complete;
+  const copy={
+    eyebrow:langPick("QUICK START","INICIO RÁPIDO","INÍCIO RÁPIDO","DÉMARRAGE RAPIDE"),
+    title:langPick("Get ready for your first booking","Prepárate para tu primera reserva","Prepare-se para sua primeira reserva","Préparez votre première réservation"),
+    body:langPick("One step at a time. You can use the rest of the app anytime.","Un paso a la vez. Puedes usar el resto de la app cuando quieras.","Um passo de cada vez. Você pode usar o restante do app quando quiser.","Une étape à la fois. Vous pouvez utiliser le reste de l’app à tout moment."),
+    steps:[
+      [langPick("Add your first service","Añade tu primer servicio","Adicione seu primeiro serviço","Ajoutez votre premier service"),langPick("What clients can book","Lo que tus clientes pueden reservar","O que os clientes podem reservar","Ce que les clients peuvent réserver")],
+      [langPick("Set your availability","Configura tu disponibilidad","Defina sua disponibilidade","Définissez vos disponibilités"),langPick("When clients can book","Cuándo pueden reservar","Quando os clientes podem reservar","Quand les clients peuvent réserver")],
+      [langPick("Preview your booking page","Previsualiza tu página de reservas","Visualize sua página de reservas","Prévisualisez votre page de réservation"),langPick("See the client experience","Mira la experiencia del cliente","Veja a experiência do cliente","Voyez l’expérience client")],
+      [langPick("Share your booking link","Comparte tu enlace de reservas","Compartilhe seu link de reservas","Partagez votre lien de réservation"),langPick("Start taking requests","Empieza a recibir solicitudes","Comece a receber solicitações","Commencez à recevoir des demandes")]
+    ]
+  };
+  $("#firstWinEyebrow").textContent=copy.eyebrow; $("#firstWinTitle").textContent=copy.title; $("#firstWinCopy").textContent=copy.body;
+  copy.steps.forEach((x,i)=>{const n=i+1;$("#firstWinStep"+n).textContent=x[0];$("#firstWinStep"+n+"Hint").textContent=x[1];});
+  $("#firstWinReadyTitle").textContent=langPick("Your booking page is ready.","Tu página de reservas está lista.","Sua página de reservas está pronta.","Votre page de réservation est prête.");
+  $("#firstWinReadyCopy").textContent=langPick("Copy your link and start taking requests.","Copia tu enlace y empieza a recibir solicitudes.","Copie seu link e comece a receber solicitações.","Copiez votre lien et commencez à recevoir des demandes.");
+  $("#firstWinCopyLink").textContent=langPick("Copy booking link","Copiar enlace","Copiar link","Copier le lien");
 }
 $("#firstWinDismiss")?.addEventListener("click",()=>{firstWinLocalSet("dismissed","1");renderFirstWin();});
 $("#firstWinCopyLink")?.addEventListener("click",()=>{firstWinLocalSet("share","1");$("#copyBooking")?.click();renderFirstWin();});
@@ -5257,6 +5273,7 @@ document.addEventListener("click",e=>{
   const kind=step.dataset.firstWin;
   if(kind==="preview") firstWinLocalSet("preview","1");
   if(kind==="share") firstWinLocalSet("share","1");
+  if(step.dataset.jump) closeFirstWin();
   setTimeout(renderFirstWin,0);
 });
 
