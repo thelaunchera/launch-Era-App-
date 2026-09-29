@@ -133,8 +133,49 @@ try{
     if(layout.scrollWidth>layout.innerWidth+4) throw new Error(profile.name+": horizontal overflow "+layout.scrollWidth+" > "+layout.innerWidth);
     if(layout.appError) throw new Error(profile.name+": app boot error "+layout.appError);
     if(!layout.authReady) throw new Error(profile.name+": auth UI did not finish wiring");
-    // The auth panel animates on mobile. Follow the real switch path, then wait
-    // for the form to settle inside the viewport before performing a physical hit-test.
+    // The auth panel animates on mobile. Follow the real switch path and let
+    // Puppeteer perform an actual clickable-point tap; it scrolls the target
+    // into view exactly as a user agent would instead of guessing coordinates.
+    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
+    await page.evaluate(()=>{
+      window.__tleSmokeAuthSubmitClicked=false;
+      const btn=document.querySelector("#authSubmit");
+      if(!btn) throw new Error("auth submit missing");
+      btn.addEventListener("click",event=>{
+        window.__tleSmokeAuthSubmitClicked=true;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },{once:true,capture:true});
+      const splash=document.querySelector("#sessionSplash");
+      if(splash){
+        splash.hidden=true;
+        splash.style.pointerEvents="none";
+        splash.setAttribute("aria-hidden","true");
+      }
+    });
+    await page.waitForSelector("#authSubmit",{visible:true,timeout:8000});
+    const submitState=await page.evaluate(()=>{
+      const btn=document.querySelector("#authSubmit");
+      const style=btn?getComputedStyle(btn):null;
+      const r=btn?.getBoundingClientRect();
+      return {
+        exists:Boolean(btn),
+        disabled:Boolean(btn?.disabled),
+        pointerEvents:style?.pointerEvents||"",
+        visibility:style?.visibility||"",
+        display:style?.display||"",
+        width:r?.width||0,
+        height:r?.height||0
+      };
+    });
+    if(!submitState.exists || submitState.disabled || submitState.pointerEvents==="none" ||
+       submitState.visibility==="hidden" || submitState.display==="none" ||
+       submitState.width<20 || submitState.height<20){
+      throw new Error(profile.name+": Sign in button is not usable "+JSON.stringify(submitState));
+    }
+    await page.click("#authSubmit");
+    await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
