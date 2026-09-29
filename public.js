@@ -21,6 +21,10 @@
   const $ = (s,root=document) => root.querySelector(s);
   const $$ = (s,root=document) => [...root.querySelectorAll(s)];
   const tt = v => window.TLE_I18N?.t?.(v) || v;
+  const currentPublicLanguage = () => {
+    const value=String(window.TLE_I18N?.language||requestedLanguage||"en").toLowerCase();
+    return supportedPublicLanguages.includes(value)?value:"en";
+  };
   let publicLocale=navigator.language||"en-US";
   let publicCurrency="USD";
   function setPublicLocale(locale,currency,language){
@@ -671,7 +675,7 @@
           submit.textContent=tt("Sending…");
           try{
             if(mode==="quote"){
-              await rpc("submit_public_quote_request",{
+              await rpc("submit_public_quote_request_v2",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_customer_name:String(fd.get("name")).trim(),
@@ -681,12 +685,13 @@
                 p_service_address:String(fd.get("address")).trim(),
                 p_preferred_date:fd.get("date"),
                 p_preferred_time:String(fd.get("time")||"").trim()||null,
-                p_notes:requestNotes||null
+                p_notes:requestNotes||null,
+                p_language:currentPublicLanguage()
               });
             }else{
               const selectedSlot=String(fd.get("slot_start")||"").trim();
               if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
-              await rpc("submit_public_booking_request",{
+              await rpc("submit_public_booking_request_v2",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),
@@ -697,7 +702,8 @@
                 p_service_address:String(fd.get("address")).trim(),
                 p_requested_start_at:selectedSlot,
                 p_notes:requestNotes||null,
-                p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time")
+                p_recurrence_pattern:String(fd.get("recurrence_pattern")||"one_time"),
+                p_language:currentPublicLanguage()
               });
             }
             form.hidden=true;
