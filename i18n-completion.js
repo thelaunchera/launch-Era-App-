@@ -1875,5 +1875,13 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   Object.assign(staticCorrections.fr,{"0 due":"0 à traiter","0 today":"0 aujourd’hui"});
   Object.assign(staticCorrections.ht,{"0 due":"0 pou trete","0 today":"0 jodi a"});
 
+  // Final weather advice coverage used by the dynamic dashboard.
+  Object.assign(staticCorrections.es,{
+    "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."
+  });
+  Object.assign(staticCorrections.fr,{
+    "Check your best route before leaving.":"Vérifiez le meilleur itinéraire avant de partir."
+  });
+
 };
 })();
