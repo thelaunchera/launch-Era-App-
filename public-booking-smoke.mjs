@@ -130,8 +130,11 @@ async function runProfile(profile){
     const page=await context.newPage();
     const backendCalls=[];
     const runtimeErrors=[];
-    page.on("pageerror",err=>runtimeErrors.push(String(err)));
-    page.on("console",msg=>{ if(msg.type()==="error") runtimeErrors.push(msg.text()); });
+    page.on("pageerror",err=>runtimeErrors.push("pageerror: "+String(err)));
+    page.on("console",msg=>{ if(msg.type()==="error"||msg.type()==="warning") runtimeErrors.push(msg.type()+": "+msg.text()); });
+    page.on("request",req=>{
+      if(req.url().includes("supabase.co")) backendCalls.push("request:"+new URL(req.url()).pathname);
+    });
     await mockBackend(page,backendCalls);
 
     await page.goto("http://127.0.0.1:4176/?public=book&slug=smoke-cleaning",{
