@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-invoice-cards-211";
+const CACHE_NAME="tle-cleaning-app-20260930-invoice-density-212";
 const CORE=[
-  "./boot.js?v=20260930-invoice-cards-211",
-  "./styles/boot.css?v=20260930-invoice-cards-211",
+  "./boot.js?v=20260930-invoice-density-212",
+  "./styles/boot.css?v=20260930-invoice-density-212",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-invoice-cards-211",
-  "./styles/workspace-components.css?v=20260930-invoice-cards-211",
-  "./styles/workspace-experience.css?v=20260930-invoice-cards-211",
-  "./styles/workspace-operations.css?v=20260930-invoice-cards-211",
-  "./styles/release-overrides.css?v=20260930-invoice-cards-211",
-  "./styles/release-mobile.css?v=20260930-invoice-cards-211",
-  "./styles/release-latest.css?v=20260930-invoice-cards-211",
-  "./styles/responsive-shell.css?v=20260930-invoice-cards-211",
-  "./styles/customer-documents.css?v=20260930-invoice-cards-211",
-  "./styles/invoice-polish.css?v=20260930-invoice-cards-211",
-  "./app.js?v=20260930-invoice-cards-211",
-  "./followups.js?v=20260930-invoice-cards-211",
-  "./i18n-completion.js?v=20260930-invoice-cards-211",
-  "./i18n.js?v=20260930-invoice-cards-211",
-  "./onboarding-copy.js?v=20260930-invoice-cards-211",
-  "./public.js?v=20260930-invoice-cards-211",
-  "./vendor/supabase.js?v=20260930-invoice-cards-211",
-  "./manifest.webmanifest?v=20260930-invoice-cards-211"
+  "./styles.css?v=20260930-invoice-density-212",
+  "./styles/workspace-components.css?v=20260930-invoice-density-212",
+  "./styles/workspace-experience.css?v=20260930-invoice-density-212",
+  "./styles/workspace-operations.css?v=20260930-invoice-density-212",
+  "./styles/release-overrides.css?v=20260930-invoice-density-212",
+  "./styles/release-mobile.css?v=20260930-invoice-density-212",
+  "./styles/release-latest.css?v=20260930-invoice-density-212",
+  "./styles/responsive-shell.css?v=20260930-invoice-density-212",
+  "./styles/customer-documents.css?v=20260930-invoice-density-212",
+  "./styles/invoice-polish.css?v=20260930-invoice-density-212",
+  "./app.js?v=20260930-invoice-density-212",
+  "./followups.js?v=20260930-invoice-density-212",
+  "./i18n-completion.js?v=20260930-invoice-density-212",
+  "./i18n.js?v=20260930-invoice-density-212",
+  "./onboarding-copy.js?v=20260930-invoice-density-212",
+  "./public.js?v=20260930-invoice-density-212",
+  "./vendor/supabase.js?v=20260930-invoice-density-212",
+  "./manifest.webmanifest?v=20260930-invoice-density-212"
 ];
 
 self.addEventListener("install",event=>{
