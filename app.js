@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-i18n-contrast-208";
+const APP_VERSION = "20260929-i18n-contrast-209";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -5253,8 +5253,8 @@ function renderCalendarDayDetails(dateKey,options={}){
   const title=new Intl.DateTimeFormat(appLocale(),{weekday:"long",month:"long",day:"numeric"}).format(selectedDate);
   const emptyCopy=langPick("No jobs are scheduled for this day.","No hay trabajos programados para este día.","Aucun travail n’est prévu ce jour-là.");
   const headingCopy=jobs.length===1
-    ? langPick("1 scheduled job","1 trabajo programado","1 travail prévu")
-    : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} travaux prévus`);
+    ? (appLanguage()==="ht" ? "1 travay pwograme" : langPick("1 scheduled job","1 trabajo programado","1 travail prévu"))
+    : (appLanguage()==="ht" ? `${jobs.length} travay pwograme` : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} travaux prévus`));
 
   panel.innerHTML=`
     <div class="calendar-day-details-head">
