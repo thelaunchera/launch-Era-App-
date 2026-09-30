@@ -197,7 +197,7 @@ async function runProfile(profile){
     }
 
     const residentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
-    if(String(residentialHero||"").includes("36729566")) throw new Error(profile.name+": app Booking Page is still using the demo hero photo");
+    if(!String(residentialHero||"").includes("10161222")) throw new Error(profile.name+": residential hero is not a no-people home interior");
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
     await assertNoOverflow(page,profile,"residential booking");
 
@@ -205,6 +205,7 @@ async function runProfile(profile){
     await page.waitForFunction(()=>document.querySelector("#publicPropertyType")?.value==="commercial",null,{timeout:3000});
     const commercialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
     if(commercialHero===residentialHero) throw new Error(profile.name+": commercial hero photo did not change");
+    if(!String(commercialHero||"").includes("7534224")) throw new Error(profile.name+": commercial hero is not an office/building interior");
 
     const commercialBookCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!commercialBookCards.some(x=>x.includes("Office Cleaning"))){
