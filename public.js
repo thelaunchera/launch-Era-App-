@@ -615,6 +615,15 @@
         return "both";
       }
 
+      function addonScope(addon){
+        const hay=(String(addon?.name||"")+" "+String(addon?.description||"")).toLowerCase();
+        const commercial=/commercial|office|janitorial|storefront|retail|workspace|warehouse|industrial|medical|dental|restaurant|breakroom|kitchenette|trash|liner|high[- ]?touch/.test(hay);
+        const residential=/residential|home|house|apartment|condo|oven|refrigerator|fridge|baseboard/.test(hay);
+        if(commercial&&!residential) return "commercial";
+        if(residential&&!commercial) return "residential";
+        return "both";
+      }
+
       function servicesForRequest(nextMode){
         const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
         const property=activePropertyType();
@@ -713,8 +722,11 @@
       syncPropertyDetails();
       syncPetDetails();
       propertyTypeSelect?.addEventListener("change",()=>{
+        addonBox?.querySelectorAll('input[name="addon"]:checked').forEach(input=>{ input.checked=false; });
         syncPropertyDetails();
-        frequencyPills?.addEventListener("click",e=>{
+        renderMode(mode,{updateUrl:false});
+      });
+      frequencyPills?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-frequency]");
         if(!btn || !recurrenceSelect) return;
         recurrenceSelect.value=btn.dataset.frequency;
@@ -727,9 +739,6 @@
       });
       form?.addEventListener("input",updateSummary);
       form?.addEventListener("change",updateSummary);
-
-      renderMode(mode,{updateUrl:false});
-      });
       cleaningTypeSwitch?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-property-type]");
         if(!btn || !propertyTypeSelect) return;
@@ -748,7 +757,7 @@
         const photos=activeDemoPhotos();
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
-        const chosen=mode==="quote"?[]:addons.filter(a=>chosenIds.includes(a.id));
+        const chosen=addons.filter(a=>chosenIds.includes(a.id));
         const total=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
         const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
         const chosenSlot=slotsBox?.querySelector("[data-slot].selected");
@@ -767,10 +776,10 @@
           '<div class="public-demo-summary-photo"><img src="'+esc(photos.summary)+'" alt="'+esc(photos.summaryAlt)+'"></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Service"))+'</span><strong>'+esc(selected?.name||tt("Choose a service"))+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Property"))+'</span><strong>'+esc(homeLabel||tt(property==="commercial"?"Commercial":"Residential"))+'</strong></div>'+
-          (mode==="book"?'<div class="public-demo-summary-row"><span>'+esc(tt("Frequency"))+'</span><strong>'+esc(recurrenceLabel)+'</strong></div>':"")+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Frequency"))+'</span><strong>'+esc(recurrenceLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Date"))+'</span><strong>'+esc(dateLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
-          (mode==="book"?'<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>':"")+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
           '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
@@ -780,16 +789,18 @@
       function renderAddons(){
         const selected=services.find(s=>s.id===select?.value);
         if(!addonBox) return;
-        if(mode==="quote"){
-          addonBox.innerHTML="";
-          updateSummary();
-          return;
-        }
-        const available=addons.filter(a=>!a.service_id||a.service_id===selected?.id);
+        const property=activePropertyType();
+        const available=addons.filter(a=>{
+          if(a.service_id && a.service_id!==selected?.id) return false;
+          const scope=addonScope(a);
+          return scope==="both"||scope===property;
+        });
         addonBox.innerHTML=available.length?available.map(a=>
           '<label class="addon-choice">'+
           '<input type="checkbox" name="addon" value="'+esc(a.id)+'">'+
-          '<span><strong>'+esc(a.name)+'</strong><small>+'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min</small></span>'+
+          '<span><strong>'+esc(a.name)+'</strong><small>'+
+          (mode==="quote"?esc(tt("Include in quote")):'+'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min')+
+          '</small></span>'+
           '</label>'
         ).join(""):'<span class="muted-line">'+esc(tt("No add-ons for this service."))+'</span>';
         updateSummary();
@@ -874,9 +885,9 @@
         if(submit){
           submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
         }
-        if(addWrap) addWrap.hidden=mode==="quote";
+        if(addWrap) addWrap.hidden=false;
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
-        if(recurrenceWrap) recurrenceWrap.hidden=mode==="quote";
+        if(recurrenceWrap) recurrenceWrap.hidden=false;
         if(slotsWrap) slotsWrap.hidden=false;
 
         if(select){
@@ -1006,6 +1017,11 @@
           const cleaningCondition=String(fd.get("cleaning_condition")||"").trim();
           const accessNotes=String(fd.get("access_notes")||"").trim();
           const customerNotes=String(fd.get("notes")||"").trim();
+          const recurrencePattern=String(fd.get("recurrence_pattern")||"one_time").trim();
+          const requestedAddonNames=addons
+            .filter(addon=>fd.getAll("addon").includes(addon.id))
+            .map(addon=>addon.name)
+            .filter(Boolean);
 
           if((preferred==="text"||preferred==="whatsapp")&&!phone){
             alert(tt("Phone is required for Text or WhatsApp."));
@@ -1074,6 +1090,8 @@
             cleaningCondition ? "Current condition: "+(conditionLabels[cleaningCondition]||cleaningCondition) : "",
             lastClean ? "Last professional clean: "+(lastCleanLabels[lastClean]||lastClean) : "",
             accessNotes ? "Access / parking: "+accessNotes : "",
+            mode==="quote" ? "Frequency: "+recurrencePattern.replaceAll("_"," ") : "",
+            mode==="quote" && requestedAddonNames.length ? "Requested extras: "+requestedAddonNames.join(", ") : "",
             customerNotes ? "Special requests: "+customerNotes : ""
           ].filter(Boolean).join("\n");
           const old=submit.textContent;
