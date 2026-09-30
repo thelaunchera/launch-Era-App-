@@ -404,6 +404,7 @@
 
 /* Timer is a dark operational surface in every palette. */
 [data-page="time"] .timer-card{
+  background:#12324A!important;
   color:var(--tle-text-on-dark)!important;
 }
 [data-page="time"] .timer-card :is(h3,strong){
@@ -488,24 +489,37 @@
   }
 }
 
-/* Tablet / desktop cards that render dark must keep light copy in day and night. */
+/* Tablet / desktop: day surfaces are light; night surfaces are dark. */
 @media(min-width:681px){
-  [data-page="clients"] .client-card.client-card-compact{
+  .app-shell[data-palette-mode="day"] [data-page="clients"] .client-card.client-card-compact,
+  .app-shell:not([data-palette-mode]) [data-page="clients"] .client-card.client-card-compact{
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell[data-palette-mode="day"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location),
+  .app-shell:not([data-palette-mode]) [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location){
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell[data-palette-mode="day"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small),
+  .app-shell:not([data-palette-mode]) [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small){
+    color:var(--tle-text-muted)!important;
+  }
+
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact{
     color:var(--tle-text-on-dark)!important;
   }
-  [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location){
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location){
     color:var(--tle-text-on-dark)!important;
   }
-  [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small){
+  .app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small){
     color:var(--tle-text-on-dark-muted)!important;
   }
+
   [data-page="clients"] .client-avatar{
     color:var(--tle-text-strong)!important;
   }
   [data-page="clients"] .client-card-actions button:not(.record-delete-btn){
     background:#FFF8EE!important;
     color:var(--tle-text-strong)!important;
-    border-color:rgba(255,253,248,.42)!important;
   }
   [data-page="clients"] .client-card-actions .record-delete-btn{
     background:#FFF3F1!important;
@@ -513,13 +527,25 @@
     border-color:#E8B8B1!important;
   }
 
-  :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note),
-  :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note),
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note),
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong,
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span,
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
+    color:var(--tle-text-muted)!important;
+  }
+
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note),
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
     color:var(--tle-text-on-dark)!important;
   }
-  :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-primary>small,
-  :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span,
-  :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-field::before{
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
     color:var(--tle-text-on-dark-muted)!important;
   }
 }
