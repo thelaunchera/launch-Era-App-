@@ -292,7 +292,9 @@ if(
   !i18nCompletion.includes('"ASSIGNED TO":"ASIGNADO A"') ||
   !i18nCompletion.includes('"ASSIGNED TO":"ATTRIBUÉ À"') ||
   !i18nCompletion.includes('"ASSIGNED TO":"ASIYEN BAY"') ||
-  !i18nCompletion.includes('"This booking page is not available.":"Paj rezèvasyon sa a pa disponib."')
+  !i18nCompletion.includes('"This booking page is not available.":"Paj rezèvasyon sa a pa disponib."') ||
+  !i18nCompletion.includes('"Check your best route before leaving.":"Revisa la mejor ruta antes de salir."') ||
+  !i18nCompletion.includes('"Check your best route before leaving.":"Vérifiez le meilleur itinéraire avant de partir."')
 ){
   throw new Error("Localization regression: Calendar, Time Tracking or Booking Page lost ES/FR/HT coverage");
 }
