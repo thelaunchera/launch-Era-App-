@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-owner-risk-227";
+const APP_VERSION = "20260930-owner-inbox-228";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -6788,19 +6788,57 @@ async function loadPlatformAdmin(){
   const [
     {data,error},
     {data:geoData,error:geoError},
-    {data:activityData,error:activityError}
+    {data:activityData,error:activityError},
+    {data:inboxData,error:inboxError}
   ]=await Promise.all([
     supabase.rpc("get_platform_admin_dashboard"),
     supabase.rpc("get_platform_visit_geo_dashboard"),
-    supabase.rpc("get_platform_activity_feed")
+    supabase.rpc("get_platform_activity_feed"),
+    supabase.rpc("get_platform_message_center")
   ]);
   if(error){ showToast(error.message); return; }
   if(geoError) console.warn("[TLE] visitor geo",geoError);
   if(activityError) console.warn("[TLE] platform activity",activityError);
-  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{})};
+  if(inboxError) console.warn("[TLE] platform message center",inboxError);
+  state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{}),inbox:inboxData||{}};
   const m=data?.metrics||{};
-  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d]];
+  const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d],["#platformInboxUnread",inboxData?.unread]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
+
+
+  const inbox=$("#platformMessageCenter");
+  if(inbox){
+    const rows=Array.isArray(inboxData?.messages)?inboxData.messages:[];
+    inbox.innerHTML=rows.length?rows.slice(0,60).map(v=>{
+      const sourceLabel=v.category||"Inquiry";
+      const contact=[v.email,v.phone].filter(Boolean).join(" · ");
+      const extra=[v.details,v.preferred_contact?"Prefers "+v.preferred_contact:""].filter(Boolean).join(" · ");
+      return `
+        <details class="platform-message-card ${v.unread?"unread":""}">
+          <summary>
+            <span class="platform-message-main">
+              <span class="platform-message-source">${escapeHtml(sourceLabel)}</span>
+              <strong>${escapeHtml(v.title||v.name||v.email||"New inquiry")}</strong>
+              <small>${escapeHtml(contact||v.source||"The Launch Era")}</small>
+            </span>
+            <span class="platform-message-time">
+              ${v.unread?'<b class="platform-unread-dot">New</b>':""}
+              <time>${formatDateTime(v.created_at)}</time>
+            </span>
+          </summary>
+          <div class="platform-message-body">
+            ${v.message?`<p>${escapeHtml(v.message)}</p>`:'<p class="muted">No additional message.</p>'}
+            ${extra?`<small class="platform-message-extra">${escapeHtml(extra)}</small>`:""}
+            <div class="platform-message-actions">
+              ${v.email?`<a class="ghost-btn" href="mailto:${escapeHtml(v.email)}">Reply by email</a>`:""}
+              ${v.phone?`<a class="ghost-btn" href="tel:${escapeHtml(v.phone)}">Call / text</a>`:""}
+              ${v.unread?`<button class="ghost-btn" type="button" data-platform-message-read data-message-kind="${escapeHtml(v.source_kind)}" data-message-id="${escapeHtml(v.source_id)}">Mark read</button>`:""}
+              <button class="activity-archive-btn" type="button" data-platform-message-archive data-message-kind="${escapeHtml(v.source_kind)}" data-message-id="${escapeHtml(v.source_id)}">Archive</button>
+            </div>
+          </div>
+        </details>`;
+    }).join(""):`<div class="empty-inline"><strong>No messages yet.</strong><span>Website inquiries and Cleaning App messages will appear here.</span></div>`;
+  }
 
   const table=$("#platformCustomersTable");
   if(table){
@@ -8455,6 +8493,44 @@ document.addEventListener("click",async e=>{
     modal.hidden=true;
     openView("leads");
     setTimeout(()=>openEntityForm("lead",inquiryLeadBtn.dataset.inquiryOpenLead),80);
+    return;
+  }
+
+
+  const messageReadBtn=e.target.closest("[data-platform-message-read]");
+  if(messageReadBtn){
+    messageReadBtn.disabled=true;
+    try{
+      const {error}=await supabase.rpc("platform_mark_message_read",{
+        p_source_kind:messageReadBtn.dataset.messageKind,
+        p_source_id:messageReadBtn.dataset.messageId,
+        p_read:true
+      });
+      if(error) throw error;
+      await loadPlatformAdmin();
+      showToast("Message marked read");
+    }catch(err){
+      messageReadBtn.disabled=false;
+      showToast(err?.message||"Could not update message");
+    }
+    return;
+  }
+
+  const messageArchiveBtn=e.target.closest("[data-platform-message-archive]");
+  if(messageArchiveBtn){
+    messageArchiveBtn.disabled=true;
+    try{
+      const {error}=await supabase.rpc("platform_archive_message",{
+        p_source_kind:messageArchiveBtn.dataset.messageKind,
+        p_source_id:messageArchiveBtn.dataset.messageId
+      });
+      if(error) throw error;
+      await loadPlatformAdmin();
+      showToast("Message archived");
+    }catch(err){
+      messageArchiveBtn.disabled=false;
+      showToast(err?.message||"Could not archive message");
+    }
     return;
   }
 
