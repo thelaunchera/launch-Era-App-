@@ -321,3 +321,276 @@
   #publicShell .public-summary{border-radius:24px;padding:19px}
   #publicShell .public-demo-summary-photo{height:165px}
 }
+
+
+/* 2026-09-30 — compact public Booking Page v223
+   Keep the demo look, reduce scrolling and repeated visual weight. */
+#publicShell .public-main{
+  width:min(1080px,calc(100% - 28px));
+  padding:12px 0 44px;
+}
+#publicShell .public-back{margin-bottom:10px}
+#publicShell .public-demo-hero{
+  grid-template-columns:1.08fr .92fr;
+  gap:22px;
+  padding:6px 0 20px;
+}
+#publicShell .public-demo-hero .eyebrow{
+  padding:7px 11px;
+  font-size:10px;
+}
+#publicShell .public-demo-hero h1{
+  font-size:clamp(34px,4.7vw,54px);
+  line-height:1;
+  margin:10px 0 8px;
+  max-width:680px;
+}
+#publicShell .public-demo-hero .public-copy{
+  font-size:14px;
+  line-height:1.5;
+  margin:0 0 12px;
+  max-width:590px;
+}
+#publicShell .public-demo-hero-points{gap:7px}
+#publicShell .public-demo-hero-points span{
+  padding:7px 10px;
+  font-size:10px;
+}
+#publicShell .public-demo-hero-photo{
+  min-height:300px;
+  border-radius:24px;
+}
+#publicShell .public-demo-photo-overlay{
+  left:12px;
+  right:12px;
+  bottom:12px;
+  padding:11px 12px;
+  border-radius:14px;
+}
+#publicShell .public-demo-photo-overlay strong{font-size:12px}
+#publicShell .public-demo-photo-overlay small{font-size:9px;margin-top:2px}
+#publicShell #publicHeroAvailability{
+  padding:7px 8px;
+  font-size:9px;
+}
+#publicShell .public-request-switch{
+  width:min(640px,100%);
+  margin:0 0 12px;
+  padding:5px;
+  border-radius:14px;
+}
+#publicShell .public-request-tab{
+  min-height:42px;
+  border-radius:10px;
+  font-size:12px;
+}
+#publicShell .public-demo-booking-form{
+  grid-template-columns:minmax(0,1fr) 310px;
+  gap:18px;
+}
+#publicShell .public-demo-booking-form>.public-demo-stepper{display:none}
+#publicShell .public-demo-booking-form>.form-grid{
+  gap:10px;
+  padding:20px;
+  border-radius:22px;
+}
+#publicShell .public-demo-section{
+  padding:0 0 18px;
+  margin-bottom:8px;
+}
+#publicShell .public-demo-section-label{
+  font-size:10px;
+  margin-bottom:5px;
+}
+#publicShell .public-demo-section-head h2{
+  font-size:clamp(23px,3vw,30px);
+  margin:0 0 4px;
+}
+#publicShell .public-demo-section-head p{
+  margin:0 0 12px;
+  font-size:12px;
+  line-height:1.4;
+}
+#publicShell .public-demo-service-cards{gap:9px}
+#publicShell .public-demo-service-card{
+  min-height:104px;
+  border-radius:15px;
+  padding:14px;
+}
+#publicShell .public-demo-service-card.selected{padding:13px}
+#publicShell .public-demo-service-check{
+  right:11px;
+  top:11px;
+  width:21px;
+  height:21px;
+}
+#publicShell .public-demo-service-card strong{
+  font-size:15px;
+  margin:2px 30px 5px 0;
+}
+#publicShell .public-demo-service-card p{
+  font-size:11px;
+  line-height:1.35;
+}
+#publicShell .public-demo-service-card>span:last-child{
+  margin-top:7px;
+  font-size:11px;
+}
+#publicShell .public-demo-pills{gap:6px}
+#publicShell .public-demo-pills button{
+  padding:8px 11px;
+  font-size:11px;
+}
+#publicShell .public-demo-type-switch{gap:7px}
+#publicShell .public-demo-type-switch button{
+  min-height:64px;
+  border-radius:13px;
+  padding:11px 12px;
+}
+#publicShell .public-demo-type-switch button strong{font-size:13px;margin-bottom:2px}
+#publicShell .public-demo-type-switch button small{font-size:9px}
+#publicShell .public-form-section-head{
+  margin-top:10px;
+  padding-top:13px;
+}
+#publicShell .public-form-section-head>span{font-size:17px}
+#publicShell .public-form-section-head>small{font-size:9px}
+#publicShell .public-demo-booking-form input,
+#publicShell .public-demo-booking-form select,
+#publicShell .public-demo-booking-form textarea{
+  padding:11px 12px;
+  border-radius:12px;
+}
+#publicShell .addon-choice{
+  padding:10px;
+  border-radius:12px;
+}
+#publicShell .slot-btn{
+  padding:9px 11px;
+  font-size:11px;
+}
+#publicShell .public-demo-summary-stack{
+  top:82px;
+  gap:7px;
+}
+#publicShell .public-summary{
+  border-radius:22px;
+  padding:17px;
+}
+#publicShell .public-demo-summary-top{margin-bottom:11px}
+#publicShell .public-demo-summary-top h3{font-size:20px}
+#publicShell .public-demo-summary-photo{
+  height:95px;
+  border-radius:14px;
+  margin-bottom:10px;
+}
+#publicShell .public-demo-summary-row{
+  gap:10px;
+  padding:7px 0;
+  font-size:11px;
+}
+#publicShell .public-demo-summary-row strong{font-size:11px}
+#publicShell .public-demo-summary-total{padding:11px 0 1px}
+#publicShell .public-demo-summary-total strong{font-size:21px}
+#publicShell .public-demo-summary-stack .public-submit{
+  min-height:44px;
+  padding:11px 14px;
+  border-radius:12px;
+}
+#publicShell .public-demo-summary-micro{font-size:8.5px}
+#publicShell .public-demo-support{display:none!important}
+
+@media(max-width:900px){
+  #publicShell .public-demo-hero{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  #publicShell .public-demo-hero-photo{min-height:235px}
+  #publicShell .public-demo-booking-form{gap:12px}
+  #publicShell .public-demo-summary-stack{top:auto}
+}
+
+@media(max-width:620px){
+  #publicShell .public-main{
+    width:min(100% - 18px,1080px);
+    padding-top:8px;
+    padding-bottom:28px;
+  }
+  #publicShell .public-back{margin-bottom:7px}
+  #publicShell .public-demo-hero{
+    padding-top:2px;
+    padding-bottom:12px;
+    gap:10px;
+  }
+  #publicShell .public-demo-hero .eyebrow{padding:6px 9px;font-size:9px}
+  #publicShell .public-demo-hero h1{
+    font-size:34px;
+    margin:7px 0 6px;
+  }
+  #publicShell .public-demo-hero .public-copy{
+    font-size:13px;
+    margin-bottom:0;
+  }
+  #publicShell .public-demo-hero-points{display:none}
+  #publicShell .public-demo-hero-photo{
+    min-height:190px;
+    border-radius:20px;
+  }
+  #publicShell .public-demo-photo-overlay{
+    left:9px;
+    right:9px;
+    bottom:9px;
+    padding:9px 10px;
+  }
+  #publicShell .public-demo-photo-overlay small{display:none}
+  #publicShell .public-request-switch{
+    margin-bottom:9px;
+    border-radius:12px;
+  }
+  #publicShell .public-request-tab{
+    min-height:39px;
+    font-size:11px;
+  }
+  #publicShell .public-demo-booking-form>.form-grid{
+    padding:14px;
+    gap:8px;
+    border-radius:18px;
+  }
+  #publicShell .public-demo-section{
+    padding-bottom:13px;
+    margin-bottom:5px;
+  }
+  #publicShell .public-demo-section-head h2{font-size:22px}
+  #publicShell .public-demo-section-head p{font-size:11px;margin-bottom:9px}
+  #publicShell .public-demo-service-card{
+    min-height:92px;
+    padding:12px;
+  }
+  #publicShell .public-demo-service-card.selected{padding:11px}
+  #publicShell .public-demo-service-card strong{font-size:14px}
+  #publicShell .public-demo-service-card p{font-size:10px}
+  #publicShell .public-demo-type-switch{
+    grid-template-columns:1fr 1fr;
+  }
+  #publicShell .public-demo-type-switch button{
+    min-height:58px;
+    padding:9px;
+  }
+  #publicShell .public-demo-type-switch button small{display:none}
+  #publicShell .public-form-section-head{
+    margin-top:7px;
+    padding-top:10px;
+  }
+  #publicShell .public-form-section-head>span{font-size:15px}
+  #publicShell .public-form-section-head>small{font-size:8.5px}
+  #publicShell .public-summary{
+    border-radius:18px;
+    padding:14px;
+  }
+  #publicShell .public-demo-summary-photo{display:none}
+  #publicShell .public-demo-summary-top{margin-bottom:6px}
+  #publicShell .public-demo-summary-top h3{font-size:18px}
+  #publicShell .public-demo-summary-row{padding:6px 0}
+  #publicShell .public-demo-summary-total strong{font-size:19px}
+  #publicShell .public-demo-summary-stack .public-submit{min-height:42px}
+}
