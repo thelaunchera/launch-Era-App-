@@ -15,7 +15,8 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-booking-actions-grid-218";
+const APP_VERSION = "20260930-owner-alerts-219";
+const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3546,7 +3547,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,timezone,default_language,customer_email_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods")
+      .select("email,phone,timezone,default_language,customer_email_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,owner_notify_email,owner_notify_push,owner_notify_sms,owner_notification_email,owner_notification_phone")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
@@ -6323,12 +6324,17 @@ async function loadBusinessSettingsRecord(){
     temperature_unit:state.business?.temperature_unit||"fahrenheit",
     payment_methods:Array.isArray(state.business?.payment_methods)?state.business.payment_methods:paymentMethodsForCountry(state.business?.country_code),
     instagram_url:state.business?.instagram_url||"",
-    facebook_url:state.business?.facebook_url||""
+    facebook_url:state.business?.facebook_url||"",
+    owner_notify_email:state.business?.owner_notify_email!==false,
+    owner_notify_push:state.business?.owner_notify_push===true,
+    owner_notify_sms:state.business?.owner_notify_sms===true,
+    owner_notification_email:state.business?.owner_notification_email||"",
+    owner_notification_phone:state.business?.owner_notification_phone||""
   };
   try{
     const {data,error}=await supabase
       .from("businesses")
-      .select("name,email,phone,service_area,timezone,default_language,customer_email_language,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,instagram_url,facebook_url")
+      .select("name,email,phone,service_area,timezone,default_language,customer_email_language,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,instagram_url,facebook_url,owner_notify_email,owner_notify_push,owner_notify_sms,owner_notification_email,owner_notification_phone")
       .eq("id",state.business.id)
       .single();
     if(error) throw error;
@@ -6405,6 +6411,180 @@ async function openAppPreferencesForm(){
     <p class="helper">${escapeHtml(langPick("Customer email language is controlled separately in Client Communication.","El idioma de los emails de clientes se controla por separado en Comunicación con clientes.","La langue des e-mails clients se règle séparément dans Communication client."))}</p>
     ${formSubmit(langPick("Save app preferences","Guardar preferencias","Enregistrer les préférences"))}`;
   modal.hidden=false;
+}
+
+
+function ownerAlertLang(en,es,fr,ht){
+  const lang=appLanguage();
+  if(lang==="es") return es;
+  if(lang==="fr") return fr;
+  if(lang==="ht") return ht;
+  return en;
+}
+
+function ownerPushKeyBytes(value){
+  const padding="=".repeat((4-value.length%4)%4);
+  const base64=(value+padding).replace(/-/g,"+").replace(/_/g,"/");
+  const raw=atob(base64);
+  return Uint8Array.from([...raw].map(char=>char.charCodeAt(0)));
+}
+
+async function ensureOwnerPushSubscription(){
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error(ownerAlertLang("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis.","Aksè pwopriyetè obligatwa."));
+  }
+  if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)){
+    throw new Error(ownerAlertLang(
+      "Push notifications are not supported on this device or browser.",
+      "Las notificaciones push no son compatibles con este dispositivo o navegador.",
+      "Les notifications push ne sont pas prises en charge sur cet appareil ou navigateur.",
+      "Aparèy oswa navigatè sa a pa sipòte notifikasyon push."
+    ));
+  }
+
+  let permission=Notification.permission;
+  if(permission!=="granted") permission=await Notification.requestPermission();
+  if(permission!=="granted"){
+    throw new Error(ownerAlertLang(
+      "Allow notifications on this device to turn on Push.",
+      "Permite las notificaciones en este dispositivo para activar Push.",
+      "Autorisez les notifications sur cet appareil pour activer Push.",
+      "Pèmèt notifikasyon sou aparèy sa a pou aktive Push."
+    ));
+  }
+
+  const registration=await navigator.serviceWorker.ready;
+  let subscription=await registration.pushManager.getSubscription();
+  if(!subscription){
+    subscription=await registration.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:ownerPushKeyBytes(OWNER_VAPID_PUBLIC_KEY)
+    });
+  }
+
+  const json=subscription.toJSON();
+  if(!json?.endpoint || !json?.keys?.p256dh || !json?.keys?.auth){
+    throw new Error(ownerAlertLang(
+      "Could not finish push setup on this device.",
+      "No se pudo terminar la configuración push en este dispositivo.",
+      "Impossible de terminer la configuration push sur cet appareil.",
+      "Nou pa t ka fini konfigirasyon push sou aparèy sa a."
+    ));
+  }
+
+  const {error}=await supabase.from("owner_push_subscriptions").upsert({
+    business_id:state.business.id,
+    user_id:state.session.user.id,
+    endpoint:json.endpoint,
+    p256dh:json.keys.p256dh,
+    auth:json.keys.auth,
+    user_agent:String(navigator.userAgent||"").slice(0,500),
+    active:true,
+    updated_at:new Date().toISOString()
+  },{onConflict:"endpoint"});
+  if(error) throw error;
+  return true;
+}
+
+async function openNotificationPreferencesForm(){
+  if(!state.business || state.business.role!=="owner"){
+    showToast(ownerAlertLang("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis.","Aksè pwopriyetè obligatwa."));
+    return;
+  }
+  state.modalType="notificationPreferences";
+  state.modalId=state.business.id;
+  const record=await loadBusinessSettingsRecord();
+  const pushSupported=("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window);
+  const pushNote=pushSupported
+    ? ownerAlertLang(
+        "Push can appear even when the app is closed. Your browser will ask for permission the first time.",
+        "Push puede aparecer aunque la app esté cerrada. Tu navegador pedirá permiso la primera vez.",
+        "Les notifications push peuvent apparaître même lorsque l’application est fermée. Le navigateur demandera l’autorisation la première fois.",
+        "Push ka parèt menm lè app la fèmen. Navigatè a ap mande pèmisyon premye fwa a."
+      )
+    : ownerAlertLang(
+        "Push is not available in this browser. On iPhone, install the app on the Home Screen and open it there.",
+        "Push no está disponible en este navegador. En iPhone, instala la app en la pantalla de inicio y ábrela desde allí.",
+        "Push n’est pas disponible dans ce navigateur. Sur iPhone, installez l’application sur l’écran d’accueil et ouvrez-la depuis celui-ci.",
+        "Push pa disponib nan navigatè sa a. Sou iPhone, enstale app la sou ekran dakèy la epi ouvri li depi la."
+      );
+
+  modalHeader(
+    ownerAlertLang("NOTIFICATIONS","NOTIFICACIONES","NOTIFICATIONS","NOTIFIKASYON"),
+    ownerAlertLang("Owner alerts","Alertas para la dueña","Alertes propriétaire","Alèt pou pwopriyetè"),
+    ownerAlertLang(
+      "Choose where you want important Cleaning App alerts to reach you.",
+      "Elige dónde quieres recibir las alertas importantes de Cleaning App.",
+      "Choisissez où recevoir les alertes importantes de Cleaning App.",
+      "Chwazi kote ou vle resevwa alèt enpòtan Cleaning App yo."
+    )
+  );
+
+  entityForm.innerHTML=\`
+    <fieldset class="full"><legend>\${escapeHtml(ownerAlertLang("Alert channels","Canales de alerta","Canaux d’alerte","Chanèl alèt"))}</legend>
+      <div class="choice-grid compact">
+        <label class="check-field"><input type="checkbox" name="notify_email" \${record.owner_notify_email!==false?"checked":""}> \${escapeHtml(ownerAlertLang("Email","Correo","E-mail","Imèl"))}</label>
+        <label class="check-field"><input type="checkbox" name="notify_push" \${record.owner_notify_push?"checked":""} \${pushSupported?"":"disabled"}> \${escapeHtml(ownerAlertLang("Push notification","Notificación push","Notification push","Notifikasyon push"))}</label>
+        <label class="check-field"><input type="checkbox" name="notify_sms" disabled> \${escapeHtml(ownerAlertLang("SMS text message","Mensaje SMS","Message SMS","Mesaj SMS"))}</label>
+      </div>
+      <small>\${escapeHtml(pushNote)}</small>
+    </fieldset>
+    <div class="form-grid">
+      <label>\${escapeHtml(ownerAlertLang("Alert email","Correo para alertas","E-mail d’alerte","Imèl pou alèt"))}
+        <input name="notification_email" type="email" value="\${escapeHtml(record.owner_notification_email||record.email||state.session?.user?.email||"")}" placeholder="owner@company.com">
+      </label>
+      <label>\${escapeHtml(ownerAlertLang("Alert phone number","Número para alertas","Numéro pour les alertes","Nimewo telefòn pou alèt"))}
+        <input name="notification_phone" inputmode="tel" autocomplete="tel" value="\${escapeHtml(record.owner_notification_phone||record.phone||"")}" placeholder="+1 561 555 0123">
+      </label>
+    </div>
+    <p class="helper">\${escapeHtml(ownerAlertLang(
+      "SMS is prepared, but text delivery stays off until an SMS provider is connected. Your phone number can be saved now.",
+      "SMS ya está preparado, pero el envío por texto queda apagado hasta conectar un proveedor de SMS. Puedes guardar el número ahora.",
+      "Le SMS est prêt, mais l’envoi reste désactivé jusqu’à la connexion d’un fournisseur SMS. Vous pouvez enregistrer le numéro maintenant.",
+      "SMS la pare, men voye mesaj tèks rete fèmen jiskaske nou konekte yon founisè SMS. Ou ka sove nimewo a kounye a."
+    ))}</p>
+    \${formSubmit(ownerAlertLang("Save notification preferences","Guardar preferencias","Enregistrer les préférences","Sove preferans notifikasyon"))}\`;
+  modal.hidden=false;
+}
+
+async function saveNotificationPreferences(fd){
+  if(!state.business || state.business.role!=="owner"){
+    throw new Error(ownerAlertLang("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis.","Aksè pwopriyetè obligatwa."));
+  }
+  const notifyEmail=fd.get("notify_email")==="on";
+  const notifyPush=fd.get("notify_push")==="on";
+  const notificationEmail=String(fd.get("notification_email")||"").trim().toLowerCase();
+  const notificationPhone=String(fd.get("notification_phone")||"").trim();
+
+  if(notifyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)){
+    throw new Error(ownerAlertLang("Enter a valid alert email.","Ingresa un correo válido para alertas.","Saisissez un e-mail d’alerte valide.","Antre yon imèl alèt ki valab."));
+  }
+
+  if(notifyPush) await ensureOwnerPushSubscription();
+  if(!notifyPush && state.session?.user?.id){
+    const {error:pushOffError}=await supabase.from("owner_push_subscriptions")
+      .update({active:false,updated_at:new Date().toISOString()})
+      .eq("business_id",state.business.id)
+      .eq("user_id",state.session.user.id);
+    if(pushOffError) throw pushOffError;
+  }
+
+  const payload={
+    owner_notify_email:notifyEmail,
+    owner_notify_push:notifyPush,
+    owner_notify_sms:false,
+    owner_notification_email:notificationEmail||null,
+    owner_notification_phone:notificationPhone||null,
+    updated_at:new Date().toISOString()
+  };
+  const {data,error}=await supabase.from("businesses")
+    .update(payload)
+    .eq("id",state.business.id)
+    .select("owner_notify_email,owner_notify_push,owner_notify_sms,owner_notification_email,owner_notification_phone")
+    .single();
+  if(error) throw error;
+  state.business={...state.business,...data};
+  renderSettings();
 }
 
 async function openPaymentPreferencesForm(){
@@ -6543,7 +6723,9 @@ function renderSettings(){
         bookingPaymentMethods=$("#bookingPaymentMethods"),
         b=$("#settingsTravelBuffer"),
         m=$("#settingsBookingNotice"),
-        r=$("#settingsReplyEmail");
+        r=$("#settingsReplyEmail"),
+        notificationChannels=$("#settingsNotificationChannels"),
+        notificationDestination=$("#settingsNotificationDestination");
   if(n) n.textContent=state.business?.name||"—";
   if(e) e.textContent=state.business?.email||state.session?.user?.email||"—";
   if(p) p.textContent=state.business?.phone||"Not set";
@@ -6562,6 +6744,21 @@ function renderSettings(){
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
+  if(notificationChannels){
+    const channels=[];
+    if(state.business?.owner_notify_email!==false) channels.push(ownerAlertLang("Email","Correo","E-mail","Imèl"));
+    if(state.business?.owner_notify_push===true) channels.push("Push");
+    if(state.business?.owner_notify_sms===true) channels.push("SMS");
+    notificationChannels.textContent=channels.length?channels.join(" · "):ownerAlertLang("In-app only","Solo dentro de la app","Dans l’application uniquement","Nan app la sèlman");
+  }
+  if(notificationDestination){
+    const parts=[];
+    const mail=state.business?.owner_notification_email||state.business?.email||state.session?.user?.email||"";
+    const phone=state.business?.owner_notification_phone||state.business?.phone||"";
+    if(state.business?.owner_notify_email!==false && mail) parts.push(mail);
+    if(phone) parts.push(phone);
+    notificationDestination.textContent=parts.length?parts.join(" · "):ownerAlertLang("Not set","No configurado","Non configuré","Pa konfigire");
+  }
 
   const reviewUrl=String(state.publicLinks?.google_review_url||"");
   const input=$("#googleReviewUrl");
@@ -7619,6 +7816,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="team") await saveTeam(fd);
     if(state.modalType==="businessProfile") await saveBusinessProfile(fd);
     if(state.modalType==="appPreferences") await saveAppPreferences(fd);
+    if(state.modalType==="notificationPreferences") await saveNotificationPreferences(fd);
     if(state.modalType==="paymentPreferences") await savePaymentPreferences(fd);
     if(state.modalType==="invite") await saveInvite(fd);
     if(state.modalType==="startTimer") await saveStartTimer(fd);
@@ -8942,6 +9140,7 @@ $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
 const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
 $$("[data-edit-app-preferences]").forEach(btn=>btn.addEventListener("click",openAppPreferencesForm));
+$$("[data-edit-notification-preferences]").forEach(btn=>btn.addEventListener("click",openNotificationPreferencesForm));
 $$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
