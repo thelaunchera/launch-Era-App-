@@ -60,15 +60,19 @@ const styles=[
 
 
 if(
-  !styles.includes("surface-aware contrast system v207") ||
+  !styles.includes("surface-aware contrast system v208") ||
   !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
-  !styles.includes('[data-page="time"] .timer-card .ghost-btn') ||
-  !styles.includes('[data-page="clients"] .client-card.client-card-compact') ||
-  !styles.includes('.table-row:not(.table-head)') ||
+  !styles.includes('[data-page="time"] .timer-card') ||
+  !styles.includes('background:#12324A!important') ||
+  !styles.includes('.app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card') ||
+  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
+  !styles.includes('@media(max-width:430px)') ||
+  !styles.includes('[data-page="invoices"] .invoice-growth-row') ||
+  !styles.includes('grid-template-columns:1fr!important') ||
   !styles.includes("var(--tle-text-on-dark)") ||
   !styles.includes("var(--tle-text-strong)")
 ){
-  throw new Error("Contrast regression: card text must follow the actual light or dark surface across phone, tablet and desktop");
+  throw new Error("Contrast regression: day/night card surfaces or the mobile invoice layout lost their readable contrast");
 }
 
 const dom=new JSDOM(html,{
@@ -289,6 +293,36 @@ for(const [source,translation] of Object.entries({
     throw new Error("Localization regression: Haitian Creole weather translation missing for "+source);
   }
 }
+for(const phrase of [
+  '"LEADS":"PROSPECTOS"',
+  '"Lead pipeline":"Prospects"',
+  '"Lead pipeline":"Pwospè k ap vini"',
+  '"Mileage log":"Journal de kilométrage"',
+  '"Mileage log":"Jounal kilometraj"',
+  '"Time worked will appear here.":"Le temps travaillé apparaîtra ici."',
+  '"Time worked will appear here.":"Tan travay la ap parèt isit la."',
+  '"BOOK A CLEANING":"RÉSERVER UN NETTOYAGE"',
+  '"BOOK A CLEANING":"REZÈVE YON NETWAYAJ"',
+  '"REQUEST A QUOTE":"DEMANDER UN DEVIS"',
+  '"REQUEST A QUOTE":"MANDE YON DEVIS"',
+  '"Choose a service and date first.":"Elige primero un servicio y una fecha."',
+  '"Choose a service and date first.":"Choisissez d’abord un service et une date."',
+  '"Choose a service and date first.":"Chwazi yon sèvis ak yon dat an premye."',
+  '"Follow-up rules":"Règles de suivi"',
+  '"Follow-up rules":"Règ swivi"'
+]){
+  if(!i18n.includes(phrase)){
+    throw new Error("Localization regression: missing required ES/FR/HT coverage: "+phrase);
+  }
+}
+if(
+  !app.includes('tr("Your booking request was sent. The business will review it and confirm the appointment.")') ||
+  !app.includes('tr("Your quote request was sent. The business will review it and contact you.")') ||
+  !app.includes('tr("Choose a service and date first.")')
+){
+  throw new Error("Booking Page fallback localization regression: visible customer copy bypasses translation");
+}
+
 if(
   !publicJs.includes('tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING")') ||
   !publicJs.includes('tt("Could not submit invoice.")') ||
