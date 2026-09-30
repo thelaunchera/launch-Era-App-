@@ -4628,6 +4628,16 @@ function renderInvoices(){
     const lastMethod=(inv.payments||[]).filter(p=>p.status==="confirmed").at(-1)?.method;
     const chosenMethod=String(inv.customer_payment_method||"").toLowerCase();
     const methodLabel=customerPaymentMethodLabel(inv);
+    const linkedClient=(state.clients||[]).find(client=>String(client.id)===String(inv.client_id))||null;
+    const invoiceClientName=linkedClient?.name||inv.clients?.name||tr("No client");
+    const invoicePhone=String(linkedClient?.phone||"").trim();
+    const invoiceEmail=String(linkedClient?.email||inv.clients?.email||"").trim();
+    const invoiceAddress=String(clientServiceAddress(linkedClient)||"").trim();
+    const invoiceContactHtml=[
+      invoicePhone?`<a class="invoice-contact-row" href="tel:${escapeHtml(invoicePhone)}"><span class="invoice-contact-icon" aria-hidden="true">☎</span><span>${escapeHtml(invoicePhone)}</span></a>`:"",
+      invoiceEmail?`<a class="invoice-contact-row" href="mailto:${escapeHtml(invoiceEmail)}"><span class="invoice-contact-icon" aria-hidden="true">@</span><span>${escapeHtml(invoiceEmail)}</span></a>`:"",
+      invoiceAddress?`<span class="invoice-contact-row"><span class="invoice-contact-icon" aria-hidden="true">⌖</span><span>${escapeHtml(invoiceAddress)}</span></span>`:""
+    ].filter(Boolean).join("");
     const openStatus=customerOpenStatus(inv);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
@@ -4643,12 +4653,12 @@ function renderInvoices(){
             : langPick("Awaiting payment","Esperando pago","En attente de paiement");
     return `<div class="table-row mobile-record-card invoice-growth-row">
       <span class="record-primary invoice-growth-primary">
-        <small class="invoice-number">#${inv.invoice_number||String(inv.id).slice(0,6)}</small>
+        <small class="invoice-number">${escapeHtml(langPick("Invoice","Factura","Facture").toUpperCase())} #${inv.invoice_number||String(inv.id).slice(0,6)}</small>
         <strong class="invoice-growth-amount">${money(remaining||Number(inv.total||0))}</strong>
-        <small>${remaining>0?escapeHtml(langPick("remaining","pendiente","restant")):escapeHtml(langPick("total","total","total"))}</small>
+        <small class="invoice-growth-balance-label">${remaining>0?escapeHtml(langPick("remaining","pendiente","restant")):escapeHtml(langPick("total","total","total"))}</small>
       </span>
-      <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(inv.clients?.name||tr("No client"))}</strong><small>${inv.due_at?langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)):tr("No due date")}</small></span>
-      <span class="record-field invoice-total-field" data-label="${escapeHtml(tr("Amount"))}"><small>${escapeHtml(langPick("Invoice total","Total factura","Total facture"))}</small><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
+      <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(invoiceClientName)}</strong>${inv.due_at?`<small class="invoice-due-date">${escapeHtml(langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)))}</small>`:""}${invoiceContactHtml?`<span class="invoice-contact-list">${invoiceContactHtml}</span>`:""}</span>
+      <span class="record-field invoice-total-field" data-label="${escapeHtml(langPick("Invoice total","Total factura","Total facture"))}"><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
       <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b><small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions invoice-actions-stable">
         <span class="safe-actions">
