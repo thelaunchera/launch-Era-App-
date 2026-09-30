@@ -524,3 +524,118 @@
   .platform-message-actions{display:grid;grid-template-columns:1fr 1fr}
   .platform-message-actions>a,.platform-message-actions>button{width:100%}
 }
+
+
+/* 2026-09-30 — contrast safety contract
+   Dark surfaces must always carry light foregrounds; light surfaces must carry dark foregrounds.
+   This protects Settings and common night-mode cards from inherited black text. */
+.app-shell[data-palette-mode="day"] [data-page="settings"] .settings-simple-grid>.settings-section{
+  color:#191919!important;
+  background:#FFFFFF!important;
+  border-color:rgba(25,25,25,.10)!important;
+}
+.app-shell[data-palette-mode="day"] [data-page="settings"] .settings-simple-grid :is(h3,strong,.text-btn,.setting-row strong){
+  color:#191919!important;
+}
+.app-shell[data-palette-mode="day"] [data-page="settings"] .settings-simple-grid :is(.eyebrow,.panel-note,small,.setting-row small){
+  color:#6F6A63!important;
+}
+
+.app-shell[data-palette-mode="night"]{
+  --on-dark:#FFFDF8;
+  --on-dark-muted:rgba(255,253,248,.74);
+  --on-dark-soft:rgba(255,253,248,.60);
+  --dark-surface-border:rgba(255,255,255,.16);
+  --dark-surface-soft:rgba(255,255,255,.07);
+}
+
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid>.settings-section{
+  color:var(--on-dark)!important;
+  background:#27232C!important;
+  border-color:var(--dark-surface-border)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(h3,strong,.text-btn,.setting-row strong,.settings-accordion-trigger){
+  color:var(--on-dark)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(.eyebrow,.panel-note,small,.setting-row small,label>span){
+  color:var(--on-dark-muted)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-summary-grid>div,
+.app-shell[data-palette-mode="night"] [data-page="settings"] .communication-language-current{
+  background:var(--dark-surface-soft)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-summary-grid small{
+  color:var(--on-dark-soft)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-summary-grid strong,
+.app-shell[data-palette-mode="night"] [data-page="settings"] .communication-language-current strong{
+  color:var(--on-dark)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .text-btn{
+  color:var(--on-dark)!important;
+  background:transparent!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .status.success{
+  background:#DDF3E5!important;
+  color:#17351F!important;
+  border-color:#B9DEC7!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(input,select,textarea){
+  background:#201D24!important;
+  color:var(--on-dark)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(input,textarea)::placeholder{
+  color:rgba(255,253,248,.48)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid .ghost-btn{
+  color:var(--on-dark)!important;
+  border-color:rgba(255,255,255,.22)!important;
+  background:rgba(255,255,255,.04)!important;
+}
+
+/* Generic night-mode guard for reusable dark cards.
+   Explicit light cards can opt out with .contrast-light-surface. */
+.app-shell[data-palette-mode="night"] :is(
+  .metric-card,
+  .quick-card,
+  .table-card,
+  .client-card,
+  .service-card,
+  .supply-card,
+  .share-access-card,
+  .timer-card,
+  .empty-card,
+  .mobile-record-card,
+  .review-settings-card,
+  .support-contact-card,
+  .worker-job-card,
+  .trial-card,
+  .inquiry-detail-card,
+  .install-card,
+  .onboarding-help-card
+):not(.contrast-light-surface){
+  color:var(--on-dark)!important;
+}
+.app-shell[data-palette-mode="night"] :is(
+  .metric-card,
+  .quick-card,
+  .table-card,
+  .client-card,
+  .service-card,
+  .supply-card,
+  .share-access-card,
+  .timer-card,
+  .empty-card,
+  .mobile-record-card,
+  .review-settings-card,
+  .support-contact-card,
+  .worker-job-card,
+  .trial-card,
+  .inquiry-detail-card,
+  .install-card,
+  .onboarding-help-card
+):not(.contrast-light-surface) :is(.eyebrow,.panel-note,small,p){
+  color:var(--on-dark-muted)!important;
+}
