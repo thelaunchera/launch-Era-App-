@@ -2038,7 +2038,7 @@
   ];
 
   const frPatterns=[
-    [/^(\d+) scheduled jobs?$/i,(m,n)=>`${n} travail${n==="1"?"":"x"} planifié${n==="1"?"":"s"}`],
+    [/^(\d+) scheduled jobs?$/i,(m,n)=>n==="1"?`${n} travail planifié`:`${n} travaux planifiés`],
     [/^(\d+) booking requests?$/i,(m,n)=>`${n} demande${n==="1"?"":"s"} de réservation`],
     [/^Due (.+)$/i,(m,d)=>`Échéance ${d}`]
   ];
