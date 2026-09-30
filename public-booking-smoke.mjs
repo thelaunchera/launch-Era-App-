@@ -197,6 +197,7 @@ async function runProfile(profile){
     }
 
     const residentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
+    if(String(residentialHero||"").includes("36729566")) throw new Error(profile.name+": app Booking Page is still using the demo hero photo");
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
     await assertNoOverflow(page,profile,"residential booking");
 
@@ -224,7 +225,7 @@ async function runProfile(profile){
       throw new Error(profile.name+": commercial quote service missing");
     }
     const quoteCommercialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
-    if(quoteCommercialHero===commercialHero) throw new Error(profile.name+": quote commercial hero photo did not change");
+    if(quoteCommercialHero!==commercialHero) throw new Error(profile.name+": hero changed when switching Book/Quote instead of staying commercial");
     await assertNoOverflow(page,profile,"commercial quote");
 
     await page.locator('[data-property-type="residential"]').click();
@@ -233,8 +234,22 @@ async function runProfile(profile){
       throw new Error(profile.name+": residential quote service missing");
     }
     const quoteResidentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
-    if(quoteResidentialHero===quoteCommercialHero) throw new Error(profile.name+": quote residential hero photo did not change");
+    if(quoteResidentialHero!==residentialHero) throw new Error(profile.name+": residential hero should stay the same across Book/Quote");
+    if(quoteResidentialHero===quoteCommercialHero) throw new Error(profile.name+": Residential/Commercial hero photos must differ");
     await assertNoOverflow(page,profile,"residential quote");
+
+    if(profile.viewport.width<=900){
+      const layout=await page.evaluate(()=>({
+        viewport:window.innerWidth,
+        formWidth:document.querySelector(".public-demo-booking-form")?.getBoundingClientRect().width||0,
+        formGridWidth:document.querySelector(".public-demo-booking-form>.form-grid")?.getBoundingClientRect().width||0,
+        summaryWidth:document.querySelector(".public-demo-summary-stack")?.getBoundingClientRect().width||0
+      }));
+      const minExpected=layout.formWidth*.92;
+      if(layout.formGridWidth<minExpected||layout.summaryWidth<minExpected){
+        throw new Error(profile.name+": mobile/tablet booking columns collapsed "+JSON.stringify(layout));
+      }
+    }
 
     if(profile.viewport.width>=1000){
       const layout=await page.evaluate(()=>({
