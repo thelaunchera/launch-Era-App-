@@ -8049,10 +8049,31 @@ async function saveService(fd){
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
     active:fd.get("active")==="on"
   };
+
   const query=state.modalId
-    ? supabase.from("services").update(payload).eq("id",state.modalId)
-    : supabase.from("services").insert(payload);
-  const {error}=await query; if(error) throw error;
+    ? supabase.from("services").update(payload).eq("id",state.modalId).select("*").single()
+    : supabase.from("services").insert(payload).select("*").single();
+
+  const {data:savedService,error}=await query;
+  if(error) throw error;
+
+  // Reflect the server-confirmed service immediately so price changes do not
+  // wait for the full workspace refresh before appearing on screen.
+  if(savedService){
+    const existingIndex=state.services.findIndex(service=>service.id===savedService.id);
+    if(existingIndex>=0) state.services[existingIndex]=savedService;
+    else state.services.unshift(savedService);
+
+    state.services.sort((a,b)=>{
+      if(Boolean(a.active)!==Boolean(b.active)) return a.active?-1:1;
+      return String(a.name||"").localeCompare(String(b.name||""),undefined,{sensitivity:"base"});
+    });
+
+    renderServices();
+    renderBookingServices();
+  }
+
+  return savedService||null;
 }
 
 async function saveAddon(fd){
