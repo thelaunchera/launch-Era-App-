@@ -581,6 +581,19 @@
   color:#17351F!important;
   border-color:#B9DEC7!important;
 }
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(input,select,textarea){
+  background:#201D24!important;
+  color:var(--on-dark)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid :is(input,textarea)::placeholder{
+  color:rgba(255,253,248,.48)!important;
+}
+.app-shell[data-palette-mode="night"] [data-page="settings"] .settings-simple-grid .ghost-btn{
+  color:var(--on-dark)!important;
+  border-color:rgba(255,255,255,.22)!important;
+  background:rgba(255,255,255,.04)!important;
+}
 
 /* Generic night-mode guard for reusable dark cards.
    Explicit light cards can opt out with .contrast-light-surface. */
