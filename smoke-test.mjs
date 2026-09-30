@@ -267,6 +267,19 @@ if(
 if(!html.includes("./i18n-completion.js?v=") || !serviceWorker.includes("./i18n-completion.js?v=")){
   throw new Error("Localization regression: extended translation module must be loaded and cached with the app shell");
 }
+
+if(
+  !i18nCompletion.includes("operational UI language audit completion v209") ||
+  !i18nCompletion.includes('"DAY DETAILS":"DETALLES DEL DÍA"') ||
+  !i18nCompletion.includes('"DAY DETAILS":"DÉTAILS DU JOUR"') ||
+  !i18nCompletion.includes('"DAY DETAILS":"DETAY JOU A"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ASIGNADO A"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ATTRIBUÉ À"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ASIYEN BAY"') ||
+  !i18nCompletion.includes('"This booking page is not available.":"Paj rezèvasyon sa a pa disponib."')
+){
+  throw new Error("Localization regression: Calendar, Time Tracking or Booking Page lost ES/FR/HT coverage");
+}
 if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
   throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
 }
@@ -370,6 +383,15 @@ if(
   !app.includes('await refreshWorkerPortal();')
 ){
   throw new Error("Time tracking regression: finishing a timer must use the authoritative RPC and refresh job status in owner and worker views");
+}
+
+if(
+  !app.includes('const finishedJobId=finished?.job_id||entry?.job_id||null;') ||
+  !app.includes('if(job) job.status="completed";') ||
+  !app.includes('renderJobs();') ||
+  !app.includes('renderTodaySummary();')
+){
+  throw new Error("Time tracking regression: stopping a timer must immediately mirror the completed job into Calendar and Today");
 }
 
 if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries","email_delivery_issues"]')){
