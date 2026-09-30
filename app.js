@@ -6520,30 +6520,30 @@ async function openNotificationPreferencesForm(){
     )
   );
 
-  entityForm.innerHTML=\`
-    <fieldset class="full"><legend>\${escapeHtml(ownerAlertLang("Alert channels","Canales de alerta","Canaux d’alerte","Chanèl alèt"))}</legend>
+  entityForm.innerHTML=`
+    <fieldset class="full"><legend>${escapeHtml(ownerAlertLang("Alert channels","Canales de alerta","Canaux d’alerte","Chanèl alèt"))}</legend>
       <div class="choice-grid compact">
-        <label class="check-field"><input type="checkbox" name="notify_email" \${record.owner_notify_email!==false?"checked":""}> \${escapeHtml(ownerAlertLang("Email","Correo","E-mail","Imèl"))}</label>
-        <label class="check-field"><input type="checkbox" name="notify_push" \${record.owner_notify_push?"checked":""} \${pushSupported?"":"disabled"}> \${escapeHtml(ownerAlertLang("Push notification","Notificación push","Notification push","Notifikasyon push"))}</label>
-        <label class="check-field"><input type="checkbox" name="notify_sms" disabled> \${escapeHtml(ownerAlertLang("SMS text message","Mensaje SMS","Message SMS","Mesaj SMS"))}</label>
+        <label class="check-field"><input type="checkbox" name="notify_email" ${record.owner_notify_email!==false?"checked":""}> ${escapeHtml(ownerAlertLang("Email","Correo","E-mail","Imèl"))}</label>
+        <label class="check-field"><input type="checkbox" name="notify_push" ${record.owner_notify_push?"checked":""} ${pushSupported?"":"disabled"}> ${escapeHtml(ownerAlertLang("Push notification","Notificación push","Notification push","Notifikasyon push"))}</label>
+        <label class="check-field"><input type="checkbox" name="notify_sms" disabled> ${escapeHtml(ownerAlertLang("SMS text message","Mensaje SMS","Message SMS","Mesaj SMS"))}</label>
       </div>
-      <small>\${escapeHtml(pushNote)}</small>
+      <small>${escapeHtml(pushNote)}</small>
     </fieldset>
     <div class="form-grid">
-      <label>\${escapeHtml(ownerAlertLang("Alert email","Correo para alertas","E-mail d’alerte","Imèl pou alèt"))}
-        <input name="notification_email" type="email" value="\${escapeHtml(record.owner_notification_email||record.email||state.session?.user?.email||"")}" placeholder="owner@company.com">
+      <label>${escapeHtml(ownerAlertLang("Alert email","Correo para alertas","E-mail d’alerte","Imèl pou alèt"))}
+        <input name="notification_email" type="email" value="${escapeHtml(record.owner_notification_email||record.email||state.session?.user?.email||"")}" placeholder="owner@company.com">
       </label>
-      <label>\${escapeHtml(ownerAlertLang("Alert phone number","Número para alertas","Numéro pour les alertes","Nimewo telefòn pou alèt"))}
-        <input name="notification_phone" inputmode="tel" autocomplete="tel" value="\${escapeHtml(record.owner_notification_phone||record.phone||"")}" placeholder="+1 561 555 0123">
+      <label>${escapeHtml(ownerAlertLang("Alert phone number","Número para alertas","Numéro pour les alertes","Nimewo telefòn pou alèt"))}
+        <input name="notification_phone" inputmode="tel" autocomplete="tel" value="${escapeHtml(record.owner_notification_phone||record.phone||"")}" placeholder="+1 561 555 0123">
       </label>
     </div>
-    <p class="helper">\${escapeHtml(ownerAlertLang(
+    <p class="helper">${escapeHtml(ownerAlertLang(
       "SMS is prepared, but text delivery stays off until an SMS provider is connected. Your phone number can be saved now.",
       "SMS ya está preparado, pero el envío por texto queda apagado hasta conectar un proveedor de SMS. Puedes guardar el número ahora.",
       "Le SMS est prêt, mais l’envoi reste désactivé jusqu’à la connexion d’un fournisseur SMS. Vous pouvez enregistrer le numéro maintenant.",
       "SMS la pare, men voye mesaj tèks rete fèmen jiskaske nou konekte yon founisè SMS. Ou ka sove nimewo a kounye a."
     ))}</p>
-    \${formSubmit(ownerAlertLang("Save notification preferences","Guardar preferencias","Enregistrer les préférences","Sove preferans notifikasyon"))}\`;
+    ${formSubmit(ownerAlertLang("Save notification preferences","Guardar preferencias","Enregistrer les préférences","Sove preferans notifikasyon"))}`;
   modal.hidden=false;
 }
 
