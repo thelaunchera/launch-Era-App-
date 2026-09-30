@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-owner-inbox-228";
+const APP_VERSION = "20260930-owner-inbox-push-229";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4166,7 +4166,8 @@ function renderInquiryNotifications(){
 
   const items=getInquiryNotifications();
   const unreadItems=items.filter(item=>!isInquiryNotificationRead(item));
-  const unread=unreadItems.length;
+  const platformUnread=state.isPlatformAdmin?Number(state.platformAdminData?.inbox?.unread||0):0;
+  const unread=unreadItems.length+platformUnread;
 
   const previousUnread=Number(button.dataset.unreadCount||0);
   badge.textContent=unread>99?"99+":String(unread);
@@ -4184,12 +4185,27 @@ function renderInquiryNotifications(){
     ? langPick(unread+" new notifications",unread+" notificaciones nuevas",unread+" nouvelles notifications")
     : langPick("Notifications","Notificaciones","Notifications"));
 
-  if(!unreadItems.length){
+  if(!unreadItems.length && !platformUnread){
     list.innerHTML=`<div class="notification-empty"><strong>${escapeHtml(langPick("You’re all caught up","Todo al día","Tout est à jour"))}</strong><span>${escapeHtml(langPick("Only new notifications will appear here.","Solo las notificaciones nuevas aparecerán aquí.","Seules les nouvelles notifications apparaîtront ici."))}</span></div>`;
     return;
   }
 
-  list.innerHTML=unreadItems.slice(0,8).map(item=>{
+  const platformMarkup=platformUnread?`
+    <button class="notification-item is-new platform-message-notification" type="button" data-platform-message-center>
+      <span class="notification-dot" aria-hidden="true"></span>
+      <span class="notification-copy">
+        <strong>${escapeHtml(langPick("The Launch Era inquiries","Consultas de The Launch Era","Demandes The Launch Era"))}</strong>
+        <small>${escapeHtml(langPick(
+          platformUnread+" unread message"+(platformUnread===1?"":"s"),
+          platformUnread+" mensaje"+(platformUnread===1?"":"s")+" sin leer",
+          platformUnread+" message"+(platformUnread===1?"":"s")+" non lu"+(platformUnread===1?"":"s")
+        ))}</small>
+        <em>${escapeHtml(langPick("Open Message Center","Abrir Centro de Mensajes","Ouvrir le centre de messages"))}</em>
+      </span>
+      <span class="notification-arrow" aria-hidden="true">→</span>
+    </button>`:"";
+
+  list.innerHTML=platformMarkup+unreadItems.slice(0,Math.max(0,8-(platformUnread?1:0))).map(item=>{
     const isNew=true;
     const typeLabel=notificationTypeLabel(item);
     return `
@@ -6801,6 +6817,7 @@ async function loadPlatformAdmin(){
   if(activityError) console.warn("[TLE] platform activity",activityError);
   if(inboxError) console.warn("[TLE] platform message center",inboxError);
   state.platformAdminData={...(data||{}),...(geoData||{}),...(activityData||{}),inbox:inboxData||{}};
+  renderInquiryNotifications();
   const m=data?.metrics||{};
   const ids=[["#platformCustomers",m.customers],["#platformTrials",m.trials],["#platformActive",m.active_subscribers],["#platformVisits",m.visits_30d],["#platformUnique",m.unique_visitors_30d],["#platformInboxUnread",inboxData?.unread]];
   ids.forEach(([sel,val])=>{const el=$(sel);if(el)el.textContent=val??0;});
@@ -9597,6 +9614,15 @@ $("#notificationCloseBtn")?.addEventListener("click",e=>{
   closeNotificationPopover();
 });
 $("#notificationPopover")?.addEventListener("click",e=>{
+  const platformCenter=e.target.closest("[data-platform-message-center]");
+  if(platformCenter){
+    e.preventDefault();
+    e.stopPropagation();
+    closeNotificationPopover();
+    openView("platform-admin");
+    setTimeout(()=>$("#platformMessageCenter")?.scrollIntoView({behavior:"smooth",block:"start"}),180);
+    return;
+  }
   const item=e.target.closest("[data-notification-id]");
   if(!item){
     e.stopPropagation();
