@@ -1870,5 +1870,10 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Not assigned":"Pa asiyen"
   });
 
+  // 2026-09-29 — initial counter labels v209.
+  Object.assign(staticCorrections.es,{"0 due":"0 pendientes","0 today":"0 hoy"});
+  Object.assign(staticCorrections.fr,{"0 due":"0 à traiter","0 today":"0 aujourd’hui"});
+  Object.assign(staticCorrections.ht,{"0 due":"0 pou trete","0 today":"0 jodi a"});
+
 };
 })();
