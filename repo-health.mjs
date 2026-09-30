@@ -83,7 +83,8 @@ const expectedStyleOrder=[
   "styles/release-mobile.css",
   "styles/release-latest.css",
   "styles/responsive-shell.css",
-  "styles/customer-documents.css"
+  "styles/customer-documents.css",
+  "styles/public-booking.css"
 ];
 let previousStyleIndex=-1;
 for(const file of expectedStyleOrder){
@@ -188,6 +189,7 @@ const limits={
   "styles/release-latest.css":25000,
   "styles/responsive-shell.css":12000,
   "styles/customer-documents.css":12000,
+  "styles/public-booking.css":25000,
   "i18n.js":190000,
   "i18n-completion.js":220000,
   "index.html":100000,
