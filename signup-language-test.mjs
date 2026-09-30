@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+// Exercise the actual setup submit handler with an isolated database spy.
+const dom=new JSDOM(fs.readFileSync('index.html','utf8'),{url:'https://app.thelaunchera.com/',runScripts:'outside-only',pretendToBeVisual:true});
+const w=dom.window;
+w.scrollTo=()=>{};
+w.fetch=async()=>{throw new Error('Network disabled in signup regression test');};
+let captured;
+const auth={getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})};
+w.supabase={createClient:()=>({auth,from:table=>({insert:payload=>{assert.equal(table,'businesses');captured=payload;return {select:()=>({single:async()=>({error:{message:'Test stopped after capturing payload'}})})};}})})};
+const source=fs.readFileSync('app.js','utf8').replace('window.__tleAppReady=true;','window.__testState=state;window.__tleAppReady=true;');
+w.eval(source);
+await new Promise(r=>setTimeout(r,30));
+w.__testState.session={user:{id:'test-owner',email:'owner@example.com'}};
+w.localStorage.setItem('tle_weather_geo_v2:port-au-prince',JSON.stringify({latitude:18.54,longitude:-72.34,country_code:'HT',timezone:'America/Port-au-Prince'}));
+w.document.querySelector('#businessName').value='Example cleaning';
+w.document.querySelector('#businessArea').value='Port-au-Prince';
+w.document.querySelector('#businessForm').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+await new Promise(r=>setTimeout(r,50));
+assert.equal(captured?.default_language,'ht');
+assert.equal(captured?.customer_email_language,'ht');
+assert.equal(captured?.currency_code,'HTG');
+assert.equal(captured?.trial_days,30);
+w.close();
+console.log('HAITIAN_SIGNUP_EMAIL_LANGUAGE_OK');

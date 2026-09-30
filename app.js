@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260929-i18n-contrast-209";
+const APP_VERSION = "20260930-signup-language-210";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -3054,7 +3054,7 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit: globalSetup.distance_unit,
       temperature_unit: globalSetup.temperature_unit,
       default_language: globalSetup.default_language,
-      customer_email_language:["en","es","fr"].includes(globalSetup.default_language)?globalSetup.default_language:"en",
+      customer_email_language:["en","es","fr","ht"].includes(globalSetup.default_language)?globalSetup.default_language:"en",
       payment_methods:paymentMethodsForCountry(globalSetup.country_code),
       trial_started_at: start.toISOString(),
       trial_ends_at: end.toISOString(),
