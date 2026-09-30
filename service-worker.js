@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-booking-actions-grid-218";
+const CACHE_NAME="tle-cleaning-app-20260930-centers-hierarchy-219";
 const CORE=[
-  "./boot.js?v=20260930-booking-actions-grid-218",
-  "./styles/boot.css?v=20260930-booking-actions-grid-218",
+  "./boot.js?v=20260930-centers-hierarchy-219",
+  "./styles/boot.css?v=20260930-centers-hierarchy-219",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-components.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-experience.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-operations.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-overrides.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-mobile.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-latest.css?v=20260930-booking-actions-grid-218",
-  "./styles/responsive-shell.css?v=20260930-booking-actions-grid-218",
-  "./styles/customer-documents.css?v=20260930-booking-actions-grid-218",
-  "./styles/invoice-polish.css?v=20260930-booking-actions-grid-218",
-  "./app.js?v=20260930-booking-actions-grid-218",
-  "./followups.js?v=20260930-booking-actions-grid-218",
-  "./i18n-completion.js?v=20260930-booking-actions-grid-218",
-  "./i18n.js?v=20260930-booking-actions-grid-218",
-  "./onboarding-copy.js?v=20260930-booking-actions-grid-218",
-  "./public.js?v=20260930-booking-actions-grid-218",
-  "./vendor/supabase.js?v=20260930-booking-actions-grid-218",
-  "./manifest.webmanifest?v=20260930-booking-actions-grid-218"
+  "./styles.css?v=20260930-centers-hierarchy-219",
+  "./styles/workspace-components.css?v=20260930-centers-hierarchy-219",
+  "./styles/workspace-experience.css?v=20260930-centers-hierarchy-219",
+  "./styles/workspace-operations.css?v=20260930-centers-hierarchy-219",
+  "./styles/release-overrides.css?v=20260930-centers-hierarchy-219",
+  "./styles/release-mobile.css?v=20260930-centers-hierarchy-219",
+  "./styles/release-latest.css?v=20260930-centers-hierarchy-219",
+  "./styles/responsive-shell.css?v=20260930-centers-hierarchy-219",
+  "./styles/customer-documents.css?v=20260930-centers-hierarchy-219",
+  "./styles/invoice-polish.css?v=20260930-centers-hierarchy-219",
+  "./app.js?v=20260930-centers-hierarchy-219",
+  "./followups.js?v=20260930-centers-hierarchy-219",
+  "./i18n-completion.js?v=20260930-centers-hierarchy-219",
+  "./i18n.js?v=20260930-centers-hierarchy-219",
+  "./onboarding-copy.js?v=20260930-centers-hierarchy-219",
+  "./public.js?v=20260930-centers-hierarchy-219",
+  "./vendor/supabase.js?v=20260930-centers-hierarchy-219",
+  "./manifest.webmanifest?v=20260930-centers-hierarchy-219"
 ];
 
 self.addEventListener("install",event=>{
