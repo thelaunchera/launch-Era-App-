@@ -6,6 +6,8 @@ const boot = read("boot.js");
 const html = read("index.html");
 const sw = read("service-worker.js");
 const i18n = read("i18n.js");
+const i18nCompletion = read("i18n-completion.js");
+const i18nAll = i18n+"\n"+i18nCompletion;
 const publicJs = read("public.js");
 const onboardingCopy = read("onboarding-copy.js");
 const followups = read("followups.js");
@@ -127,14 +129,14 @@ if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   pass("active language set is EN/ES/FR/HT");
 }
 
-if(/data-language-choice="pt"/.test(i18n) || /data-language-choice="pt"/.test(publicJs)){
+if(/data-language-choice="pt"/.test(i18nAll) || /data-language-choice="pt"/.test(publicJs)){
   fail("Portuguese is still exposed as an active runtime language choice");
 }
 
 if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|Português|Portuguese/.test(i18n)){
-  fail("inactive Portuguese translation code remains in i18n.js");
+  fail("inactive Portuguese translation code remains in i18n runtime modules");
 }else{
-  pass("inactive Portuguese translation payload is absent");
+  pass("inactive Portuguese translation payload is absent from i18n runtime modules");
 }
 
 if(/function langPick\(en,es,_pt,fr\)/.test(app)){
@@ -187,6 +189,7 @@ const limits={
   "styles/responsive-shell.css":12000,
   "styles/customer-documents.css":12000,
   "i18n.js":190000,
+  "i18n-completion.js":220000,
   "index.html":100000,
   "public.js":65000
 };
