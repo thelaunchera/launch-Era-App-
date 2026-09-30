@@ -1121,7 +1121,7 @@ function renderWeatherBrief(){
         : langPick("Rain expected","Lluvia probable","Pluie prévue");
       const dayPart=event.date===currentDate?"":(" "+day);
       const chance=Number.isFinite(Number(event.probability))?" · "+Math.round(Number(event.probability))+"%":"";
-      text=label+dayPart+langPick(" around "," cerca de las "," vers ")+when+chance+".";
+      text=label+dayPart+" "+langPick("around","cerca de las","vers")+" "+when+chance+".";
       note.classList.add("rain");
     }else if(shift){
       const m=weatherCodeMeta(shift.code);
@@ -5528,7 +5528,7 @@ function dashboardWeatherContext(now,remainingJobs){
       ? langPick("Storms are active now.","Hay tormentas ahora.","Des orages sont actifs maintenant.")
       : langPick("It’s raining now.","Está lloviendo ahora.","Il pleut maintenant.");
     const advice=remainingJobs.length
-      ? langPick(" Check GPS before the next stop and allow extra travel time."," Revisa el GPS antes de la próxima parada y deja tiempo extra para el trayecto."," Vérifiez le GPS avant le prochain arrêt et prévoyez plus de temps de trajet.")
+      ? " "+tr("Check GPS before the next stop and allow extra travel time.")
       : "";
     return {kind:currentKind,icon:currentKind==="snow"?"🌨️":currentKind==="storm"?"⛈️":"🌧️",text:base+advice};
   }
@@ -5544,7 +5544,7 @@ function dashboardWeatherContext(now,remainingJobs){
     const probability=Number.isFinite(event.probability)?" · "+event.probability+"%":"";
     const first=langPick(phenomenon+" expected "+day.toLowerCase()+" around "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" cerca de las "+when+probability+".",phenomenon+" probable "+day.toLowerCase()+" vers "+when+probability+".");
     const advice=remainingJobs.length
-      ? langPick(" Check your best route before leaving."," Revisa la mejor ruta antes de salir."," Vérifiez le meilleur itinéraire avant de partir.")
+      ? " "+tr("Check your best route before leaving.")
       : "";
     return {kind:event.kind,icon:event.icon,text:first+advice};
   }
