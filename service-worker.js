@@ -1,26 +1,26 @@
-const CACHE_NAME="tle-cleaning-app-20260929-i18n-contrast-209";
+const CACHE_NAME="tle-cleaning-app-20260929-i18n-final-210";
 const CORE=[
-  "./boot.js?v=20260929-i18n-contrast-209",
-  "./styles/boot.css?v=20260929-i18n-contrast-209",
+  "./boot.js?v=20260929-i18n-final-210",
+  "./styles/boot.css?v=20260929-i18n-final-210",
   "./",
   "./index.html",
-  "./styles.css?v=20260929-i18n-contrast-209",
-  "./styles/workspace-components.css?v=20260929-i18n-contrast-209",
-  "./styles/workspace-experience.css?v=20260929-i18n-contrast-209",
-  "./styles/workspace-operations.css?v=20260929-i18n-contrast-209",
-  "./styles/release-overrides.css?v=20260929-i18n-contrast-209",
-  "./styles/release-mobile.css?v=20260929-i18n-contrast-209",
-  "./styles/release-latest.css?v=20260929-i18n-contrast-209",
-  "./styles/responsive-shell.css?v=20260929-i18n-contrast-209",
-  "./styles/customer-documents.css?v=20260929-i18n-contrast-209",
-  "./app.js?v=20260929-i18n-contrast-209",
-  "./followups.js?v=20260929-i18n-contrast-209",
-  "./i18n-completion.js?v=20260929-i18n-contrast-209",
-  "./i18n.js?v=20260929-i18n-contrast-209",
-  "./onboarding-copy.js?v=20260929-i18n-contrast-209",
-  "./public.js?v=20260929-i18n-contrast-209",
-  "./vendor/supabase.js?v=20260929-i18n-contrast-209",
-  "./manifest.webmanifest?v=20260929-i18n-contrast-209"
+  "./styles.css?v=20260929-i18n-final-210",
+  "./styles/workspace-components.css?v=20260929-i18n-final-210",
+  "./styles/workspace-experience.css?v=20260929-i18n-final-210",
+  "./styles/workspace-operations.css?v=20260929-i18n-final-210",
+  "./styles/release-overrides.css?v=20260929-i18n-final-210",
+  "./styles/release-mobile.css?v=20260929-i18n-final-210",
+  "./styles/release-latest.css?v=20260929-i18n-final-210",
+  "./styles/responsive-shell.css?v=20260929-i18n-final-210",
+  "./styles/customer-documents.css?v=20260929-i18n-final-210",
+  "./app.js?v=20260929-i18n-final-210",
+  "./followups.js?v=20260929-i18n-final-210",
+  "./i18n-completion.js?v=20260929-i18n-final-210",
+  "./i18n.js?v=20260929-i18n-final-210",
+  "./onboarding-copy.js?v=20260929-i18n-final-210",
+  "./public.js?v=20260929-i18n-final-210",
+  "./vendor/supabase.js?v=20260929-i18n-final-210",
+  "./manifest.webmanifest?v=20260929-i18n-final-210"
 ];
 
 self.addEventListener("install",event=>{
