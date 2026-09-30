@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-invoice-cards-211";
+const APP_VERSION = "20260930-invoice-density-212";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4634,9 +4634,9 @@ function renderInvoices(){
     const invoiceEmail=String(linkedClient?.email||inv.clients?.email||"").trim();
     const invoiceAddress=String(clientServiceAddress(linkedClient)||"").trim();
     const invoiceContactHtml=[
-      invoicePhone?`<a class="invoice-contact-row" href="tel:${escapeHtml(invoicePhone)}"><span class="invoice-contact-icon" aria-hidden="true">☎</span><span>${escapeHtml(invoicePhone)}</span></a>`:"",
-      invoiceEmail?`<a class="invoice-contact-row" href="mailto:${escapeHtml(invoiceEmail)}"><span class="invoice-contact-icon" aria-hidden="true">@</span><span>${escapeHtml(invoiceEmail)}</span></a>`:"",
-      invoiceAddress?`<span class="invoice-contact-row"><span class="invoice-contact-icon" aria-hidden="true">⌖</span><span>${escapeHtml(invoiceAddress)}</span></span>`:""
+      invoicePhone?`<a class="invoice-contact-row is-phone" href="tel:${escapeHtml(invoicePhone)}"><span class="invoice-contact-icon" aria-hidden="true">TEL</span><span>${escapeHtml(invoicePhone)}</span></a>`:"",
+      invoiceEmail?`<a class="invoice-contact-row is-email" href="mailto:${escapeHtml(invoiceEmail)}"><span class="invoice-contact-icon" aria-hidden="true">@</span><span>${escapeHtml(invoiceEmail)}</span></a>`:"",
+      invoiceAddress?`<span class="invoice-contact-row is-address"><span class="invoice-contact-icon" aria-hidden="true">LOC</span><span>${escapeHtml(invoiceAddress)}</span></span>`:""
     ].filter(Boolean).join("");
     const openStatus=customerOpenStatus(inv);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
