@@ -3519,7 +3519,9 @@
     [/^(\d+) scheduled jobs$/i,(m,n)=>`${n} travay pwograme`],
     [/^(\d+) scheduled job$/i,(m,n)=>`${n} travay pwograme`],
     [/^Best route · (\d+) stops?$/i,(m,n)=>`Pi bon wout · ${n} arè`],
-    [/^(\d+) booking requests?$/i,(m,n)=>`${n} demann rezèvasyon`]
+    [/^(\d+) booking requests?$/i,(m,n)=>`${n} demann rezèvasyon`],
+    [/^Overdue (\d+)d$/i,(m,n)=>`Anreta ${n}j`],
+    [/^In (\d+) days$/i,(m,n)=>`Nan ${n} jou`]
   ];
 
   const patterns=[
