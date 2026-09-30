@@ -150,3 +150,24 @@
     min-height:36px!important;
   }
 }
+
+
+/* 2026-09-30 — centered mobile page title v211 */
+@media(max-width:680px){
+  body.shell-app .topbar{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+  body.shell-app .topbar-title{position:absolute!important;left:50%!important;top:calc(env(safe-area-inset-top) + 18px)!important;transform:translateX(-50%)!important;width:auto!important;max-width:calc(100% - 190px)!important;min-width:0!important;padding:0!important;margin:0!important;text-align:center!important;pointer-events:none!important;z-index:1!important}
+  body.shell-app .topbar-title .eyebrow{display:none!important}
+  body.shell-app .topbar-title h1{display:block!important;width:100%!important;margin:0!important;color:#111!important;font-size:18px!important;line-height:36px!important;letter-spacing:-.035em!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  body.shell-app #menuToggle,body.shell-app #backBtn{position:relative!important;z-index:2!important;flex:0 0 36px!important;width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;margin:0!important}
+  body.shell-app .top-actions{display:flex!important;align-items:center!important;gap:7px!important;margin-left:auto!important;position:relative!important;z-index:2!important}
+  body.shell-app .global-search-shell,body.shell-app #languageBtn{display:none!important}
+  body.shell-app .notification-shell{display:block!important;position:relative!important}
+  body.shell-app #notificationBellBtn,body.shell-app #appRefreshBtn{display:grid!important;place-items:center!important;width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important}
+  body.shell-app #quickAddBtn{display:grid!important;place-items:center!important;width:38px!important;min-width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border-radius:50%!important;font-size:0!important}
+}
+@media(max-width:390px){
+  body.shell-app .topbar{gap:5px!important}
+  body.shell-app .topbar-title{max-width:calc(100% - 176px)!important}
+  body.shell-app .topbar-title h1{font-size:17px!important}
+  body.shell-app .top-actions{gap:5px!important}
+}
