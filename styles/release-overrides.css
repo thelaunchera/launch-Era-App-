@@ -765,3 +765,74 @@
 }
 
 
+/* 2026-09-29 — surface-aware contrast system v208
+   Shared tablet/desktop rules. Phone-specific rules live in release-mobile.css. */
+:root{
+  --tle-surface-light:#FFFDF9;
+  --tle-surface-white:#FFFFFF;
+  --tle-surface-dark:#242321;
+  --tle-text-strong:#191919;
+  --tle-text-muted:#6F6A62;
+  --tle-text-on-dark:#FFFDF8;
+  --tle-text-on-dark-muted:rgba(255,253,248,.78);
+}
+
+/* Time Tracking is intentionally dark in every palette. */
+[data-page="time"] .timer-card{
+  background:#12324A!important;
+  color:var(--tle-text-on-dark)!important;
+  border-color:rgba(255,253,248,.18)!important;
+}
+[data-page="time"] .timer-card :is(h3,strong){color:var(--tle-text-on-dark)!important}
+[data-page="time"] .timer-card>span{color:var(--tle-text-on-dark-muted)!important}
+[data-page="time"] .timer-card .ghost-btn{
+  background:#FFF8EE!important;
+  color:var(--tle-text-strong)!important;
+  border-color:rgba(255,253,248,.72)!important;
+}
+
+@media(min-width:681px){
+  /* Day/default surfaces: always dark readable copy. */
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card,
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="quotes"] .quote-growth-card,
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="clients"] .client-card.client-card-compact{
+    color:var(--tle-text-strong)!important;
+    opacity:1!important;
+  }
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b),
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location){
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span),
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small),
+  .app-shell:is([data-palette-mode="day"],:not([data-palette-mode])) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card>.record-field::before{
+    color:var(--tle-text-muted)!important;
+  }
+
+  /* Clients, Mileage and Time use dark operational cards on larger devices. */
+  .app-shell [data-page="clients"] .client-card.client-card-compact,
+  .app-shell :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head){
+    background:var(--tle-surface-dark)!important;
+    color:var(--tle-text-on-dark)!important;
+    border-color:rgba(255,253,248,.14)!important;
+    opacity:1!important;
+  }
+  .app-shell [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity strong,.client-business-snapshot b,.client-location),
+  .app-shell :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>strong,.record-field,.record-note){
+    color:var(--tle-text-on-dark)!important;
+  }
+  .app-shell [data-page="clients"] .client-card.client-card-compact :is(.client-card-identity span,.client-business-snapshot small),
+  .app-shell :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before){
+    color:var(--tle-text-on-dark-muted)!important;
+  }
+  .app-shell [data-page="clients"] .client-avatar{color:var(--tle-text-strong)!important}
+  .app-shell [data-page="clients"] .client-card-actions button:not(.record-delete-btn){
+    background:#FFF8EE!important;color:var(--tle-text-strong)!important;
+    border-color:rgba(255,253,248,.38)!important;
+  }
+  .app-shell [data-page="clients"] .client-card-actions .record-delete-btn{
+    background:#FFF3F1!important;color:#8F332C!important;border-color:#E8B8B1!important;
+  }
+}
