@@ -2395,6 +2395,46 @@
     "QUICK ADD":"AJOUT RAPID","Add something":"Ajoute yon bagay","Create or update a business record.":"Kreye oswa mete ajou yon dosye biznis.","Copied":"Kopye"
   });
 
+
+  Object.assign(staticCorrections.es,{
+    "Email · Text · WhatsApp":"Correo · SMS · WhatsApp",
+    "City, region, country":"Ciudad, región, país","Write a message to your admin…":"Escribe un mensaje a tu admin…",
+    "Example: Venmo, Cash App, Apple Pay":"Ejemplo: Venmo, Cash App, Apple Pay","Explain the issue with this invoice.":"Explica el problema con esta factura.",
+    "Explain the issue with this quote.":"Explica el problema con esta cotización.","Client, job, quote, invoice…":"Cliente, trabajo, cotización, factura…",
+    "Use the default subject":"Usar el asunto predeterminado","Write your custom follow-up message here":"Escribe aquí tu mensaje de seguimiento personalizado",
+    "Write a message…":"Escribe un mensaje…","Loading Cleaning App":"Cargando Cleaning App","Legal and support":"Legal y soporte",
+    "Choose language":"Elegir idioma","App navigation":"Navegación de la app","Close navigation":"Cerrar navegación","Toggle navigation":"Abrir/cerrar navegación",
+    "Go back":"Volver","Close notifications":"Cerrar notificaciones","Refresh app":"Actualizar app","Dismiss reminder":"Cerrar recordatorio",
+    "Current date and time":"Fecha y hora actuales","Open weather on this device":"Abrir clima en este dispositivo","Open booking link":"Abrir enlace de reservas",
+    "Open quote request link":"Abrir enlace de cotización","Previous month":"Mes anterior","Next month":"Mes siguiente","Legal and support links":"Enlaces legales y de soporte"
+  });
+  Object.assign(staticCorrections.fr,{
+    "City, region, country":"Ville, région, pays","Write a message to your admin…":"Écrivez un message à votre admin…",
+    "Example: Venmo, Cash App, Apple Pay":"Exemple : Venmo, Cash App, Apple Pay","Explain the issue with this invoice.":"Expliquez le problème concernant cette facture.",
+    "Explain the issue with this quote.":"Expliquez le problème concernant ce devis.","Client, job, quote, invoice…":"Client, travail, devis, facture…",
+    "Use the default subject":"Utiliser l’objet par défaut","Write your custom follow-up message here":"Écrivez ici votre message de suivi personnalisé",
+    "Write a message…":"Écrivez un message…","Loading Cleaning App":"Chargement de Cleaning App","Legal and support":"Mentions légales et assistance",
+    "Choose language":"Choisir la langue","App navigation":"Navigation de l’application","Close navigation":"Fermer la navigation","Toggle navigation":"Afficher/masquer la navigation",
+    "Go back":"Retour","Close notifications":"Fermer les notifications","Refresh app":"Actualiser l’application","Dismiss reminder":"Fermer le rappel",
+    "Current date and time":"Date et heure actuelles","Open weather on this device":"Ouvrir la météo sur cet appareil","Open booking link":"Ouvrir le lien de réservation",
+    "Open quote request link":"Ouvrir le lien de demande de devis","Previous month":"Mois précédent","Next month":"Mois suivant","Legal and support links":"Liens légaux et d’assistance",
+    "Submitting only sends your payment choice. The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.":"L’envoi transmet uniquement votre choix de paiement. L’entreprise confirmera le paiement dans l’application après l’avoir réellement reçu. Vous recevrez ensuite l’e-mail de confirmation."
+  });
+  Object.assign(extra.ht,{
+    "Open the app in":"Louvri app la nan","Tap the":"Peze","Share":"Pataje","button.":"bouton an.","Scroll and tap":"Desann epi peze",
+    "Add to Home Screen":"Ajoute sou ekran dakèy","menu.":"meni an.","Install app":"Enstale app","Add to Home screen":"Ajoute sou ekran dakèy",
+    "Confirm":"Konfime","Install":"Enstale","City, region, country":"Vil, rejyon, peyi","Write a message to your admin…":"Ekri yon mesaj pou admin ou…",
+    "Example: Venmo, Cash App, Apple Pay":"Egzanp: Venmo, Cash App, Apple Pay","Explain the issue with this invoice.":"Eksplike pwoblèm ak fakti sa a.",
+    "Explain the issue with this quote.":"Eksplike pwoblèm ak devis sa a.","Client, job, quote, invoice…":"Kliyan, travay, devis, fakti…",
+    "Use the default subject":"Itilize sijè estanda a","Write your custom follow-up message here":"Ekri mesaj swivi pèsonalize ou isit la",
+    "Write a message…":"Ekri yon mesaj…","Loading Cleaning App":"N ap chaje Cleaning App","Legal and support":"Legal ak sipò",
+    "Choose language":"Chwazi lang","App navigation":"Navigasyon app","Close navigation":"Fèmen navigasyon","Toggle navigation":"Louvri/fèmen navigasyon",
+    "Go back":"Retounen","Close notifications":"Fèmen notifikasyon","Refresh app":"Rafrechi app","Dismiss reminder":"Fèmen rapèl",
+    "Current date and time":"Dat ak lè aktyèl","Open weather on this device":"Louvri tan an sou aparèy sa a","Open booking link":"Louvri lyen rezèvasyon",
+    "Open quote request link":"Louvri lyen demann devis","Previous month":"Mwa anvan","Next month":"Mwa apre","Legal and support links":"Lyen legal ak sipò",
+    "Submitting only sends your payment choice. The business will confirm the payment in the app after it is actually received. Only then will you receive a payment confirmation email.":"Lè ou voye sa, se sèlman chwa peman ou ki voye. Biznis la ap konfime peman an nan app la apre li resevwa li toutbon. Se apre sa w ap resevwa imèl konfimasyon peman an."
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
