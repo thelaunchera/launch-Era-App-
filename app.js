@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-invoice-density-212";
+const APP_VERSION = "20260930-invoice-final-compact-213";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
   auth:{
@@ -4651,15 +4651,23 @@ function renderInvoices(){
           : inv.status==="partial"
             ? langPick("Balance left","Saldo pendiente","Solde restant")
             : langPick("Awaiting payment","Esperando pago","En attente de paiement");
+    const amountLabel=paid>0
+      ? `${remaining>0?langPick("remaining","pendiente","restant"):langPick("total","total","total")} · ${money(paid)} ${tr("paid")}`
+      : (remaining>0?langPick("remaining","pendiente","restant"):langPick("total","total","total"));
     return `<div class="table-row mobile-record-card invoice-growth-row">
       <span class="record-primary invoice-growth-primary">
         <small class="invoice-number">${escapeHtml(langPick("Invoice","Factura","Facture").toUpperCase())} #${inv.invoice_number||String(inv.id).slice(0,6)}</small>
         <strong class="invoice-growth-amount">${money(remaining||Number(inv.total||0))}</strong>
-        <small class="invoice-growth-balance-label">${remaining>0?escapeHtml(langPick("remaining","pendiente","restant")):escapeHtml(langPick("total","total","total"))}</small>
+        <small class="invoice-growth-balance-label">${escapeHtml(amountLabel)}</small>
+      </span>
+      <span class="invoice-status-badge"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i></span>
+      <span class="invoice-status-meta">
+        <b class="invoice-next-action">${escapeHtml(actionHint)}</b>
+        <small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>
+        ${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}
+        ${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}
       </span>
       <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(invoiceClientName)}</strong>${inv.due_at?`<small class="invoice-due-date">${escapeHtml(langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)))}</small>`:""}${invoiceContactHtml?`<span class="invoice-contact-list">${invoiceContactHtml}</span>`:""}</span>
-      <span class="record-field invoice-total-field" data-label="${escapeHtml(langPick("Invoice total","Total factura","Total facture"))}"><strong>${money(inv.total)}</strong>${paid?`<small>${money(paid)} ${escapeHtml(tr("paid"))}</small>`:""}</span>
-      <span class="record-field invoice-status-field" data-label="${escapeHtml(tr("Status"))}"><i class="status ${statusClass}">${overdue?tr("Overdue"):escapeHtml(translatedStatus(inv.status))}</i><b class="invoice-next-action">${escapeHtml(actionHint)}</b><small class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</small>${methodLabel?`<small class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</small>`:""}${dispute?`<small class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</small>`:""}</span>
       <span class="record-actions invoice-actions-stable">
         <span class="safe-actions">
           <button data-edit-invoice="${inv.id}">${escapeHtml(tr("Edit"))}</button>
