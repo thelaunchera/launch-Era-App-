@@ -73,7 +73,8 @@ const businessConfig={
   ],
   addons:[
     {id:"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",service_id:"11111111-1111-4111-8111-111111111111",name:"Inside oven",price:25,extra_duration_minutes:20},
-    {id:"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",service_id:"22222222-2222-4222-8222-222222222222",name:"Interior glass",price:40,extra_duration_minutes:25}
+    {id:"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",service_id:"22222222-2222-4222-8222-222222222222",name:"Interior glass",price:40,extra_duration_minutes:25},
+    {id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",service_id:"33333333-3333-4333-8333-333333333333",name:"Post-construction detail",price:0,extra_duration_minutes:0}
   ]
 };
 
@@ -162,6 +163,12 @@ async function runProfile(profile){
       throw new Error(profile.name+": booking service card cannot be selected");
     }
 
+    const weekly=page.locator('#publicFrequencyPills [data-frequency="weekly"]');
+    await weekly.click();
+    if(!(await weekly.evaluate(el=>el.classList.contains("selected")))){
+      throw new Error(profile.name+": frequency pills do not work before changing property type");
+    }
+
     const date=page.locator('#publicRequestForm input[name="date"]');
     await date.evaluate(el=>{
       el.value="2026-10-05";
@@ -212,6 +219,17 @@ async function runProfile(profile){
     const quoteCommercialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!quoteCommercialCards.some(x=>x.includes("Post-Construction Commercial Cleaning"))){
       throw new Error(profile.name+": commercial quote service missing");
+    }
+    await page.locator("#publicServiceCards [data-service-card]").first().click();
+    const quoteAddonWrap=page.locator("#publicAddonsWrap");
+    if(await quoteAddonWrap.evaluate(el=>el.hidden)){
+      throw new Error(profile.name+": quote add-ons are hidden");
+    }
+    const quoteAddon=page.locator('#publicAddons input[name="addon"]').first();
+    await quoteAddon.check();
+    const quoteAddonCopy=await quoteAddon.locator("xpath=..").textContent();
+    if(!quoteAddonCopy.includes("Include in quote")){
+      throw new Error(profile.name+": quote add-on copy is missing");
     }
     const quoteCommercialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
     if(quoteCommercialHero===commercialHero) throw new Error(profile.name+": quote commercial hero photo did not change");
