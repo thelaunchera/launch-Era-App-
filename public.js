@@ -714,7 +714,11 @@
       syncPetDetails();
       propertyTypeSelect?.addEventListener("change",()=>{
         syncPropertyDetails();
-        frequencyPills?.addEventListener("click",e=>{
+        // Re-scope services immediately when the customer switches
+        // Residential / Commercial, without registering duplicate handlers.
+        renderMode(mode,{updateUrl:false});
+      });
+      frequencyPills?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-frequency]");
         if(!btn || !recurrenceSelect) return;
         recurrenceSelect.value=btn.dataset.frequency;
@@ -727,9 +731,6 @@
       });
       form?.addEventListener("input",updateSummary);
       form?.addEventListener("change",updateSummary);
-
-      renderMode(mode,{updateUrl:false});
-      });
       cleaningTypeSwitch?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-property-type]");
         if(!btn || !propertyTypeSelect) return;

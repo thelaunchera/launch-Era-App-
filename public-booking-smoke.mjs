@@ -162,6 +162,16 @@ async function runProfile(profile){
       throw new Error(profile.name+": booking service card cannot be selected");
     }
 
+    const weeklyFrequency=page.locator('#publicFrequencyPills [data-frequency="weekly"]');
+    await weeklyFrequency.click();
+    const recurrenceValue=await page.locator("#publicRecurrencePattern").inputValue();
+    if(recurrenceValue!=="weekly"){
+      throw new Error(profile.name+": frequency pills do not work before changing property type");
+    }
+    if(!(await weeklyFrequency.evaluate(el=>el.classList.contains("selected")))){
+      throw new Error(profile.name+": selected frequency pill is not visually active");
+    }
+
     const date=page.locator('#publicRequestForm input[name="date"]');
     await date.evaluate(el=>{
       el.value="2026-10-05";
