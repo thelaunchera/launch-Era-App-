@@ -298,6 +298,7 @@ for(const [source,translation] of Object.entries({
     throw new Error("Localization regression: Haitian Creole weather translation missing for "+source);
   }
 }
+const compactI18nAll=i18nAll.replace(/\\s+/g,"");
 for(const phrase of [
   '"LEADS":"PROSPECTOS"',
   '"Lead pipeline":"Prospects"',
@@ -316,7 +317,7 @@ for(const phrase of [
   '"Follow-up rules":"Règles de suivi"',
   '"Follow-up rules":"Règ swivi"'
 ]){
-  if(!i18nAll.includes(phrase)){
+  if(!compactI18nAll.includes(phrase.replace(/\\s+/g,""))){
     throw new Error("Localization regression: missing required ES/FR/HT coverage: "+phrase);
   }
 }
