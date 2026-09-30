@@ -6926,7 +6926,7 @@ async function initializePublicRequest(mode,slug){
     });
 
     if(slotError){
-      slotsBox.innerHTML=`<span class="muted-line">${escapeHtml(slotError.message||"Could not load availability")}</span>`;
+      slotsBox.innerHTML=`<span class="muted-line">${escapeHtml(tr("Could not load availability"))}</span>`;
       return;
     }
 
@@ -7022,7 +7022,7 @@ async function initializePublicRequest(mode,slug){
       $("#publicSuccess").hidden=false;
       $("#publicSuccessCopy").textContent=mode==="quote"
         ?tr("Your quote request was sent. The business will review it and contact you.")
-        :"Your booking request was sent. The business will review it and confirm the appointment.";
+        :tr("Your booking request was sent. The business will review it and confirm the appointment.");
     }catch(err){
       showToast(err.message||tr("Could not send request"));
     }finally{
