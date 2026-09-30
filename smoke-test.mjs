@@ -361,6 +361,15 @@ if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","work
 if(!publicJs.includes('functions/v1/track-app-visit')){
   throw new Error("Analytics regression: public pages must use hardened edge tracking");
 }
+if(
+  !app.includes('supabase.rpc("finish_job_time_entry",{p_entry_id:id})') ||
+  !app.includes('supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop})') ||
+  !app.includes('await loadCoreData();\n  renderOperations();') ||
+  !app.includes('await refreshWorkerPortal();')
+){
+  throw new Error("Time tracking regression: finishing a timer must use the authoritative RPC and refresh job status in owner and worker views");
+}
+
 if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries","email_delivery_issues"]')){
   throw new Error("Realtime regression: operational table subscriptions changed unexpectedly");
 }
