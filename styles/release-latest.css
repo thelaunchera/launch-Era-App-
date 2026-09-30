@@ -562,8 +562,10 @@
   .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
     color:var(--tle-text-strong)!important;
   }
-  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
-  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-primary>small,
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-primary>small,
+  .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-field::before,
+  .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-field::before,
   .app-shell[data-palette-mode="day"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span,
   .app-shell:not([data-palette-mode]) :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
     color:var(--tle-text-muted)!important;
@@ -573,7 +575,8 @@
   .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table strong{
     color:var(--tle-text-on-dark)!important;
   }
-  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) :is(.record-primary>small,.record-field::before),
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-primary>small,
+  .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card .table-row:not(.table-head) .record-field::before,
   .app-shell[data-palette-mode="night"] :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span{
     color:var(--tle-text-on-dark-muted)!important;
   }
