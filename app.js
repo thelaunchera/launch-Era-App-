@@ -6744,6 +6744,24 @@ function renderSettings(){
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
   if(m) m.textContent=(state.publicLinks?.minimum_notice_hours??24)+" hours";
   if(r) r.textContent=state.publicLinks?.reply_email||"Business login email";
+  const notificationsEyebrow=$("#settingsNotificationsEyebrow");
+  const notificationsTitle=$("#settingsNotificationsTitle");
+  const notificationsNote=$("#settingsNotificationsNote");
+  const notificationsEdit=$("#editNotificationPreferencesBtn");
+  const notificationsChannelsLabel=$("#settingsNotificationsChannelsLabel");
+  const notificationsDestinationLabel=$("#settingsNotificationsDestinationLabel");
+  if(notificationsEyebrow) notificationsEyebrow.textContent=ownerAlertLang("OWNER ALERTS","ALERTAS DE LA DUEÑA","ALERTES PROPRIÉTAIRE","ALÈT PWOPRIYETÈ");
+  if(notificationsTitle) notificationsTitle.textContent=ownerAlertLang("Notifications","Notificaciones","Notifications","Notifikasyon");
+  if(notificationsNote) notificationsNote.textContent=ownerAlertLang(
+    "Choose how important booking, quote, payment and dispute alerts reach you.",
+    "Elige cómo recibir alertas importantes de reservas, cotizaciones, pagos y disputas.",
+    "Choisissez comment recevoir les alertes importantes de réservations, devis, paiements et contestations.",
+    "Chwazi kijan pou resevwa alèt enpòtan pou rezèvasyon, devis, peman ak diskisyon."
+  );
+  if(notificationsEdit) notificationsEdit.textContent=ownerAlertLang("Edit notifications →","Editar notificaciones →","Modifier les notifications →","Modifye notifikasyon →");
+  if(notificationsChannelsLabel) notificationsChannelsLabel.textContent=ownerAlertLang("Channels","Canales","Canaux","Chanèl");
+  if(notificationsDestinationLabel) notificationsDestinationLabel.textContent=ownerAlertLang("Send alerts to","Enviar alertas a","Envoyer les alertes à","Voye alèt bay");
+
   if(notificationChannels){
     const channels=[];
     if(state.business?.owner_notify_email!==false) channels.push(ownerAlertLang("Email","Correo","E-mail","Imèl"));
