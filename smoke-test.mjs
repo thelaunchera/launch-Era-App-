@@ -268,6 +268,22 @@ if(!html.includes("./i18n-completion.js?v=") || !serviceWorker.includes("./i18n-
   throw new Error("Localization regression: extended translation module must be loaded and cached with the app shell");
 }
 
+const dynamicHtGuards=[
+  "new notifications",
+  "hrs still open",
+  "Next stop at",
+  "overdue invoices?",
+  "sent quotes?",
+  "Permanently delete this",
+  "Custom message saved for",
+  "Using the default message for"
+];
+for(const fragment of dynamicHtGuards){
+  if(!i18n.includes(fragment)){
+    throw new Error("Localization regression: dynamic Haitian Creole pattern missing: "+fragment);
+  }
+}
+
 if(
   !i18nCompletion.includes("operational UI language audit completion v209") ||
   !i18nCompletion.includes('"DAY DETAILS":"DETALLES DEL DÍA"') ||
