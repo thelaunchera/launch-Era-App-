@@ -44,6 +44,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.55.0-noble
     env:
+      HOME: /root
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     steps:
       - uses: actions/checkout@v5
