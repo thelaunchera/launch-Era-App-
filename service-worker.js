@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-booking-actions-grid-218";
+const CACHE_NAME="tle-cleaning-app-20260930-owner-alerts-219";
 const CORE=[
-  "./boot.js?v=20260930-booking-actions-grid-218",
-  "./styles/boot.css?v=20260930-booking-actions-grid-218",
+  "./boot.js?v=20260930-owner-alerts-219",
+  "./styles/boot.css?v=20260930-owner-alerts-219",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-components.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-experience.css?v=20260930-booking-actions-grid-218",
-  "./styles/workspace-operations.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-overrides.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-mobile.css?v=20260930-booking-actions-grid-218",
-  "./styles/release-latest.css?v=20260930-booking-actions-grid-218",
-  "./styles/responsive-shell.css?v=20260930-booking-actions-grid-218",
-  "./styles/customer-documents.css?v=20260930-booking-actions-grid-218",
-  "./styles/invoice-polish.css?v=20260930-booking-actions-grid-218",
-  "./app.js?v=20260930-booking-actions-grid-218",
-  "./followups.js?v=20260930-booking-actions-grid-218",
-  "./i18n-completion.js?v=20260930-booking-actions-grid-218",
-  "./i18n.js?v=20260930-booking-actions-grid-218",
-  "./onboarding-copy.js?v=20260930-booking-actions-grid-218",
-  "./public.js?v=20260930-booking-actions-grid-218",
-  "./vendor/supabase.js?v=20260930-booking-actions-grid-218",
-  "./manifest.webmanifest?v=20260930-booking-actions-grid-218"
+  "./styles.css?v=20260930-owner-alerts-219",
+  "./styles/workspace-components.css?v=20260930-owner-alerts-219",
+  "./styles/workspace-experience.css?v=20260930-owner-alerts-219",
+  "./styles/workspace-operations.css?v=20260930-owner-alerts-219",
+  "./styles/release-overrides.css?v=20260930-owner-alerts-219",
+  "./styles/release-mobile.css?v=20260930-owner-alerts-219",
+  "./styles/release-latest.css?v=20260930-owner-alerts-219",
+  "./styles/responsive-shell.css?v=20260930-owner-alerts-219",
+  "./styles/customer-documents.css?v=20260930-owner-alerts-219",
+  "./styles/invoice-polish.css?v=20260930-owner-alerts-219",
+  "./app.js?v=20260930-owner-alerts-219",
+  "./followups.js?v=20260930-owner-alerts-219",
+  "./i18n-completion.js?v=20260930-owner-alerts-219",
+  "./i18n.js?v=20260930-owner-alerts-219",
+  "./onboarding-copy.js?v=20260930-owner-alerts-219",
+  "./public.js?v=20260930-owner-alerts-219",
+  "./vendor/supabase.js?v=20260930-owner-alerts-219",
+  "./manifest.webmanifest?v=20260930-owner-alerts-219"
 ];
 
 self.addEventListener("install",event=>{
@@ -70,5 +70,46 @@ self.addEventListener("fetch",event=>{
       }
       throw new Error("Offline");
     }
+  })());
+});
+
+
+self.addEventListener("push",event=>{
+  let data={};
+  try{data=event.data?event.data.json():{};}catch{
+    try{data={body:event.data?.text()||""};}catch{}
+  }
+  const title=data.title||"The Launch Era Cleaning App";
+  const options={
+    body:data.body||"You have a new update.",
+    icon:data.icon||"./app-icon.svg",
+    badge:data.badge||"./app-icon.svg",
+    tag:data.tag||"tle-owner-alert",
+    renotify:true,
+    data:{
+      url:data.url||"./",
+      event_type:data.event_type||"",
+      resource_type:data.resource_type||"",
+      resource_id:data.resource_id||""
+    }
+  };
+  event.waitUntil(self.registration.showNotification(title,options));
+});
+
+self.addEventListener("notificationclick",event=>{
+  event.notification.close();
+  const target=event.notification?.data?.url||"./";
+  event.waitUntil((async()=>{
+    const windows=await self.clients.matchAll({type:"window",includeUncontrolled:true});
+    for(const client of windows){
+      try{
+        if("focus" in client){
+          await client.focus();
+          if("navigate" in client && client.url!==target) await client.navigate(target);
+          return;
+        }
+      }catch{}
+    }
+    if(self.clients.openWindow) await self.clients.openWindow(target);
   })());
 });

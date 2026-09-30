@@ -40,6 +40,12 @@ jobs:
   cross-browser:
     name: Cross-browser release gate
     runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.0-noble
+    env:
+      HOME: /root
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -47,5 +53,4 @@ jobs:
           node-version: "22"
       - run: npm ci --no-audit --no-fund
       - run: npm install --no-save playwright@1.55.0
-      - run: npx playwright install --with-deps chromium firefox webkit
       - run: node cross-browser-smoke.mjs
