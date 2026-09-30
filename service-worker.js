@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-invoice-final-compact-213";
+const CACHE_NAME="tle-cleaning-app-20260930-booking-quote-hierarchy-214";
 const CORE=[
-  "./boot.js?v=20260930-invoice-final-compact-213",
-  "./styles/boot.css?v=20260930-invoice-final-compact-213",
+  "./boot.js?v=20260930-booking-quote-hierarchy-214",
+  "./styles/boot.css?v=20260930-booking-quote-hierarchy-214",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-invoice-final-compact-213",
-  "./styles/workspace-components.css?v=20260930-invoice-final-compact-213",
-  "./styles/workspace-experience.css?v=20260930-invoice-final-compact-213",
-  "./styles/workspace-operations.css?v=20260930-invoice-final-compact-213",
-  "./styles/release-overrides.css?v=20260930-invoice-final-compact-213",
-  "./styles/release-mobile.css?v=20260930-invoice-final-compact-213",
-  "./styles/release-latest.css?v=20260930-invoice-final-compact-213",
-  "./styles/responsive-shell.css?v=20260930-invoice-final-compact-213",
-  "./styles/customer-documents.css?v=20260930-invoice-final-compact-213",
-  "./styles/invoice-polish.css?v=20260930-invoice-final-compact-213",
-  "./app.js?v=20260930-invoice-final-compact-213",
-  "./followups.js?v=20260930-invoice-final-compact-213",
-  "./i18n-completion.js?v=20260930-invoice-final-compact-213",
-  "./i18n.js?v=20260930-invoice-final-compact-213",
-  "./onboarding-copy.js?v=20260930-invoice-final-compact-213",
-  "./public.js?v=20260930-invoice-final-compact-213",
-  "./vendor/supabase.js?v=20260930-invoice-final-compact-213",
-  "./manifest.webmanifest?v=20260930-invoice-final-compact-213"
+  "./styles.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/workspace-components.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/workspace-experience.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/workspace-operations.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/release-overrides.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/release-mobile.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/release-latest.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/responsive-shell.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/customer-documents.css?v=20260930-booking-quote-hierarchy-214",
+  "./styles/invoice-polish.css?v=20260930-booking-quote-hierarchy-214",
+  "./app.js?v=20260930-booking-quote-hierarchy-214",
+  "./followups.js?v=20260930-booking-quote-hierarchy-214",
+  "./i18n-completion.js?v=20260930-booking-quote-hierarchy-214",
+  "./i18n.js?v=20260930-booking-quote-hierarchy-214",
+  "./onboarding-copy.js?v=20260930-booking-quote-hierarchy-214",
+  "./public.js?v=20260930-booking-quote-hierarchy-214",
+  "./vendor/supabase.js?v=20260930-booking-quote-hierarchy-214",
+  "./manifest.webmanifest?v=20260930-booking-quote-hierarchy-214"
 ];
 
 self.addEventListener("install",event=>{
