@@ -3188,6 +3188,62 @@
   "MORE LANGUAGES": "PLIS LANG"
 });
 
+
+  Object.assign(staticCorrections.es,{
+    "Page unavailable":"Página no disponible","This booking page is not available.":"Esta página de reservas no está disponible.",
+    "Cleaning service":"Servicio de limpieza","REQUEST A QUOTE":"PEDIR COTIZACIÓN","BOOK A CLEANING":"RESERVAR LIMPIEZA",
+    "Tell us what you need and the business will review your request.":"Cuéntanos qué necesitas y el negocio revisará tu solicitud.",
+    "Choose a service, date, and one of the real available times below.":"Elige un servicio, una fecha y uno de los horarios realmente disponibles.",
+    "Send quote request":"Enviar solicitud de cotización","Send booking request":"Enviar solicitud de reserva",
+    "No services available yet":"Aún no hay servicios disponibles","No priced services available for online booking":"No hay servicios con precio disponibles para reservar online",
+    "No services are available yet. Please contact the cleaning business directly.":"Aún no hay servicios disponibles. Contacta directamente al negocio de limpieza.",
+    "No instant-booking services are available yet. Services without a fixed price require a quote.":"Aún no hay servicios disponibles para reserva inmediata. Los servicios sin precio fijo requieren una cotización.",
+    "Choose a service":"Elige un servicio","Quote required":"Requiere cotización","Quote will be reviewed":"La cotización será revisada",
+    "Service add-ons are selected automatically. Uncheck anything this job does not need.":"Los extras del servicio se seleccionan automáticamente. Desmarca lo que este trabajo no necesite.",
+    "Included by default ·":"Incluido por defecto ·","Optional ·":"Opcional ·","Choose a service and date first.":"Elige primero un servicio y una fecha.",
+    "Sending…":"Enviando…","Square feet must be a positive number.":"Los pies cuadrados deben ser un número positivo.",
+    "Property type:":"Tipo de propiedad:","Approx. square feet:":"Pies cuadrados aprox.:","Notes:":"Notas:",
+    "Your quote request was sent. The business will review it and contact you.":"Tu solicitud de cotización fue enviada. El negocio la revisará y se comunicará contigo.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Tu solicitud de reserva fue enviada. El negocio la revisará y confirmará la cita.",
+    "Could not send request":"No se pudo enviar la solicitud"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Page unavailable":"Page indisponible","This booking page is not available.":"Cette page de réservation n’est pas disponible.",
+    "Cleaning service":"Service de nettoyage","REQUEST A QUOTE":"DEMANDER UN DEVIS","BOOK A CLEANING":"RÉSERVER UN NETTOYAGE",
+    "Tell us what you need and the business will review your request.":"Dites-nous ce dont vous avez besoin et l’entreprise examinera votre demande.",
+    "Choose a service, date, and one of the real available times below.":"Choisissez un service, une date et l’un des créneaux réellement disponibles ci-dessous.",
+    "Send quote request":"Envoyer la demande de devis","Send booking request":"Envoyer la demande de réservation",
+    "No services available yet":"Aucun service disponible pour le moment","No priced services available for online booking":"Aucun service tarifé n’est disponible à la réservation en ligne",
+    "No services are available yet. Please contact the cleaning business directly.":"Aucun service n’est encore disponible. Contactez directement l’entreprise de nettoyage.",
+    "No instant-booking services are available yet. Services without a fixed price require a quote.":"Aucun service à réservation immédiate n’est disponible. Les services sans prix fixe nécessitent un devis.",
+    "Choose a service":"Choisissez un service","Quote required":"Devis requis","Quote will be reviewed":"Le devis sera examiné",
+    "Service add-ons are selected automatically. Uncheck anything this job does not need.":"Les options du service sont sélectionnées automatiquement. Décochez ce dont ce travail n’a pas besoin.",
+    "Included by default ·":"Inclus par défaut ·","Optional ·":"Optionnel ·","Choose a service and date first.":"Choisissez d’abord un service et une date.",
+    "Sending…":"Envoi…","Square feet must be a positive number.":"La superficie doit être un nombre positif.",
+    "Property type:":"Type de propriété :","Approx. square feet:":"Superficie approximative :","Notes:":"Notes :",
+    "Your quote request was sent. The business will review it and contact you.":"Votre demande de devis a été envoyée. L’entreprise l’examinera et vous contactera.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Votre demande de réservation a été envoyée. L’entreprise l’examinera et confirmera le rendez-vous.",
+    "Could not send request":"Impossible d’envoyer la demande"
+  });
+  Object.assign(extra.ht,{
+    "Page unavailable":"Paj pa disponib","This booking page is not available.":"Paj rezèvasyon sa a pa disponib.",
+    "Cleaning service":"Sèvis netwayaj","REQUEST A QUOTE":"MANDE YON DEVIS","BOOK A CLEANING":"REZÈVE YON NETWAYAJ",
+    "Tell us what you need and the business will review your request.":"Di nou sa ou bezwen epi biznis la ap revize demann ou.",
+    "Choose a service, date, and one of the real available times below.":"Chwazi yon sèvis, yon dat ak youn nan lè ki vrèman disponib anba a.",
+    "Send quote request":"Voye demann devis","Send booking request":"Voye demann rezèvasyon",
+    "No services available yet":"Pa gen sèvis disponib ankò","No priced services available for online booking":"Pa gen sèvis ak pri ki disponib pou rezèvasyon sou entènèt",
+    "No services are available yet. Please contact the cleaning business directly.":"Pa gen sèvis disponib ankò. Kontakte biznis netwayaj la dirèkteman.",
+    "No instant-booking services are available yet. Services without a fixed price require a quote.":"Pa gen sèvis pou rezève imedyatman ankò. Sèvis san pri fiks bezwen yon devis.",
+    "Choose a service":"Chwazi yon sèvis","Quote required":"Devis obligatwa","Quote will be reviewed":"Devis la pral revize",
+    "Service add-ons are selected automatically. Uncheck anything this job does not need.":"Opsyon sèvis yo chwazi otomatikman. Dezaktive nenpòt bagay travay sa a pa bezwen.",
+    "Included by default ·":"Enkli pa default ·","Optional ·":"Opsyonèl ·","Choose a service and date first.":"Chwazi yon sèvis ak yon dat an premye.",
+    "Sending…":"N ap voye…","Square feet must be a positive number.":"Pye kare yo dwe yon nimewo ki pi gran pase zewo.",
+    "Property type:":"Kalite pwopriyete:","Approx. square feet:":"Pye kare apeprè:","Notes:":"Nòt:",
+    "Your quote request was sent. The business will review it and contact you.":"Demann devis ou voye. Biznis la ap revize li epi kontakte ou.",
+    "Your booking request was sent. The business will review it and confirm the appointment.":"Demann rezèvasyon ou voye. Biznis la ap revize li epi konfime randevou a.",
+    "Could not send request":"Pa t ka voye demann lan"
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
