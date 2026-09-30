@@ -63,11 +63,12 @@ const styles=[
 
 if(
   !styles.includes("surface-aware contrast system v208") ||
-  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) [class~="mobile-record-card"]') ||
+  !styles.includes("surface-aware mobile contrast + invoice flow v208") ||
   !styles.includes('[data-page="time"] .timer-card') ||
   !styles.includes('background:#12324A!important') ||
-  !styles.includes('.app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) [class~="mobile-record-card"]') ||
-  !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
+  !styles.includes('data-palette-mode="day"') ||
+  !styles.includes('[data-page="clients"] .client-card.client-card-compact') ||
+  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
   !styles.includes('@media(max-width:430px)') ||
   !styles.includes('[data-page="invoices"] .invoice-growth-row') ||
   !styles.includes('grid-template-columns:1fr!important') ||
