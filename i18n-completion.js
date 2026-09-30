@@ -1846,5 +1846,29 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   Object.assign(staticCorrections.es,{"You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.":"Puedes usar {{name}}, {{business}}, {{amount}} y {{invoice_number}}. Los botones de cotización, factura, reseña y nueva reserva se añaden automáticamente."});
   Object.assign(staticCorrections.fr,{"You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.":"Vous pouvez utiliser {{name}}, {{business}}, {{amount}} et {{invoice_number}}. Les boutons de devis, facture, avis et nouvelle réservation sont ajoutés automatiquement."});
 
+  // 2026-09-29 — calendar/time labels + auth error cleanup v209.
+  Object.assign(staticCorrections.es,{
+    "DAY DETAILS":"DETALLES DEL DÍA",
+    "DURATION":"DURACIÓN",
+    "ASSIGNED TO":"ASIGNADO A",
+    "Not assigned":"Sin asignar",
+    "The error is still happening. Support has been alerted. Check the required fields and try again.":"El error continúa. Revisa los campos obligatorios e inténtalo de nuevo.",
+    "The error is still happening. Support has been alerted. Check the fields and try again.":"El error continúa. Revisa los campos e inténtalo de nuevo."
+  });
+  Object.assign(staticCorrections.fr,{
+    "DAY DETAILS":"DÉTAILS DU JOUR",
+    "DURATION":"DURÉE",
+    "ASSIGNED TO":"ATTRIBUÉ À",
+    "Not assigned":"Non attribué",
+    "The error is still happening. Support has been alerted. Check the required fields and try again.":"L’erreur persiste. Vérifiez les champs obligatoires et réessayez.",
+    "The error is still happening. Support has been alerted. Check the fields and try again.":"L’erreur persiste. Vérifiez les champs et réessayez."
+  });
+  Object.assign(staticCorrections.ht,{
+    "DAY DETAILS":"DETAY JOU A",
+    "DURATION":"DIRE",
+    "ASSIGNED TO":"ASIYEN BAY",
+    "Not assigned":"Pa asiyen"
+  });
+
 };
 })();
