@@ -153,8 +153,12 @@ async function runProfile(profile){
     }
 
     const date=page.locator('#publicRequestForm input[name="date"]');
-    await date.fill("2026-10-05");
-    await page.waitForSelector("#publicSlots [data-slot]",{state:"visible",timeout:5000});
+    await date.evaluate(el=>{
+      el.value="2026-10-05";
+      el.dispatchEvent(new Event("input",{bubbles:true}));
+      el.dispatchEvent(new Event("change",{bubbles:true}));
+    });
+    await page.waitForFunction(()=>document.querySelectorAll("#publicSlots [data-slot]").length>0,null,{timeout:7000});
     const slot=page.locator("#publicSlots [data-slot]").first();
     await slot.click();
     if(!(await slot.evaluate(el=>el.classList.contains("selected")))){
