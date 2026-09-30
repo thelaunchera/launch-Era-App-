@@ -15,7 +15,7 @@ const CORE=[
   "./styles/customer-documents.css?v=20260929-i18n-contrast-208",
   "./app.js?v=20260929-i18n-contrast-208",
   "./followups.js?v=20260929-i18n-contrast-208",
-  "./i18n.js?v=20260929-i18n-contrast-208",
+  "./i18n-completion.js?v=20260929-i18n-contrast-208",\n  "./i18n.js?v=20260929-i18n-contrast-208",
   "./onboarding-copy.js?v=20260929-i18n-contrast-208",
   "./public.js?v=20260929-i18n-contrast-208",
   "./vendor/supabase.js?v=20260929-i18n-contrast-208",
