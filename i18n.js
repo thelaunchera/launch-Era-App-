@@ -2031,6 +2031,38 @@
     "Removed from Time Tracking only.":"Retire sèlman nan Swiv Tan.","Could not remove it from this list.":"Pa t ka retire li nan lis sa a."
   });
 
+
+  Object.assign(extra.ht,{
+    "After cleaning":"Apre netwayaj","Rebooking":"Nouvo rezèvasyon","Due now":"Pou fèt kounye a","Due tomorrow":"Pou demen",
+    "Auto email":"Imèl otomatik","Remind me":"Raple mwen","Needs follow-up":"Bezwen swivi","Send now":"Voye kounye a",
+    "Snooze 2 days":"Ranvwaye 2 jou","Open source":"Louvri sous","CUSTOM MESSAGE":"MESAJ PÈSONALIZE",
+    "Write the email in the customer’s language. Leave a field blank to keep the default.":"Ekri imèl la nan lang kliyan an. Kite yon chan vid pou kenbe mesaj estanda a.",
+    "Customer language":"Lang kliyan","Subject (optional)":"Sijè (opsyonèl)","Message":"Mesaj",
+    "You can use {{name}}, {{business}}, {{amount}} and {{invoice_number}}. Quote, invoice, review and rebooking buttons are added automatically.":"Ou ka itilize {{name}}, {{business}}, {{amount}} ak {{invoice_number}}. Bouton devis, fakti, revizyon ak nouvo rezèvasyon ajoute otomatikman.",
+    "Save message":"Sove mesaj","Use default":"Itilize mesaj estanda","Custom message saved for":"Mesaj pèsonalize sove pou",
+    "Using the default message for":"N ap itilize mesaj estanda pou","Edit message · Custom":"Modifye mesaj · Pèsonalize","Edit message":"Modifye mesaj",
+    "due":"pou fèt","Nothing needs follow-up.":"Pa gen anyen ki bezwen swivi.","New items will appear here automatically.":"Nouvo atik ap parèt isit la otomatikman.",
+    "No follow-ups sent yet.":"Pa gen swivi ki voye ankò.","Loading follow-ups…":"N ap chaje swivi yo…","Checking what needs attention.":"N ap tcheke sa ki bezwen atansyon.",
+    "Could not load follow-ups.":"Pa t ka chaje swivi yo.","Tap Refresh follow-ups to try again.":"Peze Rafrechi swivi pou eseye ankò.",
+    "Auto email can send due follow-ups to real customers within the next hour. Turn it on?":"Imèl otomatik ka voye swivi ki rive pou kliyan reyèl nan pwochen èdtan an. Aktive li?",
+    "Auto email enabled · due follow-ups send within an hour.":"Imèl otomatik aktive · swivi ki rive ap voye nan yon èdtan.",
+    "Follow-up rule updated":"Règ swivi mete ajou","Follow-up message saved":"Mesaj swivi sove","Default follow-up restored":"Mesaj swivi estanda retabli",
+    "Follow-ups refreshed":"Swivi rafrechi","Follow-up emailed":"Swivi voye pa imèl","Snoozed for 2 days":"Ranvwaye pou 2 jou","Follow-up marked done":"Swivi make fini",
+    "Good morning · here’s your day at a glance":"Bonjou · men jounen ou an yon kout je",
+    "Good morning · let’s get organized":"Bonjou · ann òganize jounen an","Good morning · your workspace is ready":"Bonjou · espas travay ou pare",
+    "Good afternoon · quick check-in":"Bon aprèmidi · ti tcheke rapid","Good afternoon · let’s finish strong":"Bon aprèmidi · ann fini jounen an byen",
+    "Good evening · here’s how the day landed":"Bonswa · men kijan jounen an fini","Good evening · tomorrow can wait a minute":"Bonswa · demen ka tann yon ti moman",
+    "Good evening · one last look before you sign off":"Bonswa · yon dènye gade anvan ou fini","Good evening · your workspace is caught up":"Bonswa · espas travay ou ajou",
+    "Check GPS before the next stop and allow extra travel time.":"Tcheke GPS anvan pwochen arè a epi kite plis tan pou deplase.",
+    "Check your best route before leaving.":"Tcheke pi bon wout ou anvan ou soti.","It’s":"Li fè","Next stop at":"Pwochen arè a",
+    "You have":"Ou gen","Best route ·":"Pi bon wout ·","Starts from your current location. Google Maps uses live traffic and keeps your scheduled stop order.":"Kòmanse nan kote ou ye kounye a. Google Maps sèvi ak trafik an dirèk epi kenbe lòd arè pwograme yo.",
+    "today":"jodi a","Starts from your current location · live traffic in Google Maps.":"Kòmanse nan kote ou ye kounye a · trafik an dirèk nan Google Maps.",
+    "Stops stay in scheduled order so appointment times are protected.":"Arè yo rete nan lòd pwograme pou pwoteje lè randevou yo.",
+    "Temperature":"Tanperati","Included by default ·":"Enkli pa default ·","Optional ·":"Opsyonèl ·",
+    "GPS stop ready":"Arè GPS pare","GPS stops ready":"Arè GPS yo pare","booking request":"demann rezèvasyon","booking requests":"demann rezèvasyon",
+    "Due":"Dat limit"
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
@@ -2268,6 +2300,13 @@
     "Parking, doorman, stairs, elevator…":"Stationnement, concierge, escaliers, ascenseur…",
     "Do not enter door, lockbox or alarm codes here.":"N’indiquez pas ici de code de porte, de boîte à clés ou d’alarme."
   });
+  const htPatterns=[
+    [/^(\d+) scheduled jobs$/i,(m,n)=>`${n} travay pwograme`],
+    [/^(\d+) scheduled job$/i,(m,n)=>`${n} travay pwograme`],
+    [/^Best route · (\d+) stops?$/i,(m,n)=>`Pi bon wout · ${n} arè`],
+    [/^(\d+) booking requests?$/i,(m,n)=>`${n} demann rezèvasyon`]
+  ];
+
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
@@ -2301,6 +2340,14 @@
     if(lang==="es"){
       if(exact[key]) return exact[key];
       for(const [re,fn] of patterns){
+        const match=key.match(re);
+        if(match) return fn(...match);
+      }
+      return key;
+    }
+    if(lang==="ht"){
+      if(extra.ht?.[key]) return extra.ht[key];
+      for(const [re,fn] of htPatterns){
         const match=key.match(re);
         if(match) return fn(...match);
       }
