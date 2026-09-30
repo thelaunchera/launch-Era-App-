@@ -7,6 +7,8 @@ const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
+const i18nCompletion=fs.readFileSync("i18n-completion.js","utf8");
+const i18nAll=i18n+"\n"+i18nCompletion;
 const onboardingCopy=fs.readFileSync("onboarding-copy.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
@@ -61,10 +63,10 @@ const styles=[
 
 if(
   !styles.includes("surface-aware contrast system v208") ||
-  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
+  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) [class~="mobile-record-card"]') ||
   !styles.includes('[data-page="time"] .timer-card') ||
   !styles.includes('background:#12324A!important') ||
-  !styles.includes('.app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card') ||
+  !styles.includes('.app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) [class~="mobile-record-card"]') ||
   !styles.includes('.app-shell[data-palette-mode="night"] [data-page="clients"] .client-card.client-card-compact') ||
   !styles.includes('@media(max-width:430px)') ||
   !styles.includes('[data-page="invoices"] .invoice-growth-row') ||
@@ -245,10 +247,10 @@ const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
 if(spanishOnlyBranches!==1){
   throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
 }
-if(!app.includes("function langPick(en,es,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
+if(!app.includes("function langPick(en,es,fr)") || !i18nAll.includes('const SUPPORTED=["en","es","fr","ht"]')){
   throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
-if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18n)){
+if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18nAll)){
   throw new Error("Localization regression: legacy Portuguese dictionaries, assignments, or labels returned");
 }
 
@@ -261,18 +263,21 @@ if(
 ){
   throw new Error("Localization regression: Portuguese or legacy four-language follow-up copy returned");
 }
+if(!html.includes("./i18n-completion.js?v=") || !serviceWorker.includes("./i18n-completion.js?v=")){
+  throw new Error("Localization regression: extended translation module must be loaded and cached with the app shell");
+}
 if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
   throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
 }
 if(
-  !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
-  !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
-  !i18n.includes('localStorage.removeItem(STORAGE_KEY);')
+  !i18nAll.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
+  !i18nAll.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
+  !i18nAll.includes('localStorage.removeItem(STORAGE_KEY);')
 ){
   throw new Error("Localization regression: unsupported saved languages are not normalized");
 }
 for(const phrase of ["Today’s jobs","Current client records","Still to collect","Waiting for review","Your scheduled jobs will appear here."]){
-  if(!i18n.includes(JSON.stringify(phrase))){
+  if(!i18nAll.includes(JSON.stringify(phrase))){
     throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
   }
 }
@@ -289,7 +294,7 @@ for(const [source,translation] of Object.entries({
   "Weather":"Tan",
   "Windy":"Gen van"
 })){
-  if(!i18n.includes(JSON.stringify(source)+":"+JSON.stringify(translation))){
+  if(!i18nAll.includes(JSON.stringify(source)+":"+JSON.stringify(translation))){
     throw new Error("Localization regression: Haitian Creole weather translation missing for "+source);
   }
 }
@@ -311,7 +316,7 @@ for(const phrase of [
   '"Follow-up rules":"Règles de suivi"',
   '"Follow-up rules":"Règ swivi"'
 ]){
-  if(!i18n.includes(phrase)){
+  if(!i18nAll.includes(phrase)){
     throw new Error("Localization regression: missing required ES/FR/HT coverage: "+phrase);
   }
 }
