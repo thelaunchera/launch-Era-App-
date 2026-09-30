@@ -596,14 +596,22 @@
         return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
       }
 
-      const bookingHeroPhotos={
+      const bookingPropertyPhotos={
         residential:{
-          src:"https://images.pexels.com/photos/6195949/pexels-photo-6195949.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          alt:"Professional cleaner vacuuming a bright modern residential living room"
+          hero:"https://images.pexels.com/photos/10161222/pexels-photo-10161222.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          heroAlt:"Bright modern residential living room with no people",
+          summary:"https://images.pexels.com/photos/15242038/pexels-photo-15242038.jpeg?auto=compress&cs=tinysrgb&w=900",
+          summaryAlt:"Modern residential living room interior"
         },
         commercial:{
-          src:"https://images.pexels.com/photos/6195104/pexels-photo-6195104.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          alt:"Professional cleaner working on glass panels in a modern commercial building"
+          hero:"https://images.pexels.com/photos/7534224/pexels-photo-7534224.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          heroAlt:"Modern commercial office interior with no people",
+          summary:"https://images.pexels.com/photos/6794918/pexels-photo-6794918.jpeg?auto=compress&cs=tinysrgb&w=900",
+          summaryAlt:"Bright modern commercial office interior"
+        },
+        confirmation:{
+          hero:"https://images.pexels.com/photos/7746083/pexels-photo-7746083.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          heroAlt:"Neutral clean modern hallway with no people"
         }
       };
 
@@ -611,10 +619,14 @@
         return demoPhotos[(mode==="quote"?"quote":"book")+"-"+activePropertyType()]||demoPhotos["book-residential"];
       }
 
+      function activePropertyPhotos(){
+        return bookingPropertyPhotos[activePropertyType()]||bookingPropertyPhotos.residential;
+      }
+
       function updateDemoPhotos(){
         const set=activeDemoPhotos();
-        const heroSet=bookingHeroPhotos[activePropertyType()]||bookingHeroPhotos.residential;
-        if(heroPhoto){ heroPhoto.src=heroSet.src; heroPhoto.alt=heroSet.alt; }
+        const propertyPhotos=activePropertyPhotos();
+        if(heroPhoto){ heroPhoto.src=propertyPhotos.hero; heroPhoto.alt=propertyPhotos.heroAlt; }
         if(supportPhoto){ supportPhoto.src=set.support; supportPhoto.alt=set.supportAlt; }
       }
 
@@ -758,7 +770,7 @@
       function updateSummary(){
         if(!summary) return;
         const selected=services.find(s=>s.id===select?.value);
-        const photos=activeDemoPhotos();
+        const photos=activePropertyPhotos();
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=mode==="quote"?[]:addons.filter(a=>chosenIds.includes(a.id));
@@ -1157,6 +1169,8 @@
               });
             }
             form.hidden=true;
+            const confirmationPhoto=bookingPropertyPhotos.confirmation;
+            if(heroPhoto){ heroPhoto.src=confirmationPhoto.hero; heroPhoto.alt=confirmationPhoto.heroAlt; }
             $("#publicSuccess").hidden=false;
             $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
