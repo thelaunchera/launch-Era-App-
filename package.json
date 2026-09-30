@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "repo-health": "node repo-health.mjs",
-    "check": "node --check boot.js && node --check i18n.js && node --check onboarding-copy.js && node --check app.js && node --check public.js && node --check followups.js",
+    "check": "node --check boot.js && node --check i18n-completion.js && node --check i18n.js && node --check onboarding-copy.js && node --check app.js && node --check public.js && node --check followups.js",
     "smoke": "node smoke-test.mjs",
     "verify-local-supabase": "node -e \"const fs=require('fs');const h=fs.readFileSync('index.html','utf8');if(h.includes('cdn.jsdelivr.net/npm/@supabase/supabase-js'))process.exit(1);if(!fs.existsSync('vendor/supabase.js'))process.exit(1);console.log('LOCAL_SUPABASE_OK')\"",
     "browser-smoke": "node browser-smoke.mjs"
