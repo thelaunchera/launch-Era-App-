@@ -594,3 +594,110 @@
   #publicShell .public-demo-summary-total strong{font-size:19px}
   #publicShell .public-demo-summary-stack .public-submit{min-height:42px}
 }
+
+
+/* 2026-09-30 — mobile width repair + balanced spacing v224
+   v223 reintroduced the desktop summary column after the earlier mobile media rule.
+   Force one real column on phone/tablet and keep the compact direction without crushing it. */
+@media(max-width:900px){
+  #publicShell .public-demo-booking-form{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%;
+    max-width:none;
+  }
+  #publicShell .public-demo-booking-form>.form-grid,
+  #publicShell .public-demo-summary-stack{
+    grid-column:1/-1!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+  }
+  #publicShell .public-demo-service-cards,
+  #publicShell .public-demo-service-card,
+  #publicShell .public-summary,
+  #publicShell .public-demo-summary-stack .public-submit{
+    width:100%;
+    max-width:none;
+  }
+}
+@media(max-width:620px){
+  #publicShell .public-main{
+    width:calc(100% - 22px);
+  }
+  #publicShell .public-demo-hero{
+    gap:14px;
+    padding-bottom:16px;
+  }
+  #publicShell .public-demo-hero h1{
+    font-size:37px;
+    margin:9px 0 8px;
+  }
+  #publicShell .public-demo-hero .public-copy{
+    font-size:14px;
+    line-height:1.5;
+  }
+  #publicShell .public-demo-hero-photo{
+    min-height:235px;
+    border-radius:22px;
+  }
+  #publicShell .public-request-switch{
+    margin-bottom:12px;
+  }
+  #publicShell .public-demo-booking-form>.form-grid{
+    padding:17px;
+    gap:10px;
+    border-radius:21px;
+  }
+  #publicShell .public-demo-section{
+    padding-bottom:16px;
+    margin-bottom:7px;
+  }
+  #publicShell .public-demo-section-head h2{
+    font-size:25px;
+  }
+  #publicShell .public-demo-section-head p{
+    font-size:12px;
+    margin-bottom:11px;
+  }
+  #publicShell .public-demo-service-cards{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  #publicShell .public-demo-service-card{
+    min-height:105px;
+    padding:14px;
+  }
+  #publicShell .public-demo-service-card.selected{
+    padding:13px;
+  }
+  #publicShell .public-demo-service-card strong{
+    font-size:15px;
+  }
+  #publicShell .public-demo-service-card p{
+    font-size:11px;
+    line-height:1.4;
+  }
+  #publicShell .public-demo-type-switch button{
+    min-height:64px;
+    padding:10px;
+  }
+  #publicShell .public-summary{
+    padding:17px;
+    border-radius:20px;
+  }
+  #publicShell .public-demo-summary-top h3{
+    font-size:20px;
+  }
+  #publicShell .public-demo-summary-row{
+    font-size:11px;
+    padding:7px 0;
+  }
+  #publicShell .public-demo-summary-row strong{
+    font-size:11px;
+    max-width:58%;
+  }
+  #publicShell .public-demo-summary-total strong{
+    font-size:21px;
+  }
+}

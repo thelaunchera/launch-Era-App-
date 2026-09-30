@@ -596,13 +596,25 @@
         return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
       }
 
+      const bookingHeroPhotos={
+        residential:{
+          src:"https://images.pexels.com/photos/6195949/pexels-photo-6195949.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          alt:"Professional cleaner vacuuming a bright modern residential living room"
+        },
+        commercial:{
+          src:"https://images.pexels.com/photos/6195104/pexels-photo-6195104.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          alt:"Professional cleaner working on glass panels in a modern commercial building"
+        }
+      };
+
       function activeDemoPhotos(){
         return demoPhotos[(mode==="quote"?"quote":"book")+"-"+activePropertyType()]||demoPhotos["book-residential"];
       }
 
       function updateDemoPhotos(){
         const set=activeDemoPhotos();
-        if(heroPhoto){ heroPhoto.src=set.hero; heroPhoto.alt=set.heroAlt; }
+        const heroSet=bookingHeroPhotos[activePropertyType()]||bookingHeroPhotos.residential;
+        if(heroPhoto){ heroPhoto.src=heroSet.src; heroPhoto.alt=heroSet.alt; }
         if(supportPhoto){ supportPhoto.src=set.support; supportPhoto.alt=set.supportAlt; }
       }
 
