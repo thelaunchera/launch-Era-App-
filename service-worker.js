@@ -24,12 +24,24 @@ const CORE=[
   "./vendor/supabase.js?v=20260930-booking-demo-226",
   "./manifest.webmanifest?v=20260930-booking-demo-226"
 ];
+const NAVIGATION_TIMEOUT_MS=2500;
+
+function networkFetch(request){
+  return fetch(new Request(request,{cache:"no-store"}));
+}
 
 self.addEventListener("install",event=>{
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache=>cache.addAll(CORE))
+      .then(async cache=>{
+        const missing=[];
+        for(const url of CORE){
+          const cached=await cache.match(url);
+          if(!cached) missing.push(url);
+        }
+        if(missing.length) await cache.addAll(missing);
+      })
       .catch(()=>{})
   );
 });
@@ -51,10 +63,41 @@ self.addEventListener("fetch",event=>{
     const sensitiveParams=["token","session_id","invite","worker","billing","slug","public"];
     const hasSensitiveQuery=sensitiveParams.some(key=>url.searchParams.has(key));
     const isNavigation=event.request.mode==="navigate";
-    const shouldCache=!isNavigation && !hasSensitiveQuery;
+    const isVersionedAsset=!isNavigation&&!hasSensitiveQuery&&url.searchParams.has("v");
+    const shouldCache=!isNavigation&&!hasSensitiveQuery;
+
+    if(isVersionedAsset){
+      const cached=await caches.match(event.request);
+      if(cached) return cached;
+      try{
+        const response=await networkFetch(event.request);
+        if(response&&response.ok){
+          const cache=await caches.open(CACHE_NAME);
+          cache.put(event.request,response.clone()).catch(()=>{});
+        }
+        return response;
+      }catch{
+        throw new Error("Offline");
+      }
+    }
+
+    if(isNavigation){
+      const fallback=await caches.match("./index.html");
+      if(!fallback){
+        return networkFetch(event.request);
+      }
+      try{
+        return await Promise.race([
+          networkFetch(event.request),
+          new Promise((_,reject)=>setTimeout(()=>reject(new Error("Navigation timeout")),NAVIGATION_TIMEOUT_MS))
+        ]);
+      }catch{
+        return fallback;
+      }
+    }
 
     try{
-      const response=await fetch(new Request(event.request,{cache:"no-store"}));
+      const response=await networkFetch(event.request);
       if(response&&response.ok&&shouldCache){
         const cache=await caches.open(CACHE_NAME);
         cache.put(event.request,response.clone()).catch(()=>{});
@@ -64,10 +107,6 @@ self.addEventListener("fetch",event=>{
       if(shouldCache){
         const cached=await caches.match(event.request);
         if(cached) return cached;
-      }
-      if(isNavigation){
-        const fallback=await caches.match("./index.html");
-        if(fallback) return fallback;
       }
       throw new Error("Offline");
     }
