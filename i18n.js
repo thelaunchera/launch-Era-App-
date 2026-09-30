@@ -3592,6 +3592,10 @@
   "Your existing data is safe.": "Done ou deja genyen yo an sekirite."
 });
 
+  Object.assign(staticCorrections.es,{"Add-on":"Extra"});
+  Object.assign(staticCorrections.fr,{"Add-on":"Option"});
+  Object.assign(staticCorrections.ht,{"Revoke":"Anile","Add-on":"Opsyon"});
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
