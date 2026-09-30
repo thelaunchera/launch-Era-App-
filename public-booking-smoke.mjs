@@ -86,13 +86,14 @@ const profiles=[
 ];
 const engines={chromium,firefox,webkit};
 
-async function mockBackend(page){
+async function mockBackend(page,calls){
   await page.route("https://bowacxhmjvrqixtwaikv.supabase.co/**",async route=>{
     const url=new URL(route.request().url());
     const pathname=url.pathname;
+    calls.push(pathname);
     let body={};
-    if(pathname.endsWith("/rpc/get_public_booking_config")) body=businessConfig;
-    else if(pathname.endsWith("/rpc/get_public_available_slots")){
+    if(pathname.includes("get_public_booking_config")) body=businessConfig;
+    else if(pathname.includes("get_public_available_slots")){
       body=[
         {slot_start:"2026-10-05T14:00:00.000Z"},
         {slot_start:"2026-10-05T16:30:00.000Z"}
@@ -102,6 +103,7 @@ async function mockBackend(page){
     await route.fulfill({
       status:200,
       contentType:"application/json",
+      headers:{"Access-Control-Allow-Origin":"*"},
       body:JSON.stringify(body)
     });
   });
@@ -126,7 +128,11 @@ async function runProfile(profile){
       hasTouch:profile.viewport.width<=860
     });
     const page=await context.newPage();
-    await mockBackend(page);
+    const backendCalls=[];
+    const runtimeErrors=[];
+    page.on("pageerror",err=>runtimeErrors.push(String(err)));
+    page.on("console",msg=>{ if(msg.type()==="error") runtimeErrors.push(msg.text()); });
+    await mockBackend(page,backendCalls);
 
     await page.goto("http://127.0.0.1:4176/?public=book&slug=smoke-cleaning",{
       waitUntil:"domcontentloaded",
@@ -158,7 +164,18 @@ async function runProfile(profile){
       el.dispatchEvent(new Event("input",{bubbles:true}));
       el.dispatchEvent(new Event("change",{bubbles:true}));
     });
-    await page.waitForFunction(()=>document.querySelectorAll("#publicSlots [data-slot]").length>0,null,{timeout:7000});
+    try{
+      await page.waitForFunction(()=>document.querySelectorAll("#publicSlots [data-slot]").length>0,null,{timeout:7000});
+    }catch(err){
+      const diag=await page.evaluate(()=>({
+        service:document.querySelector("#publicService")?.value||"",
+        date:document.querySelector('#publicRequestForm input[name="date"]')?.value||"",
+        slots:document.querySelector("#publicSlots")?.innerHTML||"",
+        slotsHidden:Boolean(document.querySelector("#publicSlotsWrap")?.hidden),
+        appError:document.documentElement.dataset.appError||""
+      }));
+      throw new Error(profile.name+": slots did not render · "+JSON.stringify(diag)+" · calls="+backendCalls.join(",")+" · runtime="+runtimeErrors.join(" | ")+" · "+err.message);
+    }
     const slot=page.locator("#publicSlots [data-slot]").first();
     await slot.click();
     if(!(await slot.evaluate(el=>el.classList.contains("selected")))){
