@@ -1783,3 +1783,328 @@ body.platform-owner-no-billing .trial-card{
 [data-page="today"] .panel{
   box-shadow:0 10px 32px rgba(25,25,25,.035);
 }
+
+
+/* Public Booking Center — demo-matched experience */
+#publicShell{
+  --public-ivory:#FAF8F3;
+  --public-paper:#FFFDF9;
+  --public-ink:#191919;
+  --public-muted:#6E726F;
+  --public-eucalyptus:#CFE2DD;
+  --public-eucalyptus-soft:#EAF2EF;
+  --public-deep:#294640;
+  --public-butter:#F2D85B;
+  --public-line:#E8E4DC;
+  --public-shadow:0 18px 45px rgba(37,48,45,.09);
+  background:
+    radial-gradient(circle at 8% 4%,rgba(207,226,221,.58),transparent 28%),
+    linear-gradient(180deg,var(--public-ivory) 0%,#fff 42%,var(--public-ivory) 100%);
+}
+#publicShell .public-header{
+  padding:14px max(18px,calc((100vw - 1180px)/2));
+  background:rgba(250,248,243,.97);
+  border-bottom:1px solid rgba(25,25,25,.06);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+#publicShell .public-business-brand{min-width:0}
+#publicShell .public-business-brand .brand-mark{
+  width:42px;height:42px;border-radius:14px;background:var(--public-deep);color:#fff;
+  box-shadow:0 8px 18px rgba(41,70,64,.18);
+}
+#publicShell .public-header .brand-name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,420px)}
+#publicShell .public-header .brand-sub{font-size:10px;color:var(--public-muted)}
+#publicShell .compact-header-actions .pill{background:var(--public-eucalyptus-soft);color:var(--public-deep)}
+#publicShell .public-main{
+  width:min(1180px,calc(100% - 32px));
+  margin:0 auto;
+  padding:20px 0 72px;
+}
+#publicShell .public-back{margin-bottom:16px}
+#publicShell .public-demo-hero{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:34px;
+  align-items:center;
+  padding:18px 0 32px;
+}
+#publicShell .public-demo-hero-copy{min-width:0}
+#publicShell .public-demo-hero .eyebrow{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--public-eucalyptus-soft);border:1px solid #D9E9E4;
+  border-radius:999px;padding:9px 13px;color:var(--public-deep);
+  font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;
+}
+#publicShell .public-demo-hero h1{
+  font-family:Prompt,"Arial Rounded MT Bold",Arial,sans-serif;
+  font-size:clamp(44px,6vw,72px);
+  line-height:.98;letter-spacing:-.055em;margin:18px 0;max-width:760px;
+}
+#publicShell .public-demo-hero .public-copy{
+  font-size:17px;line-height:1.6;color:#515653;max-width:630px;margin:0 0 20px;
+}
+#publicShell .public-demo-hero-points{display:flex;flex-wrap:wrap;gap:9px}
+#publicShell .public-demo-hero-points span{
+  padding:9px 12px;border:1px solid var(--public-line);border-radius:999px;
+  background:#fff;font-size:12px;font-weight:800;
+}
+#publicShell .public-demo-hero-photo{
+  position:relative;border-radius:32px;overflow:hidden;min-height:430px;
+  box-shadow:var(--public-shadow);background:#dfe9e6;
+}
+#publicShell .public-demo-hero-photo>img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}
+#publicShell .public-demo-photo-overlay{
+  position:absolute;left:18px;right:18px;bottom:18px;background:#fff;border-radius:18px;
+  padding:15px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  box-shadow:0 14px 35px rgba(20,34,30,.15);
+}
+#publicShell .public-demo-photo-overlay strong{font-size:14px}
+#publicShell .public-demo-photo-overlay small{display:block;color:var(--public-muted);margin-top:4px;font-size:10px}
+#publicShell #publicHeroAvailability{
+  background:var(--public-eucalyptus-soft);color:var(--public-deep);padding:9px 10px;
+  border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap;
+}
+#publicShell .public-card{
+  background:transparent;border:0;border-radius:0;padding:0;box-shadow:none;
+}
+#publicShell .public-request-switch{
+  display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:7px;
+  width:min(720px,100%);margin:0 0 16px;border-radius:18px;
+  background:#F1EFE9;border:1px solid var(--public-line);
+}
+#publicShell .public-request-tab{
+  min-height:48px;border:0;border-radius:13px;background:transparent;
+  color:var(--public-muted);font-weight:900;font-size:13px;
+}
+#publicShell .public-request-tab.active{
+  background:#fff;color:var(--public-ink);box-shadow:0 5px 14px rgba(25,25,25,.07);
+}
+#publicShell .public-request-tab[data-public-mode="quote"].active{
+  background:var(--public-eucalyptus-soft);color:var(--public-deep);box-shadow:none;
+}
+#publicShell .public-demo-booking-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 350px;
+  gap:28px;
+  align-items:start;
+}
+#publicShell .public-demo-booking-form>.public-demo-stepper{
+  grid-column:1/-1;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 -10px;
+}
+#publicShell .public-demo-stepper span{height:6px;border-radius:999px;background:#E9E7E1}
+#publicShell .public-demo-stepper span.active{background:var(--public-eucalyptus)}
+#publicShell .public-demo-stepper span.active:first-child{background:var(--public-deep)}
+#publicShell .public-demo-booking-form>.form-grid{
+  grid-column:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  min-width:0;
+  background:var(--public-paper);
+  border:1px solid var(--public-line);
+  border-radius:28px;
+  padding:28px;
+  box-shadow:var(--public-shadow);
+}
+#publicShell .public-demo-booking-form>.form-grid>.full{grid-column:1/-1}
+#publicShell .public-demo-section{
+  border-bottom:1px solid var(--public-line);padding:0 0 26px;margin-bottom:12px;
+}
+#publicShell .public-demo-section-label{
+  font-size:11px;color:var(--public-deep);text-transform:uppercase;
+  letter-spacing:.09em;font-weight:900;margin-bottom:8px;
+}
+#publicShell .public-demo-section-head h2{
+  font-family:Prompt,"Arial Rounded MT Bold",Arial,sans-serif;
+  font-size:clamp(27px,4vw,38px);line-height:1.08;letter-spacing:-.04em;margin:0 0 6px;
+}
+#publicShell .public-demo-section-head p{color:var(--public-muted);line-height:1.5;margin:0 0 18px;font-size:13px}
+#publicShell .public-hidden-field{
+  position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;opacity:.001!important;
+}
+#publicShell .public-hidden-select{
+  position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;opacity:.001!important;
+}
+#publicShell .public-demo-service-cards{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+#publicShell .public-demo-service-card{
+  position:relative;min-height:136px;text-align:left;border:1px solid var(--public-line);
+  border-radius:18px;background:#fff;padding:18px;color:var(--public-ink);transition:.18s transform,.18s border-color;
+}
+#publicShell .public-demo-service-card:hover{transform:translateY(-2px);border-color:#B9D4CC}
+#publicShell .public-demo-service-card.selected{
+  border:2px solid var(--public-deep);background:var(--public-eucalyptus-soft);padding:17px;
+}
+#publicShell .public-demo-service-check{
+  position:absolute;right:14px;top:14px;width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;border:1px solid var(--public-line);font-size:11px;background:#fff;color:transparent;
+}
+#publicShell .public-demo-service-card.selected .public-demo-service-check{
+  background:var(--public-deep);color:#fff;border-color:var(--public-deep);
+}
+#publicShell .public-demo-service-card strong{display:block;font-size:17px;margin:4px 34px 7px 0}
+#publicShell .public-demo-service-card p{margin:0;color:var(--public-muted);font-size:12px;line-height:1.45}
+#publicShell .public-demo-service-card>span:last-child{
+  display:block;color:var(--public-deep);font-weight:900;margin-top:11px;font-size:12px;
+}
+#publicShell .public-demo-empty{
+  grid-column:1/-1;padding:16px;border:1px dashed var(--public-line);border-radius:16px;
+  color:var(--public-muted);font-size:12px;background:#FCFBF8;
+}
+#publicShell .public-demo-frequency{display:grid;gap:8px}
+#publicShell .public-demo-pills{display:flex;flex-wrap:wrap;gap:8px}
+#publicShell .public-demo-pills button{
+  border:1px solid var(--public-line);background:#fff;padding:10px 13px;border-radius:999px;
+  font-weight:800;font-size:12px;color:var(--public-ink);
+}
+#publicShell .public-demo-pills button.selected{background:var(--public-deep);color:#fff;border-color:var(--public-deep)}
+#publicShell .public-demo-cleaning-type{display:grid;gap:8px;margin-top:4px}
+#publicShell .public-demo-type-switch{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#publicShell .public-demo-type-switch button{
+  text-align:left;min-height:78px;border:1px solid var(--public-line);background:#fff;border-radius:16px;
+  padding:14px;color:var(--public-muted);
+}
+#publicShell .public-demo-type-switch button strong{display:block;color:inherit;font-size:14px;margin-bottom:4px}
+#publicShell .public-demo-type-switch button small{font-size:10px;line-height:1.35}
+#publicShell .public-demo-type-switch button.selected{
+  background:var(--public-deep);border-color:var(--public-deep);color:#fff;
+}
+#publicShell .public-form-section-head{
+  margin-top:16px;padding-top:18px;border-top:1px solid var(--public-line);
+}
+#publicShell .public-form-section-head>span{
+  font-family:Prompt,Arial,sans-serif;font-size:20px;letter-spacing:-.025em;color:var(--public-ink);
+}
+#publicShell .public-form-section-head>small{color:var(--public-muted);line-height:1.45}
+#publicShell .public-demo-booking-form input,
+#publicShell .public-demo-booking-form select,
+#publicShell .public-demo-booking-form textarea{
+  border:1px solid var(--public-line);border-radius:14px;background:#fff;padding:13px;color:var(--public-ink);
+}
+#publicShell .public-demo-booking-form input:focus,
+#publicShell .public-demo-booking-form select:focus,
+#publicShell .public-demo-booking-form textarea:focus{
+  border-color:#9EBFB6;box-shadow:0 0 0 4px rgba(207,226,221,.45);outline:none;
+}
+#publicShell .public-addons{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#publicShell .addon-choice{border-radius:15px;background:#fff;padding:13px}
+#publicShell .public-slots{gap:9px}
+#publicShell .slot-btn{
+  border-radius:12px;padding:11px 13px;font-size:12px;background:#fff;
+}
+#publicShell .slot-btn.selected{background:var(--public-ink);color:#fff;border-color:var(--public-ink)}
+#publicShell .booking-availability-alert{
+  width:100%;padding:13px 14px;border-radius:13px;background:#FFF3C4;color:#5F4A00;font-size:12px;
+}
+#publicShell .public-timezone-notice{font-size:10px;color:var(--public-muted);line-height:1.4}
+#publicShell .public-demo-summary-stack{
+  grid-column:2;
+  position:sticky;
+  top:96px;
+  display:grid;
+  gap:10px;
+  min-width:0;
+}
+#publicShell .public-summary{
+  display:block;
+  margin:0;
+  background:var(--public-deep);
+  color:#fff;
+  border-radius:28px;
+  padding:22px;
+  box-shadow:0 24px 55px rgba(41,70,64,.21);
+}
+#publicShell .public-demo-summary-top{
+  display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:16px;
+}
+#publicShell .public-demo-summary-top small{color:rgba(255,255,255,.7);font-size:10px}
+#publicShell .public-demo-summary-top h3{
+  font-family:Prompt,Arial,sans-serif;font-size:24px;letter-spacing:-.03em;margin:3px 0 0;
+}
+#publicShell .public-demo-summary-top>span{
+  color:#fff;background:rgba(255,255,255,.12);padding:7px 8px;border-radius:999px;
+  font-size:9px;font-weight:900;letter-spacing:.08em;
+}
+#publicShell .public-demo-summary-photo{height:145px;border-radius:18px;overflow:hidden;margin-bottom:16px;background:#d7e7e2}
+#publicShell .public-demo-summary-photo img{width:100%;height:100%;object-fit:cover}
+#publicShell .public-demo-summary-row{
+  display:flex;justify-content:space-between;gap:14px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.12);font-size:12px;
+}
+#publicShell .public-demo-summary-row span{color:rgba(255,255,255,.68)}
+#publicShell .public-demo-summary-row strong{text-align:right;max-width:62%;font-size:12px}
+#publicShell .public-demo-summary-total{
+  display:flex;justify-content:space-between;align-items:end;padding:16px 0 2px;
+}
+#publicShell .public-demo-summary-total span{color:rgba(255,255,255,.7);font-size:10px}
+#publicShell .public-demo-summary-total strong{font-size:26px}
+#publicShell .public-demo-summary-stack .public-submit{
+  width:100%;min-height:50px;border:0;background:var(--public-butter);color:var(--public-ink);
+  border-radius:15px;padding:14px 16px;font-weight:900;
+}
+#publicShell .public-demo-summary-stack .public-submit:disabled{opacity:.5}
+#publicShell .public-demo-summary-micro{
+  margin:0 4px;text-align:center;color:var(--public-muted);font-size:9px;line-height:1.45;
+}
+#publicShell .public-demo-support{
+  grid-column:1/-1;
+  display:grid;grid-template-columns:.9fr 1.1fr;
+  overflow:hidden;margin-top:8px;
+  background:#fff;border:1px solid var(--public-line);border-radius:28px;box-shadow:var(--public-shadow);
+}
+#publicShell .public-demo-support img{width:100%;height:100%;min-height:330px;object-fit:cover}
+#publicShell .public-demo-support>div{padding:36px;align-self:center}
+#publicShell .public-demo-support .eyebrow{
+  display:inline-block;color:var(--public-deep);font-size:10px;font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;
+}
+#publicShell .public-demo-support h2{
+  font-family:Prompt,Arial,sans-serif;font-size:clamp(30px,4vw,42px);line-height:1.03;
+  letter-spacing:-.045em;margin:0 0 13px;
+}
+#publicShell .public-demo-support p{color:var(--public-muted);line-height:1.6;font-size:14px;margin:0}
+#publicShell .public-invoice-view,
+#publicShell .public-quote-review,
+#publicShell .public-success{
+  width:min(760px,100%);margin:0 auto;background:#fff;border:1px solid var(--public-line);
+  border-radius:28px;padding:clamp(22px,5vw,36px);box-shadow:var(--public-shadow);
+}
+@media(max-width:900px){
+  #publicShell .public-demo-hero{grid-template-columns:1fr}
+  #publicShell .public-demo-hero-photo{min-height:380px}
+  #publicShell .public-demo-booking-form{grid-template-columns:1fr}
+  #publicShell .public-demo-booking-form>.form-grid,
+  #publicShell .public-demo-summary-stack{grid-column:1}
+  #publicShell .public-demo-summary-stack{position:relative;top:auto}
+  #publicShell .public-demo-support{grid-template-columns:1fr}
+  #publicShell .public-demo-support img{min-height:280px;max-height:360px}
+}
+@media(max-width:620px){
+  #publicShell .public-main{width:min(100% - 22px,1180px);padding-top:12px}
+  #publicShell .public-header{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  #publicShell .public-header .brand-name{max-width:45vw;font-size:12px}
+  #publicShell .compact-header-actions .pill{display:none}
+  #publicShell .public-demo-hero{padding-top:8px;gap:20px}
+  #publicShell .public-demo-hero h1{font-size:44px}
+  #publicShell .public-demo-hero .public-copy{font-size:15px}
+  #publicShell .public-demo-hero-photo{min-height:330px;border-radius:25px}
+  #publicShell .public-demo-photo-overlay{left:12px;right:12px;bottom:12px;padding:12px}
+  #publicShell #publicHeroAvailability{font-size:9px;padding:7px 8px}
+  #publicShell .public-request-switch{margin-bottom:12px}
+  #publicShell .public-demo-booking-form>.form-grid{grid-template-columns:1fr;padding:19px;border-radius:24px}
+  #publicShell .public-demo-booking-form>.form-grid>.full{grid-column:1}
+  #publicShell .public-demo-service-cards,
+  #publicShell .public-addons,
+  #publicShell .public-demo-type-switch{grid-template-columns:1fr}
+  #publicShell .public-demo-service-card{min-height:118px}
+  #publicShell .public-demo-support>div{padding:25px}
+  #publicShell .public-demo-support h2{font-size:32px}
+  #publicShell .public-demo-summary-stack{margin-top:0}
+  #publicShell .public-summary{border-radius:24px;padding:19px}
+  #publicShell .public-demo-summary-photo{height:165px}
+}
