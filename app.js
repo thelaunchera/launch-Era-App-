@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-booking-demo-226";
+const APP_VERSION = "20260930-owner-risk-227";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2465,83 +2465,23 @@ function maskEmail(email=""){
   return shown+"@"+parts[1];
 }
 
-function saveOwnerSessionBackup(session){
-  try{
-    const email=String(session?.user?.email||"").trim().toLowerCase();
-    const accessToken=String(session?.access_token||"");
-    const refreshToken=String(session?.refresh_token||"");
-    if(!email || !accessToken || !refreshToken) return;
-    localStorage.setItem(OWNER_SESSION_BACKUP_KEY,JSON.stringify({
-      email,
-      access_token:accessToken,
-      refresh_token:refreshToken,
-      saved_at:Date.now()
-    }));
-  }catch(err){
-    console.warn("[TLE] session backup save",err);
-  }
+function saveOwnerSessionBackup(){
+  // Supabase already persists the browser session. Never keep a second copy
+  // of access/refresh tokens in our own localStorage key.
+  clearOwnerSessionBackup();
 }
 function clearOwnerSessionBackup(){
   try{localStorage.removeItem(OWNER_SESSION_BACKUP_KEY);}catch{}
 }
 function readOwnerSessionBackup(){
-  try{
-    const raw=JSON.parse(localStorage.getItem(OWNER_SESSION_BACKUP_KEY)||"null");
-    if(!raw?.email || !raw?.access_token || !raw?.refresh_token) return null;
-    // Supabase access tokens are JWTs. Never send a damaged legacy token back
-    // to Auth because it can cause repeated 403 /user requests on app boot.
-    if(String(raw.access_token).split(".").length!==3){
-      clearOwnerSessionBackup();
-      return null;
-    }
-    const savedAt=Number(raw.saved_at||0);
-    if(!Number.isFinite(savedAt) || Date.now()-savedAt>OWNER_IDLE_MS){
-      clearOwnerSessionBackup();
-      return null;
-    }
-    return raw;
-  }catch{
-    clearOwnerSessionBackup();
-    return null;
-  }
-}
-function isPermanentSessionRestoreError(err){
-  const raw=String(err?.message||err||"").toLowerCase();
-  return /invalid refresh token|refresh token not found|refresh_token_not_found|invalid jwt|jwt expired|session not found|user not found/.test(raw);
+  // One-time cleanup for devices that may still have the legacy token backup.
+  clearOwnerSessionBackup();
+  return null;
 }
 async function restoreOwnerSessionFromBackup(){
-  const backup=readOwnerSessionBackup();
-  if(!backup) return null;
-  const remembered=rememberedOwnerEmail();
-  if(remembered && backup.email!==remembered) return null;
-
-  let lastError=null;
-  for(let attempt=0;attempt<2;attempt++){
-    try{
-      const {data,error}=await supabase.auth.setSession({
-        access_token:backup.access_token,
-        refresh_token:backup.refresh_token
-      });
-      if(!error && data?.session){
-        saveOwnerSessionBackup(data.session);
-        localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
-        return data.session;
-      }
-      lastError=error||new Error("Session restore returned no session");
-      if(isPermanentSessionRestoreError(lastError)){
-        clearOwnerSessionBackup();
-        return null;
-      }
-    }catch(err){
-      lastError=err;
-      if(isPermanentSessionRestoreError(err)){
-        clearOwnerSessionBackup();
-        return null;
-      }
-    }
-    await new Promise(resolve=>setTimeout(resolve,220));
-  }
-  console.warn("[TLE] session backup restore deferred",lastError);
+  // Normal session recovery is handled by supabase.auth.getSession().
+  // The legacy duplicate-token fallback is intentionally disabled.
+  clearOwnerSessionBackup();
   return null;
 }
 function markOwnerActivity(){
