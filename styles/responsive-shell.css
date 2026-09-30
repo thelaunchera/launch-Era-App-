@@ -289,7 +289,11 @@
     gap:10px!important;
     padding:14px!important;
   }
+  [data-page="booking"] .booking-request-copy{
+    grid-column:1!important;
+  }
   [data-page="booking"] .booking-request-actions{
+    grid-column:1!important;
     display:flex!important;
     flex-wrap:wrap!important;
     align-items:center!important;

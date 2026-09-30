@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-booking-request-layout-217";
+const CACHE_NAME="tle-cleaning-app-20260930-booking-actions-grid-218";
 const CORE=[
-  "./boot.js?v=20260930-booking-request-layout-217",
-  "./styles/boot.css?v=20260930-booking-request-layout-217",
+  "./boot.js?v=20260930-booking-actions-grid-218",
+  "./styles/boot.css?v=20260930-booking-actions-grid-218",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-booking-request-layout-217",
-  "./styles/workspace-components.css?v=20260930-booking-request-layout-217",
-  "./styles/workspace-experience.css?v=20260930-booking-request-layout-217",
-  "./styles/workspace-operations.css?v=20260930-booking-request-layout-217",
-  "./styles/release-overrides.css?v=20260930-booking-request-layout-217",
-  "./styles/release-mobile.css?v=20260930-booking-request-layout-217",
-  "./styles/release-latest.css?v=20260930-booking-request-layout-217",
-  "./styles/responsive-shell.css?v=20260930-booking-request-layout-217",
-  "./styles/customer-documents.css?v=20260930-booking-request-layout-217",
-  "./styles/invoice-polish.css?v=20260930-booking-request-layout-217",
-  "./app.js?v=20260930-booking-request-layout-217",
-  "./followups.js?v=20260930-booking-request-layout-217",
-  "./i18n-completion.js?v=20260930-booking-request-layout-217",
-  "./i18n.js?v=20260930-booking-request-layout-217",
-  "./onboarding-copy.js?v=20260930-booking-request-layout-217",
-  "./public.js?v=20260930-booking-request-layout-217",
-  "./vendor/supabase.js?v=20260930-booking-request-layout-217",
-  "./manifest.webmanifest?v=20260930-booking-request-layout-217"
+  "./styles.css?v=20260930-booking-actions-grid-218",
+  "./styles/workspace-components.css?v=20260930-booking-actions-grid-218",
+  "./styles/workspace-experience.css?v=20260930-booking-actions-grid-218",
+  "./styles/workspace-operations.css?v=20260930-booking-actions-grid-218",
+  "./styles/release-overrides.css?v=20260930-booking-actions-grid-218",
+  "./styles/release-mobile.css?v=20260930-booking-actions-grid-218",
+  "./styles/release-latest.css?v=20260930-booking-actions-grid-218",
+  "./styles/responsive-shell.css?v=20260930-booking-actions-grid-218",
+  "./styles/customer-documents.css?v=20260930-booking-actions-grid-218",
+  "./styles/invoice-polish.css?v=20260930-booking-actions-grid-218",
+  "./app.js?v=20260930-booking-actions-grid-218",
+  "./followups.js?v=20260930-booking-actions-grid-218",
+  "./i18n-completion.js?v=20260930-booking-actions-grid-218",
+  "./i18n.js?v=20260930-booking-actions-grid-218",
+  "./onboarding-copy.js?v=20260930-booking-actions-grid-218",
+  "./public.js?v=20260930-booking-actions-grid-218",
+  "./vendor/supabase.js?v=20260930-booking-actions-grid-218",
+  "./manifest.webmanifest?v=20260930-booking-actions-grid-218"
 ];
 
 self.addEventListener("install",event=>{
