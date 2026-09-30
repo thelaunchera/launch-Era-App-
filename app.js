@@ -351,6 +351,46 @@ setTimeout(syncLegalLinks,0);
 function appLanguage(){
   return String(window.TLE_I18N?.language||state.business?.default_language||"en").toLowerCase();
 }
+
+function authPreferredLanguage(){
+  const lang=String(
+    window.TLE_I18N?.language ||
+    state.business?.default_language ||
+    state.session?.user?.user_metadata?.preferred_language ||
+    "en"
+  ).trim().toLowerCase();
+  return ["en","es","fr","ht"].includes(lang)?lang:"en";
+}
+
+function authEmailRedirectUrl(){
+  try{
+    const url=new URL(window.location.href.split("#")[0]);
+    url.search="";
+    url.searchParams.set("lang",authPreferredLanguage());
+    return url.toString();
+  }catch{
+    return window.location.href.split("#")[0].split("?")[0];
+  }
+}
+
+async function syncAuthPreferredLanguage(language){
+  const lang=String(language||authPreferredLanguage()).trim().toLowerCase();
+  if(!state.session?.user || !["en","es","fr","ht"].includes(lang)) return;
+  const current=String(state.session.user.user_metadata?.preferred_language||"").toLowerCase();
+  if(current===lang) return;
+  try{
+    const {data,error}=await supabase.auth.updateUser({
+      data:{
+        ...(state.session.user.user_metadata||{}),
+        preferred_language:lang
+      }
+    });
+    if(error) throw error;
+    if(data?.user && state.session) state.session.user=data.user;
+  }catch(err){
+    console.warn("[TLE] auth preferred language sync",err);
+  }
+}
 function appIsSpanish(){
   return appLanguage()==="es";
 }
@@ -2850,8 +2890,12 @@ authForm.addEventListener("submit", async (e)=>{
       const { data, error } = await supabase.auth.signUp({
         email,password,
         options:{
-          emailRedirectTo: window.location.href.split("#")[0].split("?")[0],
-          data:{tle_new_signup:true,tle_signup_welcome_seen:false}
+          emailRedirectTo: authEmailRedirectUrl(),
+          data:{
+            tle_new_signup:true,
+            tle_signup_welcome_seen:false,
+            preferred_language:authPreferredLanguage()
+          }
         }
       });
       if(error) throw error;
@@ -2900,7 +2944,7 @@ $("#forgotPassword").addEventListener("click", async ()=>{
   const email = $("#authEmail").value.trim();
   if(!email){ showToast("Enter your email first"); return; }
   const { error } = await supabase.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.href.split("#")[0].split("?")[0]
+    redirectTo: authEmailRedirectUrl()
   });
   showToast(error ? error.message : "Password reset email sent");
 });
@@ -3489,6 +3533,10 @@ async function initialize(){
     trial_ends_at:context.trial_ends_at,
     subscription_status:context.subscription_status
   };
+
+  if(state.business?.role==="owner"){
+    await syncAuthPreferredLanguage(state.business.default_language||"en");
+  }
 
   if(state.business?.role==="owner" && ownerIdleExpired()){
     await expireOwnerSession();
@@ -6432,6 +6480,7 @@ async function saveAppPreferences(fd){
     .single();
   if(error) throw error;
   state.business={...state.business,...data};
+  await syncAuthPreferredLanguage(data.default_language);
   if(window.TLE_I18N?.setLanguage) window.TLE_I18N.setLanguage(data.default_language);
   renderSettings();
 }
