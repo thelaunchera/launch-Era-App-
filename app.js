@@ -6822,8 +6822,8 @@ async function initializePublicRequest(mode,slug){
 
   const {data,error}=await supabase.rpc("get_public_booking_config",{p_slug:slug});
   if(error){
-    $("#publicBusinessName").textContent="Page unavailable";
-    $("#publicIntro").textContent=error.message||"This booking page is not available.";
+    $("#publicBusinessName").textContent=tr("Page unavailable");
+    $("#publicIntro").textContent=error.message||tr("This booking page is not available.");
     $("#publicRequestForm").hidden=true;
     return;
   }
@@ -6841,12 +6841,12 @@ async function initializePublicRequest(mode,slug){
   const slotInput=$("#publicSlotStart");
   const submit=$("#publicSubmitBtn");
 
-  $("#publicBusinessName").textContent=data?.business?.name||"Cleaning service";
-  $("#publicModeLabel").textContent=mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING";
+  $("#publicBusinessName").textContent=data?.business?.name||tr("Cleaning service");
+  $("#publicModeLabel").textContent=mode==="quote"?tr("REQUEST A QUOTE"):tr("BOOK A CLEANING");
   $("#publicIntro").textContent=mode==="quote"
-    ?"Tell us what you need and the business will review your request."
-    :"Choose a service, date, and one of the real available times below.";
-  submit.textContent=mode==="quote"?"Send quote request":"Send booking request";
+    ?tr("Tell us what you need and the business will review your request.")
+    :tr("Choose a service, date, and one of the real available times below.");
+  submit.textContent=mode==="quote"?tr("Send quote request"):tr("Send booking request");
   $("#publicAddonsWrap").hidden=mode==="quote";
   if(quoteTimeWrap) quoteTimeWrap.hidden=mode!=="quote";
   if(slotsWrap) slotsWrap.hidden=mode==="quote";
@@ -6855,18 +6855,18 @@ async function initializePublicRequest(mode,slug){
   if(quoteTimeInput) quoteTimeInput.required=false;
 
   if(!services.length){
-    serviceSelect.innerHTML='<option value="">'+(mode==="quote"?"No services available yet":"No priced services available for online booking")+'</option>';
+    serviceSelect.innerHTML='<option value="">'+(mode==="quote"?tr("No services available yet"):tr("No priced services available for online booking"))+'</option>';
     serviceSelect.disabled=true;
     submit.disabled=true;
     summary.innerHTML=mode==="quote"
-      ?'<span>No services are available yet. Please contact the cleaning business directly.</span>'
-      :'<span>No instant-booking services are available yet. Services without a fixed price require a quote.</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">Request a Quote</button>';
+      ?'<span>'+escapeHtml(tr("No services are available yet. Please contact the cleaning business directly."))+'</span>'
+      :'<span>'+escapeHtml(tr("No instant-booking services are available yet. Services without a fixed price require a quote."))+'</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">'+escapeHtml(tr("Request a Quote"))+'</button>';
     $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
       window.location.href=window.location.origin+window.location.pathname+"?public=quote&slug="+encodeURIComponent(slug);
     });
   }else{
     serviceSelect.disabled=false;
-    serviceSelect.innerHTML='<option value="">Choose a service</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${mode==="quote"?" · Quote required":s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
+    serviceSelect.innerHTML='<option value="">'+escapeHtml(tr("Choose a service"))+'</option>'+services.map(s=>`<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}${mode==="quote"?" · "+tr("Quote required"):s.base_price!=null?" · "+money(s.base_price):""}</option>`).join("");
   }
 
   const chosenAddonIds=()=>$$('input[name="addon"]:checked',addonBox).map(x=>x.value);
@@ -6877,7 +6877,7 @@ async function initializePublicRequest(mode,slug){
     const chosen=addons.filter(a=>chosenAddonIds().includes(a.id));
     const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
     const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
-    summary.innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${mode==="quote"?" · Quote will be reviewed":" · Total: "+money(total)}</span>`;
+    summary.innerHTML=`<strong>${escapeHtml(selected.name)}</strong><span>${duration} min${mode==="quote"?" · "+tr("Quote will be reviewed"):" · "+tr("Total")+": "+money(total)}</span>`;
   }
 
   function renderPublicAddons(){
@@ -6913,11 +6913,11 @@ async function initializePublicRequest(mode,slug){
     const serviceId=serviceSelect.value;
     const dateValue=form?.querySelector('[name="date"]')?.value;
     if(!serviceId || !dateValue){
-      slotsBox.innerHTML='<span class="muted-line">Choose a service and date first.</span>';
+      slotsBox.innerHTML='<span class="muted-line">'+escapeHtml(tr("Choose a service and date first."))+'</span>';
       return;
     }
 
-    slotsBox.innerHTML='<span class="muted-line">Checking availability…</span>';
+    slotsBox.innerHTML='<span class="muted-line">'+escapeHtml(tr("Checking availability…"))+'</span>';
     const {data:rows,error:slotError}=await supabase.rpc("get_public_available_slots",{
       p_slug:slug,
       p_service_id:serviceId,
@@ -6932,7 +6932,7 @@ async function initializePublicRequest(mode,slug){
 
     const slots=Array.isArray(rows)?rows:[];
     if(!slots.length){
-      slotsBox.innerHTML='<span class="muted-line">No openings on this date. Try another day.</span>';
+      slotsBox.innerHTML='<span class="muted-line">'+escapeHtml(tr("No openings on this date. Try another day."))+'</span>';
       return;
     }
 
@@ -6975,11 +6975,11 @@ async function initializePublicRequest(mode,slug){
     const propertyType=String(fd.get("property_type")||"").trim().toLowerCase();
     const squareFeet=String(fd.get("square_feet")||"").trim();
     const customerNotes=String(fd.get("notes")||"").trim();
-    setBusy(submit,true,"Sending…");
+    setBusy(submit,true,tr("Sending…"));
     try{
-      if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error("Phone is required for Text or WhatsApp.");
-      if(!["residential","commercial"].includes(propertyType)) throw new Error("Choose Residential or Commercial.");
-      if(squareFeet && (!/^\d+$/.test(squareFeet) || Number(squareFeet)<1)) throw new Error("Square feet must be a positive number.");
+      if((preferred==="text"||preferred==="whatsapp")&&!phone) throw new Error(tr("Phone is required for Text or WhatsApp."));
+      if(!["residential","commercial"].includes(propertyType)) throw new Error(tr("Choose Residential or Commercial."));
+      if(squareFeet && (!/^\d+$/.test(squareFeet) || Number(squareFeet)<1)) throw new Error(tr("Square feet must be a positive number."));
       const requestNotes=[
         "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
         squareFeet ? "Approx. square feet: "+squareFeet : "",
@@ -7002,7 +7002,7 @@ async function initializePublicRequest(mode,slug){
         if(submitError) throw submitError;
       }else{
         const selectedSlot=String(fd.get("slot_start")||"").trim();
-        if(!selectedSlot) throw new Error("Choose one of the available times.");
+        if(!selectedSlot) throw new Error(tr("Choose one of the available times."));
         const {error:submitError}=await supabase.rpc("submit_public_booking_request",{
           p_slug:slug,
           p_service_id:fd.get("service_id"),
@@ -7021,10 +7021,10 @@ async function initializePublicRequest(mode,slug){
       form.hidden=true;
       $("#publicSuccess").hidden=false;
       $("#publicSuccessCopy").textContent=mode==="quote"
-        ?"Your quote request was sent. The business will review it and contact you."
+        ?tr("Your quote request was sent. The business will review it and contact you.")
         :"Your booking request was sent. The business will review it and confirm the appointment.";
     }catch(err){
-      showToast(err.message||"Could not send request");
+      showToast(err.message||tr("Could not send request"));
     }finally{
       setBusy(submit,false);
     }
