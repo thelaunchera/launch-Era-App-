@@ -2012,6 +2012,25 @@
     "Choose one of the available times.":"Chwazi youn nan lè ki disponib yo.","This page is not available.":"Paj sa a pa disponib."
   });
 
+
+  Object.assign(staticCorrections.fr,{
+    "Choose Residential or Commercial.":"Choisissez Résidentiel ou Commercial.",
+    "Keep your client-facing links close while you run the day.":"Gardez vos liens destinés aux clients à portée de main pendant la journée."
+  });
+  Object.assign(extra.ht,{
+    "Your scheduled jobs will appear here.":"Travay ou pwograme yo ap parèt isit la.",
+    "Waiting for response":"Ap tann repons","Waiting for review":"Ap tann revizyon",
+    "No overdue invoices, sent quotes, or new booking requests need attention.":"Pa gen fakti an reta, devis voye oswa nouvo demann rezèvasyon ki bezwen atansyon.",
+    "Add profile":"Ajoute pwofil","Add page":"Ajoute paj","Add link":"Ajoute lyen",
+    "Keep your client-facing links close while you run the day.":"Kenbe lyen kliyan yo toupre pandan w ap jere jounen an.",
+    "Add Instagram, Facebook and your review link in Business Profile.":"Ajoute Instagram, Facebook ak lyen revizyon ou nan Pwofil Biznis la.",
+    "Extra job type":"Kalite travay anplis","Choose type":"Chwazi kalite","Supply run":"Ale pran founiti",
+    "Office / home / previous stop":"Biwo / kay / arè anvan","Client / supply store":"Kliyan / magazen founiti",
+    "e.g. pick up supplies":"egzanp: pran founiti","Enter a distance greater than 0.":"Antre yon distans ki pi gran pase 0.",
+    "Complete From and To.":"Ranpli Soti ak Rive.","Choose the extra job type.":"Chwazi kalite travay anplis la.",
+    "Removed from Time Tracking only.":"Retire sèlman nan Swiv Tan.","Could not remove it from this list.":"Pa t ka retire li nan lis sa a."
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
