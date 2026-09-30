@@ -3244,6 +3244,20 @@
     "Could not send request":"Pa t ka voye demann lan"
   });
 
+  Object.assign(staticCorrections.es,{
+    "Sent":"Enviada","Draft":"Borrador","Outstanding":"Pendiente","outstanding":"pendiente",
+    "Tap":"Toca","Add":"Añadir","or":"o","30 days":"30 días","$5.99/month":"$5.99/mes"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Sent":"Envoyé","Draft":"Brouillon","Outstanding":"Impayé","outstanding":"impayé",
+    "Tap":"Touchez","Add":"Ajouter","or":"ou","30 days":"30 jours","$5.99/month":"5,99 $/mois"
+  });
+  Object.assign(staticCorrections.ht,{
+    "Sent":"Voye","Draft":"Bouyon","Outstanding":"Poko peye","outstanding":"poko peye",
+    "Tap":"Peze","Add":"Ajoute","or":"oswa","30 days":"30 jou","$5.99/month":"$5.99/mwa",
+    "The error is still happening. Support has been alerted. Check the fields and try again.":"Erè a toujou ap rive. Tcheke chan yo epi eseye ankò."
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
