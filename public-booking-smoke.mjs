@@ -39,7 +39,7 @@ const businessConfig={
   },
   services:[
     {
-      id:"svc-standard",
+      id:"11111111-1111-4111-8111-111111111111",
       name:"Standard Home Cleaning",
       description:"Routine residential cleaning for homes and apartments.",
       pricing_type:"flat",
@@ -47,7 +47,7 @@ const businessConfig={
       duration_minutes:120
     },
     {
-      id:"svc-office",
+      id:"22222222-2222-4222-8222-222222222222",
       name:"Office Cleaning",
       description:"Recurring commercial cleaning for offices and workspaces.",
       pricing_type:"flat",
@@ -55,7 +55,7 @@ const businessConfig={
       duration_minutes:150
     },
     {
-      id:"svc-post",
+      id:"33333333-3333-4333-8333-333333333333",
       name:"Post-Construction Commercial Cleaning",
       description:"Custom commercial cleanup after construction or renovation.",
       pricing_type:"quote_required",
@@ -63,7 +63,7 @@ const businessConfig={
       duration_minutes:180
     },
     {
-      id:"svc-home-quote",
+      id:"44444444-4444-4444-8444-444444444444",
       name:"Large Home Custom Cleaning",
       description:"Custom residential cleaning for larger homes.",
       pricing_type:"quote_required",
@@ -72,8 +72,8 @@ const businessConfig={
     }
   ],
   addons:[
-    {id:"addon-oven",service_id:"svc-standard",name:"Inside oven",price:25,extra_duration_minutes:20},
-    {id:"addon-glass",service_id:"svc-office",name:"Interior glass",price:40,extra_duration_minutes:25}
+    {id:"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",service_id:"11111111-1111-4111-8111-111111111111",name:"Inside oven",price:25,extra_duration_minutes:20},
+    {id:"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",service_id:"22222222-2222-4222-8222-222222222222",name:"Interior glass",price:40,extra_duration_minutes:25}
   ]
 };
 
@@ -86,8 +86,8 @@ const profiles=[
 ];
 const engines={chromium,firefox,webkit};
 
-async function mockBackend(page,calls){
-  await page.route("https://bowacxhmjvrqixtwaikv.supabase.co/**",async route=>{
+async function mockBackend(context,calls){
+  await context.route("https://bowacxhmjvrqixtwaikv.supabase.co/**",async route=>{
     const url=new URL(route.request().url());
     const pathname=url.pathname;
     calls.push(pathname);
@@ -125,17 +125,18 @@ async function runProfile(profile){
     const context=await browser.newContext({
       viewport:profile.viewport,
       isMobile:profile.viewport.width<=860,
-      hasTouch:profile.viewport.width<=860
+      hasTouch:profile.viewport.width<=860,
+      serviceWorkers:"block"
     });
-    const page=await context.newPage();
     const backendCalls=[];
+    await mockBackend(context,backendCalls);
+    const page=await context.newPage();
     const runtimeErrors=[];
     page.on("pageerror",err=>runtimeErrors.push("pageerror: "+String(err)));
     page.on("console",msg=>{ if(msg.type()==="error"||msg.type()==="warning") runtimeErrors.push(msg.type()+": "+msg.text()); });
     page.on("request",req=>{
       if(req.url().includes("supabase.co")) backendCalls.push("request:"+new URL(req.url()).pathname);
     });
-    await mockBackend(page,backendCalls);
 
     await page.goto("http://127.0.0.1:4176/?public=book&slug=smoke-cleaning",{
       waitUntil:"domcontentloaded",
