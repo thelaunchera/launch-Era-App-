@@ -3258,6 +3258,26 @@
     "The error is still happening. Support has been alerted. Check the fields and try again.":"Erè a toujou ap rive. Tcheke chan yo epi eseye ankò."
   });
 
+
+  Object.assign(staticCorrections.es,{
+    "Duration":"Duración","Team member":"Miembro del equipo","Price":"Precio","Description":"Descripción","Quantity":"Cantidad","Cost":"Costo","Role":"Rol",
+    "Requested":"Solicitada","Accepted":"Aceptada","Declined":"Rechazada","In progress":"En progreso","Scheduled":"Programado","Canceled":"Cancelado",
+    "New":"Nuevo","Contacted":"Contactado","Qualified":"Calificado","Quoted":"Cotizado","Archived":"Archivado","Partial":"Parcial","Resolved":"Resuelto",
+    "Delete":"Borrar"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Duration":"Durée","Team member":"Membre de l’équipe","Price":"Prix","Description":"Description","Quantity":"Quantité","Cost":"Coût","Role":"Rôle",
+    "Requested":"Demandé","Accepted":"Accepté","Declined":"Refusé","In progress":"En cours","Scheduled":"Planifié","Canceled":"Annulé",
+    "New":"Nouveau","Contacted":"Contacté","Qualified":"Qualifié","Quoted":"Devis envoyé","Archived":"Archivé","Partial":"Partiel","Resolved":"Résolu",
+    "Delete":"Supprimer"
+  });
+  Object.assign(extra.ht,{
+    "Duration":"Dire","Team member":"Manm ekip","Price":"Pri","Description":"Deskripsyon","Quantity":"Kantite","Cost":"Pri","Role":"Wòl",
+    "Requested":"Mande","Accepted":"Aksepte","Declined":"Refize","In progress":"An pwogrè","Scheduled":"Pwograme","Canceled":"Anile",
+    "New":"Nouvo","Contacted":"Kontakte","Qualified":"Kalifye","Quoted":"Devis voye","Archived":"Achive","Partial":"Pasyèl","Resolved":"Rezoud",
+    "Delete":"Efase"
+  });
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
