@@ -54,3 +54,4 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm install --no-save playwright@1.55.0
       - run: node cross-browser-smoke.mjs
+      - run: node public-booking-smoke.mjs
