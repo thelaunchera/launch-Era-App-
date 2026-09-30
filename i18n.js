@@ -2011,7 +2011,31 @@
     [/^Best route · (\d+) stops?$/i,(m,n)=>`Pi bon wout · ${n} arè`],
     [/^(\d+) booking requests?$/i,(m,n)=>`${n} demann rezèvasyon`],
     [/^Overdue (\d+)d$/i,(m,n)=>`Anreta ${n}j`],
-    [/^In (\d+) days$/i,(m,n)=>`Nan ${n} jou`]
+    [/^In (\d+) days$/i,(m,n)=>`Nan ${n} jou`],
+    [/^(.+?) conditions expected around (.+)\.$/i,(m,label,when)=>`${label} prevwa anviwon ${when}.`],
+    [/^(\d+) new notifications$/i,(m,n)=>`${n} nouvo notifikasyon`],
+    [/^(\d+)% booked · ([\d.]+) hrs still open$/i,(m,pct,hours)=>`${pct}% rezève · ${hours} èdtan toujou disponib`],
+    [/^(.+?) expected (.+?) around (.+)\.$/i,(m,what,day,when)=>`${what} prevwa ${day} anviwon ${when}.`],
+    [/^It’s (.+)\. If you’re still on the road, leave a few minutes for water between stops\.$/i,(m,temp)=>`Li fè ${temp}. Si w toujou sou wout, pran kèk minit pou bwè dlo ant arè yo.`],
+    [/^Next stop at (.+?)(?: in (.+))?\.$/i,(m,time,area)=>`Pwochen arè a ${time}${area?` nan ${area}`:""}.`],
+    [/^You have (\d+) jobs? today\. (.+) Check the address before you leave\.$/i,(m,n,next)=>`Ou gen ${n} travay jodi a. ${next} Tcheke adrès la anvan ou soti.`],
+    [/^(.+) You have (\d+) jobs? still on today’s schedule\.$/i,(m,next,n)=>`${next} Ou toujou gen ${n} travay nan orè jodi a.`],
+    [/^(.+) After that, (\d+) stops? remain\.$/i,(m,next,n)=>`${next} Apre sa, ${n} arè rete.`],
+    [/^You have (\d+) jobs? left\. (.+)$/i,(m,n,next)=>`Ou gen ${n} travay ki rete. ${next}`],
+    [/^(.+) It still shows as pending; check the status before closing the day\.$/i,(m,next)=>`${next} Li toujou make kòm annatant; tcheke estati a anvan ou fini jounen an.`],
+    [/^You have (\d+) booking requests? waiting for review(?: and (\d+) open quotes?)?\.$/i,(m,n,q)=>`Ou gen ${n} demann rezèvasyon k ap tann revizyon${q?` ak ${q} devis ouvè`:""}.`],
+    [/^You have (\d+) open quotes?\. Check which one needs the next step\.$/i,(m,n)=>`Ou gen ${n} devis ouvè. Tcheke kilès ki bezwen pwochen etap la.`],
+    [/^You have (\d+) overdue invoices? that needs? attention\. Review payment status before you close the day\.$/i,(m,n)=>`Ou gen ${n} fakti anreta ki bezwen atansyon. Revize estati peman an anvan ou fini jounen an.`],
+    [/^You have (\d+) jobs? tomorrow\. Check the first address, then call it a day\.$/i,(m,n)=>`Ou gen ${n} travay demen. Tcheke premye adrès la, apre sa fini jounen an.`],
+    [/^(.+) is still waiting to be collected\.$/i,(m,amount)=>`${amount} toujou ap tann pou kolekte.`],
+    [/^(\d+) overdue invoices? (?:needs|need) attention\.$/i,(m,n)=>`${n} fakti anreta bezwen atansyon.`],
+    [/^(.+) in quotes could turn into booked work\.$/i,(m,amount)=>`${amount} nan devis ka tounen travay rezève.`],
+    [/^(\d+) sent quotes? (?:is|are) waiting for a client response\.$/i,(m,n)=>`${n} devis voye ap tann repons kliyan an.`],
+    [/^(\d+) new booking requests? (?:is|are) ready for you\.$/i,(m,n)=>`${n} nouvo demann rezèvasyon pare pou ou.`],
+    [/^(\d+) scheduled jobs? · (\d+) new clients? · (.+) collected\.$/i,(m,jobs,clients,amount)=>`${jobs} travay pwograme · ${clients} nouvo kliyan · ${amount} kolekte.`],
+    [/^Permanently delete this (.+)\? This cannot be undone\.$/i,(m,item)=>`Efase ${item} sa a nèt? Sa pa ka anile.`],
+    [/^Custom message saved for (.+)\.$/i,(m,language)=>`Mesaj pèsonalize sove pou ${language}.`],
+    [/^Using the default message for (.+)\.$/i,(m,language)=>`N ap itilize mesaj estanda pou ${language}.`]
   ];
 
   const patterns=[
