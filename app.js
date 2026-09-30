@@ -3647,6 +3647,14 @@ supabase.auth.onAuthStateChange((event, session)=>{
     state.business=null;
     if(window.__tleSigningOut || window.__tleOwnerLocking) return;
     setTimeout(()=>{
+      // Do not let a late SIGNED_OUT bootstrap event erase a sign-in/sign-up
+      // form the user has already opened. Keep their current auth intent stable.
+      if(window.__tleAuthModeTouched && authPanel && !authPanel.hidden){
+        setShellState("auth");
+        if(authShell) authShell.hidden=false;
+        prepareAdminShortcut();
+        return;
+      }
       showAuthWelcome();
       prepareAdminShortcut();
     },0);
