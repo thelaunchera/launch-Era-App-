@@ -16,18 +16,18 @@
   <meta name="description" content="The Launch Era Cleaning App — simple operations for cleaning businesses serving homes, Airbnb and short-term rentals, offices, stores, restaurants and other commercial spaces." />
   <meta name="robots" content="noindex,nofollow" />
   <title>The Launch Era Cleaning App</title>
-  <script src="./boot.js?v=20260930-centers-hierarchy-220"></script>
-  <link rel="stylesheet" href="./styles/boot.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/workspace-components.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/release-overrides.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/release-mobile.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/release-latest.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260930-centers-hierarchy-220" />
-  <link rel="stylesheet" href="./styles/invoice-polish.css?v=20260930-centers-hierarchy-220" />
+  <script src="./boot.js?v=20260930-booking-demo-221"></script>
+  <link rel="stylesheet" href="./styles/boot.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/workspace-components.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/release-overrides.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/release-mobile.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/release-latest.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/customer-documents.css?v=20260930-booking-demo-221" />
+  <link rel="stylesheet" href="./styles/invoice-polish.css?v=20260930-booking-demo-221" />
 </head>
 <body class="shell-auth">
   <div id="sessionSplash" role="status" aria-live="polite" aria-label="Loading Cleaning App">
@@ -157,10 +157,10 @@
   </div>
   <div class="public-shell" id="publicShell" hidden>
     <header class="public-header">
-      <a class="brand-row public-app-home" href="./" aria-label="Open Cleaning App">
-        <div class="brand-mark">TLE</div>
-        <div><div class="brand-name">The Launch Era</div><div class="brand-sub">Cleaning App</div></div>
-      </a>
+      <div class="brand-row public-business-brand" aria-label="Cleaning business booking page">
+        <div class="brand-mark" id="publicHeaderMark">CB</div>
+        <div><div class="brand-name" id="publicHeaderBusinessName">Cleaning Business</div><div class="brand-sub" id="publicHeaderSub">Online Booking</div></div>
+      </div>
       <div class="compact-header-actions">
         <button class="language-mini-toggle" type="button" data-language-toggle aria-label="Choose language">EN</button>
         <span class="pill blue">Secure request</span>
@@ -168,29 +168,58 @@
     </header>
     <main class="public-main">
       <button class="back-btn public-back" id="publicBackBtn" type="button">← Back</button>
+      <section class="public-demo-hero" id="publicBookingHero">
+        <div class="public-demo-hero-copy">
+          <p class="eyebrow" id="publicModeLabel">BOOK A CLEANING</p>
+          <h1 id="publicBusinessName">Cleaning service</h1>
+          <p class="public-copy" id="publicIntro">Choose your service and send your request.</p>
+          <div class="public-demo-hero-points" aria-hidden="true">
+            <span>✓ Clear service options</span>
+            <span>✓ Real availability</span>
+            <span>✓ Mobile friendly</span>
+          </div>
+        </div>
+        <div class="public-demo-hero-photo">
+          <img id="publicHeroPhoto" src="https://images.pexels.com/photos/36729566/pexels-photo-36729566.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Professional cleaner in a bright home">
+          <div class="public-demo-photo-overlay">
+            <div><strong id="publicHeroOverlayTitle">Simple booking.</strong><small id="publicHeroOverlayCopy">Clear details from the start.</small></div>
+            <span id="publicHeroAvailability">● Accepting requests</span>
+          </div>
+        </div>
+      </section>
       <div class="public-card">
-        <p class="eyebrow" id="publicModeLabel">BOOK A CLEANING</p>
-        <h1 id="publicBusinessName">Cleaning service</h1>
-        <p class="public-copy" id="publicIntro">Choose your service and send your request.</p>
         <nav class="public-request-switch" id="publicRequestSwitch" aria-label="Choose request type">
           <button type="button" id="publicBookTab" class="public-request-tab" data-public-mode="book">Book a Cleaning</button>
           <button type="button" id="publicQuoteTab" class="public-request-tab" data-public-mode="quote">Request a Quote</button>
         </nav>
-        <form id="publicRequestForm" class="entity-form">
+        <form id="publicRequestForm" class="entity-form public-demo-booking-form">
+          <div class="public-demo-stepper" aria-hidden="true"><span class="active"></span><span class="active"></span><span class="active"></span><span></span></div>
           <div class="form-grid">
-            <label class="full" id="publicServiceField"><span id="publicServiceLabel">Service</span><select name="service_id" id="publicService" required><option value="">Choose a service</option></select></label>
+            <div class="full public-demo-section public-demo-service-section">
+              <div class="public-demo-section-label">01 · Service</div>
+              <div class="public-demo-section-head"><div><h2 id="publicDemoServiceHeading">Choose your service.</h2><p id="publicDemoServiceIntro">Select the cleaning that fits what you need.</p></div></div>
+              <label class="public-hidden-field" id="publicServiceField"><span id="publicServiceLabel">Service</span><select name="service_id" id="publicService" required><option value="">Choose a service</option></select></label>
+              <div class="public-demo-service-cards" id="publicServiceCards" aria-live="polite"></div>
+            </div>
             <div class="full" id="publicAddonsWrap">
               <span class="field-label">Add-ons</span>
               <div id="publicAddons" class="public-addons"></div>
             </div>
-            <label class="full" id="publicRecurrenceWrap">Frequency
-              <select name="recurrence_pattern" id="publicRecurrencePattern">
+            <div class="full public-demo-frequency" id="publicRecurrenceWrap">
+              <span class="field-label">Frequency</span>
+              <div class="public-demo-pills" id="publicFrequencyPills">
+                <button type="button" class="selected" data-frequency="one_time">One time</button>
+                <button type="button" data-frequency="weekly">Every week</button>
+                <button type="button" data-frequency="biweekly">Every 2 weeks</button>
+                <button type="button" data-frequency="monthly">Monthly</button>
+              </div>
+              <select name="recurrence_pattern" id="publicRecurrencePattern" class="public-hidden-select" aria-label="Frequency">
                 <option value="one_time">One time</option>
                 <option value="weekly">Every week</option>
                 <option value="biweekly">Every 2 weeks</option>
                 <option value="monthly">Monthly</option>
               </select>
-            </label>
+            </div>
             <label>Date<input name="date" type="date" required></label>
             <label id="publicQuoteTimeWrap">Preferred time <span class="field-optional">(optional)</span><input name="time" type="time"></label>
             <div class="full public-timezone-notice" id="publicTimeZoneNotice" aria-live="polite"></div>
@@ -203,13 +232,20 @@
               <span>Property details</span>
               <small>Enough detail for the business to price and prepare the job correctly.</small>
             </div>
-            <label>Property type
-              <select name="property_type" id="publicPropertyType" required>
-                <option value="">Choose one</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
-              </select>
-            </label>
+            <div class="full public-demo-cleaning-type">
+              <span class="field-label">Cleaning type</span>
+              <div class="public-demo-type-switch" id="publicCleaningTypeSwitch">
+                <button type="button" class="selected" data-property-type="residential"><strong>Residential</strong><small>Homes, apartments, condos</small></button>
+                <button type="button" data-property-type="commercial"><strong>Commercial</strong><small>Offices, storefronts, workspaces</small></button>
+              </div>
+              <label class="public-hidden-field">Property type
+                <select name="property_type" id="publicPropertyType" required>
+                  <option value="">Choose one</option>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                </select>
+              </label>
+            </div>
             <label id="publicPropertySizeField">Approx. property size <span class="field-optional" id="publicPropertySizeOptional">(optional)</span>
               <span class="public-size-input">
                 <input name="property_size" id="publicPropertySize" type="number" min="1" step="1" inputmode="decimal" placeholder="e.g. 1800">
@@ -317,8 +353,19 @@
             </label>
             <label class="full">Special requests <span class="field-optional">(optional)</span><textarea name="notes" placeholder="Pets, fragile items, priority rooms, add-ons, or anything else we should know."></textarea></label>
           </div>
-          <div class="public-summary" id="publicSummary"></div>
-          <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
+          <aside class="public-demo-summary-stack">
+            <div class="public-summary" id="publicSummary"></div>
+            <button class="primary-btn public-submit" type="submit" id="publicSubmitBtn">Send booking request</button>
+            <p class="public-demo-summary-micro" id="publicSummaryMicro">No payment is collected here. The business will review and confirm your request.</p>
+          </aside>
+          <section class="public-demo-support" id="publicDemoSupport">
+            <img id="publicSupportPhoto" src="https://images.pexels.com/photos/19889139/pexels-photo-19889139.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Bright clean home">
+            <div>
+              <span class="eyebrow">Easy from the first request</span>
+              <h2 id="publicSupportTitle">Tell us what you need. We’ll take it from here.</h2>
+              <p id="publicSupportCopy">Choose the service, property details, date, and contact information so the cleaning business can prepare the job correctly.</p>
+            </div>
+          </section>
         </form>
         <div class="public-invoice-view" id="publicInvoiceView" hidden>
           <div class="quote-review-head">
@@ -1301,12 +1348,12 @@
     </div>
   </div>
   <div class="toast" id="toast">Copied</div>
-  <script src="./vendor/supabase.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./i18n-completion.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./i18n.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./onboarding-copy.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./public.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./app.js?v=20260930-centers-hierarchy-220"></script>
-  <script src="./followups.js?v=20260930-centers-hierarchy-220"></script>
+  <script src="./vendor/supabase.js?v=20260930-booking-demo-221"></script>
+  <script src="./i18n-completion.js?v=20260930-booking-demo-221"></script>
+  <script src="./i18n.js?v=20260930-booking-demo-221"></script>
+  <script src="./onboarding-copy.js?v=20260930-booking-demo-221"></script>
+  <script src="./public.js?v=20260930-booking-demo-221"></script>
+  <script src="./app.js?v=20260930-booking-demo-221"></script>
+  <script src="./followups.js?v=20260930-booking-demo-221"></script>
 </body>
 </html>
