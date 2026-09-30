@@ -923,3 +923,178 @@
 }
 
 
+
+
+/* 2026-09-29 — invoice phone stack v208 */
+@media(max-width:680px){
+  [data-page="invoices"] .invoice-growth-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    padding:16px!important;
+    overflow:hidden!important;
+  }
+  [data-page="invoices"] .invoice-growth-row>.record-primary,
+  [data-page="invoices"] .invoice-growth-row>.record-field,
+  [data-page="invoices"] .invoice-growth-row>.record-actions{
+    grid-column:1!important;
+    min-width:0!important;
+    width:100%!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:end!important;
+    column-gap:10px!important;
+    row-gap:3px!important;
+    padding-bottom:10px!important;
+    border-bottom:1px solid var(--line)!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary .invoice-number{
+    grid-column:1/-1!important;
+    font-size:10px!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary .invoice-growth-amount{
+    grid-column:1!important;
+    font-size:30px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    word-break:normal!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary>small:last-child{
+    grid-column:2!important;
+    align-self:end!important;
+    margin-bottom:2px!important;
+    white-space:nowrap!important;
+    font-size:10px!important;
+    color:#6F6A62!important;
+  }
+  [data-page="invoices"] .invoice-client-field,
+  [data-page="invoices"] .invoice-total-field,
+  [data-page="invoices"] .invoice-status-field{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:5px!important;
+    padding:10px 0!important;
+    border-bottom:1px solid var(--line)!important;
+  }
+  [data-page="invoices"] .invoice-growth-row>.record-field::before{
+    position:static!important;
+    display:block!important;
+    margin:0!important;
+    font-size:9px!important;
+    line-height:1!important;
+    letter-spacing:.14em!important;
+  }
+  [data-page="invoices"] .invoice-total-field>strong{
+    font-size:25px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  [data-page="invoices"] .invoice-status-field :is(.status,.customer-open-status,.payment-choice-note,.dispute-alert){
+    max-width:100%!important;
+    width:max-content!important;
+    overflow-wrap:anywhere!important;
+  }
+  [data-page="invoices"] .invoice-next-action{
+    line-height:1.25!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    margin-top:2px!important;
+    padding-top:4px!important;
+    border-top:0!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .safe-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .safe-actions button,
+  [data-page="invoices"] .invoice-actions-stable .record-delete-btn{
+    width:100%!important;
+    min-width:0!important;
+    min-height:46px!important;
+    padding:10px 12px!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+  }
+  [data-page="invoices"] .invoice-actions-stable .record-delete-btn{
+    margin-top:2px!important;
+  }
+}
+
+
+/* 2026-09-29 — surface-aware mobile contrast + invoice flow v208 */
+@media(max-width:680px){
+  .app-shell [data-page="clients"] .client-card.client-card-compact,
+  .app-shell :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card,
+  .app-shell [data-page="quotes"] .quote-growth-card{
+    color:var(--tle-text-strong)!important;
+    border-color:rgba(25,25,25,.12)!important;
+    opacity:1!important;
+  }
+  .app-shell [data-page="clients"] .client-card.client-card-compact{background:var(--tle-surface-light)!important}
+  .app-shell :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card{background:var(--tle-surface-white)!important}
+  .app-shell [data-page="quotes"] .quote-growth-card{background:#FCFBF8!important}
+
+  .app-shell [data-page="clients"] :is(.client-card-identity strong,.client-business-snapshot b,.client-avatar),
+  .app-shell :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell [data-page="invoices"] .invoice-next-action,
+  .app-shell [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b){
+    color:var(--tle-text-strong)!important;
+  }
+  .app-shell [data-page="clients"] :is(.client-card-identity span,.client-business-snapshot small,.client-location),
+  .app-shell :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card :is(.record-primary>small,.record-note),
+  .app-shell [data-page="invoices"] .invoice-growth-row>.record-field>small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
+  .app-shell [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span),
+  .app-shell :is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card>.record-field::before{
+    color:var(--tle-text-muted)!important;
+  }
+
+  .app-shell :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table{
+    margin:8px!important;border-radius:16px!important;
+    background:var(--tle-surface-white)!important;color:var(--tle-text-strong)!important;
+  }
+  .app-shell :is([data-page="mileage"],[data-page="time"]) .table-card>.empty-table span,
+  .app-shell [data-page="today"] .next-move-panel :is(.eyebrow,p){color:var(--tle-text-muted)!important}
+  .app-shell [data-page="today"] .next-move-panel{color:var(--tle-text-strong)!important}
+}
+
+/* Invoice phone layout: one readable flow, no narrow vertical action tabs. */
+@media(max-width:430px){
+  [data-page="invoices"] .invoice-growth-row{
+    grid-template-columns:1fr!important;gap:12px!important;padding:16px!important;
+  }
+  [data-page="invoices"] .invoice-growth-row :is(.invoice-growth-primary,.invoice-client-field,.invoice-total-field,.invoice-status-field){
+    grid-column:1!important;width:100%!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary{
+    display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
+    align-items:end!important;column-gap:10px!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary .invoice-number{grid-column:1/-1!important}
+  [data-page="invoices"] .invoice-growth-primary .invoice-growth-amount{
+    grid-column:1!important;font-size:clamp(26px,8vw,34px)!important;white-space:nowrap!important;
+  }
+  [data-page="invoices"] .invoice-growth-primary>small:last-child{
+    grid-column:2!important;align-self:end!important;padding-bottom:3px!important;white-space:nowrap!important;
+  }
+  [data-page="invoices"] :is(.invoice-client-field,.invoice-total-field,.invoice-status-field){
+    padding-top:10px!important;border-top:1px solid rgba(25,25,25,.10)!important;
+  }
+  [data-page="invoices"] .invoice-status-field{gap:7px!important}
+  [data-page="invoices"] .invoice-actions-stable .safe-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  [data-page="invoices"] .invoice-actions-stable .safe-actions button,
+  [data-page="invoices"] .invoice-actions-stable .record-delete-btn{
+    min-height:46px!important;font-size:12px!important;
+  }
+}

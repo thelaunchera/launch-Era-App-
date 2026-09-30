@@ -94,6 +94,7 @@ const ONBOARDING_EXTRA={
     calendar:{title:"Calendrier + travaux",text:"Consultez les travaux à venir et les créneaux libres pour éviter les doubles réservations."},
     quotes:{title:"Devis",text:"Examinez les demandes, créez des devis, envoyez-les et suivez leur acceptation ou leur refus."},
     invoices:{title:"Factures",text:"Créez et envoyez des factures puis enregistrez le mode de paiement accepté par votre entreprise."},
+    followups:{title:"Suivis",text:"Voyez quels prospects, devis, factures, nettoyages terminés et anciens clients ont besoin d’un prochain contact."},
     route:{title:"Itinéraire du jour",text:"Voyez les arrêts du jour dans l’ordre pour savoir où aller ensuite."},
     mileage:{title:"Kilométrage",text:"Enregistrez les déplacements professionnels liés aux travaux pour garder vos trajets organisés."},
     time:{title:"Suivi du temps",text:"Démarrez et arrêtez les chronomètres pour suivre le temps travaillé sur chaque intervention."},
@@ -103,7 +104,8 @@ const ONBOARDING_EXTRA={
     team:{title:"Équipe",text:"Ajoutez des employés, attribuez des travaux, partagez un accès invité et échangez des messages sans exposer les contrôles du propriétaire."},
     settings:{title:"Paramètres",text:"Modifiez les informations de l’entreprise, les règles de réservation, paiements, e-mails clients et liens."},
     admin:{title:"Administration propriétaire",text:"Les contrôles sensibles sont ici : accès, permissions, intégrations et paramètres du compte."},
-    help:{title:"Aide et FAQ",text:"Trouvez l’aide de configuration, les instructions d’accès et les réponses fréquentes. Vous pouvez relancer ce guide à tout moment."}
+    help:{title:"Aide et FAQ",text:"Trouvez l’aide de configuration, les instructions d’accès et les réponses fréquentes. Vous pouvez relancer ce guide à tout moment."},
+    "platform-admin":{title:"Vue propriétaire",text:"Contrôles privés pour les clients de l’application, les abonnements et l’activité réelle du produit."}
   }
 };
 
@@ -116,6 +118,7 @@ ONBOARDING_EXTRA.ht={
   calendar:{title:"Kalandriye + travay",text:"Gade travay k ap vini ak lè ki lib pou òganize orè a san doub rezèvasyon."},
   quotes:{title:"Devis",text:"Revize demann, kreye devis, voye yo bay kliyan epi swiv si yo aksepte oswa refize."},
   invoices:{title:"Fakti",text:"Kreye epi voye fakti, epi anrejistre metòd peman biznis ou aksepte."},
+  followups:{title:"Swivi",text:"Gade ki pwospè, devis, fakti, netwayaj fini ak ansyen kliyan ki bezwen pwochen kontak la."},
   route:{title:"Wout jodi a",text:"Gade arè jounen an nan lòd pou konnen ki kote pou ale apre sa."},
   mileage:{title:"Kilometraj",text:"Anrejistre distans biznis ki lye ak travay yo pou kenbe vwayaj yo òganize."},
   time:{title:"Suivi tan",text:"Kòmanse epi fini kronomèt pou swiv tan ki pase sou chak travay."},
@@ -125,7 +128,8 @@ ONBOARDING_EXTRA.ht={
   team:{title:"Ekip",text:"Ajoute anplwaye, asiyen travay, pataje aksè envite epi voye mesaj san ekspoze kontwòl pwopriyetè."},
   settings:{title:"Paramèt",text:"Modifye enfòmasyon konpayi, règ rezèvasyon, peman, imèl kliyan ak lyen."},
   admin:{title:"Admin pwopriyetè",text:"Kontwòl sansib yo isit la: aksè, pèmisyon, entegrasyon ak paramèt kont."},
-  help:{title:"Èd ak FAQ",text:"Jwenn èd pou konfigirasyon, enstriksyon aksè ak repons komen. Ou ka rekòmanse gid sa a nenpòt lè."}
+  help:{title:"Èd ak FAQ",text:"Jwenn èd pou konfigirasyon, enstriksyon aksè ak repons komen. Ou ka rekòmanse gid sa a nenpòt lè."},
+  "platform-admin":{title:"Vizyalizasyon pwopriyetè",text:"Kontwòl prive pou kliyan app la, abònman ak aktivite reyèl pwodwi a."}
 };
 window.TLE_ONBOARDING_COPY=ONBOARDING_COPY;
 window.TLE_ONBOARDING_EXTRA=ONBOARDING_EXTRA;

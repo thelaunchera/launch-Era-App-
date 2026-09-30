@@ -1763,6 +1763,11 @@
   Object.assign(staticCorrections.es,{"Access":"Acceso","Security":"Seguridad","Integrations":"Integraciones"});
   Object.assign(staticCorrections.fr,{"Access":"Accès","Security":"Sécurité","Integrations":"Intégrations"});
 
+
+    // Extended ES/FR/HT copy lives in i18n-completion.js.
+  window.TLE_APPLY_I18N_COMPLETION?.({staticCorrections,extra});
+
+
   const canonicalTranslations=new Map();
   function indexCanonicalTranslations(dict){
     Object.entries(dict||{}).forEach(([source,target])=>{
@@ -2000,6 +2005,15 @@
     "Parking, doorman, stairs, elevator…":"Stationnement, concierge, escaliers, ascenseur…",
     "Do not enter door, lockbox or alarm codes here.":"N’indiquez pas ici de code de porte, de boîte à clés ou d’alarme."
   });
+  const htPatterns=[
+    [/^(\d+) scheduled jobs$/i,(m,n)=>`${n} travay pwograme`],
+    [/^(\d+) scheduled job$/i,(m,n)=>`${n} travay pwograme`],
+    [/^Best route · (\d+) stops?$/i,(m,n)=>`Pi bon wout · ${n} arè`],
+    [/^(\d+) booking requests?$/i,(m,n)=>`${n} demann rezèvasyon`],
+    [/^Overdue (\d+)d$/i,(m,n)=>`Anreta ${n}j`],
+    [/^In (\d+) days$/i,(m,n)=>`Nan ${n} jou`]
+  ];
+
   const patterns=[
     [/^Enter the 6-digit code sent to (.+)\.$/i,(m,e)=>`Escribe el código de 6 dígitos enviado a ${e}.`],
     [/^(\d+) new$/i,(m,n)=>`${n} nuevas`],
@@ -2008,7 +2022,14 @@
     [/^Due (.+)$/i,(m,d)=>`Vence ${d}`],
     [/^(\d+(?:\.\d+)?) mi today$/i,(m,n)=>`${n} mi hoy`],
     [/^(\d+(?:\.\d+)?) work hours$/i,(m,n)=>`${n} horas trabajadas`],
-    [/^(\d+) stop(s)? scheduled today$/i,(m,n)=>`${n} parada${n==="1"?"":"s"} programada${n==="1"?"":"s"} hoy`]
+    [/^(\d+) stop(s)? scheduled today$/i,(m,n)=>`${n} parada${n==="1"?"":"s"} programada${n==="1"?"":"s"} hoy`],
+    [/^(\d+) scheduled jobs?$/i,(m,n)=>`${n} trabajo${n==="1"?"":"s"} programado${n==="1"?"":"s"}`]
+  ];
+
+  const frPatterns=[
+    [/^(\d+) scheduled jobs?$/i,(m,n)=>n==="1"?`${n} travail planifié`:`${n} travaux planifiés`],
+    [/^(\d+) booking requests?$/i,(m,n)=>`${n} demande${n==="1"?"":"s"} de réservation`],
+    [/^Due (.+)$/i,(m,d)=>`Échéance ${d}`]
   ];
 
   const originals=new WeakMap();
@@ -2033,6 +2054,22 @@
     if(lang==="es"){
       if(exact[key]) return exact[key];
       for(const [re,fn] of patterns){
+        const match=key.match(re);
+        if(match) return fn(...match);
+      }
+      return key;
+    }
+    if(lang==="ht"){
+      if(extra.ht?.[key]) return extra.ht[key];
+      for(const [re,fn] of htPatterns){
+        const match=key.match(re);
+        if(match) return fn(...match);
+      }
+      return key;
+    }
+    if(lang==="fr"){
+      if(extra.fr?.[key]) return extra.fr[key];
+      for(const [re,fn] of frPatterns){
         const match=key.match(re);
         if(match) return fn(...match);
       }

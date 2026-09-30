@@ -7,6 +7,8 @@ const app=fs.readFileSync("app.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
+const i18nCompletion=fs.readFileSync("i18n-completion.js","utf8");
+const i18nAll=i18n+"\n"+i18nCompletion;
 const onboardingCopy=fs.readFileSync("onboarding-copy.js","utf8");
 const serviceWorker=fs.readFileSync("service-worker.js","utf8");
 const manifest=fs.readFileSync("manifest.webmanifest","utf8");
@@ -60,15 +62,20 @@ const styles=[
 
 
 if(
-  !styles.includes("surface-aware contrast system v207") ||
-  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
-  !styles.includes('[data-page="time"] .timer-card .ghost-btn') ||
+  !styles.includes("surface-aware contrast system v208") ||
+  !styles.includes("surface-aware mobile contrast + invoice flow v208") ||
+  !styles.includes('[data-page="time"] .timer-card') ||
+  !styles.includes('background:#12324A!important') ||
+  !styles.includes('data-palette-mode="day"') ||
   !styles.includes('[data-page="clients"] .client-card.client-card-compact') ||
-  !styles.includes('.table-row:not(.table-head)') ||
+  !styles.includes(':is([data-page="leads"],[data-page="invoices"],[data-page="mileage"],[data-page="time"]) .mobile-record-card') ||
+  !styles.includes('@media(max-width:430px)') ||
+  !styles.includes('[data-page="invoices"] .invoice-growth-row') ||
+  !styles.includes('grid-template-columns:1fr!important') ||
   !styles.includes("var(--tle-text-on-dark)") ||
   !styles.includes("var(--tle-text-strong)")
 ){
-  throw new Error("Contrast regression: card text must follow the actual light or dark surface across phone, tablet and desktop");
+  throw new Error("Contrast regression: day/night card surfaces or the mobile invoice layout lost their readable contrast");
 }
 
 const dom=new JSDOM(html,{
@@ -241,10 +248,10 @@ const spanishOnlyBranches=(app.match(/appIsSpanish\(\)/g)||[]).length;
 if(spanishOnlyBranches!==1){
   throw new Error("Localization regression: dynamic UI reintroduced EN/ES-only branches");
 }
-if(!app.includes("function langPick(en,es,fr)") || !i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
+if(!app.includes("function langPick(en,es,fr)") || !i18nAll.includes('const SUPPORTED=["en","es","fr","ht"]')){
   throw new Error("Localization regression: EN/ES/FR/HT runtime support is incomplete");
 }
-if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18n)){
+if(/extra\.pt|staticCorrections\.pt|uiCorrections\.pt|\bpt\s*:\s*\{|data-language-choice=["']pt["']|Português|Portuguese/.test(i18nAll)){
   throw new Error("Localization regression: legacy Portuguese dictionaries, assignments, or labels returned");
 }
 
@@ -257,18 +264,34 @@ if(
 ){
   throw new Error("Localization regression: Portuguese or legacy four-language follow-up copy returned");
 }
+if(!html.includes("./i18n-completion.js?v=") || !serviceWorker.includes("./i18n-completion.js?v=")){
+  throw new Error("Localization regression: extended translation module must be loaded and cached with the app shell");
+}
+
+if(
+  !i18nCompletion.includes("operational UI language audit completion v209") ||
+  !i18nCompletion.includes('"DAY DETAILS":"DETALLES DEL DÍA"') ||
+  !i18nCompletion.includes('"DAY DETAILS":"DÉTAILS DU JOUR"') ||
+  !i18nCompletion.includes('"DAY DETAILS":"DETAY JOU A"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ASIGNADO A"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ATTRIBUÉ À"') ||
+  !i18nCompletion.includes('"ASSIGNED TO":"ASIYEN BAY"') ||
+  !i18nCompletion.includes('"This booking page is not available.":"Paj rezèvasyon sa a pa disponib."')
+){
+  throw new Error("Localization regression: Calendar, Time Tracking or Booking Page lost ES/FR/HT coverage");
+}
 if(!html.includes("./onboarding-copy.js?v=") || !serviceWorker.includes("./onboarding-copy.js?v=")){
   throw new Error("Onboarding regression: copy module must be loaded and cached with the app shell");
 }
 if(
-  !i18n.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
-  !i18n.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
-  !i18n.includes('localStorage.removeItem(STORAGE_KEY);')
+  !i18nAll.includes('const savedLanguage=String(localStorage.getItem(STORAGE_KEY)||"").trim().toLowerCase();') ||
+  !i18nAll.includes('if(savedLanguage && !SUPPORTED.includes(savedLanguage)){') ||
+  !i18nAll.includes('localStorage.removeItem(STORAGE_KEY);')
 ){
   throw new Error("Localization regression: unsupported saved languages are not normalized");
 }
 for(const phrase of ["Today’s jobs","Current client records","Still to collect","Waiting for review","Your scheduled jobs will appear here."]){
-  if(!i18n.includes(JSON.stringify(phrase))){
+  if(!i18nAll.includes(JSON.stringify(phrase))){
     throw new Error("Localization regression: dashboard phrase missing from dictionaries: "+phrase);
   }
 }
@@ -285,10 +308,41 @@ for(const [source,translation] of Object.entries({
   "Weather":"Tan",
   "Windy":"Gen van"
 })){
-  if(!i18n.includes(JSON.stringify(source)+":"+JSON.stringify(translation))){
+  if(!i18nAll.includes(JSON.stringify(source)+":"+JSON.stringify(translation))){
     throw new Error("Localization regression: Haitian Creole weather translation missing for "+source);
   }
 }
+const compactI18nAll=i18nAll.replace(/\s+/g,"");
+for(const phrase of [
+  '"LEADS":"PROSPECTOS"',
+  '"Lead pipeline":"Prospects"',
+  '"Lead pipeline":"Pwospè k ap vini"',
+  '"Mileage log":"Journal de kilométrage"',
+  '"Mileage log":"Jounal kilometraj"',
+  '"Time worked will appear here.":"Le temps travaillé apparaîtra ici."',
+  '"Time worked will appear here.":"Tan travay la ap parèt isit la."',
+  '"BOOK A CLEANING":"RÉSERVER UN NETTOYAGE"',
+  '"BOOK A CLEANING":"REZÈVE YON NETWAYAJ"',
+  '"REQUEST A QUOTE":"DEMANDER UN DEVIS"',
+  '"REQUEST A QUOTE":"MANDE YON DEVIS"',
+  '"Choose a service and date first.":"Elige primero un servicio y una fecha."',
+  '"Choose a service and date first.":"Choisissez d’abord un service et une date."',
+  '"Choose a service and date first.":"Chwazi yon sèvis ak yon dat an premye."',
+  '"Follow-up rules":"Règles de suivi"',
+  '"Follow-up rules":"Règ swivi"'
+]){
+  if(!compactI18nAll.includes(phrase.replace(/\s+/g,""))){
+    throw new Error("Localization regression: missing required ES/FR/HT coverage: "+phrase);
+  }
+}
+if(
+  !app.includes('tr("Your booking request was sent. The business will review it and confirm the appointment.")') ||
+  !app.includes('tr("Your quote request was sent. The business will review it and contact you.")') ||
+  !app.includes('tr("Choose a service and date first.")')
+){
+  throw new Error("Booking Page fallback localization regression: visible customer copy bypasses translation");
+}
+
 if(
   !publicJs.includes('tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING")') ||
   !publicJs.includes('tt("Could not submit invoice.")') ||
@@ -322,6 +376,24 @@ if(!serviceWorker.includes('sensitiveParams=["token","session_id","invite","work
 if(!publicJs.includes('functions/v1/track-app-visit')){
   throw new Error("Analytics regression: public pages must use hardened edge tracking");
 }
+if(
+  !app.includes('supabase.rpc("finish_job_time_entry",{p_entry_id:id})') ||
+  !app.includes('supabase.rpc("worker_portal_stop_time",{p_token:token,p_entry_id:workerTimeStop.dataset.workerTimeStop})') ||
+  !app.includes('await loadCoreData();\n  renderOperations();') ||
+  !app.includes('await refreshWorkerPortal();')
+){
+  throw new Error("Time tracking regression: finishing a timer must use the authoritative RPC and refresh job status in owner and worker views");
+}
+
+if(
+  !app.includes('const finishedJobId=finished?.job_id||entry?.job_id||null;') ||
+  !app.includes('if(job) job.status="completed";') ||
+  !app.includes('renderJobs();') ||
+  !app.includes('renderTodaySummary();')
+){
+  throw new Error("Time tracking regression: stopping a timer must immediately mirror the completed job into Calendar and Today");
+}
+
 if(!app.includes('["invoices","jobs","quotes","booking_requests","leads","payments","customer_disputes","job_time_entries","email_delivery_issues"]')){
   throw new Error("Realtime regression: operational table subscriptions changed unexpectedly");
 }
