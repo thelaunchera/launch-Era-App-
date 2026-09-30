@@ -527,8 +527,24 @@
       const petsSelect=$("#publicPets");
       const petDetailsWrap=$("#publicPetDetailsWrap");
       const timeZoneNotice=$("#publicTimeZoneNotice");
+      const serviceCards=$("#publicServiceCards");
+      const cleaningTypeSwitch=$("#publicCleaningTypeSwitch");
+      const frequencyPills=$("#publicFrequencyPills");
+      const recurrenceSelect=$("#publicRecurrencePattern");
+      const heroPhoto=$("#publicHeroPhoto");
+      const supportPhoto=$("#publicSupportPhoto");
+      const headerBusinessName=$("#publicHeaderBusinessName");
+      const headerMark=$("#publicHeaderMark");
+      const supportTitle=$("#publicSupportTitle");
+      const supportCopy=$("#publicSupportCopy");
+      const summaryMicro=$("#publicSummaryMicro");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
+      if(headerBusinessName) headerBusinessName.textContent=data?.business?.name||tt("Cleaning service");
+      if(headerMark){
+        const mark=String(data?.business?.name||"CB").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
+        headerMark.textContent=mark||"CB";
+      }
       if(preferredLanguageSelect){
         const configured=String(data?.business?.customer_email_language||"en").toLowerCase();
         preferredLanguageSelect.value=["en","es","fr","ht"].includes(configured)?configured:"en";
@@ -539,6 +555,110 @@
       const businessCountry=String(data?.business?.country_code||"").toUpperCase();
       if(propertySizeUnit){
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
+      }
+
+      const demoPhotos={
+        "book-residential":{
+          hero:"https://images.pexels.com/photos/36729566/pexels-photo-36729566.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          summary:"https://images.pexels.com/photos/9462224/pexels-photo-9462224.jpeg?auto=compress&cs=tinysrgb&w=900",
+          support:"https://images.pexels.com/photos/19889139/pexels-photo-19889139.jpeg?auto=compress&cs=tinysrgb&w=1200",
+          heroAlt:"Professional cleaner in a bright residential home",
+          summaryAlt:"Professional cleaner working in a residential kitchen",
+          supportAlt:"Bright clean residential living room"
+        },
+        "book-commercial":{
+          hero:"https://images.pexels.com/photos/33357392/pexels-photo-33357392.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          summary:"https://images.pexels.com/photos/36303748/pexels-photo-36303748.jpeg?auto=compress&cs=tinysrgb&w=900",
+          support:"https://images.pexels.com/photos/10567236/pexels-photo-10567236.jpeg?auto=compress&cs=tinysrgb&w=1200",
+          heroAlt:"Professional cleaners at a modern commercial building",
+          summaryAlt:"Commercial cleaning cart in a business hallway",
+          supportAlt:"Modern commercial workspace"
+        },
+        "quote-residential":{
+          hero:"https://images.pexels.com/photos/6196692/pexels-photo-6196692.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          summary:"https://images.pexels.com/photos/4239128/pexels-photo-4239128.jpeg?auto=compress&cs=tinysrgb&w=900",
+          support:"https://images.pexels.com/photos/5591909/pexels-photo-5591909.jpeg?auto=compress&cs=tinysrgb&w=1200",
+          heroAlt:"Professional cleaners preparing a residential cleaning",
+          summaryAlt:"Residential cleaner washing a bathroom fixture",
+          supportAlt:"Cleaner wiping a residential kitchen counter"
+        },
+        "quote-commercial":{
+          hero:"https://images.pexels.com/photos/8811390/pexels-photo-8811390.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          summary:"https://images.pexels.com/photos/34516664/pexels-photo-34516664.jpeg?auto=compress&cs=tinysrgb&w=900",
+          support:"https://images.pexels.com/photos/18134199/pexels-photo-18134199.jpeg?auto=compress&cs=tinysrgb&w=1200",
+          heroAlt:"Professional cleaner washing a commercial storefront window",
+          summaryAlt:"Professional janitorial supplies for a commercial space",
+          supportAlt:"Professional cleaners at a modern office building"
+        }
+      };
+
+      function activePropertyType(){
+        return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
+      }
+
+      function activeDemoPhotos(){
+        return demoPhotos[(mode==="quote"?"quote":"book")+"-"+activePropertyType()]||demoPhotos["book-residential"];
+      }
+
+      function updateDemoPhotos(){
+        const set=activeDemoPhotos();
+        if(heroPhoto){ heroPhoto.src=set.hero; heroPhoto.alt=set.heroAlt; }
+        if(supportPhoto){ supportPhoto.src=set.support; supportPhoto.alt=set.supportAlt; }
+      }
+
+      function serviceScope(service){
+        const hay=(String(service?.name||"")+" "+String(service?.description||"")).toLowerCase();
+        const commercial=/commercial|office|janitorial|storefront|retail|workspace|warehouse|industrial|medical|dental|restaurant|business/.test(hay);
+        const residential=/residential|home|house|apartment|condo|move[- ]?in|move[- ]?out/.test(hay);
+        if(commercial&&!residential) return "commercial";
+        if(residential&&!commercial) return "residential";
+        return "both";
+      }
+
+      function servicesForRequest(nextMode){
+        const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
+        const property=activePropertyType();
+        const scoped=pool.filter(service=>{
+          const scope=serviceScope(service);
+          return scope==="both"||scope===property;
+        });
+        return scoped.length?scoped:pool;
+      }
+
+      function renderServiceCards(){
+        if(!serviceCards) return;
+        if(!services.length){
+          serviceCards.innerHTML='<div class="public-demo-empty">'+esc(tt(mode==="quote"
+            ?"No quote-only services available yet"
+            :"No priced services available for online booking"))+'</div>';
+          return;
+        }
+        serviceCards.innerHTML=services.map(service=>{
+          const selected=select?.value===service.id;
+          const price=mode==="quote"
+            ? tt("Custom quote")
+            : service.base_price!=null?money(service.base_price):"";
+          return '<button type="button" class="public-demo-service-card'+(selected?" selected":"")+'" data-service-card="'+esc(service.id)+'">'+
+            '<span class="public-demo-service-check">✓</span>'+
+            '<strong>'+esc(service.name)+'</strong>'+
+            (service.description?'<p>'+esc(service.description)+'</p>':"")+
+            '<span>'+esc(price)+'</span>'+
+          '</button>';
+        }).join("");
+      }
+
+      function syncCleaningTypeUi(){
+        const property=activePropertyType();
+        cleaningTypeSwitch?.querySelectorAll("[data-property-type]").forEach(btn=>{
+          btn.classList.toggle("selected",btn.dataset.propertyType===property);
+        });
+        updateDemoPhotos();
+        if(supportTitle) supportTitle.textContent=tt(property==="commercial"
+          ?"Tell us about the space. We’ll prepare the right cleaning."
+          :"Tell us about your home. We’ll take it from here.");
+        if(supportCopy) supportCopy.textContent=tt(property==="commercial"
+          ?"Choose the service, space details, date, and contact information so the business can prepare the commercial job correctly."
+          :"Choose the service, home details, date, and contact information so the business can prepare the job correctly.");
       }
 
       function businessTimeZoneLabel(){
@@ -565,7 +685,7 @@
       }
 
       function syncPropertyDetails(){
-        const type=String(propertyTypeSelect?.value||"").toLowerCase();
+        const type=activePropertyType();
         if(residentialDetails) residentialDetails.hidden=type!=="residential";
         if(commercialDetails) commercialDetails.hidden=type!=="commercial";
 
@@ -576,11 +696,9 @@
         if(bathrooms) bathrooms.required=type==="residential";
         if(commercialType) commercialType.required=type==="commercial";
 
-        // Size is highly useful for quoting, but remains optional to keep
-        // fixed-price booking fast and to support countries where customers
-        // may not know the exact floor area.
         if(propertySizeInput) propertySizeInput.required=false;
         if(propertySizeOptional) propertySizeOptional.hidden=false;
+        syncCleaningTypeUi();
       }
 
       function syncPetDetails(){
@@ -590,10 +708,34 @@
         if(input && petDetailsWrap.hidden) input.value="";
       }
 
+      if(propertyTypeSelect && !propertyTypeSelect.value) propertyTypeSelect.value="residential";
       renderBusinessTimeZoneNotice();
       syncPropertyDetails();
       syncPetDetails();
-      propertyTypeSelect?.addEventListener("change",syncPropertyDetails);
+      propertyTypeSelect?.addEventListener("change",()=>{
+        syncPropertyDetails();
+        frequencyPills?.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-frequency]");
+        if(!btn || !recurrenceSelect) return;
+        recurrenceSelect.value=btn.dataset.frequency;
+        frequencyPills.querySelectorAll("[data-frequency]").forEach(x=>x.classList.toggle("selected",x===btn));
+        updateSummary();
+      });
+      recurrenceSelect?.addEventListener("change",()=>{
+        frequencyPills?.querySelectorAll("[data-frequency]").forEach(x=>x.classList.toggle("selected",x.dataset.frequency===recurrenceSelect.value));
+        updateSummary();
+      });
+      form?.addEventListener("input",updateSummary);
+      form?.addEventListener("change",updateSummary);
+
+      renderMode(mode,{updateUrl:false});
+      });
+      cleaningTypeSwitch?.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-property-type]");
+        if(!btn || !propertyTypeSelect) return;
+        propertyTypeSelect.value=btn.dataset.propertyType;
+        propertyTypeSelect.dispatchEvent(new Event("change",{bubbles:true}));
+      });
       petsSelect?.addEventListener("change",syncPetDetails);
 
       function chosenAddonIds(){
@@ -601,19 +743,38 @@
       }
 
       function updateSummary(){
-        const selected=services.find(s=>s.id===select?.value);
         if(!summary) return;
-        if(!selected){
-          if(services.length) summary.innerHTML="";
-          return;
-        }
+        const selected=services.find(s=>s.id===select?.value);
+        const photos=activeDemoPhotos();
+        const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=mode==="quote"?[]:addons.filter(a=>chosenIds.includes(a.id));
-        const total=(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
-        const duration=Number(selected.duration_minutes||0)+chosen.reduce((sum,a)=>sum+Number(a.extra_duration_minutes||0),0);
-        summary.innerHTML='<strong>'+esc(selected.name)+'</strong><span>'+duration+' min'+
-          (mode==="quote"?" · "+tt("Price provided after review"):" · "+tt("Total")+": "+money(total))+
-          '</span>';
+        const total=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
+        const chosenSlot=slotsBox?.querySelector("[data-slot].selected");
+        const timeLabel=chosenSlot?.textContent?.trim()||tt("Choose a time");
+        const dateLabel=dateInput?.value?formatDate(dateInput.value):tt("Choose a date");
+        const bedrooms=form?.querySelector('[name="bedrooms"]')?.value;
+        const bathrooms=form?.querySelector('[name="bathrooms"]')?.value;
+        const commercialType=form?.querySelector('[name="commercial_space_type"]')?.selectedOptions?.[0]?.textContent?.trim();
+        const restrooms=form?.querySelector('[name="restrooms"]')?.value;
+        const homeLabel=property==="commercial"
+          ? [tt("Commercial"),commercialType&&commercialType!==tt("Choose one")?commercialType:"",restrooms?restrooms+" "+tt("restrooms"):""].filter(Boolean).join(" · ")
+          : [tt("Residential"),bedrooms?bedrooms+" "+tt("bedrooms"):"",bathrooms?bathrooms+" "+tt("bathrooms"):""].filter(Boolean).join(" · ");
+        const extrasLabel=chosen.length?chosen.map(x=>x.name).join(", "):tt("None");
+        summary.innerHTML=
+          '<div class="public-demo-summary-top"><div><small>'+esc(tt(mode==="quote"?"Your quote request":"Your booking"))+'</small><h3>'+esc(tt(selected?"Almost done.":"Start your request."))+'</h3></div><span>'+esc(tt(mode==="quote"?"QUOTE":"BOOKING"))+'</span></div>'+
+          '<div class="public-demo-summary-photo"><img src="'+esc(photos.summary)+'" alt="'+esc(photos.summaryAlt)+'"></div>'+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Service"))+'</span><strong>'+esc(selected?.name||tt("Choose a service"))+'</strong></div>'+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Property"))+'</span><strong>'+esc(homeLabel||tt(property==="commercial"?"Commercial":"Residential"))+'</strong></div>'+
+          (mode==="book"?'<div class="public-demo-summary-row"><span>'+esc(tt("Frequency"))+'</span><strong>'+esc(recurrenceLabel)+'</strong></div>':"")+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Date"))+'</span><strong>'+esc(dateLabel)+'</strong></div>'+
+          '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
+          (mode==="book"?'<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>':"")+
+          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
+        if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
+          ?"No payment is collected here. The business will review your details and prepare the quote."
+          :"No payment is collected here. The business will review and confirm your request.");
       }
 
       function renderAddons(){
@@ -692,7 +853,7 @@
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
         mode=nextMode;
-        services=mode==="quote"?quoteOnlyServices:fixedPriceServices;
+        services=servicesForRequest(mode);
 
         if(bookTab){
           bookTab.classList.toggle("active",mode==="book");
@@ -731,21 +892,17 @@
                 ?"No quote-only services available yet"
                 :"No priced services available for online booking"))+'</option>';
         }
+        renderServiceCards();
+        syncCleaningTypeUi();
 
         if(slotInput) slotInput.value="";
         if(quoteTimeInput) quoteTimeInput.value="";
         if(slotsBox) slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
         syncSubmitForSlot();
         if(addonBox) addonBox.innerHTML="";
-        if(summary){
-          summary.innerHTML=services.length
-            ? ""
-            : mode==="quote"
-              ? '<span>'+esc(tt("No custom quote services are set up yet. Use Book a Cleaning for services with upfront pricing."))+'</span><button type="button" class="primary-btn" data-switch-public-mode="book">'+esc(tt("Book a Cleaning"))+'</button>'
-              : '<span>'+esc(tt("No priced services are available for online booking. Custom or variable-price work belongs in Request a Quote."))+'</span><button type="button" class="primary-btn" data-switch-public-mode="quote">'+esc(tt("Request a Quote"))+'</button>';
-        }
-
         renderAddons();
+        updateDemoPhotos();
+        updateSummary();
         syncPropertyDetails();
         renderBusinessTimeZoneNotice();
 
@@ -782,9 +939,20 @@
         switchMode(btn.dataset.switchPublicMode);
       });
 
-      select?.addEventListener("change",()=>{
+      serviceCards?.addEventListener("click",e=>{
+        const card=e.target.closest("[data-service-card]");
+        if(!card || !select) return;
+        select.value=card.dataset.serviceCard;
+        renderServiceCards();
         renderAddons();
         refreshSlots();
+        updateSummary();
+      });
+      select?.addEventListener("change",()=>{
+        renderServiceCards();
+        renderAddons();
+        refreshSlots();
+        updateSummary();
       });
       addonBox?.addEventListener("change",()=>{
         updateSummary();
@@ -797,6 +965,7 @@
         slotInput.value=btn.dataset.slot;
         if(quoteTimeInput) quoteTimeInput.value=slotLocalTimeValue(btn.dataset.slot);
         syncSubmitForSlot();
+        updateSummary();
       });
 
       if(dateInput){
@@ -809,7 +978,7 @@
         };
         dateInput.min=dateInBusinessZone(new Date());
         dateInput.max=dateInBusinessZone(new Date(Date.now()+90*86400000));
-        dateInput.addEventListener("change",refreshSlots);
+        dateInput.addEventListener("change",()=>{ refreshSlots(); updateSummary(); });
       }
 
       renderMode(mode,{updateUrl:false});
