@@ -36,7 +36,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20260930-booking-demo-221";
+window.__tleShellVersion="20260930-booking-demo-222";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
