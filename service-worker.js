@@ -1,27 +1,27 @@
-const CACHE_NAME="tle-cleaning-app-20260930-booking-card-wrap-216";
+const CACHE_NAME="tle-cleaning-app-20260930-booking-request-layout-217";
 const CORE=[
-  "./boot.js?v=20260930-booking-card-wrap-216",
-  "./styles/boot.css?v=20260930-booking-card-wrap-216",
+  "./boot.js?v=20260930-booking-request-layout-217",
+  "./styles/boot.css?v=20260930-booking-request-layout-217",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-booking-card-wrap-216",
-  "./styles/workspace-components.css?v=20260930-booking-card-wrap-216",
-  "./styles/workspace-experience.css?v=20260930-booking-card-wrap-216",
-  "./styles/workspace-operations.css?v=20260930-booking-card-wrap-216",
-  "./styles/release-overrides.css?v=20260930-booking-card-wrap-216",
-  "./styles/release-mobile.css?v=20260930-booking-card-wrap-216",
-  "./styles/release-latest.css?v=20260930-booking-card-wrap-216",
-  "./styles/responsive-shell.css?v=20260930-booking-card-wrap-216",
-  "./styles/customer-documents.css?v=20260930-booking-card-wrap-216",
-  "./styles/invoice-polish.css?v=20260930-booking-card-wrap-216",
-  "./app.js?v=20260930-booking-card-wrap-216",
-  "./followups.js?v=20260930-booking-card-wrap-216",
-  "./i18n-completion.js?v=20260930-booking-card-wrap-216",
-  "./i18n.js?v=20260930-booking-card-wrap-216",
-  "./onboarding-copy.js?v=20260930-booking-card-wrap-216",
-  "./public.js?v=20260930-booking-card-wrap-216",
-  "./vendor/supabase.js?v=20260930-booking-card-wrap-216",
-  "./manifest.webmanifest?v=20260930-booking-card-wrap-216"
+  "./styles.css?v=20260930-booking-request-layout-217",
+  "./styles/workspace-components.css?v=20260930-booking-request-layout-217",
+  "./styles/workspace-experience.css?v=20260930-booking-request-layout-217",
+  "./styles/workspace-operations.css?v=20260930-booking-request-layout-217",
+  "./styles/release-overrides.css?v=20260930-booking-request-layout-217",
+  "./styles/release-mobile.css?v=20260930-booking-request-layout-217",
+  "./styles/release-latest.css?v=20260930-booking-request-layout-217",
+  "./styles/responsive-shell.css?v=20260930-booking-request-layout-217",
+  "./styles/customer-documents.css?v=20260930-booking-request-layout-217",
+  "./styles/invoice-polish.css?v=20260930-booking-request-layout-217",
+  "./app.js?v=20260930-booking-request-layout-217",
+  "./followups.js?v=20260930-booking-request-layout-217",
+  "./i18n-completion.js?v=20260930-booking-request-layout-217",
+  "./i18n.js?v=20260930-booking-request-layout-217",
+  "./onboarding-copy.js?v=20260930-booking-request-layout-217",
+  "./public.js?v=20260930-booking-request-layout-217",
+  "./vendor/supabase.js?v=20260930-booking-request-layout-217",
+  "./manifest.webmanifest?v=20260930-booking-request-layout-217"
 ];
 
 self.addEventListener("install",event=>{
