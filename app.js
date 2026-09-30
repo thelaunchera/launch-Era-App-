@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-owner-inbox-push-229";
+const APP_VERSION = "20260930-schedule-summary-230";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5874,9 +5874,20 @@ function renderTodaySummary(wakeAssistant=false){
       : "";
     const nextJobArea=nextJob?shortJobArea(nextJob.service_address||""):"";
     const tomorrow=new Date(now.getTime()+24*60*60*1000);
-    const tomorrowJobs=state.jobs.filter(function(j){
-      return sameLocalDay(j.starts_at,tomorrow)&&j.status!=="canceled";
-    });
+    const tomorrowJobs=state.jobs
+      .filter(function(j){
+        const status=String(j.status||"").toLowerCase();
+        return sameLocalDay(j.starts_at,tomorrow)&&!["canceled","completed"].includes(status);
+      })
+      .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+    const tomorrowFirstJob=tomorrowJobs[0]||null;
+    const tomorrowLastJob=tomorrowJobs[tomorrowJobs.length-1]||null;
+    const tomorrowFirstTime=tomorrowFirstJob
+      ? new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit",timeZone:businessTimeZone}).format(new Date(tomorrowFirstJob.starts_at))
+      : "";
+    const tomorrowLastTime=tomorrowLastJob
+      ? new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit",timeZone:businessTimeZone}).format(new Date(tomorrowLastJob.starts_at))
+      : "";
     const nextPrecip=state.weather&&(state.weather.nextPrecip||state.weather.nextRain)||null;
     const precipTomorrow=nextPrecip&&nextPrecip.hoursAhead>8&&nextPrecip.hoursAhead<=32;
     const weatherContext=dashboardWeatherContext(now,remainingJobs);
@@ -5931,8 +5942,18 @@ function renderTodaySummary(wakeAssistant=false){
     }else if(["evening","late"].includes(daypart)){
       messageState="night";
       icon="✦";
-      if(tomorrowJobs.length){
-        copy=langPick("You have "+tomorrowJobs.length+" job"+(tomorrowJobs.length===1?"":"s")+" tomorrow. Check the first address, then call it a day.","Mañana tienes "+tomorrowJobs.length+" trabajo"+(tomorrowJobs.length===1?"":"s")+". Deja lista la primera dirección y después descansa.","Vous avez "+tomorrowJobs.length+" travail"+(tomorrowJobs.length===1?"":"aux")+" demain. Vérifiez la première adresse, puis terminez la journée.");
+      if(tomorrowJobs.length===1){
+        copy=langPick(
+          "You have 1 job tomorrow at "+tomorrowFirstTime+". Check the address before you sign off.",
+          "Mañana tienes 1 trabajo a las "+tomorrowFirstTime+". Revisa la dirección antes de cerrar por hoy.",
+          "Vous avez 1 travail demain à "+tomorrowFirstTime+". Vérifiez l’adresse avant de terminer."
+        );
+      }else if(tomorrowJobs.length>1){
+        copy=langPick(
+          "You have "+tomorrowJobs.length+" jobs tomorrow — first at "+tomorrowFirstTime+", last at "+tomorrowLastTime+".",
+          "Mañana tienes "+tomorrowJobs.length+" trabajos — el primero a las "+tomorrowFirstTime+" y el último a las "+tomorrowLastTime+".",
+          "Vous avez "+tomorrowJobs.length+" travaux demain — le premier à "+tomorrowFirstTime+" et le dernier à "+tomorrowLastTime+"."
+        );
       }else{
         copy=langPick("Nothing urgent is waiting. Tomorrow is ready for a clean start.","No hay nada urgente pendiente. Mañana está listo para empezar limpio.","Rien d’urgent n’est en attente. Demain est prêt pour un nouveau départ.");
       }
