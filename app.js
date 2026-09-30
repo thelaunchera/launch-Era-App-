@@ -8056,6 +8056,21 @@ async function finishTimeEntry(id){
     entry.clocked_out_at=finished.clocked_out_at;
     entry.minutes_worked=finished.minutes_worked;
   }
+
+  // Stopping a work timer means the assigned job is finished, even when
+  // the actual tracked time is shorter than the planned duration. The RPC
+  // commits the job status atomically; mirror it locally so Calendar/Today
+  // update immediately while the full workspace refresh is loading.
+  const finishedJobId=finished?.job_id||entry?.job_id||null;
+  if(finishedJobId){
+    const job=state.jobs.find(j=>j.id===finishedJobId);
+    if(job) job.status="completed";
+    if(entry?.jobs) entry.jobs.status="completed";
+    renderJobs();
+    renderTodaySummary();
+    renderOperations();
+  }
+
   await loadCoreData();
   renderOperations();
   return finished;
