@@ -36,7 +36,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20260930-invoice-final-compact-213";
+window.__tleShellVersion="20260930-booking-quote-hierarchy-214";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
