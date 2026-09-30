@@ -13,6 +13,7 @@ const CORE=[
   "./styles/release-latest.css?v=20260930-booking-demo-221",
   "./styles/responsive-shell.css?v=20260930-booking-demo-221",
   "./styles/customer-documents.css?v=20260930-booking-demo-221",
+  "./styles/public-booking.css?v=20260930-booking-demo-221",
   "./styles/invoice-polish.css?v=20260930-booking-demo-221",
   "./app.js?v=20260930-booking-demo-221",
   "./followups.js?v=20260930-booking-demo-221",
