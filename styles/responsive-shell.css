@@ -129,24 +129,137 @@
     padding-top:calc(env(safe-area-inset-top) + 66px)!important;
     scroll-padding-top:calc(env(safe-area-inset-top) + 66px)!important;
   }
+
+  /* Reserve a real center column for the current page name.
+     The right-side actions can no longer sit on top of long titles. */
   body.shell-app .topbar{
+    display:grid!important;
+    grid-template-columns:36px minmax(0,1fr) auto!important;
+    align-items:center!important;
+    column-gap:7px!important;
     min-height:calc(env(safe-area-inset-top) + 58px)!important;
     padding-top:calc(env(safe-area-inset-top) + 7px)!important;
     padding-bottom:7px!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
   }
-  body.shell-app .topbar-title{
-    width:min(34vw,138px)!important;
-    max-width:138px!important;
-  }
-  body.shell-app .topbar-title h1{
-    font-size:17px!important;
-  }
+
   body.shell-app #menuToggle,
-  body.shell-app #backBtn,
-  body.shell-app #quickAddBtn{
+  body.shell-app #backBtn{
+    grid-column:1!important;
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    z-index:2!important;
     width:36px!important;
     min-width:36px!important;
     height:36px!important;
     min-height:36px!important;
+    margin:0!important;
+  }
+
+  body.shell-app .topbar-title{
+    grid-column:2!important;
+    position:static!important;
+    inset:auto!important;
+    left:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0 2px!important;
+    text-align:center!important;
+    pointer-events:none!important;
+    z-index:1!important;
+  }
+  body.shell-app .topbar-title .eyebrow{display:none!important}
+  body.shell-app .topbar-title h1{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    color:#111!important;
+    font-size:17px!important;
+    line-height:36px!important;
+    letter-spacing:-.035em!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  body.shell-app .top-actions{
+    grid-column:3!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    min-width:max-content!important;
+    margin:0!important;
+    position:relative!important;
+    z-index:2!important;
+  }
+  body.shell-app .global-search-shell,
+  body.shell-app #languageBtn{
+    display:none!important;
+  }
+  body.shell-app .notification-shell{
+    display:block!important;
+    position:relative!important;
+  }
+  body.shell-app #notificationBellBtn,
+  body.shell-app #appRefreshBtn{
+    display:grid!important;
+    place-items:center!important;
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:0!important;
+  }
+  body.shell-app #quickAddBtn{
+    display:grid!important;
+    place-items:center!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:0!important;
+    border-radius:50%!important;
+    font-size:0!important;
+  }
+}
+
+@media(max-width:390px){
+  body.shell-app .topbar{
+    grid-template-columns:34px minmax(0,1fr) auto!important;
+    column-gap:5px!important;
+  }
+  body.shell-app #menuToggle,
+  body.shell-app #backBtn{
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+  }
+  body.shell-app .topbar-title h1{
+    font-size:16px!important;
+    line-height:34px!important;
+  }
+  body.shell-app .top-actions{gap:4px!important}
+  body.shell-app #notificationBellBtn,
+  body.shell-app #appRefreshBtn{
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+  }
+  body.shell-app #quickAddBtn{
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
   }
 }
