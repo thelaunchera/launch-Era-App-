@@ -489,6 +489,35 @@
   }
 }
 
+/* Day-mode record surfaces stay readable on tablet and desktop too. */
+@media(min-width:681px){
+  .app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card,
+  .app-shell:not([data-palette-mode]) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card,
+  .app-shell[data-palette-mode="day"] [data-page="quotes"] .quote-growth-card,
+  .app-shell:not([data-palette-mode]) [data-page="quotes"] .quote-growth-card{
+    color:var(--tle-text-strong)!important;
+  }
+
+  .app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell:not([data-palette-mode]) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card :is(.record-primary>strong,.record-field),
+  .app-shell[data-palette-mode="day"] [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b),
+  .app-shell:not([data-palette-mode]) [data-page="quotes"] :is(.quote-growth-customer strong,.quote-amount,.quote-next-step b){
+    color:var(--tle-text-strong)!important;
+  }
+
+  .app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
+  .app-shell:not([data-palette-mode]) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card small:not(.customer-open-status):not(.payment-choice-note):not(.dispute-alert),
+  .app-shell[data-palette-mode="day"] [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span),
+  .app-shell:not([data-palette-mode]) [data-page="quotes"] :is(.quote-growth-customer small,.quote-next-step span){
+    color:var(--tle-text-muted)!important;
+  }
+
+  .app-shell[data-palette-mode="day"] :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card>.record-field::before,
+  .app-shell:not([data-palette-mode]) :is([data-page="leads"],[data-page="invoices"]) .mobile-record-card>.record-field::before{
+    color:var(--tle-text-muted)!important;
+  }
+}
+
 /* Tablet / desktop: day surfaces are light; night surfaces are dark. */
 @media(min-width:681px){
   .app-shell[data-palette-mode="day"] [data-page="clients"] .client-card.client-card-compact,
