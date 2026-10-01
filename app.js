@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-greeting-video-252";
+const APP_VERSION = "20261001-live-greeting-253";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5831,12 +5831,42 @@ function dashboardDaypart(hour){
   if(h>=19&&h<23) return "evening";
   return "late";
 }
-function dashboardGreeting(daypart){
+function dashboardGreeting(daypart,context={}){
   const period=["early","morning"].includes(daypart)
     ? "morning"
     : ["midday","afternoon","wrap"].includes(daypart)
       ? "afternoon"
       : "night";
+
+  const activeStatus=String(context?.activeJob?.status||"").toLowerCase();
+  const remainingCount=Array.isArray(context?.remainingJobs)
+    ? context.remainingJobs.length
+    : Math.max(0,Number(context?.remainingCount||0));
+  const hasWorkAhead=Boolean(context?.nextJob)||remainingCount>0;
+
+  if(activeStatus==="in_progress"){
+    return {
+      morning:langPick("Good morning · you’re already on a job","Buenos días · ya estás en un trabajo","Bonjour · vous êtes déjà sur une intervention"),
+      afternoon:langPick("Good afternoon · you’re in the middle of a job","Buenas tardes · estás en medio de un trabajo","Bon après-midi · vous êtes en plein travail"),
+      night:langPick("Good evening · you’re still on the job","Buenas noches · todavía estás en un trabajo","Bonsoir · vous êtes encore en intervention")
+    }[period];
+  }
+
+  if(activeStatus==="on_the_way"){
+    return {
+      morning:langPick("Good morning · you’re on the way","Buenos días · ya vas en camino","Bonjour · vous êtes en route"),
+      afternoon:langPick("Good afternoon · you’re on the way","Buenas tardes · vas en camino","Bon après-midi · vous êtes en route"),
+      night:langPick("Good evening · you’re on the way","Buenas noches · vas en camino","Bonsoir · vous êtes en route")
+    }[period];
+  }
+
+  if(hasWorkAhead){
+    return {
+      morning:langPick("Good morning · you still have work ahead","Buenos días · todavía tienes trabajo por delante","Bonjour · il vous reste encore du travail"),
+      afternoon:langPick("Good afternoon · you still have work ahead","Buenas tardes · todavía tienes trabajo por delante","Bon après-midi · il vous reste encore du travail"),
+      night:langPick("Good evening · you still have work ahead","Buenas noches · todavía tienes trabajo por delante","Bonsoir · il vous reste encore du travail")
+    }[period];
+  }
 
   const variants={
     morning:[
@@ -6265,7 +6295,7 @@ function renderTodaySummary(wakeAssistant=false){
     hero?.classList.add("moment-"+daypart);
     if(hero) hero.dataset.celestial=["evening","late"].includes(daypart)?"night":"day";
 
-    greet.textContent=dashboardGreeting(daypart);
+    greet.textContent=dashboardGreeting(daypart,{activeJob,remainingJobs,nextJob});
 
     let copy="";
     let actionView="calendar";
