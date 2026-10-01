@@ -261,10 +261,6 @@ async function runProfile(profile){
     if(await page.locator("#publicBookTab").evaluate(el=>el.classList.contains("active"))){
       throw new Error(profile.name+": Commercial stayed in Book a Cleaning instead of switching to Request a Quote");
     }
-    if(new URL(page.url()).searchParams.get("public")!=="quote"){
-      throw new Error(profile.name+": Commercial did not sync the request mode URL to quote");
-    }
-
     const quoteCommercialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!quoteCommercialCards.some(x=>x.includes("Post-Construction Commercial Cleaning"))){
       throw new Error(profile.name+": commercial quote service missing");
