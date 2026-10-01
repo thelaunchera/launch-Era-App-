@@ -258,12 +258,13 @@
   }
 }
 
-/* Remove the long rain streaks that looked detached from the product UI.
-   Keep weather dynamic through palette, clouds, copy and a very soft atmospheric wash. */
+/* Keep live precipitation visible when rain is active.
+   The base particle system already uses short, soft drops so the effect stays
+   inside the product UI instead of looking like a detached weather overlay. */
 #todayHeroCard .hero-precip-layer.weather-rain .rain-drop,
 #todayHeroCard .hero-precip-layer.weather-drizzle .drizzle-drop,
 #todayHeroCard .hero-precip-layer.weather-storm .rain-drop{
-  display:none!important;
+  display:block!important;
 }
 #todayHeroCard .hero-precip-layer.weather-rain,
 #todayHeroCard .hero-precip-layer.weather-drizzle{
