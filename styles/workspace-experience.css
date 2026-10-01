@@ -1693,25 +1693,27 @@ body.shell-auth{overflow-anchor:none}
   -webkit-appearance:none;
   display:inline-flex;
   align-items:center;
-  gap:6px;
+  gap:8px;
   flex:0 0 auto;
-  min-height:32px;
-  padding:7px 10px;
-  border:1px solid rgba(25,25,25,.12);
+  min-height:38px;
+  padding:9px 14px;
+  border:1px solid #191919;
   border-radius:999px;
-  background:rgba(255,255,255,.58);
-  color:#191919;
-  font:900 10px/1 Futura,"Avenir Next",Arial,sans-serif;
+  background:#191919;
+  color:#fff;
+  box-shadow:0 8px 20px rgba(25,25,25,.16);
+  font:900 11px/1 Futura,"Avenir Next",Arial,sans-serif;
+  letter-spacing:.01em;
   white-space:nowrap;
   cursor:pointer;
 }
 .hero-route-chip[hidden]{display:none!important}
 .hero-route-chip-dot{
-  width:7px;
-  height:7px;
+  width:8px;
+  height:8px;
   border-radius:50%;
-  background:#67A56E;
-  box-shadow:0 0 0 4px rgba(103,165,110,.12);
+  background:#F2D85B;
+  box-shadow:0 0 0 4px rgba(242,216,91,.18);
 }
 .hero-route-chip:active{transform:scale(.98)}
 
@@ -1741,9 +1743,12 @@ body.shell-auth{overflow-anchor:none}
   cursor:pointer;
 }
 .route-best-btn{
-  min-height:40px;
-  padding:10px 16px;
-  font-size:11px;
+  min-height:46px;
+  padding:12px 20px;
+  background:#F2D85B;
+  color:#191919;
+  box-shadow:0 8px 18px rgba(25,25,25,.12);
+  font-size:12px;
 }
 .route-gps-btn{
   justify-self:start;
@@ -1760,10 +1765,10 @@ body.shell-auth{overflow-anchor:none}
 
 @media(max-width:720px){
   [data-page="today"] #todayHeroCard .hero-route-chip{
-    min-height:29px;
-    padding:6px 8px;
-    gap:5px;
-    font-size:9px;
+    min-height:36px;
+    padding:8px 12px;
+    gap:7px;
+    font-size:10.5px;
   }
   [data-page="today"] #todayHeroCard .hero-route-chip-dot{
     width:6px;
