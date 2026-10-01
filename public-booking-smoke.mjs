@@ -88,6 +88,7 @@ const profiles=[
 const engines={chromium,firefox,webkit};
 
 async function mockBackend(context,calls){
+  let changeSubmitted=false;
   await context.route("https://bowacxhmjvrqixtwaikv.supabase.co/**",async route=>{
     const url=new URL(route.request().url());
     const pathname=url.pathname;
@@ -99,6 +100,36 @@ async function mockBackend(context,calls){
         {slot_start:"2026-10-05T14:00:00.000Z"},
         {slot_start:"2026-10-05T16:30:00.000Z"}
       ];
+    }else if(pathname.includes("get_public_job_change_context")){
+      body={
+        business_name:"Bright Home Cleaning",
+        timezone:"America/New_York",
+        default_language:"en",
+        locale_code:"en-US",
+        customer_name:"Jamie",
+        customer_language:"en",
+        service_name:"Standard Home Cleaning",
+        starts_at:"2026-10-05T14:00:00.000Z",
+        duration_minutes:120,
+        service_address:"123 Main St",
+        job_status:"scheduled",
+        can_change:true,
+        change_request:changeSubmitted?{
+          id:"aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+          status:"requested",
+          requested_start_at:"2026-10-06T15:00:00.000Z",
+          reason:"Schedule changed",
+          requested_at:"2026-10-01T20:00:00.000Z"
+        }:null
+      };
+    }else if(pathname.includes("get_public_job_reschedule_slots")){
+      body=[
+        {slot_start:"2026-10-06T15:00:00.000Z"},
+        {slot_start:"2026-10-06T17:00:00.000Z"}
+      ];
+    }else if(pathname.includes("submit_public_job_change_request")){
+      changeSubmitted=true;
+      body="aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa";
     }else if(pathname.includes("/functions/v1/track-app-visit")) body={ok:true};
     else body={};
     await route.fulfill({
@@ -148,6 +179,19 @@ async function runProfile(profile){
 
     const header=await page.locator("#publicHeaderBusinessName").textContent();
     if(!header.includes("Bright Home Cleaning")) throw new Error(profile.name+": business branding did not load");
+
+    const promoClutter=await page.evaluate(()=>({
+      hasBack:Boolean(document.querySelector("#publicBackBtn")),
+      hasSecure:document.body.textContent.includes("Secure request"),
+      hasPromoChips:document.body.textContent.includes("Clear service options")||document.body.textContent.includes("Mobile friendly"),
+      intro:document.querySelector("#publicIntro")?.textContent.trim()||""
+    }));
+    if(promoClutter.hasBack||promoClutter.hasSecure||promoClutter.hasPromoChips){
+      throw new Error(profile.name+": demo/promotional clutter is still visible "+JSON.stringify(promoClutter));
+    }
+    if(promoClutter.intro.includes("upfront pricing")){
+      throw new Error(profile.name+": confusing upfront-pricing copy is still visible");
+    }
 
     const bookResidentialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!bookResidentialCards.some(x=>x.includes("Standard Home Cleaning"))){
@@ -276,6 +320,34 @@ async function runProfile(profile){
       }));
       if(layout.summaryWidth<300) throw new Error(profile.name+": desktop summary column is compressed "+JSON.stringify(layout));
     }
+
+    await page.goto("http://127.0.0.1:4176/?public=manage-booking&token=11111111-1111-4111-8111-111111111111",{
+      waitUntil:"domcontentloaded",
+      timeout:20000
+    });
+    await page.waitForSelector("#publicManageBooking",{state:"visible",timeout:10000});
+    const manageService=await page.locator("#publicManageService").textContent();
+    if(!manageService.includes("Standard Home Cleaning")){
+      throw new Error(profile.name+": manage-booking context did not load");
+    }
+    if(!(await page.locator("#publicRequestForm").evaluate(el=>el.hidden))){
+      throw new Error(profile.name+": new-booking form is visible in manage-booking mode");
+    }
+    const manageDate=page.locator("#publicManageDateInput");
+    await manageDate.evaluate(el=>{
+      el.value="2026-10-06";
+      el.dispatchEvent(new Event("change",{bubbles:true}));
+    });
+    await page.waitForFunction(()=>document.querySelectorAll("#publicManageSlots [data-manage-slot]").length>0,null,{timeout:7000});
+    const manageSlot=page.locator("#publicManageSlots [data-manage-slot]").first();
+    await manageSlot.click();
+    if(await page.locator("#publicManageSubmit").isDisabled()){
+      throw new Error(profile.name+": manage-booking submit did not enable after selecting a slot");
+    }
+    await page.locator("#publicManageReason").fill("Schedule changed");
+    await page.locator("#publicManageSubmit").click();
+    await page.waitForFunction(()=>document.querySelector("#publicManageStatus")?.textContent.includes("Change request pending"),null,{timeout:7000});
+    await assertNoOverflow(page,profile,"manage booking");
 
     console.log("PUBLIC_BOOKING_OK",profile.name);
     await context.close();

@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-booking-246";
+const APP_VERSION = "20261001-reschedule-247";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -34,6 +34,7 @@ const state = {
   leads: [],
   invoices: [],
   bookingRequests: [],
+  jobChangeRequests: [],
   emailDeliveryIssues: [],
   mileageLogs: [],
   timeEntries: [],
@@ -2138,11 +2139,19 @@ async function refreshViewData(id){
         renderBookingServices();
 
         if(id==="booking"){
-          const {data:links,error:linksError}=await supabase.rpc("get_my_public_link_settings");
-          if(!linksError){
-            state.publicLinks=links||null;
+          const [linksRes,changesRes,requestsRes]=await Promise.all([
+            supabase.rpc("get_my_public_link_settings"),
+            supabase.from("job_change_requests").select("*, jobs(id,starts_at,duration_minutes,service_address,customer_manage_token,clients(name,email),services(name))").eq("business_id",businessId).order("created_at",{ascending:false}),
+            supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false})
+          ]);
+          if(!linksRes.error){
+            state.publicLinks=linksRes.data||null;
             renderPublicLinks();
           }
+          if(!changesRes.error) state.jobChangeRequests=changesRes.data||[];
+          if(!requestsRes.error) state.bookingRequests=requestsRes.data||[];
+          renderBookingRequests();
+          renderJobChangeRequests();
         }
         return;
       }
@@ -4008,6 +4017,24 @@ function getInquiryNotifications(){
     });
   });
 
+  (state.jobChangeRequests||[]).forEach(r=>{
+    if(String(r.status||"").toLowerCase()!=="requested") return;
+    const job=r.jobs||{};
+    items.push({
+      id:"job-change:"+r.id,
+      recordId:r.id,
+      type:"job-change",
+      createdAt:r.requested_at||r.created_at,
+      name:job.clients?.name||langPick("Customer","Cliente","Client"),
+      email:job.clients?.email||"",
+      address:job.service_address||"",
+      service:langPick("Booking change requested","Cambio de reserva solicitado","Modification de réservation demandée"),
+      requestedAt:r.requested_start_at||"",
+      notes:r.reason||"",
+      status:r.status||"requested"
+    });
+  });
+
   state.jobs.forEach(j=>{
     const status=String(j.status||"").toLowerCase();
     if(!["on_the_way","in_progress","completed"].includes(status)) return;
@@ -4145,6 +4172,15 @@ function openInquiryNotificationDetail(notificationId){
     return;
   }
 
+  if(item.type==="job-change"){
+    closeNotificationPopover();
+    openView("booking");
+    setTimeout(()=>{
+      document.querySelector('[data-booking-panel="changes"]')?.scrollIntoView({behavior:"smooth",block:"center"});
+    },160);
+    return;
+  }
+
   if(item.type==="job-status"){
     closeNotificationPopover();
     const job=state.jobs.find(j=>j.id===item.recordId);
@@ -4235,6 +4271,7 @@ function notificationTypeLabel(item){
     "invoice-payment-choice":langPick("Payment choice","Método de pago","Choix de paiement"),
     dispute:langPick("Dispute","Disputa","Contestation"),
     "job-status":langPick("Job update","Actualización del trabajo","Mise à jour du travail"),
+    "job-change":langPick("Booking change","Cambio de reserva","Modification de réservation"),
     "team-message":langPick("Team message","Mensaje del equipo","Message d’équipe"),
     "email-delivery":langPick("Email delivery issue","Problema de entrega del email","Problème de livraison de l’e-mail")
   };
@@ -4515,15 +4552,17 @@ async function loadCoreData(){
   if(["owner","admin"].includes(String(state.business?.role||""))) await loadTeamMessageThreads().catch(err=>console.warn("[TLE] team messages",err));
   renderSupplies();
 
-  const [invoices,bookingRequests,mileageLogs,timeEntries,emailDeliveryIssues]=await Promise.all([
+  const [invoices,bookingRequests,jobChangeRequests,mileageLogs,timeEntries,emailDeliveryIssues]=await Promise.all([
     safe("invoices",supabase.from("invoices").select("*, clients(name,email), invoice_items(*), payments(id,method,amount,status,paid_at,created_at)").eq("business_id",businessId).order("created_at",{ascending:false}),state.invoices),
     safe("booking requests",supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingRequests),
+    safe("booking changes",supabase.from("job_change_requests").select("*, jobs(id,starts_at,duration_minutes,service_address,customer_manage_token,clients(name,email),services(name))").eq("business_id",businessId).order("created_at",{ascending:false}),state.jobChangeRequests),
     safe("mileage",supabase.from("mileage_logs").select("*, jobs(service_address,clients(name),services(name))").eq("business_id",businessId).order("log_date",{ascending:false}),state.mileageLogs),
     safe("time tracking",supabase.from("job_time_entries").select("*, jobs(starts_at,duration_minutes,status,clients(name),services(name)), team_members(name)").eq("business_id",businessId).order("clocked_in_at",{ascending:false}),state.timeEntries),
     safe("email delivery issues",supabase.from("email_delivery_issues").select("*").eq("business_id",businessId).is("resolved_at",null).order("occurred_at",{ascending:false}).limit(25),state.emailDeliveryIssues)
   ]);
   state.invoices=invoices;
   state.bookingRequests=bookingRequests;
+  state.jobChangeRequests=jobChangeRequests;
   state.mileageLogs=mileageLogs;
   state.timeEntries=timeEntries;
   state.emailDeliveryIssues=emailDeliveryIssues||[];
@@ -4531,6 +4570,7 @@ async function loadCoreData(){
   // so render them again only after those datasets are available.
   renderClients();
   renderInvoices();
+  renderJobChangeRequests();
   await loadInquirySeenState();
   await loadInquiryReadIds();
   renderInquiryNotifications();
@@ -5544,7 +5584,7 @@ function renderCalendarDayDetails(dateKey,options={}){
               <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
             </div>
             ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
-            ${canEdit?`<div class="calendar-day-actions">${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}<button type="button" class="ghost-btn" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
+            ${canEdit?`<div class="calendar-day-actions">${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}${j.customer_manage_token?`<button type="button" class="ghost-btn" data-copy-manage-token="${escapeHtml(j.customer_manage_token)}">${escapeHtml(langPick("Client link","Enlace del cliente","Lien client"))}</button>`:""}<button type="button" class="ghost-btn" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
           </article>`;
       }).join("")}
     </div>`;
@@ -6610,6 +6650,47 @@ function bookingPropertySnapshot(record={}){
   if(floors!==null&&floors!==undefined&&floors!=="") parts.push(floors+" "+langPick("level","nivel","niveau"));
   if(conditionLabel) parts.push(conditionLabel);
   return parts.filter(Boolean).join(" · ");
+}
+
+function renderJobChangeRequests(){
+  const list=$("#jobChangeRequestsList");
+  const pill=$("#jobChangeRequestCountPill");
+  if(!list && !pill) return;
+  const rows=[...(state.jobChangeRequests||[])].sort((a,b)=>{
+    const ap=a.status==="requested"?0:1;
+    const bp=b.status==="requested"?0:1;
+    return ap-bp || new Date(b.created_at||0)-new Date(a.created_at||0);
+  });
+  const pending=rows.filter(r=>r.status==="requested");
+  if(pill) pill.textContent=pending.length+" "+langPick("pending","pendiente","en attente");
+  if(!list) return;
+  if(!rows.length){
+    list.innerHTML=`<div class="empty-inline"><strong>${escapeHtml(langPick("No booking changes waiting.","No hay cambios de reserva pendientes.","Aucune modification de réservation en attente."))}</strong><span>${escapeHtml(langPick("Customer date or time requests will appear here.","Las solicitudes de cambio de fecha u hora aparecerán aquí.","Les demandes de changement de date ou d’heure apparaîtront ici."))}</span></div>`;
+    return;
+  }
+  list.innerHTML=rows.slice(0,12).map(r=>{
+    const job=r.jobs||{};
+    const current=r.previous_start_at||job.starts_at;
+    const requested=r.requested_start_at;
+    const customer=job.clients?.name||langPick("Customer","Cliente","Client");
+    const service=job.services?.name||langPick("Cleaning","Limpieza","Nettoyage");
+    const manageToken=job.customer_manage_token||"";
+    const statusClass=r.status==="requested"?"warning":r.status==="approved"?"success":r.status==="declined"?"danger":"neutral";
+    return `
+      <div class="booking-request-row booking-change-row">
+        <div class="booking-request-copy">
+          <strong>${escapeHtml(customer)} · ${escapeHtml(service)}</strong>
+          <small><b>${escapeHtml(langPick("Current","Actual","Actuel"))}:</b> ${escapeHtml(formatDateTime(current))}</small>
+          <small class="booking-change-requested"><b>${escapeHtml(langPick("Requested","Solicitado","Demandé"))}:</b> ${escapeHtml(formatDateTime(requested))}</small>
+          ${r.reason?`<small class="booking-property-summary">${escapeHtml(langPick("Reason","Motivo","Motif"))}: ${escapeHtml(r.reason)}</small>`:""}
+        </div>
+        <div class="record-actions booking-request-actions">
+          <span class="status ${statusClass}">${escapeHtml(String(r.status||"").replaceAll("_"," "))}</span>
+          ${manageToken?`<button class="booking-action" data-copy-manage-token="${escapeHtml(manageToken)}">${escapeHtml(langPick("Copy client link","Copiar enlace del cliente","Copier le lien client"))}</button>`:""}
+          ${r.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-job-change="${r.id}">${escapeHtml(langPick("Approve change","Aprobar cambio","Approuver"))}</button><button class="booking-action danger-link" data-decline-job-change="${r.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
+        </div>
+      </div>`;
+  }).join("");
 }
 
 function renderBookingRequests(){
@@ -9594,6 +9675,47 @@ document.addEventListener("click",async e=>{
       await loadCoreData();
       showToast("Booking request declined");
       trackGoogleEvent("booking_declined",{source:"booking_request"});
+    }
+    return;
+  }
+
+  const copyManage=e.target.closest("[data-copy-manage-token]");
+  if(copyManage){
+    const manageToken=String(copyManage.dataset.copyManageToken||"").trim();
+    if(!manageToken) return;
+    const link=new URL(window.location.origin+window.location.pathname);
+    link.searchParams.set("public","manage-booking");
+    link.searchParams.set("token",manageToken);
+    await copyText(link.toString());
+    showToast(langPick("Client booking link copied","Enlace de reserva del cliente copiado","Lien de réservation client copié"));
+    return;
+  }
+
+  const approveChange=e.target.closest("[data-approve-job-change]");
+  if(approveChange){
+    approveChange.disabled=true;
+    const {error}=await supabase.rpc("approve_job_change_request",{p_request_id:approveChange.dataset.approveJobChange});
+    approveChange.disabled=false;
+    if(error) showToast(error.message);
+    else {
+      await loadCoreData();
+      showToast(langPick("Booking change approved","Cambio de reserva aprobado","Modification de réservation approuvée"));
+    }
+    return;
+  }
+
+  const declineChange=e.target.closest("[data-decline-job-change]");
+  if(declineChange){
+    declineChange.disabled=true;
+    const {error}=await supabase.rpc("decline_job_change_request",{
+      p_request_id:declineChange.dataset.declineJobChange,
+      p_review_note:null
+    });
+    declineChange.disabled=false;
+    if(error) showToast(error.message);
+    else {
+      await loadCoreData();
+      showToast(langPick("Booking change declined","Cambio de reserva rechazado","Modification de réservation refusée"));
     }
     return;
   }
