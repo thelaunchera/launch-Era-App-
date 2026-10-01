@@ -5899,12 +5899,17 @@ function installProgressiveBooking(){
   setBookingStep();
 }
 function installSettingsAccordion(){
-  $$(".settings-accordion>.settings-section").forEach((panel,i)=>{
+  const panels=$(".settings-accordion>.settings-section");
+  panels.forEach(panel=>{
     if(panel.dataset.accordionReady)return; panel.dataset.accordionReady="1";
     const head=panel.querySelector(".panel-head")||panel.querySelector("h3"); if(!head)return;
-    panel.classList.toggle("settings-open",i===0);
+    panel.classList.remove("settings-open");
     head.classList.add("settings-accordion-trigger"); head.setAttribute("role","button"); head.setAttribute("tabindex","0");
-    const toggle=()=>panel.classList.toggle("settings-open");
+    const toggle=()=>{
+      const willOpen=!panel.classList.contains("settings-open");
+      panels.forEach(other=>other.classList.remove("settings-open"));
+      if(willOpen) panel.classList.add("settings-open");
+    };
     head.addEventListener("click",e=>{if(e.target.closest("button,input,a"))return;toggle();});
     head.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}});
   });
@@ -7090,12 +7095,12 @@ function renderSettings(){
   if(notificationsEyebrow) notificationsEyebrow.textContent=ownerAlertLang("OWNER ALERTS","ALERTAS DE LA DUEÑA","ALERTES PROPRIÉTAIRE","ALÈT PWOPRIYETÈ");
   if(notificationsTitle) notificationsTitle.textContent=ownerAlertLang("Notifications","Notificaciones","Notifications","Notifikasyon");
   if(notificationsNote) notificationsNote.textContent=ownerAlertLang(
-    "Choose how important booking, quote, payment and dispute alerts reach you.",
-    "Elige cómo recibir alertas importantes de reservas, cotizaciones, pagos y disputas.",
-    "Choisissez comment recevoir les alertes importantes de réservations, devis, paiements et contestations.",
-    "Chwazi kijan pou resevwa alèt enpòtan pou rezèvasyon, devis, peman ak diskisyon."
+    "Choose where important alerts go.",
+    "Elige dónde recibir las alertas importantes.",
+    "Choisissez où recevoir les alertes importantes.",
+    "Chwazi kote pou resevwa alèt enpòtan yo."
   );
-  if(notificationsEdit) notificationsEdit.textContent=ownerAlertLang("Edit notifications →","Editar notificaciones →","Modifier les notifications →","Modifye notifikasyon →");
+  if(notificationsEdit) notificationsEdit.textContent=ownerAlertLang("Edit","Editar","Modifier","Modifye");
   if(notificationsChannelsLabel) notificationsChannelsLabel.textContent=ownerAlertLang("Channels","Canales","Canaux","Chanèl");
   if(notificationsDestinationLabel) notificationsDestinationLabel.textContent=ownerAlertLang("Send alerts to","Enviar alertas a","Envoyer les alertes à","Voye alèt bay");
 
