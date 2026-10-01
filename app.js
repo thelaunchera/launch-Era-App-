@@ -4017,6 +4017,24 @@ function getInquiryNotifications(){
     });
   });
 
+  (state.jobChangeRequests||[]).forEach(r=>{
+    if(String(r.status||"").toLowerCase()!=="requested") return;
+    const job=r.jobs||{};
+    items.push({
+      id:"job-change:"+r.id,
+      recordId:r.id,
+      type:"job-change",
+      createdAt:r.requested_at||r.created_at,
+      name:job.clients?.name||langPick("Customer","Cliente","Client"),
+      email:job.clients?.email||"",
+      address:job.service_address||"",
+      service:langPick("Booking change requested","Cambio de reserva solicitado","Modification de réservation demandée"),
+      requestedAt:r.requested_start_at||"",
+      notes:r.reason||"",
+      status:r.status||"requested"
+    });
+  });
+
   state.jobs.forEach(j=>{
     const status=String(j.status||"").toLowerCase();
     if(!["on_the_way","in_progress","completed"].includes(status)) return;
@@ -4154,6 +4172,15 @@ function openInquiryNotificationDetail(notificationId){
     return;
   }
 
+  if(item.type==="job-change"){
+    closeNotificationPopover();
+    openView("booking");
+    setTimeout(()=>{
+      document.querySelector('[data-booking-panel="changes"]')?.scrollIntoView({behavior:"smooth",block:"center"});
+    },160);
+    return;
+  }
+
   if(item.type==="job-status"){
     closeNotificationPopover();
     const job=state.jobs.find(j=>j.id===item.recordId);
@@ -4244,6 +4271,7 @@ function notificationTypeLabel(item){
     "invoice-payment-choice":langPick("Payment choice","Método de pago","Choix de paiement"),
     dispute:langPick("Dispute","Disputa","Contestation"),
     "job-status":langPick("Job update","Actualización del trabajo","Mise à jour du travail"),
+    "job-change":langPick("Booking change","Cambio de reserva","Modification de réservation"),
     "team-message":langPick("Team message","Mensaje del equipo","Message d’équipe"),
     "email-delivery":langPick("Email delivery issue","Problema de entrega del email","Problème de livraison de l’e-mail")
   };
