@@ -496,6 +496,7 @@
       const fixedPriceServices=allServices.filter(s=>s.pricing_type==="flat" && Number(s.base_price)>0);
       const quoteOnlyServices=allServices.filter(s=>!(s.pricing_type==="flat" && Number(s.base_price)>0));
       const addons=data?.addons||[];
+      const discounts=data?.discounts||[];
       let services=[];
 
       const business=$("#publicBusinessName");
@@ -503,6 +504,9 @@
       const intro=$("#publicIntro");
       const submit=$("#publicSubmitBtn");
       const addWrap=$("#publicAddonsWrap");
+      const discountWrap=$("#publicDiscountsWrap");
+      const discountBox=$("#publicDiscounts");
+      const discountInput=$("#publicDiscountId");
       const select=$("#publicService");
       const addonBox=$("#publicAddons");
       const summary=$("#publicSummary");
@@ -539,6 +543,14 @@
       const supportCopy=$("#publicSupportCopy");
       const summaryMicro=$("#publicSummaryMicro");
       const refreshBtn=$("#publicRefreshBtn");
+      const discountUi=window.TLE_PUBLIC_DISCOUNTS?.create({
+        discounts,
+        wrap:discountWrap,
+        box:discountBox,
+        input:discountInput,
+        money,
+        onChange:()=>updateSummary()
+      });
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(headerBusinessName) headerBusinessName.textContent=data?.business?.name||tt("Cleaning service");
@@ -783,7 +795,9 @@
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=addons.filter(a=>chosenIds.includes(a.id));
-        const total=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        const baseTotal=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        const discountPrice=discountUi?.price(baseTotal)||{discount:0,final:baseTotal,discountRecord:null};
+        const total=discountPrice.final;
         const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
         const chosenSlot=slotsBox?.querySelector("[data-slot].selected");
         const timeLabel=chosenSlot?.textContent?.trim()||tt("Choose a time");
@@ -805,6 +819,7 @@
           '<div class="public-demo-summary-row"><span>'+esc(tt("Date"))+'</span><strong>'+esc(dateLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
+          (discountPrice.discountRecord?'<div class="public-demo-summary-row discount-row"><span>'+esc(discountUi?.label("discount")||"Discount")+'</span><strong>−'+esc(money(discountPrice.discount))+' · '+esc(discountPrice.discountRecord.name)+'</strong></div>':"")+
           '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
@@ -828,6 +843,7 @@
           '</small></span>'+
           '</label>'
         ).join(""):'<span class="muted-line">'+esc(tt("No add-ons for this service."))+'</span>';
+        discountUi?.render(selected?.id||"",mode);
         updateSummary();
       }
 
@@ -1178,7 +1194,7 @@
                 p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
-              await rpc("submit_public_booking_request_v3",{
+              await rpc("submit_public_booking_request_v4",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),
@@ -1205,7 +1221,8 @@
                 p_cleaning_condition:cleaningCondition||null,
                 p_access_notes:accessNotes||null,
                 p_business_hours:propertyType==="commercial"?(businessHours||null):null,
-                p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
+                p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null,
+                p_discount_id:discountUi?.selectedId()||null
               });
             }
             form.hidden=true;
