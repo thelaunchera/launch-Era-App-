@@ -1,10 +1,10 @@
-// The Launch Era Cleaning App — onboarding copy only.
+// The Launch Era Cleaning Web App — onboarding copy only.
 // Separated from app.js so runtime logic stays smaller and easier to audit.
 (function(){
 const ONBOARDING_COPY={
   welcome:{
-    en:{kicker:"YOU’RE IN",title:"Thanks for choosing The Launch Era Cleaning App.",text:"Your account is ready. We’ll stay with you for the first few steps so you can see where everything lives without having to figure it out alone."},
-    es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
+    en:{kicker:"YOU’RE IN",title:"Thanks for choosing The Launch Era Cleaning Web App.",text:"Your account is ready. We’ll stay with you for the first few steps so you can see where everything lives without having to figure it out alone."},
+    es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning Web App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
   },
   today:{
     en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and follow-through."},
@@ -79,14 +79,14 @@ const ONBOARDING_COPY={
     es:{title:"Ayuda y preguntas",text:"Encuentra ayuda de configuración, instrucciones de acceso y respuestas comunes. Aquí puedes reiniciar este recorrido cuando quieras."}
   },
   "platform-admin":{
-    en:{title:"Owner View",text:"Private owner controls for app customers, subscriptions and real product activity."},
-    es:{title:"Owner View",text:"Vista privada para clientes de la app, suscripciones y actividad real del producto."}
+    en:{title:"Owner View",text:"Private owner controls for web app customers, subscriptions and real product activity."},
+    es:{title:"Owner View",text:"Vista privada para clientes de la Web App, suscripciones y actividad real del producto."}
   }
 };
 
 const ONBOARDING_EXTRA={
   fr:{
-    welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
+    welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning Web App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
     today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
     booking:{title:"Réservations",text:"Gérez les demandes de réservation, les disponibilités et le lien public utilisé par vos clients."},
     leads:{title:"Prospects",text:"Gardez les clients potentiels ici avant qu’ils deviennent des clients actifs ou des travaux réservés."},
@@ -105,12 +105,12 @@ const ONBOARDING_EXTRA={
     settings:{title:"Paramètres",text:"Modifiez les informations de l’entreprise, les règles de réservation, paiements, e-mails clients et liens."},
     admin:{title:"Administration propriétaire",text:"Les contrôles sensibles sont ici : accès, permissions, intégrations et paramètres du compte."},
     help:{title:"Aide et FAQ",text:"Trouvez l’aide de configuration, les instructions d’accès et les réponses fréquentes. Vous pouvez relancer ce guide à tout moment."},
-    "platform-admin":{title:"Vue propriétaire",text:"Contrôles privés pour les clients de l’application, les abonnements et l’activité réelle du produit."}
+    "platform-admin":{title:"Vue propriétaire",text:"Contrôles privés pour les clients de la Web App, les abonnements et l’activité réelle du produit."}
   }
 };
 
 ONBOARDING_EXTRA.ht={
-  welcome:{kicker:"BYENVINI",title:"Mèsi paske w ap itilize The Launch Era Cleaning App.",text:"Kont ou pare. N ap gide w nan premye etap yo pou ou konnen kote tout bagay ye san ou pa bezwen dekouvri tout poukont ou."},
+  welcome:{kicker:"BYENVINI",title:"Mèsi paske w ap itilize The Launch Era Cleaning Web App.",text:"Kont ou pare. N ap gide w nan premye etap yo pou ou konnen kote tout bagay ye san ou pa bezwen dekouvri tout poukont ou."},
   today:{title:"Jodi a",text:"Rezime jounen ou: travay, demann rezèvasyon, devis, fakti ak aksyon rapid."},
   booking:{title:"Rezèvasyon",text:"Jere demann rezèvasyon, disponiblite ak lyen piblik kliyan yo itilize."},
   leads:{title:"Pwospè",text:"Kenbe kliyan potansyèl yo isit la anvan yo vin kliyan aktif oswa travay pwograme."},
@@ -129,7 +129,7 @@ ONBOARDING_EXTRA.ht={
   settings:{title:"Paramèt",text:"Modifye enfòmasyon konpayi, règ rezèvasyon, peman, imèl kliyan ak lyen."},
   admin:{title:"Admin pwopriyetè",text:"Kontwòl sansib yo isit la: aksè, pèmisyon, entegrasyon ak paramèt kont."},
   help:{title:"Èd ak FAQ",text:"Jwenn èd pou konfigirasyon, enstriksyon aksè ak repons komen. Ou ka rekòmanse gid sa a nenpòt lè."},
-  "platform-admin":{title:"Vizyalizasyon pwopriyetè",text:"Kontwòl prive pou kliyan app la, abònman ak aktivite reyèl pwodwi a."}
+  "platform-admin":{title:"Vizyalizasyon pwopriyetè",text:"Kontwòl prive pou kliyan Web App la, abònman ak aktivite reyèl pwodwi a."}
 };
 window.TLE_ONBOARDING_COPY=ONBOARDING_COPY;
 window.TLE_ONBOARDING_EXTRA=ONBOARDING_EXTRA;

@@ -1,4 +1,4 @@
-// The Launch Era Cleaning App — lightweight shell bootstrap.
+// The Launch Era Cleaning Web App — lightweight shell bootstrap.
 // Keep this file UI-agnostic: analytics gating, boot errors, and service-worker registration only.
 (function(){
       try{
@@ -36,7 +36,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20260930-repo-fix-238";
+window.__tleShellVersion="20261001-webapp-239";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})

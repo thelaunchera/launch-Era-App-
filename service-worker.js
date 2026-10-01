@@ -1,28 +1,28 @@
-const CACHE_NAME="tle-cleaning-app-20260930-repo-fix-238";
+const CACHE_NAME="tle-cleaning-app-20261001-webapp-239";
 const CORE=[
-  "./boot.js?v=20260930-repo-fix-238",
-  "./styles/boot.css?v=20260930-repo-fix-238",
+  "./boot.js?v=20261001-webapp-239",
+  "./styles/boot.css?v=20261001-webapp-239",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-repo-fix-238",
-  "./styles/workspace-components.css?v=20260930-repo-fix-238",
-  "./styles/workspace-experience.css?v=20260930-repo-fix-238",
-  "./styles/workspace-operations.css?v=20260930-repo-fix-238",
-  "./styles/release-overrides.css?v=20260930-repo-fix-238",
-  "./styles/release-mobile.css?v=20260930-repo-fix-238",
-  "./styles/release-latest.css?v=20260930-repo-fix-238",
-  "./styles/responsive-shell.css?v=20260930-repo-fix-238",
-  "./styles/customer-documents.css?v=20260930-repo-fix-238",
-  "./styles/public-booking.css?v=20260930-repo-fix-238",
-  "./styles/invoice-polish.css?v=20260930-repo-fix-238",
-  "./app.js?v=20260930-repo-fix-238",
-  "./followups.js?v=20260930-repo-fix-238",
-  "./i18n-completion.js?v=20260930-repo-fix-238",
-  "./i18n.js?v=20260930-repo-fix-238",
-  "./onboarding-copy.js?v=20260930-repo-fix-238",
-  "./public.js?v=20260930-repo-fix-238",
-  "./vendor/supabase.js?v=20260930-repo-fix-238",
-  "./manifest.webmanifest?v=20260930-repo-fix-238"
+  "./styles.css?v=20261001-webapp-239",
+  "./styles/workspace-components.css?v=20261001-webapp-239",
+  "./styles/workspace-experience.css?v=20261001-webapp-239",
+  "./styles/workspace-operations.css?v=20261001-webapp-239",
+  "./styles/release-overrides.css?v=20261001-webapp-239",
+  "./styles/release-mobile.css?v=20261001-webapp-239",
+  "./styles/release-latest.css?v=20261001-webapp-239",
+  "./styles/responsive-shell.css?v=20261001-webapp-239",
+  "./styles/customer-documents.css?v=20261001-webapp-239",
+  "./styles/public-booking.css?v=20261001-webapp-239",
+  "./styles/invoice-polish.css?v=20261001-webapp-239",
+  "./app.js?v=20261001-webapp-239",
+  "./followups.js?v=20261001-webapp-239",
+  "./i18n-completion.js?v=20261001-webapp-239",
+  "./i18n.js?v=20261001-webapp-239",
+  "./onboarding-copy.js?v=20261001-webapp-239",
+  "./public.js?v=20261001-webapp-239",
+  "./vendor/supabase.js?v=20261001-webapp-239",
+  "./manifest.webmanifest?v=20261001-webapp-239"
 ];
 const NAVIGATION_TIMEOUT_MS=2500;
 
@@ -119,7 +119,7 @@ self.addEventListener("push",event=>{
   try{data=event.data?event.data.json():{};}catch{
     try{data={body:event.data?.text()||""};}catch{}
   }
-  const title=data.title||"The Launch Era Cleaning App";
+  const title=data.title||"The Launch Era Cleaning Web App";
   const options={
     body:data.body||"You have a new update.",
     icon:data.icon||"./app-icon.svg",
