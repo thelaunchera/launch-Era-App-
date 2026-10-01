@@ -5230,6 +5230,7 @@ function renderServiceCatalogCard(s){
       </div>
       <div class="service-catalog-meta">
         <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
+        <span><small>${escapeHtml(langPick("Workers","Trabajadores","Travailleurs"))}</small><b>${Math.max(1,Number(s.workers_required||1))}</b></span>
         <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
         <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
       </div>
@@ -7915,6 +7916,7 @@ function openEntityForm(type,id=null){
         </select></label>
         <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Non requis"):""}"></label>
         <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||1))}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
         <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
       </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Enregistrer"):langPick("Add service","Añadir servicio","Ajouter le service"))}`;
@@ -8412,6 +8414,7 @@ async function saveService(fd){
     pricing="quote";
     showToast("No price entered — service saved as Quote Required");
   }
+  const workersRequired=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
@@ -8419,6 +8422,7 @@ async function saveService(fd){
     pricing_type:pricing,
     base_price:pricing==="quote"?null:numericPrice,
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
+    workers_required:workersRequired,
     active:fd.get("active")==="on"
   };
 
