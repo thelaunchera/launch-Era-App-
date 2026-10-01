@@ -3910,3 +3910,44 @@ body.shell-auth{overflow-anchor:none}
 }
 
 
+
+
+/* Client self-service controls inside Booking Center */
+[data-page="booking"] .client-change-settings{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+  padding:14px;
+  border:1px solid var(--center-line);
+  border-radius:16px;
+  background:#FAF8F3;
+}
+[data-page="booking"] .client-change-settings-head{
+  grid-column:1/-1;
+  display:grid;
+  gap:3px;
+}
+[data-page="booking"] .client-change-settings-head strong{font-size:13px}
+[data-page="booking"] .client-change-settings-head small{font-size:10px;color:#726E67}
+[data-page="booking"] .client-change-settings>label{
+  display:grid;
+  gap:6px;
+  min-width:0;
+  font-size:10px;
+  font-weight:800;
+}
+[data-page="booking"] .client-change-toggle{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center;
+  padding:10px 11px;
+  border:1px solid var(--center-line);
+  border-radius:12px;
+  background:#fff;
+}
+[data-page="booking"] .client-change-toggle>span{display:grid;gap:2px}
+[data-page="booking"] .client-change-toggle small{font-size:9px;color:#77736C;font-weight:600}
+[data-page="booking"] .client-change-toggle input{width:18px;height:18px;margin:0}
+@media(max-width:680px){
+  [data-page="booking"] .client-change-settings{grid-template-columns:1fr;padding:12px}
+}
