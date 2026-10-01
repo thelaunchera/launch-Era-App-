@@ -504,6 +504,25 @@ function weatherClockLabel(hour){
   const d=new Date(Date.UTC(2026,0,1,h,0,0));
   return new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit",timeZone:"UTC"}).format(d);
 }
+function weatherLiveHourKey(weather){
+  const timezone=String(weather?.timezone||activeBusinessTimeZone()||"UTC");
+  try{
+    const parts=new Intl.DateTimeFormat("en-US",{
+      timeZone:timezone,
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit",
+      hour:"2-digit",
+      hourCycle:"h23"
+    }).formatToParts(new Date());
+    const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+    if(!map.year||!map.month||!map.day||map.hour==null) return "";
+    return map.year+"-"+map.month+"-"+map.day+"T"+String(map.hour).padStart(2,"0");
+  }catch{
+    return "";
+  }
+}
+
 function weatherDayLabel(dateString,currentDateString){
   if(!dateString) return "";
   const d=new Date(dateString+"T12:00:00Z");
@@ -525,7 +544,9 @@ function nextPrecipitationWindow(weather){
   const probs=weather&&weather.hourly&&weather.hourly.precipitation_probability||[];
   const codes=weather&&weather.hourly&&weather.hourly.weather_code||[];
   if(!times.length) return null;
-  const current=String(weather&&weather.current&&weather.current.time||"").slice(0,13);
+  const providerCurrent=String(weather&&weather.current&&weather.current.time||"").slice(0,13);
+  const liveCurrent=weatherLiveHourKey(weather);
+  const current=[providerCurrent,liveCurrent].filter(Boolean).sort().pop()||providerCurrent;
   let start=times.findIndex(function(t){return String(t).slice(0,13)>=current;});
   if(start<0) start=0;
   const end=Math.min(times.length,start+72);
@@ -1132,7 +1153,12 @@ function renderWeatherBrief(){
   const lows=weather.daily?.temperature_2m_min||[];
   const high=Math.round(Number(highs[0]));
   const low=Math.round(Number(lows[0]));
-  const event=weather.nextPrecip||weather.nextRain||null;
+  const hasHourlyForecast=Array.isArray(weather.hourly?.time)&&weather.hourly.time.length>0;
+  const event=hasHourlyForecast?nextPrecipitationWindow(weather):(weather.nextPrecip||weather.nextRain||null);
+  if(hasHourlyForecast){
+    weather.nextPrecip=event;
+    weather.nextRain=event?.kind==="rain"?event:null;
+  }
   const shift=nextWeatherConditionShift(weather);
 
   const icon=$("#weatherIcon");
@@ -1196,16 +1222,27 @@ function renderWeatherBrief(){
         : langPick("Rain now in your area.","Está lloviendo ahora en tu zona.","Il pleut maintenant dans votre zone.");
       note.classList.add("rain");
     }else if(event&&event.hoursAhead<=48){
-      const day=weatherDayLabel(event.date,currentDate);
-      const when=weatherClockLabel(event.hour);
-      const label=event.kind==="snow"
-        ? langPick("Snow expected","Nieve probable","Neige prévue")
-        : event.kind==="storm"
-        ? langPick("Storms expected","Tormentas probables","Orages prévus")
-        : langPick("Rain expected","Lluvia probable","Pluie prévue");
-      const dayPart=event.date===currentDate?"":(" "+day);
       const chance=Number.isFinite(Number(event.probability))?" · "+Math.round(Number(event.probability))+"%":"";
-      text=label+dayPart+" "+langPick("around","cerca de las","vers")+" "+when+chance+".";
+      const eventHourKey=String(event.time||"").slice(0,13);
+      const liveHourKey=weatherLiveHourKey(weather);
+      if(eventHourKey&&liveHourKey&&eventHourKey===liveHourKey){
+        const thisHourLabel=event.kind==="snow"
+          ? (lang==="ht"?"Gen chans pou nèj tonbe nan èdtan sa a":langPick("Snow chance this hour","Probabilidad de nieve esta hora","Risque de neige cette heure"))
+          : event.kind==="storm"
+          ? (lang==="ht"?"Gen chans pou tanpèt nan èdtan sa a":langPick("Storm chance this hour","Probabilidad de tormentas esta hora","Risque d’orage cette heure"))
+          : (lang==="ht"?"Gen chans pou lapli tonbe nan èdtan sa a":langPick("Rain chance this hour","Probabilidad de lluvia esta hora","Risque de pluie cette heure"));
+        text=thisHourLabel+chance+".";
+      }else{
+        const day=weatherDayLabel(event.date,currentDate);
+        const when=weatherClockLabel(event.hour);
+        const label=event.kind==="snow"
+          ? langPick("Snow expected","Nieve probable","Neige prévue")
+          : event.kind==="storm"
+          ? langPick("Storms expected","Tormentas probables","Orages prévus")
+          : langPick("Rain expected","Lluvia probable","Pluie prévue");
+        const dayPart=event.date===currentDate?"":(" "+day);
+        text=label+dayPart+" "+langPick("around","cerca de las","vers")+" "+when+chance+".";
+      }
       note.classList.add("rain");
     }else if(shift){
       const m=weatherCodeMeta(shift.code);
@@ -1236,7 +1273,10 @@ function installLiveDashboardUpdates(){
   window.__tleLiveDashboardInstalled=true;
 
   window.setInterval(function(){
-    if(state.session&&state.business) renderTodaySummary();
+    if(state.session&&state.business){
+      try{renderWeatherBrief();}catch{}
+      renderTodaySummary();
+    }
   },60*1000);
 
   window.setInterval(function(){
