@@ -2017,6 +2017,86 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Updated":"Mizajou"
   });
 
+  // Customer booking management.
+  Object.assign(staticCorrections.es,{
+    "Manage booking":"Administrar reserva",
+    "Your booking":"Tu reserva",
+    "View your confirmed appointment or request a different day or time.":"Consulta tu cita confirmada o solicita otro día u horario.",
+    "Change request pending":"Solicitud de cambio pendiente",
+    "Your current appointment stays confirmed until the business approves the new time.":"Tu cita actual sigue confirmada hasta que el negocio apruebe el nuevo horario.",
+    "Change approved":"Cambio aprobado",
+    "Your booking now shows the approved date and time above.":"Tu reserva ya muestra arriba la fecha y hora aprobadas.",
+    "Change not approved":"Cambio no aprobado",
+    "Your confirmed appointment remains unchanged. You can request another available time.":"Tu cita confirmada no cambió. Puedes solicitar otro horario disponible.",
+    "This booking can no longer be changed online.":"Esta reserva ya no se puede cambiar en línea.",
+    "Choose a date first.":"Elige una fecha primero.",
+    "Checking availability…":"Consultando disponibilidad…",
+    "No openings on this date. Try another day.":"No hay horarios disponibles ese día. Prueba otra fecha.",
+    "Could not load availability":"No se pudo cargar la disponibilidad",
+    "Choose a date to see available times.":"Elige una fecha para ver los horarios disponibles.",
+    "Sending…":"Enviando…",
+    "Send change request":"Enviar solicitud de cambio",
+    "Could not send change request.":"No se pudo enviar la solicitud de cambio.",
+    "Booking unavailable":"Reserva no disponible",
+    "This booking link is invalid or no longer available.":"Este enlace de reserva no es válido o ya no está disponible.",
+    "Available times":"Horarios disponibles",
+    "Reason":"Motivo",
+    "Anything the business should know about this change?":"¿Hay algo que el negocio deba saber sobre este cambio?",
+    "Your current appointment stays confirmed until the business approves the change.":"Tu cita actual sigue confirmada hasta que el negocio apruebe el cambio."
+  });
+  Object.assign(staticCorrections.fr,{
+    "Manage booking":"Gérer la réservation",
+    "Your booking":"Votre réservation",
+    "View your confirmed appointment or request a different day or time.":"Consultez votre rendez-vous confirmé ou demandez un autre jour ou horaire.",
+    "Change request pending":"Demande de modification en attente",
+    "Your current appointment stays confirmed until the business approves the new time.":"Votre rendez-vous actuel reste confirmé jusqu’à l’approbation du nouvel horaire.",
+    "Change approved":"Modification approuvée",
+    "Your booking now shows the approved date and time above.":"Votre réservation affiche maintenant la date et l’heure approuvées.",
+    "Change not approved":"Modification non approuvée",
+    "Your confirmed appointment remains unchanged. You can request another available time.":"Votre rendez-vous confirmé reste inchangé. Vous pouvez demander un autre horaire disponible.",
+    "This booking can no longer be changed online.":"Cette réservation ne peut plus être modifiée en ligne.",
+    "Choose a date first.":"Choisissez d’abord une date.",
+    "Checking availability…":"Vérification des disponibilités…",
+    "No openings on this date. Try another day.":"Aucune disponibilité ce jour-là. Essayez une autre date.",
+    "Could not load availability":"Impossible de charger les disponibilités",
+    "Choose a date to see available times.":"Choisissez une date pour voir les horaires disponibles.",
+    "Sending…":"Envoi…",
+    "Send change request":"Envoyer la demande de modification",
+    "Could not send change request.":"Impossible d’envoyer la demande de modification.",
+    "Booking unavailable":"Réservation indisponible",
+    "This booking link is invalid or no longer available.":"Ce lien de réservation est invalide ou n’est plus disponible.",
+    "Available times":"Horaires disponibles",
+    "Reason":"Motif",
+    "Anything the business should know about this change?":"Y a-t-il quelque chose que l’entreprise doit savoir à propos de ce changement ?",
+    "Your current appointment stays confirmed until the business approves the change.":"Votre rendez-vous actuel reste confirmé jusqu’à l’approbation du changement."
+  });
+  Object.assign(staticCorrections.ht,{
+    "Manage booking":"Jere rezèvasyon",
+    "Your booking":"Rezèvasyon ou",
+    "View your confirmed appointment or request a different day or time.":"Gade randevou ki konfime a oswa mande yon lòt jou oswa lè.",
+    "Change request pending":"Demann chanjman an ap tann",
+    "Your current appointment stays confirmed until the business approves the new time.":"Randevou aktyèl ou rete konfime jiskaske biznis la apwouve nouvo lè a.",
+    "Change approved":"Chanjman apwouve",
+    "Your booking now shows the approved date and time above.":"Rezèvasyon ou kounye a montre dat ak lè ki apwouve anwo a.",
+    "Change not approved":"Chanjman pa apwouve",
+    "Your confirmed appointment remains unchanged. You can request another available time.":"Randevou konfime ou pa chanje. Ou ka mande yon lòt lè ki disponib.",
+    "This booking can no longer be changed online.":"Rezèvasyon sa a pa ka chanje sou entènèt ankò.",
+    "Choose a date first.":"Chwazi yon dat an premye.",
+    "Checking availability…":"N ap tcheke disponibilite…",
+    "No openings on this date. Try another day.":"Pa gen lè disponib jou sa a. Eseye yon lòt dat.",
+    "Could not load availability":"Pa t ka chaje disponibilite",
+    "Choose a date to see available times.":"Chwazi yon dat pou wè lè ki disponib yo.",
+    "Sending…":"N ap voye…",
+    "Send change request":"Voye demann chanjman",
+    "Could not send change request.":"Pa t ka voye demann chanjman an.",
+    "Booking unavailable":"Rezèvasyon pa disponib",
+    "This booking link is invalid or no longer available.":"Lyen rezèvasyon sa a pa valab oswa li pa disponib ankò.",
+    "Available times":"Lè ki disponib",
+    "Reason":"Rezon",
+    "Anything the business should know about this change?":"Èske gen yon bagay biznis la ta dwe konnen sou chanjman sa a?",
+    "Your current appointment stays confirmed until the business approves the change.":"Randevou aktyèl ou rete konfime jiskaske biznis la apwouve chanjman an."
+  });
+
   // Final weather advice coverage used by the dynamic dashboard.
   Object.assign(staticCorrections.es,{
     "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."
