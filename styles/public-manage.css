@@ -118,7 +118,9 @@
   opacity:.42;
   cursor:not-allowed;
 }
-#publicShell .public-manage-panel[hidden]{display:none!important}\n#publicShell .public-manage-panel{\n  display:grid;
+#publicShell .public-manage-panel[hidden]{display:none!important}
+#publicShell .public-manage-panel{
+  display:grid;
   gap:14px;
   margin-top:12px;
   padding:18px;
