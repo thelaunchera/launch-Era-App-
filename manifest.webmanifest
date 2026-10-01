@@ -1,7 +1,7 @@
 {
-  "name": "The Launch Era Cleaning App",
-  "short_name": "Cleaning App",
-  "description": "Operations app for cleaning businesses serving homes, short-term rentals and commercial spaces.",
+  "name": "The Launch Era Cleaning Web App",
+  "short_name": "Cleaning Web App",
+  "description": "Browser-based operations web app for cleaning businesses. Add it to your Home Screen and use it like an app.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
