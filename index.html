@@ -350,6 +350,69 @@
             <p class="public-demo-summary-micro" id="publicSummaryMicro">No payment is collected here. The business will review and confirm your request.</p>
           </aside>
         </form>
+        <section class="public-manage-booking" id="publicManageBooking" hidden aria-live="polite">
+          <div class="public-manage-head">
+            <span class="pill blue" id="manageBookingLabel">MANAGE BOOKING</span>
+            <h2 id="manageBookingTitle">Manage your cleaning</h2>
+            <p id="manageBookingIntro">View your appointment, choose another available time, or cancel within the business’s policy.</p>
+          </div>
+          <div class="public-manage-status" id="manageBookingStatus" hidden></div>
+          <article class="public-manage-card">
+            <div class="public-manage-primary">
+              <small id="manageServiceLabel">SERVICE</small>
+              <strong id="manageService">Cleaning</strong>
+              <span id="manageBusiness"></span>
+            </div>
+            <div class="public-manage-details">
+              <div><small id="manageDateLabel">DATE + TIME</small><strong id="manageDateTime">—</strong></div>
+              <div><small id="manageAddressLabel">ADDRESS</small><strong id="manageAddress">—</strong></div>
+            </div>
+          </article>
+          <div class="public-manage-policy" id="managePolicy"></div>
+          <div class="public-manage-actions" id="manageActions">
+            <button class="primary-btn" type="button" id="manageRescheduleBtn">Reschedule</button>
+            <button class="ghost-btn public-manage-cancel-open" type="button" id="manageCancelBtn">Cancel booking</button>
+          </div>
+
+          <section class="public-manage-panel" id="manageReschedulePanel" hidden>
+            <div class="public-manage-panel-head">
+              <div><small id="manageRescheduleEyebrow">RESCHEDULE</small><h3 id="manageRescheduleTitle">Choose a new time</h3></div>
+              <button type="button" class="public-manage-close" data-manage-close aria-label="Close">×</button>
+            </div>
+            <label><span id="manageNewDateLabel">New date</span><input type="date" id="manageNewDate"></label>
+            <div class="public-manage-slots" id="manageSlots"><span class="muted-line">Choose a date to see available times.</span></div>
+            <fieldset class="public-manage-scope" id="manageRescheduleScope" hidden>
+              <legend id="manageRescheduleScopeLegend">Apply this change to</legend>
+              <label><input type="radio" name="manage_reschedule_scope" value="this" checked><span><strong id="manageThisCleaningReschedule">This cleaning only</strong></span></label>
+              <label><input type="radio" name="manage_reschedule_scope" value="future"><span><strong id="manageFutureCleaningReschedule">This and future cleanings</strong></span></label>
+            </fieldset>
+            <button class="primary-btn public-submit" type="button" id="manageConfirmReschedule" disabled>Confirm new time</button>
+          </section>
+
+          <section class="public-manage-panel public-manage-cancel-panel" id="manageCancelPanel" hidden>
+            <div class="public-manage-panel-head">
+              <div><small id="manageCancelEyebrow">CANCEL</small><h3 id="manageCancelTitle">Cancel this cleaning?</h3></div>
+              <button type="button" class="public-manage-close" data-manage-close aria-label="Close">×</button>
+            </div>
+            <label><span id="manageReasonLabel">Reason <span class="field-optional">(optional)</span></span>
+              <select id="manageCancelReason">
+                <option value="">Choose one</option>
+                <option value="Schedule changed">Schedule changed</option>
+                <option value="No longer needed">No longer needed</option>
+                <option value="Found another provider">Found another provider</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label id="manageOtherReasonWrap" hidden><span id="manageOtherReasonLabel">Other reason</span><input id="manageOtherReason" maxlength="500"></label>
+            <fieldset class="public-manage-scope" id="manageCancelScope" hidden>
+              <legend id="manageCancelScopeLegend">Cancel</legend>
+              <label><input type="radio" name="manage_cancel_scope" value="this" checked><span><strong id="manageThisCleaningCancel">This cleaning only</strong></span></label>
+              <label><input type="radio" name="manage_cancel_scope" value="future"><span><strong id="manageFutureCleaningCancel">This and future cleanings</strong></span></label>
+            </fieldset>
+            <button class="primary-btn public-submit public-manage-danger" type="button" id="manageConfirmCancel">Confirm cancellation</button>
+          </section>
+        </section>
+
         <div class="public-invoice-view" id="publicInvoiceView" hidden>
           <div class="quote-review-head">
             <span class="pill blue">INVOICE</span>
@@ -735,6 +798,23 @@
               </label>
             </div>
             <div class="availability-week" id="availabilityWeek"></div>
+            <div class="client-change-settings">
+              <div class="client-change-settings-head"><strong>Client changes</strong><small>Let confirmed clients manage their appointment from their private link.</small></div>
+              <label class="client-change-toggle"><span><strong>Reschedule online</strong><small>Clients can choose another available time.</small></span><input type="checkbox" id="bookingAllowReschedule" checked></label>
+              <label class="client-change-toggle"><span><strong>Cancel online</strong><small>Canceling releases the time and assigned workers.</small></span><input type="checkbox" id="bookingAllowCancel" checked></label>
+              <label>Changes allowed until
+                <select id="bookingChangeCutoffHours">
+                  <option value="0">Appointment start time</option>
+                  <option value="12">12 hours before</option>
+                  <option value="24">24 hours before</option>
+                  <option value="48">48 hours before</option>
+                  <option value="72">72 hours before</option>
+                </select>
+              </label>
+              <label>Cancellation note <span class="field-optional">(optional)</span>
+                <input id="bookingCancellationPolicyText" maxlength="500" placeholder="Example: Changes must be made at least 24 hours before your cleaning.">
+              </label>
+            </div>
             <p class="helper">Clients only see times that fit your hours, service length, travel buffer and existing bookings.</p>
           </article>
         </div>
@@ -1340,6 +1420,7 @@
   <script src="./i18n-completion.js?v=20261001-booking-246"></script>
   <script src="./i18n.js?v=20261001-booking-246"></script>
   <script src="./onboarding-copy.js?v=20261001-booking-246"></script>
+  <script src="./public-manage.js?v=20261001-booking-246"></script>
   <script src="./public.js?v=20261001-booking-246"></script>
   <script src="./app.js?v=20261001-booking-246"></script>
   <script src="./followups.js?v=20261001-booking-246"></script>
