@@ -480,7 +480,7 @@ function translatedStatus(value=""){
   const raw=String(value||"").replaceAll("_"," ");
   const map={
     requested:"Requested",draft:"Draft",sent:"Sent",accepted:"Accepted",declined:"Declined",
-    completed:"Completed",in_progress:"In progress",scheduled:"Scheduled",canceled:"Canceled",
+    completed:"Completed",in_progress:"In progress",on_the_way:"On my way",scheduled:"Scheduled",canceled:"Canceled",
     paid:"Paid",void:"Void",new:"New",contacted:"Contacted",qualified:"Qualified",
     quoted:"Quoted",booked:"Booked",lost:"Lost",confirmed:"Confirmed",pending:"Pending"
   };
@@ -5309,6 +5309,14 @@ function tleCalendarDateKey(date){
   return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 }
 
+function jobProgressAction(job){
+  const status=String(job?.status||"scheduled").toLowerCase();
+  if(["completed","canceled","no_show"].includes(status)) return null;
+  if(status==="on_the_way") return {status:"in_progress",label:tr("Start job")};
+  if(status==="in_progress") return {status:"completed",label:tr("Complete")};
+  return {status:"on_the_way",label:tr("On my way")};
+}
+
 function renderCalendarDayDetails(dateKey,options={}){
   const week=$("#calendarWeekRow");
   if(!week) return;
@@ -5363,6 +5371,7 @@ function renderCalendarDayDetails(dateKey,options={}){
         const address=j.service_address||langPick("Address not added","Dirección no añadida","Adresse non ajoutée");
         const notes=String(j.notes||"").trim();
         const canEdit=state.business?.role!=="coworker";
+        const progress=jobProgressAction(j);
         return `
           <article class="calendar-day-job ${options.jobId===j.id?"is-focus":""}">
             <div class="calendar-day-job-top">
@@ -5378,7 +5387,7 @@ function renderCalendarDayDetails(dateKey,options={}){
               <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
             </div>
             ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
-            ${canEdit?`<div class="calendar-day-actions"><button type="button" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
+            ${canEdit?`<div class="calendar-day-actions">${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}<button type="button" class="ghost-btn" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
           </article>`;
       }).join("")}
     </div>`;
@@ -9154,6 +9163,38 @@ document.addEventListener("click",async e=>{
     if(error) showToast(error.message); else {await loadCoreData();showToast(service.active?"Service deactivated":"Service activated");}
     return;
   }
+  const jobProgress=e.target.closest("[data-job-progress]");
+  if(jobProgress){
+    e.preventDefault();
+    e.stopPropagation();
+    const jobId=jobProgress.dataset.jobProgress;
+    const nextStatus=String(jobProgress.dataset.status||"").toLowerCase();
+    if(!jobId || !["on_the_way","in_progress","completed"].includes(nextStatus)) return;
+    jobProgress.disabled=true;
+    let error=null;
+    if(state.business?.role==="coworker"){
+      ({error}=await supabase.rpc("coworker_set_job_status",{p_job_id:jobId,p_status:nextStatus}));
+    }else{
+      ({error}=await supabase.from("jobs").update({status:nextStatus}).eq("id",jobId).eq("business_id",state.business.id));
+    }
+    if(error){
+      jobProgress.disabled=false;
+      showToast(error.message);
+    }else{
+      const localJob=state.jobs.find(j=>j.id===jobId);
+      if(localJob) localJob.status=nextStatus;
+      renderJobs();
+      renderTodaySummary();
+      renderOperations();
+      const updatedCopy=appLanguage()==="ht"
+        ? "Pwogrè travay la mete ajou"
+        : langPick("Job progress updated","Progreso del trabajo actualizado","Progression du travail mise à jour");
+      showToast(updatedCopy);
+      await loadCoreData();
+    }
+    return;
+  }
+
   const cancel=e.target.closest("[data-cancel-job]");
   if(cancel){
     if(!confirm("Cancel this job?")) return;
