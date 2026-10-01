@@ -8,7 +8,8 @@
   const API="https://bowacxhmjvrqixtwaikv.supabase.co/functions/v1/manage-booking";
   const supported=["en","es","fr","ht"];
   const requested=String(params.get("lang")||"").toLowerCase();
-  if(supported.includes(requested) && window.TLE_I18N?.setLanguage){
+  let languageChosenByUser=supported.includes(requested);
+  if(languageChosenByUser && window.TLE_I18N?.setLanguage){
     window.TLE_I18N.setLanguage(requested);
   }
 
@@ -229,11 +230,9 @@
 
   function render(){
     if(!view) return;
-    language=supported.includes(requested)
-      ? requested
-      : supported.includes(view.customer?.language)
-        ? view.customer.language
-        : language;
+    if(!languageChosenByUser && supported.includes(view.customer?.language)){
+      language=view.customer.language;
+    }
     applyCopy();
 
     setText("#publicHeaderBusinessName",view.business?.name||"Cleaning Business");
@@ -400,6 +399,7 @@
     const next=String(event?.detail?.language||"").toLowerCase();
     if(!supported.includes(next)) return;
     language=next;
+    languageChosenByUser=true;
     try{
       const url=new URL(window.location.href);
       url.searchParams.set("lang",next);
