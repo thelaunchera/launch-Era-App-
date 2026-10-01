@@ -1,0 +1,165 @@
+/* Booking Center discounts + public Booking Page offers */
+[data-page="booking"] .booking-section-label{
+  grid-column:1/-1;
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 2px 0;
+  border-bottom:1px solid rgba(41,70,64,.12);
+}
+[data-page="booking"] .booking-section-label span{
+  color:#294640;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+[data-page="booking"] .booking-section-label small{
+  color:#77736c;
+  font-size:10px;
+}
+[data-page="booking"] .booking-discounts-list{
+  display:grid;
+  gap:9px;
+}
+[data-page="booking"] .booking-discount-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:13px 14px;
+  border:1px solid rgba(41,70,64,.12);
+  border-radius:14px;
+  background:#fff;
+}
+[data-page="booking"] .booking-discount-copy{
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
+[data-page="booking"] .booking-discount-copy strong{font-size:13px}
+[data-page="booking"] .booking-discount-copy small{font-size:10px;color:#716d66}
+[data-page="booking"] .booking-discount-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+[data-page="booking"] .booking-discount-meta span{
+  padding:4px 7px;
+  border-radius:999px;
+  background:#f3f6f4;
+  color:#42544f;
+  font-size:9px;
+  font-weight:800;
+}
+[data-page="booking"] .booking-discount-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:6px;
+}
+[data-page="booking"] .booking-discount-actions button{
+  min-height:32px;
+  padding:7px 9px;
+  border-radius:9px;
+  font-size:9px;
+}
+[data-page="booking"] .booking-discount-empty{
+  padding:18px;
+  border:1px dashed rgba(41,70,64,.2);
+  border-radius:14px;
+  text-align:center;
+  color:#77736c;
+  font-size:11px;
+}
+.discount-form-note{
+  padding:11px 12px;
+  border-radius:12px;
+  background:#faf8f3;
+  color:#645f58;
+  font-size:10px;
+  line-height:1.45;
+}
+#publicShell .public-discounts{
+  display:grid;
+  gap:8px;
+}
+#publicShell .public-discount-card{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  padding:13px 14px;
+  border:1px solid #dfddd7;
+  border-radius:14px;
+  background:#fff;
+  color:#191919;
+  text-align:left;
+}
+#publicShell .public-discount-card.selected{
+  border:2px solid #294640;
+  padding:12px 13px;
+  background:#f4f8f6;
+}
+#publicShell .public-discount-card>span:first-child{
+  display:grid;
+  gap:3px;
+}
+#publicShell .public-discount-card small{
+  color:#77736c;
+  font-size:9px;
+}
+#publicShell .public-discount-card strong{font-size:13px}
+#publicShell .public-discount-card em{
+  color:#6a6760;
+  font-size:10px;
+  font-style:normal;
+  line-height:1.35;
+}
+#publicShell .public-discount-value{
+  display:grid;
+  justify-items:end;
+  gap:3px;
+}
+#publicShell .public-discount-value b{
+  color:#294640;
+  font-size:14px;
+}
+#publicShell .public-discount-value i{
+  margin-top:3px;
+  color:#294640;
+  font-size:9px;
+  font-style:normal;
+  font-weight:900;
+}
+#publicShell .public-demo-summary-row.discount-row strong{color:#294640}
+@media(max-width:620px){
+  [data-page="booking"] .booking-section-label{
+    display:grid;
+    gap:3px;
+  }
+  [data-page="booking"] .booking-discount-row{
+    grid-template-columns:1fr;
+  }
+  [data-page="booking"] .booking-discount-actions{
+    justify-content:flex-start;
+  }
+  #publicShell .public-discount-card{
+    grid-template-columns:1fr;
+  }
+  #publicShell .public-discount-value{justify-items:start}
+}
+.entity-form .client-change-toggle{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 11px;
+  border:1px solid rgba(41,70,64,.12);
+  border-radius:12px;
+  background:#faf8f3;
+}
+.entity-form .client-change-toggle>span{display:grid;gap:2px}
+.entity-form .client-change-toggle small{font-size:9px;color:#77736c;font-weight:600}
+.entity-form .client-change-toggle input{width:18px;height:18px;margin:0}
