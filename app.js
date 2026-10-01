@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-greeting-video-249";
+const APP_VERSION = "20261001-greeting-video-250";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1718,7 +1718,8 @@ function playHeroOpeningAnimation(){
   try{
     if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
     const hero=$("#todayHeroCard");
-    if(!hero) return;
+    const action=$("#todayHeroAction");
+    if(!hero||!action) return;
     const now=Date.now();
     if(now-heroOpeningAnimationLastStarted<1500) return;
     heroOpeningAnimationLastStarted=now;
@@ -1740,14 +1741,28 @@ function playHeroOpeningAnimation(){
     image.draggable=false;
     image.src=HERO_OPENING_ANIMATION_URL+"#open-"+now;
     slot.appendChild(image);
-    void slot.offsetWidth;
-    slot.classList.add("is-playing");
+
+    requestAnimationFrame(()=>{
+      const heroRect=hero.getBoundingClientRect();
+      const actionRect=action.getBoundingClientRect();
+      const compact=window.innerWidth<=390;
+      const mobile=window.innerWidth<=720;
+      const slotHeight=compact?70:(mobile?76:96);
+      const left=Math.max(8,actionRect.left-heroRect.left);
+      const top=Math.max(6,actionRect.top-heroRect.top-slotHeight+8);
+      const width=Math.max(72,Math.min(actionRect.width,heroRect.width-left-8));
+      slot.style.setProperty("--tle-greeting-left",left+"px");
+      slot.style.setProperty("--tle-greeting-top",top+"px");
+      slot.style.setProperty("--tle-greeting-width",width+"px");
+      void slot.offsetWidth;
+      slot.classList.add("is-playing");
+    });
 
     clearTimeout(heroOpeningAnimationTimer);
     heroOpeningAnimationTimer=setTimeout(()=>{
       slot.classList.remove("is-playing");
       slot.replaceChildren();
-    },5200);
+    },5000);
   }catch(err){
     console.warn("[TLE] greeting opening animation",err);
   }
