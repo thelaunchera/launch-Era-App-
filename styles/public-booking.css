@@ -613,8 +613,77 @@
 }
 
 @media(min-width:621px) and (max-width:1024px){
-  #publicShell .public-demo-hero-photo{background:#EAF2EF}
-  #publicShell .public-demo-hero-photo>img,
-  #publicShell .public-demo-summary-photo img{object-fit:contain!important;object-position:center center!important}
-  #publicShell .public-demo-summary-photo{height:clamp(170px,24vw,240px)!important;background:#294640}
+  #publicShell .public-main{
+    width:min(860px,calc(100% - 34px))!important;
+  }
+  #publicShell .public-demo-hero{
+    max-width:820px;
+    margin-inline:auto;
+  }
+  #publicShell .public-demo-hero-photo{
+    width:min(100%,720px)!important;
+    min-height:0!important;
+    margin-inline:auto!important;
+    background:#EAF2EF;
+  }
+  #publicShell .public-demo-hero-photo>img{
+    position:relative!important;
+    inset:auto!important;
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    object-fit:initial!important;
+  }
+  #publicShell .public-demo-booking-form>.form-grid,
+  #publicShell .public-demo-summary-stack{
+    width:min(100%,780px)!important;
+    max-width:780px!important;
+    margin-inline:auto!important;
+  }
+  #publicShell .public-demo-booking-form>.form-grid{
+    padding:22px!important;
+  }
+  #publicShell .public-demo-service-card{
+    min-height:96px!important;
+  }
+  #publicShell .public-summary{
+    display:grid!important;
+    grid-template-columns:240px minmax(0,1fr)!important;
+    column-gap:18px!important;
+    row-gap:0!important;
+    padding:18px!important;
+    align-items:start!important;
+  }
+  #publicShell .public-demo-summary-top{
+    grid-column:1/-1!important;
+    margin-bottom:13px!important;
+  }
+  #publicShell .public-demo-summary-photo{
+    grid-column:1!important;
+    grid-row:2 / span 8!important;
+    width:100%!important;
+    height:auto!important;
+    margin:0!important;
+    align-self:start!important;
+    background:#294640;
+  }
+  #publicShell .public-demo-summary-photo img{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    object-fit:initial!important;
+  }
+  #publicShell .public-demo-summary-row,
+  #publicShell .public-demo-summary-total{
+    grid-column:2!important;
+  }
+  #publicShell .public-demo-summary-row{
+    padding:7px 0!important;
+  }
+  #publicShell .public-demo-summary-total{
+    padding:10px 0 2px!important;
+  }
+  #publicShell .public-demo-summary-stack .public-submit{
+    width:100%!important;
+  }
 }
