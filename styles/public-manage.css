@@ -1,0 +1,224 @@
+/* Client Manage Booking — private token page */
+#publicShell .public-manage-booking{
+  width:min(760px,100%);
+  margin:22px auto 56px;
+}
+#publicShell .public-manage-head{
+  margin-bottom:16px;
+}
+#publicShell .public-manage-head .pill{
+  display:inline-flex;
+  margin-bottom:10px;
+}
+#publicShell .public-manage-head h2{
+  margin:0 0 7px;
+  font-family:Prompt,Arial,sans-serif;
+  font-size:clamp(30px,5vw,44px);
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+#publicShell .public-manage-head p{
+  margin:0;
+  color:#6E726F;
+  font-size:14px;
+  line-height:1.55;
+  max-width:620px;
+}
+#publicShell .public-manage-status{
+  margin:0 0 12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#EAF2EF;
+  color:#294640;
+  font-size:12px;
+  font-weight:800;
+}
+#publicShell .public-manage-status[data-type="error"]{
+  background:#FFF0ED;
+  color:#8B352A;
+}
+#publicShell .public-manage-card,
+#publicShell .public-manage-panel,
+#publicShell .public-manage-policy{
+  border:1px solid #E8E4DC;
+  background:#FFFDF9;
+  border-radius:20px;
+}
+#publicShell .public-manage-card{
+  display:grid;
+  grid-template-columns:.85fr 1.15fr;
+  gap:18px;
+  padding:20px;
+  box-shadow:0 12px 30px rgba(37,48,45,.07);
+}
+#publicShell .public-manage-primary{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  padding:4px 16px 4px 2px;
+  border-right:1px solid #E8E4DC;
+}
+#publicShell .public-manage-primary small,
+#publicShell .public-manage-details small{
+  color:#7A766E;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+#publicShell .public-manage-primary strong{
+  margin-top:5px;
+  font-size:20px;
+  line-height:1.15;
+}
+#publicShell .public-manage-primary span{
+  margin-top:5px;
+  color:#6E726F;
+  font-size:11px;
+}
+#publicShell .public-manage-details{
+  display:grid;
+  gap:13px;
+}
+#publicShell .public-manage-details>div{
+  display:grid;
+  gap:4px;
+}
+#publicShell .public-manage-details strong{
+  font-size:13px;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+#publicShell .public-manage-policy{
+  display:grid;
+  gap:5px;
+  margin-top:10px;
+  padding:13px 15px;
+  background:#FAF8F3;
+  color:#5F625F;
+  font-size:11px;
+  line-height:1.45;
+}
+#publicShell .public-manage-policy strong{color:#294640}
+#publicShell .public-manage-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:12px;
+}
+#publicShell .public-manage-actions button{
+  min-height:46px;
+  border-radius:13px;
+}
+#publicShell .public-manage-cancel-open{
+  border-color:#D7B7B1;
+  color:#7A3027;
+}
+#publicShell .public-manage-actions button:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+#publicShell .public-manage-panel[hidden]{display:none!important}
+#publicShell .public-manage-panel{
+  display:grid;
+  gap:14px;
+  margin-top:12px;
+  padding:18px;
+  box-shadow:0 12px 30px rgba(37,48,45,.055);
+}
+#publicShell .public-manage-panel-head{
+  display:flex;
+  align-items:start;
+  justify-content:space-between;
+  gap:12px;
+}
+#publicShell .public-manage-panel-head small{
+  color:#294640;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+#publicShell .public-manage-panel-head h3{
+  margin:3px 0 0;
+  font-size:23px;
+}
+#publicShell .public-manage-close{
+  width:34px;
+  height:34px;
+  border:1px solid #E8E4DC;
+  border-radius:50%;
+  background:#fff;
+  font-size:20px;
+}
+#publicShell .public-manage-panel label{
+  display:grid;
+  gap:6px;
+  color:#4D504E;
+  font-size:11px;
+  font-weight:800;
+}
+#publicShell .public-manage-panel input,
+#publicShell .public-manage-panel select{
+  width:100%;
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid #DDD9D1;
+  border-radius:12px;
+  background:#fff;
+  color:#191919;
+  font:inherit;
+}
+#publicShell .public-manage-slots{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  min-height:34px;
+}
+#publicShell .public-manage-slots .slot-btn{
+  min-width:92px;
+}
+#publicShell .public-manage-slots .slot-btn.selected{
+  background:#294640;
+  color:#fff;
+  border-color:#294640;
+}
+#publicShell .public-manage-scope{
+  display:grid;
+  gap:7px;
+  margin:0;
+  padding:0;
+  border:0;
+}
+#publicShell .public-manage-scope legend{
+  margin-bottom:7px;
+  color:#4D504E;
+  font-size:11px;
+  font-weight:800;
+}
+#publicShell .public-manage-scope label{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:44px;
+  padding:10px 12px;
+  border:1px solid #E8E4DC;
+  border-radius:12px;
+  background:#fff;
+}
+#publicShell .public-manage-scope input{
+  width:auto;
+  min-height:0;
+  margin:0;
+}
+#publicShell .public-manage-danger{
+  background:#7A3027!important;
+  border-color:#7A3027!important;
+}
+@media(max-width:620px){
+  #publicShell .public-manage-booking{margin-top:12px}
+  #publicShell .public-manage-head h2{font-size:32px}
+  #publicShell .public-manage-card{grid-template-columns:1fr;gap:13px;padding:16px}
+  #publicShell .public-manage-primary{padding:0 0 12px;border-right:0;border-bottom:1px solid #E8E4DC}
+  #publicShell .public-manage-actions{grid-template-columns:1fr}
+  #publicShell .public-manage-panel{padding:15px}
+}
