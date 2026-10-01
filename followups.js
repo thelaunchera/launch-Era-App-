@@ -254,7 +254,7 @@
       const value=prefs[select.dataset.followupMode]||"remind";
       if(select.value!==value) select.value=value;
     });
-    $("[data-followup-edit]").forEach(button=>{
+    $$("[data-followup-edit]").forEach(button=>{
       const custom=hasCustomForType(button.dataset.followupEdit);
       button.classList.toggle("has-custom",custom);
       button.textContent=custom
