@@ -12,7 +12,8 @@
   const validRequestMode = ["book","quote"].includes(mode) && Boolean(slug);
   const validQuoteReview = mode === "quote-review" && Boolean(token);
   const validInvoiceView = mode === "invoice" && Boolean(token);
-  if(!validRequestMode && !validQuoteReview && !validInvoiceView) return;
+  const validManageBooking = mode === "manage-booking" && Boolean(token);
+  if(!validRequestMode && !validQuoteReview && !validInvoiceView && !validManageBooking) return;
 
   window.__tlePublicHandled = true;
 
@@ -1229,6 +1230,201 @@
     }
   }
 
+  async function bootManageBooking(){
+    const form=$("#publicRequestForm");
+    const success=$("#publicSuccess");
+    const quoteReview=$("#publicQuoteReview");
+    const invoiceView=$("#publicInvoiceView");
+    const manage=$("#publicManageBooking");
+    const requestSwitch=$("#publicRequestSwitch");
+    const refreshBtn=$("#publicRefreshBtn");
+    if(form) form.hidden=true;
+    if(success) success.hidden=true;
+    if(quoteReview) quoteReview.hidden=true;
+    if(invoiceView) invoiceView.hidden=true;
+    if(requestSwitch) requestSwitch.hidden=true;
+    if(manage) manage.hidden=false;
+
+    const title=$("#publicManageTitle");
+    const intro=$("#publicManageIntro");
+    const serviceEl=$("#publicManageService");
+    const dateEl=$("#publicManageDate");
+    const timeEl=$("#publicManageTime");
+    const addressEl=$("#publicManageAddress");
+    const statusEl=$("#publicManageStatus");
+    const manageForm=$("#publicManageForm");
+    const dateInput=$("#publicManageDateInput");
+    const slotsBox=$("#publicManageSlots");
+    const slotInput=$("#publicManageSlotStart");
+    const reasonInput=$("#publicManageReason");
+    const submitBtn=$("#publicManageSubmit");
+    let context=null;
+    let businessZone="UTC";
+
+    const formatBookingDate=iso=>new Intl.DateTimeFormat(publicLocale,{
+      timeZone:businessZone,month:"short",day:"numeric",year:"numeric"
+    }).format(new Date(iso));
+    const formatBookingTime=iso=>new Intl.DateTimeFormat(publicLocale,{
+      timeZone:businessZone,hour:"numeric",minute:"2-digit"
+    }).format(new Date(iso));
+    const dateKey=iso=>{
+      const parts=new Intl.DateTimeFormat("en-CA",{
+        timeZone:businessZone,year:"numeric",month:"2-digit",day:"2-digit"
+      }).formatToParts(new Date(iso));
+      const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+      return [map.year,map.month,map.day].join("-");
+    };
+
+    function renderContext(data){
+      context=data||{};
+      businessZone=context.timezone||"UTC";
+      setPublicLocale(context.locale_code,null,context.customer_language||context.default_language);
+      const businessName=context.business_name||tt("Cleaning business");
+      $("#publicBusinessName").textContent=businessName;
+      $("#publicHeaderBusinessName").textContent=businessName;
+      const mark=String(businessName).trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
+      if($("#publicHeaderMark")) $("#publicHeaderMark").textContent=mark||"CB";
+      if($("#publicHeaderSub")) $("#publicHeaderSub").textContent=tt("Manage booking");
+      if($("#publicIntro")) $("#publicIntro").textContent=tt("View your confirmed appointment or request a different day or time.");
+      if(title) title.textContent=tt("Your booking");
+      if(intro) intro.textContent=tt("View your confirmed appointment or request a different day or time.");
+      if(serviceEl) serviceEl.textContent=context.service_name||tt("Cleaning service");
+      if(dateEl) dateEl.textContent=context.starts_at?formatBookingDate(context.starts_at):"—";
+      if(timeEl) timeEl.textContent=context.starts_at?formatBookingTime(context.starts_at):"—";
+      if(addressEl) addressEl.textContent=context.service_address||"—";
+
+      const change=context.change_request||null;
+      if(statusEl){
+        if(change?.status==="requested"){
+          statusEl.className="public-manage-status pending";
+          statusEl.innerHTML="<strong>"+esc(tt("Change request pending"))+"</strong><span>"+esc(tt("Your current appointment stays confirmed until the business approves the new time."))+"</span>";
+        }else if(change?.status==="approved"){
+          statusEl.className="public-manage-status approved";
+          statusEl.innerHTML="<strong>"+esc(tt("Change approved"))+"</strong><span>"+esc(tt("Your booking now shows the approved date and time above."))+"</span>";
+        }else if(change?.status==="declined"){
+          statusEl.className="public-manage-status declined";
+          statusEl.innerHTML="<strong>"+esc(tt("Change not approved"))+"</strong><span>"+esc(change.review_note||tt("Your confirmed appointment remains unchanged. You can request another available time."))+"</span>";
+        }else{
+          statusEl.className="public-manage-status";
+          statusEl.innerHTML="";
+        }
+      }
+
+      if(manageForm) manageForm.hidden=!context.can_change;
+      if(!context.can_change && statusEl && !statusEl.textContent.trim()){
+        statusEl.className="public-manage-status neutral";
+        statusEl.innerHTML="<strong>"+esc(tt("This booking can no longer be changed online."))+"</strong>";
+      }
+
+      if(dateInput){
+        const now=new Date();
+        dateInput.min=dateKey(now);
+        dateInput.max=dateKey(new Date(now.getTime()+90*86400000));
+      }
+    }
+
+    async function loadContext(){
+      const data=await rpc("get_public_job_change_context",{p_token:token});
+      renderContext(data);
+      return data;
+    }
+
+    async function loadSlots(){
+      if(!slotsBox || !slotInput || !dateInput) return;
+      slotInput.value="";
+      if(submitBtn) submitBtn.disabled=true;
+      if(!dateInput.value){
+        slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a date first."))+'</span>';
+        return;
+      }
+      slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Checking availability…"))+'</span>';
+      try{
+        const rows=await rpc("get_public_job_reschedule_slots",{p_token:token,p_date:dateInput.value});
+        const slots=Array.isArray(rows)?rows:[];
+        if(!slots.length){
+          slotsBox.innerHTML='<div class="booking-availability-alert" role="status"><strong>'+esc(tt("No openings on this date. Try another day."))+'</strong></div>';
+          return;
+        }
+        slotsBox.innerHTML=slots.map(row=>
+          '<button type="button" class="slot-btn" data-manage-slot="'+esc(row.slot_start)+'">'+esc(formatBookingTime(row.slot_start))+'</button>'
+        ).join("");
+      }catch(err){
+        console.warn("[TLE] manage booking availability",err);
+        slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Could not load availability"))+'</span>';
+      }
+    }
+
+    try{
+      await loadContext();
+      const hero=$("#publicBookingHero");
+      hero?.classList.add("public-manage-hero");
+      const heroPhoto=hero?.querySelector(".public-demo-hero-photo");
+      if(heroPhoto) heroPhoto.hidden=true;
+
+      dateInput?.addEventListener("change",loadSlots);
+      slotsBox?.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-manage-slot]");
+        if(!btn) return;
+        slotsBox.querySelectorAll("[data-manage-slot]").forEach(x=>x.classList.toggle("selected",x===btn));
+        if(slotInput) slotInput.value=btn.dataset.manageSlot||"";
+        if(submitBtn) submitBtn.disabled=!slotInput?.value;
+      });
+
+      manageForm?.addEventListener("submit",async e=>{
+        e.preventDefault();
+        if(!slotInput?.value || !submitBtn) return;
+        submitBtn.disabled=true;
+        const original=submitBtn.textContent;
+        submitBtn.textContent=tt("Sending…");
+        try{
+          await rpc("submit_public_job_change_request",{
+            p_token:token,
+            p_requested_start_at:slotInput.value,
+            p_reason:String(reasonInput?.value||"").trim()||null
+          });
+          await loadContext();
+          slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a date to see available times."))+'</span>';
+          slotInput.value="";
+          if(reasonInput) reasonInput.value="";
+          submitBtn.textContent=tt("Send change request");
+        }catch(err){
+          console.warn("[TLE] manage booking request",err);
+          statusEl.className="public-manage-status declined";
+          statusEl.textContent=err?.message||tt("Could not send change request.");
+          submitBtn.disabled=false;
+          submitBtn.textContent=original;
+        }
+      });
+
+      refreshBtn?.addEventListener("click",async()=>{
+        if(refreshBtn.disabled) return;
+        const original=refreshBtn.innerHTML;
+        refreshBtn.disabled=true;
+        refreshBtn.classList.add("is-refreshing");
+        refreshBtn.innerHTML='<span aria-hidden="true">↻</span><b>'+esc(tt("Refreshing"))+'</b>';
+        try{
+          await loadContext();
+          if(dateInput?.value) await loadSlots();
+          refreshBtn.innerHTML='<span aria-hidden="true">✓</span><b>'+esc(tt("Updated"))+'</b>';
+        }catch(err){
+          console.warn("[TLE] manage booking refresh",err);
+        }finally{
+          setTimeout(()=>{
+            refreshBtn.disabled=false;
+            refreshBtn.classList.remove("is-refreshing");
+            refreshBtn.innerHTML=original;
+          },900);
+        }
+      });
+    }catch(err){
+      console.warn("[TLE] manage booking",err);
+      if(title) title.textContent=tt("Booking unavailable");
+      if(intro) intro.textContent=tt("This booking link is invalid or no longer available.");
+      if(manageForm) manageForm.hidden=true;
+      if(refreshBtn) refreshBtn.hidden=true;
+    }
+  }
+
   async function boot(){
     showPublicShell();
     window.addEventListener("tle:languagechange",event=>{
@@ -1243,9 +1439,17 @@
     });
     await track();
 
-    if(validQuoteReview) await bootQuoteReview();
-    else if(validInvoiceView) await bootInvoiceView();
-    else await bootRequest();
+    if(validQuoteReview){
+      if($("#publicRefreshBtn")) $("#publicRefreshBtn").hidden=true;
+      await bootQuoteReview();
+    }else if(validInvoiceView){
+      if($("#publicRefreshBtn")) $("#publicRefreshBtn").hidden=true;
+      await bootInvoiceView();
+    }else if(validManageBooking){
+      await bootManageBooking();
+    }else{
+      await bootRequest();
+    }
 
     $("#publicBackBtn")?.addEventListener("click",()=>{
       if(history.length>1) history.back();
