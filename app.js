@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-live-rain-233";
+const APP_VERSION = "20260930-route-return-234";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -6143,13 +6143,91 @@ function googleMapsDirectionsUrl(addresses){
   if(clean.length>1) params.set("waypoints",clean.slice(0,-1).join("|"));
   return "https://www.google.com/maps/dir/?"+params.toString();
 }
+const GPS_RETURN_KEY="tle_gps_return_v1";
+function readGpsReturnState(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(GPS_RETURN_KEY)||"null");
+    return saved&&saved.startedAt? saved:null;
+  }catch{
+    return null;
+  }
+}
+function markGpsExternalLaunch(){
+  const view=String($(".view.active")?.dataset.page||"today");
+  let scrollTop=0;
+  try{ scrollTop=Number(workspaceScrollTop()||0); }catch{}
+  const payload={view,scrollTop,startedAt:Date.now()};
+  try{ sessionStorage.setItem(GPS_RETURN_KEY,JSON.stringify(payload)); }catch{}
+  window.__tleGpsReturnPending=payload;
+}
+function clearGpsReturnState(){
+  window.__tleGpsReturnPending=null;
+  try{ sessionStorage.removeItem(GPS_RETURN_KEY); }catch{}
+}
+function restoreAppAfterGpsReturn(){
+  if(document.visibilityState==="hidden") return false;
+  const pending=window.__tleGpsReturnPending||readGpsReturnState();
+  if(!pending) return false;
+  if(Date.now()-Number(pending.startedAt||0)>15*60*1000){
+    clearGpsReturnState();
+    return false;
+  }
+  if(window.__tleBootInProgress || window.__tleBootResolved!==true || !state.session || !state.business){
+    return false;
+  }
+
+  // iOS can return from Maps with the standalone PWA still alive but its
+  // visible shell/viewport detached. Re-assert the authenticated workspace.
+  dismissSessionSplash();
+  setShellState("app");
+  if(workerShell) workerShell.hidden=true;
+  if(publicShell) publicShell.hidden=true;
+  if(authShell) authShell.hidden=true;
+  if(appShell) appShell.hidden=false;
+
+  const targetView=String(pending.view||"today");
+  const hasTarget=$(".view").some(view=>view.dataset.page===targetView);
+  if(hasTarget){
+    openView(targetView,{fromRestore:true,skipTrack:true,skipIntro:true});
+  }
+
+  const targetScroll=Math.max(0,Number(pending.scrollTop||0));
+  requestAnimationFrame(()=>{
+    try{ setWorkspaceScrollTop(targetScroll); }catch{}
+    try{
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+    }catch{}
+  });
+
+  clearGpsReturnState();
+  return true;
+}
+function scheduleGpsReturnRecovery(){
+  [0,160,600].forEach(delay=>{
+    setTimeout(()=>{
+      if(window.__tleGpsReturnPending||readGpsReturnState()) restoreAppAfterGpsReturn();
+    },delay);
+  });
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible") scheduleGpsReturnRecovery();
+});
+window.addEventListener("pageshow",scheduleGpsReturnRecovery,{passive:true});
+window.addEventListener("focus",scheduleGpsReturnRecovery,{passive:true});
+
 function openGpsRoute(addresses){
   const url=googleMapsDirectionsUrl(addresses);
   if(!url){
     showToast(langPick("Add a service address first.","Añade una dirección primero.","Ajoutez d’abord une adresse."));
     return;
   }
-  window.open(url,"_blank","noopener");
+  markGpsExternalLaunch();
+  if(!openExternalWebLink(url)){
+    clearGpsReturnState();
+    showToast(langPick("Could not open Maps.","No se pudo abrir Maps.","Impossible d’ouvrir Maps."));
+  }
 }
 function todaysRouteJobs(){
   const now=new Date();
