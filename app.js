@@ -5230,6 +5230,7 @@ function renderServiceCatalogCard(s){
       </div>
       <div class="service-catalog-meta">
         <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
+        <span><small>${escapeHtml(langPick("Workers","Trabajadores","Travailleurs"))}</small><b>${Math.max(1,Number(s.workers_required||1))}</b></span>
         <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
         <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
       </div>
@@ -5339,7 +5340,7 @@ function renderJobs(){
         <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
         <div>
           <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
-          <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
+          <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${(j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).length?" · "+escapeHtml((j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).join(", ")):""}</span>
         </div>
         <div class="record-actions">
           <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
@@ -5521,7 +5522,7 @@ function renderCalendarDayDetails(dateKey,options={}){
         const start=new Date(j.starts_at);
         const time=Number.isNaN(start.getTime())?"—":new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(start);
         const duration=Number(j.duration_minutes||0)>0?Math.round(Number(j.duration_minutes)/60*10)/10+"h":"—";
-        const assignee=j.job_assignments?.[0]?.team_members?.name||langPick("Not assigned","Sin asignar","Non attribué");
+        const assignee=(j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).join(", ")||langPick("Not assigned","Sin asignar","Non attribué");
         const address=j.service_address||langPick("Address not added","Dirección no añadida","Adresse non ajoutée");
         const notes=String(j.notes||"").trim();
         const canEdit=state.business?.role!=="coworker";
@@ -7740,18 +7741,6 @@ async function ensureRecurringJobHorizon(){
   const occupiedJobs=state.jobs.filter(j=>!["canceled","no_show"].includes(String(j.status||"")));
   let added=0;
 
-  const overlapsExisting=payload=>{
-    const start=new Date(payload.starts_at).getTime();
-    const from=start-(Number(payload.travel_buffer_before_minutes||0)*60000);
-    const to=start+((Number(payload.duration_minutes||0)+Number(payload.travel_buffer_after_minutes||0))*60000);
-    return occupiedJobs.some(job=>{
-      const jobStart=new Date(job.starts_at).getTime();
-      const jobFrom=jobStart-(Number(job.travel_buffer_before_minutes||0)*60000);
-      const jobTo=jobStart+((Number(job.duration_minutes||0)+Number(job.travel_buffer_after_minutes||0))*60000);
-      return from<jobTo && to>jobFrom;
-    });
-  };
-
   for(const rule of state.recurrenceRules.filter(r=>r.active)){
     const series=occupiedJobs
       .filter(j=>j.recurrence_rule_id===rule.id)
@@ -7760,7 +7749,8 @@ async function ensureRecurringJobHorizon(){
 
     const template=series[0];
     const local=zonedDateTimeParts(template.starts_at);
-    const teamId=template.job_assignments?.[0]?.team_member_id||null;
+    const teamIds=[...new Set((template.job_assignments||[]).map(a=>a.team_member_id).filter(Boolean))];
+    const serviceDefaults=state.services.find(s=>s.id===template.service_id);
     const existingSlots=new Set(series.map(j=>String(j.recurrence_occurrence_date||"")).filter(Boolean));
     const seriesLimit=rule.ends_on && rule.ends_on<tleCalendarDateKey(horizon) ? rule.ends_on : tleCalendarDateKey(horizon);
 
@@ -7780,13 +7770,23 @@ async function ensureRecurringJobHorizon(){
         service_address:template.service_address,
         starts_at:startsIso,
         duration_minutes:Number(template.duration_minutes),
+        workers_required:Math.max(1,Number(template.workers_required||serviceDefaults?.workers_required||1),teamIds.length),
         travel_buffer_before_minutes:Number(template.travel_buffer_before_minutes||0),
         travel_buffer_after_minutes:Number(template.travel_buffer_after_minutes||0),
         notes:template.notes||null
       };
 
-      if(overlapsExisting(payload)){
-        console.warn("[TLE] recurring occurrence skipped because the time is already occupied",dateKey);
+      const {data:hasCapacity,error:capacityError}=await supabase.rpc("check_admin_job_capacity",{
+        p_business_id:state.business.id,
+        p_start:startsIso,
+        p_duration:Number(payload.duration_minutes),
+        p_required_workers:Number(payload.workers_required),
+        p_buffer:Math.max(Number(payload.travel_buffer_before_minutes||0),Number(payload.travel_buffer_after_minutes||0)),
+        p_exclude_job_id:null
+      });
+      if(capacityError) throw capacityError;
+      if(!hasCapacity){
+        console.warn("[TLE] recurring occurrence skipped because team capacity is full",dateKey);
         existingSlots.add(dateKey);
         continue;
       }
@@ -7800,14 +7800,14 @@ async function ensureRecurringJobHorizon(){
         throw error;
       }
 
-      const created={...payload,id:data.id,job_assignments:teamId?[{team_member_id:teamId}]:[]};
+      const created={...payload,id:data.id,job_assignments:teamIds.map(team_member_id=>({team_member_id}))};
       occupiedJobs.push(created);
       existingSlots.add(dateKey);
       added++;
-      if(teamId){
-        const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+      if(teamIds.length){
+        const {error:assignmentError}=await supabase.rpc("set_job_assignments",{
           p_job_id:data.id,
-          p_team_member_id:teamId
+          p_team_member_ids:teamIds
         });
         if(assignmentError) console.warn("[TLE] recurring assignment",assignmentError);
       }
@@ -7915,6 +7915,7 @@ function openEntityForm(type,id=null){
         </select></label>
         <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Non requis"):""}"></label>
         <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||1))}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
         <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
       </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Enregistrer"):langPick("Add service","Añadir servicio","Ajouter le service"))}`;
@@ -8003,15 +8004,25 @@ function openEntityForm(type,id=null){
     const date=localParts.date;
     const time=localParts.time;
     const recurrenceRule=record?.recurrence_rule_id?state.recurrenceRules.find(r=>r.id===record.recurrence_rule_id):null;
+    const assignedTeamIds=new Set((record?.job_assignments||[]).map(a=>a.team_member_id).filter(Boolean));
+    const recordService=state.services.find(s=>s.id===record?.service_id);
     modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration, travel buffer and an optional recurring schedule.");
     entityForm.innerHTML=`
       <div class="form-grid job-form-grid">
         <label>Client<select name="client_id" data-job-client-picker><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
-        <label>Service<select name="service_id"><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
-        <label>Assigned teammate<select name="team_member_id"><option value="">Unassigned</option>${optionList(state.teamMembers,"id","name",record?.job_assignments?.[0]?.team_member_id)}</select></label>
+        <label>Service<select name="service_id" data-job-service-picker><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
+        <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||recordService?.workers_required||1),assignedTeamIds.size)}"></label>
         <label>Date<input name="date" type="date" required value="${date}"></label>
         <label>Time<input name="time" type="time" required value="${time}"></label>
-        <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||120}"></label>
+        <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||recordService?.default_duration_minutes||120}"></label>
+        <div class="full job-team-picker">
+          <span class="field-label">${escapeHtml(langPick("Assigned team","Equipo asignado","Équipe assignée"))}</span>
+          <div class="job-team-options">
+            ${state.teamMembers.length
+              ? state.teamMembers.map(member=>`<label class="job-team-option"><input type="checkbox" name="team_member_ids" value="${escapeHtml(member.id)}" ${assignedTeamIds.has(member.id)?"checked":""}><span>${escapeHtml(member.name)}</span></label>`).join("")
+              : `<small class="muted-line">${escapeHtml(langPick("Add team profiles to assign workers. With no team profiles, the business is treated as a solo operator.","Añade perfiles del equipo para asignar trabajadores. Sin perfiles de equipo, el negocio se trata como un operador individual.","Ajoutez des profils d’équipe pour assigner des travailleurs. Sans profils d’équipe, l’entreprise est traitée comme un opérateur individuel."))}</small>`}
+          </div>
+        </div>
         <label>Travel buffer (minutes)<input name="travel_buffer" type="number" min="0" step="5" value="${record?.travel_buffer_before_minutes??state.business.default_travel_buffer_minutes??30}"></label>
         <label class="full">Service address<input name="service_address" required value="${escapeHtml(record?.service_address||"")}"></label>
         ${!record?`
@@ -8038,6 +8049,17 @@ function openEntityForm(type,id=null){
         </select></label>
         <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
       </div>${formSubmit(record?"Save changes":"Add job")}`;
+    const jobServicePicker=entityForm.querySelector('[data-job-service-picker]');
+    const jobWorkersInput=entityForm.querySelector('[name="workers_required"]');
+    const jobDurationInput=entityForm.querySelector('[name="duration_minutes"]');
+    if(!record){
+      jobServicePicker?.addEventListener("change",()=>{
+        const selectedService=state.services.find(s=>s.id===jobServicePicker.value);
+        if(!selectedService) return;
+        if(jobWorkersInput) jobWorkersInput.value=String(Math.max(1,Number(selectedService.workers_required||1)));
+        if(jobDurationInput) jobDurationInput.value=String(Math.max(15,Number(selectedService.default_duration_minutes||120)));
+      });
+    }
     syncRecurrenceControls();
   }
 
@@ -8412,6 +8434,7 @@ async function saveService(fd){
     pricing="quote";
     showToast("No price entered — service saved as Quote Required");
   }
+  const workersRequired=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
@@ -8419,6 +8442,7 @@ async function saveService(fd){
     pricing_type:pricing,
     base_price:pricing==="quote"?null:numericPrice,
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
+    workers_required:workersRequired,
     active:fd.get("active")==="on"
   };
 
@@ -8542,21 +8566,47 @@ async function saveJob(fd){
   const recurrencePattern=String(fd.get("recurrence_pattern")||"one_time");
   const recurrenceConfig=!state.modalId?recurrencePatternConfig(recurrencePattern):null;
   const recurrenceEndsOn=String(fd.get("recurrence_ends_on")||"").trim()||null;
+  const selectedTeamIds=[...new Set(fd.getAll("team_member_ids").map(String).filter(Boolean))];
+  const requestedWorkers=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
+  const workersRequired=Math.max(requestedWorkers,selectedTeamIds.length||1);
+  const durationMinutes=Math.max(15,Number(fd.get("duration_minutes"))||120);
+  const travelBuffer=Math.max(0,Number(fd.get("travel_buffer")||0));
+  const status=String(fd.get("status")||"scheduled");
 
   if(recurrenceConfig && recurrenceEndsOn && recurrenceEndsOn<date){
     throw new Error("Recurring end date cannot be before the first job.");
+  }
+
+  if(!["canceled","no_show"].includes(status)){
+    const {data:hasCapacity,error:capacityError}=await supabase.rpc("check_admin_job_capacity",{
+      p_business_id:state.business.id,
+      p_start:startsIso,
+      p_duration:durationMinutes,
+      p_required_workers:workersRequired,
+      p_buffer:travelBuffer,
+      p_exclude_job_id:state.modalId||null
+    });
+    if(capacityError) throw capacityError;
+    if(!hasCapacity){
+      throw new Error(langPick(
+        "Not enough workers are available for this time.",
+        "No hay suficientes trabajadores disponibles para este horario.",
+        "Il n’y a pas assez de travailleurs disponibles pour cet horaire."
+      ));
+    }
   }
 
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id")||null,
     service_id:fd.get("service_id")||null,
-    status:fd.get("status"),
+    status,
     service_address:String(fd.get("service_address")).trim(),
     starts_at:startsIso,
-    duration_minutes:Number(fd.get("duration_minutes")),
-    travel_buffer_before_minutes:Number(fd.get("travel_buffer")||0),
-    travel_buffer_after_minutes:Number(fd.get("travel_buffer")||0),
+    duration_minutes:durationMinutes,
+    workers_required:workersRequired,
+    travel_buffer_before_minutes:travelBuffer,
+    travel_buffer_after_minutes:travelBuffer,
     notes:String(fd.get("notes")||"").trim()||null
   };
 
@@ -8591,11 +8641,17 @@ async function saveJob(fd){
     throw err;
   }
 
-  const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+  const {error:assignmentError}=await supabase.rpc("set_job_assignments",{
     p_job_id:result.data.id,
-    p_team_member_id:fd.get("team_member_id")||null
+    p_team_member_ids:selectedTeamIds
   });
-  if(assignmentError) throw assignmentError;
+  if(assignmentError){
+    if(!state.modalId){
+      await supabase.from("jobs").delete().eq("id",result.data.id);
+      if(recurrenceRuleId) await supabase.from("recurrence_rules").delete().eq("id",recurrenceRuleId);
+    }
+    throw assignmentError;
+  }
 }
 
 async function saveQuote(fd){

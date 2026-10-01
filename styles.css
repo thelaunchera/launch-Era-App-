@@ -1783,3 +1783,13 @@ body.platform-owner-no-billing .trial-card{
 [data-page="today"] .panel{
   box-shadow:0 10px 32px rgba(25,25,25,.035);
 }
+
+
+/* Team-capacity scheduling */
+.job-team-picker{display:grid;gap:8px}
+.job-team-picker>.field-label{margin:0}
+.job-team-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.job-team-option{display:flex!important;align-items:center;gap:9px;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:#FCFBF8;font-weight:750}
+.job-team-option input{width:auto!important;min-width:16px;min-height:16px;margin:0;flex:0 0 auto}
+.job-team-option:has(input:checked){background:var(--blue);border-color:var(--blue-strong)}
+@media(max-width:640px){.job-team-options{grid-template-columns:1fr}}
