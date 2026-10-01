@@ -1409,15 +1409,20 @@ body.shell-auth{overflow-anchor:none}
 .calendar-day-job-grid b{font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .calendar-day-notes{margin:0;padding:10px 11px;border-left:3px solid var(--yellow);background:#FFFCED;border-radius:0 10px 10px 0;font-size:12px;line-height:1.5}
 .calendar-day-notes small{display:block;margin-bottom:4px}
-.calendar-day-actions{display:flex;justify-content:flex-end}
+.calendar-day-actions{display:flex;justify-content:flex-end;gap:8px}
 .calendar-day-actions button{min-height:40px}
+.calendar-day-actions .job-progress-action{
+  min-width:128px;
+  font-weight:900;
+  box-shadow:0 7px 18px rgba(25,25,25,.10);
+}
 @media(max-width:620px){
   .calendar-day-details{margin:-7px 0 16px;padding:13px;border-radius:14px}
   .calendar-day-details-head h3{font-size:18px}
   .calendar-day-job-top{align-items:flex-start}
   .calendar-day-job-grid{grid-template-columns:1fr 1fr}
   .calendar-day-address{grid-column:1/-1}
-  .calendar-day-actions{display:grid}
+  .calendar-day-actions{display:grid;gap:8px}
   .calendar-day-actions button{width:100%;min-height:44px}
 }
 
