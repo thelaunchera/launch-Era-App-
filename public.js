@@ -538,6 +538,7 @@
       const supportTitle=$("#publicSupportTitle");
       const supportCopy=$("#publicSupportCopy");
       const summaryMicro=$("#publicSummaryMicro");
+      const refreshBtn=$("#publicRefreshBtn");
 
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(headerBusinessName) headerBusinessName.textContent=data?.business?.name||tt("Cleaning service");
@@ -904,8 +905,8 @@
         if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
         if(intro) intro.textContent=tt(mode==="quote"
-          ?"For custom or variable-price work. Choose the service, date, and one of the real available times."
-          :"Choose a service with upfront pricing, then pick a real available time.");
+          ?"Tell us what you need, then pick a day and available time."
+          :"Choose what you need, then pick a day and available time.");
         if(submit){
           submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
         }
@@ -1015,6 +1016,28 @@
         dateInput.max=dateInBusinessZone(new Date(Date.now()+90*86400000));
         dateInput.addEventListener("change",()=>{ refreshSlots(); updateSummary(); });
       }
+
+      refreshBtn?.addEventListener("click",async()=>{
+        if(refreshBtn.disabled) return;
+        const original=refreshBtn.innerHTML;
+        refreshBtn.disabled=true;
+        refreshBtn.classList.add("is-refreshing");
+        refreshBtn.innerHTML='<span aria-hidden="true">↻</span><b>'+esc(tt("Refreshing"))+'</b>';
+        try{
+          await refreshSlots();
+          updateSummary();
+          refreshBtn.innerHTML='<span aria-hidden="true">✓</span><b>'+esc(tt("Updated"))+'</b>';
+        }catch(err){
+          console.warn("[TLE] public refresh",err);
+          refreshBtn.innerHTML='<span aria-hidden="true">↻</span><b>'+esc(tt("Refresh"))+'</b>';
+        }finally{
+          setTimeout(()=>{
+            refreshBtn.disabled=false;
+            refreshBtn.classList.remove("is-refreshing");
+            refreshBtn.innerHTML=original;
+          },900);
+        }
+      });
 
       renderMode(mode,{updateUrl:false});
 
