@@ -2139,11 +2139,19 @@ async function refreshViewData(id){
         renderBookingServices();
 
         if(id==="booking"){
-          const {data:links,error:linksError}=await supabase.rpc("get_my_public_link_settings");
-          if(!linksError){
-            state.publicLinks=links||null;
+          const [linksRes,changesRes,requestsRes]=await Promise.all([
+            supabase.rpc("get_my_public_link_settings"),
+            supabase.from("job_change_requests").select("*, jobs(id,starts_at,duration_minutes,service_address,customer_manage_token,clients(name,email),services(name))").eq("business_id",businessId).order("created_at",{ascending:false}),
+            supabase.from("booking_requests").select("*, services(name)").eq("business_id",businessId).order("created_at",{ascending:false})
+          ]);
+          if(!linksRes.error){
+            state.publicLinks=linksRes.data||null;
             renderPublicLinks();
           }
+          if(!changesRes.error) state.jobChangeRequests=changesRes.data||[];
+          if(!requestsRes.error) state.bookingRequests=requestsRes.data||[];
+          renderBookingRequests();
+          renderJobChangeRequests();
         }
         return;
       }
@@ -9639,6 +9647,47 @@ document.addEventListener("click",async e=>{
       await loadCoreData();
       showToast("Booking request declined");
       trackGoogleEvent("booking_declined",{source:"booking_request"});
+    }
+    return;
+  }
+
+  const copyManage=e.target.closest("[data-copy-manage-token]");
+  if(copyManage){
+    const manageToken=String(copyManage.dataset.copyManageToken||"").trim();
+    if(!manageToken) return;
+    const link=new URL(window.location.origin+window.location.pathname);
+    link.searchParams.set("public","manage-booking");
+    link.searchParams.set("token",manageToken);
+    await copyText(link.toString());
+    showToast(langPick("Client booking link copied","Enlace de reserva del cliente copiado","Lien de réservation client copié"));
+    return;
+  }
+
+  const approveChange=e.target.closest("[data-approve-job-change]");
+  if(approveChange){
+    approveChange.disabled=true;
+    const {error}=await supabase.rpc("approve_job_change_request",{p_request_id:approveChange.dataset.approveJobChange});
+    approveChange.disabled=false;
+    if(error) showToast(error.message);
+    else {
+      await loadCoreData();
+      showToast(langPick("Booking change approved","Cambio de reserva aprobado","Modification de réservation approuvée"));
+    }
+    return;
+  }
+
+  const declineChange=e.target.closest("[data-decline-job-change]");
+  if(declineChange){
+    declineChange.disabled=true;
+    const {error}=await supabase.rpc("decline_job_change_request",{
+      p_request_id:declineChange.dataset.declineJobChange,
+      p_review_note:null
+    });
+    declineChange.disabled=false;
+    if(error) showToast(error.message);
+    else {
+      await loadCoreData();
+      showToast(langPick("Booking change declined","Cambio de reserva rechazado","Modification de réservation refusée"));
     }
     return;
   }
