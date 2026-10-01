@@ -5340,7 +5340,7 @@ function renderJobs(){
         <time>${escapeHtml(formatDateTime(j.starts_at))}</time>
         <div>
           <strong>${escapeHtml(j.clients?.name || "Unassigned client")}</strong>
-          <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${j.job_assignments?.[0]?.team_members?.name?" · "+escapeHtml(j.job_assignments[0].team_members.name):""}</span>
+          <span>${escapeHtml(j.services?.name || "Cleaning job")} · ${Math.round(j.duration_minutes/60*10)/10}h${(j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).length?" · "+escapeHtml((j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).join(", ")):""}</span>
         </div>
         <div class="record-actions">
           <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
@@ -5522,7 +5522,7 @@ function renderCalendarDayDetails(dateKey,options={}){
         const start=new Date(j.starts_at);
         const time=Number.isNaN(start.getTime())?"—":new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(start);
         const duration=Number(j.duration_minutes||0)>0?Math.round(Number(j.duration_minutes)/60*10)/10+"h":"—";
-        const assignee=j.job_assignments?.[0]?.team_members?.name||langPick("Not assigned","Sin asignar","Non attribué");
+        const assignee=(j.job_assignments||[]).map(a=>a.team_members?.name).filter(Boolean).join(", ")||langPick("Not assigned","Sin asignar","Non attribué");
         const address=j.service_address||langPick("Address not added","Dirección no añadida","Adresse non ajoutée");
         const notes=String(j.notes||"").trim();
         const canEdit=state.business?.role!=="coworker";
@@ -8567,21 +8567,47 @@ async function saveJob(fd){
   const recurrencePattern=String(fd.get("recurrence_pattern")||"one_time");
   const recurrenceConfig=!state.modalId?recurrencePatternConfig(recurrencePattern):null;
   const recurrenceEndsOn=String(fd.get("recurrence_ends_on")||"").trim()||null;
+  const selectedTeamIds=[...new Set(fd.getAll("team_member_ids").map(String).filter(Boolean))];
+  const requestedWorkers=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
+  const workersRequired=Math.max(requestedWorkers,selectedTeamIds.length||1);
+  const durationMinutes=Math.max(15,Number(fd.get("duration_minutes"))||120);
+  const travelBuffer=Math.max(0,Number(fd.get("travel_buffer")||0));
+  const status=String(fd.get("status")||"scheduled");
 
   if(recurrenceConfig && recurrenceEndsOn && recurrenceEndsOn<date){
     throw new Error("Recurring end date cannot be before the first job.");
+  }
+
+  if(!["canceled","no_show"].includes(status)){
+    const {data:hasCapacity,error:capacityError}=await supabase.rpc("check_admin_job_capacity",{
+      p_business_id:state.business.id,
+      p_start:startsIso,
+      p_duration:durationMinutes,
+      p_required_workers:workersRequired,
+      p_buffer:travelBuffer,
+      p_exclude_job_id:state.modalId||null
+    });
+    if(capacityError) throw capacityError;
+    if(!hasCapacity){
+      throw new Error(langPick(
+        "Not enough workers are available for this time.",
+        "No hay suficientes trabajadores disponibles para este horario.",
+        "Il n’y a pas assez de travailleurs disponibles pour cet horaire."
+      ));
+    }
   }
 
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id")||null,
     service_id:fd.get("service_id")||null,
-    status:fd.get("status"),
+    status,
     service_address:String(fd.get("service_address")).trim(),
     starts_at:startsIso,
-    duration_minutes:Number(fd.get("duration_minutes")),
-    travel_buffer_before_minutes:Number(fd.get("travel_buffer")||0),
-    travel_buffer_after_minutes:Number(fd.get("travel_buffer")||0),
+    duration_minutes:durationMinutes,
+    workers_required:workersRequired,
+    travel_buffer_before_minutes:travelBuffer,
+    travel_buffer_after_minutes:travelBuffer,
     notes:String(fd.get("notes")||"").trim()||null
   };
 
@@ -8616,11 +8642,17 @@ async function saveJob(fd){
     throw err;
   }
 
-  const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+  const {error:assignmentError}=await supabase.rpc("set_job_assignments",{
     p_job_id:result.data.id,
-    p_team_member_id:fd.get("team_member_id")||null
+    p_team_member_ids:selectedTeamIds
   });
-  if(assignmentError) throw assignmentError;
+  if(assignmentError){
+    if(!state.modalId){
+      await supabase.from("jobs").delete().eq("id",result.data.id);
+      if(recurrenceRuleId) await supabase.from("recurrence_rules").delete().eq("id",recurrenceRuleId);
+    }
+    throw assignmentError;
+  }
 }
 
 async function saveQuote(fd){
