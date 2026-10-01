@@ -503,6 +503,17 @@ if(
 ){
   throw new Error("Weather regression: live 15-minute fallback, future-bucket guard, or fast refresh behavior is missing");
 }
+if(
+  !app.includes('const GPS_RETURN_KEY="tle_gps_return_v1"') ||
+  !app.includes("function markGpsExternalLaunch()") ||
+  !app.includes("function restoreAppAfterGpsReturn()") ||
+  !app.includes("markGpsExternalLaunch();") ||
+  !app.includes("if(!openExternalWebLink(url))") ||
+  !styles.includes("background:#F2D85B;") ||
+  !styles.includes("min-height:38px")
+){
+  throw new Error("Route regression: safe Maps return recovery or prominent Best Route styling is missing");
+}
 if(!styles.includes("tleHeroCtaFloat") || !styles.includes(".hero-card.message-calm #todayHeroAction") || !styles.includes("tleNotificationRing")){
   throw new Error("Dashboard polish regression: compact adaptive CTA or notification motion is missing");
 }
