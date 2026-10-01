@@ -1991,6 +1991,32 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No payment is collected here. The business will review your details and prepare the quote.":"Pa gen peman ki fèt isit la. Biznis la ap revize detay ou yo epi prepare devis la."
   });
 
+  // Official public Booking Page copy.
+  Object.assign(staticCorrections.es,{
+    "Booking Page":"Página de reservas",
+    "Choose what you need, then pick a day and available time.":"Elige lo que necesitas y luego selecciona un día y un horario disponible.",
+    "Tell us what you need, then pick a day and available time.":"Cuéntanos qué necesitas y luego selecciona un día y un horario disponible.",
+    "Refresh":"Actualizar",
+    "Refreshing":"Actualizando",
+    "Updated":"Actualizado"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Booking Page":"Page de réservation",
+    "Choose what you need, then pick a day and available time.":"Choisissez ce dont vous avez besoin, puis sélectionnez un jour et une heure disponibles.",
+    "Tell us what you need, then pick a day and available time.":"Dites-nous ce dont vous avez besoin, puis sélectionnez un jour et une heure disponibles.",
+    "Refresh":"Actualiser",
+    "Refreshing":"Actualisation",
+    "Updated":"Actualisé"
+  });
+  Object.assign(staticCorrections.ht,{
+    "Booking Page":"Paj rezèvasyon",
+    "Choose what you need, then pick a day and available time.":"Chwazi sa ou bezwen, epi chwazi yon jou ak yon lè ki disponib.",
+    "Tell us what you need, then pick a day and available time.":"Di nou sa ou bezwen, epi chwazi yon jou ak yon lè ki disponib.",
+    "Refresh":"Rafrechi",
+    "Refreshing":"N ap rafrechi",
+    "Updated":"Mizajou"
+  });
+
   // Final weather advice coverage used by the dynamic dashboard.
   Object.assign(staticCorrections.es,{
     "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."
