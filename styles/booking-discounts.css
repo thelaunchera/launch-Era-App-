@@ -150,3 +150,16 @@
   }
   #publicShell .public-discount-value{justify-items:start}
 }
+.entity-form .client-change-toggle{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 11px;
+  border:1px solid rgba(41,70,64,.12);
+  border-radius:12px;
+  background:#faf8f3;
+}
+.entity-form .client-change-toggle>span{display:grid;gap:2px}
+.entity-form .client-change-toggle small{font-size:9px;color:#77736c;font-weight:600}
+.entity-form .client-change-toggle input{width:18px;height:18px;margin:0}
