@@ -4625,7 +4625,7 @@ function enhanceMobileRecordActions(){
   });
 }
 document.addEventListener("click",e=>{
-  if(!e.target.closest(".record-actions")) $(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
+  if(!e.target.closest(".record-actions")) $$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
 });
 
 document.addEventListener("click",e=>{
@@ -4637,7 +4637,7 @@ document.addEventListener("click",e=>{
     const details=row?.querySelector(".invoice-tablet-details");
     if(!row||!details) return;
     const opening=details.hidden;
-    $(".invoice-growth-row.tablet-details-open").forEach(other=>{
+    $$(".invoice-growth-row.tablet-details-open").forEach(other=>{
       if(other===row) return;
       other.classList.remove("tablet-details-open");
       const otherDetails=other.querySelector(".invoice-tablet-details");
@@ -4651,7 +4651,7 @@ document.addEventListener("click",e=>{
     return;
   }
   if(!e.target.closest(".invoice-growth-row")){
-    $(".invoice-growth-row.tablet-details-open").forEach(row=>{
+    $$(".invoice-growth-row.tablet-details-open").forEach(row=>{
       row.classList.remove("tablet-details-open");
       const details=row.querySelector(".invoice-tablet-details");
       const more=row.querySelector(".invoice-tablet-more");
@@ -6355,7 +6355,7 @@ function restoreAppAfterGpsReturn(){
   if(appShell) appShell.hidden=false;
 
   const targetView=String(pending.view||"today");
-  const hasTarget=$(".view").some(view=>view.dataset.page===targetView);
+  const hasTarget=$$(".view").some(view=>view.dataset.page===targetView);
   if(hasTarget){
     openView(targetView,{fromRestore:true,skipTrack:true,skipIntro:true});
   }
