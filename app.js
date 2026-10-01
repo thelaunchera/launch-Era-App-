@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-webapp-243";
+const APP_VERSION = "20261001-clientjob-244";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5088,6 +5088,7 @@ function renderClients(){
         <span class="safe-actions">
           <button data-client-info="${c.id}">${escapeHtml(langPick("Info","Info","Info"))}</button>
           <button data-edit="client" data-id="${c.id}">${escapeHtml(tr("Edit"))}</button>
+          <button data-client-to-job="${c.id}">${escapeHtml(langPick("Job","Trabajo","Travail"))}</button>
           <button data-client-to-quote="${c.id}">${escapeHtml(tr("Quote"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
         </span>
@@ -5208,6 +5209,7 @@ function openClientInfo(clientId){
       </div>
       <div class="form-footer client-history-footer">
         <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fermer"))}</button>
+        <button type="button" class="ghost-btn" data-client-to-job="${client.id}">${escapeHtml(langPick("Schedule job","Agendar trabajo","Planifier un travail"))}</button>
         <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit client","Editar cliente","Modifier le client"))}</button>
       </div>
     </div>`;
@@ -7702,6 +7704,23 @@ function clientServiceAddress(client){
   return [client.address_line1,client.address_line2,client.city,client.state,client.postal_code].filter(Boolean).join(", ");
 }
 
+function openJobForClient(clientId){
+  const client=state.clients.find(c=>c.id===clientId);
+  if(!client){
+    showToast(langPick("Client not found","Cliente no encontrado","Client introuvable"));
+    return;
+  }
+  openEntityForm("job");
+  requestAnimationFrame(()=>{
+    const picker=entityForm.querySelector('[data-job-client-picker]');
+    const address=entityForm.querySelector('[name="service_address"]');
+    if(picker) picker.value=client.id;
+    if(address) address.value=clientServiceAddress(client);
+    picker?.dispatchEvent(new Event("change",{bubbles:true}));
+    entityForm.querySelector('[name="service_id"]')?.focus();
+  });
+}
+
 function recurrencePatternConfig(pattern){
   if(pattern==="weekly") return {frequency:"weekly",interval_count:1};
   if(pattern==="biweekly") return {frequency:"biweekly",interval_count:1};
@@ -7901,7 +7920,13 @@ function openEntityForm(type,id=null){
         <label>Region / State<input name="state" value="${escapeHtml(record?.state||"")}"></label>
         <label>Postal code<input name="postal_code" value="${escapeHtml(record?.postal_code||"")}"></label>
         <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea>${record?.notes?customerTranslateLink(record.notes,record?.preferred_language):""}</label>
-      </div>${formSubmit(record?"Save changes":"Add client")}`;
+      </div>${record
+        ? formSubmit("Save changes")
+        : `<div class="form-footer">
+            <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Cancel","Cancelar","Annuler"))}</button>
+            <button class="ghost-btn" type="submit">${escapeHtml(langPick("Save client only","Guardar cliente","Enregistrer le client"))}</button>
+            <button class="primary-btn" type="submit" data-client-after-save="job">${escapeHtml(langPick("Save + schedule job","Guardar + agendar trabajo","Enregistrer + planifier"))}</button>
+          </div>`}`;
   }
 
   if(type==="service"){
@@ -8187,6 +8212,7 @@ entityForm.addEventListener("change",e=>{
 entityForm.addEventListener("submit",async e=>{
   e.preventDefault();
   const button=e.submitter;
+  const clientAfterSave=state.modalType==="client" ? String(button?.dataset?.clientAfterSave||"") : "";
   setBusy(button,true,"Saving…");
   try{
     const fd=new FormData(entityForm);
@@ -8220,10 +8246,11 @@ entityForm.addEventListener("submit",async e=>{
     let invoiceResult=null;
     let quoteResult=null;
     let paymentResult=null;
+    let clientResult=null;
     if(state.modalType==="invoice") invoiceResult=await saveInvoice(fd);
     if(state.modalType==="quote") quoteResult=await saveQuote(fd);
     if(state.modalType==="payment") paymentResult=await savePayment(fd);
-    if(state.modalType==="client") await saveClient(fd);
+    if(state.modalType==="client") clientResult=await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
     if(state.modalType==="addon") await saveAddon(fd);
     if(state.modalType==="supply") await saveSupply(fd);
@@ -8255,6 +8282,14 @@ entityForm.addEventListener("submit",async e=>{
       }
       confirmation.innerHTML="<strong>"+escapeHtml(langPick("Quote sent.","Cotización enviada.","Devis envoyé."))+"</strong><br>"+escapeHtml(langPick("Waiting for the customer to accept. This window will stay open until you close it.","Esperando que el cliente acepte. Esta ventana permanecerá abierta hasta que la cierres.","En attente de l’acceptation du client. Cette fenêtre restera ouverte jusqu’à ce que vous la fermiez."));
       showToast(langPick("Quote emailed to customer","Cotización enviada por email al cliente","Devis envoyé au client par e-mail"));
+      return;
+    }
+
+    if(state.modalType==="client" && clientAfterSave==="job" && clientResult?.id){
+      modal.hidden=true;
+      await loadCoreData();
+      openJobForClient(clientResult.id);
+      showToast(langPick("Client saved · schedule the job","Cliente guardado · agenda el trabajo","Client enregistré · planifiez le travail"));
       return;
     }
 
@@ -8412,7 +8447,7 @@ async function saveClient(fd){
   if(state.modalId){
     const {error}=await supabase.from("clients").update(payload).eq("id",state.modalId);
     if(error) throw error;
-    return;
+    return {id:state.modalId,created:false};
   }
 
   const {data:existing,error:lookupError}=await supabase
@@ -8425,11 +8460,15 @@ async function saveClient(fd){
     .maybeSingle();
   if(lookupError) throw lookupError;
 
-  const query=existing?.id
-    ? supabase.from("clients").update(payload).eq("id",existing.id)
-    : supabase.from("clients").insert(payload);
-  const {error}=await query;
+  if(existing?.id){
+    const {error}=await supabase.from("clients").update(payload).eq("id",existing.id);
+    if(error) throw error;
+    return {id:existing.id,created:false};
+  }
+
+  const {data:created,error}=await supabase.from("clients").insert(payload).select("id").single();
   if(error) throw error;
+  return {id:created.id,created:true};
 }
 async function saveService(fd){
   let pricing=fd.get("pricing_type")==="flat"?"flat":"quote";
@@ -9323,6 +9362,12 @@ document.addEventListener("click",async e=>{
   const clientInfo=e.target.closest("[data-client-info]");
   if(clientInfo){
     openClientInfo(clientInfo.dataset.clientInfo);
+    return;
+  }
+
+  const clientJob=e.target.closest("[data-client-to-job]");
+  if(clientJob){
+    openJobForClient(clientJob.dataset.clientToJob);
     return;
   }
 
