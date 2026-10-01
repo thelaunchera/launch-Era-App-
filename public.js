@@ -749,7 +749,8 @@
       propertyTypeSelect?.addEventListener("change",()=>{
         addonBox?.querySelectorAll('input[name="addon"]:checked').forEach(input=>{ input.checked=false; });
         syncPropertyDetails();
-        renderMode(mode,{updateUrl:false});
+        const forceQuote=activePropertyType()==="commercial" && mode==="book";
+        renderMode(forceQuote?"quote":mode,{updateUrl:forceQuote});
       });
       frequencyPills?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-frequency]");
@@ -888,6 +889,8 @@
 
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
+        // Commercial cleanings always require a quote instead of direct booking.
+        if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
 
