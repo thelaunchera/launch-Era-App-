@@ -4873,8 +4873,16 @@ function renderAvailabilityEditor(){
 
   const buffer=$("#bookingTravelBuffer");
   const notice=$("#bookingNoticeHours");
+  const allowReschedule=$("#bookingAllowReschedule");
+  const allowCancel=$("#bookingAllowCancel");
+  const changeCutoff=$("#bookingChangeCutoffHours");
+  const cancellationPolicy=$("#bookingCancellationPolicyText");
   if(buffer) buffer.value=String(state.business?.default_travel_buffer_minutes??state.publicLinks?.travel_buffer_minutes??30);
-  if(notice) notice.value=String(state.publicLinks?.minimum_notice_hours??24);
+  if(notice) notice.value=String(state.business?.minimum_booking_notice_hours??state.publicLinks?.minimum_notice_hours??24);
+  if(allowReschedule) allowReschedule.checked=state.business?.allow_client_reschedule!==false;
+  if(allowCancel) allowCancel.checked=state.business?.allow_client_cancel!==false;
+  if(changeCutoff) changeCutoff.value=String(state.business?.client_change_cutoff_hours??24);
+  if(cancellationPolicy) cancellationPolicy.value=String(state.business?.cancellation_policy_text||"");
 }
 
 async function saveAvailabilitySettings(){
@@ -4884,6 +4892,10 @@ async function saveAvailabilitySettings(){
 
   const buffer=Number($("#bookingTravelBuffer")?.value||0);
   const notice=Number($("#bookingNoticeHours")?.value||0);
+  const allowReschedule=Boolean($("#bookingAllowReschedule")?.checked);
+  const allowCancel=Boolean($("#bookingAllowCancel")?.checked);
+  const changeCutoff=Math.max(0,Math.min(720,Number($("#bookingChangeCutoffHours")?.value||24)));
+  const cancellationPolicy=String($("#bookingCancellationPolicyText")?.value||"").trim().slice(0,500)||null;
   const rows=[];
 
   $$(".availability-day").forEach(day=>{
@@ -4904,6 +4916,10 @@ async function saveAvailabilitySettings(){
   const {error:businessError}=await supabase.from("businesses").update({
     default_travel_buffer_minutes:buffer,
     minimum_booking_notice_hours:notice,
+    allow_client_reschedule:allowReschedule,
+    allow_client_cancel:allowCancel,
+    client_change_cutoff_hours:changeCutoff,
+    cancellation_policy_text:cancellationPolicy,
     updated_at:new Date().toISOString()
   }).eq("id",state.business.id);
   if(businessError) throw businessError;
@@ -4917,6 +4933,11 @@ async function saveAvailabilitySettings(){
   }
 
   state.business.default_travel_buffer_minutes=buffer;
+  state.business.minimum_booking_notice_hours=notice;
+  state.business.allow_client_reschedule=allowReschedule;
+  state.business.allow_client_cancel=allowCancel;
+  state.business.client_change_cutoff_hours=changeCutoff;
+  state.business.cancellation_policy_text=cancellationPolicy;
   if(state.publicLinks){
     state.publicLinks.travel_buffer_minutes=buffer;
     state.publicLinks.minimum_notice_hours=notice;
@@ -7762,20 +7783,24 @@ async function ensureRecurringJobHorizon(){
   const horizon=new Date(now);
   horizon.setDate(horizon.getDate()+180);
   const todayKey=tleCalendarDateKey(now);
-  const occupiedJobs=state.jobs.filter(j=>!["canceled","no_show"].includes(String(j.status||"")));
+  const allJobs=state.jobs.filter(Boolean);
+  const occupiedJobs=allJobs.filter(j=>!["canceled","no_show"].includes(String(j.status||"")));
   let added=0;
 
   for(const rule of state.recurrenceRules.filter(r=>r.active)){
+    const allSeries=allJobs
+      .filter(j=>j.recurrence_rule_id===rule.id)
+      .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
     const series=occupiedJobs
       .filter(j=>j.recurrence_rule_id===rule.id)
       .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
-    if(!series.length) continue;
+    if(!allSeries.length) continue;
 
-    const template=series[0];
+    const template=series[0]||allSeries[0];
     const local=zonedDateTimeParts(template.starts_at);
     const teamIds=[...new Set((template.job_assignments||[]).map(a=>a.team_member_id).filter(Boolean))];
     const serviceDefaults=state.services.find(s=>s.id===template.service_id);
-    const existingSlots=new Set(series.map(j=>String(j.recurrence_occurrence_date||"")).filter(Boolean));
+    const existingSlots=new Set(allSeries.map(j=>String(j.recurrence_occurrence_date||"")).filter(Boolean));
     const seriesLimit=rule.ends_on && rule.ends_on<tleCalendarDateKey(horizon) ? rule.ends_on : tleCalendarDateKey(horizon);
 
     for(let index=0; index<160; index++){
