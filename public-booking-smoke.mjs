@@ -257,23 +257,22 @@ async function runProfile(profile){
     if(commercialHero===residentialHero) throw new Error(profile.name+": commercial hero photo did not change");
     if(!String(commercialHero||"").includes("7534224")) throw new Error(profile.name+": commercial hero is not an office/building interior");
 
-    const commercialBookCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
-    if(!commercialBookCards.some(x=>x.includes("Office Cleaning"))){
-      throw new Error(profile.name+": commercial booking service card missing");
-    }
-    if(commercialBookCards.some(x=>x.includes("Standard Home Cleaning"))){
-      throw new Error(profile.name+": residential service leaked into commercial booking");
-    }
-    await page.locator("#publicServiceCards [data-service-card]").first().click();
-    const commercialSummary=await page.locator("#publicSummary img").getAttribute("src");
-    if(commercialSummary===residentialSummary) throw new Error(profile.name+": commercial summary photo did not change");
-    await assertNoOverflow(page,profile,"commercial booking");
-
-    await page.locator("#publicQuoteTab").click();
     await page.waitForFunction(()=>document.querySelector("#publicQuoteTab")?.classList.contains("active"),null,{timeout:3000});
+    if(await page.locator("#publicBookTab").evaluate(el=>el.classList.contains("active"))){
+      throw new Error(profile.name+": Commercial stayed in Book a Cleaning instead of switching to Request a Quote");
+    }
+    if(new URL(page.url()).searchParams.get("public")!=="quote"){
+      throw new Error(profile.name+": Commercial did not sync the request mode URL to quote");
+    }
+
     const quoteCommercialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!quoteCommercialCards.some(x=>x.includes("Post-Construction Commercial Cleaning"))){
       throw new Error(profile.name+": commercial quote service missing");
+    }
+    await page.locator("#publicBookTab").click();
+    await page.waitForFunction(()=>document.querySelector("#publicQuoteTab")?.classList.contains("active"),null,{timeout:3000});
+    if(await page.locator("#publicBookTab").evaluate(el=>el.classList.contains("active"))){
+      throw new Error(profile.name+": Commercial allowed switching back to direct booking");
     }
     await page.locator("#publicServiceCards [data-service-card]").first().click();
     const quoteAddonWrap=page.locator("#publicAddonsWrap");
