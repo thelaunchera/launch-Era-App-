@@ -1,28 +1,28 @@
-const CACHE_NAME="tle-cleaning-app-20261001-webapp-243";
+const CACHE_NAME="tle-cleaning-app-20261001-webapp-244";
 const CORE=[
-  "./boot.js?v=20261001-webapp-243",
-  "./styles/boot.css?v=20261001-webapp-243",
+  "./boot.js?v=20261001-webapp-244",
+  "./styles/boot.css?v=20261001-webapp-244",
   "./",
   "./index.html",
-  "./styles.css?v=20261001-webapp-243",
-  "./styles/workspace-components.css?v=20261001-webapp-243",
-  "./styles/workspace-experience.css?v=20261001-webapp-243",
-  "./styles/workspace-operations.css?v=20261001-webapp-243",
-  "./styles/release-overrides.css?v=20261001-webapp-243",
-  "./styles/release-mobile.css?v=20261001-webapp-243",
-  "./styles/release-latest.css?v=20261001-webapp-243",
-  "./styles/responsive-shell.css?v=20261001-webapp-243",
-  "./styles/customer-documents.css?v=20261001-webapp-243",
-  "./styles/public-booking.css?v=20261001-webapp-243",
-  "./styles/invoice-polish.css?v=20261001-webapp-243",
+  "./styles.css?v=20261001-webapp-244",
+  "./styles/workspace-components.css?v=20261001-webapp-244",
+  "./styles/workspace-experience.css?v=20261001-webapp-244",
+  "./styles/workspace-operations.css?v=20261001-webapp-244",
+  "./styles/release-overrides.css?v=20261001-webapp-244",
+  "./styles/release-mobile.css?v=20261001-webapp-244",
+  "./styles/release-latest.css?v=20261001-webapp-244",
+  "./styles/responsive-shell.css?v=20261001-webapp-244",
+  "./styles/customer-documents.css?v=20261001-webapp-244",
+  "./styles/public-booking.css?v=20261001-webapp-244",
+  "./styles/invoice-polish.css?v=20261001-webapp-244",
   "./app.js?v=20261001-startup-241",
   "./followups.js?v=20261001-followups-242",
-  "./i18n-completion.js?v=20261001-webapp-243",
-  "./i18n.js?v=20261001-webapp-243",
-  "./onboarding-copy.js?v=20261001-webapp-243",
-  "./public.js?v=20261001-webapp-243",
-  "./vendor/supabase.js?v=20261001-webapp-243",
-  "./manifest.webmanifest?v=20261001-webapp-243"
+  "./i18n-completion.js?v=20261001-webapp-244",
+  "./i18n.js?v=20261001-webapp-244",
+  "./onboarding-copy.js?v=20261001-webapp-244",
+  "./public.js?v=20261001-webapp-244",
+  "./vendor/supabase.js?v=20261001-webapp-244",
+  "./manifest.webmanifest?v=20261001-webapp-244"
 ];
 const NAVIGATION_TIMEOUT_MS=2500;
 
