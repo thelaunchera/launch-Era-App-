@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-route-return-234";
+const APP_VERSION = "20261001-job-progress-235";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5940,8 +5940,15 @@ function renderTodaySummary(wakeAssistant=false){
   if(greet){
     const hour=Number.isFinite(businessHour)?businessHour:now.getHours();
     const daypart=dashboardDaypart(hour);
+    const activeJob=todayJobs.find(function(j){
+      const status=String(j.status||"").toLowerCase();
+      return status==="in_progress"||status==="on_the_way";
+    })||null;
     const remainingJobs=todayJobs.filter(function(j){
-      return j.status!=="completed" && new Date(j.starts_at).getTime()>=now.getTime()-60*60*1000;
+      const status=String(j.status||"").toLowerCase();
+      if(["completed","canceled","no_show"].includes(status)) return false;
+      if(activeJob&&j.id===activeJob.id) return false;
+      return new Date(j.starts_at).getTime()>=now.getTime()-60*60*1000;
     });
     const nextJob=remainingJobs[0]||null;
     const nextJobTime=nextJob
@@ -5976,6 +5983,7 @@ function renderTodaySummary(wakeAssistant=false){
     let copy="";
     let actionView="calendar";
     let actionText="";
+    let actionTextOverride="";
     let messageState="calm";
     let icon=["evening","late"].includes(daypart)?"✦":"✓";
 
@@ -5983,7 +5991,39 @@ function renderTodaySummary(wakeAssistant=false){
       ? langPick("Next stop at "+nextJobTime+(nextJobArea?" in "+nextJobArea:"")+".","Próxima parada a las "+nextJobTime+(nextJobArea?" en "+nextJobArea:"")+".","Prochain arrêt à "+nextJobTime+(nextJobArea?" à "+nextJobArea:"")+".")
       : "";
 
-    if(nextJob){
+    if(activeJob){
+      messageState="jobs";
+      const activeStatus=String(activeJob.status||"").toLowerCase();
+      const activeClient=activeJob.clients?.name||langPick("current client","cliente actual","client actuel");
+      const activeService=activeJob.services?.name||langPick("Cleaning job","Trabajo de limpieza","Prestation de nettoyage");
+      const laterCount=remainingJobs.length;
+      const laterLine=nextJob
+        ? langPick(
+            " Next: "+nextJobTime+(nextJobArea?" in "+nextJobArea:"")+".",
+            " Siguiente: "+nextJobTime+(nextJobArea?" en "+nextJobArea:"")+".",
+            " Ensuite : "+nextJobTime+(nextJobArea?" à "+nextJobArea:"")+"."
+          )
+        : "";
+      if(activeStatus==="in_progress"){
+        icon="🧹";
+        copy=langPick(
+          "In progress now · "+activeService+" for "+activeClient+"."+laterLine+(laterCount?" "+laterCount+" job"+(laterCount===1?" remains":"s remain")+" after this.":""),
+          "En progreso ahora · "+activeService+" para "+activeClient+"."+laterLine+(laterCount?" Después queda"+(laterCount===1?" ":"n ")+laterCount+" trabajo"+(laterCount===1?"":"s")+".":""),
+          "En cours maintenant · "+activeService+" pour "+activeClient+"."+laterLine+(laterCount?" "+laterCount+" travail"+(laterCount===1?" reste":"aux restent")+" ensuite.":"")
+        );
+        actionView="calendar";
+        actionTextOverride=langPick("View job →","Ver trabajo →","Voir le travail →");
+      }else{
+        icon="🚗";
+        copy=langPick(
+          "On the way now · "+activeClient+"."+laterLine,
+          "En camino ahora · "+activeClient+"."+laterLine,
+          "En route maintenant · "+activeClient+"."+laterLine
+        );
+        actionView="route";
+        actionTextOverride=langPick("Open route →","Abrir ruta →","Ouvrir l’itinéraire →");
+      }
+    }else if(nextJob){
       messageState="jobs";
       icon="📍";
       if(daypart==="early"){
@@ -6056,7 +6096,7 @@ function renderTodaySummary(wakeAssistant=false){
     }
 
     if(momentIcon) momentIcon.textContent=icon;
-    actionText=actionView==="route"
+    actionText=actionTextOverride || (actionView==="route"
       ? langPick("Open route →","Abrir ruta →","Ouvrir l’itinéraire →")
       : actionView==="booking"
       ? langPick("Review requests →","Revisar solicitudes →","Examiner les demandes →")
@@ -6064,10 +6104,10 @@ function renderTodaySummary(wakeAssistant=false){
       ? langPick("Review quotes →","Revisar cotizaciones →","Examiner les devis →")
       : actionView==="invoices"
       ? langPick("Review invoices →","Revisar facturas →","Examiner les factures →")
-      : langPick("View calendar →","Ver calendario →","Voir le calendrier →");
+      : langPick("View calendar →","Ver calendario →","Voir le calendrier →"));
 
     if(hero){
-      const hasPending=Boolean(remainingJobs.length||pendingBookings.length||openQuotes.length||overdueInvoices.length);
+      const hasPending=Boolean(activeJob||remainingJobs.length||pendingBookings.length||openQuotes.length||overdueInvoices.length);
       hero.classList.remove("message-rain","message-booking","message-jobs","message-hydrate","message-calm","message-night","message-morning","message-afternoon","message-quotes","message-invoice");
       hero.classList.add("message-"+messageState);
       hero.classList.toggle("has-pending",hasPending);
@@ -6108,12 +6148,18 @@ function renderTodaySummary(wakeAssistant=false){
 
   const timeline=$("#todayTimeline");
   if(timeline){
-    timeline.innerHTML=todayJobs.length?todayJobs.map(j=>`
+    timeline.innerHTML=todayJobs.length?todayJobs.map(j=>{
+      const progress=jobProgressAction(j);
+      return `
       <div class="timeline-item ${j.status==="completed"?"done":""}">
         <time>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))}</time>
         <div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${escapeHtml(j.services?.name||tr("Service"))} · ${Math.round(j.duration_minutes/60*10)/10}h</span></div>
-        <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
-      </div>`).join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("No jobs today."))}</strong><span>${escapeHtml(tr("Your scheduled jobs will appear here."))}</span></div>`;
+        <div class="today-job-actions">
+          <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
+          ${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}
+        </div>
+      </div>`;
+    }).join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("No jobs today."))}</strong><span>${escapeHtml(tr("Your scheduled jobs will appear here."))}</span></div>`;
   }
 
   const attention=$("#attentionList");
@@ -6241,14 +6287,20 @@ function openGpsRoute(addresses){
 function todaysRouteJobs(){
   const now=new Date();
   return state.jobs
-    .filter(j=>sameLocalDay(j.starts_at,now)&&j.status!=="canceled"&&String(j.service_address||"").trim())
+    .filter(j=>{
+      const status=String(j.status||"").toLowerCase();
+      return sameLocalDay(j.starts_at,now)&&!["canceled","completed","no_show","in_progress"].includes(status)&&String(j.service_address||"").trim();
+    })
     .sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
 }
 function renderTodayRouteChip(todayJobs){
   const chip=$("#todayRouteChip");
   const label=$("#todayRouteChipText");
   if(!chip||!label) return;
-  const routable=(todayJobs||[]).filter(j=>String(j.service_address||"").trim());
+  const routable=(todayJobs||[]).filter(j=>{
+    const status=String(j.status||"").toLowerCase();
+    return !["completed","canceled","no_show","in_progress"].includes(status) && String(j.service_address||"").trim();
+  });
   chip.hidden=!routable.length;
   if(!routable.length) return;
   const count=routable.length;
