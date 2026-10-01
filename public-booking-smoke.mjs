@@ -75,6 +75,19 @@ const businessConfig={
     {id:"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",service_id:"11111111-1111-4111-8111-111111111111",name:"Inside oven",price:25,extra_duration_minutes:20},
     {id:"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",service_id:"22222222-2222-4222-8222-222222222222",name:"Interior glass",price:40,extra_duration_minutes:25},
     {id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",service_id:"33333333-3333-4333-8333-333333333333",name:"Post-construction detail",price:0,extra_duration_minutes:0}
+  ],
+  discounts:[
+    {
+      id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      service_id:"11111111-1111-4111-8111-111111111111",
+      name:"Fall Fresh Start",
+      description:"Limited thank-you offer",
+      discount_type:"fixed",
+      discount_value:20,
+      max_clients:5,
+      redeemed_clients:2,
+      remaining_clients:3
+    }
   ]
 };
 
@@ -212,6 +225,18 @@ async function runProfile(profile){
       throw new Error(profile.name+": booking service card cannot be selected");
     }
 
+    await page.waitForSelector("#publicDiscounts [data-public-discount]",{state:"visible",timeout:5000});
+    const offer=page.locator("#publicDiscounts [data-public-discount]").first();
+    const offerText=await offer.textContent();
+    if(!offerText.includes("Fall Fresh Start")||!offerText.includes("3")){
+      throw new Error(profile.name+": published discount did not render correctly");
+    }
+    await offer.click();
+    const discountSummary=await page.locator("#publicSummary").textContent();
+    if(!discountSummary.includes("Fall Fresh Start")||!discountSummary.includes("109")){
+      throw new Error(profile.name+": discount did not update booking total "+discountSummary);
+    }
+
     const weeklyFrequency=page.locator('#publicFrequencyPills [data-frequency="weekly"]');
     await weeklyFrequency.click();
     const recurrenceValue=await page.locator("#publicRecurrencePattern").inputValue();
@@ -260,6 +285,9 @@ async function runProfile(profile){
     await page.waitForFunction(()=>document.querySelector("#publicQuoteTab")?.classList.contains("active"),null,{timeout:3000});
     if(await page.locator("#publicBookTab").evaluate(el=>el.classList.contains("active"))){
       throw new Error(profile.name+": Commercial stayed in Book a Cleaning instead of switching to Request a Quote");
+    }
+    if(!(await page.locator("#publicDiscountsWrap").evaluate(el=>el.hidden))){
+      throw new Error(profile.name+": booking discount leaked into the commercial quote flow");
     }
 
     const quoteCommercialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
