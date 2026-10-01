@@ -907,3 +907,177 @@ body.shell-app .app-shell [data-page="clients"] .client-card.client-card-compact
     min-width:0;
   }
 }
+
+
+/* 2026-10-01 — service paths stay separated and readable */
+.booking-services-list{
+  display:grid!important;
+  gap:14px!important;
+}
+.booking-service-group{
+  overflow:hidden;
+  border:1px solid rgba(25,25,25,.10);
+  border-radius:17px;
+  background:#FFFDF9;
+}
+.booking-service-group-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(220px,.9fr);
+  gap:18px;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(25,25,25,.08);
+}
+.booking-service-group-head>div{
+  display:grid;
+  gap:7px;
+}
+.booking-service-group-head h4{
+  margin:0;
+  color:#191919;
+  font-size:17px;
+  letter-spacing:-.02em;
+}
+.booking-service-group-head p{
+  margin:0;
+  color:#625D55;
+  font-size:10px;
+  line-height:1.45;
+}
+.booking-service-group-paid .booking-service-group-head{background:#F5F8F2}
+.booking-service-group-quote .booking-service-group-head{background:#FFF8E7}
+.booking-service-group-list{display:grid}
+.booking-service-group .booking-service-row{
+  grid-template-columns:minmax(180px,.8fr) 1.2fr;
+  padding:13px 16px!important;
+  border-top:1px solid rgba(25,25,25,.08)!important;
+}
+.booking-service-group .booking-service-row:first-child{border-top:0!important}
+.booking-service-group .booking-service-row strong{color:#191919}
+.booking-service-group .booking-service-row small{color:#625D55!important}
+.booking-service-empty{
+  padding:16px;
+  color:#6F6A62;
+  font-size:11px;
+  font-weight:750;
+}
+.quote-service-chip{
+  background:#FFF2CC!important;
+  color:#765B12!important;
+  border-color:#EAD99A!important;
+  font-weight:850;
+}
+
+.service-grid.service-catalog-groups{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:16px!important;
+}
+.service-type-group{
+  display:grid;
+  gap:11px;
+  min-width:0;
+  padding:15px;
+  border:1px solid rgba(25,25,25,.09);
+  border-radius:20px;
+  background:#F8F6F1;
+}
+.service-type-group-paid{box-shadow:inset 4px 0 0 #BFD9C4}
+.service-type-group-quote{box-shadow:inset 4px 0 0 #F2D85B}
+.service-type-heading{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(220px,.9fr) auto;
+  gap:16px;
+  align-items:center;
+}
+.service-type-heading>div{
+  display:grid;
+  gap:7px;
+}
+.service-type-heading h3{
+  margin:0;
+  color:#191919;
+  font-size:22px;
+  letter-spacing:-.03em;
+}
+.service-type-heading p{
+  margin:0;
+  color:#625D55;
+  font-size:11px;
+  line-height:1.45;
+}
+.service-type-count{
+  min-width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#fff;
+  color:#191919!important;
+  border:1px solid rgba(25,25,25,.09);
+  font-size:11px;
+  font-weight:900;
+}
+.service-type-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+.service-type-empty{
+  grid-column:1/-1;
+  padding:18px;
+  border:1px dashed rgba(25,25,25,.14);
+  border-radius:15px;
+  background:#FFFDF9;
+  color:#6F6A62;
+  font-size:11px;
+  font-weight:750;
+}
+.service-add-card{
+  width:100%;
+  min-height:110px;
+}
+body.shell-app .app-shell [data-page="services"] .service-catalog-card{
+  background:#FFFDF9!important;
+  color:#191919!important;
+  border-color:#DADFE3!important;
+}
+body.shell-app .app-shell [data-page="services"] .service-catalog-card :is(.service-catalog-top strong,.service-price,.service-catalog-meta b,.addon-row strong){
+  color:#191919!important;
+}
+body.shell-app .app-shell [data-page="services"] .service-catalog-card :is(.service-description,.service-catalog-meta small,.addon-row small,.muted-line){
+  color:#625D55!important;
+}
+body.shell-app .app-shell [data-page="services"] .service-catalog-meta>span{
+  background:#F1F5F7!important;
+}
+body.shell-app .app-shell [data-page="services"] .addon-row{
+  background:#F8F6F1!important;
+  border-color:rgba(25,25,25,.08)!important;
+}
+body.shell-app .app-shell [data-page="services"] .service-card-actions button,
+body.shell-app .app-shell [data-page="services"] .addon-row .card-actions button{
+  background:#FFF8EE!important;
+  color:#191919!important;
+  border-color:#D9D2C7!important;
+}
+
+@media(max-width:680px){
+  .booking-service-group-head,
+  .service-type-heading{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  .booking-service-group .booking-service-row{
+    grid-template-columns:1fr!important;
+  }
+  .service-type-count{
+    position:absolute;
+    top:0;
+    right:0;
+  }
+  .service-type-heading p{padding-right:42px}
+  .service-type-grid{grid-template-columns:1fr}
+  .service-type-group{padding:12px}
+}

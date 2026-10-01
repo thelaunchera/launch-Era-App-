@@ -36,7 +36,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20260930-job-progress-235";
+window.__tleShellVersion="20260930-booking-services-236";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
