@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-greeting-video-251";
+const APP_VERSION = "20261001-greeting-video-252";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1712,8 +1712,35 @@ function ensureDashboardBootResolved(){
 
 
 const HERO_OPENING_ANIMATION_URL="https://d2ol7oe51mr4n9.cloudfront.net/user_3FC9GcVebQE6WAxiCP5Hh9w95GF/4865348e-1259-42e1-b904-dbfb4025a040.webp";
+const HERO_OPENING_ANIMATION_INTERVAL_MS=60*60*1000;
+const HERO_OPENING_ANIMATION_STORAGE_KEY="tle_hero_opening_animation_last_v2";
 let heroOpeningAnimationTimer=0;
+let heroOpeningAnimationHourlyTimer=0;
 let heroOpeningAnimationLastStarted=0;
+
+function heroOpeningAnimationStorageKey(){
+  const businessId=String(state.business?.id||"default");
+  return HERO_OPENING_ANIMATION_STORAGE_KEY+":"+businessId;
+}
+function heroOpeningAnimationLastPlayedAt(){
+  try{
+    const stored=Number(localStorage.getItem(heroOpeningAnimationStorageKey())||0);
+    if(Number.isFinite(stored)&&stored>0) return stored;
+  }catch{}
+  return heroOpeningAnimationLastStarted||0;
+}
+function scheduleHeroOpeningAnimation(){
+  clearTimeout(heroOpeningAnimationHourlyTimer);
+  if(!state.session||!appShell||appShell.hidden) return;
+  const last=heroOpeningAnimationLastPlayedAt();
+  const elapsed=Date.now()-last;
+  const delay=last?Math.max(1000,HERO_OPENING_ANIMATION_INTERVAL_MS-elapsed):1000;
+  heroOpeningAnimationHourlyTimer=setTimeout(()=>{
+    if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
+      playHeroOpeningAnimation();
+    }
+  },delay);
+}
 function playHeroOpeningAnimation(){
   try{
     if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
@@ -1721,8 +1748,15 @@ function playHeroOpeningAnimation(){
     const action=$("#todayHeroAction");
     if(!hero||!action) return;
     const now=Date.now();
-    if(now-heroOpeningAnimationLastStarted<1500) return;
+    const lastPlayed=heroOpeningAnimationLastPlayedAt();
+    if(lastPlayed && now-lastPlayed<HERO_OPENING_ANIMATION_INTERVAL_MS){
+      scheduleHeroOpeningAnimation();
+      return;
+    }
+
     heroOpeningAnimationLastStarted=now;
+    try{localStorage.setItem(heroOpeningAnimationStorageKey(),String(now));}catch{}
+    scheduleHeroOpeningAnimation();
 
     let slot=$("#heroOpeningAnimation");
     if(!slot){
@@ -1771,6 +1805,8 @@ function playHeroOpeningAnimation(){
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
     playHeroOpeningAnimation();
+  }else if(document.visibilityState==="hidden"){
+    clearTimeout(heroOpeningAnimationHourlyTimer);
   }
 });
 window.addEventListener("pageshow",()=>{
