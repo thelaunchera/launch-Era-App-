@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-app-badge-232";
+const APP_VERSION = "20260930-live-rain-233";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -655,21 +655,30 @@ function syncCurrentWeatherFromMinutely(weather){
   const times=series?.time||[];
   if(!weather?.current||!times.length) return weather;
 
-  // Keep the nearest 15-minute sample only as secondary context.
-  // Never overwrite Open-Meteo's true current condition with the previous
-  // 15-minute bucket; otherwise "Rain now" can linger after rain has stopped.
+  // Keep the most recent 15-minute sample at or before "now" as secondary
+  // context. Never select a future bucket for a current-condition decision.
   const currentMs=Date.parse(String(weather.current.time||""));
-  let index=0;
-  let bestDistance=Infinity;
+  let index=-1;
+  let bestPastDistance=Infinity;
+  let nearestIndex=0;
+  let nearestDistance=Infinity;
   times.forEach((stamp,i)=>{
     const sampleMs=Date.parse(String(stamp||""));
     if(!Number.isFinite(sampleMs)||!Number.isFinite(currentMs)) return;
-    const distance=Math.abs(sampleMs-currentMs);
-    if(distance<bestDistance){
-      bestDistance=distance;
-      index=i;
+    const absoluteDistance=Math.abs(sampleMs-currentMs);
+    if(absoluteDistance<nearestDistance){
+      nearestDistance=absoluteDistance;
+      nearestIndex=i;
+    }
+    if(sampleMs<=currentMs){
+      const pastDistance=currentMs-sampleMs;
+      if(pastDistance<bestPastDistance){
+        bestPastDistance=pastDistance;
+        index=i;
+      }
     }
   });
+  if(index<0) index=nearestIndex;
 
   weather.current_15m={
     time:times[index]||weather.current.time,
@@ -875,10 +884,40 @@ async function loadBusinessWeather(force=false){
     if(window.__tleWeatherRetryCount<=2) scheduleWeatherRetry();
   }
 }
+function recentMinutelyPrecipVisual(weather){
+  const sample=weather?.current_15m;
+  if(!sample||!weather?.current) return null;
+
+  const currentMs=Date.parse(String(weather.current.time||""));
+  const sampleMs=Date.parse(String(sample.time||""));
+  if(!Number.isFinite(currentMs)||!Number.isFinite(sampleMs)) return null;
+
+  // Use the current/recent 15-minute bucket only. This catches fast local
+  // showers without letting a future forecast turn on "Rain now" early.
+  const age=currentMs-sampleMs;
+  if(age<0||age>16*60*1000) return null;
+
+  const code=Number(sample.weather_code);
+  const precipitation=Math.max(
+    Number(sample.precipitation||0),
+    Number(sample.rain||0),
+    Number(sample.showers||0)
+  );
+  const snowfall=Number(sample.snowfall||0);
+
+  if([95,96,99].includes(code)) return {kind:"storm",intensity:[96,99].includes(code)?"heavy":"normal"};
+  if(snowfall>0||[71,73,75,77,85,86].includes(code)) return {kind:"snow",intensity:(snowfall>=1||code===75||code===86)?"heavy":"normal"};
+  if([51,53,55,56,57].includes(code)) return {kind:"drizzle",intensity:[55,57].includes(code)?"normal":"light"};
+  if([61,63,65,66,67,80,81,82].includes(code)) return {kind:"rain",intensity:[65,67,82].includes(code)?"heavy":"normal"};
+  if(precipitation>0){
+    const heavyThreshold=businessTemperatureUnit()==="celsius"?4:0.15;
+    return {kind:"rain",intensity:precipitation>=heavyThreshold?"heavy":"light"};
+  }
+  return null;
+}
+
 function currentWeatherVisual(weather){
   const code=Number(weather?.current?.weather_code);
-  // "Now" must come only from the provider's current observation.
-  // The 15-minute series is useful for nearby timing, not for overriding now.
   const precipitation=Math.max(
     Number(weather?.current?.precipitation||0),
     Number(weather?.current?.rain||0),
@@ -895,6 +934,10 @@ function currentWeatherVisual(weather){
     const heavyThreshold=businessTemperatureUnit()==="celsius"?4:0.15;
     return {kind:"rain",intensity:precipitation>=heavyThreshold?"heavy":"light"};
   }
+
+  const recentMinutely=recentMinutelyPrecipVisual(weather);
+  if(recentMinutely) return recentMinutely;
+
   if([45,48].includes(code)) return {kind:"fog",intensity:"normal"};
   if(code===3) return {kind:"cloudy",intensity:"normal"};
   if([1,2].includes(code)) return {kind:"partly",intensity:"light"};

@@ -493,12 +493,15 @@ if(
   throw new Error("Incoming Jobs regression: list must stay limited to the next 72 hours");
 }
 if(
-  !app.includes("Never overwrite Open-Meteo's true current condition") ||
+  !app.includes('Never select a future bucket for a current-condition decision') ||
   !app.includes("weather.current_15m={") ||
+  !app.includes("function recentMinutelyPrecipVisual(weather)") ||
+  !app.includes("if(age<0||age>16*60*1000) return null;") ||
+  !app.includes("const recentMinutely=recentMinutelyPrecipVisual(weather);") ||
   !app.includes("},60*1000);") ||
   !app.includes('window.addEventListener("focus",function(){')
 ){
-  throw new Error("Weather regression: stale 15-minute rain data or slow refresh behavior returned");
+  throw new Error("Weather regression: live 15-minute fallback, future-bucket guard, or fast refresh behavior is missing");
 }
 if(!styles.includes("tleHeroCtaFloat") || !styles.includes(".hero-card.message-calm #todayHeroAction") || !styles.includes("tleNotificationRing")){
   throw new Error("Dashboard polish regression: compact adaptive CTA or notification motion is missing");
