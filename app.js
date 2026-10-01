@@ -7741,18 +7741,6 @@ async function ensureRecurringJobHorizon(){
   const occupiedJobs=state.jobs.filter(j=>!["canceled","no_show"].includes(String(j.status||"")));
   let added=0;
 
-  const overlapsExisting=payload=>{
-    const start=new Date(payload.starts_at).getTime();
-    const from=start-(Number(payload.travel_buffer_before_minutes||0)*60000);
-    const to=start+((Number(payload.duration_minutes||0)+Number(payload.travel_buffer_after_minutes||0))*60000);
-    return occupiedJobs.some(job=>{
-      const jobStart=new Date(job.starts_at).getTime();
-      const jobFrom=jobStart-(Number(job.travel_buffer_before_minutes||0)*60000);
-      const jobTo=jobStart+((Number(job.duration_minutes||0)+Number(job.travel_buffer_after_minutes||0))*60000);
-      return from<jobTo && to>jobFrom;
-    });
-  };
-
   for(const rule of state.recurrenceRules.filter(r=>r.active)){
     const series=occupiedJobs
       .filter(j=>j.recurrence_rule_id===rule.id)
@@ -7761,7 +7749,8 @@ async function ensureRecurringJobHorizon(){
 
     const template=series[0];
     const local=zonedDateTimeParts(template.starts_at);
-    const teamId=template.job_assignments?.[0]?.team_member_id||null;
+    const teamIds=[...new Set((template.job_assignments||[]).map(a=>a.team_member_id).filter(Boolean))];
+    const serviceDefaults=state.services.find(s=>s.id===template.service_id);
     const existingSlots=new Set(series.map(j=>String(j.recurrence_occurrence_date||"")).filter(Boolean));
     const seriesLimit=rule.ends_on && rule.ends_on<tleCalendarDateKey(horizon) ? rule.ends_on : tleCalendarDateKey(horizon);
 
@@ -7781,13 +7770,23 @@ async function ensureRecurringJobHorizon(){
         service_address:template.service_address,
         starts_at:startsIso,
         duration_minutes:Number(template.duration_minutes),
+        workers_required:Math.max(1,Number(template.workers_required||serviceDefaults?.workers_required||1),teamIds.length),
         travel_buffer_before_minutes:Number(template.travel_buffer_before_minutes||0),
         travel_buffer_after_minutes:Number(template.travel_buffer_after_minutes||0),
         notes:template.notes||null
       };
 
-      if(overlapsExisting(payload)){
-        console.warn("[TLE] recurring occurrence skipped because the time is already occupied",dateKey);
+      const {data:hasCapacity,error:capacityError}=await supabase.rpc("check_admin_job_capacity",{
+        p_business_id:state.business.id,
+        p_start:startsIso,
+        p_duration:Number(payload.duration_minutes),
+        p_required_workers:Number(payload.workers_required),
+        p_buffer:Math.max(Number(payload.travel_buffer_before_minutes||0),Number(payload.travel_buffer_after_minutes||0)),
+        p_exclude_job_id:null
+      });
+      if(capacityError) throw capacityError;
+      if(!hasCapacity){
+        console.warn("[TLE] recurring occurrence skipped because team capacity is full",dateKey);
         existingSlots.add(dateKey);
         continue;
       }
@@ -7801,14 +7800,14 @@ async function ensureRecurringJobHorizon(){
         throw error;
       }
 
-      const created={...payload,id:data.id,job_assignments:teamId?[{team_member_id:teamId}]:[]};
+      const created={...payload,id:data.id,job_assignments:teamIds.map(team_member_id=>({team_member_id}))};
       occupiedJobs.push(created);
       existingSlots.add(dateKey);
       added++;
-      if(teamId){
-        const {error:assignmentError}=await supabase.rpc("set_primary_job_assignment",{
+      if(teamIds.length){
+        const {error:assignmentError}=await supabase.rpc("set_job_assignments",{
           p_job_id:data.id,
-          p_team_member_id:teamId
+          p_team_member_ids:teamIds
         });
         if(assignmentError) console.warn("[TLE] recurring assignment",assignmentError);
       }
