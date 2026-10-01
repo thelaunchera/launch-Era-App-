@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-webapp-240";
+const APP_VERSION = "20261001-webapp-239";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -937,23 +937,6 @@ function currentWeatherVisual(weather){
 
   const recentMinutely=recentMinutelyPrecipVisual(weather);
   if(recentMinutely) return recentMinutely;
-
-  // Hyper-local showers can begin before the provider flips its coarse
-  // "current" weather code. When the current hour is already forecast for
-  // precipitation with strong confidence and the sky is cloudy/partly/foggy,
-  // show the live precip treatment instead of leaving the hero dry.
-  const currentHourEvent=weather?.nextPrecip||nextPrecipitationWindow(weather);
-  const currentHourProbability=Number(currentHourEvent?.probability||0);
-  if(
-    currentHourEvent &&
-    Number(currentHourEvent.hoursAhead)===0 &&
-    currentHourProbability>=65 &&
-    [1,2,3,45,48].includes(code)
-  ){
-    if(currentHourEvent.kind==="storm") return {kind:"storm",intensity:"normal"};
-    if(currentHourEvent.kind==="snow") return {kind:"snow",intensity:"normal"};
-    return {kind:"rain",intensity:currentHourProbability>=90?"heavy":"normal"};
-  }
 
   if([45,48].includes(code)) return {kind:"fog",intensity:"normal"};
   if(code===3) return {kind:"cloudy",intensity:"normal"};
