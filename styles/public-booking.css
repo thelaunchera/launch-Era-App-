@@ -611,3 +611,10 @@
   #publicShell .public-demo-summary-total strong{font-size:21px}
   #publicShell .public-demo-summary-stack .public-submit{min-height:42px}
 }
+
+@media(min-width:621px) and (max-width:1024px){
+  #publicShell .public-demo-hero-photo{background:#EAF2EF}
+  #publicShell .public-demo-hero-photo>img,
+  #publicShell .public-demo-summary-photo img{object-fit:contain!important;object-position:center center!important}
+  #publicShell .public-demo-summary-photo{height:clamp(170px,24vw,240px)!important;background:#294640}
+}
