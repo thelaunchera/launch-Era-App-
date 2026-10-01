@@ -1793,3 +1793,70 @@ body.platform-owner-no-billing .trial-card{
 .job-team-option input{width:auto!important;min-width:16px;min-height:16px;margin:0;flex:0 0 auto}
 .job-team-option:has(input:checked){background:var(--blue);border-color:var(--blue-strong)}
 @media(max-width:640px){.job-team-options{grid-template-columns:1fr}}
+
+/* Greeting-card opening overlay */
+#todayHeroCard{
+  position:relative;
+}
+#todayHeroCard .hero-opening-animation{
+  position:absolute;
+  left:clamp(18px,7vw,96px);
+  bottom:76px;
+  width:74px;
+  height:96px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  pointer-events:none!important;
+  user-select:none;
+  touch-action:none;
+  z-index:7;
+  opacity:0;
+  transform:translate3d(24px,0,0) scale(.96);
+}
+#todayHeroCard .hero-opening-animation.is-playing{
+  animation:tleGreetingSweep 5s ease-in-out both;
+}
+#todayHeroCard .hero-opening-animation img{
+  display:block;
+  width:auto;
+  max-width:66px;
+  max-height:94px;
+  object-fit:contain;
+  pointer-events:none!important;
+  user-select:none;
+}
+@keyframes tleGreetingSweep{
+  0%{opacity:0;transform:translate3d(36px,4px,0) scale(.94)}
+  10%{opacity:1}
+  48%{opacity:1;transform:translate3d(-4px,-2px,0) scale(1)}
+  86%{opacity:1}
+  100%{opacity:0;transform:translate3d(-34px,-4px,0) scale(.98)}
+}
+@media(max-width:720px){
+  [data-page="today"] #todayHeroCard .hero-opening-animation{
+    left:18px;
+    bottom:68px;
+    width:58px;
+    height:76px;
+  }
+  [data-page="today"] #todayHeroCard .hero-opening-animation img{
+    max-width:51px;
+    max-height:74px;
+  }
+}
+@media(max-width:390px){
+  [data-page="today"] #todayHeroCard .hero-opening-animation{
+    left:14px;
+    bottom:64px;
+    width:52px;
+    height:70px;
+  }
+  [data-page="today"] #todayHeroCard .hero-opening-animation img{
+    max-width:46px;
+    max-height:68px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #todayHeroCard .hero-opening-animation{display:none!important}
+}

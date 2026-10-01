@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-manage-booking-248";
+const APP_VERSION = "20261001-greeting-video-249";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1710,6 +1710,58 @@ function ensureDashboardBootResolved(){
   }
 }
 
+
+const HERO_OPENING_ANIMATION_URL="https://d2ol7oe51mr4n9.cloudfront.net/user_3FC9GcVebQE6WAxiCP5Hh9w95GF/4865348e-1259-42e1-b904-dbfb4025a040.webp";
+let heroOpeningAnimationTimer=0;
+let heroOpeningAnimationLastStarted=0;
+function playHeroOpeningAnimation(){
+  try{
+    if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    const hero=$("#todayHeroCard");
+    if(!hero) return;
+    const now=Date.now();
+    if(now-heroOpeningAnimationLastStarted<1500) return;
+    heroOpeningAnimationLastStarted=now;
+
+    let slot=$("#heroOpeningAnimation");
+    if(!slot){
+      slot=document.createElement("span");
+      slot.id="heroOpeningAnimation";
+      slot.className="hero-opening-animation";
+      slot.setAttribute("aria-hidden","true");
+      hero.appendChild(slot);
+    }
+
+    slot.classList.remove("is-playing");
+    slot.replaceChildren();
+    const image=document.createElement("img");
+    image.alt="";
+    image.decoding="async";
+    image.draggable=false;
+    image.src=HERO_OPENING_ANIMATION_URL+"#open-"+now;
+    slot.appendChild(image);
+    void slot.offsetWidth;
+    slot.classList.add("is-playing");
+
+    clearTimeout(heroOpeningAnimationTimer);
+    heroOpeningAnimationTimer=setTimeout(()=>{
+      slot.classList.remove("is-playing");
+      slot.replaceChildren();
+    },5200);
+  }catch(err){
+    console.warn("[TLE] greeting opening animation",err);
+  }
+}
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
+    playHeroOpeningAnimation();
+  }
+});
+window.addEventListener("pageshow",()=>{
+  if(state.session && appShell && !appShell.hidden) playHeroOpeningAnimation();
+});
+
 function showApp(){
   dismissSessionSplash();
   setShellState("app");
@@ -1719,6 +1771,7 @@ function showApp(){
   appShell.hidden = false;
   scheduleQuarterHourCardColors();
   installTodayClock();
+  playHeroOpeningAnimation();
 
   // Safari/iOS may restore the previous page scroll position before the hidden
   // app shell becomes visible. Force the authenticated dashboard to start at
