@@ -78,6 +78,35 @@ const businessConfig={
   ]
 };
 
+const manageView={
+  ok:true,
+  business:{name:"Bright Home Cleaning",timezone:"America/New_York",locale:"en-US"},
+  booking:{
+    id:"55555555-5555-4555-8555-555555555555",
+    service:"Standard Home Cleaning",
+    customer_name:"Taylor",
+    address:"123 Palm Ave, Boynton Beach, FL",
+    starts_at:"2026-10-06T17:00:00.000Z",
+    duration_minutes:120,
+    status:"scheduled",
+    recurring:true,
+    recurrence_frequency:"weekly",
+    future_count:4
+  },
+  policy:{
+    allow_reschedule:true,
+    allow_cancel:true,
+    reschedule_enabled:true,
+    cancel_enabled:true,
+    cutoff_hours:24,
+    cancellation_policy:"Changes must be made at least 24 hours before the cleaning.",
+    change_deadline:"2026-10-05T17:00:00.000Z",
+    online_window:true,
+    minimum_notice_hours:24
+  },
+  customer:{language:"en"}
+};
+
 const profiles=[
   {name:"Safari iPhone",engine:"webkit",viewport:{width:390,height:844}},
   {name:"Safari iPad",engine:"webkit",viewport:{width:820,height:1180}},
@@ -99,6 +128,26 @@ async function mockBackend(context,calls){
         {slot_start:"2026-10-05T14:00:00.000Z"},
         {slot_start:"2026-10-05T16:30:00.000Z"}
       ];
+    }else if(pathname.includes("/functions/v1/manage-booking")){
+      let requestBody={};
+      try{ requestBody=route.request().postDataJSON()||{}; }catch{}
+      if(requestBody.action==="slots"){
+        body={ok:true,slots:["2026-10-07T14:00:00.000Z","2026-10-07T16:30:00.000Z"]};
+      }else if(requestBody.action==="reschedule"){
+        body={
+          ...manageView,
+          result:{old_start:manageView.booking.starts_at,new_start:requestBody.new_start,scope:requestBody.scope||"this"},
+          booking:{...manageView.booking,starts_at:requestBody.new_start}
+        };
+      }else if(requestBody.action==="cancel"){
+        body={
+          ...manageView,
+          result:{old_start:manageView.booking.starts_at,scope:requestBody.scope||"this"},
+          booking:{...manageView.booking,status:"canceled"}
+        };
+      }else{
+        body=manageView;
+      }
     }else if(pathname.includes("/functions/v1/track-app-visit")) body={ok:true};
     else body={};
     await route.fulfill({
@@ -275,6 +324,44 @@ async function runProfile(profile){
         summaryWidth:document.querySelector(".public-demo-summary-stack")?.getBoundingClientRect().width||0
       }));
       if(layout.summaryWidth<300) throw new Error(profile.name+": desktop summary column is compressed "+JSON.stringify(layout));
+    }
+
+    const manageToken="a".repeat(64);
+    await page.goto("http://127.0.0.1:4176/?public=manage&token="+manageToken+"&lang=en",{
+      waitUntil:"domcontentloaded",
+      timeout:20000
+    });
+    await page.waitForSelector("#publicManageBooking",{state:"visible",timeout:10000});
+    await page.waitForFunction(()=>document.querySelector("#manageService")?.textContent.includes("Standard Home Cleaning"),null,{timeout:10000});
+    const manageState=await page.evaluate(()=>({
+      service:document.querySelector("#manageService")?.textContent||"",
+      dateTime:document.querySelector("#manageDateTime")?.textContent||"",
+      rescheduleDisabled:Boolean(document.querySelector("#manageRescheduleBtn")?.disabled),
+      cancelDisabled:Boolean(document.querySelector("#manageCancelBtn")?.disabled),
+      requestFormHidden:Boolean(document.querySelector("#publicRequestForm")?.hidden),
+      heroHidden:Boolean(document.querySelector("#publicBookingHero")?.hidden)
+    }));
+    if(!manageState.service.includes("Standard Home Cleaning")||manageState.rescheduleDisabled||manageState.cancelDisabled||!manageState.requestFormHidden||!manageState.heroHidden){
+      throw new Error(profile.name+": manage booking page failed "+JSON.stringify(manageState));
+    }
+    await assertNoOverflow(page,profile,"manage booking");
+
+    if(profile.name==="Safari iPad"){
+      await page.locator("#manageRescheduleBtn").click();
+      await page.locator("#manageNewDate").fill("2026-10-07");
+      await page.locator("#manageNewDate").dispatchEvent("change");
+      await page.waitForSelector("#manageSlots [data-manage-slot]",{state:"visible",timeout:7000});
+      await page.locator("#manageSlots [data-manage-slot]").first().click();
+      if(await page.locator("#manageConfirmReschedule").isDisabled()){
+        throw new Error(profile.name+": manage reschedule confirmation stayed disabled");
+      }
+      await page.locator("#manageConfirmReschedule").click();
+      await page.waitForFunction(()=>document.querySelector("#manageBookingStatus")?.textContent.includes("rescheduled"),null,{timeout:5000});
+      await page.locator("#manageCancelBtn").click();
+      if(await page.locator("#manageCancelPanel").isHidden()){
+        throw new Error(profile.name+": manage cancellation panel did not open");
+      }
+      await assertNoOverflow(page,profile,"manage booking reschedule");
     }
 
     console.log("PUBLIC_BOOKING_OK",profile.name);
