@@ -133,7 +133,9 @@ self.addEventListener("push",event=>{
       resource_id:data.resource_id||""
     }
   };
-  const badgeCount=Math.max(1,Math.floor(Number(data.badge_count)||1));\n  if("setAppBadge" in self.navigator) self.navigator.setAppBadge(badgeCount).catch(()=>{});\n  event.waitUntil(self.registration.showNotification(title,options));
+  const badgeCount=Math.max(1,Math.floor(Number(data.badge_count)||1));
+  if("setAppBadge" in self.navigator) self.navigator.setAppBadge(badgeCount).catch(()=>{});
+  event.waitUntil(self.registration.showNotification(title,options));
 });
 
 self.addEventListener("notificationclick",event=>{
