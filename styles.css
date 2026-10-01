@@ -1800,24 +1800,24 @@ body.platform-owner-no-billing .trial-card{
 }
 #todayHeroCard .hero-opening-animation{
   position:absolute;
-  left:clamp(18px,7vw,96px);
-  bottom:76px;
-  width:74px;
+  left:var(--tle-greeting-left,18px);
+  top:var(--tle-greeting-top,96px);
+  width:var(--tle-greeting-width,180px);
   height:96px;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
   pointer-events:none!important;
   user-select:none;
   touch-action:none;
   z-index:7;
   opacity:0;
-  transform:translate3d(24px,0,0) scale(.96);
+  overflow:visible;
 }
 #todayHeroCard .hero-opening-animation.is-playing{
-  animation:tleGreetingSweep 5s ease-in-out both;
+  opacity:1;
 }
 #todayHeroCard .hero-opening-animation img{
+  position:absolute;
+  left:0;
+  bottom:0;
   display:block;
   width:auto;
   max-width:66px;
@@ -1825,38 +1825,48 @@ body.platform-owner-no-billing .trial-card{
   object-fit:contain;
   pointer-events:none!important;
   user-select:none;
+  opacity:0;
+}
+#todayHeroCard .hero-opening-animation.is-playing img{
+  animation:tleGreetingSweep 5s linear both;
 }
 @keyframes tleGreetingSweep{
-  0%{opacity:0;transform:translate3d(36px,4px,0) scale(.94)}
-  10%{opacity:1}
-  48%{opacity:1;transform:translate3d(-4px,-2px,0) scale(1)}
-  86%{opacity:1}
-  100%{opacity:0;transform:translate3d(-34px,-4px,0) scale(.98)}
+  0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
+  8%{opacity:1}
+  82%{opacity:1}
+  100%{left:calc(100% - 66px);opacity:0;transform:translateY(-3px) scale(.98)}
 }
 @media(max-width:720px){
   [data-page="today"] #todayHeroCard .hero-opening-animation{
-    left:18px;
-    bottom:68px;
-    width:58px;
     height:76px;
   }
   [data-page="today"] #todayHeroCard .hero-opening-animation img{
     max-width:51px;
     max-height:74px;
   }
+  @keyframes tleGreetingSweep{
+    0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
+    8%{opacity:1}
+    82%{opacity:1}
+    100%{left:calc(100% - 51px);opacity:0;transform:translateY(-3px) scale(.98)}
+  }
 }
 @media(max-width:390px){
   [data-page="today"] #todayHeroCard .hero-opening-animation{
-    left:14px;
-    bottom:64px;
-    width:52px;
     height:70px;
   }
   [data-page="today"] #todayHeroCard .hero-opening-animation img{
     max-width:46px;
     max-height:68px;
   }
+  @keyframes tleGreetingSweep{
+    0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
+    8%{opacity:1}
+    82%{opacity:1}
+    100%{left:calc(100% - 46px);opacity:0;transform:translateY(-3px) scale(.98)}
+  }
 }
 @media(prefers-reduced-motion:reduce){
   #todayHeroCard .hero-opening-animation{display:none!important}
+}
 }
