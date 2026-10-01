@@ -1718,8 +1718,7 @@ function playHeroOpeningAnimation(){
   try{
     if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
     const hero=$("#todayHeroCard");
-    const top=hero?.querySelector(".hero-card-topline");
-    if(!hero||!top) return;
+    if(!hero) return;
     const now=Date.now();
     if(now-heroOpeningAnimationLastStarted<1500) return;
     heroOpeningAnimationLastStarted=now;
@@ -1730,8 +1729,7 @@ function playHeroOpeningAnimation(){
       slot.id="heroOpeningAnimation";
       slot.className="hero-opening-animation";
       slot.setAttribute("aria-hidden","true");
-      const sky=top.querySelector(".hero-sky-badge");
-      top.insertBefore(slot,sky||null);
+      hero.appendChild(slot);
     }
 
     slot.classList.remove("is-playing");
