@@ -1828,7 +1828,7 @@ body.platform-owner-no-billing .trial-card{
   opacity:0;
 }
 #todayHeroCard .hero-opening-animation.is-playing img{
-  animation:tleGreetingSweep 5s linear both;
+  animation:tleGreetingSweep 6s linear both;
 }
 @keyframes tleGreetingSweep{
   0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
