@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-job-progress-235";
+const APP_VERSION = "20260930-booking-services-236";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4704,22 +4704,53 @@ function renderInvoices(){
   }).join("");
   enhanceMobileRecordActions();
 }
+function serviceIsPaid(s){
+  return s?.pricing_type==="flat" && Number(s?.base_price)>0;
+}
+function serviceGroupCopy(key){
+  const lang=appLanguage();
+  const copy={
+    paidTitle:{en:"Paid services",es:"Servicios con precio",fr:"Services avec prix",ht:"Sèvis ak pri"},
+    paidNote:{en:"Clients can book these instantly at the price you set.",es:"Los clientes pueden reservar estos servicios al instante con el precio que defines.",fr:"Les clients peuvent réserver ces services immédiatement au prix défini.",ht:"Kliyan yo ka rezève sèvis sa yo touswit ak pri ou fikse a."},
+    quoteTitle:{en:"Quote services",es:"Servicios con cotización",fr:"Services sur devis",ht:"Sèvis ki bezwen estimasyon"},
+    quoteNote:{en:"These collect the details first, then the request goes to Quotes.",es:"Aquí primero se recopilan los detalles y luego la solicitud pasa a Quotes.",fr:"Les détails sont d’abord recueillis, puis la demande passe dans Quotes.",ht:"Sa yo ranmase detay yo anvan, epi demann lan ale nan Quotes."},
+    paidEmpty:{en:"No paid services yet.",es:"Todavía no hay servicios con precio.",fr:"Aucun service avec prix pour le moment.",ht:"Pa gen sèvis ak pri ankò."},
+    quoteEmpty:{en:"No quote services yet.",es:"Todavía no hay servicios con cotización.",fr:"Aucun service sur devis pour le moment.",ht:"Pa gen sèvis estimasyon ankò."},
+    instant:{en:"Instant booking",es:"Reserva directa",fr:"Réservation directe",ht:"Rezèvasyon dirèk"},
+    quoteRequired:{en:"Quote required",es:"Requiere cotización",fr:"Devis requis",ht:"Estimasyon obligatwa"}
+  };
+  return copy[key]?.[lang]||copy[key]?.en||"";
+}
+function renderBookingServiceGroup(items,type){
+  const paid=type==="paid";
+  const title=serviceGroupCopy(paid?"paidTitle":"quoteTitle");
+  const note=serviceGroupCopy(paid?"paidNote":"quoteNote");
+  const empty=serviceGroupCopy(paid?"paidEmpty":"quoteEmpty");
+  const rows=items.length?items.map(s=>{
+    const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
+    return `<div class="booking-service-row booking-service-row-${type}">
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${paid?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")}</small></span>
+      <span class="booking-addon-chips">${paid
+        ? (addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
+        : `<i class="quote-service-chip">${escapeHtml(serviceGroupCopy("quoteRequired"))}</i>`
+      }</span>
+    </div>`;
+  }).join(""):`<div class="booking-service-empty">${escapeHtml(empty)}</div>`;
+  return `<section class="booking-service-group booking-service-group-${type}">
+    <div class="booking-service-group-head">
+      <div><span class="service-status-pill ${paid?"bookable":"quote"}">${escapeHtml(paid?serviceGroupCopy("instant"):serviceGroupCopy("quoteRequired"))}</span><h4>${escapeHtml(title)}</h4></div>
+      <p>${escapeHtml(note)}</p>
+    </div>
+    <div class="booking-service-group-list">${rows}</div>
+  </section>`;
+}
 function renderBookingServices(){
   const list=$("#bookingServicesList");
   if(!list) return;
   const active=state.services.filter(s=>s.active);
-  if(!active.length){
-    list.innerHTML=`<div class="empty-inline"><strong>No active services yet.</strong><span>Add a service before public booking goes live.</span></div>`;
-    return;
-  }
-  list.innerHTML=active.map(s=>{
-    const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
-    const isUpfront=s.pricing_type==="flat" && Number(s.base_price)>0;
-    return `<div class="booking-service-row">
-      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${isUpfront?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")} · ${isUpfront?langPick("Book a Cleaning","Reservar una limpieza","Réserver un nettoyage"):langPick("Request a Quote","Pedir una cotización","Demander un devis")}</small></span>
-      <span class="booking-addon-chips">${isUpfront?(addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`):`<i>${escapeHtml(langPick("Quote path","Flujo de cotización","Parcours devis"))}</i>`}</span>
-    </div>`;
-  }).join("");
+  const paid=active.filter(serviceIsPaid);
+  const quote=active.filter(s=>!serviceIsPaid(s));
+  list.innerHTML=renderBookingServiceGroup(paid,"paid")+renderBookingServiceGroup(quote,"quote");
 }
 
 function renderAvailabilityEditor(){
@@ -5091,44 +5122,75 @@ function openClientInfo(clientId){
   modal.hidden=false;
 }
 
+function renderServiceCatalogCard(s){
+  const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
+  const isQuote=!serviceIsPaid(s);
+  const statusLabel=!s.active
+    ? langPick("Inactive","Inactivo","Inactif")
+    : isQuote
+      ? serviceGroupCopy("quoteRequired")
+      : serviceGroupCopy("instant");
+  return `
+    <article class="service-card service-catalog-card ${s.active?"":"inactive-card"}">
+      <div class="service-catalog-top">
+        <div><span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span><strong>${escapeHtml(s.name)}</strong></div>
+        <b class="service-price">${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b>
+      </div>
+      <div class="service-catalog-meta">
+        <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
+        <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
+        <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
+      </div>
+      ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
+      <div class="addon-list">
+        ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Aucune option pour le moment"))}</small>`}
+      </div>
+      <div class="card-actions service-card-actions">
+        <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Modifier"))}</button>
+        <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Option"))}</button>
+        <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Désactiver"):langPick("Activate","Activar","Activer"))}</button>
+      </div>
+    </article>`;
+}
+function renderServiceCatalogGroup(items,type){
+  const paid=type==="paid";
+  const title=serviceGroupCopy(paid?"paidTitle":"quoteTitle");
+  const note=serviceGroupCopy(paid?"paidNote":"quoteNote");
+  const empty=serviceGroupCopy(paid?"paidEmpty":"quoteEmpty");
+  return `<section class="service-type-group service-type-group-${type}">
+    <div class="service-type-heading">
+      <div><span class="service-status-pill ${paid?"bookable":"quote"}">${escapeHtml(paid?serviceGroupCopy("instant"):serviceGroupCopy("quoteRequired"))}</span><h3>${escapeHtml(title)}</h3></div>
+      <p>${escapeHtml(note)}</p>
+      <span class="service-type-count">${items.length}</span>
+    </div>
+    <div class="service-type-grid">${items.length?items.map(renderServiceCatalogCard).join(""):`<div class="service-type-empty">${escapeHtml(empty)}</div>`}</div>
+  </section>`;
+}
 function renderServices(){
   const grid=$("#servicesGrid");
   if(!grid) return;
-  const cards=state.services.map(s=>{
-    const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
-    const isQuote=!(s.pricing_type==="flat" && Number(s.base_price)>0);
-    const statusLabel=!s.active
-      ? langPick("Inactive","Inactivo","Inactif")
-      : isQuote
-        ? langPick("Quote required","Requiere cotización","Devis requis")
-        : langPick("Bookable","Reservable","Réservable");
-    return `
-      <article class="service-card service-catalog-card ${s.active?"":"inactive-card"}">
-        <div class="service-catalog-top">
-          <div><span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span><strong>${escapeHtml(s.name)}</strong></div>
-          <b class="service-price">${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b>
-        </div>
-        <div class="service-catalog-meta">
-          <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
-          <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
-          <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
-        </div>
-        ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
-        <div class="addon-list">
-          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Aucune option pour le moment"))}</small>`}
-        </div>
-        <div class="card-actions service-card-actions">
-          <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Modifier"))}</button>
-          <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Option"))}</button>
-          <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Désactiver"):langPick("Activate","Activar","Activer"))}</button>
-        </div>
-      </article>`;
-  }).join("");
-
+  grid.classList.add("service-catalog-groups");
+  const paid=state.services.filter(serviceIsPaid);
+  const quote=state.services.filter(s=>!serviceIsPaid(s));
   const unassigned=state.serviceAddons.filter(a=>!a.service_id);
-  const globalCard=unassigned.length?`<article class="service-card service-catalog-card"><div class="service-catalog-top"><div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GÉNÉRAL"))}</span><strong>${escapeHtml(langPick("General add-ons","Add-ons generales","Options générales"))}</strong></div></div><span>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponibles sur plusieurs services"))}</span><div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div></article>`:"";
+  const globalCard=unassigned.length?`<section class="service-type-group service-type-group-addons">
+    <div class="service-type-heading">
+      <div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GÉNÉRAL"))}</span><h3>${escapeHtml(langPick("General add-ons","Add-ons generales","Options générales"))}</h3></div>
+      <p>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponibles sur plusieurs services"))}</p>
+      <span class="service-type-count">${unassigned.length}</span>
+    </div>
+    <div class="service-type-grid">
+      <article class="service-card service-catalog-card general-addon-card">
+        <div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div>
+      </article>
+    </div>
+  </section>`:"";
 
-  grid.innerHTML=(cards||"")+globalCard+`<article class="add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
+  grid.innerHTML=
+    renderServiceCatalogGroup(paid,"paid")+
+    renderServiceCatalogGroup(quote,"quote")+
+    globalCard+
+    `<article class="add-card service-add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
 }
 function renderSupplies(){
   const grid=$("#suppliesGrid");
@@ -7010,18 +7072,15 @@ function renderBusinessPresence(){
 function renderPublicLinks(){
   const slug=String(state.publicLinks?.public_slug||"").trim();
   const base=window.location.origin+window.location.pathname;
-  const be=$("#bookingUrl"),qe=$("#quoteUrl");
+  const be=$("#bookingUrl");
 
   if(!slug){
     if(be){be.textContent=langPick("Loading booking link…","Cargando enlace de reserva…","Chargement du lien de réservation…");be.removeAttribute("href");}
-    if(qe){qe.textContent=langPick("Loading quote link…","Cargando enlace de cotización…","Chargement du lien de devis…");qe.removeAttribute("href");}
     return;
   }
 
   const booking=`${base}?public=book&slug=${encodeURIComponent(slug)}`;
-  const quote=`${base}?public=quote&slug=${encodeURIComponent(slug)}`;
   if(be){be.textContent=booking;be.href=booking;be.setAttribute("aria-label",langPick("Open booking link","Abrir enlace de reserva","Ouvrir le lien de réservation"));}
-  if(qe){qe.textContent=quote;qe.href=quote;qe.setAttribute("aria-label",langPick("Open quote request link","Abrir enlace de cotización","Ouvrir le lien de devis"));}
   renderBusinessPresence();
 }
 
@@ -9796,7 +9855,7 @@ $("#copyBooking").addEventListener("click",()=>copyText($("#bookingUrl").textCon
 document.addEventListener("click",e=>{
   const publicOpen=e.target.closest("[data-open-public]");
   if(!publicOpen) return;
-  const link=publicOpen.dataset.openPublic==="book" ? $("#bookingUrl")?.href : $("#quoteUrl")?.href;
+  const link=$("#bookingUrl")?.href;
   if(link) window.open(link,"_blank","noopener");
 });
 
