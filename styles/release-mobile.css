@@ -1143,3 +1143,40 @@
   #publicShell .public-demo-summary-total{padding:10px 0 2px!important}
   #publicShell .public-demo-summary-stack .public-submit{width:100%!important}
 }
+
+
+/* Customer booking changes */
+#publicShell .public-manage-booking{
+  width:min(760px,100%);margin:10px auto 0;background:#fff;border:1px solid #E8E4DC;
+  border-radius:24px;padding:clamp(20px,4vw,30px);box-shadow:0 18px 45px rgba(37,48,45,.09)
+}
+#publicShell .public-manage-head{margin-bottom:18px}
+#publicShell .public-manage-head h2{font-family:Prompt,Arial,sans-serif;font-size:clamp(27px,4vw,38px);line-height:1.05;letter-spacing:-.04em;margin:10px 0 6px}
+#publicShell .public-manage-head p{margin:0;color:#6E726F;font-size:13px;line-height:1.5}
+#publicShell .public-manage-current{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+#publicShell .public-manage-current>div{display:grid;gap:4px;padding:13px;border-radius:14px;background:#FAF8F3;border:1px solid #E8E4DC}
+#publicShell .public-manage-current>div.full{grid-column:1/-1}
+#publicShell .public-manage-current small{font-size:9px;color:#6E726F;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
+#publicShell .public-manage-current strong{font-size:13px;line-height:1.35}
+#publicShell .public-manage-status{display:grid;gap:4px;margin:12px 0;padding:12px 14px;border-radius:14px;background:#EAF2EF;color:#294640;font-size:11px}
+#publicShell .public-manage-status:empty{display:none}
+#publicShell .public-manage-status.pending{background:#FFF8D6;color:#62530B}
+#publicShell .public-manage-status.approved{background:#EAF2EF;color:#294640}
+#publicShell .public-manage-status.declined{background:#FFF0EC;color:#7A3427}
+#publicShell .public-manage-form{display:grid;gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid #E8E4DC}
+#publicShell .public-manage-form>div{display:grid;grid-template-columns:minmax(180px,.6fr) minmax(0,1.4fr);gap:14px;align-items:start}
+#publicShell .public-manage-form label{display:grid;gap:7px;font-size:11px;font-weight:850}
+#publicShell .public-manage-form input,#publicShell .public-manage-form textarea{width:100%;border:1px solid #E8E4DC;border-radius:12px;background:#fff;padding:11px 12px;color:#191919;font:inherit}
+#publicShell .public-manage-slots-wrap{display:grid;gap:7px}
+#publicShell .public-manage-note{margin:0;text-align:center;color:#6E726F;font-size:9px;line-height:1.45}
+#publicShell .public-manage-hero{grid-template-columns:1fr!important;max-width:760px!important;margin-inline:auto!important;padding-bottom:8px!important}
+#publicShell .public-manage-hero .public-demo-hero-copy{text-align:center}
+.booking-change-requested{color:#294640!important}
+.booking-change-panel .panel-head small{display:block;margin-top:4px;color:#6F6A63;font-size:10px}
+
+@media(max-width:680px){
+  #publicShell .public-manage-booking{border-radius:20px;padding:17px}
+  #publicShell .public-manage-current{grid-template-columns:1fr 1fr;gap:8px}
+  #publicShell .public-manage-current>div:first-child{grid-column:1/-1}
+  #publicShell .public-manage-form>div{grid-template-columns:1fr}
+}
