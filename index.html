@@ -417,6 +417,33 @@
           </form>
           <p class="helper" id="quoteReviewStatus"></p>
         </div>
+        <div class="public-manage-booking" id="publicManageBooking" hidden>
+          <div class="public-manage-head">
+            <span class="pill blue" id="publicManageBadge">MANAGE BOOKING</span>
+            <h2 id="publicManageTitle">Your booking</h2>
+            <p id="publicManageIntro">View your confirmed appointment or request a different day or time.</p>
+          </div>
+          <div class="public-manage-current">
+            <div><small>Service</small><strong id="publicManageService">—</strong></div>
+            <div><small>Date</small><strong id="publicManageDate">—</strong></div>
+            <div><small>Time</small><strong id="publicManageTime">—</strong></div>
+            <div class="full"><small>Address</small><strong id="publicManageAddress">—</strong></div>
+          </div>
+          <div class="public-manage-status" id="publicManageStatus" aria-live="polite"></div>
+          <form class="public-manage-form" id="publicManageForm" hidden>
+            <div>
+              <label>Date<input id="publicManageDateInput" type="date" required></label>
+              <div class="public-manage-slots-wrap">
+                <span class="field-label">Available times</span>
+                <div class="public-slots" id="publicManageSlots"><span class="muted-line">Choose a date first.</span></div>
+                <input id="publicManageSlotStart" type="hidden" required>
+              </div>
+            </div>
+            <label>Reason <span class="field-optional">(optional)</span><textarea id="publicManageReason" rows="3" maxlength="800" placeholder="Anything the business should know about this change?"></textarea></label>
+            <button class="primary-btn public-submit" id="publicManageSubmit" type="submit" disabled>Send change request</button>
+            <p class="public-manage-note">Your current appointment stays confirmed until the business approves the change.</p>
+          </form>
+        </div>
         <div class="public-success" id="publicSuccess" hidden>
           <div class="success-mark">✓</div>
           <h2>Request received</h2>
@@ -697,6 +724,10 @@
           <article class="panel full booking-step-panel booking-requests-always" data-booking-panel="requests">
             <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Booking requests</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
             <div id="bookingRequestsList" class="booking-requests-list"></div>
+          </article>
+          <article class="panel full booking-step-panel booking-change-panel" data-booking-panel="changes">
+            <div class="panel-head"><div><p class="eyebrow">CHANGE REQUESTS</p><h3>Booking changes</h3><small>Review date or time changes before the calendar moves.</small></div><span class="pill yellow" id="jobChangeRequestCountPill">0 pending</span></div>
+            <div id="jobChangeRequestsList" class="booking-requests-list"></div>
           </article>
           <article class="panel full booking-step-panel" data-booking-panel="services">
             <div class="panel-head"><div><p class="eyebrow">SERVICES</p><h3>Booking + quote services</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
