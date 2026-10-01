@@ -1,28 +1,28 @@
-const CACHE_NAME="tle-cleaning-app-20260930-contrast-guard-231";
+const CACHE_NAME="tle-cleaning-app-20260930-app-badge-232";
 const CORE=[
-  "./boot.js?v=20260930-contrast-guard-231",
-  "./styles/boot.css?v=20260930-contrast-guard-231",
+  "./boot.js?v=20260930-app-badge-232",
+  "./styles/boot.css?v=20260930-app-badge-232",
   "./",
   "./index.html",
-  "./styles.css?v=20260930-contrast-guard-231",
-  "./styles/workspace-components.css?v=20260930-contrast-guard-231",
-  "./styles/workspace-experience.css?v=20260930-contrast-guard-231",
-  "./styles/workspace-operations.css?v=20260930-contrast-guard-231",
-  "./styles/release-overrides.css?v=20260930-contrast-guard-231",
-  "./styles/release-mobile.css?v=20260930-contrast-guard-231",
-  "./styles/release-latest.css?v=20260930-contrast-guard-231",
-  "./styles/responsive-shell.css?v=20260930-contrast-guard-231",
-  "./styles/customer-documents.css?v=20260930-contrast-guard-231",
-  "./styles/public-booking.css?v=20260930-contrast-guard-231",
-  "./styles/invoice-polish.css?v=20260930-contrast-guard-231",
-  "./app.js?v=20260930-contrast-guard-231",
-  "./followups.js?v=20260930-contrast-guard-231",
-  "./i18n-completion.js?v=20260930-contrast-guard-231",
-  "./i18n.js?v=20260930-contrast-guard-231",
-  "./onboarding-copy.js?v=20260930-contrast-guard-231",
-  "./public.js?v=20260930-contrast-guard-231",
-  "./vendor/supabase.js?v=20260930-contrast-guard-231",
-  "./manifest.webmanifest?v=20260930-contrast-guard-231"
+  "./styles.css?v=20260930-app-badge-232",
+  "./styles/workspace-components.css?v=20260930-app-badge-232",
+  "./styles/workspace-experience.css?v=20260930-app-badge-232",
+  "./styles/workspace-operations.css?v=20260930-app-badge-232",
+  "./styles/release-overrides.css?v=20260930-app-badge-232",
+  "./styles/release-mobile.css?v=20260930-app-badge-232",
+  "./styles/release-latest.css?v=20260930-app-badge-232",
+  "./styles/responsive-shell.css?v=20260930-app-badge-232",
+  "./styles/customer-documents.css?v=20260930-app-badge-232",
+  "./styles/public-booking.css?v=20260930-app-badge-232",
+  "./styles/invoice-polish.css?v=20260930-app-badge-232",
+  "./app.js?v=20260930-app-badge-232",
+  "./followups.js?v=20260930-app-badge-232",
+  "./i18n-completion.js?v=20260930-app-badge-232",
+  "./i18n.js?v=20260930-app-badge-232",
+  "./onboarding-copy.js?v=20260930-app-badge-232",
+  "./public.js?v=20260930-app-badge-232",
+  "./vendor/supabase.js?v=20260930-app-badge-232",
+  "./manifest.webmanifest?v=20260930-app-badge-232"
 ];
 const NAVIGATION_TIMEOUT_MS=2500;
 
@@ -133,7 +133,7 @@ self.addEventListener("push",event=>{
       resource_id:data.resource_id||""
     }
   };
-  event.waitUntil(self.registration.showNotification(title,options));
+  const badgeCount=Math.max(1,Math.floor(Number(data.badge_count)||1));\n  if("setAppBadge" in self.navigator) self.navigator.setAppBadge(badgeCount).catch(()=>{});\n  event.waitUntil(self.registration.showNotification(title,options));
 });
 
 self.addEventListener("notificationclick",event=>{
