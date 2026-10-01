@@ -17,6 +17,42 @@
     message_templates:{}
   };
 
+  // Every account ships with ready-to-send follow-up copy. Owners only need
+  // to switch a rule to Auto email; this editor is optional customization.
+  // The database email builder remains the source of truth for the actual send.
+  const SYSTEM_TEMPLATES={
+    lead:{
+      en:{subject:"Still looking for help with the cleaning? — {{business}}",body:"Hi {{name}},\n\nJust checking in to see if you still need help with the cleaning. If you do, reply to this email and we’ll pick up where we left off."},
+      es:{subject:"¿Sigues buscando ayuda con la limpieza? — {{business}}",body:"Hola {{name}},\n\nSolo queríamos saber si todavía necesitas ayuda con la limpieza. Si es así, responde a este correo y retomamos desde donde lo dejamos."},
+      fr:{subject:"Toujours besoin d’un coup de main ? — {{business}}",body:"Bonjour {{name}},\n\nNous voulions simplement savoir si vous aviez toujours besoin d’aide pour le nettoyage. Si oui, répondez à cet e-mail et nous reprendrons là où nous nous étions arrêtés."},
+      ht:{subject:"Ou toujou bezwen èd ak netwayaj la? — {{business}}",body:"Bonjou {{name}},\n\nNou te vle konnen si ou toujou bezwen èd ak netwayaj la. Si wi, reponn imel sa a epi n ap kontinye kote nou te rete a."}
+    },
+    quote:{
+      en:{subject:"Any questions about your quote? — {{business}}",body:"Hi {{name}},\n\nWe just wanted to make sure you had a chance to look over your quote. If there’s anything you’d like to clarify before deciding, reply to this email and we’ll be happy to help."},
+      es:{subject:"¿Alguna pregunta sobre tu cotización? — {{business}}",body:"Hola {{name}},\n\nSolo queríamos asegurarnos de que pudiste ver tu cotización. Si hay algo que quieras aclarar antes de decidir, responde a este correo y con gusto te ayudamos."},
+      fr:{subject:"Une question sur votre devis ? — {{business}}",body:"Bonjour {{name}},\n\nNous voulions simplement vérifier que vous aviez pu consulter votre devis. Si vous souhaitez clarifier quelque chose avant de décider, répondez à cet e-mail."},
+      ht:{subject:"Ou gen yon kesyon sou estimasyon ou an? — {{business}}",body:"Bonjou {{name}},\n\nNou jis vle asire ou te ka wè estimasyon ou an. Si gen yon bagay ou vle klarifye anvan ou deside, reponn imel sa a."}
+    },
+    invoice:{
+      en:{subject:"A quick reminder about invoice #{{invoice_number}} — {{business}}",body:"Hi {{name}},\n\nJust a quick note about invoice #{{invoice_number}} for {{amount}}. If you already paid it, you can ignore this message. If you need anything from us, just reply here."},
+      es:{subject:"Un recordatorio sobre tu factura #{{invoice_number}} — {{business}}",body:"Hola {{name}},\n\nTe escribimos por la factura #{{invoice_number}} por {{amount}}. Si ya la pagaste, puedes ignorar este mensaje. Si necesitas algo de nuestra parte, responde aquí."},
+      fr:{subject:"Petit rappel pour la facture #{{invoice_number}} — {{business}}",body:"Bonjour {{name}},\n\nUn petit message concernant la facture #{{invoice_number}} d’un montant de {{amount}}. Si elle est déjà réglée, vous pouvez ignorer ce message. Sinon, répondez ici si vous avez besoin de quoi que ce soit."},
+      ht:{subject:"Ti rapèl pou fakti #{{invoice_number}} — {{business}}",body:"Bonjou {{name}},\n\nN ap ekri ou sou fakti #{{invoice_number}} pou {{amount}}. Si ou deja peye li, ou ka inyore mesaj sa a. Si ou bezwen yon bagay nan men nou, jis reponn isit la."}
+    },
+    review:{
+      en:{subject:"How did everything look? — {{business}}",body:"Hi {{name}},\n\nThanks again for choosing {{business}}. If everything looked the way you hoped and you have a minute, a short review would mean a lot to us."},
+      es:{subject:"¿Cómo quedó todo? — {{business}}",body:"Hola {{name}},\n\nGracias nuevamente por elegir {{business}}. Si todo quedó como esperabas y tienes un minuto, una reseña breve nos ayudaría muchísimo."},
+      fr:{subject:"Tout s’est bien passé ? — {{business}}",body:"Bonjour {{name}},\n\nMerci encore d’avoir choisi {{business}}. Si tout s’est passé comme vous l’espériez et que vous avez une minute, un petit avis nous aiderait énormément."},
+      ht:{subject:"Kijan tout bagay te ye? — {{business}}",body:"Bonjou {{name}},\n\nMèsi ankò paske ou chwazi {{business}}. Si tout bagay te jan ou te espere a epi ou gen yon minit, yon ti revi ta ede nou anpil."}
+    },
+    rebook:{
+      en:{subject:"Ready for another cleaning? — {{business}}",body:"Hi {{name}},\n\nIt’s been a little while since your last cleaning with {{business}}. If you’d like to book another one, we’d be happy to help again."},
+      es:{subject:"¿Te viene bien otra limpieza? — {{business}}",body:"Hola {{name}},\n\nYa pasó un poco de tiempo desde tu última limpieza con {{business}}. Si quieres reservar otra, estaremos felices de volver a ayudarte."},
+      fr:{subject:"Besoin d’un autre nettoyage ? — {{business}}",body:"Bonjour {{name}},\n\nUn peu de temps s’est écoulé depuis votre dernier nettoyage avec {{business}}. Si vous souhaitez en réserver un autre, nous serons ravis de vous aider à nouveau."},
+      ht:{subject:"Ou ta renmen yon lòt netwayaj? — {{business}}",body:"Bonjou {{name}},\n\nSa fè yon ti tan depi dènye netwayaj ou ak {{business}}. Si ou ta renmen rezève yon lòt, n ap kontan ede w ankò."}
+    }
+  };
+
   let candidates=[];
   let preferences=null;
   let followUpStates=[];
@@ -110,8 +146,18 @@
 
   function templateFor(type,language){
     const item=messageTemplates()?.[type]?.[language];
-    if(!item || typeof item!=="object") return {subject:"",body:""};
-    return {subject:String(item.subject||""),body:String(item.body||"")};
+    if(item && typeof item==="object"){
+      return {subject:String(item.subject||""),body:String(item.body||"")};
+    }
+    const included=SYSTEM_TEMPLATES?.[type]?.[language]||SYSTEM_TEMPLATES?.[type]?.en;
+    return included
+      ? {subject:String(included.subject||""),body:String(included.body||"")}
+      : {subject:"",body:""};
+  }
+  function hasCustomForLanguage(type,language){
+    const item=messageTemplates()?.[type]?.[language];
+    return !!(item && typeof item==="object" &&
+      (String(item.subject||"").trim() || String(item.body||"").trim()));
   }
 
   function hasCustomForType(type){
@@ -125,8 +171,8 @@
 
   function localizeMessageEditor(){
     const labels={
-      followUpEditorEyebrow:langPick("CUSTOM MESSAGE","MENSAJE PERSONALIZADO","MESSAGE PERSONNALISÉ"),
-      followUpEditorHelp:langPick("Write the email in the customer’s language. Leave a field blank to keep the default.","Escribe el email en el idioma del cliente. Deja un campo vacío para conservar el texto predeterminado.","Rédigez l’e-mail dans la langue du client. Laissez un champ vide pour conserver le texte par défaut."),
+      followUpEditorEyebrow:langPick("FOLLOW-UP MESSAGE","MENSAJE DE SEGUIMIENTO","MESSAGE DE SUIVI"),
+      followUpEditorHelp:langPick("A ready-to-send message is already included. You only need to turn on Auto email. Edit this only if you want different wording.","Ya incluimos un mensaje listo para enviar. Solo necesitas activar Email automático. Edita esto únicamente si quieres cambiar el texto.","Un message prêt à envoyer est déjà inclus. Il suffit d’activer l’e-mail automatique. Modifiez-le seulement si vous souhaitez changer le texte."),
       followUpEditorLanguageLabel:langPick("Customer language","Idioma del cliente","Langue du client"),
       followUpEditorSubjectLabel:langPick("Subject (optional)","Asunto (opcional)","Objet (facultatif)"),
       followUpEditorBodyLabel:langPick("Message","Mensaje","Message"),
@@ -150,9 +196,9 @@
     const status=$("#followUpEditorStatus");
     if(status){
       const languageName=$("#followUpEditorLanguage")?.selectedOptions?.[0]?.textContent||language.toUpperCase();
-      status.textContent=(current.subject.trim()||current.body.trim())
+      status.textContent=hasCustomForLanguage(editingType,language)
         ? langPick("Custom message saved for "+languageName+".","Mensaje personalizado guardado para "+languageName+".","Message personnalisé enregistré pour "+languageName+".")
-        : langPick("Using the default message for "+languageName+".","Usando el mensaje predeterminado para "+languageName+".","Le message par défaut est utilisé pour "+languageName+".");
+        : langPick("Ready to send · included message for "+languageName+".","Listo para enviar · mensaje incluido para "+languageName+".","Prêt à envoyer · message inclus pour "+languageName+".");
     }
   }
 
@@ -208,12 +254,12 @@
       const value=prefs[select.dataset.followupMode]||"remind";
       if(select.value!==value) select.value=value;
     });
-    $("[data-followup-edit]").forEach(button=>{
+    $$("[data-followup-edit]").forEach(button=>{
       const custom=hasCustomForType(button.dataset.followupEdit);
       button.classList.toggle("has-custom",custom);
       button.textContent=custom
-        ? langPick("Edit message · Custom","Editar mensaje · Personalizado","Modifier · Personnalisé")
-        : langPick("Edit message","Editar mensaje","Modifier le message");
+        ? langPick("Edit custom message","Editar mensaje personalizado","Modifier le message personnalisé")
+        : langPick("Preview included message","Ver mensaje incluido","Voir le message inclus");
     });
 
     const active=candidates
@@ -362,7 +408,7 @@
     if(!Object.prototype.hasOwnProperty.call(DEFAULTS,field)) return;
     const previous=(preferences||DEFAULTS)[field]||"remind";
     if(select.value==="auto"){
-      const ok=window.confirm(langPick("Auto email can send due follow-ups to real customers within the next hour. Turn it on?","El email automático puede enviar seguimientos a clientes reales dentro de la próxima hora. ¿Activarlo?","L’e-mail automatique peut envoyer des suivis à de vrais clients dans l’heure. L’activer ?"));
+      const ok=window.confirm(langPick("Your follow-up message is already included. Auto email can send due follow-ups to real customers within the next hour. Turn it on?","Tu mensaje de seguimiento ya está incluido. El email automático puede enviar seguimientos a clientes reales dentro de la próxima hora. ¿Activarlo?","Votre message de suivi est déjà inclus. L’e-mail automatique peut envoyer des suivis à de vrais clients dans l’heure. L’activer ?"));
       if(!ok){select.value=previous;return;}
     }
     select.disabled=true;
