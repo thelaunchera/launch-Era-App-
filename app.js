@@ -39,6 +39,8 @@ const state = {
   timeEntries: [],
   services: [],
   serviceAddons: [],
+  bookingDiscounts: [],
+  discountRedemptions: [],
   availabilityRules: [],
   recurrenceRules: [],
   supplies: [],
@@ -4445,11 +4447,13 @@ async function loadCoreData(){
   };
 
   // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
-  let [clients,leads,services,addons,availability]=await Promise.all([
+  let [clients,leads,services,addons,discounts,discountRedemptions,availability]=await Promise.all([
     safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.clients),
     safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.leads),
     safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.services),
     safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.serviceAddons),
+    safe("booking discounts",supabase.from("booking_discounts").select("*").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingDiscounts),
+    safe("discount redemptions",supabase.from("booking_discount_redemptions").select("id,discount_id,customer_email,redeemed_at").eq("business_id",businessId).order("redeemed_at",{ascending:false}),state.discountRedemptions),
     safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"),state.availabilityRules)
   ]);
 
@@ -4471,11 +4475,14 @@ async function loadCoreData(){
   state.leads=leads;
   state.services=services||[];
   state.serviceAddons=addons;
+  state.bookingDiscounts=discounts||[];
+  state.discountRedemptions=discountRedemptions||[];
   state.availabilityRules=availability;
   renderClients();
   renderLeads();
   renderServices();
   renderBookingServices();
+  renderBookingDiscounts();
   renderAvailabilityEditor();
 
   const [jobs,quotes,team,supplies,disputes,recurrences]=await Promise.all([
@@ -4843,6 +4850,102 @@ function renderBookingServices(){
   const paid=active.filter(serviceIsPaid);
   const quote=active.filter(s=>!serviceIsPaid(s));
   list.innerHTML=renderBookingServiceGroup(paid,"paid")+renderBookingServiceGroup(quote,"quote");
+}
+
+function discountRedemptionCount(discountId){
+  return state.discountRedemptions.filter(r=>r.discount_id===discountId).length;
+}
+function discountValueLabel(record){
+  if(!record) return "";
+  return record.discount_type==="percent"
+    ? Number(record.discount_value||0)+"% off"
+    : money(Number(record.discount_value||0))+" off";
+}
+function renderBookingDiscounts(){
+  const list=$("#bookingDiscountsList");
+  if(!list) return;
+  const rows=state.bookingDiscounts||[];
+  if(!rows.length){
+    list.innerHTML='<div class="booking-discount-empty"><strong>No discounts yet.</strong><br>Create an offer when you want to promote a service on your Booking Page.</div>';
+    return;
+  }
+  list.innerHTML=rows.map(d=>{
+    const used=discountRedemptionCount(d.id);
+    const service=d.service_id?state.services.find(s=>s.id===d.service_id)?.name||"Selected service":"All priced services";
+    const status=!d.active?"Paused":d.published?"Published":"Draft";
+    return '<div class="booking-discount-row">'+
+      '<div class="booking-discount-copy"><strong>'+escapeHtml(d.name)+' · '+escapeHtml(discountValueLabel(d))+'</strong>'+
+      '<small>'+escapeHtml(d.description||service)+'</small>'+
+      '<div class="booking-discount-meta"><span>'+escapeHtml(service)+'</span><span>'+used+' / '+Number(d.max_clients||0)+' clients used</span><span>'+escapeHtml(status)+'</span></div></div>'+
+      '<div class="booking-discount-actions">'+
+      '<button type="button" data-discount-edit="'+d.id+'">Edit</button>'+
+      '<button type="button" class="'+(d.published&&d.active?"danger-link":"")+'" data-discount-publish="'+d.id+'">'+(d.published&&d.active?"Unpublish":"Publish")+'</button>'+
+      '</div></div>';
+  }).join("");
+}
+function openDiscountForm(id=null){
+  const record=id?state.bookingDiscounts.find(d=>d.id===id):null;
+  const used=record?discountRedemptionCount(record.id):0;
+  state.modalType="discount";
+  state.modalId=record?.id||null;
+  modalHeader(
+    "DISCOUNT",
+    record?"Edit Booking Page offer":"Create Booking Page offer",
+    "Choose the value, who it applies to, and how many clients can receive it."
+  );
+  const paid=state.services.filter(s=>s.active&&serviceIsPaid(s));
+  entityForm.innerHTML=`
+    <div class="form-grid">
+      <label class="full">Offer name<input name="name" maxlength="80" required value="${escapeHtml(record?.name||"")}" placeholder="Example: Fall Fresh Start"></label>
+      <label class="full">Short description <span class="field-optional">(optional)</span><input name="description" maxlength="180" value="${escapeHtml(record?.description||"")}" placeholder="A small thank-you for the first clients who book."></label>
+      <label>Discount type<select name="discount_type"><option value="percent" ${record?.discount_type!=="fixed"?"selected":""}>Percentage</option><option value="fixed" ${record?.discount_type==="fixed"?"selected":""}>Fixed amount</option></select></label>
+      <label>Discount value<input name="discount_value" type="number" min="0.01" step="0.01" required value="${record?.discount_value??""}" placeholder="10"></label>
+      <label class="full">Applies to<select name="service_id"><option value="">All priced services</option>${paid.map(s=>`<option value="${s.id}" ${record?.service_id===s.id?"selected":""}>${escapeHtml(s.name)}</option>`).join("")}</select></label>
+      <label>Client limit<input name="max_clients" type="number" min="${Math.max(1,used)}" step="1" required value="${record?.max_clients??10}"></label>
+      <label class="client-change-toggle"><span><strong>Active</strong><small>Keep this offer available for use.</small></span><input name="active" type="checkbox" ${record?.active!==false?"checked":""}></label>
+      <label class="client-change-toggle"><span><strong>Publish on Booking Page</strong><small>Clients can see and apply it while spots remain.</small></span><input name="published" type="checkbox" ${record?.published?"checked":""}></label>
+      <div class="full discount-form-note">Confirmed clients use the limit — not clicks or unfinished requests. ${record?used+" client"+(used===1?" has":"s have")+" already used this offer.":""}</div>
+    </div>
+    ${formSubmit(record?"Save discount":"Create discount")}`;
+  modal.hidden=false;
+}
+async function saveDiscount(fd){
+  const type=String(fd.get("discount_type")||"percent");
+  const value=Number(fd.get("discount_value")||0);
+  const maxClients=Math.max(1,Number.parseInt(String(fd.get("max_clients")||"1"),10)||1);
+  const used=state.modalId?discountRedemptionCount(state.modalId):0;
+  if(!Number.isFinite(value)||value<=0) throw new Error("Discount value must be greater than 0.");
+  if(type==="percent"&&value>100) throw new Error("Percentage discounts cannot be more than 100%.");
+  if(maxClients<used) throw new Error("Client limit cannot be lower than the number already used.");
+  const payload={
+    business_id:state.business.id,
+    service_id:String(fd.get("service_id")||"")||null,
+    name:String(fd.get("name")||"").trim(),
+    description:String(fd.get("description")||"").trim()||null,
+    discount_type:type==="fixed"?"fixed":"percent",
+    discount_value:value,
+    max_clients:maxClients,
+    active:fd.get("active")==="on",
+    published:fd.get("published")==="on"
+  };
+  if(!payload.name) throw new Error("Offer name is required.");
+  const query=state.modalId
+    ? supabase.from("booking_discounts").update(payload).eq("id",state.modalId)
+    : supabase.from("booking_discounts").insert(payload);
+  const {error}=await query;
+  if(error) throw error;
+}
+async function toggleDiscountPublish(id){
+  const record=state.bookingDiscounts.find(d=>d.id===id);
+  if(!record) return;
+  const publishing=!(record.published&&record.active);
+  const {error}=await supabase.from("booking_discounts")
+    .update({published:publishing,active:publishing?true:record.active,updated_at:new Date().toISOString()})
+    .eq("id",id)
+    .eq("business_id",state.business.id);
+  if(error) throw error;
+  await loadCoreData();
+  showToast(publishing?"Discount published":"Discount unpublished");
 }
 
 function renderAvailabilityEditor(){
@@ -8277,6 +8380,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="payment") paymentResult=await savePayment(fd);
     if(state.modalType==="client") clientResult=await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
+    if(state.modalType==="discount") await saveDiscount(fd);
     if(state.modalType==="addon") await saveAddon(fd);
     if(state.modalType==="supply") await saveSupply(fd);
     if(state.modalType==="supplyAdjust") await saveSupplyAdjust(fd);
@@ -9129,6 +9233,19 @@ document.addEventListener("click",async e=>{
     }else{
       await openBusinessProfileForm();
     }
+    return;
+  }
+
+  const addDiscount=e.target.closest("#addDiscountBtn");
+  const editDiscount=e.target.closest("[data-discount-edit]");
+  const publishDiscount=e.target.closest("[data-discount-publish]");
+  if(addDiscount){ openDiscountForm(); return; }
+  if(editDiscount){ openDiscountForm(editDiscount.dataset.discountEdit); return; }
+  if(publishDiscount){
+    setBusy(publishDiscount,true,"Saving…");
+    try{await toggleDiscountPublish(publishDiscount.dataset.discountPublish);}
+    catch(err){showToast(err?.message||"Could not update discount");}
+    finally{if(document.body.contains(publishDiscount)) setBusy(publishDiscount,false);}
     return;
   }
 
