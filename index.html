@@ -196,6 +196,20 @@
         <form id="publicRequestForm" class="entity-form public-demo-booking-form">
           <div class="public-demo-stepper" aria-hidden="true"><span class="active"></span><span class="active"></span><span class="active"></span><span></span></div>
           <div class="form-grid">
+            <div class="full public-demo-cleaning-type">
+              <span class="field-label">Cleaning type</span>
+              <div class="public-demo-type-switch" id="publicCleaningTypeSwitch">
+                <button type="button" class="selected" data-property-type="residential"><strong>Residential</strong><small>Homes, apartments, condos</small></button>
+                <button type="button" data-property-type="commercial"><strong>Commercial</strong><small>Offices, storefronts, workspaces</small></button>
+              </div>
+              <label class="public-hidden-field">Property type
+                <select name="property_type" id="publicPropertyType" required>
+                  <option value="">Choose one</option>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                </select>
+              </label>
+            </div>
             <div class="full public-demo-section public-demo-service-section">
               <div class="public-demo-section-label">01 · Service</div>
               <div class="public-demo-section-head"><div><h2 id="publicDemoServiceHeading">Choose your service.</h2><p id="publicDemoServiceIntro">Select the cleaning that fits what you need.</p></div></div>
@@ -232,20 +246,6 @@
             <div class="full public-form-section-head">
               <span>Property details</span>
               <small>Enough detail for the business to price and prepare the job correctly.</small>
-            </div>
-            <div class="full public-demo-cleaning-type">
-              <span class="field-label">Cleaning type</span>
-              <div class="public-demo-type-switch" id="publicCleaningTypeSwitch">
-                <button type="button" class="selected" data-property-type="residential"><strong>Residential</strong><small>Homes, apartments, condos</small></button>
-                <button type="button" data-property-type="commercial"><strong>Commercial</strong><small>Offices, storefronts, workspaces</small></button>
-              </div>
-              <label class="public-hidden-field">Property type
-                <select name="property_type" id="publicPropertyType" required>
-                  <option value="">Choose one</option>
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
-                </select>
-              </label>
             </div>
             <label id="publicPropertySizeField">Approx. property size <span class="field-optional" id="publicPropertySizeOptional">(optional)</span>
               <span class="public-size-input">
