@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20260930-contrast-guard-231";
+const APP_VERSION = "20260930-app-badge-232";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4158,6 +4158,28 @@ function notificationTypeLabel(item){
   return labels[item.type]||langPick("Notification","Notificación","Notification");
 }
 
+function syncAppIconBadge(count){
+  const next=Math.max(0,Math.floor(Number(count)||0));
+  try{
+    if(next>0 && "setAppBadge" in navigator){
+      Promise.resolve(navigator.setAppBadge(next))
+        .catch(err=>console.warn("[TLE] app badge",err));
+      return;
+    }
+    if(next===0 && "clearAppBadge" in navigator){
+      Promise.resolve(navigator.clearAppBadge())
+        .catch(err=>console.warn("[TLE] clear app badge",err));
+      return;
+    }
+    if(next===0 && "setAppBadge" in navigator){
+      Promise.resolve(navigator.setAppBadge(0))
+        .catch(err=>console.warn("[TLE] clear app badge",err));
+    }
+  }catch(err){
+    console.warn("[TLE] app badge",err);
+  }
+}
+
 function renderInquiryNotifications(){
   const button=$("#notificationBellBtn");
   const badge=$("#notificationBadge");
@@ -4174,6 +4196,7 @@ function renderInquiryNotifications(){
   badge.hidden=unread===0;
   button.classList.toggle("has-notifications",unread>0);
   button.dataset.unreadCount=String(unread);
+  syncAppIconBadge(unread);
   if(unread>previousUnread){
     button.classList.remove("notification-arrived");
     void button.offsetWidth;
