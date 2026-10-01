@@ -3909,4 +3909,80 @@ body.shell-auth{overflow-anchor:none}
   }
 }
 
+/* 2026-10-01 — Booking Center app-native palette v247 */
+/* Keep the Booking Center's layout and behavior, but use the Cleaning App's
+   own Warm Ivory / Soft Blue / Butter Yellow / Soft Black visual language. */
+[data-page="booking"]{
+  --center-ink:var(--ink);
+  --center-muted:var(--muted);
+  --center-line:var(--line);
+  --center-paper:var(--paper);
+  --center-ivory:var(--ivory);
+  --center-soft:var(--blue);
+  --center-accent:var(--ink);
+  --center-blue:var(--blue);
+  --center-yellow:var(--yellow);
+}
+[data-page="booking"]>.section-intro{
+  border-color:var(--line)!important;
+  background:
+    radial-gradient(circle at 88% 18%,rgba(221,235,250,.95),transparent 31%),
+    linear-gradient(135deg,var(--ivory) 0%,#FFFFFF 58%,#FFF7CF 100%)!important;
+  box-shadow:0 16px 38px rgba(25,25,25,.06)!important;
+}
+[data-page="booking"]>.section-intro .eyebrow{
+  background:rgba(255,255,255,.82)!important;
+  border-color:var(--line)!important;
+  color:var(--ink)!important;
+}
+[data-page="booking"]>.section-intro>.primary-btn{
+  background:var(--ink)!important;
+  border-color:var(--ink)!important;
+}
+[data-page="booking"] .booking-step-panel{
+  border-color:var(--line)!important;
+  background:var(--paper)!important;
+  box-shadow:0 8px 24px rgba(25,25,25,.045)!important;
+}
+[data-page="booking"] .booking-step-panel::before{
+  background:var(--blue)!important;
+  border-color:var(--blue-strong)!important;
+  color:var(--ink)!important;
+}
+[data-page="booking"] .booking-step-panel[data-booking-panel="requests"]{
+  border-color:#E8DA82!important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#FFF9D9 100%)!important;
+}
+[data-page="booking"] .booking-step-panel[data-booking-panel="requests"]::before{
+  background:var(--yellow)!important;
+  border-color:#DDC64B!important;
+  color:var(--ink)!important;
+}
+[data-page="booking"] .booking-step-panel[data-booking-panel="availability"]{
+  border-color:#D6E4F2!important;
+  background:linear-gradient(180deg,#FFFFFF 0%,#F2F7FC 100%)!important;
+}
+[data-page="booking"] .booking-step-panel[data-booking-panel="availability"]::before{
+  background:var(--blue)!important;
+  border-color:var(--blue-strong)!important;
+  color:var(--ink)!important;
+}
+[data-page="booking"] .booking-step-panel .panel-head .eyebrow{
+  color:var(--ink)!important;
+}
+[data-page="booking"] .link-box,
+[data-page="booking"] .booking-experience-compact .compact-flow span{
+  background:var(--ivory)!important;
+  border-color:var(--line)!important;
+}
+[data-page="booking"] .booking-property-summary,
+[data-page="booking"] .booking-addon-chips i{
+  background:var(--blue)!important;
+  color:var(--ink)!important;
+}
+[data-page="booking"] .booking-action-primary{
+  background:var(--ink)!important;
+  border-color:var(--ink)!important;
+  color:#fff!important;
+}
 
