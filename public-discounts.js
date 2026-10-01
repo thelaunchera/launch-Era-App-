@@ -2,10 +2,10 @@
   const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const lang=()=>["en","es","fr","ht"].includes(String(window.TLE_I18N?.language||"en").toLowerCase())?String(window.TLE_I18N?.language||"en").toLowerCase():"en";
   const words={
-    en:{apply:"Apply offer",applied:"Applied",left:"spots left",one:"spot left",save:"You save",offer:"Offer"},
-    es:{apply:"Aplicar oferta",applied:"Aplicado",left:"cupos disponibles",one:"cupo disponible",save:"Ahorras",offer:"Oferta"},
-    fr:{apply:"Appliquer l’offre",applied:"Appliquée",left:"places restantes",one:"place restante",save:"Vous économisez",offer:"Offre"},
-    ht:{apply:"Aplike òf la",applied:"Aplike",left:"plas ki rete",one:"plas ki rete",save:"Ou ekonomize",offer:"Òf"}
+    en:{apply:"Apply offer",applied:"Applied",left:"spots left",one:"spot left",save:"You save",offer:"Offer",discount:"Discount",off:"off"},
+    es:{apply:"Aplicar oferta",applied:"Aplicado",left:"cupos disponibles",one:"cupo disponible",save:"Ahorras",offer:"Oferta",discount:"Descuento",off:"de descuento"},
+    fr:{apply:"Appliquer l’offre",applied:"Appliquée",left:"places restantes",one:"place restante",save:"Vous économisez",offer:"Offre",discount:"Réduction",off:"de réduction"},
+    ht:{apply:"Aplike òf la",applied:"Aplike",left:"plas ki rete",one:"plas ki rete",save:"Ou ekonomize",offer:"Òf",discount:"Rabè",off:"rabè"}
   };
   function copy(key){return words[lang()]?.[key]||words.en[key]||key;}
   window.TLE_PUBLIC_DISCOUNTS={
@@ -33,8 +33,8 @@
           const active=input?.value===d.id;
           const remaining=Number(d.remaining_clients||0);
           const value=d.discount_type==="percent"
-            ? Number(d.discount_value||0)+"% off"
-            : (money?money(Number(d.discount_value||0)):"")+" off";
+            ? Number(d.discount_value||0)+"% "+copy("off")
+            : (money?money(Number(d.discount_value||0)):"")+" "+copy("off");
           return '<button type="button" class="public-discount-card '+(active?"selected":"")+'" data-public-discount="'+esc(d.id)+'">'+
             '<span><small>'+esc(copy("offer"))+'</small><strong>'+esc(d.name)+'</strong>'+
             (d.description?'<em>'+esc(d.description)+'</em>':"")+'</span>'+
@@ -58,7 +58,8 @@
           const discount=amount(d,Number(total||0));
           return {discount,final:Math.max(0,Number(total||0)-discount),discountRecord:d};
         },
-        clear(){if(input)input.value="";render(serviceId,mode);}
+        clear(){if(input)input.value="";render(serviceId,mode);},
+        label:key=>copy(key)
       };
     }
   };
