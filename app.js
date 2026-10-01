@@ -8005,15 +8005,25 @@ function openEntityForm(type,id=null){
     const date=localParts.date;
     const time=localParts.time;
     const recurrenceRule=record?.recurrence_rule_id?state.recurrenceRules.find(r=>r.id===record.recurrence_rule_id):null;
+    const assignedTeamIds=new Set((record?.job_assignments||[]).map(a=>a.team_member_id).filter(Boolean));
+    const recordService=state.services.find(s=>s.id===record?.service_id);
     modalHeader("JOB",record?"Edit job":"Add job","Schedule a cleaning with duration, travel buffer and an optional recurring schedule.");
     entityForm.innerHTML=`
       <div class="form-grid job-form-grid">
         <label>Client<select name="client_id" data-job-client-picker><option value="">No client</option>${optionList(state.clients,"id","name",record?.client_id)}</select></label>
-        <label>Service<select name="service_id"><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
-        <label>Assigned teammate<select name="team_member_id"><option value="">Unassigned</option>${optionList(state.teamMembers,"id","name",record?.job_assignments?.[0]?.team_member_id)}</select></label>
+        <label>Service<select name="service_id" data-job-service-picker><option value="">No service</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
+        <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||recordService?.workers_required||1),assignedTeamIds.size)}"></label>
         <label>Date<input name="date" type="date" required value="${date}"></label>
         <label>Time<input name="time" type="time" required value="${time}"></label>
-        <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||120}"></label>
+        <label>Duration (minutes)<input name="duration_minutes" type="number" min="15" step="15" required value="${record?.duration_minutes||recordService?.default_duration_minutes||120}"></label>
+        <div class="full job-team-picker">
+          <span class="field-label">${escapeHtml(langPick("Assigned team","Equipo asignado","Équipe assignée"))}</span>
+          <div class="job-team-options">
+            ${state.teamMembers.length
+              ? state.teamMembers.map(member=>`<label class="job-team-option"><input type="checkbox" name="team_member_ids" value="${escapeHtml(member.id)}" ${assignedTeamIds.has(member.id)?"checked":""}><span>${escapeHtml(member.name)}</span></label>`).join("")
+              : `<small class="muted-line">${escapeHtml(langPick("Add team profiles to assign workers. With no team profiles, the business is treated as a solo operator.","Añade perfiles del equipo para asignar trabajadores. Sin perfiles de equipo, el negocio se trata como un operador individual.","Ajoutez des profils d’équipe pour assigner des travailleurs. Sans profils d’équipe, l’entreprise est traitée comme un opérateur individuel."))}</small>`}
+          </div>
+        </div>
         <label>Travel buffer (minutes)<input name="travel_buffer" type="number" min="0" step="5" value="${record?.travel_buffer_before_minutes??state.business.default_travel_buffer_minutes??30}"></label>
         <label class="full">Service address<input name="service_address" required value="${escapeHtml(record?.service_address||"")}"></label>
         ${!record?`
@@ -8040,6 +8050,17 @@ function openEntityForm(type,id=null){
         </select></label>
         <label class="full">Notes<textarea name="notes">${escapeHtml(record?.notes||"")}</textarea></label>
       </div>${formSubmit(record?"Save changes":"Add job")}`;
+    const jobServicePicker=entityForm.querySelector('[data-job-service-picker]');
+    const jobWorkersInput=entityForm.querySelector('[name="workers_required"]');
+    const jobDurationInput=entityForm.querySelector('[name="duration_minutes"]');
+    if(!record){
+      jobServicePicker?.addEventListener("change",()=>{
+        const selectedService=state.services.find(s=>s.id===jobServicePicker.value);
+        if(!selectedService) return;
+        if(jobWorkersInput) jobWorkersInput.value=String(Math.max(1,Number(selectedService.workers_required||1)));
+        if(jobDurationInput) jobDurationInput.value=String(Math.max(15,Number(selectedService.default_duration_minutes||120)));
+      });
+    }
     syncRecurrenceControls();
   }
 
