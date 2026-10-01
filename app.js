@@ -10066,19 +10066,9 @@ $("#sidebarLanguageBtn")?.addEventListener("click",()=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){modal.hidden=true;if(typeof setSidebarOpen==="function") setSidebarOpen(false);else sidebar.classList.remove("open")}});
 
-if("serviceWorker" in navigator){
-  window.addEventListener("load",async ()=>{
-    try{
-      const registration=await navigator.serviceWorker.register(
-        "./service-worker.js?v="+encodeURIComponent(APP_VERSION),
-        {updateViaCache:"none"}
-      );
-      registration.update().catch(()=>{});
-    }catch(err){
-      console.warn("[TLE] service worker",err);
-    }
-  });
-}
+// Service worker registration is owned by boot.js so iOS/PWA startup has a
+// single update path. Registering again here can create an unnecessary
+// controller/update race during app entry after a deploy.
 
 window.TLE_FOLLOWUPS_BRIDGE={
   getState:()=>state,
