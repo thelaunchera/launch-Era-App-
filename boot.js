@@ -10,7 +10,8 @@
           /HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed/i.test(ua) ||
           params.has("browser-smoke") ||
           params.has("cross-browser-smoke") ||
-          params.has("ci-smoke")
+          params.has("ci-smoke") ||
+          params.has("token")
         );
         window.__tleAnalyticsEnabled=host==="app.thelaunchera.com"&&!automation;
         if(!window.__tleAnalyticsEnabled) return;
@@ -36,7 +37,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261001-booking-246";
+window.__tleShellVersion="20261001-manage-247";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
