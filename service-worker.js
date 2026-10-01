@@ -1,4 +1,4 @@
-const CACHE_NAME="tle-cleaning-app-20261001-webapp-243";
+const CACHE_NAME="tle-cleaning-app-20261001-clientjob-244";
 const CORE=[
   "./boot.js?v=20261001-webapp-243",
   "./styles/boot.css?v=20261001-webapp-243",
@@ -15,7 +15,7 @@ const CORE=[
   "./styles/customer-documents.css?v=20261001-webapp-243",
   "./styles/public-booking.css?v=20261001-webapp-243",
   "./styles/invoice-polish.css?v=20261001-webapp-243",
-  "./app.js?v=20261001-startup-241",
+  "./app.js?v=20261001-clientjob-244",
   "./followups.js?v=20261001-followups-242",
   "./i18n-completion.js?v=20261001-webapp-243",
   "./i18n.js?v=20261001-webapp-243",
