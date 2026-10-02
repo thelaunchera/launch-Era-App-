@@ -608,3 +608,77 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
   92%{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}
   100%{opacity:0;transform:translate3d(.8px,1px,0) rotate(.3deg) scale(.995)}
 }
+
+
+/* iPhone dashboard anti-jump r19
+   iOS can briefly restore the visible app shell before the body shell class
+   and fixed-header rules have repainted. Key the layout to the visible
+   #appShell itself so the header/safe-area geometry never disappears for a frame. */
+@media(max-width:860px){
+  #appShell:not([hidden]){
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+  }
+  #appShell:not([hidden])>.main{
+    height:100dvh!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:none!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding-top:calc(env(safe-area-inset-top) + 72px)!important;
+    padding-bottom:calc(142px + env(safe-area-inset-bottom))!important;
+    scroll-padding-top:calc(env(safe-area-inset-top) + 72px)!important;
+  }
+  #appShell:not([hidden])>.main>.topbar{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+    z-index:50!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    min-height:calc(env(safe-area-inset-top) + 62px)!important;
+    padding-top:calc(env(safe-area-inset-top) + 8px)!important;
+    padding-bottom:8px!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    background:rgba(250,248,243,.985)!important;
+    border-bottom:1px solid rgba(25,25,25,.10)!important;
+    transform:translateZ(0)!important;
+  }
+  section.view[data-page="today"].view-enter{
+    animation:none!important;
+  }
+}
+@media(max-width:680px){
+  #appShell:not([hidden])>.main>.topbar{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr) auto auto auto!important;
+    align-items:center!important;
+    gap:6px!important;
+  }
+  #appShell:not([hidden]) .topbar-title{
+    position:static!important;
+    left:auto!important;
+    top:auto!important;
+    transform:none!important;
+    grid-column:2!important;
+    width:100%!important;
+    min-width:0!important;
+    text-align:left!important;
+  }
+  #appShell:not([hidden]) .topbar-title h1{
+    margin:0!important;
+    font-size:18px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #appShell:not([hidden]) .top-actions{
+    display:contents!important;
+  }
+}
