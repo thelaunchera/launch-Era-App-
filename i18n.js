@@ -3,6 +3,9 @@
   const exact={
     "Client view":"Vista cliente",
     "Booking":"Reservas",
+    "App Settings":"Ajustes de la app",
+    "My Settings":"Mis ajustes",
+    "Settings shortcuts":"Accesos de ajustes",
     "Add Instagram, Facebook and your review link in Business Profile.":"Añade Instagram, Facebook y tu enlace de reseñas en el perfil del negocio.",
     "Open reviews":"Abrir reseñas",
     "Add link":"Añadir link",
@@ -1322,6 +1325,7 @@
 };
 
   Object.assign(extra.ht,{
+    "App Settings":"Anviwònman aplikasyon","My Settings":"Anviwònman mwen","Settings shortcuts":"Rakoursi anviwònman",
     "Clear":"Syèl klè",
     "Partly cloudy":"Pasyèlman nwaj",
     "Cloudy":"Nwaj",
@@ -1835,6 +1839,7 @@
 
 
   Object.assign(extra.fr,{
+    "App Settings":"Réglages de l’application","My Settings":"Mes réglages","Settings shortcuts":"Raccourcis des réglages",
     "Keep the app, client communication, booking rules and payments easy to control from one place.":"Gérez facilement l’application, la communication client, les réservations et les paiements depuis un seul endroit.",
     "BUSINESS":"ENTREPRISE","Business basics":"Informations de l’entreprise","The information clients and your workspace use.":"Les informations utilisées par vos clients et votre espace de travail.",
     "Business":"Entreprise","YOUR APP":"VOTRE APP","App preferences":"Préférences de l’application","These only change what the business owner sees inside the app.":"Cela change uniquement ce que le propriétaire voit dans l’application.","App language":"Langue de l’application","Edit app preferences":"Modifier les préférences",
