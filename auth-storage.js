@@ -1,11 +1,13 @@
 // The Launch Era — resilient Supabase auth persistence for installed web apps.
-// Keeps the auth session in one same-origin store at a time: IndexedDB when
-// available, with localStorage only as a compatibility fallback.
+// iOS can cold-start a Home Screen web app before IndexedDB is ready. Keep the
+// Supabase session immediately available in localStorage, with IndexedDB as a
+// same-origin mirror/rescue copy. This prevents a false signed-out state from
+// flashing the password form and triggering iOS Password AutoFill / Face ID.
 (()=>{
   const DB_NAME="tle-auth-v1";
   const STORE_NAME="session";
   const DB_VERSION=1;
-  const LOCAL_SOURCE_PREFIX="tle_auth_local_source:";
+  const LEGACY_LOCAL_SOURCE_PREFIX="tle_auth_local_source:";
 
   let dbPromise=null;
 
@@ -18,7 +20,7 @@
   function localRemove(key){
     try{window.localStorage.removeItem(key);}catch{}
   }
-  function sourceKey(key){return LOCAL_SOURCE_PREFIX+key;}
+  function legacySourceKey(key){return LEGACY_LOCAL_SOURCE_PREFIX+key;}
 
   function openDb(){
     if(dbPromise) return dbPromise;
@@ -34,10 +36,15 @@
       try{
         request=window.indexedDB.open(DB_NAME,DB_VERSION);
       }catch{
+        dbPromise=null;
         finish(null);
         return;
       }
-      const timer=setTimeout(()=>finish(null),1800);
+      const timer=setTimeout(()=>{
+        // A slow iOS IndexedDB open must not poison the whole page lifetime.
+        dbPromise=null;
+        finish(null);
+      },3500);
       request.onupgradeneeded=()=>{
         const db=request.result;
         if(!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
@@ -45,11 +52,15 @@
       request.onsuccess=()=>{
         clearTimeout(timer);
         const db=request.result;
+        if(settled){
+          try{db.close();}catch{}
+          return;
+        }
         db.onversionchange=()=>{try{db.close();}catch{} dbPromise=null;};
         finish(db);
       };
-      request.onerror=()=>{clearTimeout(timer);finish(null);};
-      request.onblocked=()=>{clearTimeout(timer);finish(null);};
+      request.onerror=()=>{clearTimeout(timer);dbPromise=null;finish(null);};
+      request.onblocked=()=>{clearTimeout(timer);dbPromise=null;finish(null);};
     });
     return dbPromise;
   }
@@ -60,11 +71,10 @@
     return await new Promise(resolve=>{
       let done=false;
       const finish=value=>{if(done)return;done=true;resolve(value);};
-      let tx;
       try{
-        tx=db.transaction(STORE_NAME,"readonly");
+        const tx=db.transaction(STORE_NAME,"readonly");
         const request=tx.objectStore(STORE_NAME).get(key);
-        const timer=setTimeout(()=>finish(null),1200);
+        const timer=setTimeout(()=>finish(null),2500);
         request.onsuccess=()=>{clearTimeout(timer);finish(request.result??null);};
         request.onerror=()=>{clearTimeout(timer);finish(null);};
         tx.onabort=()=>{clearTimeout(timer);finish(null);};
@@ -82,7 +92,7 @@
       const finish=value=>{if(done)return;done=true;resolve(value);};
       try{
         const tx=db.transaction(STORE_NAME,"readwrite");
-        const timer=setTimeout(()=>finish(false),1400);
+        const timer=setTimeout(()=>finish(false),2500);
         tx.objectStore(STORE_NAME).put(value,key);
         tx.oncomplete=()=>{clearTimeout(timer);finish(true);};
         tx.onerror=()=>{clearTimeout(timer);finish(false);};
@@ -101,7 +111,7 @@
       const finish=value=>{if(done)return;done=true;resolve(value);};
       try{
         const tx=db.transaction(STORE_NAME,"readwrite");
-        const timer=setTimeout(()=>finish(false),1200);
+        const timer=setTimeout(()=>finish(false),2200);
         tx.objectStore(STORE_NAME).delete(key);
         tx.oncomplete=()=>{clearTimeout(timer);finish(true);};
         tx.onerror=()=>{clearTimeout(timer);finish(false);};
@@ -114,52 +124,40 @@
 
   const storage={
     async getItem(key){
-      // If a previous IndexedDB write failed, localStorage is temporarily the
-      // source of truth. Migrate it back when IndexedDB becomes available.
-      const localPreferred=localGet(sourceKey(key))==="1";
-      if(localPreferred){
-        const localValue=localGet(key);
-        if(localValue!==null){
-          if(await idbWrite(key,localValue)){
-            localRemove(key);
-            localRemove(sourceKey(key));
-          }
-          return localValue;
-        }
-        localRemove(sourceKey(key));
+      // localStorage is synchronous and reliable during an iOS cold launch.
+      const localValue=localGet(key);
+      if(localValue!==null){
+        // Clean the old migration marker and refresh the IndexedDB mirror
+        // without delaying Supabase's initial session decision.
+        localRemove(legacySourceKey(key));
+        idbWrite(key,localValue).catch(()=>{});
+        return localValue;
       }
 
+      // Existing installs may still have the session only in IndexedDB.
+      // Rescue it once and mirror it to localStorage for future cold starts.
       const indexedValue=await idbRead(key);
-      if(indexedValue!==null) return indexedValue;
-
-      // One-time migration from Supabase's former localStorage persistence.
-      const legacyValue=localGet(key);
-      if(legacyValue!==null){
-        if(await idbWrite(key,legacyValue)){
-          localRemove(key);
-          localRemove(sourceKey(key));
-        }else{
-          localSet(sourceKey(key),"1");
-        }
-        return legacyValue;
+      if(indexedValue!==null){
+        localSet(key,indexedValue);
+        localRemove(legacySourceKey(key));
+        return indexedValue;
       }
       return null;
     },
 
     async setItem(key,value){
-      if(await idbWrite(key,value)){
-        localRemove(key);
-        localRemove(sourceKey(key));
-        return;
-      }
+      // Persist synchronously first so closing/backgrounding the PWA cannot
+      // race an IndexedDB transaction and lose the login state.
       localSet(key,value);
-      localSet(sourceKey(key),"1");
+      localRemove(legacySourceKey(key));
+      idbWrite(key,value).catch(()=>{});
     },
 
     async removeItem(key){
-      await idbDelete(key);
+      // Sign-out must clear both copies.
       localRemove(key);
-      localRemove(sourceKey(key));
+      localRemove(legacySourceKey(key));
+      await idbDelete(key);
     }
   };
 
