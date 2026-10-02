@@ -2998,7 +2998,7 @@ function syncAuthPasswordToggle(){
   const input=$("#authPassword");
   const toggle=$("#authPasswordToggle");
   if(!input||!toggle) return;
-  const visible=input.type==="text";
+  const visible=input.dataset.tlePasswordLocked!=="1" && input.type==="text";
   toggle.setAttribute("aria-pressed",visible?"true":"false");
   toggle.setAttribute("aria-label",visible?langPick("Hide password","Ocultar contraseña","Masquer le mot de passe"):langPick("Show password","Mostrar contraseña","Afficher le mot de passe"));
   toggle.classList.toggle("is-visible",visible);
