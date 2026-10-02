@@ -351,34 +351,34 @@ body.shell-auth .auth-legal-links a{
   color:#61717e!important;
 }
 
-body.shell-auth.auth-mode-signup .auth-card{
+body.shell-auth .auth-shell.auth-mode-signup .auth-card{
   width:min(630px,calc(100vw - 32px));
   padding-top:44px!important;
 }
 
-body.shell-auth.auth-mode-signin .auth-card{
+body.shell-auth .auth-shell.auth-mode-signin .auth-card{
   width:min(590px,calc(100vw - 32px));
 }
 
-body.shell-auth.auth-mode-signin .auth-feature-strip{
+body.shell-auth .auth-shell.auth-mode-signin .auth-feature-strip{
   display:none!important;
 }
 
-body.shell-auth.auth-mode-signin .auth-plan-note{
+body.shell-auth .auth-shell.auth-mode-signin .auth-plan-note{
   display:none!important;
 }
 
-body.shell-auth.auth-mode-signin #authTitle{
+body.shell-auth .auth-shell.auth-mode-signin #authTitle{
   font-family:Georgia,"Times New Roman",serif;
   font-size:clamp(44px,7vw,62px)!important;
   font-weight:700!important;
 }
 
-body.shell-auth.auth-mode-signin #authCopy{
+body.shell-auth .auth-shell.auth-mode-signin #authCopy{
   margin-bottom:30px!important;
 }
 
-body.shell-auth.auth-mode-signup #authTitle{
+body.shell-auth .auth-shell.auth-mode-signup #authTitle{
   max-width:550px;
 }
 
@@ -408,8 +408,8 @@ body.shell-auth #businessSetup{
     filter:blur(7px) saturate(.82);
   }
   body.shell-auth .auth-card,
-  body.shell-auth.auth-mode-signup .auth-card,
-  body.shell-auth.auth-mode-signin .auth-card{
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card,
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{
     width:min(100%,520px)!important;
     padding:28px 18px 24px!important;
     border-radius:29px!important;
@@ -430,7 +430,7 @@ body.shell-auth #businessSetup{
     font-size:clamp(37px,10vw,47px)!important;
     line-height:.99!important;
   }
-  body.shell-auth.auth-mode-signin #authTitle{
+  body.shell-auth .auth-shell.auth-mode-signin #authTitle{
     font-size:clamp(40px,11vw,50px)!important;
   }
   body.shell-auth #authCopy{
@@ -468,14 +468,14 @@ body.shell-auth #businessSetup{
 
 @media(max-width:390px){
   body.shell-auth .auth-card,
-  body.shell-auth.auth-mode-signup .auth-card,
-  body.shell-auth.auth-mode-signin .auth-card{
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card,
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{
     padding-left:15px!important;
     padding-right:15px!important;
   }
   body.shell-auth .auth-brand .brand-name{font-size:28px}
   body.shell-auth #authTitle{font-size:36px!important}
-  body.shell-auth.auth-mode-signin #authTitle{font-size:40px!important}
+  body.shell-auth .auth-shell.auth-mode-signin #authTitle{font-size:40px!important}
   body.shell-auth .auth-feature-strip span{font-size:8.5px}
 }
 
@@ -501,8 +501,8 @@ body.shell-auth .auth-shell::after{
     linear-gradient(180deg,rgba(233,243,250,.14),rgba(16,39,56,.035))!important;
 }
 body.shell-auth .auth-card,
-body.shell-auth.auth-mode-signup .auth-card,
-body.shell-auth.auth-mode-signin .auth-card{
+body.shell-auth .auth-shell.auth-mode-signup .auth-card,
+body.shell-auth .auth-shell.auth-mode-signin .auth-card{
   width:min(500px,86vw)!important;
   padding:26px 26px 24px!important;
   border-radius:30px!important;
@@ -528,7 +528,7 @@ body.shell-auth #authTitle{
   font-size:39px!important;
   line-height:1!important;
 }
-body.shell-auth.auth-mode-signin #authTitle{
+body.shell-auth .auth-shell.auth-mode-signin #authTitle{
   font-family:inherit!important;
   font-size:34px!important;
   font-weight:900!important;
@@ -605,19 +605,19 @@ body.shell-auth .auth-links{
 body.shell-auth .auth-links button{
   font-size:12px!important;
 }
-body.shell-auth.auth-mode-signin .auth-links{
+body.shell-auth .auth-shell.auth-mode-signin .auth-links{
   margin-top:16px!important;
 }
-body.shell-auth.auth-mode-signin .auth-plan-note,
-body.shell-auth.auth-mode-signin .auth-feature-strip,
-body.shell-auth.auth-mode-signin .auth-legal-links{
+body.shell-auth .auth-shell.auth-mode-signin .auth-plan-note,
+body.shell-auth .auth-shell.auth-mode-signin .auth-feature-strip,
+body.shell-auth .auth-shell.auth-mode-signin .auth-legal-links{
   display:none!important;
 }
-body.shell-auth.auth-mode-signup .auth-feature-strip{
+body.shell-auth .auth-shell.auth-mode-signup .auth-feature-strip{
   margin-top:14px!important;
   padding-top:13px!important;
 }
-body.shell-auth.auth-mode-signup .auth-plan-note{
+body.shell-auth .auth-shell.auth-mode-signup .auth-plan-note{
   margin-top:12px!important;
   font-size:11px!important;
 }
@@ -648,10 +648,10 @@ body.shell-auth .auth-status:empty{
   body.shell-auth .auth-card{
     width:min(340px,88vw)!important;
   }
-  body.shell-auth.auth-mode-signup .auth-card{
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card{
     width:min(350px,90vw)!important;
   }
-  body.shell-auth.auth-mode-signin .auth-card{
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{
     width:min(330px,84vw)!important;
     padding:23px 18px 21px!important;
     border-radius:27px!important;
@@ -665,7 +665,7 @@ body.shell-auth .auth-status:empty{
   body.shell-auth #authTitle{
     font-size:34px!important;
   }
-  body.shell-auth.auth-mode-signin #authTitle{
+  body.shell-auth .auth-shell.auth-mode-signin #authTitle{
     font-size:31px!important;
   }
   body.shell-auth #authCopy{
@@ -686,22 +686,115 @@ body.shell-auth .auth-status:empty{
     right:12px!important;
     height:37px!important;
   }
-  body.shell-auth.auth-mode-signup .auth-feature-strip{
+  body.shell-auth .auth-shell.auth-mode-signup .auth-feature-strip{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
 
 @media(max-width:390px){
   body.shell-auth .auth-card{width:min(332px,88vw)!important}
-  body.shell-auth.auth-mode-signup .auth-card{width:min(342px,91vw)!important}
-  body.shell-auth.auth-mode-signin .auth-card{width:min(320px,85vw)!important}
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card{width:min(342px,91vw)!important}
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{width:min(320px,85vw)!important}
   body.shell-auth .auth-card,
-  body.shell-auth.auth-mode-signup .auth-card,
-  body.shell-auth.auth-mode-signin .auth-card{
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card,
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{
     padding-left:17px!important;
     padding-right:17px!important;
   }
   body.shell-auth .auth-brand .brand-name{font-size:25px!important}
   body.shell-auth #authTitle{font-size:32px!important}
-  body.shell-auth.auth-mode-signin #authTitle{font-size:30px!important}
+  body.shell-auth .auth-shell.auth-mode-signin #authTitle{font-size:30px!important}
+}
+
+
+/* Auth card size correction r11
+   Mode classes are on #authShell. These final values intentionally leave
+   visible cleaner/background around the card on phone. */
+body.shell-auth .auth-shell.auth-mode-signup .auth-card{
+  width:min(304px,78vw)!important;
+  padding:20px 16px 18px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .auth-card{
+  width:min(286px,73vw)!important;
+  padding:20px 16px 18px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .auth-plan-note,
+body.shell-auth .auth-shell.auth-mode-signin .auth-feature-strip,
+body.shell-auth .auth-shell.auth-mode-signin .auth-legal-links{
+  display:none!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .auth-brand{
+  margin-bottom:18px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-brand{
+  margin-bottom:18px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup #authTitle{
+  max-width:268px!important;
+  font-size:29px!important;
+  line-height:1.02!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin #authTitle{
+  font-size:28px!important;
+  line-height:1!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup #authCopy,
+body.shell-auth .auth-shell.auth-mode-signin #authCopy{
+  max-width:260px!important;
+  margin-bottom:15px!important;
+  font-size:12px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-form input:not([type="checkbox"]),
+body.shell-auth .auth-shell.auth-mode-signin .auth-form input:not([type="checkbox"]){
+  min-height:49px!important;
+  border-radius:16px!important;
+  font-size:14px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup #authSubmit,
+body.shell-auth .auth-shell.auth-mode-signin #authSubmit{
+  min-height:51px!important;
+  border-radius:16px!important;
+  font-size:16px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .auth-links{
+  margin-top:12px!important;
+  gap:8px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .remember-username-row{
+  margin:1px 0 0 2px!important;
+  font-size:12px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signin .remember-username-row input[type="checkbox"]{
+  width:18px!important;
+  height:18px!important;
+  min-width:18px!important;
+  min-height:18px!important;
+  max-width:18px!important;
+  max-height:18px!important;
+  flex-basis:18px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-feature-strip{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:5px!important;
+  margin-top:11px!important;
+  padding-top:10px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-feature-strip span{
+  padding:7px 3px!important;
+  font-size:8.5px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-plan-note{
+  margin-top:10px!important;
+  font-size:10px!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .signup-legal-note{
+  font-size:8.5px!important;
+  line-height:1.35!important;
+}
+body.shell-auth .auth-shell.auth-mode-signup .auth-legal-links{
+  display:none!important;
+}
+@media(max-width:390px){
+  body.shell-auth .auth-shell.auth-mode-signup .auth-card{width:min(296px,80vw)!important}
+  body.shell-auth .auth-shell.auth-mode-signin .auth-card{width:min(278px,74vw)!important}
 }
