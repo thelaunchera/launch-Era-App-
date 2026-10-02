@@ -2422,11 +2422,19 @@ function openView(id,options={}){
     if(isActive) item.setAttribute("aria-current","page");
     else item.removeAttribute("aria-current");
   });
-  if(backBtn) backBtn.hidden=id==="today";
+  const isHomeView=id==="today";
+  if(backBtn) backBtn.hidden=isHomeView;
+  const menuButton=$("#menuToggle");
+  if(menuButton) menuButton.hidden=!isHomeView;
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
-  requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
+  requestAnimationFrame(()=>{
+    setWorkspaceScrollTop(targetTop);
+    // A second frame keeps Back anchored to the same place even when the
+    // returning view finishes its first layout pass on iPhone.
+    if(options.fromBack) requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
+  });
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="calendar"){
     renderJobs();
