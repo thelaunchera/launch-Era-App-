@@ -2416,7 +2416,7 @@ function openView(id,options={}){
     :["calendar","booking","route","time","mileage"].includes(id)?"schedule"
     :["clients","leads","quotes","followups"].includes(id)?"customers"
     :["invoices","reports"].includes(id)?"money":"more";
-  $(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
+  document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
     const isActive=item.dataset.mobileRoot===mobileRoot;
     item.classList.toggle("active",isActive);
     if(isActive) item.setAttribute("aria-current","page");
