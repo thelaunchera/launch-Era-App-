@@ -146,13 +146,13 @@ function ensureAuthPasswordInput(){
   if(!wrap) return null;
   password=document.createElement("input");
   password.id="authPassword";
-  password.name="password";
-  password.type="password";
+  password.type="text";
   password.required=true;
   password.minLength=8;
   password.autocomplete="off";
   password.readOnly=true;
   password.dataset.tlePasswordLocked="1";
+  password.dataset.tleAutocompleteIntent="current-password";
   password.enterKeyHint="go";
   password.placeholder="Password";
   const toggle=wrap.querySelector("#authPasswordToggle");
@@ -163,11 +163,15 @@ function lockAuthPasswordInput(password,intent="current-password"){
   if(!password) return;
   password.dataset.tleAutocompleteIntent=intent;
   password.dataset.tlePasswordLocked="1";
+  password.removeAttribute("name");
+  password.type="text";
   password.autocomplete="off";
   password.readOnly=true;
 }
 function activateAuthPasswordInput(password){
   if(!password || password.dataset.tlePasswordLocked!=="1") return;
+  password.name="password";
+  password.type="password";
   password.readOnly=false;
   password.autocomplete=password.dataset.tleAutocompleteIntent||"current-password";
   delete password.dataset.tlePasswordLocked;
