@@ -76,11 +76,34 @@ const state = {
 let __tleBootAuthSession=null;
 let __tleBootAuthSessionResolve=null;
 const __tleBootAuthSessionReady=new Promise(resolve=>{__tleBootAuthSessionResolve=resolve;});
+let __tleInitialAuthSettled=false;
+let __tleInitialAuthSession=null;
+let __tleInitialAuthResolve=null;
+const __tleInitialAuthReady=new Promise(resolve=>{__tleInitialAuthResolve=resolve;});
 
 function noteBootAuthSession(session){
   if(!session || __tleBootAuthSession) return;
   __tleBootAuthSession=session;
   if(__tleBootAuthSessionResolve) __tleBootAuthSessionResolve(session);
+}
+function settleInitialAuth(session){
+  if(__tleInitialAuthSettled) return;
+  __tleInitialAuthSettled=true;
+  __tleInitialAuthSession=session||null;
+  if(session) noteBootAuthSession(session);
+  if(__tleInitialAuthResolve) __tleInitialAuthResolve(__tleInitialAuthSession);
+}
+async function waitForInitialAuth(ms=1600){
+  if(__tleInitialAuthSettled) return __tleInitialAuthSession;
+  let timer;
+  try{
+    return await Promise.race([
+      __tleInitialAuthReady,
+      new Promise(resolve=>{timer=setTimeout(()=>resolve(null),ms);})
+    ]);
+  }finally{
+    clearTimeout(timer);
+  }
 }
 function recentOwnerSessionExpected(){
   const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
@@ -116,6 +139,17 @@ const businessForm = $("#businessForm");
 const entityForm = $("#entityForm");
 const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
+function setAuthShellAvailable(available){
+  if(!authShell) return;
+  authShell.hidden=!available;
+  if(available){
+    authShell.removeAttribute("inert");
+    authShell.removeAttribute("aria-hidden");
+  }else{
+    authShell.setAttribute("inert","");
+    authShell.setAttribute("aria-hidden","true");
+  }
+}
 function dismissSessionSplash(){
   if(!sessionSplash || sessionSplash.hidden) return;
   sessionSplash.classList.add("is-leaving");
@@ -1662,7 +1696,7 @@ function prepareDirectAuth(modeOverride=null){
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
-  authShell.hidden=false;
+  setAuthShellAvailable(true);
   appShell.hidden=true;
   businessSetup.hidden=true;
   if(authWelcome) authWelcome.hidden=true;
@@ -1761,7 +1795,7 @@ function showSetup(){
   setShellState("auth");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
-  authShell.hidden = false;
+  setAuthShellAvailable(true);
   appShell.hidden = true;
   if(authWelcome) authWelcome.hidden = true;
   authPanel.hidden = true;
@@ -1945,7 +1979,7 @@ function showApp(){
   setShellState("app");
   if(workerShell) workerShell.hidden = true;
   if(publicShell) publicShell.hidden = true;
-  authShell.hidden = true;
+  setAuthShellAvailable(false);
   appShell.hidden = false;
   scheduleQuarterHourCardColors();
   installTodayClock();
@@ -3448,7 +3482,7 @@ businessForm.addEventListener("submit", async (e)=>{
 
 async function initializeWorkerPortal(activationToken=null){
   setShellState("worker");
-  authShell.hidden=true;
+  setAuthShellAvailable(false);
   appShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
   workerShell.hidden=false;
@@ -3726,6 +3760,14 @@ async function initialize(){
   // session with a stale local null.
   let session=storedSession||state.session||__tleBootAuthSession||null;
 
+  // Keep the password form completely unavailable until Supabase has emitted
+  // its first auth decision. On iPhone, exposing a password field even behind
+  // the splash can trigger Password AutoFill / Face ID before session restore.
+  if(!session && !__tleInitialAuthSettled){
+    const initialSession=await waitForInitialAuth();
+    session=initialSession||state.session||__tleBootAuthSession||null;
+  }
+
   // A recent owner activity timestamp is a safe signal that this device had an
   // active owner session and did not explicitly log out. Give Supabase's
   // INITIAL_SESSION / SIGNED_IN / TOKEN_REFRESHED event a short window to
@@ -3921,6 +3963,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   // IMPORTANT: keep this callback synchronous.
   // Awaiting Supabase calls from onAuthStateChange can deadlock supabase-js.
   if(event === "INITIAL_SESSION"){
+    settleInitialAuth(session);
     if(session){
       state.session=session;
       noteBootAuthSession(session);
@@ -3936,6 +3979,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
     return;
   }
   if(event === "SIGNED_IN" && session){
+    settleInitialAuth(session);
     state.session=session;
     noteBootAuthSession(session);
     saveOwnerSessionBackup(session);
@@ -3952,6 +3996,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
     return;
   }
   if(event === "TOKEN_REFRESHED" && session){
+    settleInitialAuth(session);
     state.session=session;
     noteBootAuthSession(session);
     saveOwnerSessionBackup(session);
@@ -6896,7 +6941,7 @@ function restoreAppAfterGpsReturn(){
   setShellState("app");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
-  if(authShell) authShell.hidden=true;
+  if(authShell) setAuthShellAvailable(false);
   if(appShell) appShell.hidden=false;
 
   const targetView=String(pending.view||"today");
@@ -7975,7 +8020,7 @@ async function loadPlatformAdmin(){
 
 async function initializePublicRequest(mode,slug){
   setShellState("public");
-  authShell.hidden=true;
+  setAuthShellAvailable(false);
   appShell.hidden=true;
   publicShell.hidden=false;
 
@@ -10666,7 +10711,7 @@ function restoreAppAfterWeatherReturn(){
   setShellState("app");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
-  if(authShell) authShell.hidden=true;
+  if(authShell) setAuthShellAvailable(false);
   if(appShell) appShell.hidden=false;
 
   const targetView=String(pending.view||"today");
