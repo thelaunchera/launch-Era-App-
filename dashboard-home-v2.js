@@ -25,10 +25,6 @@
               <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M15 8.5c-.8-.8-1.8-1.2-3-1.2-1.7 0-3 1-3 2.3 0 3.5 6.2 1.5 6.2 5 0 1.4-1.3 2.5-3.2 2.5-1.4 0-2.7-.5-3.6-1.4M12 5.8v12.4"></path></svg></span>
               <strong>Money</strong><small>Invoices, payments & more</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
             </button>
-            <button class="dashboard-quick-card quick-weather" type="button" data-weather-focus>
-              <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 8.4 4.5 4.5 0 0 0 7 17Z"></path><path d="M9 20h6"></path></svg></span>
-              <strong>Weather</strong><small id="quickWeatherSummary">Current local weather</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
-            </button>
             <button class="dashboard-quick-card quick-services" type="button" data-jump="services" data-admin-only>
               <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="8" cy="6" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="10" cy="18" r="1.5"></circle></svg></span>
               <strong>Services</strong><small>Prices, durations & add-ons</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
