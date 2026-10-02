@@ -2461,28 +2461,7 @@ document.addEventListener("click",e=>{
   const weatherFocus=e.target.closest("[data-weather-focus]");
   if(weatherFocus){
     e.preventDefault();
-    // Quick Access Weather belongs to the dashboard Greeting Card. Keep this
-    // interaction inside the app: return to Home, reveal/update the embedded
-    // weather module, then scroll directly to it instead of opening another
-    // section or the sidebar.
-    if($(".view.active")?.dataset.page!=="today"){
-      openView("today",{skipIntro:true,skipTrack:true});
-    }
-    const weatherCard=$("#weatherBrief");
-    const greetingCard=$("#todayHeroCard");
-    if(weatherCard){
-      if(weatherCard.hidden) renderWeatherPending(false);
-      loadBusinessWeather(false).catch(()=>{}).finally(()=>{
-        const target=weatherCard.hidden?(greetingCard||weatherCard):weatherCard;
-        requestAnimationFrame(()=>{
-          target?.scrollIntoView({behavior:"smooth",block:"center"});
-          weatherCard.classList.add("quick-focus");
-          setTimeout(()=>weatherCard.classList.remove("quick-focus"),900);
-        });
-      });
-    }else if(greetingCard){
-      greetingCard.scrollIntoView({behavior:"smooth",block:"center"});
-    }
+    openDeviceWeather();
     return;
   }
   const mobileMore=e.target.closest("[data-mobile-more]");
