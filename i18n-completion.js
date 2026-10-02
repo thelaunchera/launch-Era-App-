@@ -2026,6 +2026,41 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Updated":"Mizajou"
   });
 
+  // Dashboard home v2 copy.
+  Object.assign(staticCorrections.es,{
+    "Quick access":"Acceso rápido","See all →":"Ver todo →","Calendar":"Calendario",
+    "View & manage jobs":"Ver y administrar trabajos","Bookings":"Reservas","New requests & quotes":"Solicitudes y cotizaciones",
+    "Customers":"Clientes","View & manage customers":"Ver y administrar clientes","Money":"Dinero",
+    "Invoices, payments & more":"Facturas, pagos y más","Follow Through":"Seguimiento","New requests":"Solicitudes nuevas",
+    "Sent quotes":"Cotizaciones enviadas","Invoices due":"Facturas pendientes","Today's schedule":"Agenda de hoy",
+    "See full schedule →":"Ver agenda completa →","Money this week":"Dinero esta semana","View details →":"Ver detalles →",
+    "Home":"Inicio","Schedule":"Agenda","More":"Más",
+    "No new booking requests.":"No hay solicitudes nuevas.","Waiting for review":"Esperando revisión",
+    "No quotes need attention.":"No hay cotizaciones pendientes.","All caught up on invoices.":"Facturas al día."
+  });
+  Object.assign(staticCorrections.fr,{
+    "Quick access":"Accès rapide","See all →":"Tout voir →","Calendar":"Calendrier",
+    "View & manage jobs":"Voir et gérer les prestations","Bookings":"Réservations","New requests & quotes":"Demandes et devis",
+    "Customers":"Clients","View & manage customers":"Voir et gérer les clients","Money":"Finances",
+    "Invoices, payments & more":"Factures, paiements et plus","Follow Through":"À suivre","New requests":"Nouvelles demandes",
+    "Sent quotes":"Devis envoyés","Invoices due":"Factures dues","Today's schedule":"Programme du jour",
+    "See full schedule →":"Voir tout le programme →","Money this week":"Finances cette semaine","View details →":"Voir les détails →",
+    "Home":"Accueil","Schedule":"Planning","More":"Plus",
+    "No new booking requests.":"Aucune nouvelle demande.","Waiting for review":"En attente de vérification",
+    "No quotes need attention.":"Aucun devis ne nécessite votre attention.","All caught up on invoices.":"Factures à jour."
+  });
+  Object.assign(staticCorrections.ht,{
+    "Quick access":"Aksè rapid","See all →":"Wè tout →","Calendar":"Kalandriye",
+    "View & manage jobs":"Wè epi jere travay yo","Bookings":"Rezèvasyon","New requests & quotes":"Nouvo demann ak devis",
+    "Customers":"Kliyan","View & manage customers":"Wè epi jere kliyan yo","Money":"Lajan",
+    "Invoices, payments & more":"Fakti, peman ak plis","Follow Through":"Swivi","New requests":"Nouvo demann",
+    "Sent quotes":"Devis voye","Invoices due":"Fakti ki dwe","Today's schedule":"Orè jodi a",
+    "See full schedule →":"Wè tout orè a →","Money this week":"Lajan semèn sa a","View details →":"Wè detay →",
+    "Home":"Akèy","Schedule":"Orè","More":"Plis",
+    "No new booking requests.":"Pa gen nouvo demann rezèvasyon.","Waiting for review":"Ap tann revizyon",
+    "No quotes need attention.":"Pa gen devis ki bezwen atansyon.","All caught up on invoices.":"Tout fakti yo ajou."
+  });
+
   // Final weather advice coverage used by the dynamic dashboard.
   Object.assign(staticCorrections.es,{
     "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."
