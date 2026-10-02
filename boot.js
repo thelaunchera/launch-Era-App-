@@ -34,7 +34,6 @@ window.__tleBootErrorHandler = true;
       var auth=document.getElementById("authShell");
       if(auth){
         auth.hidden=false;
-        auth.removeAttribute("inert");
         auth.removeAttribute("aria-hidden");
       }
       var status=document.getElementById("authStatus");
