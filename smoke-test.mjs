@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom";
 const html=fs.readFileSync("index.html","utf8");
 const boot=fs.readFileSync("boot.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
+const authStorage=fs.readFileSync("auth-storage.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
 const i18n=fs.readFileSync("i18n.js","utf8");
@@ -175,11 +176,16 @@ if(app.includes("access_token:accessToken") || app.includes("refresh_token:refre
 if(!app.includes("function restoreOwnerSessionFromBackup(){") || !app.includes("clearOwnerSessionBackup();")){
   throw new Error("Session regression: legacy Owner token backup cleanup is missing");
 }
-if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.localStorage")){
-  throw new Error("Session regression: stable Supabase localStorage persistence is missing");
+if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){
+  throw new Error("Session regression: resilient Supabase persistence is missing");
 }
-if(app.includes("resilientAuthStorage") || app.includes("indexedDB.open(TLE_AUTH_DB")){
-  throw new Error("Session regression: experimental IndexedDB auth fallback returned");
+if(
+  !html.includes("auth-storage.js?v=") ||
+  !serviceWorker.includes("auth-storage.js?v=") ||
+  !authStorage.includes("indexedDB.open(DB_NAME,DB_VERSION)") ||
+  !authStorage.includes("window.TLE_AUTH_STORAGE=storage")
+){
+  throw new Error("Session regression: installed-app auth storage module is incomplete");
 }
 if(!app.includes("restoreWorkspaceView();") || !app.includes("saveWorkspaceView(id)")){
   throw new Error("Workspace regression: active page restore is missing");
