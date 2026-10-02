@@ -176,7 +176,7 @@ if(!app.includes("function restoreOwnerSessionFromBackup(){") || !app.includes("
 if(
   !app.includes('image.className="hero-opening-witch"') ||
   app.includes('canvas.className="hero-opening-still"') ||
-  !styles.includes("@keyframes tleWitchSweepInPlace") ||
+  !styles.includes("@keyframes tleWitchSweepNatural") ||
   !styles.includes(".hero-opening-witch")
 ){
   throw new Error("Sweeping witch regression: animated broom asset was replaced by a still frame");
