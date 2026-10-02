@@ -99,6 +99,7 @@ try{
     if(signup.button.text!=="Sign up"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
       throw new Error(profile.name+": Sign up form is not usable");
     }
+    await page.waitForSelector("#authPassword",{visible:true,timeout:10000});
     const passwordToggle=await page.evaluate(()=>{
       const btn=document.querySelector("#authPasswordToggle");
       const input=document.querySelector("#authPassword");
