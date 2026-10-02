@@ -3003,7 +3003,8 @@ function installOwnerActivityTracker(){
 }
 function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
-  if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
+  const email=$("#authEmail");
+  if(state.authMode==="signin" && remembered && email && !email.value) email.value=remembered;
 }
 
 function syncAuthPasswordToggle(){
