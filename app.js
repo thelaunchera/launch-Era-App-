@@ -2391,6 +2391,16 @@ function openView(id,options={}){
     if(group) group.open=true;
   }
   pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
+  const mobileRoot=["today"].includes(id)?"home"
+    :["calendar","booking","route","time","mileage"].includes(id)?"schedule"
+    :["clients","leads","quotes","followups"].includes(id)?"customers"
+    :["invoices","reports"].includes(id)?"money":"more";
+  $(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
+    const isActive=item.dataset.mobileRoot===mobileRoot;
+    item.classList.toggle("active",isActive);
+    if(isActive) item.setAttribute("aria-current","page");
+    else item.removeAttribute("aria-current");
+  });
   if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
@@ -2417,6 +2427,12 @@ function openView(id,options={}){
 // Delegated navigation keeps dashboard links working even when cards/lists
 // are re-rendered after data loads or iOS restores an older DOM snapshot.
 document.addEventListener("click",e=>{
+  const mobileMore=e.target.closest("[data-mobile-more]");
+  if(mobileMore){
+    e.preventDefault();
+    setSidebarOpen(true);
+    return;
+  }
   const nav=e.target.closest(".nav-item[data-view]");
   if(nav && !nav.hidden){
     e.preventDefault();
@@ -6705,15 +6721,39 @@ function renderTodaySummary(wakeAssistant=false){
 
   const attention=$("#attentionList");
   if(attention){
-    const items=[];
-    state.invoices.filter(i=>i.due_at&&new Date(i.due_at)<now&&!["paid","void"].includes(i.status)).slice(0,2).forEach(i=>{
-      items.push(`<button class="attention-pending" data-jump="invoices"><span class="dot red"></span><strong>${escapeHtml(tr("Invoice"))} #${i.invoice_number||String(i.id).slice(0,6)}</strong><small>${money(Math.max(0,Number(i.total)-confirmedPaid(i)))} ${escapeHtml(tr("outstanding"))}</small></button>`);
-    });
-    openQuotes.filter(q=>q.status==="sent").slice(0,2).forEach(q=>{
-      items.push(`<button class="attention-pending" data-jump="quotes"><span class="dot yellow"></span><strong>${escapeHtml(langPick("Quote for","Cotización para","Devis pour"))} ${escapeHtml(q.customer_name)}</strong><small>${escapeHtml(tr("Waiting for response"))}</small></button>`);
-    });
-    if(pendingBookings.length) items.push(`<button class="attention-pending" data-jump="booking"><span class="dot blue"></span><strong>${pendingBookings.length} ${langPick(pendingBookings.length===1?"booking request":"booking requests",pendingBookings.length===1?"solicitud":"solicitudes",pendingBookings.length===1?"demande de réservation":"demandes de réservation")}</strong><small>${escapeHtml(tr("Waiting for review"))}</small></button>`);
-    attention.innerHTML=items.length?items.join(""):`<div class="empty-inline"><strong>${escapeHtml(tr("Nothing urgent."))}</strong><span>${escapeHtml(tr("No overdue invoices, sent quotes, or new booking requests need attention."))}</span></div>`;
+    const sentCount=sentQuotes.length;
+    const bookingCount=pendingBookings.length;
+    const invoiceCount=overdueInvoices.length;
+    const bookingCopy=bookingCount
+      ? langPick("Waiting for review","Esperando revisión","En attente de vérification")
+      : langPick("No new booking requests.","No hay solicitudes nuevas.","Aucune nouvelle demande.");
+    const quoteCopy=sentCount
+      ? langPick(sentCount===1?"1 quote needs attention.":sentCount+" quotes need attention.",sentCount===1?"1 cotización necesita atención.":sentCount+" cotizaciones necesitan atención.",sentCount===1?"1 devis nécessite votre attention.":sentCount+" devis nécessitent votre attention.")
+      : langPick("No quotes need attention.","No hay cotizaciones pendientes.","Aucun devis ne nécessite votre attention.");
+    const invoiceCopy=invoiceCount
+      ? langPick(money(overdueAmount)+" outstanding",money(overdueAmount)+" pendientes",money(overdueAmount)+" à encaisser")
+      : langPick("All caught up on invoices.","Facturas al día.","Factures à jour.");
+
+    attention.classList.add("dashboard-attention-grid");
+    attention.innerHTML=`
+      <button class="attention-summary-card attention-bookings" type="button" data-jump="booking">
+        <span class="attention-summary-icon" aria-hidden="true">↗</span>
+        <strong>${escapeHtml(langPick("New requests","Solicitudes nuevas","Nouvelles demandes"))}</strong>
+        <span class="attention-summary-count">${bookingCount}</span>
+        <small>${escapeHtml(bookingCopy)}</small>
+      </button>
+      <button class="attention-summary-card attention-quotes" type="button" data-jump="quotes">
+        <span class="attention-summary-icon" aria-hidden="true">✦</span>
+        <strong>${escapeHtml(langPick("Sent quotes","Cotizaciones enviadas","Devis envoyés"))}</strong>
+        <span class="attention-summary-count">${sentCount}</span>
+        <small>${escapeHtml(quoteCopy)}</small>
+      </button>
+      <button class="attention-summary-card attention-invoices" type="button" data-jump="invoices">
+        <span class="attention-summary-icon" aria-hidden="true">$</span>
+        <strong>${escapeHtml(langPick("Invoices due","Facturas pendientes","Factures dues"))}</strong>
+        <span class="attention-summary-count">${invoiceCount}</span>
+        <small>${escapeHtml(invoiceCopy)}</small>
+      </button>`;
   }
 
   const weekEntries=state.timeEntries.filter(t=>new Date(t.clocked_in_at)>=weekStart&&new Date(t.clocked_in_at)<weekEnd);
