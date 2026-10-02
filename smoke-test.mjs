@@ -183,6 +183,18 @@ if(
   throw new Error("Greeting animation regression: retired witch animation returned");
 }
 
+if(
+  !html.includes('id="authShell" hidden aria-hidden="true" inert') ||
+  !html.includes('id="authForm" class="auth-form" autocomplete="off"') ||
+  !html.includes('id="authEmail" type="email" required autocomplete="off"') ||
+  !html.includes('placeholder="Email address" disabled') ||
+  app.includes('password.autocomplete=password.dataset.tleAutocompleteIntent') ||
+  app.includes('email.autocomplete="username"') ||
+  app.includes('email.autocomplete="email"')
+){
+  throw new Error("iOS auth regression: boot can expose browser credential autofill");
+}
+
 if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){
   throw new Error("Session regression: resilient Supabase persistence is missing");
 }
