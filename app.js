@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-dashboard-nav-r13";
+const APP_VERSION = "20261002-witch-sweep-r14";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1880,50 +1880,43 @@ function playHeroOpeningAnimation(){
 
     slot.classList.remove("is-playing");
     slot.replaceChildren();
+
     const image=new Image();
     image.alt="";
     image.decoding="async";
     image.draggable=false;
-    image.onload=()=>{
-      try{
-        const canvas=document.createElement("canvas");
-        const naturalWidth=Math.max(1,image.naturalWidth||320);
-        const naturalHeight=Math.max(1,image.naturalHeight||320);
-        canvas.width=naturalWidth;
-        canvas.height=naturalHeight;
-        canvas.className="hero-opening-still";
-        const ctx=canvas.getContext("2d",{alpha:true});
-        ctx?.drawImage(image,0,0,naturalWidth,naturalHeight);
-        slot.replaceChildren(canvas);
-      }catch(err){
-        console.warn("[TLE] greeting still frame",err);
-      }
-    };
-    image.src=HERO_OPENING_ANIMATION_URL+"#still-"+now;
+    image.className="hero-opening-witch";
 
-    requestAnimationFrame(()=>{
+    const positionAndPlay=()=>{
       const heroRect=hero.getBoundingClientRect();
       const actionRect=action.getBoundingClientRect();
       const compact=window.innerWidth<=390;
       const mobile=window.innerWidth<=720;
-      const slotWidth=compact?78:(mobile?88:108);
-      const slotHeight=compact?84:(mobile?94:116);
+      const slotWidth=compact?82:(mobile?94:116);
+      const slotHeight=compact?88:(mobile?102:124);
       const rightGap=Math.max(10,heroRect.right-actionRect.right);
       const left=Math.max(8,heroRect.width-rightGap-slotWidth);
-      const top=Math.max(8,actionRect.top-heroRect.top-slotHeight-4);
+      const top=Math.max(8,actionRect.top-heroRect.top-slotHeight-2);
       slot.style.setProperty("--tle-greeting-left",left+"px");
       slot.style.setProperty("--tle-greeting-top",top+"px");
       slot.style.setProperty("--tle-greeting-width",slotWidth+"px");
       slot.style.setProperty("--tle-greeting-height",slotHeight+"px");
+      slot.replaceChildren(image);
       void slot.offsetWidth;
       slot.classList.add("is-playing");
-    });
 
-    clearTimeout(heroOpeningAnimationTimer);
-    heroOpeningAnimationTimer=setTimeout(()=>{
-      slot.classList.remove("is-playing");
-      slot.replaceChildren();
-    },6000);
+      clearTimeout(heroOpeningAnimationTimer);
+      heroOpeningAnimationTimer=setTimeout(()=>{
+        slot.classList.remove("is-playing");
+        slot.replaceChildren();
+      },6000);
+    };
+
+    image.onload=()=>requestAnimationFrame(positionAndPlay);
+    image.onerror=()=>console.warn("[TLE] greeting witch asset failed to load");
+    // Use the animated WebP itself. Re-inserting a fresh image restarts its
+    // internal broom-sweeping motion while the character stays in one spot.
+    image.src=HERO_OPENING_ANIMATION_URL+"?play="+now;
   }catch(err){
     console.warn("[TLE] greeting opening animation",err);
   }

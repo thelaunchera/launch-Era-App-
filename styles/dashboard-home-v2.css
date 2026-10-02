@@ -561,3 +561,36 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
 @media(max-width:390px){
   .dashboard-quick-card{min-height:98px!important}
 }
+
+
+/* Sweeping witch fix r14
+   The character stays above the CTA; the animated WebP supplies the broom motion. */
+#todayHeroCard .hero-opening-animation{
+  overflow:visible!important;
+}
+#todayHeroCard .hero-opening-animation .hero-opening-witch{
+  position:absolute!important;
+  left:0!important;
+  right:auto!important;
+  bottom:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:right bottom!important;
+  opacity:0;
+  transform:none!important;
+  filter:drop-shadow(0 5px 8px rgba(12,19,34,.16));
+  pointer-events:none!important;
+  user-select:none!important;
+}
+#todayHeroCard .hero-opening-animation.is-playing .hero-opening-witch{
+  animation:tleWitchSweepInPlace 6s linear both!important;
+}
+@keyframes tleWitchSweepInPlace{
+  0%{opacity:0;transform:none}
+  6%{opacity:1;transform:none}
+  90%{opacity:1;transform:none}
+  100%{opacity:0;transform:none}
+}

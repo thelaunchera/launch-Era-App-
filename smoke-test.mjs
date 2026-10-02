@@ -58,6 +58,7 @@ const styles=[
   "styles/release-mobile.css",
   "styles/release-latest.css",
   "styles/responsive-shell.css",
+  "styles/dashboard-home-v2.css",
   "styles/customer-documents.css"
 ].map(file=>fs.readFileSync(file,"utf8")).join("\n");
 
@@ -172,6 +173,15 @@ if(app.includes("access_token:accessToken") || app.includes("refresh_token:refre
 if(!app.includes("function restoreOwnerSessionFromBackup(){") || !app.includes("clearOwnerSessionBackup();")){
   throw new Error("Session regression: legacy Owner token backup cleanup is missing");
 }
+if(
+  !app.includes('image.className="hero-opening-witch"') ||
+  app.includes('canvas.className="hero-opening-still"') ||
+  !styles.includes("@keyframes tleWitchSweepInPlace") ||
+  !styles.includes(".hero-opening-witch")
+){
+  throw new Error("Sweeping witch regression: animated broom asset was replaced by a still frame");
+}
+
 if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){
   throw new Error("Session regression: resilient Supabase persistence is missing");
 }
