@@ -62,6 +62,20 @@ self.addEventListener("activate",event=>{
     const keys=await caches.keys();
     await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
     await self.clients.claim();
+
+    // Installed iPhone PWAs can keep an already-open document alive after a
+    // service-worker update. Refresh only the private root app shell once so
+    // the new auth/session code takes effect immediately. Public/sensitive
+    // booking links are intentionally excluded.
+    const clients=await self.clients.matchAll({type:"window",includeUncontrolled:true});
+    await Promise.all(clients.map(async client=>{
+      try{
+        const url=new URL(client.url);
+        const sensitive=["token","session_id","invite","worker","billing","slug","public"].some(key=>url.searchParams.has(key));
+        const rootPath=url.pathname==="/" || /\/index\.html$/.test(url.pathname);
+        if(rootPath && !sensitive) await client.navigate(client.url);
+      }catch{}
+    }));
   })());
 });
 
