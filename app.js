@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-ios-auth-persist-r20";
+const APP_VERSION = "20261002-ios-faceid-rollout-r21";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -146,13 +146,13 @@ function ensureAuthPasswordInput(){
   if(!wrap) return null;
   password=document.createElement("input");
   password.id="authPassword";
-  password.name="password";
-  password.type="password";
+  password.type="text";
   password.required=true;
   password.minLength=8;
   password.autocomplete="off";
   password.readOnly=true;
   password.dataset.tlePasswordLocked="1";
+  password.dataset.tleAutocompleteIntent="current-password";
   password.enterKeyHint="go";
   password.placeholder="Password";
   const toggle=wrap.querySelector("#authPasswordToggle");
@@ -163,11 +163,15 @@ function lockAuthPasswordInput(password,intent="current-password"){
   if(!password) return;
   password.dataset.tleAutocompleteIntent=intent;
   password.dataset.tlePasswordLocked="1";
+  password.removeAttribute("name");
+  password.type="text";
   password.autocomplete="off";
   password.readOnly=true;
 }
 function activateAuthPasswordInput(password){
   if(!password || password.dataset.tlePasswordLocked!=="1") return;
+  password.name="password";
+  password.type="password";
   password.readOnly=false;
   password.autocomplete=password.dataset.tleAutocompleteIntent||"current-password";
   delete password.dataset.tlePasswordLocked;
@@ -3094,6 +3098,7 @@ function syncAuthPasswordToggle(){
 function toggleAuthPasswordVisibility(){
   const input=$("#authPassword");
   if(!input) return;
+  if(input.dataset.tlePasswordLocked==="1") activateAuthPasswordInput(input);
   let start=null,end=null;
   try{start=input.selectionStart;end=input.selectionEnd;}catch{}
   input.type=input.type==="password"?"text":"password";

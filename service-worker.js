@@ -1,39 +1,39 @@
-const CACHE_NAME="tle-cleaning-app-20261002-ios-auth-persist-r20";
+const CACHE_NAME="tle-cleaning-app-20261002-ios-faceid-rollout-r21";
 const CORE=[
-  "./boot.js?v=20261002-ios-auth-persist-r20",
-  "./styles/boot.css?v=20261002-ios-auth-persist-r20",
+  "./boot.js?v=20261002-ios-faceid-rollout-r21",
+  "./styles/boot.css?v=20261002-ios-faceid-rollout-r21",
   "./",
   "./index.html",
-  "./styles.css?v=20261002-ios-auth-persist-r20",
-  "./styles/workspace-components.css?v=20261002-ios-auth-persist-r20",
-  "./styles/workspace-experience.css?v=20261002-ios-auth-persist-r20",
-  "./styles/workspace-operations.css?v=20261002-ios-auth-persist-r20",
-  "./styles/release-overrides.css?v=20261002-ios-auth-persist-r20",
-  "./styles/release-mobile.css?v=20261002-ios-auth-persist-r20",
-  "./styles/release-latest.css?v=20261002-ios-auth-persist-r20",
-  "./styles/responsive-shell.css?v=20261002-ios-auth-persist-r20",
-  "./styles/customer-documents.css?v=20261002-ios-auth-persist-r20",
-  "./styles/public-booking.css?v=20261002-ios-auth-persist-r20",
-  "./styles/booking-discounts.css?v=20261002-ios-auth-persist-r20",
-  "./styles/public-manage.css?v=20261002-ios-auth-persist-r20",
-  "./styles/invoice-polish.css?v=20261002-ios-auth-persist-r20",
-  "./styles/welcome-packet.css?v=20261002-ios-auth-persist-r20",
-  "./styles/dashboard-home-v2.css?v=20261002-ios-auth-persist-r20",
-  "./styles/auth-entry-v2.css?v=20261002-ios-auth-persist-r20",
-  "./app.js?v=20261002-ios-auth-persist-r20",
-  "./welcome-packet-owner.js?v=20261002-ios-auth-persist-r20",
-  "./followups.js?v=20261002-ios-auth-persist-r20",
-  "./i18n-completion.js?v=20261002-ios-auth-persist-r20",
-  "./i18n.js?v=20261002-ios-auth-persist-r20",
-  "./onboarding-copy.js?v=20261002-ios-auth-persist-r20",
-  "./public-discounts.js?v=20261002-ios-auth-persist-r20",
-  "./public-manage.js?v=20261002-ios-auth-persist-r20",
-  "./public.js?v=20261002-ios-auth-persist-r20",
-  "./public-welcome.js?v=20261002-ios-auth-persist-r20",
-  "./dashboard-home-v2.js?v=20261002-ios-auth-persist-r20",
-  "./vendor/supabase.js?v=20261002-ios-auth-persist-r20",
-  "./auth-storage.js?v=20261002-ios-auth-persist-r20",
-  "./manifest.webmanifest?v=20261002-ios-auth-persist-r20"
+  "./styles.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/workspace-components.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/workspace-experience.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/workspace-operations.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/release-overrides.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/release-mobile.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/release-latest.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/responsive-shell.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/customer-documents.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/public-booking.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/booking-discounts.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/public-manage.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/invoice-polish.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/welcome-packet.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/dashboard-home-v2.css?v=20261002-ios-faceid-rollout-r21",
+  "./styles/auth-entry-v2.css?v=20261002-ios-faceid-rollout-r21",
+  "./app.js?v=20261002-ios-faceid-rollout-r21",
+  "./welcome-packet-owner.js?v=20261002-ios-faceid-rollout-r21",
+  "./followups.js?v=20261002-ios-faceid-rollout-r21",
+  "./i18n-completion.js?v=20261002-ios-faceid-rollout-r21",
+  "./i18n.js?v=20261002-ios-faceid-rollout-r21",
+  "./onboarding-copy.js?v=20261002-ios-faceid-rollout-r21",
+  "./public-discounts.js?v=20261002-ios-faceid-rollout-r21",
+  "./public-manage.js?v=20261002-ios-faceid-rollout-r21",
+  "./public.js?v=20261002-ios-faceid-rollout-r21",
+  "./public-welcome.js?v=20261002-ios-faceid-rollout-r21",
+  "./dashboard-home-v2.js?v=20261002-ios-faceid-rollout-r21",
+  "./vendor/supabase.js?v=20261002-ios-faceid-rollout-r21",
+  "./auth-storage.js?v=20261002-ios-faceid-rollout-r21",
+  "./manifest.webmanifest?v=20261002-ios-faceid-rollout-r21"
 ];
 const NAVIGATION_TIMEOUT_MS=2500;
 
@@ -62,6 +62,20 @@ self.addEventListener("activate",event=>{
     const keys=await caches.keys();
     await Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)));
     await self.clients.claim();
+
+    // Installed iPhone PWAs can keep an already-open document alive after a
+    // service-worker update. Refresh only the private root app shell once so
+    // the new auth/session code takes effect immediately. Public/sensitive
+    // booking links are intentionally excluded.
+    const clients=await self.clients.matchAll({type:"window",includeUncontrolled:true});
+    await Promise.all(clients.map(async client=>{
+      try{
+        const url=new URL(client.url);
+        const sensitive=["token","session_id","invite","worker","billing","slug","public"].some(key=>url.searchParams.has(key));
+        const rootPath=url.pathname==="/" || /\/index\.html$/.test(url.pathname);
+        if(rootPath && !sensitive) await client.navigate(client.url);
+      }catch{}
+    }));
   })());
 });
 
