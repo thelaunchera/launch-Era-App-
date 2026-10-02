@@ -29,6 +29,7 @@ const CORE=[
   "./public-manage.js?v=20261002-dashboard-home-v2-r2",
   "./public.js?v=20261002-dashboard-home-v2-r2",
   "./public-welcome.js?v=20261002-dashboard-home-v2-r2",
+  "./dashboard-home-v2.js?v=20261002-dashboard-home-v2-r2",
   "./vendor/supabase.js?v=20261002-dashboard-home-v2-r2",
   "./manifest.webmanifest?v=20261002-dashboard-home-v2-r2"
 ];
