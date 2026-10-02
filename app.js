@@ -1204,12 +1204,7 @@ function renderWeatherBrief(){
   const location=$("#weatherLocation");
 
   if(icon){
-    const localHour=Number(new Intl.DateTimeFormat("en-US",{
-      hour:"2-digit",
-      hour12:false,
-      timeZone:activeBusinessTimeZone()
-    }).format(new Date()));
-    const isNight=Number.isFinite(localHour)&&(localHour>=19||localHour<6);
+    const isNight=isBusinessNightTime(new Date());
     const family=weatherConditionFamily(weather.current.weather_code);
     let visualIcon=meta.icon;
     let hideIcon=false;
