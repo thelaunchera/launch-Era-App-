@@ -1814,84 +1814,10 @@ body.platform-owner-no-billing .trial-card{
 .job-team-option:has(input:checked){background:var(--blue);border-color:var(--blue-strong)}
 @media(max-width:640px){.job-team-options{grid-template-columns:1fr}}
 
-/* Greeting-card opening overlay */
-#todayHeroCard{
-  position:relative;
-}
-#todayHeroCard .hero-opening-animation{
-  position:absolute;
-  left:var(--tle-greeting-left,18px);
-  top:var(--tle-greeting-top,96px);
-  width:var(--tle-greeting-width,180px);
-  height:96px;
-  pointer-events:none!important;
-  user-select:none;
-  touch-action:none;
-  z-index:7;
-  opacity:0;
-  overflow:visible;
-}
-#todayHeroCard .hero-opening-animation.is-playing{
-  opacity:1;
-}
-#todayHeroCard .hero-opening-animation img{
-  position:absolute;
-  left:0;
-  bottom:0;
-  display:block;
-  width:auto;
-  max-width:66px;
-  max-height:94px;
-  object-fit:contain;
-  pointer-events:none!important;
-  user-select:none;
-  opacity:0;
-}
-#todayHeroCard .hero-opening-animation.is-playing img{
-  animation:tleGreetingSweep 6s linear both;
-}
-@keyframes tleGreetingSweep{
-  0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
-  8%{opacity:1}
-  82%{opacity:1}
-  100%{left:calc(100% - 66px);opacity:0;transform:translateY(-3px) scale(.98)}
-}
-@media(max-width:720px){
-  [data-page="today"] #todayHeroCard .hero-opening-animation{
-    height:76px;
-  }
-  [data-page="today"] #todayHeroCard .hero-opening-animation img{
-    max-width:51px;
-    max-height:74px;
-  }
-  @keyframes tleGreetingSweep{
-    0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
-    8%{opacity:1}
-    82%{opacity:1}
-    100%{left:calc(100% - 51px);opacity:0;transform:translateY(-3px) scale(.98)}
-  }
-}
-@media(max-width:390px){
-  [data-page="today"] #todayHeroCard .hero-opening-animation{
-    height:70px;
-  }
-  [data-page="today"] #todayHeroCard .hero-opening-animation img{
-    max-width:46px;
-    max-height:68px;
-  }
-  @keyframes tleGreetingSweep{
-    0%{left:0;opacity:0;transform:translateY(4px) scale(.94)}
-    8%{opacity:1}
-    82%{opacity:1}
-    100%{left:calc(100% - 46px);opacity:0;transform:translateY(-3px) scale(.98)}
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  #todayHeroCard .hero-opening-animation{display:none!important}
-}
-}
+/* Greeting card remains the positioning context for weather/night layers. */
+#todayHeroCard{position:relative}
 
-/* 2026-10-01 — live night greeting sky + lunar phase + static witch v255 */
+/* 2026-10-01 — live night greeting sky + lunar phase */
 #todayHeroCard[data-celestial="night"]{
   isolation:isolate;
   overflow:hidden!important;
@@ -1970,14 +1896,6 @@ body.platform-owner-no-billing .trial-card{
 .moon-crater.crater-b{width:6px;height:6px;right:11px;top:13px}
 .moon-crater.crater-c{width:11px;height:11px;right:15px;bottom:10px}
 
-#todayHeroCard .hero-opening-animation{width:var(--tle-greeting-width,88px)!important;height:var(--tle-greeting-height,94px)!important;overflow:visible!important;opacity:0!important}
-#todayHeroCard .hero-opening-animation.is-playing{opacity:1!important}
-#todayHeroCard .hero-opening-animation .hero-opening-still{
-  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:right bottom!important;
-  opacity:0;transform:none!important;animation:none!important;filter:drop-shadow(0 5px 8px rgba(12,19,34,.15));
-}
-#todayHeroCard .hero-opening-animation.is-playing .hero-opening-still{animation:tleGreetingStillSixSeconds 6s ease both!important}
-@keyframes tleGreetingStillSixSeconds{0%{opacity:0}7%,82%{opacity:1}100%{opacity:0}}
 @media(max-width:720px){
   #todayHeroCard .hero-moon-orb{width:47px!important;height:47px!important;top:-2px!important}
   .moon-crater.crater-a{width:8px;height:8px;left:10px;top:14px}

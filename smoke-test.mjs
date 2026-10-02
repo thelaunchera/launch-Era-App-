@@ -174,12 +174,13 @@ if(!app.includes("function restoreOwnerSessionFromBackup(){") || !app.includes("
   throw new Error("Session regression: legacy Owner token backup cleanup is missing");
 }
 if(
-  !app.includes('image.className="hero-opening-witch"') ||
-  app.includes('canvas.className="hero-opening-still"') ||
-  !styles.includes("@keyframes tleWitchSweepNatural") ||
-  !styles.includes(".hero-opening-witch")
+  app.includes("HERO_OPENING_ANIMATION_URL") ||
+  app.includes("playHeroOpeningAnimation") ||
+  app.includes("hero-opening-witch") ||
+  styles.includes("tleWitchSweepNatural") ||
+  styles.includes("hero-opening-witch")
 ){
-  throw new Error("Sweeping witch regression: animated broom asset was replaced by a still frame");
+  throw new Error("Greeting animation regression: retired witch animation returned");
 }
 
 if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){
