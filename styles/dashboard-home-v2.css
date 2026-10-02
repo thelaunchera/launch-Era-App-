@@ -682,3 +682,22 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     display:contents!important;
   }
 }
+
+
+/* iOS Safari browser chrome safe-area fix r23
+   Safari tabs can report a zero CSS safe-area inset while the status bar still
+   overlays the page. Only browser-mode iOS gets this fallback; installed PWA,
+   Android, tablet and desktop keep their existing geometry. */
+@media(max-width:680px){
+  html.tle-ios-browser{
+    --tle-browser-top-inset:max(env(safe-area-inset-top),54px);
+  }
+  html.tle-ios-browser #appShell:not([hidden])>.main{
+    padding-top:calc(var(--tle-browser-top-inset) + 72px)!important;
+    scroll-padding-top:calc(var(--tle-browser-top-inset) + 72px)!important;
+  }
+  html.tle-ios-browser #appShell:not([hidden])>.main>.topbar{
+    min-height:calc(var(--tle-browser-top-inset) + 62px)!important;
+    padding-top:calc(var(--tle-browser-top-inset) + 8px)!important;
+  }
+}
