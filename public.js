@@ -171,10 +171,11 @@
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
       const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle",etransfer:"E-transfer",bank_transfer:"Bank transfer",other:"Other"};
+      const allowedPaymentMethods=new Set(["cash","check","zelle"]);
       const configuredMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
-        ? data.payment_methods.map(x=>String(x).toLowerCase())
-        : ["cash","check"];
-      const enabledMethods=[...new Set([...configuredMethods,"other"])];
+        ? data.payment_methods.map(x=>String(x).toLowerCase()).filter(x=>allowedPaymentMethods.has(x))
+        : ["cash","check","zelle"];
+      const enabledMethods=configuredMethods.length?[...new Set(configuredMethods)]:["cash","check","zelle"];
       $("#invoiceViewMethods").textContent=enabledMethods.map(x=>tt(methodLabels[x]||x)).join(" · ");
 
       const choices=$("#invoicePaymentChoices");
@@ -197,6 +198,10 @@
       if(otherInput) otherInput.value=selectedDetail;
       const isPaid=String(data?.status||"").toLowerCase()==="paid";
       let hasSubmittedChoice=Boolean(data?.customer_payment_selected_at);
+      if(!hasSubmittedChoice && selected && !enabledMethods.includes(selected)){
+        selected="";
+        selectedDetail="";
+      }
 
       if(choices){
         choices.innerHTML=enabledMethods.map(method=>
