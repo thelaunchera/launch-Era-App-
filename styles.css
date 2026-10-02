@@ -1933,7 +1933,7 @@ body.platform-owner-no-billing .trial-card{
 
 .hero-moon-orb{
   --tle-moon-shadow-x:0%;--tle-moon-scale:.92;
-  width:54px!important;height:54px!important;left:3px!important;top:-1px!important;border-radius:50%;
+  width:62px!important;height:62px!important;left:1px!important;top:-5px!important;border-radius:50%;
   overflow:visible!important;opacity:0!important;font-size:0!important;transform:scale(var(--tle-moon-scale))!important;
   filter:drop-shadow(0 0 11px rgba(239,244,255,.48))!important;transition:transform .55s ease,opacity .3s ease!important;
 }
@@ -1941,10 +1941,11 @@ body.platform-owner-no-billing .trial-card{
 .hero-moon-surface,.hero-moon-shadow{position:absolute;inset:0;display:block;border-radius:50%}
 .hero-moon-surface{
   overflow:hidden;
-  background:radial-gradient(circle at 29% 31%,rgba(178,181,176,.30) 0 7%,transparent 8%),radial-gradient(circle at 69% 38%,rgba(163,167,164,.22) 0 5%,transparent 6%),radial-gradient(circle at 58% 72%,rgba(159,163,159,.24) 0 8%,transparent 9%),radial-gradient(circle at 42% 57%,rgba(255,255,244,.72) 0 19%,transparent 20%),radial-gradient(circle at 38% 33%,#FFFDF1 0%,#EEE9D8 58%,#CFC9BB 100%);
-  box-shadow:inset -7px -8px 12px rgba(101,109,120,.18),inset 4px 4px 8px rgba(255,255,255,.34);
+  background:radial-gradient(circle at 27% 29%,rgba(38,42,43,.26) 0 6%,rgba(215,216,211,.08) 7%,transparent 9%),radial-gradient(circle at 68% 35%,rgba(46,50,51,.23) 0 4%,rgba(225,225,219,.08) 5%,transparent 7%),radial-gradient(circle at 61% 72%,rgba(38,42,43,.25) 0 7%,rgba(224,224,216,.08) 8%,transparent 10%),radial-gradient(circle at 42% 58%,rgba(42,46,47,.19) 0 10%,transparent 13%),radial-gradient(circle at 76% 57%,rgba(52,56,57,.19) 0 5%,transparent 7%),radial-gradient(circle at 20% 66%,rgba(232,232,226,.18) 0 6%,transparent 8%),radial-gradient(circle at 38% 31%,#D9DAD5 0%,#B3B5B0 43%,#858985 72%,#5E6463 100%);
+  box-shadow:inset -10px -12px 18px rgba(25,31,37,.34),inset 5px 5px 9px rgba(255,255,255,.20);
+  filter:saturate(.15) contrast(1.16) brightness(.94);
 }
-.hero-moon-shadow{z-index:3;background:#102A52;transform:translateX(var(--tle-moon-shadow-x)) scale(1.025);box-shadow:-2px 0 5px rgba(7,20,46,.22);transition:transform .55s ease}
+.hero-moon-shadow{z-index:3;background:#09172F;opacity:.98;transform:translateX(var(--tle-moon-shadow-x)) scale(1.025);box-shadow:-3px 0 8px rgba(3,10,24,.34);transition:transform .55s ease}
 .moon-crater{position:absolute;z-index:2;border-radius:50%;background:rgba(134,139,139,.18);box-shadow:inset 1px 1px 2px rgba(81,87,91,.14),1px 1px 1px rgba(255,255,255,.18)}
 .moon-crater.crater-a{width:9px;height:9px;left:12px;top:16px}
 .moon-crater.crater-b{width:6px;height:6px;right:11px;top:13px}
@@ -1959,7 +1960,7 @@ body.platform-owner-no-billing .trial-card{
 #todayHeroCard .hero-opening-animation.is-playing .hero-opening-still{animation:tleGreetingStillSixSeconds 6s ease both!important}
 @keyframes tleGreetingStillSixSeconds{0%{opacity:0}7%,82%{opacity:1}100%{opacity:0}}
 @media(max-width:720px){
-  #todayHeroCard .hero-moon-orb{width:47px!important;height:47px!important;top:-2px!important}
+  #todayHeroCard .hero-moon-orb{width:56px!important;height:56px!important;top:-4px!important}
   .moon-crater.crater-a{width:8px;height:8px;left:10px;top:14px}
   .moon-crater.crater-b{width:5px;height:5px;right:9px;top:12px}
   .moon-crater.crater-c{width:9px;height:9px;right:13px;bottom:9px}
