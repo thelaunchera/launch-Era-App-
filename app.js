@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-mobile-shell-stable-r19";
+const APP_VERSION = "20261002-ios-auth-persist-r20";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -151,12 +151,35 @@ function ensureAuthPasswordInput(){
   password.required=true;
   password.minLength=8;
   password.autocomplete="off";
+  password.readOnly=true;
+  password.dataset.tlePasswordLocked="1";
   password.enterKeyHint="go";
   password.placeholder="Password";
   const toggle=wrap.querySelector("#authPasswordToggle");
   wrap.insertBefore(password,toggle||null);
   return password;
 }
+function lockAuthPasswordInput(password,intent="current-password"){
+  if(!password) return;
+  password.dataset.tleAutocompleteIntent=intent;
+  password.dataset.tlePasswordLocked="1";
+  password.autocomplete="off";
+  password.readOnly=true;
+}
+function activateAuthPasswordInput(password){
+  if(!password || password.dataset.tlePasswordLocked!=="1") return;
+  password.readOnly=false;
+  password.autocomplete=password.dataset.tleAutocompleteIntent||"current-password";
+  delete password.dataset.tlePasswordLocked;
+}
+document.addEventListener("pointerdown",event=>{
+  const password=event.target?.closest?.("#authPassword");
+  if(password) activateAuthPasswordInput(password);
+},{capture:true});
+document.addEventListener("keydown",event=>{
+  const password=event.target?.closest?.("#authPassword");
+  if(password) activateAuthPasswordInput(password);
+},{capture:true});
 function suspendAuthPasswordAutofill(){
   const password=authShell?.querySelector("#authPassword");
   if(!password) return;
@@ -3115,7 +3138,7 @@ function setAuthMode(mode,options={}){
     switchBtn.hidden=false;
     passwordField.hidden=false;
     password.required=true;
-    password.autocomplete="new-password";
+    lockAuthPasswordInput(password,"new-password");
     password.placeholder="Create a password";
     if(email){
       email.autocomplete="email";
@@ -3132,7 +3155,7 @@ function setAuthMode(mode,options={}){
     switchBtn.hidden=true;
     passwordField.hidden=false;
     password.required=true;
-    password.autocomplete="new-password";
+    lockAuthPasswordInput(password,"new-password");
     if(email) email.autocomplete="username";
     emailField.hidden=true;
     forgot.hidden=true;
@@ -3146,7 +3169,7 @@ function setAuthMode(mode,options={}){
     switchBtn.hidden=false;
     passwordField.hidden=false;
     password.required=true;
-    password.autocomplete="current-password";
+    lockAuthPasswordInput(password,"current-password");
     password.placeholder="Password";
     if(email){
       email.autocomplete="username";
