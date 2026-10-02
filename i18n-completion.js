@@ -2108,7 +2108,8 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Create invoices":"Kreye fakti",
     "Create a password":"Kreye yon modpas",
     "Email address":"Adrès imel",
-    "Password":"Modpas"
+    "Password":"Modpas",
+    "Remember me":"Sonje mwen"
   });
 
   // Final weather advice coverage used by the dynamic dashboard.
