@@ -432,10 +432,7 @@ if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") 
 if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.includes("persistRememberUsername")){
   throw new Error("Auth regression: remember-username flow is missing");
 }
-if(
-  !app.includes('$$(".mobile-bottom-item[data-mobile-root]").forEach') ||
-  app.includes('  $(".mobile-bottom-item[data-mobile-root]").forEach')
-){
+if(!app.includes('document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach')){
   throw new Error("Mobile navigation regression: bottom-nav sync must iterate a NodeList");
 }
 if(!app.includes('menuButton.hidden=!isHomeView')){
