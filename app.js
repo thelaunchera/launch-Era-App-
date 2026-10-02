@@ -1924,13 +1924,15 @@ function playHeroOpeningAnimation(){
 
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
-    playHeroOpeningAnimation();
+    if(Date.now()>=Number(window.__tleSuppressHeroUntil||0)) playHeroOpeningAnimation();
   }else if(document.visibilityState==="hidden"){
     clearTimeout(heroOpeningAnimationHourlyTimer);
   }
 });
 window.addEventListener("pageshow",()=>{
-  if(state.session && appShell && !appShell.hidden) playHeroOpeningAnimation();
+  if(state.session && appShell && !appShell.hidden && Date.now()>=Number(window.__tleSuppressHeroUntil||0)){
+    playHeroOpeningAnimation();
+  }
 });
 
 function showApp(){
@@ -10619,7 +10621,102 @@ function weatherFallbackUrl(){
   return "https://www.google.com/search?q="+encodeURIComponent("weather "+place);
 }
 
+const WEATHER_RETURN_KEY="tle_weather_return_v1";
+function readWeatherReturnState(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(WEATHER_RETURN_KEY)||"null");
+    return saved&&saved.startedAt?saved:null;
+  }catch{
+    return null;
+  }
+}
+function markWeatherExternalLaunch(){
+  const view=String($(".view.active")?.dataset.page||"today");
+  let scrollTop=0;
+  try{scrollTop=Number(workspaceScrollTop()||0);}catch{}
+  const payload={view,scrollTop,startedAt:Date.now()};
+  try{sessionStorage.setItem(WEATHER_RETURN_KEY,JSON.stringify(payload));}catch{}
+  window.__tleWeatherReturnPending=payload;
+  // iOS fires visibility/pageshow while rebuilding the standalone viewport.
+  // Do not restart the greeting animation during that handoff.
+  window.__tleSuppressHeroUntil=Date.now()+5000;
+}
+function clearWeatherReturnState(){
+  window.__tleWeatherReturnPending=null;
+  try{sessionStorage.removeItem(WEATHER_RETURN_KEY);}catch{}
+}
+function restoreAppAfterWeatherReturn(){
+  if(document.visibilityState==="hidden") return false;
+  const pending=window.__tleWeatherReturnPending||readWeatherReturnState();
+  if(!pending) return false;
+  if(Date.now()-Number(pending.startedAt||0)>15*60*1000){
+    clearWeatherReturnState();
+    return false;
+  }
+  if(window.__tleBootInProgress || window.__tleBootResolved!==true || !state.session || !state.business){
+    return false;
+  }
+
+  dismissSessionSplash();
+  setShellState("app");
+  if(workerShell) workerShell.hidden=true;
+  if(publicShell) publicShell.hidden=true;
+  if(authShell) authShell.hidden=true;
+  if(appShell) appShell.hidden=false;
+
+  const targetView=String(pending.view||"today");
+  const targetScroll=Math.max(0,Number(pending.scrollTop||0));
+  workspaceScrollPositions[targetView]=targetScroll;
+  const currentView=String($(".view.active")?.dataset.page||"");
+  if(currentView!==targetView){
+    openView(targetView,{fromRestore:true,skipTrack:true,skipIntro:true});
+  }
+
+  // iOS can return from Weather with the inner app scroller offset by a few
+  // pixels under the fixed top bar. Restore both scroll layers after layout
+  // settles so the sun/clock row is never clipped or pulled upward.
+  const restorePosition=()=>{
+    try{setWorkspaceScrollTop(targetScroll);}catch{}
+    try{
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+    }catch{}
+    try{
+      const main=$("#appShell>.main");
+      if(main){
+        main.style.webkitOverflowScrolling="auto";
+        void main.offsetHeight;
+        main.style.webkitOverflowScrolling="touch";
+      }
+    }catch{}
+  };
+  requestAnimationFrame(()=>{
+    restorePosition();
+    requestAnimationFrame(restorePosition);
+  });
+  setTimeout(restorePosition,160);
+  setTimeout(restorePosition,520);
+
+  window.__tleSuppressHeroUntil=Date.now()+1400;
+  clearWeatherReturnState();
+  return true;
+}
+function scheduleWeatherReturnRecovery(){
+  [0,120,360,760].forEach(delay=>{
+    setTimeout(()=>{
+      if(window.__tleWeatherReturnPending||readWeatherReturnState()) restoreAppAfterWeatherReturn();
+    },delay);
+  });
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible") scheduleWeatherReturnRecovery();
+});
+window.addEventListener("pageshow",scheduleWeatherReturnRecovery,{passive:true});
+window.addEventListener("focus",scheduleWeatherReturnRecovery,{passive:true});
+
 function openDeviceWeather(){
+  markWeatherExternalLaunch();
   const ua=navigator.userAgent||"";
   const isIOS=/iPad|iPhone|iPod/i.test(ua)
     || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
