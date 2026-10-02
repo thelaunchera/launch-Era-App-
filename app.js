@@ -173,7 +173,9 @@ function activateAuthPasswordInput(password){
   password.name="password";
   password.type="password";
   password.readOnly=false;
-  password.autocomplete=password.dataset.tleAutocompleteIntent||"current-password";
+  // Keep browser credential autofill disabled. The user can still type/paste
+  // normally, but iOS cannot launch Face ID merely because this field exists.
+  password.autocomplete="off";
   delete password.dataset.tlePasswordLocked;
 }
 document.addEventListener("pointerdown",event=>{
@@ -192,10 +194,23 @@ function suspendAuthPasswordAutofill(){
 }
 function setAuthShellAvailable(available){
   if(!authShell) return;
+  const email=authShell.querySelector("#authEmail");
   authShell.hidden=!available;
+  authShell.inert=!available;
   if(available){
     authShell.removeAttribute("aria-hidden");
+    if(email){
+      email.disabled=false;
+      email.removeAttribute("name");
+      email.autocomplete="off";
+    }
   }else{
+    if(email){
+      try{email.blur();}catch{}
+      email.disabled=true;
+      email.removeAttribute("name");
+      email.autocomplete="off";
+    }
     suspendAuthPasswordAutofill();
     authShell.setAttribute("aria-hidden","true");
   }
@@ -3023,7 +3038,7 @@ function setAuthMode(mode,options={}){
   const signupLegalNote=$("#signupLegalNote");
   if(password){
     password.disabled=false;
-    password.type="password";
+    lockAuthPasswordInput(password,password.dataset.tleAutocompleteIntent||"current-password");
   }
   syncAuthPasswordToggle();
 
@@ -3039,7 +3054,7 @@ function setAuthMode(mode,options={}){
     lockAuthPasswordInput(password,"new-password");
     password.placeholder="Create a password";
     if(email){
-      email.autocomplete="email";
+      email.autocomplete="off";
       email.placeholder="Email address";
     }
     emailField.hidden=false;
@@ -3054,7 +3069,7 @@ function setAuthMode(mode,options={}){
     passwordField.hidden=false;
     password.required=true;
     lockAuthPasswordInput(password,"new-password");
-    if(email) email.autocomplete="username";
+    if(email) email.autocomplete="off";
     emailField.hidden=true;
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
@@ -3070,7 +3085,7 @@ function setAuthMode(mode,options={}){
     lockAuthPasswordInput(password,"current-password");
     password.placeholder="Password";
     if(email){
-      email.autocomplete="username";
+      email.autocomplete="off";
       email.placeholder="Email address";
     }
     emailField.hidden=false;
