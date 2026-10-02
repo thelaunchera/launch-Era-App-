@@ -637,20 +637,56 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
 }
 
 
-/* iOS Safari browser chrome safe-area fix r23
-   Safari tabs can report a zero CSS safe-area inset while the status bar still
-   overlays the page. Only browser-mode iOS gets this fallback; installed PWA,
-   Android, tablet and desktop keep their existing geometry. */
+/* iOS Safari browser shell fix r25
+   Safari's dynamic browser chrome can report an exaggerated safe-area inset.
+   Do not feed that volatile value back into layout. Use one stable browser-only
+   inset and lock the workspace to the visual viewport width. */
 @media(max-width:680px){
   html.tle-ios-browser{
-    --tle-browser-top-inset:max(env(safe-area-inset-top),54px);
+    --tle-browser-top-inset:48px;
   }
-  html.tle-ios-browser #appShell:not([hidden])>.main{
-    padding-top:calc(var(--tle-browser-top-inset) + 72px)!important;
-    scroll-padding-top:calc(var(--tle-browser-top-inset) + 72px)!important;
+  html.tle-ios-browser body.shell-app #appShell:not([hidden]){
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    overflow:hidden!important;
   }
-  html.tle-ios-browser #appShell:not([hidden])>.main>.topbar{
-    min-height:calc(var(--tle-browser-top-inset) + 62px)!important;
-    padding-top:calc(var(--tle-browser-top-inset) + 8px)!important;
+  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding-top:112px!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+    scroll-padding-top:112px!important;
+    overflow-x:hidden!important;
+  }
+  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main>.topbar{
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-height:104px!important;
+    margin:0!important;
+    padding:55px 12px 9px!important;
+    box-sizing:border-box!important;
+  }
+  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main>.view,
+  html.tle-ios-browser body.shell-app #appShell:not([hidden]) section.view[data-page="today"].active,
+  html.tle-ios-browser body.shell-app #appShell:not([hidden]) #todayHeroCard,
+  html.tle-ios-browser body.shell-app #appShell:not([hidden]) .dashboard-quick-access{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    box-sizing:border-box!important;
+  }
+  html.tle-ios-browser body.shell-app #appShell:not([hidden]) section.view[data-page="today"].active{
+    padding-left:0!important;
+    padding-right:0!important;
+    overflow-x:hidden!important;
   }
 }
