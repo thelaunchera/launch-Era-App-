@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-ios-auth-layout-r25";
+const APP_VERSION = "20261002-ios-root-cause-r26";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -139,6 +139,25 @@ const businessForm = $("#businessForm");
 const entityForm = $("#entityForm");
 const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
+function ensureAuthEmailInput(){
+  let email=authShell?.querySelector("#authEmail");
+  if(email) return email;
+  const mount=authShell?.querySelector("#authEmailMount");
+  if(!mount) return null;
+  email=document.createElement("input");
+  email.id="authEmail";
+  email.type="email";
+  email.required=true;
+  email.autocomplete="off";
+  email.inputMode="email";
+  email.autocapitalize="none";
+  email.autocorrect="off";
+  email.spellcheck=false;
+  email.enterKeyHint="next";
+  email.placeholder="Email address";
+  mount.replaceChildren(email);
+  return email;
+}
 function ensureAuthPasswordInput(){
   let password=authShell?.querySelector("#authPassword");
   if(password) return password;
@@ -194,22 +213,15 @@ function suspendAuthPasswordAutofill(){
 }
 function setAuthShellAvailable(available){
   if(!authShell) return;
-  const email=authShell.querySelector("#authEmail");
   authShell.hidden=!available;
   authShell.inert=!available;
   if(available){
     authShell.removeAttribute("aria-hidden");
-    if(email){
-      email.disabled=false;
-      email.removeAttribute("name");
-      email.autocomplete="off";
-    }
   }else{
+    const email=authShell.querySelector("#authEmail");
     if(email){
       try{email.blur();}catch{}
-      email.disabled=true;
-      email.removeAttribute("name");
-      email.autocomplete="off";
+      email.remove();
     }
     suspendAuthPasswordAutofill();
     authShell.setAttribute("aria-hidden","true");
@@ -1767,10 +1779,10 @@ function prepareDirectAuth(modeOverride=null){
   const back=$("#authBackWelcome");
   if(back) back.hidden=true;
   const remembered=rememberedOwnerEmail();
-  const email=$("#authEmail");
-  if(remembered && email && !email.value) email.value=remembered;
   const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
   setAuthMode(nextMode);
+  const email=$("#authEmail");
+  if(remembered && email && !email.value) email.value=remembered;
   setAuthStatus("");
 }
 
@@ -2991,7 +3003,8 @@ function installOwnerActivityTracker(){
 }
 function prepareAdminShortcut(){
   const remembered=rememberedOwnerEmail();
-  if(state.authMode==="signin" && remembered && !$("#authEmail").value) $("#authEmail").value=remembered;
+  const email=$("#authEmail");
+  if(state.authMode==="signin" && remembered && email && !email.value) email.value=remembered;
 }
 
 function syncAuthPasswordToggle(){
@@ -3030,9 +3043,9 @@ function setAuthMode(mode,options={}){
   const copy=$("#authCopy");
   const submit=$("#authSubmit");
   const switchBtn=$("#authSwitch");
+  const email=ensureAuthEmailInput();
   const password=ensureAuthPasswordInput();
   const passwordField=$("#passwordField");
-  const email=$("#authEmail");
   const emailField=$("#emailField")||email?.closest("label");
   const forgot=$("#forgotPassword");
   const signupLegalNote=$("#signupLegalNote");

@@ -89,6 +89,7 @@ try{
       throw new Error(profile.name+": signup-first auth screen failed: "+JSON.stringify(authEntry));
     }
 
+    await page.waitForSelector("#authEmail",{visible:true,timeout:10000});
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
@@ -100,6 +101,13 @@ try{
       throw new Error(profile.name+": Sign up form is not usable");
     }
     await page.waitForSelector("#authPassword",{visible:true,timeout:10000});
+    const authInputSizes=await page.evaluate(()=>({
+      email:parseFloat(getComputedStyle(document.querySelector("#authEmail")).fontSize||"0"),
+      password:parseFloat(getComputedStyle(document.querySelector("#authPassword")).fontSize||"0")
+    }));
+    if(profile.name==="iPhone" && (authInputSizes.email<16 || authInputSizes.password<16)){
+      throw new Error(profile.name+": auth input font can trigger iOS focus zoom "+JSON.stringify(authInputSizes));
+    }
     const passwordToggle=await page.evaluate(()=>{
       const btn=document.querySelector("#authPasswordToggle");
       const input=document.querySelector("#authPassword");

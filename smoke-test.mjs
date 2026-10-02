@@ -186,13 +186,15 @@ if(
 if(
   !html.includes('id="authShell" hidden aria-hidden="true" inert') ||
   !html.includes('id="authForm" class="auth-form" autocomplete="off"') ||
-  !html.includes('id="authEmail" type="email" required autocomplete="off"') ||
-  !html.includes('placeholder="Email address" disabled') ||
+  !html.includes('id="authEmailMount"') ||
+  html.includes('id="authEmail"') ||
+  html.includes('id="authPassword"') ||
+  !app.includes("function ensureAuthEmailInput(){") ||
   app.includes('password.autocomplete=password.dataset.tleAutocompleteIntent') ||
   app.includes('email.autocomplete="username"') ||
   app.includes('email.autocomplete="email"')
 ){
-  throw new Error("iOS auth regression: boot can expose browser credential autofill");
+  throw new Error("iOS auth regression: initial HTML exposes browser credential fields");
 }
 
 if(!app.includes("persistSession:true") || !app.includes("autoRefreshToken:true") || !app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){

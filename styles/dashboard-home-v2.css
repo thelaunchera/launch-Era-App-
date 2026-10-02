@@ -568,12 +568,12 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
    and fixed-header rules have repainted. Key the layout to the visible
    #appShell itself so the header/safe-area geometry never disappears for a frame. */
 @media(max-width:860px){
-  #appShell:not([hidden]){
+  html body.shell-app #appShell:not([hidden]){
     height:100dvh!important;
     min-height:100dvh!important;
     overflow:hidden!important;
   }
-  #appShell:not([hidden])>.main{
+  html body.shell-app #appShell:not([hidden])>.main{
     height:100dvh!important;
     min-height:0!important;
     overflow-y:auto!important;
@@ -584,7 +584,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     padding-bottom:calc(142px + env(safe-area-inset-bottom))!important;
     scroll-padding-top:calc(env(safe-area-inset-top) + 72px)!important;
   }
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     position:fixed!important;
     top:0!important;
     left:0!important;
@@ -607,13 +607,13 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
   }
 }
 @media(max-width:680px){
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     display:grid!important;
     grid-template-columns:auto minmax(0,1fr) auto auto auto!important;
     align-items:center!important;
     gap:6px!important;
   }
-  #appShell:not([hidden]) .topbar-title{
+  html body.shell-app #appShell:not([hidden]) .topbar-title{
     position:static!important;
     left:auto!important;
     top:auto!important;
@@ -623,7 +623,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     min-width:0!important;
     text-align:left!important;
   }
-  #appShell:not([hidden]) .topbar-title h1{
+  html body.shell-app #appShell:not([hidden]) .topbar-title h1{
     margin:0!important;
     font-size:18px!important;
     line-height:1.05!important;
@@ -631,62 +631,128 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-  #appShell:not([hidden]) .top-actions{
+  html body.shell-app #appShell:not([hidden]) .top-actions{
     display:contents!important;
   }
 }
 
-
-/* iOS Safari browser shell fix r25
-   Safari's dynamic browser chrome can report an exaggerated safe-area inset.
-   Do not feed that volatile value back into layout. Use one stable browser-only
-   inset and lock the workspace to the visual viewport width. */
-@media(max-width:680px){
-  html.tle-ios-browser{
-    --tle-browser-top-inset:48px;
-  }
-  html.tle-ios-browser body.shell-app #appShell:not([hidden]){
+/* Mobile shell stabilization r26
+   Use normal sticky flow instead of a fixed header. Fixed-position headers on
+   iOS are tied to the visual viewport and can jump after Password AutoFill,
+   Face ID, keyboard transitions, or Safari chrome changes. */
+@media(max-width:860px){
+  html body.shell-app #appShell:not([hidden]){
     display:block!important;
     width:100%!important;
     max-width:100%!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
     margin:0!important;
     overflow:hidden!important;
   }
-  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main{
+  html body.shell-app #appShell:not([hidden])>.main{
     width:100%!important;
     max-width:100%!important;
+    height:100dvh!important;
+    min-height:0!important;
     margin:0!important;
-    padding-top:112px!important;
-    padding-left:12px!important;
-    padding-right:12px!important;
-    scroll-padding-top:112px!important;
+    padding-top:0!important;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    padding-bottom:calc(142px + env(safe-area-inset-bottom))!important;
+    scroll-padding-top:0!important;
+    overflow-y:auto!important;
     overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
   }
-  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
+    position:sticky!important;
     top:0!important;
-    left:0!important;
-    right:0!important;
+    left:auto!important;
+    right:auto!important;
     width:100%!important;
     max-width:100%!important;
-    min-height:104px!important;
-    margin:0!important;
-    padding:55px 12px 9px!important;
+    min-height:62px!important;
+    margin:0 0 12px!important;
+    padding:max(8px,env(safe-area-inset-top)) 0 8px!important;
     box-sizing:border-box!important;
+    background:rgba(250,248,243,.985)!important;
+    border-bottom:1px solid rgba(25,25,25,.10)!important;
+    transform:none!important;
+    z-index:50!important;
   }
-  html.tle-ios-browser body.shell-app #appShell:not([hidden])>.main>.view,
-  html.tle-ios-browser body.shell-app #appShell:not([hidden]) section.view[data-page="today"].active,
-  html.tle-ios-browser body.shell-app #appShell:not([hidden]) #todayHeroCard,
-  html.tle-ios-browser body.shell-app #appShell:not([hidden]) .dashboard-quick-access{
+  section.view[data-page="today"].active,
+  section.view[data-page="today"] #todayHeroCard,
+  section.view[data-page="today"] .dashboard-quick-access{
     width:100%!important;
     max-width:100%!important;
     min-width:0!important;
     margin-left:0!important;
     margin-right:0!important;
     box-sizing:border-box!important;
-  }
-  html.tle-ios-browser body.shell-app #appShell:not([hidden]) section.view[data-page="today"].active{
-    padding-left:0!important;
-    padding-right:0!important;
     overflow-x:hidden!important;
+  }
+}
+@media(max-width:680px){
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
+    display:grid!important;
+    grid-template-columns:36px minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:7px!important;
+  }
+  html body.shell-app #appShell:not([hidden]) #menuToggle,
+  html body.shell-app #appShell:not([hidden]) #backBtn{
+    grid-column:1!important;
+    position:relative!important;
+    inset:auto!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    margin:0!important;
+  }
+  html body.shell-app #appShell:not([hidden]) .topbar-title{
+    grid-column:2!important;
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    text-align:center!important;
+  }
+  html body.shell-app #appShell:not([hidden]) .topbar-title h1{
+    margin:0!important;
+    width:100%!important;
+    font-size:18px!important;
+    line-height:36px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  html body.shell-app #appShell:not([hidden]) .top-actions{
+    grid-column:3!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  html body.shell-app #appShell:not([hidden]) .global-search-shell,
+  html body.shell-app #appShell:not([hidden]) #languageBtn{
+    display:none!important;
+  }
+  html body.shell-app #appShell:not([hidden]) .notification-shell,
+  html body.shell-app #appShell:not([hidden]) #notificationBellBtn,
+  html body.shell-app #appShell:not([hidden]) #appRefreshBtn,
+  html body.shell-app #appShell:not([hidden]) #quickAddBtn{
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    flex:0 0 auto!important;
   }
 }
