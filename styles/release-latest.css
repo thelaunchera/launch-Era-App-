@@ -650,3 +650,15 @@
 }
 .app-shell [data-page="time"] #timeEntriesTable .empty-table strong{color:#191919!important}
 .app-shell [data-page="time"] #timeEntriesTable .empty-table span{color:#655F6A!important}
+
+
+/* 2026-10-01 — night hero must win over weather palette + witch sweeps in place v257 */
+#todayHeroCard[data-celestial="night"][data-weather]{
+  background:radial-gradient(circle at 78% 10%,rgba(91,122,205,.24),transparent 28%),radial-gradient(circle at 14% 18%,rgba(80,110,190,.16),transparent 25%),linear-gradient(165deg,#173765 0%,#102A52 48%,#0A1C3D 100%)!important;
+  color:#F8FAFF!important;
+}
+#todayHeroCard[data-celestial="night"][data-weather] #todayHeroAction{background:#F8FAFF!important;color:#10264A!important;border-color:rgba(255,255,255,.28)!important}
+#todayHeroCard[data-celestial="night"][data-weather] .hero-weather-module{background:rgba(8,24,53,.34)!important;border-color:rgba(255,255,255,.12)!important;color:#F8FAFF!important}
+#todayHeroCard .hero-opening-animation .hero-opening-sweep{position:absolute!important;right:0!important;left:auto!important;bottom:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:right bottom!important;opacity:0;transform:none!important;animation:none!important;filter:drop-shadow(0 5px 8px rgba(12,19,34,.15))}
+#todayHeroCard .hero-opening-animation.is-playing .hero-opening-sweep{animation:tleGreetingSweepInPlace 6s ease both!important}
+@keyframes tleGreetingSweepInPlace{0%{opacity:0}7%,84%{opacity:1}100%{opacity:0}}
