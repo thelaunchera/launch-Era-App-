@@ -52,7 +52,7 @@ try{
     page.on("pageerror",err=>errors.push(String(err)));
     page.on("console",msg=>{if(msg.type()==="error") errors.push(msg.text());});
     await page.goto("http://127.0.0.1:4173/?browser-smoke=1",{waitUntil:"domcontentloaded",timeout:15000});
-    await page.waitForSelector("#authWelcomeStart",{visible:true,timeout:10000});
+    await page.waitForSelector("#authPanel",{visible:true,timeout:10000});
     try{
     await page.waitForFunction(()=>window.__tleAuthUiReady===true || Boolean(document.documentElement.dataset.appError),{timeout:10000});
   }catch(err){
@@ -78,21 +78,17 @@ try{
       throw new Error(profile.name+": Follow-ups module failed to initialize "+JSON.stringify(followupsShell));
     }
 
-    const welcomeState=await page.evaluate(()=>({
-      welcomeVisible:!document.querySelector("#authWelcome")?.hidden,
-      panelHidden:!!document.querySelector("#authPanel")?.hidden,
-      startText:document.querySelector("#authWelcomeStart")?.textContent.trim(),
-      signInText:document.querySelector("#authWelcomeSignIn")?.textContent.trim()
+    const authEntry=await page.evaluate(()=>({
+      welcomeHidden:!!document.querySelector("#authWelcome")?.hidden,
+      panelVisible:!document.querySelector("#authPanel")?.hidden,
+      title:document.querySelector("#authTitle")?.textContent.trim(),
+      submit:document.querySelector("#authSubmit")?.textContent.trim(),
+      modeSignup:document.querySelector("#authShell")?.classList.contains("auth-mode-signup")
     }));
-    if(!welcomeState.welcomeVisible||!welcomeState.panelHidden||welcomeState.startText!=="Get 30 days free"){
-      throw new Error(profile.name+": welcome-first auth screen failed: "+JSON.stringify(welcomeState));
+    if(!authEntry.welcomeHidden||!authEntry.panelVisible||authEntry.title!=="Start organizing your cleaning business today."||authEntry.submit!=="Sign up"||!authEntry.modeSignup){
+      throw new Error(profile.name+": signup-first auth screen failed: "+JSON.stringify(authEntry));
     }
 
-    // Dispatch the same user interaction path without relying on Puppeteer's
-    // coordinate click on an animated mobile welcome CTA. The delegated app
-    // click handler is what this gate needs to verify.
-    await page.evaluate(()=>document.querySelector("#authWelcomeStart")?.click());
-    await page.waitForFunction(()=>!document.querySelector("#authPanel")?.hidden && document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
     const signup=await page.evaluate(()=>({
       button:{text:document.querySelector("#authSubmit")?.textContent.trim(),hidden:document.querySelector("#authSubmit")?.hidden,disabled:document.querySelector("#authSubmit")?.disabled},
       emailVisible:!!document.querySelector("#emailField") && !document.querySelector("#emailField").hidden,
@@ -100,8 +96,8 @@ try{
       trialClose:!!document.querySelector("#trialExpiryClose"),
       staticThreeDay:document.body.textContent.includes("Your free access ends in 3 days")
     }));
-    if(signup.button.text!=="Create account"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
-      throw new Error(profile.name+": Create account form is not usable");
+    if(signup.button.text!=="Sign up"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
+      throw new Error(profile.name+": Sign up form is not usable");
     }
     const passwordToggle=await page.evaluate(()=>{
       const btn=document.querySelector("#authPasswordToggle");
@@ -137,7 +133,7 @@ try{
     // Puppeteer perform an actual clickable-point tap; it scrolls the target
     // into view exactly as a user agent would instead of guessing coordinates.
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",{timeout:10000});
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Welcome back",{timeout:10000});
     await page.evaluate(()=>{
       window.__tleSmokeAuthSubmitClicked=false;
       const btn=document.querySelector("#authSubmit");
@@ -191,7 +187,7 @@ try{
     await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",{timeout:10000});
+    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Start organizing your cleaning business today.",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
