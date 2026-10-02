@@ -37,7 +37,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261001-night-sky-255";
+window.__tleShellVersion="20261001-night-sky-256";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
