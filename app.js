@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-live-greeting-254";
+const APP_VERSION = "20261001-night-sky-255";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -995,6 +995,48 @@ function currentWeatherSeason(weather){
   return season;
 }
 
+function businessClockMinuteParts(date=new Date()){
+  try{
+    const parts=new Intl.DateTimeFormat("en-US",{
+      hour:"2-digit",
+      minute:"2-digit",
+      hourCycle:"h23",
+      timeZone:activeBusinessTimeZone()
+    }).formatToParts(date);
+    const values=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+    return {hour:Number(values.hour),minute:Number(values.minute)};
+  }catch{
+    return {hour:date.getHours(),minute:date.getMinutes()};
+  }
+}
+function isBusinessNightTime(date=new Date()){
+  const parts=businessClockMinuteParts(date);
+  const total=parts.hour*60+parts.minute;
+  return total>=19*60 || total<=5*60+55;
+}
+function heroMoonPhaseSnapshot(date=new Date()){
+  const synodicDays=29.53058867;
+  const knownNewMoon=Date.UTC(2000,0,6,18,14,0);
+  const days=(date.getTime()-knownNewMoon)/86400000;
+  const phase=((days%synodicDays)+synodicDays)%synodicDays/synodicDays;
+  const illumination=(1-Math.cos(2*Math.PI*phase))/2;
+  const waxing=phase<=0.5;
+  const distanceFromFull=Math.abs(phase-0.5)/0.5;
+  const shadowMagnitude=Math.max(0,Math.min(110,distanceFromFull*110));
+  const shadowX=phase<0.5 ? -shadowMagnitude : shadowMagnitude;
+  const scale=0.88+illumination*0.16;
+  return {phase,illumination,waxing,shadowX,scale};
+}
+function updateHeroMoonPhase(date=new Date()){
+  const moon=$("#heroMoonOrb");
+  if(!moon) return;
+  const snapshot=heroMoonPhaseSnapshot(date);
+  moon.style.setProperty("--tle-moon-shadow-x",snapshot.shadowX.toFixed(1)+"%");
+  moon.style.setProperty("--tle-moon-scale",snapshot.scale.toFixed(3));
+  moon.dataset.phase=snapshot.waxing?"waxing":"waning";
+  moon.dataset.illumination=String(Math.round(snapshot.illumination*100));
+}
+
 function particleMarkup(count,className){
   return Array.from({length:count},(_,i)=>{
     const left=(7+(i*17)%91);
@@ -1015,17 +1057,11 @@ function renderHeroWeatherEffects(){
   const weather=state.weather;
   const season=currentWeatherSeason(weather);
   const visual=currentWeatherVisual(weather);
-  let businessHour=null;
-  try{
-    businessHour=Number(new Intl.DateTimeFormat("en-US",{
-      hour:"2-digit",
-      hour12:false,
-      timeZone:activeBusinessTimeZone()
-    }).format(new Date()));
-  }catch{}
-  const isNight=Number.isFinite(businessHour) && (businessHour>=19 || businessHour<6);
+  const isNight=isBusinessNightTime(new Date());
+  updateHeroMoonPhase(new Date());
 
   hero.dataset.season=season;
+  hero.dataset.celestial=isNight?"night":"day";
   hero.dataset.weather=visual.kind;
   hero.dataset.weatherIntensity=visual.intensity;
   const shell=$("#appShell");
@@ -1658,8 +1694,7 @@ function showSetup(){
 function applyQuarterHourCardColors(){
   const now=new Date();
   const quarter=Math.floor(now.getMinutes()/15)%4;
-  const hour=Number(new Intl.DateTimeFormat("en-US",{hour:"2-digit",hour12:false,timeZone:activeBusinessTimeZone()}).format(now));
-  const paletteMode=(hour>=19 || hour<6)?"night":"day";
+  const paletteMode=isBusinessNightTime(now)?"night":"day";
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
   [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
@@ -1769,25 +1804,41 @@ function playHeroOpeningAnimation(){
 
     slot.classList.remove("is-playing");
     slot.replaceChildren();
-    const image=document.createElement("img");
+    const image=new Image();
     image.alt="";
     image.decoding="async";
     image.draggable=false;
-    image.src=HERO_OPENING_ANIMATION_URL+"#open-"+now;
-    slot.appendChild(image);
+    image.onload=()=>{
+      try{
+        const canvas=document.createElement("canvas");
+        const naturalWidth=Math.max(1,image.naturalWidth||320);
+        const naturalHeight=Math.max(1,image.naturalHeight||320);
+        canvas.width=naturalWidth;
+        canvas.height=naturalHeight;
+        canvas.className="hero-opening-still";
+        const ctx=canvas.getContext("2d",{alpha:true});
+        ctx?.drawImage(image,0,0,naturalWidth,naturalHeight);
+        slot.replaceChildren(canvas);
+      }catch(err){
+        console.warn("[TLE] greeting still frame",err);
+      }
+    };
+    image.src=HERO_OPENING_ANIMATION_URL+"#still-"+now;
 
     requestAnimationFrame(()=>{
       const heroRect=hero.getBoundingClientRect();
       const actionRect=action.getBoundingClientRect();
       const compact=window.innerWidth<=390;
       const mobile=window.innerWidth<=720;
-      const slotHeight=compact?70:(mobile?76:96);
-      const left=Math.max(8,actionRect.left-heroRect.left);
-      const top=Math.max(6,actionRect.top-heroRect.top-slotHeight+8);
-      const width=Math.max(72,Math.min(actionRect.width,heroRect.width-left-8));
+      const slotWidth=compact?78:(mobile?88:108);
+      const slotHeight=compact?84:(mobile?94:116);
+      const rightGap=Math.max(10,heroRect.right-actionRect.right);
+      const left=Math.max(8,heroRect.width-rightGap-slotWidth);
+      const top=Math.max(8,actionRect.top-heroRect.top-slotHeight-4);
       slot.style.setProperty("--tle-greeting-left",left+"px");
       slot.style.setProperty("--tle-greeting-top",top+"px");
-      slot.style.setProperty("--tle-greeting-width",width+"px");
+      slot.style.setProperty("--tle-greeting-width",slotWidth+"px");
+      slot.style.setProperty("--tle-greeting-height",slotHeight+"px");
       void slot.offsetWidth;
       slot.classList.add("is-playing");
     });
@@ -6301,7 +6352,10 @@ function renderTodaySummary(wakeAssistant=false){
 
     hero?.classList.remove("moment-morning","moment-afternoon","moment-night","moment-early","moment-midday","moment-wrap","moment-evening","moment-late");
     hero?.classList.add("moment-"+daypart);
-    if(hero) hero.dataset.celestial=["evening","late"].includes(daypart)?"night":"day";
+    if(hero){
+      hero.dataset.celestial=isBusinessNightTime(now)?"night":"day";
+      updateHeroMoonPhase(now);
+    }
 
     greet.textContent=dashboardGreeting(daypart,{activeJob,remainingJobs,nextJob});
 
