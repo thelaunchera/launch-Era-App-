@@ -1,3 +1,15 @@
+// Identify iOS browser vs installed PWA before CSS/app boot so the top
+// controls can respect the real status-bar area in Safari as well as standalone.
+(function(){
+  try{
+    var ua=String(navigator.userAgent||"");
+    var isIOS=/iPad|iPhone|iPod/i.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+    if(!isIOS) return;
+    var standalone=(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
+    document.documentElement.classList.add("tle-ios",standalone?"tle-ios-standalone":"tle-ios-browser");
+  }catch(e){}
+})();
+
 // The Launch Era Cleaning Web App — lightweight shell bootstrap.
 // Keep this file UI-agnostic: analytics gating, boot errors, and service-worker registration only.
 (function(){
@@ -43,7 +55,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261002-ios-blank-recovery-r22";
+window.__tleShellVersion="20261002-ios-safari-safearea-r23";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
