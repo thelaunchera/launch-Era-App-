@@ -106,7 +106,7 @@
     const root=document.getElementById("welcomePacketOwnerModal"),form=document.getElementById("welcomePacketOwnerForm");if(!root||!form) return;
     root.addEventListener("click",async e=>{
       if(e.target===root||e.target.closest("[data-wp-close]")){close();return;}
-      if(e.target.closest("[data-wp-remove-logo]")){draftLogo="";const img=document.getElementById("welcomePacketLogoCurrent");if(img)img.hidden=true;renderPreview();return;}
+      if(e.target.closest("[data-wp-remove-logo]")){draftLogo="";const img=document.getElementById("welcomePacketLogoCurrent");if(img)img.hidden=true;const dl=root.querySelector("[data-wp-download-logo]");if(dl)dl.hidden=true;renderPreview();return;}
       if(e.target.closest("[data-wp-download-logo]")&&draftLogo){const a=document.createElement("a");a.href=draftLogo;a.download="business-logo.webp";a.click();return;}
       const l=normalizeLang(form.elements.packet_language.value),url=packetUrl(editor.welcome_packet_token,l);
       if(e.target.closest("[data-wp-copy-link]")){await copyText(url);toast(t().copied);return;}
@@ -116,7 +116,7 @@
     form.addEventListener("input",e=>{if(e.target.name==="packet_language")loadLanguage(normalizeLang(e.target.value));else renderPreview();});
     form.addEventListener("change",async e=>{
       if(!e.target.matches("[data-wp-logo-input]")) return;
-      try{const f=e.target.files?.[0];if(!f)return;draftLogo=await logoData(f);const img=document.getElementById("welcomePacketLogoCurrent");if(img){img.src=draftLogo;img.hidden=false;}renderPreview();}catch(err){toast(err?.message||t().badLogo);e.target.value="";}
+      try{const f=e.target.files?.[0];if(!f)return;draftLogo=await logoData(f);const img=document.getElementById("welcomePacketLogoCurrent");if(img){img.src=draftLogo;img.hidden=false;}const dl=root.querySelector("[data-wp-download-logo]");if(dl)dl.hidden=false;renderPreview();}catch(err){toast(err?.message||t().badLogo);e.target.value="";}
     });
     form.addEventListener("submit",async e=>{
       e.preventDefault();const b=e.submitter||form.querySelector('button[type="submit"]'),old=b?.textContent||"";if(b){b.disabled=true;b.textContent="Saving…";}
