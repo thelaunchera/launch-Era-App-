@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-discounts-254";
+const APP_VERSION = "20261001-night-sky-255";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -997,6 +997,48 @@ function currentWeatherSeason(weather){
   return season;
 }
 
+function businessClockMinuteParts(date=new Date()){
+  try{
+    const parts=new Intl.DateTimeFormat("en-US",{
+      hour:"2-digit",
+      minute:"2-digit",
+      hourCycle:"h23",
+      timeZone:activeBusinessTimeZone()
+    }).formatToParts(date);
+    const values=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+    return {hour:Number(values.hour),minute:Number(values.minute)};
+  }catch{
+    return {hour:date.getHours(),minute:date.getMinutes()};
+  }
+}
+function isBusinessNightTime(date=new Date()){
+  const parts=businessClockMinuteParts(date);
+  const total=parts.hour*60+parts.minute;
+  return total>=19*60 || total<=5*60+55;
+}
+function heroMoonPhaseSnapshot(date=new Date()){
+  const synodicDays=29.53058867;
+  const knownNewMoon=Date.UTC(2000,0,6,18,14,0);
+  const days=(date.getTime()-knownNewMoon)/86400000;
+  const phase=((days%synodicDays)+synodicDays)%synodicDays/synodicDays;
+  const illumination=(1-Math.cos(2*Math.PI*phase))/2;
+  const waxing=phase<=0.5;
+  const distanceFromFull=Math.abs(phase-0.5)/0.5;
+  const shadowMagnitude=Math.max(0,Math.min(110,distanceFromFull*110));
+  const shadowX=phase<0.5 ? -shadowMagnitude : shadowMagnitude;
+  const scale=0.88+illumination*0.16;
+  return {phase,illumination,waxing,shadowX,scale};
+}
+function updateHeroMoonPhase(date=new Date()){
+  const moon=$("#heroMoonOrb");
+  if(!moon) return;
+  const snapshot=heroMoonPhaseSnapshot(date);
+  moon.style.setProperty("--tle-moon-shadow-x",snapshot.shadowX.toFixed(1)+"%");
+  moon.style.setProperty("--tle-moon-scale",snapshot.scale.toFixed(3));
+  moon.dataset.phase=snapshot.waxing?"waxing":"waning";
+  moon.dataset.illumination=String(Math.round(snapshot.illumination*100));
+}
+
 function particleMarkup(count,className){
   return Array.from({length:count},(_,i)=>{
     const left=(7+(i*17)%91);
@@ -1017,17 +1059,11 @@ function renderHeroWeatherEffects(){
   const weather=state.weather;
   const season=currentWeatherSeason(weather);
   const visual=currentWeatherVisual(weather);
-  let businessHour=null;
-  try{
-    businessHour=Number(new Intl.DateTimeFormat("en-US",{
-      hour:"2-digit",
-      hour12:false,
-      timeZone:activeBusinessTimeZone()
-    }).format(new Date()));
-  }catch{}
-  const isNight=Number.isFinite(businessHour) && (businessHour>=19 || businessHour<6);
+  const isNight=isBusinessNightTime(new Date());
+  updateHeroMoonPhase(new Date());
 
   hero.dataset.season=season;
+  hero.dataset.celestial=isNight?"night":"day";
   hero.dataset.weather=visual.kind;
   hero.dataset.weatherIntensity=visual.intensity;
   const shell=$("#appShell");
@@ -1660,8 +1696,7 @@ function showSetup(){
 function applyQuarterHourCardColors(){
   const now=new Date();
   const quarter=Math.floor(now.getMinutes()/15)%4;
-  const hour=Number(new Intl.DateTimeFormat("en-US",{hour:"2-digit",hour12:false,timeZone:activeBusinessTimeZone()}).format(now));
-  const paletteMode=(hour>=19 || hour<6)?"night":"day";
+  const paletteMode=isBusinessNightTime(now)?"night":"day";
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
   [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
@@ -1771,25 +1806,41 @@ function playHeroOpeningAnimation(){
 
     slot.classList.remove("is-playing");
     slot.replaceChildren();
-    const image=document.createElement("img");
+    const image=new Image();
     image.alt="";
     image.decoding="async";
     image.draggable=false;
-    image.src=HERO_OPENING_ANIMATION_URL+"#open-"+now;
-    slot.appendChild(image);
+    image.onload=()=>{
+      try{
+        const canvas=document.createElement("canvas");
+        const naturalWidth=Math.max(1,image.naturalWidth||320);
+        const naturalHeight=Math.max(1,image.naturalHeight||320);
+        canvas.width=naturalWidth;
+        canvas.height=naturalHeight;
+        canvas.className="hero-opening-still";
+        const ctx=canvas.getContext("2d",{alpha:true});
+        ctx?.drawImage(image,0,0,naturalWidth,naturalHeight);
+        slot.replaceChildren(canvas);
+      }catch(err){
+        console.warn("[TLE] greeting still frame",err);
+      }
+    };
+    image.src=HERO_OPENING_ANIMATION_URL+"#still-"+now;
 
     requestAnimationFrame(()=>{
       const heroRect=hero.getBoundingClientRect();
       const actionRect=action.getBoundingClientRect();
       const compact=window.innerWidth<=390;
       const mobile=window.innerWidth<=720;
-      const slotHeight=compact?70:(mobile?76:96);
-      const left=Math.max(8,actionRect.left-heroRect.left);
-      const top=Math.max(6,actionRect.top-heroRect.top-slotHeight+8);
-      const width=Math.max(72,Math.min(actionRect.width,heroRect.width-left-8));
+      const slotWidth=compact?78:(mobile?88:108);
+      const slotHeight=compact?84:(mobile?94:116);
+      const rightGap=Math.max(10,heroRect.right-actionRect.right);
+      const left=Math.max(8,heroRect.width-rightGap-slotWidth);
+      const top=Math.max(8,actionRect.top-heroRect.top-slotHeight-4);
       slot.style.setProperty("--tle-greeting-left",left+"px");
       slot.style.setProperty("--tle-greeting-top",top+"px");
-      slot.style.setProperty("--tle-greeting-width",width+"px");
+      slot.style.setProperty("--tle-greeting-width",slotWidth+"px");
+      slot.style.setProperty("--tle-greeting-height",slotHeight+"px");
       void slot.offsetWidth;
       slot.classList.add("is-playing");
     });
@@ -5734,6 +5785,7 @@ function renderCalendarDayDetails(dateKey,options={}){
     ? (appLanguage()==="ht" ? "1 travay pwograme" : langPick("1 scheduled job","1 trabajo programado","1 travail prévu"))
     : (appLanguage()==="ht" ? `${jobs.length} travay pwograme` : langPick(`${jobs.length} scheduled jobs`,`${jobs.length} trabajos programados`,`${jobs.length} travaux prévus`));
 
+  const activeTimer=state.timeEntries.find(t=>!t.clocked_out_at)||null;
   panel.innerHTML=`
     <div class="calendar-day-details-head">
       <div>
@@ -5753,6 +5805,13 @@ function renderCalendarDayDetails(dateKey,options={}){
         const notes=String(j.notes||"").trim();
         const canEdit=state.business?.role!=="coworker";
         const progress=jobProgressAction(j);
+        const timerControl=String(j.status||"").toLowerCase()==="in_progress"
+          ? (activeTimer?.job_id===j.id
+              ? `<button type="button" class="ghost-btn" data-jump="time">${escapeHtml(langPick("Timer running","Tiempo activo","Minuteur actif"))}</button>`
+              : (!activeTimer
+                  ? `<button type="button" class="ghost-btn" data-start-job-timer="${j.id}">${escapeHtml(langPick("Start timer","Iniciar tiempo","Démarrer le minuteur"))}</button>`
+                  : ""))
+          : "";
         return `
           <article class="calendar-day-job ${options.jobId===j.id?"is-focus":""}">
             <div class="calendar-day-job-top">
@@ -5768,7 +5827,7 @@ function renderCalendarDayDetails(dateKey,options={}){
               <span class="calendar-day-address"><small>${escapeHtml(langPick("Address","Dirección","Adresse"))}</small><b>${escapeHtml(address)}</b></span>
             </div>
             ${notes?`<p class="calendar-day-notes"><small>${escapeHtml(langPick("Notes","Notas","Notes"))}</small>${escapeHtml(notes)}</p>`:""}
-            ${canEdit?`<div class="calendar-day-actions">${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}<button type="button" class="ghost-btn" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
+            ${canEdit?`<div class="calendar-day-actions">${timerControl}${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}<button type="button" class="ghost-btn" data-edit="job" data-id="${j.id}">${escapeHtml(langPick("Edit job","Editar trabajo","Modifier le travail"))}</button></div>`:""}
           </article>`;
       }).join("")}
     </div>`;
@@ -6392,7 +6451,10 @@ function renderTodaySummary(wakeAssistant=false){
 
     hero?.classList.remove("moment-morning","moment-afternoon","moment-night","moment-early","moment-midday","moment-wrap","moment-evening","moment-late");
     hero?.classList.add("moment-"+daypart);
-    if(hero) hero.dataset.celestial=["evening","late"].includes(daypart)?"night":"day";
+    if(hero){
+      hero.dataset.celestial=isBusinessNightTime(now)?"night":"day";
+      updateHeroMoonPhase(now);
+    }
 
     greet.textContent=dashboardGreeting(daypart,{activeJob,remainingJobs,nextJob});
 
@@ -6400,6 +6462,7 @@ function renderTodaySummary(wakeAssistant=false){
     let actionView="calendar";
     let actionText="";
     let actionTextOverride="";
+    let heroTimerJobId="";
     let messageState="calm";
     let icon=["evening","late"].includes(daypart)?"✦":"✓";
 
@@ -6427,8 +6490,14 @@ function renderTodaySummary(wakeAssistant=false){
           "En progreso ahora · "+activeService+" para "+activeClient+"."+laterLine+(laterCount?" Después queda"+(laterCount===1?" ":"n ")+laterCount+" trabajo"+(laterCount===1?"":"s")+".":""),
           "En cours maintenant · "+activeService+" pour "+activeClient+"."+laterLine+(laterCount?" "+laterCount+" travail"+(laterCount===1?" reste":"aux restent")+" ensuite.":"")
         );
-        actionView="calendar";
-        actionTextOverride=langPick("View job →","Ver trabajo →","Voir le travail →");
+        const runningTimer=state.timeEntries.find(t=>!t.clocked_out_at);
+        if(!runningTimer){
+          heroTimerJobId=activeJob.id;
+          actionTextOverride=langPick("Start timer →","Iniciar tiempo →","Démarrer le minuteur →");
+        }else{
+          actionView="calendar";
+          actionTextOverride=langPick("View job →","Ver trabajo →","Voir le travail →");
+        }
       }else{
         icon="🚗";
         copy=langPick(
@@ -6535,7 +6604,10 @@ function renderTodaySummary(wakeAssistant=false){
     if(heroAction){
       heroAction.disabled=false;
       heroAction.textContent=actionText;
-      heroAction.dataset.jump=actionView;
+      delete heroAction.dataset.jump;
+      delete heroAction.dataset.startJobTimer;
+      if(heroTimerJobId) heroAction.dataset.startJobTimer=heroTimerJobId;
+      else heroAction.dataset.jump=actionView;
     }
   }
 
@@ -6564,14 +6636,23 @@ function renderTodaySummary(wakeAssistant=false){
 
   const timeline=$("#todayTimeline");
   if(timeline){
+    const activeTimer=state.timeEntries.find(t=>!t.clocked_out_at)||null;
     timeline.innerHTML=todayJobs.length?todayJobs.map(j=>{
       const progress=jobProgressAction(j);
+      const timerControl=String(j.status||"").toLowerCase()==="in_progress"
+        ? (activeTimer?.job_id===j.id
+            ? `<button type="button" class="ghost-btn" data-jump="time">${escapeHtml(langPick("Timer running","Tiempo activo","Minuteur actif"))}</button>`
+            : (!activeTimer
+                ? `<button type="button" class="ghost-btn" data-start-job-timer="${j.id}">${escapeHtml(langPick("Start timer","Iniciar tiempo","Démarrer le minuteur"))}</button>`
+                : ""))
+        : "";
       return `
       <div class="timeline-item ${j.status==="completed"?"done":""}">
         <time>${new Intl.DateTimeFormat(appLocale(),{hour:"numeric",minute:"2-digit"}).format(new Date(j.starts_at))}</time>
         <div><strong>${escapeHtml(j.clients?.name||tr("Cleaning job"))}</strong><span>${escapeHtml(j.services?.name||tr("Service"))} · ${Math.round(j.duration_minutes/60*10)/10}h</span></div>
         <div class="today-job-actions">
           <span class="status ${j.status==="completed"?"success":j.status==="in_progress"?"warning":"neutral"}">${escapeHtml(translatedStatus(j.status))}</span>
+          ${timerControl}
           ${progress?`<button type="button" class="primary-btn job-progress-action" data-job-progress="${j.id}" data-status="${progress.status}">${escapeHtml(progress.label)}</button>`:""}
         </div>
       </div>`;
@@ -9043,20 +9124,44 @@ async function startTimeEntry(){
     </div>${formSubmit("Start timer")}`;
   modal.hidden=false;
 }
-async function saveStartTimer(fd){
-  const jobId=fd.get("job_id");
+async function startTimerForJob(jobId){
+  const id=String(jobId||"").trim();
+  if(!id) throw new Error(langPick("Choose a job first.","Escoge un trabajo primero.","Choisissez d’abord un travail."));
+  const active=state.timeEntries.find(t=>!t.clocked_out_at);
+  if(active){
+    if(active.job_id===id){
+      showToast(langPick("Timer is already running for this job.","El tiempo ya está corriendo para este trabajo.","Le minuteur est déjà actif pour ce travail."));
+      return false;
+    }
+    throw new Error(langPick("Another timer is already running. Finish it before starting this one.","Ya hay otro tiempo activo. Termínalo antes de iniciar este.","Un autre minuteur est déjà actif. Arrêtez-le avant d’en démarrer un autre."));
+  }
+  const job=state.jobs.find(j=>j.id===id);
+  if(!job) throw new Error(langPick("Job not found.","No encontramos ese trabajo.","Travail introuvable."));
+  if(["completed","canceled","no_show"].includes(String(job.status||"").toLowerCase())){
+    throw new Error(langPick("This job can’t start a timer in its current status.","Este trabajo no puede iniciar tiempo con su estado actual.","Ce travail ne peut pas démarrer de minuteur dans son état actuel."));
+  }
+
   const {error}=await supabase.from("job_time_entries").insert({
     business_id:state.business.id,
-    job_id:jobId,
+    job_id:id,
     team_member_id:state.business.team_member_id||null,
     clocked_in_at:new Date().toISOString()
   });
   if(error) throw error;
-  if(state.business.role==="coworker"){
-    await supabase.rpc("coworker_set_job_status",{p_job_id:jobId,p_status:"in_progress"});
-  }else{
-    await supabase.from("jobs").update({status:"in_progress"}).eq("id",jobId);
+
+  if(String(job.status||"").toLowerCase()!=="in_progress"){
+    let statusError=null;
+    if(state.business.role==="coworker"){
+      ({error:statusError}=await supabase.rpc("coworker_set_job_status",{p_job_id:id,p_status:"in_progress"}));
+    }else{
+      ({error:statusError}=await supabase.from("jobs").update({status:"in_progress"}).eq("id",id).eq("business_id",state.business.id));
+    }
+    if(statusError) throw statusError;
   }
+  return true;
+}
+async function saveStartTimer(fd){
+  await startTimerForJob(fd.get("job_id"));
 }
 async function finishTimeEntry(id){
   if(!id) throw new Error(langPick("Active timer not found.","No encontramos ese temporizador activo.","Minuteur actif introuvable."));
@@ -9744,6 +9849,26 @@ document.addEventListener("click",async e=>{
     if(error) showToast(error.message); else {await loadCoreData();showToast(service.active?"Service deactivated":"Service activated");}
     return;
   }
+  const startJobTimer=e.target.closest("[data-start-job-timer]");
+  if(startJobTimer){
+    e.preventDefault();
+    e.stopPropagation();
+    const jobId=startJobTimer.dataset.startJobTimer;
+    startJobTimer.disabled=true;
+    try{
+      const started=await startTimerForJob(jobId);
+      if(started){
+        await loadCoreData();
+        showToast(langPick("Timer started · this job is now being tracked.","Tiempo iniciado · este trabajo ya se está registrando.","Minuteur démarré · ce travail est maintenant suivi."));
+      }
+    }catch(err){
+      showToast(err?.message||langPick("Could not start timer.","No se pudo iniciar el tiempo.","Impossible de démarrer le minuteur."));
+    }finally{
+      startJobTimer.disabled=false;
+    }
+    return;
+  }
+
   const jobProgress=e.target.closest("[data-job-progress]");
   if(jobProgress){
     e.preventDefault();
