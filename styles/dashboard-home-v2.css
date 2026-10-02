@@ -563,10 +563,15 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
 }
 
 
-/* Sweeping witch fix r14
-   The character stays above the CTA; the animated WebP supplies the broom motion. */
+/* Natural sweeping witch r16
+   One stable animation owns the character motion. The animated WebP handles
+   the broom itself; CSS only adds a tiny body sway and soft fade so it feels
+   like a person sweeping instead of popping between frames. */
 #todayHeroCard .hero-opening-animation{
   overflow:visible!important;
+}
+#todayHeroCard .hero-opening-animation img{
+  animation:none!important;
 }
 #todayHeroCard .hero-opening-animation .hero-opening-witch{
   position:absolute!important;
@@ -580,17 +585,26 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
   object-fit:contain!important;
   object-position:right bottom!important;
   opacity:0;
-  transform:none!important;
-  filter:drop-shadow(0 5px 8px rgba(12,19,34,.16));
+  transform:translate3d(0,2px,0) rotate(-.4deg) scale(.99);
+  transform-origin:62% 86%;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform,opacity;
+  filter:drop-shadow(0 5px 8px rgba(12,19,34,.14));
   pointer-events:none!important;
   user-select:none!important;
 }
 #todayHeroCard .hero-opening-animation.is-playing .hero-opening-witch{
-  animation:tleWitchSweepInPlace 6s linear both!important;
+  animation:tleWitchSweepNatural 6.6s cubic-bezier(.4,0,.2,1) both!important;
 }
-@keyframes tleWitchSweepInPlace{
-  0%{opacity:0;transform:none}
-  6%{opacity:1;transform:none}
-  90%{opacity:1;transform:none}
-  100%{opacity:0;transform:none}
+@keyframes tleWitchSweepNatural{
+  0%{opacity:0;transform:translate3d(0,2px,0) rotate(-.4deg) scale(.99)}
+  7%{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}
+  18%{opacity:1;transform:translate3d(-1.5px,0,0) rotate(-1deg) scale(1)}
+  34%{opacity:1;transform:translate3d(1.8px,1px,0) rotate(.8deg) scale(1)}
+  50%{opacity:1;transform:translate3d(-1px,0,0) rotate(-.6deg) scale(1)}
+  66%{opacity:1;transform:translate3d(1.6px,1px,0) rotate(.7deg) scale(1)}
+  82%{opacity:1;transform:translate3d(-.8px,0,0) rotate(-.4deg) scale(1)}
+  92%{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}
+  100%{opacity:0;transform:translate3d(.8px,1px,0) rotate(.3deg) scale(.995)}
 }
