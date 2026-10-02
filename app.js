@@ -139,11 +139,29 @@ const businessForm = $("#businessForm");
 const entityForm = $("#entityForm");
 const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
+function ensureAuthPasswordInput(){
+  let password=authShell?.querySelector("#authPassword");
+  if(password) return password;
+  const wrap=authShell?.querySelector(".password-input-wrap");
+  if(!wrap) return null;
+  password=document.createElement("input");
+  password.id="authPassword";
+  password.name="password";
+  password.type="password";
+  password.required=true;
+  password.minLength=8;
+  password.autocomplete="off";
+  password.enterKeyHint="go";
+  password.placeholder="Password";
+  const toggle=wrap.querySelector("#authPasswordToggle");
+  wrap.insertBefore(password,toggle||null);
+  return password;
+}
 function suspendAuthPasswordAutofill(){
   const password=authShell?.querySelector("#authPassword");
   if(!password) return;
-  password.disabled=true;
-  password.autocomplete="off";
+  try{password.blur();}catch{}
+  password.remove();
 }
 function setAuthShellAvailable(available){
   if(!authShell) return;
@@ -3079,7 +3097,7 @@ function setAuthMode(mode,options={}){
   const copy=$("#authCopy");
   const submit=$("#authSubmit");
   const switchBtn=$("#authSwitch");
-  const password=$("#authPassword");
+  const password=ensureAuthPasswordInput();
   const passwordField=$("#passwordField");
   const email=$("#authEmail");
   const emailField=$("#emailField")||email?.closest("label");
