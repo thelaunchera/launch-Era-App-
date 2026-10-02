@@ -130,6 +130,113 @@
       const ta=document.createElement("textarea");ta.value=value;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
     }
   }
+  async function openBrandingSettings(){
+    try{
+      const businessId=appState.business?.id;
+      if(!businessId) throw new Error(t().loadError);
+      const {data,error}=await supabase
+        .from("businesses")
+        .select("id,name,brand_logo_data_url,brand_primary_color,brand_accent_color,welcome_packet_settings")
+        .eq("id",businessId)
+        .single();
+      if(error) throw error;
+      if(!data) throw new Error(t().loadError);
+
+      const copy={
+        en:{eyebrow:"WELCOME PACKET BRANDING",title:"Logo + colors",intro:"Set your business branding once. It will be used automatically on every client Welcome Packet.",preview:"LIVE PREVIEW",save:"Save branding",saved:"Branding saved",close:"Close",logo:"Business logo",upload:"Upload / replace logo",remove:"Remove logo",primary:"Primary color",accent:"Accent color",hint:"These settings apply to every client Welcome Packet."},
+        es:{eyebrow:"MARCA DEL WELCOME PACKET",title:"Logo + colores",intro:"Configura la marca de tu negocio una sola vez. Se usará automáticamente en todos los Welcome Packets de clientes.",preview:"VISTA PREVIA",save:"Guardar marca",saved:"Marca guardada",close:"Cerrar",logo:"Logo del negocio",upload:"Subir / reemplazar logo",remove:"Quitar logo",primary:"Color principal",accent:"Color de acento",hint:"Estos ajustes se aplican a todos los Welcome Packets de clientes."},
+        fr:{eyebrow:"IDENTITÉ DU DOSSIER",title:"Logo + couleurs",intro:"Configurez l’identité de votre entreprise une seule fois. Elle sera utilisée automatiquement sur chaque dossier client.",preview:"APERÇU",save:"Enregistrer",saved:"Identité enregistrée",close:"Fermer",logo:"Logo de l’entreprise",upload:"Importer / remplacer",remove:"Retirer",primary:"Couleur principale",accent:"Couleur d’accent",hint:"Ces réglages s’appliquent à tous les dossiers de bienvenue."},
+        ht:{eyebrow:"MAK WELCOME PACKET",title:"Logo + koulè",intro:"Mete mak biznis ou yon sèl fwa. Li pral aplike otomatikman sou tout Welcome Packet kliyan yo.",preview:"APERÇU",save:"Sove mak la",saved:"Mak la sove",close:"Fèmen",logo:"Logo biznis la",upload:"Mete / ranplase logo",remove:"Retire logo",primary:"Koulè prensipal",accent:"Koulè aksan",hint:"Ajisteman sa yo aplike sou tout Welcome Packet kliyan yo."}
+      };
+      const u=copy[lang()]||copy.en;
+      draftLogo=data.brand_logo_data_url||"";
+      const l=normalizeLang(appState.business?.customer_email_language||appState.business?.default_language||lang());
+      const currentContent=Object.assign({},defaults(l,data.name),data.welcome_packet_settings?.[l]||{});
+
+      const root=document.createElement("div");
+      root.id="welcomePacketOwnerModal";
+      root.className="welcome-packet-modal-overlay";
+      root.innerHTML=
+        '<section class="welcome-packet-owner-dialog" role="dialog" aria-modal="true">'+
+        '<header class="wp-owner-head"><div><small>'+esc(u.eyebrow)+'</small><h2>'+esc(u.title)+'</h2><p>'+esc(u.intro)+'</p></div><button type="button" class="wp-close" data-wp-brand-close>×</button></header>'+
+        '<form id="welcomePacketBrandingForm" class="wp-owner-form"><div class="wp-owner-layout"><div class="wp-owner-fields">'+
+        '<section class="wp-brand-section"><div class="wp-section-title"><strong>'+esc(u.logo)+'</strong><span>'+esc(u.hint)+'</span></div>'+
+        '<div class="wp-logo-row"><div class="wp-logo-current">'+(draftLogo?'<img id="welcomePacketBrandLogoCurrent" src="'+esc(draftLogo)+'" alt="">':'<img id="welcomePacketBrandLogoCurrent" hidden alt="">')+'</div>'+
+        '<div class="wp-logo-actions"><label class="wp-file-button">'+esc(u.upload)+'<input type="file" accept="image/png,image/jpeg,image/webp" data-wp-brand-logo-input></label><button type="button" class="wp-link-button" data-wp-brand-remove-logo>'+esc(u.remove)+'</button></div></div>'+
+        '<div class="wp-color-grid"><label><span>'+esc(u.primary)+'</span><input type="color" name="primary_color" value="'+esc(hex(data.brand_primary_color,"#2F5F66"))+'"></label><label><span>'+esc(u.accent)+'</span><input type="color" name="accent_color" value="'+esc(hex(data.brand_accent_color,"#DDEFF2"))+'"></label></div></section>'+
+        '</div><aside class="wp-owner-preview-wrap"><div id="welcomePacketBrandingPreview" class="wp-owner-preview"></div></aside></div>'+
+        '<footer class="wp-owner-footer"><button type="button" class="ghost-btn" data-wp-brand-close>'+esc(u.close)+'</button><button type="submit" class="primary-btn">'+esc(u.save)+'</button></footer></form></section>';
+
+      const renderBrandPreview=()=>{
+        const form=root.querySelector("#welcomePacketBrandingForm"),box=root.querySelector("#welcomePacketBrandingPreview");
+        if(!form||!box)return;
+        const fd=new FormData(form),primary=hex(fd.get("primary_color"),"#2F5F66"),accent=hex(fd.get("accent_color"),"#DDEFF2");
+        box.style.setProperty("--wp-primary",primary);
+        box.style.setProperty("--wp-accent",accent);
+        box.style.setProperty("--wp-primary-text",contrast(primary));
+        const logo=draftLogo
+          ? '<img class="wp-preview-logo" src="'+esc(draftLogo)+'" alt="">'
+          : '<span class="wp-preview-mark">'+esc((data.name||"CB").split(/\s+/).map(x=>x[0]||"").join("").slice(0,2).toUpperCase())+'</span>';
+        box.innerHTML=
+          '<div class="wp-preview-top">'+logo+'<div><small>'+esc(u.preview)+'</small><strong>'+esc(data.name||"Cleaning Business")+'</strong></div></div>'+
+          '<div class="wp-preview-hello"><span>Welcome 👋</span><p>'+esc(currentContent.welcome_message||defaults(l,data.name).welcome_message)+'</p></div>'+
+          '<div class="wp-preview-next"><small>YOUR NEXT CLEANING</small><strong>Brand colors preview</strong></div>';
+      };
+
+      root.addEventListener("click",e=>{
+        if(e.target===root||e.target.closest("[data-wp-brand-close]")){close();return;}
+        if(e.target.closest("[data-wp-brand-remove-logo]")){
+          draftLogo="";
+          const img=root.querySelector("#welcomePacketBrandLogoCurrent");if(img)img.hidden=true;
+          renderBrandPreview();
+        }
+      });
+
+      const form=root.querySelector("#welcomePacketBrandingForm");
+      form.addEventListener("input",renderBrandPreview);
+      form.addEventListener("change",async e=>{
+        if(!e.target.matches("[data-wp-brand-logo-input]"))return;
+        try{
+          const f=e.target.files?.[0];if(!f)return;
+          draftLogo=await logoData(f);
+          const img=root.querySelector("#welcomePacketBrandLogoCurrent");
+          if(img){img.src=draftLogo;img.hidden=false;}
+          renderBrandPreview();
+        }catch(err){toast(err?.message||t().badLogo);e.target.value="";}
+      });
+      form.addEventListener("submit",async e=>{
+        e.preventDefault();
+        const b=e.submitter||form.querySelector('button[type="submit"]'),old=b?.textContent||u.save;
+        if(b){b.disabled=true;b.textContent="Saving…";}
+        try{
+          const fd=new FormData(form);
+          const {data:saved,error:saveError}=await supabase.rpc("save_welcome_packet_branding",{
+            p_business_id:data.id,
+            p_logo_data_url:draftLogo||null,
+            p_primary_color:hex(fd.get("primary_color"),"#2F5F66"),
+            p_accent_color:hex(fd.get("accent_color"),"#DDEFF2"),
+            p_language:l,
+            p_content:currentContent
+          });
+          if(saveError) throw saveError;
+          if(appState.business){
+            appState.business.brand_logo_data_url=saved?.brand_logo_data_url||null;
+            appState.business.brand_primary_color=saved?.brand_primary_color||hex(fd.get("primary_color"),"#2F5F66");
+            appState.business.brand_accent_color=saved?.brand_accent_color||hex(fd.get("accent_color"),"#DDEFF2");
+          }
+          toast(u.saved);
+          renderBrandPreview();
+        }catch(err){toast(err?.message||t().saveError);}
+        finally{if(b){b.disabled=false;b.textContent=old;}}
+      });
+
+      document.getElementById("welcomePacketOwnerModal")?.remove();
+      document.body.appendChild(root);
+      document.body.classList.add("welcome-packet-modal-open");
+      renderBrandPreview();
+    }catch(err){toast(err?.message||t().loadError);}
+  }
+
   function bind(){
     const root=document.getElementById("welcomePacketOwnerModal"),form=document.getElementById("welcomePacketOwnerForm");if(!root||!form) return;
     root.addEventListener("click",async e=>{
@@ -194,6 +301,7 @@
   }
   document.addEventListener("click",e=>{
     const info=e.target.closest("[data-client-info]");if(info){setTimeout(()=>injectInfo(info.dataset.clientInfo),40);}
+    const brand=e.target.closest("[data-open-welcome-branding]");if(brand){e.preventDefault();e.stopPropagation();openBrandingSettings();return;}
     const open=e.target.closest("[data-open-welcome-packet]");if(open){e.preventDefault();e.stopPropagation();openEditor(open.dataset.openWelcomePacket);}
   });
   new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});
