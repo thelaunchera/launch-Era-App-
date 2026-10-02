@@ -435,7 +435,12 @@ if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.inc
 if(!$("#sessionSplash") || !html.includes("./app-icon.svg") || !app.includes("function dismissSessionSplash()")){
   throw new Error("Session splash regression: returning users can flash the welcome screen before auth restore");
 }
-if(!app.includes("function showApp(){\n  dismissSessionSplash();") || !app.includes("function showAuthWelcome(){\n  dismissSessionSplash();")){
+if(
+  !app.includes("function showApp(){\n  dismissSessionSplash();") ||
+  !app.includes("function prepareDirectAuth(modeOverride=null){\n  dismissSessionSplash();") ||
+  !app.includes("function showAuthWelcome(){") ||
+  !app.includes("prepareDirectAuth(mode);")
+){
   throw new Error("Session splash regression: splash must resolve only after auth/session routing decides the next screen");
 }
 if(!boot.includes('host==="app.thelaunchera.com"&&!automation') || !boot.includes("navigator.webdriver")){
