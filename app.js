@@ -1017,17 +1017,65 @@ function isBusinessNightTime(date=new Date()){
   return total>=19*60 || total<=5*60+55;
 }
 function heroMoonPhaseSnapshot(date=new Date()){
-  const synodicDays=29.53058867;
-  const knownNewMoon=Date.UTC(2000,0,6,18,14,0);
-  const days=(date.getTime()-knownNewMoon)/86400000;
-  const phase=((days%synodicDays)+synodicDays)%synodicDays/synodicDays;
-  const illumination=(1-Math.cos(2*Math.PI*phase))/2;
-  const waxing=phase<=0.5;
+  // Compact Sun/Moon position model based on J2000 coordinates.
+  // This tracks real illumination much more closely than a fixed synodic-age
+  // approximation, especially around gibbous phases.
+  const rad=Math.PI/180;
+  const e=rad*23.4397;
+  const dayMs=86400000;
+  const julian=(date.getTime()/dayMs)-0.5+2440588;
+  const d=julian-2451545;
+  const rightAscension=(l,b)=>Math.atan2(Math.sin(l)*Math.cos(e)-Math.tan(b)*Math.sin(e),Math.cos(l));
+  const declination=(l,b)=>Math.asin(Math.sin(b)*Math.cos(e)+Math.cos(b)*Math.sin(e)*Math.sin(l));
+
+  const solarMeanAnomaly=rad*(357.5291+0.98560028*d);
+  const solarCenter=rad*(1.9148*Math.sin(solarMeanAnomaly)+0.02*Math.sin(2*solarMeanAnomaly)+0.0003*Math.sin(3*solarMeanAnomaly));
+  const solarLongitude=solarMeanAnomaly+solarCenter+rad*102.9372+Math.PI;
+  const sun={ra:rightAscension(solarLongitude,0),dec:declination(solarLongitude,0)};
+
+  const moonMeanLongitude=rad*(218.316+13.176396*d);
+  const moonMeanAnomaly=rad*(134.963+13.064993*d);
+  const moonArgumentLatitude=rad*(93.272+13.229350*d);
+  const moonLongitude=moonMeanLongitude+rad*6.289*Math.sin(moonMeanAnomaly);
+  const moonLatitude=rad*5.128*Math.sin(moonArgumentLatitude);
+  const moon={
+    ra:rightAscension(moonLongitude,moonLatitude),
+    dec:declination(moonLongitude,moonLatitude),
+    dist:385001-20905*Math.cos(moonMeanAnomaly)
+  };
+
+  const sunDistance=149598000;
+  const phi=Math.acos(
+    Math.sin(sun.dec)*Math.sin(moon.dec)+
+    Math.cos(sun.dec)*Math.cos(moon.dec)*Math.cos(sun.ra-moon.ra)
+  );
+  const inc=Math.atan2(
+    sunDistance*Math.sin(phi),
+    moon.dist-sunDistance*Math.cos(phi)
+  );
+  const angle=Math.atan2(
+    Math.cos(sun.dec)*Math.sin(sun.ra-moon.ra),
+    Math.sin(sun.dec)*Math.cos(moon.dec)-
+      Math.cos(sun.dec)*Math.sin(moon.dec)*Math.cos(sun.ra-moon.ra)
+  );
+
+  const illumination=Math.max(0,Math.min(1,(1+Math.cos(inc))/2));
+  const phase=Math.max(0,Math.min(1,0.5+0.5*inc*(angle<0?-1:1)/Math.PI));
+  const waxing=phase<0.5;
   const distanceFromFull=Math.abs(phase-0.5)/0.5;
   const shadowMagnitude=Math.max(0,Math.min(110,distanceFromFull*110));
   const shadowX=phase<0.5 ? -shadowMagnitude : shadowMagnitude;
   const scale=0.88+illumination*0.16;
-  return {phase,illumination,waxing,shadowX,scale};
+  const phaseName=
+    phase<0.03||phase>0.97?"new":
+    phase<0.22?"waxing-crescent":
+    phase<0.28?"first-quarter":
+    phase<0.47?"waxing-gibbous":
+    phase<0.53?"full":
+    phase<0.72?"waning-gibbous":
+    phase<0.78?"last-quarter":
+    "waning-crescent";
+  return {phase,illumination,waxing,shadowX,scale,phaseName};
 }
 function updateHeroMoonPhase(date=new Date()){
   const moon=$("#heroMoonOrb");
@@ -1036,6 +1084,7 @@ function updateHeroMoonPhase(date=new Date()){
   moon.style.setProperty("--tle-moon-shadow-x",snapshot.shadowX.toFixed(1)+"%");
   moon.style.setProperty("--tle-moon-scale",snapshot.scale.toFixed(3));
   moon.dataset.phase=snapshot.waxing?"waxing":"waning";
+  moon.dataset.phaseName=snapshot.phaseName;
   moon.dataset.illumination=String(Math.round(snapshot.illumination*100));
 }
 
