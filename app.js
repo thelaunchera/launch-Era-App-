@@ -1647,6 +1647,8 @@ function markReturningAuthHistory(){
 }
 function prepareDirectAuth(modeOverride=null){
   dismissSessionSplash();
+  // Do not carry a stale startup/runtime message into a fresh auth screen.
+  setAuthStatus("");
   trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
