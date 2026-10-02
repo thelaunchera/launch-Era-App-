@@ -3098,6 +3098,7 @@ function syncAuthPasswordToggle(){
 function toggleAuthPasswordVisibility(){
   const input=$("#authPassword");
   if(!input) return;
+  if(input.dataset.tlePasswordLocked==="1") activateAuthPasswordInput(input);
   let start=null,end=null;
   try{start=input.selectionStart;end=input.selectionEnd;}catch{}
   input.type=input.type==="password"?"text":"password";
