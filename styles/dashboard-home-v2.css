@@ -568,12 +568,12 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
    and fixed-header rules have repainted. Key the layout to the visible
    #appShell itself so the header/safe-area geometry never disappears for a frame. */
 @media(max-width:860px){
-  #appShell:not([hidden]){
+  html body.shell-app #appShell:not([hidden]){
     height:100dvh!important;
     min-height:100dvh!important;
     overflow:hidden!important;
   }
-  #appShell:not([hidden])>.main{
+  html body.shell-app #appShell:not([hidden])>.main{
     height:100dvh!important;
     min-height:0!important;
     overflow-y:auto!important;
@@ -584,7 +584,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     padding-bottom:calc(142px + env(safe-area-inset-bottom))!important;
     scroll-padding-top:calc(env(safe-area-inset-top) + 72px)!important;
   }
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     position:fixed!important;
     top:0!important;
     left:0!important;
@@ -607,13 +607,13 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
   }
 }
 @media(max-width:680px){
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     display:grid!important;
     grid-template-columns:auto minmax(0,1fr) auto auto auto!important;
     align-items:center!important;
     gap:6px!important;
   }
-  #appShell:not([hidden]) .topbar-title{
+  html body.shell-app #appShell:not([hidden]) .topbar-title{
     position:static!important;
     left:auto!important;
     top:auto!important;
@@ -623,7 +623,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     min-width:0!important;
     text-align:left!important;
   }
-  #appShell:not([hidden]) .topbar-title h1{
+  html body.shell-app #appShell:not([hidden]) .topbar-title h1{
     margin:0!important;
     font-size:18px!important;
     line-height:1.05!important;
@@ -631,7 +631,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-  #appShell:not([hidden]) .top-actions{
+  html body.shell-app #appShell:not([hidden]) .top-actions{
     display:contents!important;
   }
 }
@@ -641,7 +641,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
    iOS are tied to the visual viewport and can jump after Password AutoFill,
    Face ID, keyboard transitions, or Safari chrome changes. */
 @media(max-width:860px){
-  #appShell:not([hidden]){
+  html body.shell-app #appShell:not([hidden]){
     display:block!important;
     width:100%!important;
     max-width:100%!important;
@@ -650,7 +650,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     margin:0!important;
     overflow:hidden!important;
   }
-  #appShell:not([hidden])>.main{
+  html body.shell-app #appShell:not([hidden])>.main{
     width:100%!important;
     max-width:100%!important;
     height:100dvh!important;
@@ -666,7 +666,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     -webkit-overflow-scrolling:touch!important;
     overscroll-behavior-y:contain!important;
   }
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     position:sticky!important;
     top:0!important;
     left:auto!important;
@@ -695,14 +695,14 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
   }
 }
 @media(max-width:680px){
-  #appShell:not([hidden])>.main>.topbar{
+  html body.shell-app #appShell:not([hidden])>.main>.topbar{
     display:grid!important;
     grid-template-columns:36px minmax(0,1fr) auto!important;
     align-items:center!important;
     gap:7px!important;
   }
-  #appShell:not([hidden]) #menuToggle,
-  #appShell:not([hidden]) #backBtn{
+  html body.shell-app #appShell:not([hidden]) #menuToggle,
+  html body.shell-app #appShell:not([hidden]) #backBtn{
     grid-column:1!important;
     position:relative!important;
     inset:auto!important;
@@ -712,7 +712,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     min-height:36px!important;
     margin:0!important;
   }
-  #appShell:not([hidden]) .topbar-title{
+  html body.shell-app #appShell:not([hidden]) .topbar-title{
     grid-column:2!important;
     position:static!important;
     inset:auto!important;
@@ -724,7 +724,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     padding:0!important;
     text-align:center!important;
   }
-  #appShell:not([hidden]) .topbar-title h1{
+  html body.shell-app #appShell:not([hidden]) .topbar-title h1{
     margin:0!important;
     width:100%!important;
     font-size:18px!important;
@@ -733,7 +733,7 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-  #appShell:not([hidden]) .top-actions{
+  html body.shell-app #appShell:not([hidden]) .top-actions{
     grid-column:3!important;
     display:flex!important;
     align-items:center!important;
@@ -742,14 +742,14 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     min-width:0!important;
     margin:0!important;
   }
-  #appShell:not([hidden]) .global-search-shell,
-  #appShell:not([hidden]) #languageBtn{
+  html body.shell-app #appShell:not([hidden]) .global-search-shell,
+  html body.shell-app #appShell:not([hidden]) #languageBtn{
     display:none!important;
   }
-  #appShell:not([hidden]) .notification-shell,
-  #appShell:not([hidden]) #notificationBellBtn,
-  #appShell:not([hidden]) #appRefreshBtn,
-  #appShell:not([hidden]) #quickAddBtn{
+  html body.shell-app #appShell:not([hidden]) .notification-shell,
+  html body.shell-app #appShell:not([hidden]) #notificationBellBtn,
+  html body.shell-app #appShell:not([hidden]) #appRefreshBtn,
+  html body.shell-app #appShell:not([hidden]) #quickAddBtn{
     position:relative!important;
     inset:auto!important;
     transform:none!important;
