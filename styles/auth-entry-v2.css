@@ -485,3 +485,223 @@ body.shell-auth #businessSetup{
   body.shell-auth #authSubmit,
   body.shell-auth .auth-form input{transition:none!important}
 }
+
+
+/* Compact glass auth card v3 */
+/* Keep the cleaner clearly visible and remove the oversized/glitchy controls. */
+body.shell-auth .auth-shell::before{
+  inset:-18px!important;
+  background-position:64% center!important;
+  filter:blur(5px) saturate(.92)!important;
+  transform:scale(1.025)!important;
+  animation:none!important;
+}
+body.shell-auth .auth-shell::after{
+  background:
+    linear-gradient(180deg,rgba(233,243,250,.14),rgba(16,39,56,.035))!important;
+}
+body.shell-auth .auth-card,
+body.shell-auth.auth-mode-signup .auth-card,
+body.shell-auth.auth-mode-signin .auth-card{
+  width:min(500px,86vw)!important;
+  padding:26px 26px 24px!important;
+  border-radius:30px!important;
+  background:rgba(245,248,250,.56)!important;
+  backdrop-filter:blur(17px) saturate(1.04)!important;
+  -webkit-backdrop-filter:blur(17px) saturate(1.04)!important;
+  box-shadow:
+    0 22px 60px rgba(21,42,58,.18),
+    inset 0 1px 0 rgba(255,255,255,.86)!important;
+}
+body.shell-auth .auth-card:has(input:focus){
+  transform:none!important;
+}
+body.shell-auth .auth-brand{
+  margin:2px 58px 24px!important;
+}
+body.shell-auth .auth-brand .brand-name{
+  font-size:30px!important;
+}
+body.shell-auth #authTitle{
+  max-width:430px!important;
+  margin:0 auto 8px!important;
+  font-size:39px!important;
+  line-height:1!important;
+}
+body.shell-auth.auth-mode-signin #authTitle{
+  font-family:inherit!important;
+  font-size:34px!important;
+  font-weight:900!important;
+  letter-spacing:-.045em!important;
+}
+body.shell-auth #authCopy{
+  max-width:390px!important;
+  margin:0 auto 22px!important;
+  font-size:14px!important;
+  line-height:1.42!important;
+}
+body.shell-auth .auth-form{
+  gap:11px!important;
+}
+body.shell-auth .auth-form input:not([type="checkbox"]){
+  min-height:56px!important;
+  border-radius:19px!important;
+  padding:0 18px!important;
+  font-size:15px!important;
+}
+body.shell-auth .password-input-wrap input{
+  padding-right:56px!important;
+}
+body.shell-auth .password-toggle{
+  width:40px!important;
+  height:40px!important;
+  right:9px!important;
+}
+body.shell-auth .remember-username-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:3px 0 2px 3px!important;
+  padding:0!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+}
+body.shell-auth .remember-username-row[hidden]{
+  display:none!important;
+}
+body.shell-auth .remember-username-row input[type="checkbox"]{
+  appearance:auto!important;
+  -webkit-appearance:checkbox!important;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  min-height:20px!important;
+  max-width:20px!important;
+  max-height:20px!important;
+  flex:0 0 20px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:5px!important;
+  box-shadow:none!important;
+  accent-color:#54B7F4!important;
+  transform:none!important;
+}
+body.shell-auth #authSubmit{
+  min-height:58px!important;
+  margin-top:7px!important;
+  border-radius:19px!important;
+  font-size:18px!important;
+  box-shadow:0 12px 28px rgba(56,154,224,.24)!important;
+}
+body.shell-auth .auth-links{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+  margin-top:14px!important;
+}
+body.shell-auth .auth-links button{
+  font-size:12px!important;
+}
+body.shell-auth.auth-mode-signin .auth-links{
+  margin-top:16px!important;
+}
+body.shell-auth.auth-mode-signin .auth-plan-note,
+body.shell-auth.auth-mode-signin .auth-feature-strip,
+body.shell-auth.auth-mode-signin .auth-legal-links{
+  display:none!important;
+}
+body.shell-auth.auth-mode-signup .auth-feature-strip{
+  margin-top:14px!important;
+  padding-top:13px!important;
+}
+body.shell-auth.auth-mode-signup .auth-plan-note{
+  margin-top:12px!important;
+  font-size:11px!important;
+}
+body.shell-auth .signup-legal-note{
+  font-size:9.5px!important;
+}
+body.shell-auth .auth-language-toggle{
+  top:15px!important;
+  right:15px!important;
+  min-width:50px!important;
+  height:39px!important;
+}
+body.shell-auth .auth-status:empty{
+  display:none!important;
+}
+
+@media(max-width:620px){
+  body.shell-auth .auth-shell{
+    padding:
+      max(18px,env(safe-area-inset-top))
+      max(10px,env(safe-area-inset-right))
+      max(20px,env(safe-area-inset-bottom))
+      max(10px,env(safe-area-inset-left))!important;
+  }
+  body.shell-auth .auth-shell::before{
+    background-position:67% center!important;
+  }
+  body.shell-auth .auth-card{
+    width:min(340px,88vw)!important;
+  }
+  body.shell-auth.auth-mode-signup .auth-card{
+    width:min(350px,90vw)!important;
+  }
+  body.shell-auth.auth-mode-signin .auth-card{
+    width:min(330px,84vw)!important;
+    padding:23px 18px 21px!important;
+    border-radius:27px!important;
+  }
+  body.shell-auth .auth-brand{
+    margin:2px 48px 21px!important;
+  }
+  body.shell-auth .auth-brand .brand-name{
+    font-size:27px!important;
+  }
+  body.shell-auth #authTitle{
+    font-size:34px!important;
+  }
+  body.shell-auth.auth-mode-signin #authTitle{
+    font-size:31px!important;
+  }
+  body.shell-auth #authCopy{
+    max-width:290px!important;
+    margin-bottom:18px!important;
+    font-size:13px!important;
+  }
+  body.shell-auth .auth-form input:not([type="checkbox"]){
+    min-height:54px!important;
+    border-radius:18px!important;
+  }
+  body.shell-auth #authSubmit{
+    min-height:56px!important;
+    border-radius:18px!important;
+  }
+  body.shell-auth .auth-language-toggle{
+    top:12px!important;
+    right:12px!important;
+    height:37px!important;
+  }
+  body.shell-auth.auth-mode-signup .auth-feature-strip{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:390px){
+  body.shell-auth .auth-card{width:min(332px,88vw)!important}
+  body.shell-auth.auth-mode-signup .auth-card{width:min(342px,91vw)!important}
+  body.shell-auth.auth-mode-signin .auth-card{width:min(320px,85vw)!important}
+  body.shell-auth .auth-card,
+  body.shell-auth.auth-mode-signup .auth-card,
+  body.shell-auth.auth-mode-signin .auth-card{
+    padding-left:17px!important;
+    padding-right:17px!important;
+  }
+  body.shell-auth .auth-brand .brand-name{font-size:25px!important}
+  body.shell-auth #authTitle{font-size:32px!important}
+  body.shell-auth.auth-mode-signin #authTitle{font-size:30px!important}
+}
