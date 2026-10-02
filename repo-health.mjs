@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 const read = file => fs.readFileSync(file,"utf8");
 const app = read("app.js");
+const authStorage = read("auth-storage.js");
 const boot = read("boot.js");
 const html = read("index.html");
 const sw = read("service-worker.js");
@@ -67,6 +68,18 @@ if(!appVersion || !shellVersion || !swVersion || versions.some(v=>v!==appVersion
   fail("runtime, shell, service worker, or asset versions are out of sync");
 }else{
   pass("release versions are synchronized at "+appVersion);
+}
+
+if(!app.includes("storage:window.TLE_AUTH_STORAGE||window.localStorage")){
+  fail("Supabase auth is not using resilient installed-app storage");
+}else if(!authStorage.includes("indexedDB") || !authStorage.includes("window.TLE_AUTH_STORAGE=storage")){
+  fail("persistent auth storage module is incomplete");
+}else if(!html.includes("./auth-storage.js?v="+appVersion)){
+  fail("persistent auth storage module is missing from app shell");
+}else if(!sw.includes("./auth-storage.js?v="+appVersion)){
+  fail("persistent auth storage module is missing from service worker core");
+}else{
+  pass("persistent auth storage module is wired into app startup");
 }
 
 if(manifest.start_url!=="./") fail("manifest start_url must remain version-agnostic './'");
