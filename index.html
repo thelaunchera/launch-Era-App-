@@ -445,16 +445,12 @@
           </div>
           <div class="invoice-payment-note">
             <strong>How would you like to pay?</strong>
-            <span id="invoiceViewMethods">Cash · Check · Other</span>
+            <span id="invoiceViewMethods">Cash · Check · Zelle</span>
             <div class="invoice-payment-choices" id="invoicePaymentChoices">
               <button type="button" data-invoice-payment="cash">Cash</button>
               <button type="button" data-invoice-payment="check">Check</button>
-              <button type="button" data-invoice-payment="other">Other</button>
+              <button type="button" data-invoice-payment="zelle">Zelle</button>
             </div>
-            <label class="invoice-other-payment" id="invoiceOtherPaymentWrap" hidden style="display:grid;gap:7px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff">
-              <span id="invoiceOtherPaymentLabel" style="font-size:11px;font-weight:850;color:#5D5952">Other payment method</span>
-              <input id="invoiceOtherPaymentMethod" type="text" maxlength="80" autocomplete="off" placeholder="Example: Venmo, Cash App, Apple Pay" style="width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink);font:inherit">
-            </label>
             <p class="invoice-payment-status" id="invoicePaymentChoiceStatus">Choose one option, then submit it to the business.</p>
             <button class="primary-btn public-submit public-confirm-submit" type="button" id="submitInvoiceBtn" disabled>Submit invoice</button>
           </div>
@@ -795,7 +791,7 @@
             <div class="flow-row compact-flow">
               <span>Fixed price</span><b>→</b><span>Book</span><b>→</b><span>Custom job</span><b>→</b><span>Quote</span>
             </div>
-            <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Other</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
+            <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Zelle</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
           </article>
           <div class="booking-section-label"><span>BOOKING RULES</span><small>Availability and what confirmed clients can change</small></div>
           <article class="panel full availability-compact booking-step-panel" data-booking-panel="availability">
@@ -1175,7 +1171,7 @@
               </div>
               <button class="text-btn" type="button" data-edit-payment-preferences data-owner-only>Edit</button>
             </div>
-            <div class="setting-row"><span><strong>Enabled methods</strong><small id="settingsPaymentMethods">Cash · Check · Other</small></span></div>
+            <div class="setting-row"><span><strong>Enabled methods</strong><small id="settingsPaymentMethods">Cash · Check · Zelle</small></span></div>
           </article>
           <article class="panel settings-section review-settings-card">
             <div class="panel-head">

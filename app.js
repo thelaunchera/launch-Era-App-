@@ -781,11 +781,8 @@ function syncCurrentWeatherFromMinutely(weather){
   };
   return weather;
 }
-function paymentMethodsForCountry(code){
-  const country=String(code||"").toUpperCase();
-  if(country==="US") return ["cash","check","zelle","other"];
-  if(country==="CA") return ["cash","check","etransfer","other"];
-  return ["cash","bank_transfer","other"];
+function paymentMethodsForCountry(){
+  return ["cash","check","zelle"];
 }
 function paymentMethodLabel(method){
   return {
@@ -1719,7 +1716,7 @@ function prepareDirectAuth(modeOverride=null){
 
 function syncAuthWelcomeCopy(){
   const copy={
-    badge:langPick("CLEANING APP","CLEANING APP","CLEANING APP"),
+    badge:langPick("CLEANING WEB APP","CLEANING WEB APP","CLEANING WEB APP"),
     title:langPick("Your cleaning business shouldn’t live in DMs, notes and memory.","Tu negocio de limpieza no debería vivir entre DMs, notas y tu memoria.","Votre entreprise de nettoyage ne devrait pas vivre entre les DMs, les notes et votre mémoire."),
     text:langPick("Keep clients, quotes, bookings, jobs and invoices in one organized place.","Mantén clientes, cotizaciones, reservas, trabajos y facturas organizados en un solo lugar.","Gardez clients, devis, réservations, interventions et factures organisés au même endroit."),
     trial:langPick("Simple setup","Configuración simple","Configuration simple"),
@@ -2460,7 +2457,7 @@ function openView(id,options={}){
     const group=activeNav.closest("details.nav-group");
     if(group) group.open=true;
   }
-  pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning App";
+  pageTitle.textContent=pageTitles[id]||"The Launch Era Cleaning Web App";
   const mobileRoot=["today"].includes(id)?"home"
     :["calendar","booking","route","time","mileage"].includes(id)?"schedule"
     :["clients","leads","quotes","followups"].includes(id)?"customers"
@@ -2671,7 +2668,7 @@ function trackGooglePage(page){
       ...googleAnalyticsBase(),
       page_path:clean,
       page_location:pageLocation,
-      page_title:"Cleaning App · "+leaf
+      page_title:"Cleaning Web App · "+leaf
     });
   }catch{}
 }
@@ -7412,10 +7409,10 @@ async function openNotificationPreferencesForm(){
     ownerAlertLang("NOTIFICATIONS","NOTIFICACIONES","NOTIFICATIONS","NOTIFIKASYON"),
     ownerAlertLang("Owner alerts","Alertas para la dueña","Alertes propriétaire","Alèt pou pwopriyetè"),
     ownerAlertLang(
-      "Choose where you want important Cleaning App alerts to reach you.",
-      "Elige dónde quieres recibir las alertas importantes de Cleaning App.",
-      "Choisissez où recevoir les alertes importantes de Cleaning App.",
-      "Chwazi kote ou vle resevwa alèt enpòtan Cleaning App yo."
+      "Choose where you want important Cleaning Web App alerts to reach you.",
+      "Elige dónde quieres recibir las alertas importantes de Cleaning Web App.",
+      "Choisissez où recevoir les alertes importantes de Cleaning Web App.",
+      "Chwazi kote ou vle resevwa alèt enpòtan Cleaning Web App yo."
     )
   );
 
@@ -7494,7 +7491,7 @@ async function openPaymentPreferencesForm(){
   state.modalType="paymentPreferences";
   state.modalId=state.business.id;
   const record=await loadBusinessSettingsRecord();
-  const methods=[...new Set([...(record.payment_methods||[]),...paymentMethodsForCountry(record.country_code)])];
+  const methods=paymentMethodsForCountry(record.country_code);
 
   modalHeader(
     langPick("PAYMENTS","PAGOS","PAIEMENTS"),
@@ -7506,11 +7503,7 @@ async function openPaymentPreferencesForm(){
       <div class="choice-grid compact">
         ${methods.map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
       </div>
-      <label class="custom-payment-method">
-        <span>${escapeHtml(langPick("Add another payment method","Añadir otra forma de pago","Ajouter un autre mode de paiement"))}</span>
-        <input name="custom_payment_method" maxlength="40" placeholder="${escapeHtml(langPick("e.g. Venmo, Cash App","ej. Venmo, Cash App","ex. PayPal, Lydia"))}">
-      </label>
-      <small>${escapeHtml(langPick("The app stores the payment choice, not bank credentials.","La app guarda la forma de pago elegida, no credenciales bancarias.","L’application enregistre le mode de paiement choisi, pas les identifiants bancaires."))}</small>
+      <small>${escapeHtml(langPick("Cash, Check and Zelle are available for client payment records. The app records the choice; it does not process the payment.","Efectivo, Cheque y Zelle están disponibles para registrar pagos de clientes. La app registra la opción; no procesa el pago.","Cash, Check et Zelle sont disponibles pour enregistrer les paiements clients. L’application enregistre le choix; elle ne traite pas le paiement."))}</small>
     </fieldset>
     ${formSubmit(langPick("Save payment options","Guardar opciones de pago","Enregistrer les options de paiement"))}`;
   modal.hidden=false;
@@ -7586,12 +7579,8 @@ async function savePaymentPreferences(fd){
   if(!state.business || state.business.role!=="owner"){
     throw new Error(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
   }
-  const paymentMethods=fd.getAll("payment_method").map(v=>String(v));
-  const custom=String(fd.get("custom_payment_method")||"").trim();
-  if(custom){
-    const normalized=custom.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40);
-    if(normalized && !paymentMethods.includes(normalized)) paymentMethods.push(normalized);
-  }
+  const allowedPaymentMethods=new Set(paymentMethodsForCountry(state.business.country_code));
+  const paymentMethods=fd.getAll("payment_method").map(v=>String(v)).filter(v=>allowedPaymentMethods.has(v));
   if(!paymentMethods.length){
     throw new Error(langPick("Choose at least one payment method.","Elige al menos una forma de pago.","Choisissez au moins un mode de paiement."));
   }
@@ -7637,7 +7626,9 @@ function renderSettings(){
   if(currency) currency.textContent=state.business?.currency_code||"USD";
   if(distance) distance.textContent=state.business?.distance_unit==="km"?"Kilometers":"Miles";
   if(temperature) temperature.textContent=state.business?.temperature_unit==="celsius"?"Celsius":"Fahrenheit";
-  const methodLabel=(state.business?.payment_methods||paymentMethodsForCountry(state.business?.country_code)).map(paymentMethodLabel).join(" · ");
+  const allowedPaymentMethods=new Set(paymentMethodsForCountry(state.business?.country_code));
+  const savedPaymentMethods=(state.business?.payment_methods||[]).filter(method=>allowedPaymentMethods.has(String(method).toLowerCase()));
+  const methodLabel=(savedPaymentMethods.length?savedPaymentMethods:paymentMethodsForCountry(state.business?.country_code)).map(paymentMethodLabel).join(" · ");
   if(paymentMethods) paymentMethods.textContent=methodLabel;
   if(bookingPaymentMethods) bookingPaymentMethods.textContent=methodLabel;
   if(b) b.textContent=(state.publicLinks?.travel_buffer_minutes??state.business?.default_travel_buffer_minutes??0)+" minutes";
@@ -7802,7 +7793,7 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"2 months Cleaning App with Booking Page":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking Page":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
           ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 2-month promo</button>`
           : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant Booking Page 2-month promo</button>`
         }</div>
