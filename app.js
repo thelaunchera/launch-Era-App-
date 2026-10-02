@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-auth-card-r11";
+const APP_VERSION = "20261002-dashboard-nav-r13";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1232,6 +1232,11 @@ function renderWeatherCoreSnapshot(weather=state.weather){
   if(condition) condition.textContent=lang==="ht"?(window.TLE_I18N?.t?.(meta.en)||meta.en):(meta[lang]||meta.en);
   if(highLow) highLow.textContent=(Number.isFinite(high)?"H:"+high+"°":"H:—")+"  "+(Number.isFinite(low)?"L:"+low+"°":"L:—");
   if(location) location.textContent=langPick("LOCAL WEATHER","CLIMA LOCAL","MÉTÉO LOCALE");
+  const quickWeather=$("#quickWeatherSummary");
+  if(quickWeather){
+    const conditionText=condition?.textContent||"";
+    quickWeather.textContent=(Number.isFinite(temp)?temp+"° · ":"")+conditionText;
+  }
   return true;
 }
 function renderWeatherPending(finalFailure=false){
@@ -1246,6 +1251,10 @@ function renderWeatherPending(finalFailure=false){
     ? langPick("Weather unavailable","Clima no disponible","Météo indisponible")
     : langPick("Updating weather…","Actualizando clima…","Mise à jour météo…");
   if(highLow && !state.weather) highLow.textContent="H:—  L:—";
+  const quickWeather=$("#quickWeatherSummary");
+  if(quickWeather) quickWeather.textContent=finalFailure
+    ? langPick("Weather unavailable","Clima no disponible","Météo indisponible")
+    : langPick("Updating weather…","Actualizando clima…","Mise à jour météo…");
 }
 function scheduleWeatherRetry(){
   if(window.__tleWeatherRetryTimer || !state.session || !state.business) return;
@@ -2416,17 +2425,25 @@ function openView(id,options={}){
     :["calendar","booking","route","time","mileage"].includes(id)?"schedule"
     :["clients","leads","quotes","followups"].includes(id)?"customers"
     :["invoices","reports"].includes(id)?"money":"more";
-  $(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
+  const isHomeView=id==="today";
+  if(backBtn) backBtn.hidden=isHomeView;
+  const menuButton=$("#menuToggle");
+  if(menuButton) menuButton.hidden=!isHomeView;
+  document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
     const isActive=item.dataset.mobileRoot===mobileRoot;
     item.classList.toggle("active",isActive);
     if(isActive) item.setAttribute("aria-current","page");
     else item.removeAttribute("aria-current");
   });
-  if(backBtn) backBtn.hidden=id==="today";
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
   saveWorkspaceView(id);
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
-  requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
+  requestAnimationFrame(()=>{
+    setWorkspaceScrollTop(targetTop);
+    // A second frame keeps Back anchored to the same place even when the
+    // returning view finishes its first layout pass on iPhone.
+    if(options.fromBack) requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
+  });
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
   if(id==="calendar"){
     renderJobs();
@@ -2448,6 +2465,18 @@ function openView(id,options={}){
 // Delegated navigation keeps dashboard links working even when cards/lists
 // are re-rendered after data loads or iOS restores an older DOM snapshot.
 document.addEventListener("click",e=>{
+  const weatherFocus=e.target.closest("[data-weather-focus]");
+  if(weatherFocus){
+    e.preventDefault();
+    const weatherCard=$("#weatherBrief");
+    if(weatherCard){
+      loadBusinessWeather(false).catch(()=>{});
+      weatherCard.scrollIntoView({behavior:"smooth",block:"center"});
+      weatherCard.classList.add("quick-focus");
+      setTimeout(()=>weatherCard.classList.remove("quick-focus"),900);
+    }
+    return;
+  }
   const mobileMore=e.target.closest("[data-mobile-more]");
   if(mobileMore){
     e.preventDefault();
@@ -6472,8 +6501,8 @@ function renderTodaySummary(wakeAssistant=false){
     capacityEyebrow:langPick("CAPACITY","CAPACIDAD","CAPACITÉ"),
     capacityTitle:langPick("This week","Esta semana","Cette semaine"),
     nextMoveEyebrow:langPick("YOUR NEXT MOVE","TU PRÓXIMO PASO","VOTRE PROCHAINE ACTION"),
-    attentionEyebrow:langPick("FOLLOW THROUGH","SEGUIMIENTO","SUIVI"),
-    attentionTitle:langPick("Open items","Pendientes","Éléments ouverts"),
+    attentionEyebrow:langPick("NEEDS ATTENTION","NECESITA ATENCIÓN","À SURVEILLER"),
+    attentionTitle:langPick("Needs attention","Necesita atención","À surveiller"),
     weekGrowthEyebrow:langPick("THIS WEEK","ESTA SEMANA","CETTE SEMAINE"),
     weekCompletedLabel:langPick("Completed","Completados","Terminés"),
     weekHoursLabel:langPick("Work hours","Horas","Heures"),

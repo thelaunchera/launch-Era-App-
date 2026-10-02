@@ -2028,6 +2028,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
 
   // Dashboard home v2 copy.
   Object.assign(staticCorrections.es,{
+    "Needs attention":"Necesita atención","Weather":"Clima","Current local weather":"Clima local actual","Services":"Servicios","Prices, durations & add-ons":"Precios, duración y extras",
     "Quick access":"Acceso rápido","See all →":"Ver todo →","Calendar":"Calendario",
     "View & manage jobs":"Ver y administrar trabajos","Bookings":"Reservas","New requests & quotes":"Solicitudes y cotizaciones",
     "Customers":"Clientes","View & manage customers":"Ver y administrar clientes","Money":"Dinero",
@@ -2039,6 +2040,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No quotes need attention.":"No hay cotizaciones pendientes.","All caught up on invoices.":"Facturas al día."
   });
   Object.assign(staticCorrections.fr,{
+    "Needs attention":"À surveiller","Weather":"Météo","Current local weather":"Météo locale actuelle","Services":"Services","Prices, durations & add-ons":"Tarifs, durées et options",
     "Quick access":"Accès rapide","See all →":"Tout voir →","Calendar":"Calendrier",
     "View & manage jobs":"Voir et gérer les prestations","Bookings":"Réservations","New requests & quotes":"Demandes et devis",
     "Customers":"Clients","View & manage customers":"Voir et gérer les clients","Money":"Finances",
@@ -2050,6 +2052,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No quotes need attention.":"Aucun devis ne nécessite votre attention.","All caught up on invoices.":"Factures à jour."
   });
   Object.assign(staticCorrections.ht,{
+    "Needs attention":"Bezwen atansyon","Weather":"Meteyo","Current local weather":"Meteyo lokal aktyèl","Services":"Sèvis","Prices, durations & add-ons":"Pri, dire ak opsyon",
     "Quick access":"Aksè rapid","See all →":"Wè tout →","Calendar":"Kalandriye",
     "View & manage jobs":"Wè epi jere travay yo","Bookings":"Rezèvasyon","New requests & quotes":"Nouvo demann ak devis",
     "Customers":"Kliyan","View & manage customers":"Wè epi jere kliyan yo","Money":"Lajan",

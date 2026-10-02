@@ -307,3 +307,257 @@ section.view[data-page="today"] .presence-panel{order:9}
     padding:10px 11px!important;
   }
 }
+
+
+/* Mobile dashboard stability + navigation polish r12 */
+#todayHeroCard.quarter-color-0,
+#todayHeroCard.moment-morning{
+  background:#F6EDBF!important;
+}
+
+/* Keep Today locked to the viewport width. This prevents the visual side-jump
+   that can happen while weather/quick-access content finishes rendering. */
+section.view[data-page="today"].active,
+section.view[data-page="today"] #todayHeroCard,
+section.view[data-page="today"] .dashboard-quick-access{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+section.view[data-page="today"].view-enter{
+  animation:tleTodayFadeStable .16s ease-out both!important;
+}
+@keyframes tleTodayFadeStable{
+  from{opacity:.55}
+  to{opacity:1}
+}
+
+@media(max-width:860px){
+  /* Leave the complete legal/footer area above the persistent mobile nav. */
+  body.shell-app #appShell>.main{
+    padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;
+  }
+  body.shell-app .app-legal-footer{
+    position:relative!important;
+    z-index:1!important;
+    margin-bottom:calc(32px + env(safe-area-inset-bottom))!important;
+    padding-bottom:18px!important;
+  }
+
+  /* Nested sections use a real Back arrow; Home alone keeps the hamburger. */
+  body.shell-app #backBtn:not([hidden]){
+    display:grid!important;
+    place-items:center!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:0!important;
+    border:1px solid rgba(25,25,25,.14)!important;
+    border-radius:50%!important;
+    background:#fff!important;
+    color:#191919!important;
+    font-size:0!important;
+    box-shadow:none!important;
+  }
+  body.shell-app #backBtn:not([hidden])::before{
+    content:"←"!important;
+    font-size:20px!important;
+    line-height:1!important;
+    font-weight:800!important;
+  }
+  body.shell-app #menuToggle[hidden]{
+    display:none!important;
+  }
+
+  /* Smaller, calmer mobile greeting. */
+  section.view[data-page="today"] #todayHeroCard{
+    padding:12px!important;
+    margin-bottom:10px!important;
+    border-radius:20px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .hero-ecosystem{
+    gap:8px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .hero-card-topline{
+    min-height:40px!important;
+    margin-bottom:8px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .today-clock{
+    padding:6px 8px!important;
+    border-radius:12px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .today-clock-copy strong{
+    font-size:12px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .today-clock-copy small{
+    font-size:8px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .hero-sky-badge{
+    width:46px!important;
+    min-width:46px!important;
+    height:38px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .today-greeting-first{
+    margin-bottom:8px!important;
+    gap:4px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard #todayGreeting{
+    max-width:100%!important;
+    padding-right:0!important;
+    margin:0!important;
+    font-size:clamp(28px,8vw,34px)!important;
+    line-height:.96!important;
+    letter-spacing:-.05em!important;
+  }
+  section.view[data-page="today"] #todayHeroCard #todayMomentCopy{
+    min-height:32px!important;
+    margin:0!important;
+    font-size:11px!important;
+    line-height:1.35!important;
+  }
+  section.view[data-page="today"] #todayHeroCard #todayHeroAction{
+    min-height:42px!important;
+    margin:8px 0!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard .hero-weather-compact,
+  section.view[data-page="today"] #todayHeroCard .weather-brief{
+    min-height:82px!important;
+    box-sizing:border-box!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+    contain:layout paint;
+  }
+  section.view[data-page="today"] #todayHeroCard .hero-weather-compact .weather-temp-row>strong,
+  section.view[data-page="today"] #todayHeroCard .hero-weather-compact.weather-no-icon .weather-temp-row>strong{
+    font-size:27px!important;
+  }
+}
+
+@media(max-width:430px){
+  body.shell-app #backBtn:not([hidden]){
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+  }
+  section.view[data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(27px,8vw,32px)!important;
+  }
+}
+
+
+/* Navigation + dashboard logic polish r12 */
+.dashboard-quick-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+.dashboard-quick-card.quick-weather{background:#E9F5FB}
+.dashboard-quick-card.quick-services{background:#F7F1E5}
+#weatherBrief.quick-focus{
+  outline:3px solid rgba(82,174,236,.34)!important;
+  outline-offset:3px!important;
+  transition:outline-color .18s ease!important;
+}
+
+/* Softer morning yellow only when weather is clear/partly clear. */
+#todayHeroCard.moment-morning[data-weather="clear"],
+#todayHeroCard.moment-morning[data-weather="partly"],
+#todayHeroCard.moment-morning[data-weather="none"],
+#todayHeroCard.moment-morning:not([data-weather]){
+  background:linear-gradient(145deg,#F7EFC8 0%,#F4E8B7 100%)!important;
+}
+
+/* Back is a real app control: nested pages always show it; Home shows menu. */
+body.shell-app #backBtn:not([hidden]){
+  display:grid!important;
+  place-items:center!important;
+  font-size:0!important;
+  color:#191919!important;
+}
+body.shell-app #backBtn:not([hidden])::before{
+  content:"←"!important;
+  font-size:20px!important;
+  line-height:1!important;
+}
+body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
+  display:none!important;
+}
+
+@media(max-width:860px){
+  body.shell-app #appShell>.main,
+  body.shell-app .main{
+    padding-bottom:calc(142px + env(safe-area-inset-bottom))!important;
+  }
+
+  /* Quick access is a complete 2-column app launcher, not a clipped carousel. */
+  .dashboard-quick-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+    overflow:visible!important;
+  }
+  .dashboard-quick-card{
+    width:100%!important;
+    min-height:104px!important;
+    padding:11px 11px!important;
+    border-radius:18px!important;
+  }
+  .dashboard-quick-card strong{font-size:13px!important}
+  .dashboard-quick-card small{font-size:9.5px!important}
+  .dashboard-quick-arrow{right:10px!important;bottom:9px!important}
+
+  /* Greeting is compact and reserves weather space so loading cannot resize it abruptly. */
+  #todayHeroCard{
+    padding:14px!important;
+    margin-bottom:12px!important;
+    border-radius:24px!important;
+  }
+  #todayHeroCard .hero-card-topline{
+    min-height:46px!important;
+    margin-bottom:5px!important;
+  }
+  #todayHeroCard .today-greeting-first{
+    margin-bottom:9px!important;
+  }
+  #todayHeroCard .today-greeting-first h2,
+  #todayHeroCard #todayGreeting{
+    margin:5px 0 7px!important;
+    font-size:clamp(31px,8.3vw,39px)!important;
+    line-height:.98!important;
+  }
+  #todayHeroCard #todayMomentCopy{
+    font-size:12px!important;
+    line-height:1.34!important;
+  }
+  #todayHeroCard #todayHeroAction{
+    min-height:46px!important;
+    margin-top:11px!important;
+    margin-bottom:9px!important;
+    border-radius:15px!important;
+    font-size:13px!important;
+  }
+  #todayHeroCard .weather-brief{
+    min-height:72px!important;
+    margin-top:0!important;
+    padding:10px 11px!important;
+    border-radius:15px!important;
+  }
+
+  /* Footer must finish above the fixed tab bar, including iPhone safe area. */
+  .app-legal-footer{
+    margin:18px 0 22px!important;
+    padding:16px 0 calc(26px + env(safe-area-inset-bottom))!important;
+  }
+}
+
+@media(min-width:861px) and (max-width:1100px){
+  .dashboard-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+@media(max-width:390px){
+  .dashboard-quick-card{min-height:98px!important}
+}

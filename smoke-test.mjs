@@ -432,6 +432,15 @@ if(!app.includes("realtime fallback refresh") || !app.includes("CHANNEL_ERROR") 
 if(!$("#rememberUsername") || !app.includes("REMEMBER_USERNAME_KEY") || !app.includes("persistRememberUsername")){
   throw new Error("Auth regression: remember-username flow is missing");
 }
+if(!app.includes('document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach')){
+  throw new Error("Mobile navigation regression: bottom-nav sync must iterate a NodeList");
+}
+if(!app.includes('menuButton.hidden=!isHomeView')){
+  throw new Error("Mobile navigation regression: nested views must show Back instead of the hamburger");
+}
+if(!app.includes('if(options.fromBack) requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));')){
+  throw new Error("Mobile navigation regression: Back must restore the previous workspace scroll position");
+}
 if(!$("#sessionSplash") || !html.includes("./app-icon.svg") || !app.includes("function dismissSessionSplash()")){
   throw new Error("Session splash regression: returning users can flash the welcome screen before auth restore");
 }
