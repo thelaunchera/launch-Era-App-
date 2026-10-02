@@ -139,14 +139,19 @@ const businessForm = $("#businessForm");
 const entityForm = $("#entityForm");
 const modal = $("#modalBackdrop");
 const sessionSplash=$("#sessionSplash");
+function suspendAuthPasswordAutofill(){
+  const password=authShell?.querySelector("#authPassword");
+  if(!password) return;
+  password.disabled=true;
+  password.autocomplete="off";
+}
 function setAuthShellAvailable(available){
   if(!authShell) return;
   authShell.hidden=!available;
   if(available){
-    authShell.removeAttribute("inert");
     authShell.removeAttribute("aria-hidden");
   }else{
-    authShell.setAttribute("inert","");
+    suspendAuthPasswordAutofill();
     authShell.setAttribute("aria-hidden","true");
   }
 }
@@ -1799,6 +1804,7 @@ function showSetup(){
   appShell.hidden = true;
   if(authWelcome) authWelcome.hidden = true;
   authPanel.hidden = true;
+  suspendAuthPasswordAutofill();
   businessSetup.hidden = false;
 }
 function applyQuarterHourCardColors(){
@@ -3079,7 +3085,10 @@ function setAuthMode(mode,options={}){
   const emailField=$("#emailField")||email?.closest("label");
   const forgot=$("#forgotPassword");
   const signupLegalNote=$("#signupLegalNote");
-  if(password){password.type="password";}
+  if(password){
+    password.disabled=false;
+    password.type="password";
+  }
   syncAuthPasswordToggle();
 
   if(mode==="signup"){
