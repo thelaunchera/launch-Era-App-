@@ -1904,123 +1904,16 @@ function ensureDashboardBootResolved(){
 }
 
 
-const HERO_OPENING_ANIMATION_URL="https://d2ol7oe51mr4n9.cloudfront.net/user_3FC9GcVebQE6WAxiCP5Hh9w95GF/4865348e-1259-42e1-b904-dbfb4025a040.webp";
-const HERO_OPENING_ANIMATION_INTERVAL_MS=60*60*1000;
-const HERO_OPENING_ANIMATION_STORAGE_KEY="tle_hero_opening_animation_last_v2";
-let heroOpeningAnimationTimer=0;
-let heroOpeningAnimationHourlyTimer=0;
-let heroOpeningAnimationLastStarted=0;
-
-function heroOpeningAnimationStorageKey(){
-  const businessId=String(state.business?.id||"default");
-  return HERO_OPENING_ANIMATION_STORAGE_KEY+":"+businessId;
-}
-function heroOpeningAnimationLastPlayedAt(){
+// The former greeting witch animation was retired. Remove any stale overlay
+// restored by an older iOS/PWA DOM snapshot before showing the dashboard.
+function removeRetiredGreetingOverlay(){
+  try{ document.getElementById("heroOpeningAnimation")?.remove(); }catch{}
   try{
-    const stored=Number(localStorage.getItem(heroOpeningAnimationStorageKey())||0);
-    if(Number.isFinite(stored)&&stored>0) return stored;
+    Object.keys(localStorage).forEach(key=>{
+      if(key.startsWith("tle_hero_opening_animation_last_v2")) localStorage.removeItem(key);
+    });
   }catch{}
-  return heroOpeningAnimationLastStarted||0;
 }
-function scheduleHeroOpeningAnimation(){
-  clearTimeout(heroOpeningAnimationHourlyTimer);
-  if(!state.session||!appShell||appShell.hidden) return;
-  const last=heroOpeningAnimationLastPlayedAt();
-  const elapsed=Date.now()-last;
-  const delay=last?Math.max(1000,HERO_OPENING_ANIMATION_INTERVAL_MS-elapsed):1000;
-  heroOpeningAnimationHourlyTimer=setTimeout(()=>{
-    if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
-      playHeroOpeningAnimation();
-    }
-  },delay);
-}
-function playHeroOpeningAnimation(){
-  try{
-    if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
-    const hero=$("#todayHeroCard");
-    const action=$("#todayHeroAction");
-    if(!hero||!action) return;
-    const now=Date.now();
-    const lastPlayed=heroOpeningAnimationLastPlayedAt();
-    if(lastPlayed && now-lastPlayed<HERO_OPENING_ANIMATION_INTERVAL_MS){
-      scheduleHeroOpeningAnimation();
-      return;
-    }
-
-    heroOpeningAnimationLastStarted=now;
-    try{localStorage.setItem(heroOpeningAnimationStorageKey(),String(now));}catch{}
-    scheduleHeroOpeningAnimation();
-
-    let slot=$("#heroOpeningAnimation");
-    if(!slot){
-      slot=document.createElement("span");
-      slot.id="heroOpeningAnimation";
-      slot.className="hero-opening-animation";
-      slot.setAttribute("aria-hidden","true");
-      hero.appendChild(slot);
-    }
-
-    slot.classList.remove("is-playing");
-    slot.replaceChildren();
-
-    const image=new Image();
-    image.alt="";
-    image.decoding="async";
-    image.draggable=false;
-    image.className="hero-opening-witch";
-
-    const positionAndPlay=()=>{
-      const heroRect=hero.getBoundingClientRect();
-      const actionRect=action.getBoundingClientRect();
-      const compact=window.innerWidth<=390;
-      const mobile=window.innerWidth<=720;
-      const slotWidth=compact?82:(mobile?94:116);
-      const slotHeight=compact?88:(mobile?102:124);
-      const rightGap=Math.max(10,heroRect.right-actionRect.right);
-      const left=Math.max(8,heroRect.width-rightGap-slotWidth);
-      const top=Math.max(8,actionRect.top-heroRect.top-slotHeight-2);
-      slot.style.setProperty("--tle-greeting-left",left+"px");
-      slot.style.setProperty("--tle-greeting-top",top+"px");
-      slot.style.setProperty("--tle-greeting-width",slotWidth+"px");
-      slot.style.setProperty("--tle-greeting-height",slotHeight+"px");
-      slot.replaceChildren(image);
-      // Let the decoded frame paint before fading/moving the character in.
-      // Avoid a forced synchronous reflow here; that was visible as a small
-      // jump on iPhone when the greeting card was already animating.
-      requestAnimationFrame(()=>slot.classList.add("is-playing"));
-
-      clearTimeout(heroOpeningAnimationTimer);
-      heroOpeningAnimationTimer=setTimeout(()=>{
-        slot.classList.remove("is-playing");
-        setTimeout(()=>{
-          if(!slot.classList.contains("is-playing")) slot.replaceChildren();
-        },360);
-      },6600);
-    };
-
-    image.onload=()=>requestAnimationFrame(positionAndPlay);
-    image.onerror=()=>console.warn("[TLE] greeting witch asset failed to load");
-    // Re-create the image to restart the broom motion, but keep a stable URL
-    // so iOS can use its decoded cache instead of fetching a brand-new asset
-    // every hour. This removes the flash/jump caused by cache-busting URLs.
-    image.src=HERO_OPENING_ANIMATION_URL;
-  }catch(err){
-    console.warn("[TLE] greeting opening animation",err);
-  }
-}
-
-document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible" && state.session && appShell && !appShell.hidden){
-    if(Date.now()>=Number(window.__tleSuppressHeroUntil||0)) playHeroOpeningAnimation();
-  }else if(document.visibilityState==="hidden"){
-    clearTimeout(heroOpeningAnimationHourlyTimer);
-  }
-});
-window.addEventListener("pageshow",()=>{
-  if(state.session && appShell && !appShell.hidden && Date.now()>=Number(window.__tleSuppressHeroUntil||0)){
-    playHeroOpeningAnimation();
-  }
-});
 
 function showApp(){
   dismissSessionSplash();
@@ -2031,7 +1924,7 @@ function showApp(){
   appShell.hidden = false;
   scheduleQuarterHourCardColors();
   installTodayClock();
-  playHeroOpeningAnimation();
+  removeRetiredGreetingOverlay();
 
   // Safari/iOS may restore the previous page scroll position before the hidden
   // app shell becomes visible. Force the authenticated dashboard to start at
