@@ -28,16 +28,23 @@
 
 window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
+      if(window.__tleAppReady) return;
       var splash=document.getElementById("sessionSplash");
       if(splash) splash.hidden=true;
+      var auth=document.getElementById("authShell");
+      if(auth){
+        auth.hidden=false;
+        auth.removeAttribute("inert");
+        auth.removeAttribute("aria-hidden");
+      }
       var status=document.getElementById("authStatus");
-      if(status && !window.__tleAppReady){
-        status.textContent="App loading failed. Refreshing…";
+      if(status){
+        status.textContent="App loading failed. Please refresh.";
         status.dataset.type="error";
       }
     });
 
-window.__tleShellVersion="20261002-witch-natural-r16";
+window.__tleShellVersion="20261002-auth-gate-r17";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
