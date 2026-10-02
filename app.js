@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-no-greeting-animation-r24";
+const APP_VERSION = "20261002-ios-auth-layout-r25";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -173,7 +173,9 @@ function activateAuthPasswordInput(password){
   password.name="password";
   password.type="password";
   password.readOnly=false;
-  password.autocomplete=password.dataset.tleAutocompleteIntent||"current-password";
+  // Keep browser credential autofill disabled. The user can still type/paste
+  // normally, but iOS cannot launch Face ID merely because this field exists.
+  password.autocomplete="off";
   delete password.dataset.tlePasswordLocked;
 }
 document.addEventListener("pointerdown",event=>{
@@ -192,10 +194,23 @@ function suspendAuthPasswordAutofill(){
 }
 function setAuthShellAvailable(available){
   if(!authShell) return;
+  const email=authShell.querySelector("#authEmail");
   authShell.hidden=!available;
+  authShell.inert=!available;
   if(available){
     authShell.removeAttribute("aria-hidden");
+    if(email){
+      email.disabled=false;
+      email.removeAttribute("name");
+      email.autocomplete="off";
+    }
   }else{
+    if(email){
+      try{email.blur();}catch{}
+      email.disabled=true;
+      email.removeAttribute("name");
+      email.autocomplete="off";
+    }
     suspendAuthPasswordAutofill();
     authShell.setAttribute("aria-hidden","true");
   }
@@ -2983,7 +2998,7 @@ function syncAuthPasswordToggle(){
   const input=$("#authPassword");
   const toggle=$("#authPasswordToggle");
   if(!input||!toggle) return;
-  const visible=input.type==="text";
+  const visible=input.dataset.tlePasswordLocked!=="1" && input.type==="text";
   toggle.setAttribute("aria-pressed",visible?"true":"false");
   toggle.setAttribute("aria-label",visible?langPick("Hide password","Ocultar contraseña","Masquer le mot de passe"):langPick("Show password","Mostrar contraseña","Afficher le mot de passe"));
   toggle.classList.toggle("is-visible",visible);
@@ -3023,7 +3038,7 @@ function setAuthMode(mode,options={}){
   const signupLegalNote=$("#signupLegalNote");
   if(password){
     password.disabled=false;
-    password.type="password";
+    lockAuthPasswordInput(password,password.dataset.tleAutocompleteIntent||"current-password");
   }
   syncAuthPasswordToggle();
 
@@ -3039,7 +3054,7 @@ function setAuthMode(mode,options={}){
     lockAuthPasswordInput(password,"new-password");
     password.placeholder="Create a password";
     if(email){
-      email.autocomplete="email";
+      email.autocomplete="off";
       email.placeholder="Email address";
     }
     emailField.hidden=false;
@@ -3054,7 +3069,7 @@ function setAuthMode(mode,options={}){
     passwordField.hidden=false;
     password.required=true;
     lockAuthPasswordInput(password,"new-password");
-    if(email) email.autocomplete="username";
+    if(email) email.autocomplete="off";
     emailField.hidden=true;
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
@@ -3070,7 +3085,7 @@ function setAuthMode(mode,options={}){
     lockAuthPasswordInput(password,"current-password");
     password.placeholder="Password";
     if(email){
-      email.autocomplete="username";
+      email.autocomplete="off";
       email.placeholder="Email address";
     }
     emailField.hidden=false;
