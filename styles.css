@@ -981,6 +981,26 @@ body.tle-signing-out .sidebar-logout-btn:active{transform:none}
 }
 
 /* Legal, support and feedback */
+.sidebar-settings-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  margin-bottom:8px;
+}
+.sidebar-settings-btn{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:9px;
+  width:100%;
+  min-height:42px;
+  text-align:left;
+}
+.sidebar-settings-btn>span:first-child{
+  width:22px;
+  text-align:center;
+  font-size:14px;
+}
 .sidebar-support-actions{
   display:grid;
   grid-template-columns:1fr 1fr;
