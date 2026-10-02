@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-welcome-human-r3";
+const APP_VERSION = "20261002-ios-session-r4";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -72,6 +72,32 @@ const state = {
   modalId: null,
   coreDataLoadedFor: null
 };
+
+let __tleBootAuthSession=null;
+let __tleBootAuthSessionResolve=null;
+const __tleBootAuthSessionReady=new Promise(resolve=>{__tleBootAuthSessionResolve=resolve;});
+
+function noteBootAuthSession(session){
+  if(!session || __tleBootAuthSession) return;
+  __tleBootAuthSession=session;
+  if(__tleBootAuthSessionResolve) __tleBootAuthSessionResolve(session);
+}
+function recentOwnerSessionExpected(){
+  const lastActivity=Number(localStorage.getItem(OWNER_ACTIVITY_KEY)||0);
+  return Number.isFinite(lastActivity) && lastActivity>0 && Date.now()-lastActivity<OWNER_IDLE_MS;
+}
+async function waitForBootAuthSession(ms=2400){
+  if(__tleBootAuthSession) return __tleBootAuthSession;
+  let timer;
+  try{
+    return await Promise.race([
+      __tleBootAuthSessionReady,
+      new Promise(resolve=>{timer=setTimeout(()=>resolve(null),ms);})
+    ]);
+  }finally{
+    clearTimeout(timer);
+  }
+}
 
 // Narrow bridge for modular features that must share the authenticated app session.
 window.TLE_APP_BRIDGE={supabase,state};
@@ -3667,14 +3693,26 @@ async function initialize(){
     }
     if(attempt<2) await new Promise(resolve=>setTimeout(resolve,180));
   }
-  let session=storedSession||null;
+  // Auth events can finish restoring the persisted iOS/PWA session while
+  // getSession() is still returning null. Never overwrite that recovered
+  // session with a stale local null.
+  let session=storedSession||state.session||__tleBootAuthSession||null;
 
-  // iOS Home Screen can occasionally fail to surface Supabase's own stored
-  // session even while our app storage remains intact. Restore the same
-  // access/refresh tokens Supabase already persists, but only inside the
-  // user's 12-hour inactivity window.
-  if(!session){
-    session=await restoreOwnerSessionFromBackup();
+  // A recent owner activity timestamp is a safe signal that this device had an
+  // active owner session and did not explicitly log out. Give Supabase's
+  // INITIAL_SESSION / SIGNED_IN / TOKEN_REFRESHED event a short window to
+  // finish before showing the password screen.
+  if(!session && recentOwnerSessionExpected()){
+    const eventSession=await waitForBootAuthSession();
+    session=eventSession||state.session||__tleBootAuthSession||null;
+    if(!session){
+      try{
+        const finalRead=await supabase.auth.getSession();
+        session=finalRead?.data?.session||state.session||__tleBootAuthSession||null;
+      }catch(err){
+        console.warn("[TLE] final persisted session read",err);
+      }
+    }
   }
 
   state.session=session;
@@ -3854,6 +3892,13 @@ window.addEventListener("pageshow",()=>{
 supabase.auth.onAuthStateChange((event, session)=>{
   // IMPORTANT: keep this callback synchronous.
   // Awaiting Supabase calls from onAuthStateChange can deadlock supabase-js.
+  if(event === "INITIAL_SESSION"){
+    if(session){
+      state.session=session;
+      noteBootAuthSession(session);
+    }
+    return;
+  }
   if(event === "PASSWORD_RECOVERY"){
     state.session=session;
     setTimeout(()=>{
@@ -3864,6 +3909,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "SIGNED_IN" && session){
     state.session=session;
+    noteBootAuthSession(session);
     saveOwnerSessionBackup(session);
     if(window.__tleEnterAppPromise) return;
     setTimeout(()=>{
@@ -3879,6 +3925,7 @@ supabase.auth.onAuthStateChange((event, session)=>{
   }
   if(event === "TOKEN_REFRESHED" && session){
     state.session=session;
+    noteBootAuthSession(session);
     saveOwnerSessionBackup(session);
     return;
   }
