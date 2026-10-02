@@ -124,6 +124,16 @@ if(/PRIMARY_PLATFORM_ADMIN_EMAIL|LEGACY_PLATFORM_ADMIN_EMAIL|isPrimaryPlatformAd
   pass("platform admin identity is delegated to backend authorization");
 }
 
+const iosSessionRestoreGuard=
+  app.includes('if(event === "INITIAL_SESSION"){') &&
+  app.includes('await waitForBootAuthSession()') &&
+  app.includes('storedSession||state.session||__tleBootAuthSession||null');
+if(!iosSessionRestoreGuard){
+  fail("iOS/PWA session restore guard is missing");
+}else{
+  pass("iOS/PWA session restore guard waits for persisted auth before showing login");
+}
+
 if(!i18n.includes('const SUPPORTED=["en","es","fr","ht"]')){
   fail("active language set must be EN/ES/FR/HT");
 }else{
