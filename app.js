@@ -4016,6 +4016,10 @@ supabase.auth.onAuthStateChange((event, session)=>{
     // persisted session. During boot, initialize() is the single source of
     // truth and will show Auth itself only if restoration truly fails.
     if(window.__tleBootInProgress && !window.__tleSigningOut && !window.__tleOwnerLocking) return;
+    // A late no-session event after boot must not reset a login/signup screen
+    // the user is already using. Only react here when a real app session was
+    // previously active (or an explicit sign-out/idle-lock flow owns it).
+    if(!state.session && authShell && !authShell.hidden && !window.__tleSigningOut && !window.__tleOwnerLocking) return;
     state.session=null;
     state.business=null;
     if(window.__tleSigningOut || window.__tleOwnerLocking) return;
