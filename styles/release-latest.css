@@ -639,3 +639,14 @@
 ):not(.contrast-light-surface) :is(.eyebrow,.panel-note,small,p){
   color:var(--on-dark-muted)!important;
 }
+
+
+/* 2026-10-01 — lighter Time Tracking empty state */
+.app-shell [data-page="time"] #timeEntriesTable .empty-table{
+  background:#E7DEF4!important;
+  color:#191919!important;
+  border:1px solid #D5C8EA!important;
+  border-radius:18px!important;
+}
+.app-shell [data-page="time"] #timeEntriesTable .empty-table strong{color:#191919!important}
+.app-shell [data-page="time"] #timeEntriesTable .empty-table span{color:#655F6A!important}
