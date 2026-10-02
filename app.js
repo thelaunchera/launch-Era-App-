@@ -2763,7 +2763,7 @@ function syncRememberUsernameControl(){
   row.hidden=!signingIn;
   if(signingIn) checkbox.checked=rememberUsernameEnabled();
   if(label){
-    label.textContent=langPick("Remember username","Recordar usuario","Mémoriser l’identifiant");
+    label.textContent=langPick("Remember me","Recordarme","Se souvenir de moi");
   }
 }
 function persistRememberUsername(email){
