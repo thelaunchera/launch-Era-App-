@@ -134,40 +134,44 @@ async function assertLayout(page,profile){
   await page.keyboard.press("Escape");
   await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
 
-  // Welcome-first auth is release-blocking on mobile and in-app browsers.
+  // Signup-first auth is release-blocking on mobile and in-app browsers.
   const welcome=page.locator("#authWelcome");
-  const welcomeStart=page.locator("#authWelcomeStart");
-  if(!(await welcome.isVisible())) throw new Error(profile.name+": welcome screen is not visible");
-  if(!(await welcomeStart.isVisible()) || !(await welcomeStart.isEnabled())){
-    throw new Error(profile.name+": Get 30 days free is not usable");
+  const authPanel=page.locator("#authPanel");
+  if(await welcome.isVisible()) throw new Error(profile.name+": legacy welcome screen should stay hidden");
+  if(!(await authPanel.isVisible())) throw new Error(profile.name+": signup form is not visible");
+  await page.waitForFunction(
+    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Start organizing your cleaning business today.",
+    null,
+    {timeout:3000}
+  );
+  const firstAuth=await page.evaluate(()=>({
+    title:document.querySelector("#authTitle")?.textContent.trim(),
+    submit:document.querySelector("#authSubmit")?.textContent.trim(),
+    signupClass:document.querySelector("#authShell")?.classList.contains("auth-mode-signup"),
+    featureCount:document.querySelectorAll(".auth-feature-strip span").length
+  }));
+  if(firstAuth.submit!=="Sign up" || !firstAuth.signupClass || firstAuth.featureCount!==4){
+    throw new Error(profile.name+": signup-first product screen is incomplete "+JSON.stringify(firstAuth));
   }
-  await welcomeStart.click();
-  await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",null,{timeout:3000});
 
-  const back=page.locator("#authBackWelcome");
-  if(!(await back.isVisible()) || !(await back.isEnabled())) throw new Error(profile.name+": back-to-welcome is not usable");
-  await back.click();
-  await page.waitForSelector("#authWelcome",{state:"visible",timeout:3000});
-
-  const welcomeSignIn=page.locator("#authWelcomeSignIn");
-  if(!(await welcomeSignIn.isVisible()) || !(await welcomeSignIn.isEnabled())){
-    throw new Error(profile.name+": welcome Sign in link is not usable");
+  const authSwitchInitial=page.locator("#authSwitch");
+  if(!(await authSwitchInitial.isVisible()) || !(await authSwitchInitial.isEnabled())){
+    throw new Error(profile.name+": sign-in switch is not usable");
   }
-  await welcomeSignIn.click();
-  await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",null,{timeout:3000});
+  await authSwitchInitial.click();
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Welcome back",null,{timeout:3000});
 
   // Returning-user regression: remembered username must survive a natural
   // reload without storing a password or bouncing back to the welcome screen.
   await page.evaluate(()=>{
     localStorage.setItem("tle_remember_username_v1","1");
     localStorage.setItem("tle_owner_email","remembered.qa@example.com");
+    localStorage.setItem("tle_auth_returning_v2","1");
   });
   await page.reload({waitUntil:"domcontentloaded",timeout:20000});
   await page.waitForFunction(()=>window.__tleAuthUiReady===true,null,{timeout:10000});
   await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Sign in",null,{timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Welcome back",null,{timeout:3000});
   const remembered=await page.evaluate(()=>({
     email:document.querySelector("#authEmail")?.value||"",
     checked:Boolean(document.querySelector("#rememberUsername")?.checked),
@@ -207,7 +211,7 @@ async function assertLayout(page,profile){
   }
   await authSwitch.click();
   await page.waitForFunction(
-    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Create account",
+    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Start organizing your cleaning business today.",
     null,
     {timeout:3000}
   );
