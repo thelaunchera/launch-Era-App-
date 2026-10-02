@@ -20,7 +20,7 @@
             </button>
             <button class="dashboard-quick-card quick-customers" type="button" data-jump="clients" data-admin-only>
               <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M3 19c0-3.2 2.4-5 6-5s6 1.8 6 5"></path><path d="M16 6.5c2.2.2 3.5 1.5 3.5 3.2 0 1.6-1.2 2.7-3 3M17 14c2.5.5 4 2 4 4"></path></svg></span>
-              <strong>Customers</strong><small>View & manage customers</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
+              <strong>Clients</strong><small>View & manage clients</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
             </button>
             <button class="dashboard-quick-card quick-money" type="button" data-jump="invoices" data-admin-only>
               <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M15 8.5c-.8-.8-1.8-1.2-3-1.2-1.7 0-3 1-3 2.3 0 3.5 6.2 1.5 6.2 5 0 1.4-1.3 2.5-3.2 2.5-1.4 0-2.7-.5-3.6-1.4M12 5.8v12.4"></path></svg></span>
@@ -40,8 +40,8 @@
           <button class="mobile-bottom-item" type="button" data-mobile-root="schedule" data-jump="calendar" aria-label="Schedule">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg><span>Schedule</span>
           </button>
-          <button class="mobile-bottom-item" type="button" data-mobile-root="customers" data-jump="clients" aria-label="Customers" data-admin-only>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c0-3.4 2.5-5.5 6-5.5s6 2.1 6 5.5"></path><path d="M16 7c2.4.1 4 1.5 4 3.4 0 1.8-1.4 3.1-3.5 3.3M17 15c2.5.6 4 2.2 4 4.5"></path></svg><span>Customers</span>
+          <button class="mobile-bottom-item" type="button" data-mobile-root="customers" data-jump="clients" aria-label="Clients" data-admin-only>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"></circle><path d="M3 20c0-3.4 2.5-5.5 6-5.5s6 2.1 6 5.5"></path><path d="M16 7c2.4.1 4 1.5 4 3.4 0 1.8-1.4 3.1-3.5 3.3M17 15c2.5.6 4 2.2 4 4.5"></path></svg><span>Clients</span>
           </button>
           <button class="mobile-bottom-item" type="button" data-mobile-root="money" data-jump="invoices" aria-label="Money" data-admin-only>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15 8.5c-.8-.8-1.8-1.2-3-1.2-1.7 0-3 1-3 2.3 0 3.5 6.2 1.5 6.2 5 0 1.4-1.3 2.5-3.2 2.5-1.4 0-2.7-.5-3.6-1.4M12 5.8v12.4"></path></svg><span>Money</span>
