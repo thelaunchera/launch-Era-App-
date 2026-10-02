@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261001-night-sky-257";
+const APP_VERSION = "20261001-night-sky-258";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1065,7 +1065,8 @@ function heroMoonPhaseSnapshot(date=new Date()){
   const distanceFromFull=Math.abs(phase-0.5)/0.5;
   const shadowMagnitude=Math.max(0,Math.min(110,distanceFromFull*110));
   const shadowX=phase<0.5 ? -shadowMagnitude : shadowMagnitude;
-  const scale=0.88+illumination*0.16;
+  const distanceScale=Math.max(0.96,Math.min(1.04,384400/moon.dist));
+  const scale=(0.80+illumination*0.30)*distanceScale;
   const phaseName=
     phase<0.03||phase>0.97?"new":
     phase<0.22?"waxing-crescent":
