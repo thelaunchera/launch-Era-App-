@@ -1,6 +1,10 @@
 // The Launch Era — dashboard home v2 UI shell.
 (function(){
   function ensureDashboardHomeV2(){
+    // iOS Home Screen can restore an older DOM snapshot even after deployment.
+    // Weather is intentionally not part of Quick Access; remove any stale copy
+    // before building or refreshing the dashboard launcher.
+    document.querySelectorAll(".dashboard-quick-card.quick-weather,[data-weather-focus]").forEach(el=>el.remove());
     const hero=document.getElementById("todayHeroCard");
     if(hero && !document.querySelector(".dashboard-quick-access")){
       hero.insertAdjacentHTML("afterend", `
