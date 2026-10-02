@@ -2061,6 +2061,56 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No quotes need attention.":"Pa gen devis ki bezwen atansyon.","All caught up on invoices.":"Tout fakti yo ajou."
   });
 
+  // Cleaner-led auth entry copy.
+  Object.assign(staticCorrections.es,{
+    "Start organizing your cleaning business today.":"Empieza a organizar tu negocio de limpieza hoy.",
+    "Bookings, clients, jobs, quotes and invoices — all in one place.":"Reservas, clientes, trabajos, cotizaciones y facturas — todo en un solo lugar.",
+    "Sign up":"Crear cuenta",
+    "Welcome back":"Bienvenido de nuevo",
+    "Sign in to manage your cleaning business.":"Inicia sesión para administrar tu negocio de limpieza.",
+    "Don’t have an account? Sign up":"¿No tienes una cuenta? Crear cuenta",
+    "No card required · 30 days free · Then $5.99/month":"Sin tarjeta · 30 días gratis · Después $5.99/mes",
+    "Get bookings":"Recibe reservas",
+    "Manage clients":"Administra clientes",
+    "Track jobs":"Controla trabajos",
+    "Create invoices":"Crea facturas",
+    "Create a password":"Crea una contraseña",
+    "Email address":"Correo electrónico",
+    "Password":"Contraseña"
+  });
+  Object.assign(staticCorrections.fr,{
+    "Start organizing your cleaning business today.":"Commencez à organiser votre entreprise de nettoyage dès aujourd’hui.",
+    "Bookings, clients, jobs, quotes and invoices — all in one place.":"Réservations, clients, interventions, devis et factures — tout au même endroit.",
+    "Sign up":"Créer un compte",
+    "Welcome back":"Bon retour",
+    "Sign in to manage your cleaning business.":"Connectez-vous pour gérer votre entreprise de nettoyage.",
+    "Don’t have an account? Sign up":"Pas encore de compte ? Créer un compte",
+    "No card required · 30 days free · Then $5.99/month":"Aucune carte requise · 30 jours gratuits · Puis 5,99 $/mois",
+    "Get bookings":"Recevoir des réservations",
+    "Manage clients":"Gérer les clients",
+    "Track jobs":"Suivre les interventions",
+    "Create invoices":"Créer des factures",
+    "Create a password":"Créer un mot de passe",
+    "Email address":"Adresse e-mail",
+    "Password":"Mot de passe"
+  });
+  Object.assign(staticCorrections.ht,{
+    "Start organizing your cleaning business today.":"Kòmanse òganize biznis netwayaj ou jodi a.",
+    "Bookings, clients, jobs, quotes and invoices — all in one place.":"Rezèvasyon, kliyan, travay, devis ak fakti — tout nan yon sèl kote.",
+    "Sign up":"Kreye kont",
+    "Welcome back":"Byenvini ankò",
+    "Sign in to manage your cleaning business.":"Konekte pou jere biznis netwayaj ou.",
+    "Don’t have an account? Sign up":"Ou poko gen kont? Kreye kont",
+    "No card required · 30 days free · Then $5.99/month":"Pa bezwen kat · 30 jou gratis · Apre sa $5.99/mwa",
+    "Get bookings":"Resevwa rezèvasyon",
+    "Manage clients":"Jere kliyan",
+    "Track jobs":"Swiv travay",
+    "Create invoices":"Kreye fakti",
+    "Create a password":"Kreye yon modpas",
+    "Email address":"Adrès imel",
+    "Password":"Modpas"
+  });
+
   // Final weather advice coverage used by the dynamic dashboard.
   Object.assign(staticCorrections.es,{
     "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."

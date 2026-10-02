@@ -17,23 +17,24 @@
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="no-referrer" />
   <title>The Launch Era Cleaning Web App</title>
-  <script src="./boot.js?v=20261002-tablet-landscape-r8"></script>
-  <link rel="stylesheet" href="./styles/boot.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/workspace-components.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/release-overrides.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/release-mobile.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/release-latest.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/customer-documents.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/public-booking.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/booking-discounts.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/public-manage.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/invoice-polish.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/welcome-packet.css?v=20261002-tablet-landscape-r8" />
-  <link rel="stylesheet" href="./styles/dashboard-home-v2.css?v=20261002-tablet-landscape-r8" />
+  <script src="./boot.js?v=20261002-auth-cleaner-r9"></script>
+  <link rel="stylesheet" href="./styles/boot.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/workspace-components.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/workspace-experience.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/workspace-operations.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/release-overrides.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/release-mobile.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/release-latest.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/responsive-shell.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/customer-documents.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/public-booking.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/booking-discounts.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/public-manage.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/invoice-polish.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/welcome-packet.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/dashboard-home-v2.css?v=20261002-auth-cleaner-r9" />
+  <link rel="stylesheet" href="./styles/auth-entry-v2.css?v=20261002-auth-cleaner-r9" />
 </head>
 <body class="shell-auth">
   <div id="sessionSplash" role="status" aria-live="polite" aria-label="Loading Cleaning Web App">
@@ -42,7 +43,7 @@
       <span class="session-splash-spinner" aria-hidden="true"></span>
     </div>
   </div>
-  <div class="auth-shell" id="authShell">
+  <div class="auth-shell auth-mode-signup" id="authShell">
     <div class="auth-card">
       <button class="auth-language-toggle" type="button" data-language-toggle aria-label="Cambiar a español">ES</button>
       <div class="brand-row auth-brand">
@@ -52,7 +53,7 @@
           <div class="brand-sub">Cleaning Web App</div>
         </div>
       </div>
-      <section id="authWelcome" class="auth-welcome" data-auth-touch-hardened="true">
+      <section id="authWelcome" class="auth-welcome" data-auth-touch-hardened="true" hidden>
         <div class="auth-welcome-badge" id="authWelcomeBadge">CLEANING WEB APP</div>
         <h1 id="authWelcomeTitle">Your cleaning business shouldn’t live in DMs, notes and memory.</h1>
         <p class="auth-welcome-copy" id="authWelcomeCopy">Keep clients, quotes, bookings, jobs and invoices in one browser-based workspace.</p>
@@ -66,16 +67,16 @@
         <p class="auth-welcome-existing"><span id="authWelcomeExistingText">Already have an account?</span> <button type="button" id="authWelcomeSignIn">Sign in</button></p>
         <p class="auth-welcome-note" id="authWelcomeNote">No card required · Then $5.99/month</p>
       </section>
-      <div id="authPanel" data-auth-touch-hardened="true" hidden>
+      <div id="authPanel" data-auth-touch-hardened="true">
         <button type="button" class="auth-back-welcome" id="authBackWelcome">← Back</button>
         <p class="eyebrow">BUSINESS ACCESS</p>
-        <h1 id="authTitle">Create account</h1>
-        <p class="auth-copy" id="authCopy">Create your cleaning business account.</p>
+        <h1 id="authTitle">Start organizing your cleaning business today.</h1>
+        <p class="auth-copy" id="authCopy">Bookings, clients, jobs, quotes and invoices — all in one place.</p>
         <form id="authForm" class="auth-form">
-          <label id="emailField">Email address<input id="authEmail" name="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="you@example.com"></label>
-          <label id="passwordField">Password<div class="password-input-wrap"><input id="authPassword" name="password" type="password" required minlength="8" autocomplete="current-password" enterkeyhint="go" placeholder="8+ characters"><button type="button" id="authPasswordToggle" class="password-toggle" aria-label="Show password" aria-pressed="false"><span class="password-tab-icon" aria-hidden="true"></span></button></div></label>
+          <label id="emailField">Email address<input id="authEmail" name="email" type="email" required autocomplete="username" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Email address"></label>
+          <label id="passwordField">Password<div class="password-input-wrap"><input id="authPassword" name="password" type="password" required minlength="8" autocomplete="current-password" enterkeyhint="go" placeholder="Create a password"><button type="button" id="authPasswordToggle" class="password-toggle" aria-label="Show password" aria-pressed="false"><span class="password-tab-icon" aria-hidden="true"></span></button></div></label>
           <label class="remember-username-row" id="rememberUsernameRow" hidden><input id="rememberUsername" type="checkbox" autocomplete="off"><span id="rememberUsernameLabel">Remember username</span></label>
-          <button class="primary-btn" type="submit" id="authSubmit">Create account</button>
+          <button class="primary-btn" type="submit" id="authSubmit">Sign up</button>
           <p class="signup-legal-note" id="signupLegalNote" hidden>
             By creating an account, you agree to our
             <a class="legal-terms-link" href="https://thelaunchera.com/terms.html" target="_blank" rel="noopener">Terms</a>
@@ -88,6 +89,13 @@
           <button type="button" id="authRetryButton" class="auth-retry" hidden>Try again</button>
           <button type="button" id="authSwitch">Already have an account? Sign in</button>
           <button type="button" id="forgotPassword" hidden>Forgot password?</button>
+        </div>
+        <p class="auth-plan-note" id="authPlanNote">No card required · 30 days free · Then $5.99/month</p>
+        <div class="auth-feature-strip" aria-label="Cleaning business workspace features">
+          <span>Get bookings</span>
+          <span>Manage clients</span>
+          <span>Track jobs</span>
+          <span>Create invoices</span>
         </div>
       </div>
       <div id="businessSetup" hidden>
@@ -1433,18 +1441,18 @@
     </div>
   </div>
   <div class="toast" id="toast">Copied</div>
-  <script src="./vendor/supabase.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./auth-storage.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./i18n-completion.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./i18n.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./onboarding-copy.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./public-discounts.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./public-manage.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./public.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./public-welcome.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./dashboard-home-v2.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./app.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./welcome-packet-owner.js?v=20261002-tablet-landscape-r8"></script>
-  <script src="./followups.js?v=20261002-tablet-landscape-r8"></script>
+  <script src="./vendor/supabase.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./auth-storage.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./i18n-completion.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./i18n.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./onboarding-copy.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./public-discounts.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./public-manage.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./public.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./public-welcome.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./dashboard-home-v2.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./app.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./welcome-packet-owner.js?v=20261002-auth-cleaner-r9"></script>
+  <script src="./followups.js?v=20261002-auth-cleaner-r9"></script>
 </body>
 </html>

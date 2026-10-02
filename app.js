@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-tablet-landscape-r8";
+const APP_VERSION = "20261002-auth-cleaner-r9";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1628,13 +1628,24 @@ function setShellState(mode){
 }
 
 const AUTH_WELCOME_SEEN_KEY="tle_auth_welcome_seen_v1";
+const AUTH_RETURNING_KEY="tle_auth_returning_v2";
 function hasSeenAuthWelcome(){
   try{return localStorage.getItem(AUTH_WELCOME_SEEN_KEY)==="1";}catch{return false;}
 }
 function markAuthWelcomeSeen(){
   try{localStorage.setItem(AUTH_WELCOME_SEEN_KEY,"1");}catch{}
 }
-function prepareDirectAuth(){
+function hasReturningAuthHistory(){
+  try{
+    return localStorage.getItem(AUTH_RETURNING_KEY)==="1" || Boolean(rememberedOwnerEmail());
+  }catch{
+    return Boolean(rememberedOwnerEmail());
+  }
+}
+function markReturningAuthHistory(){
+  try{localStorage.setItem(AUTH_RETURNING_KEY,"1");}catch{}
+}
+function prepareDirectAuth(modeOverride=null){
   dismissSessionSplash();
   trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
@@ -1651,7 +1662,8 @@ function prepareDirectAuth(){
   const remembered=rememberedOwnerEmail();
   const email=$("#authEmail");
   if(remembered && email && !email.value) email.value=remembered;
-  setAuthMode(remembered?"signin":"signup");
+  const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
+  setAuthMode(nextMode);
   setAuthStatus("");
 }
 
@@ -1682,35 +1694,13 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  dismissSessionSplash();
-  const remembered=rememberedOwnerEmail();
-  // Returning owners can go straight to Sign in. Everyone else always sees
-  // the product page before Create account.
-  if(remembered){
-    prepareDirectAuth();
-    return;
-  }
-  setShellState("auth");
-  if(workerShell) workerShell.hidden=true;
-  if(publicShell) publicShell.hidden=true;
-  authShell.hidden=false;
-  appShell.hidden=true;
-  authPanel.hidden=true;
-  authShell?.classList.remove("auth-form-open");
-  businessSetup.hidden=true;
-  if(authWelcome){
-    authWelcome.hidden=false;
-    authWelcome.classList.remove("is-entering");
-    void authWelcome.offsetWidth;
-    authWelcome.classList.add("is-entering");
-    setTimeout(()=>authWelcome.classList.remove("is-entering"),320);
-  }
-  const back=$("#authBackWelcome");
-  if(back) back.hidden=false;
-  window.__tleAuthWelcomeSessionActive=true;
-  setAuthStatus("");
-  syncAuthWelcomeCopy();
-  trackFunnelStep("/funnel/welcome");
+  // The auth entry is now the product screen itself: new visitors start on
+  // Sign up, while devices that have already created/signed into an account
+  // return directly to Sign in.
+  const mode=hasReturningAuthHistory()?"signin":"signup";
+  prepareDirectAuth(mode);
+  if(mode==="signup") trackFunnelStep("/funnel/signup-viewed");
+  else trackFunnelStep("/funnel/signin-viewed");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
@@ -3010,6 +3000,9 @@ function toggleAuthPasswordVisibility(){
 }
 function setAuthMode(mode,options={}){
   state.authMode=mode;
+  authShell?.classList.toggle("auth-mode-signup",mode==="signup");
+  authShell?.classList.toggle("auth-mode-signin",mode==="signin");
+  authShell?.classList.toggle("auth-mode-recovery",mode==="recovery");
   if(authWelcome && !options.keepWelcome) authWelcome.hidden=true;
   if(authPanel) authPanel.hidden=false;
   const ownerPanel=$("#ownerCodePanel");
@@ -3031,16 +3024,20 @@ function setAuthMode(mode,options={}){
   syncAuthPasswordToggle();
 
   if(mode==="signup"){
-    title.textContent="Create account";
-    copy.textContent="Create your cleaning business account.";
-    submit.textContent="Create account";
+    title.textContent="Start organizing your cleaning business today.";
+    copy.textContent="Bookings, clients, jobs, quotes and invoices — all in one place.";
+    submit.textContent="Sign up";
     submit.hidden=false;
     switchBtn.textContent="Already have an account? Sign in";
     switchBtn.hidden=false;
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="new-password";
-    if(email) email.autocomplete="email";
+    password.placeholder="Create a password";
+    if(email){
+      email.autocomplete="email";
+      email.placeholder="Email address";
+    }
     emailField.hidden=false;
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=false;
@@ -3058,16 +3055,20 @@ function setAuthMode(mode,options={}){
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
   }else{
-    title.textContent="Sign in";
-    copy.textContent="Open your cleaning business workspace.";
+    title.textContent="Welcome back";
+    copy.textContent="Sign in to manage your cleaning business.";
     submit.textContent="Sign in";
     submit.hidden=false;
-    switchBtn.textContent="Create account";
+    switchBtn.textContent="Don’t have an account? Sign up";
     switchBtn.hidden=false;
     passwordField.hidden=false;
     password.required=true;
     password.autocomplete="current-password";
-    if(email) email.autocomplete="username";
+    password.placeholder="Password";
+    if(email){
+      email.autocomplete="username";
+      email.placeholder="Email address";
+    }
     emailField.hidden=false;
     forgot.hidden=false;
     if(signupLegalNote) signupLegalNote.hidden=true;
@@ -3174,6 +3175,7 @@ authForm.addEventListener("submit", async (e)=>{
         state.session=null;
       }
       const createdEmail=email;
+      markReturningAuthHistory();
       trackFunnelStep("/funnel/account-created");
       markSignupWelcomePending(createdEmail);
       setAuthMode("signin");
@@ -3191,6 +3193,7 @@ authForm.addEventListener("submit", async (e)=>{
       const { data, error } = await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
       state.session=data.session||null;
+      markReturningAuthHistory();
       persistRememberUsername(email);
       localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
       if(state.session) saveOwnerSessionBackup(state.session);
