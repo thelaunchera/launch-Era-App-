@@ -100,6 +100,13 @@ try{
       throw new Error(profile.name+": Sign up form is not usable");
     }
     await page.waitForSelector("#authPassword",{visible:true,timeout:10000});
+    const authInputSizes=await page.evaluate(()=>({
+      email:parseFloat(getComputedStyle(document.querySelector("#authEmail")).fontSize||"0"),
+      password:parseFloat(getComputedStyle(document.querySelector("#authPassword")).fontSize||"0")
+    }));
+    if(profile.name==="iPhone" && (authInputSizes.email<16 || authInputSizes.password<16)){
+      throw new Error(profile.name+": auth input font can trigger iOS focus zoom "+JSON.stringify(authInputSizes));
+    }
     const passwordToggle=await page.evaluate(()=>{
       const btn=document.querySelector("#authPasswordToggle");
       const input=document.querySelector("#authPassword");
