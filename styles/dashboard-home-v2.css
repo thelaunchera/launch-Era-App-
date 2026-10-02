@@ -1,0 +1,146 @@
+/* The Launch Era — dashboard home v2
+   Mobile-first dashboard navigation and clarity pass. */
+
+.dashboard-quick-access{margin:0 0 20px}
+.dashboard-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 2px 12px}
+.dashboard-section-head h3{margin:0;color:#191919;font-size:20px;line-height:1.1;letter-spacing:-.03em}
+.dashboard-section-link{border:0;background:transparent;color:#1479e6;padding:4px 0;font-size:12px;font-weight:900;white-space:nowrap}
+.dashboard-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.dashboard-quick-card{position:relative;min-width:0;min-height:132px;padding:16px;border:1px solid rgba(25,25,25,.06);border-radius:22px;background:#fff;color:#191919;text-align:left;display:grid;grid-template-rows:auto auto 1fr;align-content:start;gap:8px;box-shadow:0 8px 24px rgba(25,25,25,.035);transition:transform .18s ease,box-shadow .18s ease}
+.dashboard-quick-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(25,25,25,.07)}
+.dashboard-quick-card:active{transform:scale(.985)}
+.dashboard-quick-card.quick-calendar{background:#EAF4FF}
+.dashboard-quick-card.quick-booking{background:#EAF7F1}
+.dashboard-quick-card.quick-customers{background:#FFF5D9}
+.dashboard-quick-card.quick-money{background:#F2EEFF}
+.dashboard-quick-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.76);color:#191919}
+.dashboard-quick-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dashboard-quick-card strong{display:block;font-size:15px;line-height:1.1;letter-spacing:-.02em}
+.dashboard-quick-card small{color:#66625C;font-size:11px;line-height:1.35}
+.dashboard-quick-arrow{position:absolute;right:14px;bottom:14px;font-size:20px;font-weight:700;line-height:1;color:#4D4943}
+.money-week-head{margin-top:2px}
+.mobile-bottom-nav{display:none}
+
+.attention-list.dashboard-attention-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.attention-list.dashboard-attention-grid .attention-summary-card{min-width:0;min-height:118px;padding:14px;border:1px solid #E7E2D9;border-radius:18px;background:#fff;color:#191919;display:grid;grid-template-columns:34px 1fr;grid-template-areas:"icon title" "icon count" "copy copy";align-content:start;gap:2px 10px;text-align:left}
+.attention-list.dashboard-attention-grid .attention-summary-card:hover{border-color:#CBC5BA}
+.attention-summary-icon{grid-area:icon;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:950}
+.attention-bookings .attention-summary-icon{background:#EAF4FF;color:#1878D6}
+.attention-quotes .attention-summary-icon{background:#F1EDFF;color:#7254D4}
+.attention-invoices .attention-summary-icon{background:#E7F6EF;color:#159566}
+.attention-summary-card strong{grid-area:title;min-width:0;font-size:12px;line-height:1.15}
+.attention-summary-count{grid-area:count;font-size:28px;font-weight:950;line-height:1;letter-spacing:-.04em}
+.attention-summary-card small{grid-area:copy;display:block;margin-top:8px;color:#757068;font-size:10px;line-height:1.35}
+
+section.view[data-page="today"].active{display:flex;flex-direction:column}
+section.view[data-page="today"] #firstWinCard{order:0}
+section.view[data-page="today"] #todayHeroCard{order:1}
+section.view[data-page="today"] .dashboard-quick-access{order:2}
+section.view[data-page="today"] .attention-panel{order:3}
+section.view[data-page="today"] .growth-grid{order:4}
+section.view[data-page="today"] .money-week-head{order:5}
+section.view[data-page="today"] #businessPulse{order:6}
+section.view[data-page="today"] .next-move-panel{order:7}
+section.view[data-page="today"] .growth-lower{order:8}
+section.view[data-page="today"] .presence-panel{order:9}
+.attention-panel{margin-bottom:20px}
+.attention-panel .panel-head{margin-bottom:14px}
+#businessPulse{margin-bottom:20px}
+
+@media(max-width:860px){
+  .main{padding:0 14px calc(104px + env(safe-area-inset-bottom))!important}
+  .topbar{position:sticky;top:0;z-index:30;min-height:72px;margin:0 -14px 18px!important;padding:12px 14px!important;border-bottom:1px solid rgba(229,224,215,.9);background:rgba(250,248,243,.96)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .topbar-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(42vw,220px);text-align:center;pointer-events:none}
+  .topbar-title h1{margin:0!important;font-size:22px!important;line-height:1!important;font-weight:950;letter-spacing:-.04em}
+  .global-search-shell,#languageBtn{display:none!important}
+  .top-actions{margin-left:auto;gap:7px!important}
+  .menu-toggle,.top-tool-btn{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;border:1px solid #E1DCD2!important;border-radius:50%!important;background:#fff!important;color:#191919!important;display:grid!important;place-items:center!important;padding:0!important;box-shadow:0 2px 8px rgba(25,25,25,.025)}
+  .menu-toggle{font-size:0!important}
+  .menu-toggle::before{content:"☰";font-size:22px;line-height:1}
+  #quickAddBtn{width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border:0!important;border-radius:50%!important;background:#191919!important;color:#fff!important;font-size:0!important}
+  #quickAddBtn::before{content:"+";display:block;font-size:31px;line-height:42px;font-weight:500}
+  #backBtn:not([hidden]){position:relative;z-index:2;width:42px!important;min-width:42px!important;height:42px!important;border-radius:50%!important;background:#fff!important}
+
+  #todayHeroCard{margin-bottom:16px!important;padding:18px!important;border-radius:27px!important;box-shadow:0 10px 30px rgba(25,25,25,.055)}
+  #todayHeroCard .hero-ecosystem{gap:10px!important}
+  #todayHeroCard .hero-greeting-zone{padding:0!important}
+  #todayHeroCard .hero-card-topline{min-height:58px;margin-bottom:8px}
+  #todayHeroCard .today-clock{border-radius:16px!important}
+  #todayHeroCard .today-clock-mark{display:none!important}
+  #todayHeroCard .today-greeting-first h2,#todayHeroCard #todayGreeting{max-width:100%!important;margin:8px 0 10px!important;padding-right:0!important;font-size:clamp(34px,9.2vw,47px)!important;line-height:.96!important;letter-spacing:-.055em!important}
+  #todayHeroCard #todayMomentCopy{max-width:100%!important;font-size:15px!important;line-height:1.42!important}
+  #todayHeroCard #todayHeroAction{width:100%!important;min-height:58px!important;margin-top:16px!important;border-radius:18px!important;font-size:16px!important}
+  #todayHeroCard .weather-brief{width:100%!important;margin-top:14px!important;padding:13px 14px!important;border-radius:18px!important}
+  #todayHeroCard .weather-module-top{align-items:center!important}
+  #todayHeroCard .weather-icon{width:42px!important;height:42px!important;flex-basis:42px!important;border-radius:13px!important}
+  #todayHeroCard .weather-temp-row strong{font-size:28px!important}
+  #todayHeroCard .weather-open-hint{width:36px!important;height:36px!important;flex-basis:36px!important}
+  #todayHeroCard[data-celestial="night"]{background:linear-gradient(145deg,#173E58 0%,#164B67 62%,#15627B 100%)!important;border-color:rgba(255,255,255,.14)!important;color:#fff!important}
+  #todayHeroCard[data-celestial="night"] #todayGreeting,#todayHeroCard[data-celestial="night"] #todayMomentCopy,#todayHeroCard[data-celestial="night"] #todayClockTime,#todayHeroCard[data-celestial="night"] #todayDatePill,#todayHeroCard[data-celestial="night"] #weatherTemp,#todayHeroCard[data-celestial="night"] #weatherCondition,#todayHeroCard[data-celestial="night"] #weatherHighLow,#todayHeroCard[data-celestial="night"] #weatherLocation{color:#fff!important}
+  #todayHeroCard[data-celestial="night"] #todayMomentCopy,#todayHeroCard[data-celestial="night"] #weatherHighLow,#todayHeroCard[data-celestial="night"] #weatherLocation{opacity:.82}
+  #todayHeroCard[data-celestial="night"] .weather-brief{background:rgba(7,28,43,.32)!important;border-color:rgba(255,255,255,.16)!important}
+  #todayHeroCard[data-celestial="night"] .weather-open-hint,#todayHeroCard[data-celestial="night"] .weather-icon{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.14)!important;color:#fff!important}
+  #todayHeroCard[data-celestial="night"] .weather-business-note{background:rgba(226,244,255,.70)!important;border-color:rgba(255,255,255,.2)!important;color:#17384A!important}
+
+  .dashboard-quick-access{margin:0 0 18px!important}
+  .dashboard-section-head{margin:0 2px 10px!important}
+  .dashboard-section-head h3{font-size:21px!important}
+  .dashboard-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+  .dashboard-quick-card{min-height:124px!important;padding:12px 10px!important;border-radius:19px!important;gap:7px!important}
+  .dashboard-quick-icon{width:34px!important;height:34px!important;border-radius:11px!important}
+  .dashboard-quick-card strong{font-size:13px!important}
+  .dashboard-quick-card small{font-size:9px!important;line-height:1.25!important}
+  .dashboard-quick-arrow{right:9px!important;bottom:10px!important;font-size:17px!important}
+
+  .attention-panel{margin-bottom:18px!important;padding:16px!important;border-radius:22px!important;box-shadow:none!important}
+  .attention-panel .panel-head{margin-bottom:12px!important}
+  .attention-panel .panel-head h3{font-size:21px!important}
+  .attention-list.dashboard-attention-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  .attention-list.dashboard-attention-grid .attention-summary-card{min-height:126px!important;padding:11px!important;border-radius:16px!important;grid-template-columns:30px 1fr!important;gap:2px 7px!important}
+  .attention-summary-icon{width:30px!important;height:30px!important;border-radius:10px!important;font-size:12px!important}
+  .attention-summary-card strong{font-size:10px!important}
+  .attention-summary-count{font-size:26px!important}
+  .attention-summary-card small{margin-top:8px!important;font-size:9px!important;line-height:1.3!important}
+
+  .growth-grid{margin-bottom:18px!important}
+  .growth-grid .schedule-panel{padding:16px!important;border-radius:22px!important}
+  .growth-grid .schedule-panel .panel-head{align-items:center!important;margin-bottom:12px!important}
+  .growth-grid .schedule-panel .panel-head .eyebrow{display:none!important}
+  .growth-grid .schedule-panel .panel-head h3{font-size:21px!important}
+  .growth-grid .schedule-panel .text-btn{color:#1479e6!important;font-size:11px!important;white-space:nowrap}
+  .growth-grid .capacity-card{display:none!important}
+  .schedule-panel .timeline{gap:8px!important}
+  .schedule-panel .timeline-item{grid-template-columns:68px minmax(0,1fr) auto!important;gap:10px!important;padding:12px!important;border-radius:15px!important;background:#fff!important}
+  .schedule-panel .timeline-item time{font-size:12px!important}
+  .schedule-panel .timeline-item>div:nth-child(2) strong{font-size:12px!important}
+  .schedule-panel .timeline-item>div:nth-child(2) span{font-size:10px!important}
+  .schedule-panel .today-job-actions{justify-items:end}
+  .schedule-panel .today-job-actions .status{font-size:9px!important;padding:5px 7px!important}
+
+  .money-week-head{margin:0 2px 10px!important}
+  #businessPulse{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-bottom:18px!important}
+  #businessPulse .pulse-card{min-width:0!important;min-height:122px!important;padding:15px!important;border:1px solid #DDE8F4!important;border-radius:18px!important;background:#EDF6FF!important;box-shadow:none!important}
+  #businessPulse .pulse-card>span{font-size:10px!important;line-height:1.3!important}
+  #businessPulse .pulse-card>strong{margin:7px 0 4px!important;font-size:27px!important;line-height:1!important}
+  #businessPulse .pulse-card>small{font-size:9px!important;line-height:1.3!important}
+  #businessPulse .pulse-jobs,#businessPulse .pulse-clients{display:none!important}
+
+  section.view[data-page="today"] .next-move-panel,section.view[data-page="today"] .growth-lower,section.view[data-page="today"] .presence-panel{display:none!important}
+  .app-legal-footer{display:none!important}
+
+  .mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:35;display:grid!important;grid-template-columns:repeat(5,1fr);gap:2px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(224,220,212,.95);background:rgba(255,255,255,.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 -8px 26px rgba(25,25,25,.05)}
+  .mobile-bottom-item{min-width:0;min-height:56px;padding:6px 2px;border:0;border-radius:16px;background:transparent;color:#625E58;display:grid;place-items:center;align-content:center;gap:4px;font-size:10px;font-weight:800}
+  .mobile-bottom-item svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mobile-bottom-item.active{background:#EAF4FF;color:#0C5FAF}
+  body.sidebar-is-open .mobile-bottom-nav{opacity:0;pointer-events:none}
+}
+
+@media(max-width:430px){
+  .dashboard-quick-card{min-height:118px!important;padding:11px 8px!important}
+  .dashboard-quick-card strong{font-size:12px!important}
+  .dashboard-quick-card small{font-size:8.5px!important}
+  .attention-list.dashboard-attention-grid .attention-summary-card{padding:10px 8px!important}
+  .attention-summary-card strong{font-size:9px!important}
+  .attention-summary-card small{font-size:8.5px!important}
+}
+@media(prefers-reduced-motion:reduce){.dashboard-quick-card{transition:none!important}}
