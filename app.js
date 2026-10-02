@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-no-weather-r15";
+const APP_VERSION = "20261002-witch-natural-r16";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1902,21 +1902,26 @@ function playHeroOpeningAnimation(){
       slot.style.setProperty("--tle-greeting-width",slotWidth+"px");
       slot.style.setProperty("--tle-greeting-height",slotHeight+"px");
       slot.replaceChildren(image);
-      void slot.offsetWidth;
-      slot.classList.add("is-playing");
+      // Let the decoded frame paint before fading/moving the character in.
+      // Avoid a forced synchronous reflow here; that was visible as a small
+      // jump on iPhone when the greeting card was already animating.
+      requestAnimationFrame(()=>slot.classList.add("is-playing"));
 
       clearTimeout(heroOpeningAnimationTimer);
       heroOpeningAnimationTimer=setTimeout(()=>{
         slot.classList.remove("is-playing");
-        slot.replaceChildren();
-      },6000);
+        setTimeout(()=>{
+          if(!slot.classList.contains("is-playing")) slot.replaceChildren();
+        },360);
+      },6600);
     };
 
     image.onload=()=>requestAnimationFrame(positionAndPlay);
     image.onerror=()=>console.warn("[TLE] greeting witch asset failed to load");
-    // Use the animated WebP itself. Re-inserting a fresh image restarts its
-    // internal broom-sweeping motion while the character stays in one spot.
-    image.src=HERO_OPENING_ANIMATION_URL+"?play="+now;
+    // Re-create the image to restart the broom motion, but keep a stable URL
+    // so iOS can use its decoded cache instead of fetching a brand-new asset
+    // every hour. This removes the flash/jump caused by cache-busting URLs.
+    image.src=HERO_OPENING_ANIMATION_URL;
   }catch(err){
     console.warn("[TLE] greeting opening animation",err);
   }
