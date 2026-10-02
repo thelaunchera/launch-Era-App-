@@ -547,7 +547,7 @@ body.shell-auth .auth-form input:not([type="checkbox"]){
   min-height:56px!important;
   border-radius:19px!important;
   padding:0 18px!important;
-  font-size:15px!important;
+  font-size:16px!important;
 }
 body.shell-auth .password-input-wrap input{
   padding-right:56px!important;
@@ -748,7 +748,7 @@ body.shell-auth .auth-shell.auth-mode-signup .auth-form input:not([type="checkbo
 body.shell-auth .auth-shell.auth-mode-signin .auth-form input:not([type="checkbox"]){
   min-height:49px!important;
   border-radius:16px!important;
-  font-size:14px!important;
+  font-size:16px!important;
 }
 body.shell-auth .auth-shell.auth-mode-signup #authSubmit,
 body.shell-auth .auth-shell.auth-mode-signin #authSubmit{
@@ -797,4 +797,18 @@ body.shell-auth .auth-shell.auth-mode-signup .auth-legal-links{
 @media(max-width:390px){
   body.shell-auth .auth-shell.auth-mode-signup .auth-card{width:min(296px,80vw)!important}
   body.shell-auth .auth-shell.auth-mode-signin .auth-card{width:min(278px,74vw)!important}
+}
+
+
+/* iPhone Safari root-cause guard r26
+   iOS auto-zooms focused text fields below 16px. The compact auth redesign
+   introduced 14–15px inputs, so Password AutoFill/Face ID could zoom the
+   visual viewport and leave the authenticated dashboard horizontally shifted.
+   Credential inputs must never drop below 16px on touch/mobile devices. */
+@media(max-width:860px){
+  body.shell-auth .auth-form input:not([type="checkbox"]),
+  body.shell-auth .password-input-wrap input{
+    font-size:16px!important;
+    -webkit-text-size-adjust:100%;
+  }
 }
