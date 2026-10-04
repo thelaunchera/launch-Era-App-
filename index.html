@@ -779,6 +779,22 @@
             <div class="panel-head"><div><p class="eyebrow">SERVICES</p><h3>Booking + quote services</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
             <div id="bookingServicesList" class="booking-services-list"></div>
           </article>
+          <article class="panel full booking-step-panel booking-estimator-panel" data-booking-panel="estimator">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">ESTIMATE CALCULATOR</p>
+                <h3>Instant estimate rules</h3>
+                <p class="panel-note">Use one pricing formula for quick estimates and your public Booking Page.</p>
+              </div>
+              <span class="pill blue" id="bookingEstimateStatus">Ready</span>
+            </div>
+            <div class="booking-estimator-summary" id="bookingEstimateRulesSummary"></div>
+            <div class="booking-estimator-actions">
+              <button class="primary-btn" type="button" id="openEstimateCalculatorBtn">Calculate estimate</button>
+              <button class="ghost-btn" type="button" id="editEstimateRulesBtn">Pricing rules</button>
+            </div>
+            <p class="helper">Commercial requests still go to Quotes. Instant estimates are for priced residential services.</p>
+          </article>
           <article class="panel full booking-step-panel booking-discounts-panel" data-booking-panel="discounts">
             <div class="panel-head">
               <div><p class="eyebrow">DISCOUNTS</p><h3>Booking Page offers</h3><p class="panel-note">Create limited offers, choose who they apply to, and publish them when you are ready.</p></div>
