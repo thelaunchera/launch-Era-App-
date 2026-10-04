@@ -454,7 +454,6 @@
       try{
         data=await rpc("get_public_booking_config_v2",{p_slug:slug});
       }catch(configErr){
-        console.warn("[TLE] estimate config fallback",configErr);
         data=await rpc("get_public_booking_config",{p_slug:slug});
       }
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
@@ -533,7 +532,7 @@
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
       }
       const publicEstimator=window.TLE_PUBLIC_ESTIMATOR;
-      if(!publicEstimator) throw new Error("Booking estimator module unavailable");
+      if(!publicEstimator) throw new Error("Estimator unavailable");
       const estimateSettings=publicEstimator.normalizeSettings(data?.business?.estimate_settings);
       publicEstimator.renderFrequencyHints(frequencyPills,estimateSettings);
       function calculatePublicEstimate(selected,chosen){
