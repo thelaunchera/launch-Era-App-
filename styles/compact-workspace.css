@@ -908,3 +908,121 @@ body.shell-app #appShell{
     padding:14px!important;
   }
 }
+
+
+/* 2026-10-04 — clarity-first correction
+   Keep information visible. Reduce duplication, not discoverability. */
+.flat-navigation{
+  gap:3px!important;
+}
+.flat-navigation .nav-section-label{
+  margin:10px 8px 4px;
+  color:var(--muted);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.14em;
+}
+.flat-navigation .nav-section-label:first-child{margin-top:2px}
+.flat-navigation .nav-item{
+  min-height:40px;
+}
+.sidebar .trial-card{
+  margin-top:10px!important;
+  padding:10px!important;
+  border-radius:13px!important;
+}
+.sidebar .trial-card p{display:none!important}
+.sidebar .trial-card strong{font-size:10px!important}
+
+@media(max-width:680px){
+  /* The top bar is the page identifier. Do not repeat the page title below it. */
+  body.shell-app #appShell .view.active>.section-intro>div:first-child{
+    display:none!important;
+  }
+  body.shell-app #appShell .view.active>.section-intro{
+    min-height:0!important;
+    margin:0 0 8px!important;
+    justify-content:flex-end!important;
+  }
+  body.shell-app #appShell .view.active>.section-intro:not(:has(>button,>.section-actions,>.pill,>span)){
+    display:none!important;
+  }
+  body.shell-app #appShell [data-page="clients"]>.customer-action-intro{
+    display:flex!important;
+    justify-content:flex-end!important;
+  }
+  body.shell-app #appShell [data-page="clients"]>.customer-action-intro>.primary-btn{
+    width:auto!important;
+    min-height:38px!important;
+    padding:8px 11px!important;
+    font-size:10px!important;
+  }
+
+  /* Records should never be hidden in carousels. */
+  body.shell-app #appShell [data-page="clients"] #clientsGrid,
+  body.shell-app #appShell [data-page="services"] #servicesGrid,
+  body.shell-app #appShell [data-page="team"] #teamGrid,
+  body.shell-app #appShell [data-page="supplies"] #suppliesGrid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-auto-flow:row!important;
+    grid-auto-columns:auto!important;
+    gap:7px!important;
+    overflow:visible!important;
+    padding:0!important;
+    scroll-snap-type:none!important;
+  }
+  body.shell-app #appShell [data-page="clients"] #clientsGrid>*,
+  body.shell-app #appShell [data-page="services"] #servicesGrid>*,
+  body.shell-app #appShell [data-page="team"] #teamGrid>*,
+  body.shell-app #appShell [data-page="supplies"] #suppliesGrid>*{
+    width:100%!important;
+    scroll-snap-align:none!important;
+  }
+
+  /* Summary numbers stay visible together instead of hiding sideways. */
+  body.shell-app #appShell .view.active .metric-grid.compact{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+    overflow:visible!important;
+    padding:0!important;
+    scroll-snap-type:none!important;
+  }
+  body.shell-app #appShell .view.active .metric-grid.compact .metric-card{
+    min-width:0!important;
+    width:auto!important;
+    min-height:66px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .business-pulse{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;
+    grid-auto-columns:auto!important;
+    gap:6px!important;
+    overflow:visible!important;
+    padding:0!important;
+    scroll-snap-type:none!important;
+  }
+  body.shell-app #appShell [data-page="today"] .pulse-card{
+    width:auto!important;
+    min-width:0!important;
+  }
+
+  /* Sidebar: all destinations are visible, no generic More drawer. */
+  body.shell-app #appShell>.sidebar .nav-list.flat-navigation{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:2px!important;
+    overflow:visible!important;
+  }
+  body.shell-app #appShell>.sidebar .flat-navigation .nav-item{
+    min-height:38px!important;
+    padding:8px 10px!important;
+    border-radius:10px!important;
+    font-size:11px!important;
+  }
+  body.shell-app #appShell>.sidebar .flat-navigation .nav-section-label{
+    margin:9px 9px 3px!important;
+  }
+}
