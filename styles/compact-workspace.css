@@ -1026,3 +1026,76 @@ body.shell-app #appShell{
     margin:9px 9px 3px!important;
   }
 }
+
+
+/* 2026-10-04 — mobile socials + footer correction */
+@media(max-width:680px){
+  /* Social links need room to read: 2×2, not four compressed columns. */
+  body.shell-app #appShell [data-page="today"] .presence-panel-compact{
+    padding:13px!important;
+    gap:10px!important;
+    margin-bottom:10px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-copy h3{
+    font-size:16px!important;
+    margin:0!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+    overflow:visible!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-btn{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    min-width:0!important;
+    width:100%!important;
+    min-height:58px!important;
+    padding:9px 10px!important;
+    gap:9px!important;
+    border-radius:13px!important;
+    overflow:visible!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-mark{
+    flex:0 0 34px!important;
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    border-radius:10px!important;
+    font-size:14px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-btn>span:last-child{
+    min-width:0!important;
+    display:grid!important;
+    gap:2px!important;
+    text-align:left!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-btn strong{
+    display:block!important;
+    font-size:10.5px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  body.shell-app #appShell [data-page="today"] .presence-btn small{
+    display:block!important;
+    font-size:8.5px!important;
+    line-height:1.1!important;
+    color:var(--muted)!important;
+    white-space:nowrap!important;
+  }
+
+  /* Mobile has a persistent bottom nav, so the desktop legal footer should not
+     travel through the scroll surface. Legal/support links remain in Help and
+     Share app remains in the sidebar. */
+  html body.shell-app #appShell:not([hidden])>.main>.app-legal-footer{
+    display:none!important;
+  }
+  html body.shell-app #appShell:not([hidden])>.main{
+    padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
+  }
+}
