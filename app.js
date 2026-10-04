@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261004-clarity-first-r31";
+const APP_VERSION = "20261004-mobile-social-footer-r32";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -10412,7 +10412,9 @@ feedbackButtons.forEach(selector=>{
   if(button) button.addEventListener("click",openFeedbackForm);
 });
 
-$("#footerShareAppBtn")?.addEventListener("click",shareCleaningApp);
+["#footerShareAppBtn","#sidebarShareAppBtn"].forEach(selector=>{
+  $(selector)?.addEventListener("click",shareCleaningApp);
+});
 
 const quickAddBtn=$("#quickAddBtn");
 if(quickAddBtn) quickAddBtn.addEventListener("click",()=>{
