@@ -162,6 +162,10 @@
         '</div>'+
       '</details>';
 
+    if(!canEditRules){
+      mount.querySelectorAll(".estimate-rules input").forEach(input=>input.disabled=true);
+    }
+
     if(firstPriced){
       const serviceSelect=mount.querySelector("#estimateService");
       if(serviceSelect) serviceSelect.value=firstPriced.id;
