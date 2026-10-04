@@ -948,7 +948,6 @@
 
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
-        // Commercial requests stay in the quote flow; direct booking is residential-only.
         if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
@@ -1005,8 +1004,6 @@
         syncPropertyDetails();
         renderBusinessTimeZoneNotice();
 
-        // URL syncing is secondary. Never allow an iOS/PWA History API issue
-        // to stop the visual mode switch itself.
         if(updateUrl){
           try{
             const nextUrl=new URL(window.location.href);
