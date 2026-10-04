@@ -1975,6 +1975,9 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",state.isPlatformAdmin);
   applyRolePermissions();
+  installProgressiveBooking();
+  installSettingsAccordion();
+  installCompactWorkspacePanels();
   // A fresh app entry always starts on Today/Home. A true browser refresh
   // keeps the current workspace section so Refresh does not interrupt work.
   let isTrueReload=false;
@@ -6373,7 +6376,119 @@ function setBookingStep(){
   try{localStorage.removeItem("tle_booking_step");}catch{}
 }
 function installProgressiveBooking(){
-  setBookingStep();
+  const media=window.matchMedia("(max-width:680px)");
+  const panels=Array.from(document.querySelectorAll('[data-page="booking"] [data-booking-panel]'));
+  if(!panels.length) return;
+
+  const triggerFor=panel=>panel.querySelector(".panel-head")||panel.querySelector(".estimate-panel-head");
+  const syncPanel=panel=>{
+    const mobileOpen=panel.dataset.compactMobileOpen==="true";
+    panel.classList.toggle("compact-panel-open",media.matches?mobileOpen:true);
+    const trigger=triggerFor(panel);
+    if(trigger){
+      trigger.setAttribute("aria-expanded",String(media.matches?mobileOpen:true));
+      trigger.setAttribute("role","button");
+      trigger.setAttribute("tabindex","0");
+    }
+  };
+  const togglePanel=panel=>{
+    if(!media.matches) return;
+    panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
+    syncPanel(panel);
+  };
+
+  panels.forEach(panel=>{
+    panel.hidden=false;
+    panel.classList.add("booking-compact-panel");
+    if(panel.dataset.compactMobileOpen==null) panel.dataset.compactMobileOpen="false";
+    if(panel.dataset.compactAccordionReady!=="1"){
+      panel.dataset.compactAccordionReady="1";
+      panel.addEventListener("click",event=>{
+        const trigger=event.target.closest(".panel-head,.estimate-panel-head");
+        if(!trigger || !panel.contains(trigger)) return;
+        if(event.target.closest("button,a,input,select,textarea,label")) return;
+        togglePanel(panel);
+      });
+      panel.addEventListener("keydown",event=>{
+        if(event.key!=="Enter" && event.key!==" ") return;
+        const trigger=event.target.closest(".panel-head,.estimate-panel-head");
+        if(!trigger || !panel.contains(trigger)) return;
+        if(event.target.closest("button,a,input,select,textarea,label")) return;
+        event.preventDefault();
+        togglePanel(panel);
+      });
+    }
+    syncPanel(panel);
+  });
+
+  if(!window.__tleBookingCompactMediaInstalled){
+    window.__tleBookingCompactMediaInstalled=true;
+    media.addEventListener?.("change",()=>panels.forEach(syncPanel));
+  }
+}
+function installCompactWorkspacePanels(){
+  const media=window.matchMedia("(max-width:680px)");
+  const selectors=[
+    '[data-page="followups"] .followup-rules-panel',
+    '[data-page="followups"] .followup-sent-panel',
+    '[data-page="team"] .team-message-center',
+    '[data-page="admin"] .admin-grid>.panel',
+    '[data-page="help"] .help-grid>.panel'
+  ];
+  const panels=selectors.flatMap(selector=>Array.from(document.querySelectorAll(selector)));
+  if(!panels.length) return;
+
+  const triggerInfo=panel=>{
+    const head=panel.querySelector(":scope > .panel-head");
+    if(head) return {node:head,type:"head"};
+    const row=panel.querySelector(":scope > .panel-heading-row");
+    if(row) return {node:row,type:"row"};
+    const h3=panel.querySelector(":scope > h3");
+    if(h3) return {node:h3,type:"h3"};
+    return null;
+  };
+  const syncPanel=panel=>{
+    const info=triggerInfo(panel);
+    if(!info) return;
+    panel.classList.add("compact-accordion-panel","compact-trigger-"+info.type);
+    const mobileOpen=panel.dataset.compactMobileOpen==="true";
+    panel.classList.toggle("compact-panel-open",media.matches?mobileOpen:true);
+    info.node.setAttribute("aria-expanded",String(media.matches?mobileOpen:true));
+    info.node.setAttribute("role","button");
+    info.node.setAttribute("tabindex","0");
+  };
+  const togglePanel=panel=>{
+    if(!media.matches) return;
+    panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
+    syncPanel(panel);
+  };
+
+  panels.forEach(panel=>{
+    if(panel.dataset.compactMobileOpen==null) panel.dataset.compactMobileOpen="false";
+    if(panel.dataset.compactAccordionReady!=="1"){
+      panel.dataset.compactAccordionReady="1";
+      panel.addEventListener("click",event=>{
+        const info=triggerInfo(panel);
+        if(!info || !event.target.closest(".panel-head,.panel-heading-row,h3")) return;
+        if(!info.node.contains(event.target) && event.target!==info.node) return;
+        if(event.target.closest("button,a,input,select,textarea,label")) return;
+        togglePanel(panel);
+      });
+      panel.addEventListener("keydown",event=>{
+        if(event.key!=="Enter" && event.key!==" ") return;
+        const info=triggerInfo(panel);
+        if(!info || event.target!==info.node) return;
+        event.preventDefault();
+        togglePanel(panel);
+      });
+    }
+    syncPanel(panel);
+  });
+
+  if(!window.__tleCompactPanelMediaInstalled){
+    window.__tleCompactPanelMediaInstalled=true;
+    media.addEventListener?.("change",()=>panels.forEach(syncPanel));
+  }
 }
 function installSettingsAccordion(){
   const panels=$(".settings-accordion>.settings-section");
