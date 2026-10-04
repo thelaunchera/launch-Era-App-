@@ -8,14 +8,11 @@
   if(supportedPublicLanguages.includes(requestedLanguage) && window.TLE_I18N?.setLanguage){
     window.TLE_I18N.setLanguage(requestedLanguage);
   }
-
   const validRequestMode = ["book","quote"].includes(mode) && Boolean(slug);
   const validQuoteReview = mode === "quote-review" && Boolean(token);
   const validInvoiceView = mode === "invoice" && Boolean(token);
   if(!validRequestMode && !validQuoteReview && !validInvoiceView) return;
-
   window.__tlePublicHandled = true;
-
   const URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
   const KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
   const $ = (s,root=document) => root.querySelector(s);
@@ -48,7 +45,6 @@
   const esc = v => String(v??"").replace(/[&<>"']/g,ch=>({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[ch]));
-
   async function rpc(name,body={}){
     const res = await fetch(URL+"/rest/v1/rpc/"+name,{
       method:"POST",
@@ -61,7 +57,6 @@
     if(!res.ok) throw new Error(data?.message || data?.error || tt("Request failed"));
     return data;
   }
-
   function visitorId(){
     let id=localStorage.getItem("tle_visitor_id");
     if(!id){
@@ -70,7 +65,6 @@
     }
     return id;
   }
-
   async function track(){
     try{
       await fetch(URL+"/functions/v1/track-app-visit",{
@@ -85,7 +79,6 @@
       });
     }catch{}
   }
-
   function showPublicShell(){
     const splash=$("#sessionSplash");
     if(splash) splash.hidden=true;
@@ -95,13 +88,11 @@
     if(worker) worker.hidden=true;
     if(pub) pub.hidden=false;
   }
-
   function formatDate(value){
     if(!value) return "";
     const d=new Date(value+"T12:00:00");
     return new Intl.DateTimeFormat(publicLocale,{month:"short",day:"numeric",year:"numeric"}).format(d);
   }
-
   function formatTime(value){
     if(!value) return "";
     const parts=String(value).split(":");
@@ -109,7 +100,6 @@
     d.setHours(Number(parts[0]||0),Number(parts[1]||0),0,0);
     return new Intl.DateTimeFormat(publicLocale,{hour:"numeric",minute:"2-digit"}).format(d);
   }
-
   function showPublicConfirmation(title,message,detail=""){
     document.querySelector(".public-confirmation-overlay")?.remove();
     const overlay=document.createElement("div");
@@ -126,7 +116,6 @@
     document.body.appendChild(overlay);
     overlay.querySelector("[data-close-public-confirmation]")?.addEventListener("click",()=>overlay.remove());
   }
-
   async function bootInvoiceView(){
     const form=$("#publicRequestForm");
     const success=$("#publicSuccess");
@@ -138,7 +127,6 @@
     if(invoiceView) invoiceView.hidden=false;
     const requestSwitch=$("#publicRequestSwitch");
     if(requestSwitch) requestSwitch.hidden=true;
-
     try{
       const data=await rpc("get_public_invoice_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
@@ -161,12 +149,10 @@
         invoiceStatusLabel||""
       ].filter(Boolean).join(" · ");
       $("#invoiceViewMeta").textContent=meta;
-
       const items=data?.items||[];
       $("#invoiceViewItems").innerHTML=items.length
         ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||tt("Cleaning service"))+'</strong><small>'+esc(item.quantity||1)+' × '+money(item.unit_price)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
         : '<div class="empty-inline"><strong>'+esc(tt("No invoice items found."))+'</strong></div>';
-
       $("#invoiceViewSubtotal").textContent=money(data?.subtotal);
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
@@ -177,7 +163,6 @@
         : ["cash","check","zelle"];
       const enabledMethods=configuredMethods.length?[...new Set(configuredMethods)]:["cash","check","zelle"];
       $("#invoiceViewMethods").textContent=enabledMethods.map(x=>tt(methodLabels[x]||x)).join(" · ");
-
       const choices=$("#invoicePaymentChoices");
       const choiceStatus=$("#invoicePaymentChoiceStatus");
       const submitInvoiceBtn=$("#submitInvoiceBtn");
@@ -192,7 +177,6 @@
       }[currentPublicLanguage()]||{};
       if(otherLabel) otherLabel.textContent=copy.label||"Other payment method";
       if(otherInput) otherInput.placeholder=copy.placeholder||"Example: Venmo, Cash App, Apple Pay";
-
       let selected=String(data?.customer_payment_method||"").toLowerCase();
       let selectedDetail=String(data?.customer_payment_method_detail||"").trim();
       if(otherInput) otherInput.value=selectedDetail;
@@ -202,17 +186,14 @@
         selected="";
         selectedDetail="";
       }
-
       if(choices){
         choices.innerHTML=enabledMethods.map(method=>
           '<button type="button" data-invoice-payment="'+esc(method)+'">'+esc(tt(methodLabels[method]||method))+'</button>'
         ).join("");
       }
-
       const selectedDisplay=()=>selected==="other" && selectedDetail
         ? tt("Other")+" — "+selectedDetail
         : tt(methodLabels[selected]||selected||"");
-
       function renderPaymentChoice(){
         const locked=isPaid||hasSubmittedChoice;
         choices?.querySelectorAll("[data-invoice-payment]").forEach(btn=>{
@@ -221,7 +202,6 @@
           btn.setAttribute("aria-pressed",active?"true":"false");
           btn.disabled=locked;
         });
-
         const needsOther=selected==="other";
         if(choices) choices.hidden=hasSubmittedChoice;
         if(otherWrap) otherWrap.hidden=hasSubmittedChoice || !needsOther;
@@ -229,12 +209,10 @@
           otherInput.disabled=locked || !needsOther;
           otherInput.setAttribute("aria-required",needsOther?"true":"false");
         }
-
         if(submitInvoiceBtn){
           submitInvoiceBtn.hidden=isPaid||hasSubmittedChoice;
           submitInvoiceBtn.disabled=isPaid || !selected || (needsOther && selectedDetail.length<2);
         }
-
         if(!choiceStatus) return;
         if(isPaid){
           choiceStatus.textContent=selected
@@ -250,9 +228,7 @@
           choiceStatus.textContent=tt("Choose a payment method, then submit your choice.");
         }
       }
-
       renderPaymentChoice();
-
       choices?.addEventListener("click",e=>{
         const btn=e.target.closest("[data-invoice-payment]");
         if(!btn || isPaid || hasSubmittedChoice) return;
@@ -260,12 +236,10 @@
         renderPaymentChoice();
         if(selected==="other") setTimeout(()=>otherInput?.focus(),0);
       });
-
       otherInput?.addEventListener("input",()=>{
         selectedDetail=String(otherInput.value||"").trim();
         renderPaymentChoice();
       });
-
       submitInvoiceBtn?.addEventListener("click",async()=>{
         if(isPaid || hasSubmittedChoice || !selected || (selected==="other" && selectedDetail.length<2)) return;
         submitInvoiceBtn.disabled=true;
@@ -294,25 +268,21 @@
           if(otherInput) otherInput.disabled=selected!=="other";
         }
       });
-
       const invoiceDisputeBtn=$("#invoiceDisputeBtn");
       const invoiceDisputeForm=$("#invoiceDisputeForm");
       const invoiceDisputeReason=$("#invoiceDisputeReason");
       const invoiceDisputeStatus=$("#invoiceDisputeStatus");
-
       invoiceDisputeBtn?.addEventListener("click",()=>{
         invoiceDisputeForm.hidden=false;
         invoiceDisputeBtn.hidden=true;
         invoiceDisputeStatus.textContent="";
         invoiceDisputeReason?.focus();
       });
-
       $("#cancelInvoiceDisputeBtn")?.addEventListener("click",()=>{
         invoiceDisputeForm.hidden=true;
         invoiceDisputeBtn.hidden=false;
         if(invoiceDisputeStatus) invoiceDisputeStatus.textContent="";
       });
-
       invoiceDisputeForm?.addEventListener("submit",async e=>{
         e.preventDefault();
         const reason=String(invoiceDisputeReason?.value||"").trim();
@@ -339,7 +309,6 @@
       if(invoiceView) invoiceView.hidden=true;
     }
   }
-
   async function bootQuoteReview(){
     const form=$("#publicRequestForm");
     const success=$("#publicSuccess");
@@ -349,14 +318,12 @@
     if(review) review.hidden=false;
     const requestSwitch=$("#publicRequestSwitch");
     if(requestSwitch) requestSwitch.hidden=true;
-
     try{
       const data=await rpc("get_public_quote_context",{p_token:token});
       setPublicLocale(data?.locale_code,data?.currency_code,data?.default_language);
       $("#publicBusinessName").textContent=data?.business_name||tt("Cleaning business");
       $("#publicModeLabel").textContent=tt("QUOTE");
       $("#publicIntro").textContent=tt("Review the details below and choose Accept or Decline.");
-
       $("#quoteReviewTitle").textContent=tt("Quote for")+" "+(data?.customer_name||tt("your cleaning"));
       const meta=[
         data?.preferred_date ? formatDate(data.preferred_date) : "",
@@ -364,13 +331,11 @@
         data?.service_address || ""
       ].filter(Boolean).join(" · ");
       $("#quoteReviewMeta").textContent=meta;
-
       const items=data?.items||[];
       $("#quoteReviewItems").innerHTML=items.length
         ? items.map(item=>'<div class="quote-review-item"><span><strong>'+esc(item.description||tt("Cleaning service"))+'</strong><small>'+esc(tt("Qty"))+' '+esc(item.quantity||1)+'</small></span><b>'+money(item.line_total)+'</b></div>').join("")
         : '<div class="empty-inline"><strong>'+esc(tt("No quote items found."))+'</strong></div>';
       $("#quoteReviewTotal").textContent=money(data?.total);
-
       const status=String(data?.status||"");
       const actions=$("#quoteReviewActions");
       const statusEl=$("#quoteReviewStatus");
@@ -388,12 +353,10 @@
         if(submitQuoteButton) submitQuoteButton.hidden=true;
         statusEl.textContent=tt("This quote is not currently awaiting a response.");
       }
-
       const submitQuoteBtn=$("#submitQuoteBtn");
       const acceptBtn=$("#acceptQuoteBtn");
       const declineBtn=$("#declineQuoteBtn");
       let selectedQuoteResponse="";
-
       function renderQuoteResponse(){
         [acceptBtn,declineBtn].forEach(btn=>{
           if(!btn) return;
@@ -412,7 +375,6 @@
             : "Choose Accept or Decline, then submit your response.";
         }
       }
-
       acceptBtn?.addEventListener("click",()=>{
         selectedQuoteResponse="accept";
         renderQuoteResponse();
@@ -422,7 +384,6 @@
         renderQuoteResponse();
       });
       if(status==="sent") renderQuoteResponse();
-
       submitQuoteBtn?.addEventListener("click",async()=>{
         if(!selectedQuoteResponse) return;
         const action=selectedQuoteResponse;
@@ -444,11 +405,9 @@
           if(declineBtn) declineBtn.disabled=false;
         }
       });
-
       const quoteDisputeBtn=$("#quoteDisputeBtn");
       const quoteDisputeForm=$("#quoteDisputeForm");
       const quoteDisputeReason=$("#quoteDisputeReason");
-
       quoteDisputeBtn?.addEventListener("click",()=>{
         quoteDisputeForm.hidden=false;
         quoteDisputeBtn.hidden=true;
@@ -456,14 +415,12 @@
         statusEl.textContent="";
         quoteDisputeReason?.focus();
       });
-
       $("#cancelQuoteDisputeBtn")?.addEventListener("click",()=>{
         quoteDisputeForm.hidden=true;
         quoteDisputeBtn.hidden=false;
         if(submitQuoteBtn && status==="sent") submitQuoteBtn.hidden=false;
         renderQuoteResponse();
       });
-
       quoteDisputeForm?.addEventListener("submit",async e=>{
         e.preventDefault();
         const reason=String(quoteDisputeReason?.value||"").trim();
@@ -491,7 +448,6 @@
       if(review) review.hidden=true;
     }
   }
-
   async function bootRequest(){
     try{
       let data;
@@ -502,14 +458,12 @@
         data=await rpc("get_public_booking_config",{p_slug:slug});
       }
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
-
       const allServices=data?.services||[];
       const fixedPriceServices=allServices.filter(s=>s.pricing_type==="flat" && Number(s.base_price)>0);
       const quoteOnlyServices=allServices.filter(s=>!(s.pricing_type==="flat" && Number(s.base_price)>0));
       const addons=data?.addons||[];
       const discounts=data?.discounts||[];
       let services=[];
-
       const business=$("#publicBusinessName");
       const label=$("#publicModeLabel");
       const intro=$("#publicIntro");
@@ -562,7 +516,6 @@
         money,
         onChange:()=>updateSummary()
       });
-
       if(business) business.textContent=data?.business?.name||tt("Cleaning service");
       if(headerBusinessName) headerBusinessName.textContent=data?.business?.name||tt("Cleaning service");
       if(headerMark){
@@ -574,13 +527,11 @@
         preferredLanguageSelect.value=["en","es","fr","ht"].includes(configured)?configured:"en";
       }
       if(quoteTimeInput) quoteTimeInput.required=false;
-
       const businessZone=data?.business?.timezone||"UTC";
       const businessCountry=String(data?.business?.country_code||"").toUpperCase();
       if(propertySizeUnit){
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
       }
-
       const publicEstimator=window.TLE_PUBLIC_ESTIMATOR;
       if(!publicEstimator) throw new Error("Booking estimator module unavailable");
       const estimateSettings=publicEstimator.normalizeSettings(data?.business?.estimate_settings);
@@ -597,7 +548,6 @@
           frequency:recurrenceSelect?.value||"one_time"
         });
       }
-
       const demoPhotos={
         "book-residential":{
           hero:"https://images.pexels.com/photos/36729566/pexels-photo-36729566.jpeg?auto=compress&cs=tinysrgb&w=1400",
@@ -632,11 +582,9 @@
           supportAlt:"Professional cleaners at a modern office building"
         }
       };
-
       function activePropertyType(){
         return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
       }
-
       const bookingPropertyPhotos={
         residential:{
           hero:"https://images.pexels.com/photos/10161222/pexels-photo-10161222.jpeg?auto=compress&cs=tinysrgb&w=1400",
@@ -655,22 +603,18 @@
           heroAlt:"Neutral clean modern hallway with no people"
         }
       };
-
       function activeDemoPhotos(){
         return demoPhotos[(mode==="quote"?"quote":"book")+"-"+activePropertyType()]||demoPhotos["book-residential"];
       }
-
       function activePropertyPhotos(){
         return bookingPropertyPhotos[activePropertyType()]||bookingPropertyPhotos.residential;
       }
-
       function updateDemoPhotos(){
         const set=activeDemoPhotos();
         const propertyPhotos=activePropertyPhotos();
         if(heroPhoto){ heroPhoto.src=propertyPhotos.hero; heroPhoto.alt=propertyPhotos.heroAlt; }
         if(supportPhoto){ supportPhoto.src=set.support; supportPhoto.alt=set.supportAlt; }
       }
-
       function serviceScope(service){
         const hay=(String(service?.name||"")+" "+String(service?.description||"")).toLowerCase();
         const commercial=/commercial|office|janitorial|storefront|retail|workspace|warehouse|industrial|medical|dental|restaurant|business/.test(hay);
@@ -679,7 +623,6 @@
         if(residential&&!commercial) return "residential";
         return "both";
       }
-
       function addonScope(addon){
         const hay=(String(addon?.name||"")+" "+String(addon?.description||"")).toLowerCase();
         const commercial=/commercial|office|janitorial|storefront|retail|workspace|warehouse|industrial|medical|dental|restaurant|breakroom|kitchenette|trash|liner|high[- ]?touch/.test(hay);
@@ -688,7 +631,6 @@
         if(residential&&!commercial) return "residential";
         return "both";
       }
-
       function servicesForRequest(nextMode){
         const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
         const property=activePropertyType();
@@ -698,7 +640,6 @@
         });
         return scoped.length?scoped:pool;
       }
-
       function renderServiceCards(){
         if(!serviceCards) return;
         if(!services.length){
@@ -720,7 +661,6 @@
           '</button>';
         }).join("");
       }
-
       function syncCleaningTypeUi(){
         const property=activePropertyType();
         cleaningTypeSwitch?.querySelectorAll("[data-property-type]").forEach(btn=>{
@@ -734,7 +674,6 @@
           ?"Choose the service, space details, date, and contact information so the business can prepare the commercial job correctly."
           :"Choose the service, home details, date, and contact information so the business can prepare the job correctly.");
       }
-
       function businessTimeZoneLabel(){
         try{
           const parts=new Intl.DateTimeFormat(publicLocale,{
@@ -747,7 +686,6 @@
           return businessZone;
         }
       }
-
       function renderBusinessTimeZoneNotice(){
         if(!timeZoneNotice) return;
         const deviceZone=String(Intl.DateTimeFormat().resolvedOptions().timeZone||"").trim();
@@ -757,31 +695,26 @@
           ? tt("Times shown in the cleaning business’s local time")+" · "+businessLabel+" · "+tt("Your device time zone")+": "+deviceZone
           : tt("Times shown in the cleaning business’s local time")+" · "+businessLabel;
       }
-
       function syncPropertyDetails(){
         const type=activePropertyType();
         if(residentialDetails) residentialDetails.hidden=type!=="residential";
         if(commercialDetails) commercialDetails.hidden=type!=="commercial";
-
         const bedrooms=form?.querySelector('[name="bedrooms"]');
         const bathrooms=form?.querySelector('[name="bathrooms"]');
         const commercialType=form?.querySelector('[name="commercial_space_type"]');
         if(bedrooms) bedrooms.required=type==="residential";
         if(bathrooms) bathrooms.required=type==="residential";
         if(commercialType) commercialType.required=type==="commercial";
-
         if(propertySizeInput) propertySizeInput.required=false;
         if(propertySizeOptional) propertySizeOptional.hidden=false;
         syncCleaningTypeUi();
       }
-
       function syncPetDetails(){
         if(!petDetailsWrap) return;
         petDetailsWrap.hidden=String(petsSelect?.value||"")!=="yes";
         const input=petDetailsWrap.querySelector('input[name="pet_details"]');
         if(input && petDetailsWrap.hidden) input.value="";
       }
-
       if(propertyTypeSelect && !propertyTypeSelect.value) propertyTypeSelect.value="residential";
       renderBusinessTimeZoneNotice();
       syncPropertyDetails();
@@ -812,11 +745,9 @@
         propertyTypeSelect.dispatchEvent(new Event("change",{bubbles:true}));
       });
       petsSelect?.addEventListener("change",syncPetDetails);
-
       function chosenAddonIds(){
         return addonBox ? $('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
       }
-
       const publicWizard=publicEstimator?.createWizard({
         form,submit,summaryMicro,
         serviceSelect:select,
@@ -828,7 +759,6 @@
         serviceHeading:$("#publicDemoServiceHeading"),
         t:tt
       })||null;
-
       function updateSummary(){
         if(!summary) return;
         const selected=services.find(s=>s.id===select?.value);
@@ -869,7 +799,6 @@
           ?"No payment is collected here. The business will review your details and prepare the quote."
           :"No payment is collected here. The business will review and confirm your request.");
       }
-
       function renderAddons(){
         const selected=services.find(s=>s.id===select?.value);
         if(!addonBox) return;
@@ -890,13 +819,11 @@
         discountUi?.render(selected?.id||"",mode);
         updateSummary();
       }
-
       function formatSlot(iso){
         return new Intl.DateTimeFormat(publicLocale,{
           timeZone:businessZone,hour:"numeric",minute:"2-digit"
         }).format(new Date(iso));
       }
-
       function slotLocalTimeValue(iso){
         const parts=new Intl.DateTimeFormat("en-GB",{
           timeZone:businessZone,
@@ -907,12 +834,10 @@
         const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));
         return (map.hour||"00")+":"+(map.minute||"00");
       }
-
       function syncSubmitForSlot(){
         if(!submit) return;
         submit.disabled=!services.length || !String(slotInput?.value||"").trim();
       }
-
       async function refreshSlots(){
         if(!slotsBox || !slotInput) return;
         slotInput.value="";
@@ -924,7 +849,6 @@
           slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
           return;
         }
-
         slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Checking availability…"))+'</span>';
         try{
           const rows=await rpc("get_public_available_slots",{
@@ -945,14 +869,12 @@
           console.warn("[TLE] public availability",err); slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Could not load availability"))+'</span>';
         }
       }
-
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
         if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
         publicWizard?.reset();
-
         if(bookTab){
           bookTab.classList.toggle("active",mode==="book");
           bookTab.setAttribute("aria-pressed",mode==="book"?"true":"false");
@@ -963,7 +885,6 @@
           quoteTab.setAttribute("aria-pressed",mode==="quote"?"true":"false");
           quoteTab.setAttribute("aria-current",mode==="quote"?"page":"false");
         }
-
         if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
         if(intro) intro.textContent=tt(mode==="quote"
@@ -976,7 +897,6 @@
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
         if(recurrenceWrap) recurrenceWrap.hidden=false;
         if(slotsWrap) slotsWrap.hidden=false;
-
         if(select){
           select.value="";
           select.disabled=!services.length;
@@ -992,7 +912,6 @@
         }
         renderServiceCards();
         syncCleaningTypeUi();
-
         if(slotInput) slotInput.value="";
         if(quoteTimeInput) quoteTimeInput.value="";
         if(slotsBox) slotsBox.innerHTML='<span class="muted-line">'+esc(tt("Choose a service and date first."))+'</span>';
@@ -1003,7 +922,6 @@
         updateSummary();
         syncPropertyDetails();
         renderBusinessTimeZoneNotice();
-
         if(updateUrl){
           try{
             const nextUrl=new URL(window.location.href);
@@ -1015,12 +933,10 @@
           }
         }
       }
-
       function switchMode(nextMode){
         if(nextMode===mode) return;
         renderMode(nextMode,{updateUrl:true});
       }
-
       $("#publicRequestSwitch")?.addEventListener("click",e=>{
         const control=e.target.closest("[data-public-mode]");
         if(!control) return;
@@ -1034,7 +950,6 @@
         e.preventDefault();
         switchMode(btn.dataset.switchPublicMode);
       });
-
       serviceCards?.addEventListener("click",e=>{
         const card=e.target.closest("[data-service-card]");
         if(!card || !select) return;
@@ -1063,7 +978,6 @@
         syncSubmitForSlot();
         updateSummary();
       });
-
       if(dateInput){
         const dateInBusinessZone=value=>{
           const parts=new Intl.DateTimeFormat("en-CA",{
@@ -1076,7 +990,6 @@
         dateInput.max=dateInBusinessZone(new Date(Date.now()+90*86400000));
         dateInput.addEventListener("change",()=>{ refreshSlots(); updateSummary(); });
       }
-
       refreshBtn?.addEventListener("click",async()=>{
         if(refreshBtn.disabled) return;
         const original=refreshBtn.innerHTML;
@@ -1098,10 +1011,8 @@
           },900);
         }
       });
-
       renderMode(mode,{updateUrl:false});
       publicWizard?.init();
-
       if(form){
         form.addEventListener("submit",async e=>{
           e.preventDefault();
@@ -1130,7 +1041,6 @@
             .filter(addon=>fd.getAll("addon").includes(addon.id))
             .map(addon=>addon.name)
             .filter(Boolean);
-
           if((preferred==="text"||preferred==="whatsapp")&&!phone){
             alert(tt("Phone is required for Text or WhatsApp."));
             return;
@@ -1157,7 +1067,6 @@
             alert(tt("Choose the commercial space type."));
             return;
           }
-
           const lastCleanLabels={
             under_month:"Less than a month ago",
             one_three_months:"1–3 months ago",
@@ -1182,7 +1091,6 @@
             unsure:"Not sure"
           };
           const duringHoursLabels={yes:"Yes",no:"No",flexible:"Flexible"};
-
           const requestNotes=[
             "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
             propertySize ? "Approx. size: "+propertySize+" "+propertySizeUnit : "",
@@ -1208,7 +1116,6 @@
           try{
             const selectedSlot=String(fd.get("slot_start")||"").trim();
             if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
-
             if(mode==="quote"){
               await rpc("submit_public_quote_request_v3",{
                 p_slug:slug,
@@ -1290,7 +1197,6 @@
       $("#publicRequestForm").hidden=true;
     }
   }
-
   async function boot(){
     showPublicShell();
     window.addEventListener("tle:languagechange",event=>{
@@ -1304,16 +1210,13 @@
       }catch{}
     });
     await track();
-
     if(validQuoteReview) await bootQuoteReview();
     else if(validInvoiceView) await bootInvoiceView();
     else await bootRequest();
-
     $("#publicBackBtn")?.addEventListener("click",()=>{
       if(history.length>1) history.back();
       else window.location.href=window.location.origin+window.location.pathname;
     });
   }
-
   boot();
 })();
