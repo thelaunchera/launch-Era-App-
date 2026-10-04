@@ -35,7 +35,22 @@ const businessConfig={
     default_language:"en",
     customer_email_language:"en",
     timezone:"America/New_York",
-    country_code:"US"
+    country_code:"US",
+    estimate_settings:{
+      enabled:true,
+      show_breakdown:true,
+      included_bedrooms:2,
+      extra_bedroom_price:10,
+      included_bathrooms:1,
+      extra_bathroom_price:15,
+      included_sqft:1500,
+      sqft_step:500,
+      sqft_step_price:20,
+      weekly_discount_percent:10,
+      biweekly_discount_percent:5,
+      monthly_discount_percent:0,
+      minimum_total:0
+    }
   },
   services:[
     {
@@ -225,6 +240,13 @@ async function runProfile(profile){
       throw new Error(profile.name+": booking service card cannot be selected");
     }
 
+    await page.locator("#publicWizardNext").click();
+    await page.locator('#publicRequestForm input[name="bedrooms"]').fill("3");
+    await page.locator('#publicRequestForm input[name="bathrooms"]').fill("2");
+    await page.locator("#publicPropertySize").fill("1800");
+    await page.locator('#publicRequestForm select[name="cleaning_condition"]').selectOption("regular");
+    await page.locator("#publicWizardNext").click();
+
     await page.waitForSelector("#publicDiscounts [data-public-discount]",{state:"visible",timeout:5000});
     const offer=page.locator("#publicDiscounts [data-public-discount]").first();
     const offerText=await offer.textContent();
@@ -233,8 +255,8 @@ async function runProfile(profile){
     }
     await offer.click();
     const discountSummary=await page.locator("#publicSummary").textContent();
-    if(!discountSummary.includes("Fall Fresh Start")||!discountSummary.includes("109")){
-      throw new Error(profile.name+": discount did not update booking total "+discountSummary);
+    if(!discountSummary.includes("Fall Fresh Start")||!discountSummary.includes("154")){
+      throw new Error(profile.name+": estimator + discount did not update booking total "+discountSummary);
     }
 
     const weeklyFrequency=page.locator('#publicFrequencyPills [data-frequency="weekly"]');
@@ -246,7 +268,12 @@ async function runProfile(profile){
     if(!(await weeklyFrequency.evaluate(el=>el.classList.contains("selected")))){
       throw new Error(profile.name+": selected frequency pill is not visually active");
     }
+    const weeklySummary=await page.locator("#publicSummary").textContent();
+    if(!weeklySummary.includes("Recurring savings")||!weeklySummary.includes("136")){
+      throw new Error(profile.name+": recurring estimate rules did not update total "+weeklySummary);
+    }
 
+    await page.locator("#publicWizardNext").click();
     const date=page.locator('#publicRequestForm input[name="date"]');
     await date.evaluate(el=>{
       el.value="2026-10-05";
@@ -276,6 +303,9 @@ async function runProfile(profile){
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
     await assertNoOverflow(page,profile,"residential booking");
 
+    await page.locator("#publicWizardBack").click();
+    await page.locator("#publicWizardBack").click();
+    await page.locator("#publicWizardBack").click();
     await page.locator('[data-property-type="commercial"]').click();
     await page.waitForFunction(()=>document.querySelector("#publicPropertyType")?.value==="commercial",null,{timeout:3000});
     const commercialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
@@ -300,6 +330,10 @@ async function runProfile(profile){
       throw new Error(profile.name+": Commercial allowed switching back to direct booking");
     }
     await page.locator("#publicServiceCards [data-service-card]").first().click();
+    await page.locator("#publicWizardNext").click();
+    await page.locator('#publicRequestForm select[name="commercial_space_type"]').selectOption("office");
+    await page.locator('#publicRequestForm select[name="cleaning_condition"]').selectOption("regular");
+    await page.locator("#publicWizardNext").click();
     const quoteAddonWrap=page.locator("#publicAddonsWrap");
     if(await quoteAddonWrap.evaluate(el=>el.hidden)){
       throw new Error(profile.name+": quote add-ons are hidden");
@@ -319,6 +353,8 @@ async function runProfile(profile){
     if(quoteCommercialHero!==commercialHero) throw new Error(profile.name+": hero changed when switching Book/Quote instead of staying commercial");
     await assertNoOverflow(page,profile,"commercial quote");
 
+    await page.locator("#publicWizardBack").click();
+    await page.locator("#publicWizardBack").click();
     await page.locator('[data-property-type="residential"]').click();
     const quoteResidentialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
     if(!quoteResidentialCards.some(x=>x.includes("Large Home Custom Cleaning"))){
