@@ -626,26 +626,3 @@
   #publicShell .public-demo-summary-total strong{font-size:21px}
   #publicShell .public-demo-summary-stack .public-submit{min-height:42px}
 }
-
-
-
-/* Guided public booking + estimate pricing */
-.public-wizard-hidden{display:none!important}
-.public-demo-stepper{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:7px!important}
-.public-demo-stepper span{height:5px;border-radius:999px;background:#e7e5df;transition:background .18s ease,transform .18s ease}
-.public-demo-stepper span.active{background:var(--public-accent,#c7eaff)}
-.public-demo-stepper span.current{background:var(--ink,#191919);transform:scaleY(1.2)}
-.public-wizard-nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:18px;margin-top:4px;border-top:1px solid var(--line,#e8e4dc)}
-.public-wizard-step-label{font-size:11px;font-weight:900;letter-spacing:.045em;text-transform:uppercase;color:var(--muted,#6e726f)}
-.public-wizard-nav>div{display:flex;align-items:center;gap:8px}
-.public-wizard-nav button{min-height:46px;border-radius:12px;padding:0 16px;font-weight:900}
-.public-wizard-back{border:1px solid var(--line,#e8e4dc);background:#fff;color:var(--ink,#191919)}
-.public-wizard-next{border:0;background:var(--ink,#191919);color:#fff}
-.estimate-frequency-saving{display:inline-flex;margin-left:6px;padding:2px 6px;border-radius:999px;background:rgba(49,87,102,.1);font-size:10px;font-weight:900;color:#315766}
-.public-demo-summary-row.estimate-detail-row strong{color:#315766}
-.public-demo-summary-row.estimate-detail-row.saving strong{color:#27634d}
-@media(max-width:700px){
-  .public-wizard-nav{align-items:stretch;display:grid;gap:10px}
-  .public-wizard-nav>div{display:grid;grid-template-columns:1fr 1fr}
-  .public-wizard-nav button{width:100%;min-width:0}
-}
