@@ -107,6 +107,7 @@
     const enabledLabel=rules.enabled
       ?t("Live estimates ON","Estimados activos","Estimations activées","Estimasyon aktive")
       :t("Live estimates OFF","Estimados pausados","Estimations désactivées","Estimasyon kanpe");
+    const canEditRules=String(appState().business?.role||"")==="owner";
 
     mount.innerHTML=
       '<div class="estimate-panel-head">'+
@@ -155,7 +156,9 @@
             '<label>'+escapeHtml(t("Monthly discount %","Descuento mensual %","Remise mensuelle %","Rabè chak mwa %"))+'<input id="estimateMonthlyDiscount" type="number" min="0" max="100" step="0.5" value="'+escapeHtml(rules.monthly_discount_percent)+'"></label>'+
           '</div>'+
           '<label class="estimate-toggle"><span><strong>'+escapeHtml(t("Show price breakdown","Mostrar desglose","Afficher le détail","Montre detay pri"))+'</strong><small>'+escapeHtml(t("Helpful when reviewing how the estimate was built.","Útil para revisar cómo se calculó el estimado.","Utile pour vérifier le calcul.","Sa ede w wè kijan estimasyon an fèt."))+'</small></span><input id="estimateShowBreakdown" type="checkbox" '+(rules.show_breakdown!==false?"checked":"")+'></label>'+
-          '<div class="estimate-rules-actions"><button class="primary-btn" type="button" id="saveEstimateRules">'+escapeHtml(t("Save pricing rules","Guardar reglas de precio","Enregistrer les règles","Sove règ pri yo"))+'</button></div>'+
+          '<div class="estimate-rules-actions">'+
+            (canEditRules?'<button class="primary-btn" type="button" id="saveEstimateRules">'+escapeHtml(t("Save pricing rules","Guardar reglas de precio","Enregistrer les règles","Sove règ pri yo"))+'</button>':'<span class="estimate-owner-note">'+escapeHtml(t("Owner only: pricing rules are read-only for Admins.","Solo Owner: las reglas de precio son de solo lectura para Admins.","Owner uniquement : les règles sont en lecture seule pour les Admins.","Owner sèlman: Admin ka li règ pri yo sèlman."))+'</span>')+
+          '</div>'+
         '</div>'+
       '</details>';
 
@@ -342,8 +345,8 @@
 
   async function saveRules(button){
     const state=appState();
-    if(!state.business?.id || !["owner","admin"].includes(String(state.business?.role||""))){
-      bridge?.showToast?.(t("Owner or Admin access required.","Se requiere acceso de Owner o Admin.","Accès Owner ou Admin requis.","Fòk ou Owner oswa Admin."));
+    if(!state.business?.id || String(state.business?.role||"")!=="owner"){
+      bridge?.showToast?.(t("Owner access required to change pricing rules.","Se requiere acceso de Owner para cambiar las reglas de precio.","Accès Owner requis pour modifier les règles de tarification.","Fòk ou Owner pou chanje règ pri yo."));
       return;
     }
     const payload=readRules();
