@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-ios-root-cause-r26";
+const APP_VERSION = "20261004-estimate-calculator-r28";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2369,6 +2369,7 @@ async function refreshViewData(id){
         state.serviceAddons=addons||[];
         renderServices();
         renderBookingServices();
+        window.TLE_ESTIMATE?.render?.();
 
         if(id==="booking"){
           const {data:links,error:linksError}=await supabase.rpc("get_my_public_link_settings");
@@ -4797,6 +4798,7 @@ async function loadCoreData(){
   renderLeads();
   renderServices();
   renderBookingServices();
+  window.TLE_ESTIMATE?.render?.();
   renderBookingDiscounts();
   renderAvailabilityEditor();
 
@@ -9029,6 +9031,7 @@ async function saveService(fd){
 
     renderServices();
     renderBookingServices();
+    window.TLE_ESTIMATE?.render?.();
   }
 
   return savedService||null;
@@ -10856,6 +10859,8 @@ window.TLE_FOLLOWUPS_BRIDGE={
   appLocale,
   openClientInfo
 };
+
+window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
 
 window.__tleAppReady=true;
 // Keep the static auth shell stable until initialize() decides whether this is
