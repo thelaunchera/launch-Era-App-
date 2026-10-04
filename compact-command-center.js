@@ -15,9 +15,7 @@
   }
 
   function closePeers(panel,selector){
-    const parent=panel.parentElement;
-    if(!parent) return;
-    parent.querySelectorAll(selector).forEach(other=>{
+    document.querySelectorAll(selector).forEach(other=>{
       if(other===panel) return;
       other.classList.remove("compact-open");
       const otherHead=other.querySelector(":scope > .panel-head, :scope > .estimate-panel-head, :scope > .panel-heading-row");
