@@ -1,0 +1,482 @@
+/* 2026-10-04 — compact command center
+   Goal: the app should behave like an operations tool, not a long document. */
+
+@media(max-width:900px){
+  /* Global vertical density */
+  body.shell-app .view{
+    padding-top:0!important;
+    padding-bottom:18px!important;
+  }
+  body.shell-app .section-intro{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    margin:0 0 9px!important;
+  }
+  body.shell-app .section-intro>div:first-child{min-width:0!important}
+  body.shell-app .section-intro .eyebrow{display:none!important}
+  body.shell-app .section-intro h2{
+    margin:0!important;
+    font-size:22px!important;
+    line-height:1.02!important;
+    letter-spacing:-.04em!important;
+  }
+  body.shell-app .section-intro p:not(.eyebrow){
+    display:none!important;
+  }
+  body.shell-app .section-intro>.primary-btn,
+  body.shell-app .section-intro>.ghost-btn,
+  body.shell-app .section-intro>.section-actions{
+    flex:0 0 auto!important;
+    width:auto!important;
+  }
+  body.shell-app .section-actions{
+    display:flex!important;
+    gap:5px!important;
+    flex-wrap:nowrap!important;
+  }
+  body.shell-app .section-intro button,
+  body.shell-app .section-actions button{
+    min-height:36px!important;
+    padding:7px 10px!important;
+    border-radius:11px!important;
+    font-size:10px!important;
+    white-space:nowrap!important;
+  }
+
+  /* Dense cards and empty states */
+  body.shell-app .panel{
+    border-radius:16px!important;
+  }
+  body.shell-app .panel-head,
+  body.shell-app .panel-heading-row{
+    margin-bottom:8px!important;
+  }
+  body.shell-app .panel-head h3,
+  body.shell-app .panel-heading-row h3{
+    font-size:17px!important;
+    line-height:1.08!important;
+  }
+  body.shell-app .panel-note,
+  body.shell-app .helper{
+    font-size:9.5px!important;
+    line-height:1.3!important;
+  }
+  body.shell-app :is(.empty-table,.empty-card,.empty-inline){
+    min-height:0!important;
+    padding:11px!important;
+    border-radius:13px!important;
+  }
+  body.shell-app :is(.empty-table,.empty-card,.empty-inline) strong{font-size:12px!important}
+  body.shell-app :is(.empty-table,.empty-card,.empty-inline) span{font-size:10px!important}
+
+  /* Summary metrics stay on one row instead of stacking down the page */
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  ){
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:6px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    margin:0 0 9px!important;
+    padding:0 0 2px!important;
+  }
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  )::-webkit-scrollbar{display:none!important}
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  )>.metric-card{
+    flex:0 0 108px!important;
+    min-width:108px!important;
+    min-height:68px!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+    scroll-snap-align:start!important;
+  }
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  )>.metric-card span{font-size:8.5px!important;line-height:1.08!important}
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  )>.metric-card strong{
+    margin:4px 0 0!important;
+    font-size:21px!important;
+    line-height:1!important;
+  }
+  body.shell-app :is(
+    [data-page="today"]>.metric-grid,
+    [data-page="invoices"]>.metric-grid,
+    [data-page="followups"]>.metric-grid,
+    [data-page="mileage"]>.metric-grid,
+    [data-page="supplies"]>.metric-grid,
+    [data-page="platform-admin"]>.metric-grid
+  )>.metric-card small{display:none!important}
+
+  /* Today = at-a-glance, not a long landing page */
+  [data-page="today"] #todayHeroCard{
+    padding:11px!important;
+    margin-bottom:7px!important;
+    border-radius:17px!important;
+  }
+  [data-page="today"] #todayHeroCard .hero-card-topline{margin-bottom:7px!important}
+  [data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:28px!important;
+    line-height:.96!important;
+  }
+  [data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:10px!important;
+    line-height:1.25!important;
+    max-width:82%!important;
+  }
+  [data-page="today"] #todayHeroCard #todayHeroAction{
+    min-height:36px!important;
+    margin:6px 0!important;
+    padding:6px 10px!important;
+    font-size:10px!important;
+  }
+  [data-page="today"] .dashboard-grid,
+  [data-page="today"] .dashboard-grid.lower{
+    gap:7px!important;
+  }
+  [data-page="today"] .dashboard-grid .panel,
+  [data-page="today"] .dashboard-grid.lower .panel{
+    padding:11px!important;
+  }
+  [data-page="today"] .quick-grid{gap:5px!important}
+  [data-page="today"] .quick-card{
+    min-height:58px!important;
+    padding:8px!important;
+    border-radius:13px!important;
+  }
+  [data-page="today"] .quick-card strong{font-size:10px!important}
+  [data-page="today"] .quick-card p{display:none!important}
+
+  /* Booking Center: accordion sections, only one work area open at a time */
+  [data-page="booking"] .progressive-booking{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  [data-page="booking"] .booking-section-label{
+    margin:5px 1px 0!important;
+    min-height:0!important;
+  }
+  [data-page="booking"] .booking-section-label small{display:none!important}
+  [data-page="booking"] .booking-step-panel{
+    grid-column:1!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:0!important;
+    border-left:0!important;
+    border-radius:15px!important;
+    overflow:hidden!important;
+  }
+  [data-page="booking"] .booking-step-panel::before{display:none!important}
+  [data-page="booking"] .booking-step-panel>.panel-head,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head{
+    position:relative!important;
+    margin:0!important;
+    padding:11px 38px 11px 12px!important;
+    border:0!important;
+    cursor:pointer!important;
+    min-height:52px!important;
+    align-items:center!important;
+  }
+  [data-page="booking"] .booking-step-panel>.panel-head::after,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head::after{
+    content:"+";
+    position:absolute!important;
+    right:13px!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    width:24px!important;
+    height:24px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:50%!important;
+    background:#F1EEE7!important;
+    color:#191919!important;
+    font-size:15px!important;
+    font-weight:900!important;
+  }
+  [data-page="booking"] .booking-step-panel.compact-open>.panel-head::after,
+  [data-page="booking"] .booking-step-panel.compact-open>.estimate-panel-head::after{content:"−"}
+  [data-page="booking"] .booking-step-panel>.panel-head .eyebrow,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head .eyebrow{display:none!important}
+  [data-page="booking"] .booking-step-panel>.panel-head h3,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head h3,
+  [data-page="booking"] .booking-step-panel[data-booking-panel="requests"] .panel-head h3{
+    margin:0!important;
+    font-size:16px!important;
+  }
+  [data-page="booking"] .booking-step-panel>.panel-head .panel-note,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head .panel-note{display:none!important}
+  [data-page="booking"] .booking-step-panel:not(.compact-open)>:not(.panel-head):not(.estimate-panel-head){
+    display:none!important;
+  }
+  [data-page="booking"] .booking-step-panel.compact-open{
+    padding-bottom:11px!important;
+  }
+  [data-page="booking"] .booking-step-panel.compact-open>:not(.panel-head):not(.estimate-panel-head){
+    margin-left:11px!important;
+    margin-right:11px!important;
+  }
+  [data-page="booking"] .booking-step-panel.compact-open>.panel-head,
+  [data-page="booking"] .booking-step-panel.compact-open>.estimate-panel-head{
+    border-bottom:1px solid rgba(25,25,25,.07)!important;
+    margin-bottom:10px!important;
+  }
+  [data-page="booking"] .booking-request-row{
+    padding:10px!important;
+    gap:8px!important;
+    border-radius:13px!important;
+  }
+  [data-page="booking"] .booking-request-actions .booking-action{
+    min-height:38px!important;
+    padding:8px 9px!important;
+    font-size:10px!important;
+  }
+  [data-page="booking"] .booking-request-actions{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:5px!important;
+  }
+  [data-page="booking"] .booking-request-actions .booking-action-primary{flex-basis:auto!important}
+
+  /* Estimate calculator: keep result close to inputs */
+  [data-page="booking"] .estimate-layout{gap:9px!important}
+  [data-page="booking"] .estimate-form-grid{gap:7px!important}
+  [data-page="booking"] .estimate-form-grid input,
+  [data-page="booking"] .estimate-form-grid select,
+  [data-page="booking"] .estimate-rule-grid input{
+    min-height:38px!important;
+    padding:8px 9px!important;
+  }
+  [data-page="booking"] .estimate-result{
+    min-height:0!important;
+    padding:13px!important;
+    border-radius:15px!important;
+  }
+  [data-page="booking"] .estimate-total{font-size:34px!important}
+  [data-page="booking"] .estimate-rules{margin-top:9px!important;padding-top:8px!important}
+
+  /* Quotes: stage swipe instead of five long columns */
+  [data-page="quotes"] #quotesBoard.kanban{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:8px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 0 5px!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  [data-page="quotes"] #quotesBoard.kanban::-webkit-scrollbar{display:none!important}
+  [data-page="quotes"] #quotesBoard .quote-growth-col{
+    flex:0 0 min(82vw,330px)!important;
+    width:min(82vw,330px)!important;
+    min-width:min(82vw,330px)!important;
+    padding:9px!important;
+    border-radius:15px!important;
+    scroll-snap-align:start!important;
+  }
+  [data-page="quotes"] #quotesBoard .quote-growth-col>h3{
+    position:static!important;
+    margin:0 0 6px!important;
+    padding:0 0 6px!important;
+    font-size:14px!important;
+  }
+  [data-page="quotes"] #quotesBoard .quote-growth-card{
+    padding:10px!important;
+    margin-top:6px!important;
+    border-radius:13px!important;
+  }
+  [data-page="quotes"] .quote-next-step{padding:7px!important}
+  [data-page="quotes"] .record-card-actions button{
+    min-height:36px!important;
+    padding:7px 8px!important;
+    font-size:10px!important;
+  }
+
+  /* Follow-ups: due work stays open; rules/history collapse */
+  [data-page="followups"] .followup-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  [data-page="followups"] .followup-rules-panel,
+  [data-page="followups"] .followup-sent-panel,
+  [data-page="followups"] .followup-queue-panel{
+    padding:0!important;
+    border-radius:15px!important;
+    overflow:hidden!important;
+  }
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel)>.panel-heading-row{
+    position:relative!important;
+    min-height:50px!important;
+    margin:0!important;
+    padding:10px 38px 10px 12px!important;
+    cursor:pointer!important;
+  }
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel)>.panel-heading-row::after{
+    content:"+";
+    position:absolute;right:12px;top:50%;transform:translateY(-50%);
+    width:23px;height:23px;border-radius:50%;display:grid;place-items:center;
+    background:#F1EEE7;color:#191919;font-size:14px;font-weight:900;
+  }
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel).compact-open>.panel-heading-row::after{content:"−"}
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel):not(.compact-open)>:not(.panel-heading-row){
+    display:none!important;
+  }
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel).compact-open{
+    padding-bottom:10px!important;
+  }
+  [data-page="followups"] :is(.followup-rules-panel,.followup-sent-panel,.followup-queue-panel).compact-open>:not(.panel-heading-row){
+    margin-left:10px!important;margin-right:10px!important;
+  }
+  [data-page="followups"] .followup-rule{
+    padding:8px 0!important;
+    gap:7px!important;
+  }
+  [data-page="followups"] .followup-rule small{display:none!important}
+  [data-page="followups"] .followup-card{
+    padding:10px!important;
+    gap:7px!important;
+    border-radius:13px!important;
+  }
+  [data-page="followups"] .followup-card-actions button{
+    min-height:36px!important;
+    padding:7px 8px!important;
+    font-size:10px!important;
+  }
+
+  /* Calendar + route + team: cut explanatory height */
+  [data-page="calendar"] .calendar-layout,
+  [data-page="route"] .route-layout{gap:7px!important}
+  [data-page="calendar"] .calendar-panel,
+  [data-page="calendar"] .calendar-layout>.panel,
+  [data-page="route"] .route-layout>.panel{
+    padding:10px!important;
+    border-radius:15px!important;
+  }
+  [data-page="calendar"] .calendar-range-head{margin-bottom:6px!important}
+  [data-page="calendar"] .calendar-range-head .eyebrow{display:none!important}
+  [data-page="calendar"] .calendar-range-head h3{font-size:15px!important}
+  [data-page="team"] .share-access-card{
+    padding:10px!important;
+    margin-bottom:7px!important;
+    border-radius:14px!important;
+  }
+  [data-page="team"] .share-access-card p{display:none!important}
+  [data-page="team"] .share-access-card h3{margin:2px 0!important;font-size:14px!important}
+  [data-page="team"] .team-message-center{
+    padding:10px!important;
+    border-radius:15px!important;
+  }
+  [data-page="team"] .message-thread{max-height:230px!important}
+
+  /* Services, clients, supplies: denser cards */
+  [data-page="services"] .service-grid,
+  [data-page="clients"] .client-grid,
+  [data-page="supplies"] .supplies-grid,
+  [data-page="team"] .client-grid{
+    gap:6px!important;
+  }
+  [data-page="services"] .service-card,
+  [data-page="clients"] .client-card,
+  [data-page="supplies"] .supply-card,
+  [data-page="team"] .client-card{
+    padding:9px!important;
+    border-radius:14px!important;
+  }
+
+  /* Reports = one compact horizontal summary */
+  [data-page="reports"] .report-grid{
+    display:flex!important;
+    gap:6px!important;
+    overflow-x:auto!important;
+    scrollbar-width:none!important;
+    padding-bottom:2px!important;
+  }
+  [data-page="reports"] .report-grid::-webkit-scrollbar{display:none!important}
+  [data-page="reports"] .report-grid>.panel{
+    flex:0 0 150px!important;
+    min-width:150px!important;
+    min-height:82px!important;
+    padding:10px!important;
+    border-radius:14px!important;
+  }
+  [data-page="reports"] .report-grid>.panel strong{font-size:22px!important}
+  [data-page="reports"] .report-grid>.panel p{display:none!important}
+
+  /* Settings accordion: headers only until opened */
+  [data-page="settings"] .settings-simple-grid{gap:6px!important}
+  [data-page="settings"] .settings-simple-grid>.settings-section{
+    min-height:0!important;
+    padding:0!important;
+    border-radius:14px!important;
+  }
+  [data-page="settings"] .settings-simple-grid .panel-head{
+    min-height:48px!important;
+    padding:10px 12px!important;
+  }
+  [data-page="settings"] .settings-simple-grid .panel-head h3{font-size:15px!important}
+  [data-page="settings"] .settings-simple-grid .panel-note{display:none!important}
+  [data-page="settings"] .settings-simple-grid .setting-row{padding:8px 0!important}
+}
+
+@media(max-width:430px){
+  body.shell-app .section-intro h2{font-size:20px!important}
+  body.shell-app .section-intro button,
+  body.shell-app .section-actions button{padding:7px 8px!important;font-size:9px!important}
+  [data-page="booking"] .booking-step-panel>.panel-head,
+  [data-page="booking"] .booking-step-panel>.estimate-panel-head{min-height:48px!important}
+  [data-page="quotes"] #quotesBoard .quote-growth-col{
+    flex-basis:86vw!important;
+    width:86vw!important;
+    min-width:86vw!important;
+  }
+}
+
+/* Desktop/tablet also gets tighter vertical rhythm without hiding content. */
+@media(min-width:901px){
+  body.shell-app .section-intro{margin-bottom:14px!important}
+  body.shell-app .panel{padding:18px!important}
+  body.shell-app .metric-grid{gap:10px!important}
+  body.shell-app .metric-card{padding:14px!important}
+  [data-page="reports"] .report-grid{gap:10px!important}
+  [data-page="booking"] .progressive-booking{gap:11px!important}
+}
