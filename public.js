@@ -494,7 +494,13 @@
 
   async function bootRequest(){
     try{
-      const data=await rpc("get_public_booking_config",{p_slug:slug});
+      let data;
+      try{
+        data=await rpc("get_public_booking_config_v2",{p_slug:slug});
+      }catch(configErr){
+        console.warn("[TLE] estimate config fallback",configErr);
+        data=await rpc("get_public_booking_config",{p_slug:slug});
+      }
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
 
       const allServices=data?.services||[];
@@ -574,6 +580,112 @@
       if(propertySizeUnit){
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
       }
+
+      const estimateDefaults={
+        enabled:true,
+        show_breakdown:true,
+        included_bedrooms:2,
+        extra_bedroom_price:0,
+        included_bathrooms:1,
+        extra_bathroom_price:0,
+        included_sqft:0,
+        sqft_step:500,
+        sqft_step_price:0,
+        weekly_discount_percent:0,
+        biweekly_discount_percent:0,
+        monthly_discount_percent:0,
+        minimum_total:0
+      };
+      function estimateNumber(value,fallback=0,min=0,max=1000000){
+        const n=Number(value);
+        if(!Number.isFinite(n)) return fallback;
+        return Math.max(min,Math.min(max,n));
+      }
+      const rawEstimateSettings=data?.business?.estimate_settings;
+      const estimateSettings={
+        ...estimateDefaults,
+        ...(rawEstimateSettings&&typeof rawEstimateSettings==="object"&&!Array.isArray(rawEstimateSettings)?rawEstimateSettings:{}),
+      };
+      estimateSettings.enabled=estimateSettings.enabled!==false;
+      estimateSettings.show_breakdown=estimateSettings.show_breakdown!==false;
+      estimateSettings.included_bedrooms=estimateNumber(estimateSettings.included_bedrooms,2,0,30);
+      estimateSettings.extra_bedroom_price=estimateNumber(estimateSettings.extra_bedroom_price,0,0,10000);
+      estimateSettings.included_bathrooms=estimateNumber(estimateSettings.included_bathrooms,1,0,30);
+      estimateSettings.extra_bathroom_price=estimateNumber(estimateSettings.extra_bathroom_price,0,0,10000);
+      estimateSettings.included_sqft=estimateNumber(estimateSettings.included_sqft,0,0,1000000);
+      estimateSettings.sqft_step=estimateNumber(estimateSettings.sqft_step,500,1,1000000);
+      estimateSettings.sqft_step_price=estimateNumber(estimateSettings.sqft_step_price,0,0,100000);
+      estimateSettings.weekly_discount_percent=estimateNumber(estimateSettings.weekly_discount_percent,0,0,100);
+      estimateSettings.biweekly_discount_percent=estimateNumber(estimateSettings.biweekly_discount_percent,0,0,100);
+      estimateSettings.monthly_discount_percent=estimateNumber(estimateSettings.monthly_discount_percent,0,0,100);
+      estimateSettings.minimum_total=estimateNumber(estimateSettings.minimum_total,0,0,1000000);
+
+      function estimateFrequencyPercent(frequency){
+        return frequency==="weekly"?estimateSettings.weekly_discount_percent
+          :frequency==="biweekly"?estimateSettings.biweekly_discount_percent
+          :frequency==="monthly"?estimateSettings.monthly_discount_percent
+          :0;
+      }
+      function calculatePublicEstimate(selected,chosen){
+        const base=Math.max(0,Number(selected?.base_price)||0);
+        const addonsTotal=chosen.reduce((sum,a)=>sum+Math.max(0,Number(a.price)||0),0);
+        if(!selected) return {total:0,base:0,addonsTotal:0,propertyAdjustment:0,recurringDiscount:0,recurringPercent:0};
+
+        const residential=activePropertyType()==="residential";
+        const enabled=estimateSettings.enabled && residential && mode==="book";
+        const bedrooms=Math.max(0,Number(form?.querySelector('[name="bedrooms"]')?.value)||0);
+        const bathrooms=Math.max(0,Number(form?.querySelector('[name="bathrooms"]')?.value)||0);
+        const size=Math.max(0,Number(propertySizeInput?.value)||0);
+        const sqft=String(propertySizeUnit?.value||"sqft").toLowerCase()==="sqm"?size*10.7639:size;
+
+        const bedroomAdjustment=enabled
+          ? Math.max(0,bedrooms-estimateSettings.included_bedrooms)*estimateSettings.extra_bedroom_price
+          :0;
+        const bathroomAdjustment=enabled
+          ? Math.max(0,bathrooms-estimateSettings.included_bathrooms)*estimateSettings.extra_bathroom_price
+          :0;
+        const sqftAdjustment=enabled && sqft>0 && estimateSettings.sqft_step>0
+          ? Math.ceil(Math.max(0,sqft-estimateSettings.included_sqft)/estimateSettings.sqft_step)*estimateSettings.sqft_step_price
+          :0;
+        const propertyAdjustment=bedroomAdjustment+bathroomAdjustment+sqftAdjustment;
+        const serviceSubtotal=base+propertyAdjustment;
+        const recurringPercent=enabled?estimateFrequencyPercent(recurrenceSelect?.value||"one_time"):0;
+        const recurringDiscount=Math.round(serviceSubtotal*(recurringPercent/100)*100)/100;
+        let serviceFinal=Math.max(0,serviceSubtotal-recurringDiscount);
+        let total=Math.round((serviceFinal+addonsTotal)*100)/100;
+        let minimumAdjustment=0;
+        if(enabled && estimateSettings.minimum_total>0 && total<estimateSettings.minimum_total){
+          minimumAdjustment=estimateSettings.minimum_total-total;
+          serviceFinal+=minimumAdjustment;
+          total=estimateSettings.minimum_total;
+        }
+        return {
+          total,
+          base,
+          addonsTotal,
+          bedroomAdjustment,
+          bathroomAdjustment,
+          sqftAdjustment,
+          propertyAdjustment,
+          recurringDiscount,
+          recurringPercent,
+          minimumAdjustment
+        };
+      }
+      function renderFrequencyEstimateHints(){
+        if(!frequencyPills) return;
+        frequencyPills.querySelectorAll("[data-frequency]").forEach(btn=>{
+          btn.querySelector(".estimate-frequency-saving")?.remove();
+          const pct=estimateFrequencyPercent(btn.dataset.frequency);
+          if(pct>0 && estimateSettings.enabled){
+            const small=document.createElement("small");
+            small.className="estimate-frequency-saving";
+            small.textContent="−"+pct+"%";
+            btn.appendChild(small);
+          }
+        });
+      }
+      renderFrequencyEstimateHints();
 
       const demoPhotos={
         "book-residential":{
@@ -791,7 +903,130 @@
       petsSelect?.addEventListener("change",syncPetDetails);
 
       function chosenAddonIds(){
-        return addonBox ? $$('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
+        return addonBox ? $('input[name="addon"]:checked',addonBox).map(x=>x.value) : [];
+      }
+
+      let publicWizardStep=0;
+      let publicWizardSteps=[];
+      let publicWizardInitialized=false;
+      let publicWizardNav=null;
+
+      function topGridChild(node,grid){
+        let current=node;
+        while(current && current.parentElement!==grid) current=current.parentElement;
+        return current&&current.parentElement===grid?current:null;
+      }
+      function publicWizardStepValid(){
+        if(publicWizardStep===0 && !String(select?.value||"").trim()){
+          alert(tt("Choose a service."));
+          return false;
+        }
+        const nodes=publicWizardSteps[publicWizardStep]||[];
+        for(const node of nodes){
+          for(const control of $("input,select,textarea",node)){
+            if(control.disabled || !control.required) continue;
+            if(!control.checkValidity()){
+              control.reportValidity?.();
+              return false;
+            }
+          }
+        }
+        if(publicWizardStep===3 && !String(slotInput?.value||"").trim()){
+          alert(tt("Choose an available time."));
+          return false;
+        }
+        return true;
+      }
+      function setPublicWizardStep(next,{scroll=true}={}){
+        if(!publicWizardInitialized) return;
+        publicWizardStep=Math.max(0,Math.min(publicWizardSteps.length-1,next));
+        const activeNodes=new Set(publicWizardSteps[publicWizardStep]||[]);
+        publicWizardSteps.flat().forEach(node=>node?.classList.toggle("public-wizard-hidden",!activeNodes.has(node)));
+
+        const stepper=form?.querySelector(".public-demo-stepper");
+        stepper?.querySelectorAll("span").forEach((bar,index)=>{
+          bar.classList.toggle("active",index<=publicWizardStep);
+          bar.classList.toggle("current",index===publicWizardStep);
+        });
+        const labelEl=$("#publicWizardStepLabel");
+        const stepNames=[tt("Service"),tt("Property"),tt("Extras"),tt("Schedule"),tt("Review")];
+        if(labelEl) labelEl.textContent=tt("Step")+" "+(publicWizardStep+1)+" / "+publicWizardSteps.length+" · "+stepNames[publicWizardStep];
+        const back=$("#publicWizardBack");
+        const nextBtn=$("#publicWizardNext");
+        if(back) back.hidden=publicWizardStep===0;
+        if(nextBtn){
+          nextBtn.hidden=publicWizardStep===publicWizardSteps.length-1;
+          nextBtn.textContent=publicWizardStep===publicWizardSteps.length-2?tt("Continue to review")+" →":tt("Continue")+" →";
+        }
+        if(submit) submit.hidden=publicWizardStep!==publicWizardSteps.length-1;
+        if(summaryMicro) summaryMicro.hidden=publicWizardStep!==publicWizardSteps.length-1;
+        if(scroll) form?.scrollIntoView({behavior:"smooth",block:"start"});
+      }
+      function initPublicWizard(){
+        if(publicWizardInitialized || !form) return;
+        const grid=form.querySelector(".form-grid");
+        if(!grid) return;
+        const children=[...grid.children];
+        const heads=[...grid.querySelectorAll(":scope > .public-form-section-head")];
+        const nodeForName=name=>topGridChild(form.querySelector('[name="'+name+'"]'),grid);
+        const step0=[
+          topGridChild(cleaningTypeSwitch,grid),
+          topGridChild($("#publicDemoServiceHeading"),grid)
+        ];
+        const step1=[
+          heads[0],
+          topGridChild(propertySizeInput,grid),
+          topGridChild(residentialDetails,grid),
+          topGridChild(commercialDetails,grid),
+          nodeForName("cleaning_condition"),
+          nodeForName("last_professional_clean")
+        ];
+        const step2=[
+          topGridChild(addWrap,grid),
+          topGridChild(discountWrap,grid),
+          topGridChild(recurrenceWrap,grid)
+        ];
+        const step3=[
+          topGridChild(dateInput,grid),
+          topGridChild(quoteTimeWrap,grid),
+          topGridChild(timeZoneNotice,grid),
+          topGridChild(slotsWrap,grid)
+        ];
+        const step4=[
+          nodeForName("address"),
+          nodeForName("access_notes"),
+          heads[1],
+          nodeForName("name"),
+          nodeForName("email"),
+          nodeForName("phone"),
+          nodeForName("preferred_contact"),
+          nodeForName("preferred_language"),
+          nodeForName("notes")
+        ];
+        publicWizardSteps=[step0,step1,step2,step3,step4].map(group=>group.filter(Boolean));
+        const assigned=new Set(publicWizardSteps.flat());
+        children.filter(node=>!assigned.has(node)).forEach(node=>publicWizardSteps[4].push(node));
+
+        const stepper=form.querySelector(".public-demo-stepper");
+        if(stepper){
+          stepper.removeAttribute("aria-hidden");
+          stepper.innerHTML=publicWizardSteps.map(()=>"<span></span>").join("");
+        }
+
+        publicWizardNav=document.createElement("div");
+        publicWizardNav.className="full public-wizard-nav";
+        publicWizardNav.innerHTML='<span id="publicWizardStepLabel" class="public-wizard-step-label"></span><div><button type="button" class="public-wizard-back" id="publicWizardBack">← '+esc(tt("Back"))+'</button><button type="button" class="public-wizard-next" id="publicWizardNext">'+esc(tt("Continue"))+' →</button></div>';
+        grid.appendChild(publicWizardNav);
+        $("#publicWizardBack")?.addEventListener("click",()=>setPublicWizardStep(publicWizardStep-1));
+        $("#publicWizardNext")?.addEventListener("click",()=>{
+          if(!publicWizardStepValid()) return;
+          setPublicWizardStep(publicWizardStep+1);
+        });
+        publicWizardInitialized=true;
+        setPublicWizardStep(0,{scroll:false});
+      }
+      function resetPublicWizard(){
+        if(publicWizardInitialized) setPublicWizardStep(0,{scroll:false});
       }
 
       function updateSummary(){
@@ -801,7 +1036,8 @@
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=addons.filter(a=>chosenIds.includes(a.id));
-        const baseTotal=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        const estimate=calculatePublicEstimate(selected,chosen);
+        const baseTotal=estimate.total;
         const discountPrice=discountUi?.price(baseTotal)||{discount:0,final:baseTotal,discountRecord:null};
         const total=discountPrice.final;
         const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
@@ -825,8 +1061,10 @@
           '<div class="public-demo-summary-row"><span>'+esc(tt("Date"))+'</span><strong>'+esc(dateLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
+          (mode==="book"&&estimateSettings.show_breakdown&&estimate.propertyAdjustment>0?'<div class="public-demo-summary-row estimate-detail-row"><span>'+esc(tt("Property adjustment"))+'</span><strong>+'+esc(money(estimate.propertyAdjustment))+'</strong></div>':"")+
+          (mode==="book"&&estimateSettings.show_breakdown&&estimate.recurringDiscount>0?'<div class="public-demo-summary-row estimate-detail-row saving"><span>'+esc(tt("Recurring savings"))+' · '+esc(String(estimate.recurringPercent))+'%</span><strong>−'+esc(money(estimate.recurringDiscount))+'</strong></div>':"")+
           (discountPrice.discountRecord?'<div class="public-demo-summary-row discount-row"><span>'+esc(discountUi?.label("discount")||"Discount")+'</span><strong>−'+esc(money(discountPrice.discount))+' · '+esc(discountPrice.discountRecord.name)+'</strong></div>':"")+
-          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
+          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Instant estimate"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
           :"No payment is collected here. The business will review and confirm your request.");
@@ -914,6 +1152,7 @@
         if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
+        if(publicWizardInitialized) resetPublicWizard();
 
         if(bookTab){
           bookTab.classList.toggle("active",mode==="book");
@@ -1064,6 +1303,7 @@
       });
 
       renderMode(mode,{updateUrl:false});
+      initPublicWizard();
 
       if(form){
         form.addEventListener("submit",async e=>{
@@ -1202,7 +1442,7 @@
                 p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
-              await rpc("submit_public_booking_request_v4",{
+              await rpc("submit_public_booking_request_v5",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),
