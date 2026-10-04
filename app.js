@@ -6473,6 +6473,40 @@ function dashboardWeeklyCapacity(weekJobs){
   return {available,scheduled,percent,open:Math.max(0,available-scheduled)};
 }
 
+function businessWeekdayInZone(date=new Date()){
+  const zone=activeBusinessTimeZone();
+  const short=new Intl.DateTimeFormat("en-US",{weekday:"short",timeZone:zone}).format(date);
+  return {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[short];
+}
+function isMarkedBusinessDayOff(date=new Date()){
+  if(!Array.isArray(state.availabilityRules)||!state.availabilityRules.length) return false;
+  const weekday=businessWeekdayInZone(date);
+  return !state.availabilityRules.some(r=>Number(r.weekday)===weekday&&r.active!==false);
+}
+function dayOffGreeting(daypart){
+  const period=["early","morning"].includes(daypart)?"morning":["midday","afternoon","wrap"].includes(daypart)?"afternoon":"night";
+  return {
+    morning:langPick("Good morning · today is your day off","Buenos días · hoy es tu día libre","Bonjour · aujourd’hui est votre jour de repos"),
+    afternoon:langPick("Good afternoon · take it easy today","Buenas tardes · tómalo con calma hoy","Bon après-midi · profitez d’une journée plus calme"),
+    night:langPick("Good evening · your day off is almost done","Buenas noches · tu día libre ya casi termina","Bonsoir · votre jour de repos touche à sa fin")
+  }[period];
+}
+function dayOffMessage(daypart){
+  const messages=[
+    langPick("Rest today. Your business can wait until your next working day.","Descansa hoy. Tu negocio puede esperar hasta tu próximo día de trabajo.","Reposez-vous aujourd’hui. Votre activité peut attendre votre prochain jour de travail."),
+    langPick("You marked today as a day off. Enjoy it — we’ll keep the workspace ready for you.","Marcaste hoy como día libre. Disfrútalo — tu espacio estará listo cuando vuelvas.","Vous avez marqué aujourd’hui comme jour de repos. Profitez-en — votre espace sera prêt à votre retour."),
+    langPick("No work-day pressure today. Recharge and come back when you’re ready.","Hoy no hay presión de trabajo. Recarga energías y vuelve cuando estés lista.","Pas de pression aujourd’hui. Rechargez vos batteries et revenez quand vous serez prêt.")
+  ];
+  const key="tle_day_off_message_"+dateKeyInZone(new Date(),activeBusinessTimeZone());
+  let index=0;
+  try{
+    const saved=localStorage.getItem(key);
+    if(saved!==null) index=Math.max(0,Math.min(messages.length-1,Number(saved)||0));
+    else{index=Math.floor(Math.random()*messages.length);localStorage.setItem(key,String(index));}
+  }catch{}
+  return messages[index];
+}
+
 function renderTodaySummary(wakeAssistant=false){
   renderFirstWin();
   const now=new Date();
@@ -6618,7 +6652,7 @@ function renderTodaySummary(wakeAssistant=false){
       updateHeroMoonPhase(now);
     }
 
-    greet.textContent=dashboardGreeting(daypart,{activeJob,remainingJobs,nextJob});
+    const markedDayOff=isMarkedBusinessDayOff(now);\n    greet.textContent=markedDayOff?dayOffGreeting(daypart):dashboardGreeting(daypart,{activeJob,remainingJobs,nextJob});
 
     let copy="";
     let actionView="calendar";
@@ -6632,7 +6666,13 @@ function renderTodaySummary(wakeAssistant=false){
       ? langPick("Next stop at "+nextJobTime+(nextJobArea?" in "+nextJobArea:"")+".","Próxima parada a las "+nextJobTime+(nextJobArea?" en "+nextJobArea:"")+".","Prochain arrêt à "+nextJobTime+(nextJobArea?" à "+nextJobArea:"")+".")
       : "";
 
-    if(activeJob){
+    if(markedDayOff && !activeJob && !nextJob){
+      messageState="calm";
+      icon="☕";
+      copy=dayOffMessage(daypart);
+      actionView="calendar";
+      actionTextOverride=langPick("Enjoy your day off","Disfruta tu día libre","Profitez de votre jour de repos");
+    }else if(activeJob){
       messageState="jobs";
       const activeStatus=String(activeJob.status||"").toLowerCase();
       const activeClient=activeJob.clients?.name||langPick("current client","cliente actual","client actuel");

@@ -1908,3 +1908,20 @@ body.platform-owner-no-billing .trial-card{
   #todayHeroCard[data-celestial="night"] .hero-shooting-star{animation:none!important}
 }
 
+
+
+/* 2026-10-04: clearer everyday workspace */
+.nav-list.flat-navigation{gap:4px}
+.nav-section-label{margin:18px 10px 6px;font-size:11px;letter-spacing:.12em;opacity:.58}
+.nav-item{min-height:44px;border-radius:12px;padding:10px 12px}
+.nav-item.nav-primary{font-weight:700}
+.nav-item.active{font-weight:800}
+.entity-form input,.entity-form select,.entity-form textarea{font-size:16px;min-height:46px}
+.primary-btn,.ghost-btn{min-height:44px}
+@media(max-width:760px){
+ .nav-item{min-height:48px}
+ .panel{border-radius:18px}
+ .panel-head{gap:10px}
+ .panel-head h2,.panel-head h3{line-height:1.15}
+ .entity-form{gap:14px}
+}
