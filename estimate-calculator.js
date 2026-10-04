@@ -143,8 +143,8 @@
         '</section>'+
         '<aside class="estimate-result" id="estimateSummary" aria-live="polite"></aside>'+
       '</div>'+
-      '<details class="estimate-rules" '+(rules.enabled?"":"open")+'>'+
-        '<summary><span><strong>'+escapeHtml(t("Pricing rules","Reglas de precio","Règles de tarification","Règ pri"))+'</strong><small>'+escapeHtml(t("Your formula — not a fixed TLE formula.","Tu fórmula — no una fórmula fija de TLE.","Votre formule — pas une formule TLE fixe.","Fòmil pa w — se pa yon fòmil TLE fiks."))+'</small></span><span>⌄</span></summary>'+
+      '<details class="estimate-rules estimate-pricing-section" '+(rules.enabled?"":"open")+'>'+
+        '<summary><span><strong>'+escapeHtml(t("Pricing rules","Reglas de precio","Règles de tarification","Règ pri"))+'</strong><small>'+escapeHtml(t("Set how bedrooms, bathrooms, square footage and frequency change the price.","Define cómo habitaciones, baños, pies cuadrados y frecuencia cambian el precio.","Définissez comment chambres, salles de bain, superficie et fréquence modifient le prix.","Defini kijan chanm, twalèt, sifas ak frekans chanje pri a."))+'</small></span><span>⌄</span></summary>'+
         '<div class="estimate-rules-body">'+
           (canEditRules?'<div class="estimate-save-bar"><span class="estimate-save-status" role="status" aria-live="polite"></span><button class="primary-btn" type="button" data-save-estimate>'+escapeHtml(t("Save changes","Guardar cambios","Enregistrer","Sove chanjman"))+'</button></div>':'')+
           '<label class="estimate-toggle full"><span><strong>'+escapeHtml(t("Use live estimates","Usar estimados en vivo","Utiliser les estimations en direct","Sèvi ak estimasyon an dirèk"))+'</strong><small>'+escapeHtml(t("Keep this on when you want the calculator rules active.","Déjalo activo cuando quieras usar estas reglas.","Activez lorsque vous souhaitez utiliser ces règles.","Kite sa limen lè w vle règ sa yo aktif."))+'</small></span><input id="estimateEnabled" type="checkbox" '+(rules.enabled?"checked":"")+'></label>'+
