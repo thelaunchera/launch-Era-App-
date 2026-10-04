@@ -581,27 +581,15 @@
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
       }
 
-      const publicEstimator=window.TLE_PUBLIC_ESTIMATOR||null;
-      const estimateSettings=publicEstimator?.normalizeSettings(data?.business?.estimate_settings)||{
-        enabled:false,show_breakdown:false,
-        included_bedrooms:2,extra_bedroom_price:0,
-        included_bathrooms:1,extra_bathroom_price:0,
-        included_sqft:0,sqft_step:500,sqft_step_price:0,
-        weekly_discount_percent:0,biweekly_discount_percent:0,monthly_discount_percent:0,minimum_total:0
-      };
-      publicEstimator?.renderFrequencyHints(frequencyPills,estimateSettings);
-
+      const publicEstimator=window.TLE_PUBLIC_ESTIMATOR;
+      if(!publicEstimator) throw new Error("Booking estimator module unavailable");
+      const estimateSettings=publicEstimator.normalizeSettings(data?.business?.estimate_settings);
+      publicEstimator.renderFrequencyHints(frequencyPills,estimateSettings);
       function calculatePublicEstimate(selected,chosen){
-        if(!publicEstimator){
-          const addonsTotal=chosen.reduce((sum,a)=>sum+Math.max(0,Number(a.price)||0),0);
-          return {total:(Number(selected?.base_price)||0)+addonsTotal,propertyAdjustment:0,recurringDiscount:0,recurringPercent:0};
-        }
         return publicEstimator.calculate({
-          settings:estimateSettings,
-          serviceBase:Number(selected?.base_price)||0,
+          settings:estimateSettings,serviceBase:Number(selected?.base_price)||0,
           addonsTotal:chosen.reduce((sum,a)=>sum+Math.max(0,Number(a.price)||0),0),
-          propertyType:activePropertyType(),
-          mode,
+          propertyType:activePropertyType(),mode,
           bedrooms:Number(form?.querySelector('[name="bedrooms"]')?.value)||0,
           bathrooms:Number(form?.querySelector('[name="bathrooms"]')?.value)||0,
           propertySize:Number(propertySizeInput?.value)||0,
