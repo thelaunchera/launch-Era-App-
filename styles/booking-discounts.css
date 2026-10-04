@@ -163,3 +163,36 @@
 .entity-form .client-change-toggle>span{display:grid;gap:2px}
 .entity-form .client-change-toggle small{font-size:9px;color:#77736c;font-weight:600}
 .entity-form .client-change-toggle input{width:18px;height:18px;margin:0}
+
+
+/* Estimate calculator */
+.booking-estimator-panel .panel-head{align-items:flex-start}
+.booking-estimator-summary{margin:4px 0 16px}
+.booking-estimator-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.booking-estimator-chips span{display:inline-flex;align-items:center;min-height:34px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface-soft,#faf8f3);font-size:12px;font-weight:800}
+.booking-estimator-summary>small{color:var(--muted);line-height:1.5}
+.booking-estimator-empty{display:grid;gap:4px;padding:14px;border:1px dashed var(--line);border-radius:14px}
+.booking-estimator-empty span{color:var(--muted);font-size:12px}
+.booking-estimator-actions{display:flex;flex-wrap:wrap;gap:10px}
+.estimate-rules-form .estimate-rule-group{display:grid;gap:3px;padding:12px 0 2px;border-top:1px solid var(--line)}
+.estimate-rules-form .estimate-rule-group:first-of-type{border-top:0}
+.estimate-rules-form .estimate-rule-group small{color:var(--muted)}
+.estimate-calculator{display:grid;gap:18px}
+.estimate-calculator-addons{display:grid;gap:8px}
+.estimate-calculator-addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.estimate-calculator-addon-grid label{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel,#fff)}
+.estimate-calculator-addon-grid input{width:18px;height:18px;margin-top:2px}
+.estimate-calculator-addon-grid span{display:grid;gap:2px}
+.estimate-calculator-addon-grid small{color:var(--muted)}
+.estimate-calculator-result{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--surface-soft,#faf8f3)}
+.estimate-result-head{display:flex;justify-content:space-between;gap:16px;align-items:end;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.estimate-result-head span{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.estimate-result-head strong{font-size:28px;line-height:1}
+.estimate-result-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid rgba(25,25,25,.06);font-size:13px}
+.estimate-result-row.saving b{color:#27634d}
+.estimate-calculator-result p{margin:10px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+@media(max-width:620px){
+  .booking-estimator-actions{display:grid;grid-template-columns:1fr}
+  .booking-estimator-actions button{width:100%}
+  .estimate-calculator-addon-grid{grid-template-columns:1fr}
+}
