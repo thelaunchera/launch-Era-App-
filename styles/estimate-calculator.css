@@ -49,6 +49,7 @@
 .estimate-toggle small{color:var(--muted);font-size:10px;font-weight:500}
 .estimate-toggle input{width:20px;height:20px}
 .estimate-rules-actions{display:flex;justify-content:flex-end}
+.estimate-owner-note{font-size:10px;color:var(--muted);padding:8px 0;text-align:right}
 @media(max-width:900px){
   .estimate-layout{grid-template-columns:1fr}
   .estimate-result{position:static;min-height:0}
