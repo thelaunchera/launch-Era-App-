@@ -65,3 +65,14 @@
   .estimate-result{padding:18px;border-radius:18px}
   .estimate-total{font-size:42px}
 }
+
+/* Keep persistence feedback next to an accessible save action. */
+html body.shell-app #appShell .estimate-save-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  position:sticky;top:0;z-index:3;padding:12px;
+  border:1px solid var(--line);border-radius:14px;background:var(--paper,#FAF8F3);
+}
+html body.shell-app #appShell .estimate-save-status{font-size:12px;font-weight:700;line-height:1.35}
+html body.shell-app #appShell .estimate-save-status[data-state="dirty"],
+html body.shell-app #appShell .estimate-save-status[data-state="error"]{color:#9b3f17}
+html body.shell-app #appShell .estimate-save-bar button{min-height:44px;flex-shrink:0;font-size:12px}

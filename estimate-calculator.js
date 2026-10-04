@@ -1,6 +1,7 @@
 (function(){
   let bridge=null;
   let bound=false;
+  let saving=false;
 
   const DEFAULTS={
     enabled:true,
@@ -101,6 +102,10 @@
     const mount=document.getElementById("estimateCalculatorMount");
     if(!mount) return;
 
+    if(mount.dataset.businessId===String(appState().business?.id||"")){
+      if(saving || mount.dataset.saveState==="dirty" || mount.dataset.saveState==="error") return;
+    }
+    mount.dataset.businessId=String(appState().business?.id||"");
     const rules=settingsFromState();
     const services=activeServices();
     const firstPriced=services.find(serviceIsPriced)||services[0]||null;
@@ -141,14 +146,15 @@
       '<details class="estimate-rules" '+(rules.enabled?"":"open")+'>'+
         '<summary><span><strong>'+escapeHtml(t("Pricing rules","Reglas de precio","Règles de tarification","Règ pri"))+'</strong><small>'+escapeHtml(t("Your formula — not a fixed TLE formula.","Tu fórmula — no una fórmula fija de TLE.","Votre formule — pas une formule TLE fixe.","Fòmil pa w — se pa yon fòmil TLE fiks."))+'</small></span><span>⌄</span></summary>'+
         '<div class="estimate-rules-body">'+
+          (canEditRules?'<div class="estimate-save-bar"><span class="estimate-save-status" role="status" aria-live="polite"></span><button class="primary-btn" type="button" data-save-estimate>'+escapeHtml(t("Save changes","Guardar cambios","Enregistrer","Sove chanjman"))+'</button></div>':'')+
           '<label class="estimate-toggle full"><span><strong>'+escapeHtml(t("Use live estimates","Usar estimados en vivo","Utiliser les estimations en direct","Sèvi ak estimasyon an dirèk"))+'</strong><small>'+escapeHtml(t("Keep this on when you want the calculator rules active.","Déjalo activo cuando quieras usar estas reglas.","Activez lorsque vous souhaitez utiliser ces règles.","Kite sa limen lè w vle règ sa yo aktif."))+'</small></span><input id="estimateEnabled" type="checkbox" '+(rules.enabled?"checked":"")+'></label>'+
           '<div class="estimate-rule-grid">'+
             '<label>'+escapeHtml(t("Bedrooms included","Habitaciones incluidas","Chambres incluses","Chanm enkli"))+'<input id="estimateIncludedBedrooms" type="number" min="0" max="30" step="1" value="'+escapeHtml(rules.included_bedrooms)+'"></label>'+
             '<label>'+escapeHtml(t("Each extra bedroom","Cada habitación extra","Chaque chambre en plus","Chak chanm anplis"))+'<input id="estimateExtraBedroomPrice" type="number" min="0" step="0.01" value="'+escapeHtml(rules.extra_bedroom_price)+'"></label>'+
             '<label>'+escapeHtml(t("Bathrooms included","Baños incluidos","Salles de bain incluses","Twalèt enkli"))+'<input id="estimateIncludedBathrooms" type="number" min="0" max="30" step="0.5" value="'+escapeHtml(rules.included_bathrooms)+'"></label>'+
             '<label>'+escapeHtml(t("Each extra bathroom","Cada baño extra","Chaque salle de bain en plus","Chak twalèt anplis"))+'<input id="estimateExtraBathroomPrice" type="number" min="0" step="0.01" value="'+escapeHtml(rules.extra_bathroom_price)+'"></label>'+
-            '<label>'+escapeHtml(t("Square feet included","Pies² incluidos","Pieds² inclus","Pye kare enkli"))+'<input id="estimateIncludedSqft" type="number" min="0" step="50" value="'+escapeHtml(rules.included_sqft)+'"></label>'+
-            '<label>'+escapeHtml(t("Sq ft step","Bloque de pies²","Palier de pieds²","Etap pye kare"))+'<input id="estimateSqftStep" type="number" min="1" step="50" value="'+escapeHtml(rules.sqft_step)+'"></label>'+
+            '<label>'+escapeHtml(t("Square feet included","Pies² incluidos","Pieds² inclus","Pye kare enkli"))+'<input id="estimateIncludedSqft" type="number" min="0" step="1" value="'+escapeHtml(rules.included_sqft)+'"></label>'+
+            '<label>'+escapeHtml(t("Sq ft step","Bloque de pies²","Palier de pieds²","Etap pye kare"))+'<input id="estimateSqftStep" type="number" min="1" step="1" value="'+escapeHtml(rules.sqft_step)+'"></label>'+
             '<label>'+escapeHtml(t("Price per sq ft step","Precio por bloque","Prix par palier","Pri pa etap"))+'<input id="estimateSqftStepPrice" type="number" min="0" step="0.01" value="'+escapeHtml(rules.sqft_step_price)+'"></label>'+
             '<label>'+escapeHtml(t("Minimum estimate","Estimado mínimo","Estimation minimale","Estimasyon minimòm"))+'<input id="estimateMinimumTotal" type="number" min="0" step="0.01" value="'+escapeHtml(rules.minimum_total)+'"></label>'+
             '<label>'+escapeHtml(t("Weekly discount %","Descuento semanal %","Remise hebdo %","Rabè chak semèn %"))+'<input id="estimateWeeklyDiscount" type="number" min="0" max="100" step="0.5" value="'+escapeHtml(rules.weekly_discount_percent)+'"></label>'+
@@ -157,7 +163,7 @@
           '</div>'+
           '<label class="estimate-toggle"><span><strong>'+escapeHtml(t("Show price breakdown","Mostrar desglose","Afficher le détail","Montre detay pri"))+'</strong><small>'+escapeHtml(t("Helpful when reviewing how the estimate was built.","Útil para revisar cómo se calculó el estimado.","Utile pour vérifier le calcul.","Sa ede w wè kijan estimasyon an fèt."))+'</small></span><input id="estimateShowBreakdown" type="checkbox" '+(rules.show_breakdown!==false?"checked":"")+'></label>'+
           '<div class="estimate-rules-actions">'+
-            (canEditRules?'<button class="primary-btn" type="button" id="saveEstimateRules">'+escapeHtml(t("Save pricing rules","Guardar reglas de precio","Enregistrer les règles","Sove règ pri yo"))+'</button>':'<span class="estimate-owner-note">'+escapeHtml(t("Owner only: pricing rules are read-only for Admins.","Solo Owner: las reglas de precio son de solo lectura para Admins.","Owner uniquement : les règles sont en lecture seule pour les Admins.","Owner sèlman: Admin ka li règ pri yo sèlman."))+'</span>')+
+            (canEditRules?'<button class="primary-btn" type="button" id="saveEstimateRules" data-save-estimate>'+escapeHtml(t("Save pricing rules","Guardar reglas de precio","Enregistrer les règles","Sove règ pri yo"))+'</button>':'<span class="estimate-owner-note">'+escapeHtml(t("Owner only: pricing rules are read-only for Admins.","Solo Owner: las reglas de precio son de solo lectura para Admins.","Owner uniquement : les règles sont en lecture seule pour les Admins.","Owner sèlman: Admin ka li règ pri yo sèlman."))+'</span>')+
           '</div>'+
         '</div>'+
       '</details>';
@@ -170,6 +176,10 @@
       const serviceSelect=mount.querySelector("#estimateService");
       if(serviceSelect) serviceSelect.value=firstPriced.id;
     }
+    mount.querySelectorAll('.estimate-rule-grid input[type="number"]').forEach(input=>{
+      input.inputMode=input.step==="1" || input.step==="50" ? "numeric" : "decimal";
+    });
+    setSaveState("saved");
     renderAddonChoices();
     syncPropertyMode();
     updateEstimate();
@@ -347,42 +357,80 @@
       :t("Live estimates OFF","Estimados pausados","Estimations désactivées","Estimasyon kanpe");
   }
 
-  async function saveRules(button){
+  function setSaveState(status){
+    const mount=document.getElementById("estimateCalculatorMount");
+    if(!mount) return;
+    mount.dataset.saveState=status;
+    const labels={
+      saved:t("Saved", "Guardado", "Enregistré", "Sove"),
+      dirty:t("Unsaved changes", "Cambios sin guardar", "Modifications non enregistrées", "Chanjman poko sove"),
+      saving:t("Saving…", "Guardando…", "Enregistrement…", "Ap sove…"),
+      error:t("Not saved. Try again.", "No se guardó. Intenta otra vez.", "Non enregistré. Réessayez.", "Pa sove. Eseye ankò.")
+    };
+    mount.querySelectorAll(".estimate-save-status").forEach(node=>{
+      node.textContent=labels[status];
+      node.dataset.state=status;
+    });
+    mount.querySelectorAll("[data-save-estimate]").forEach(button=>{
+      button.disabled=status==="saving";
+    });
+  }
+
+  async function saveRules(){
+    if(saving) return;
     const state=appState();
-    if(!state.business?.id || String(state.business?.role||"")!=="owner"){
+    const business=state.business;
+    if(!business?.id || String(business.role||"")!=="owner"){
       bridge?.showToast?.(t("Owner access required to change pricing rules.","Se requiere acceso de Owner para cambiar las reglas de precio.","Accès Owner requis pour modifier les règles de tarification.","Fòk ou Owner pou chanje règ pri yo."));
       return;
     }
+    const mount=document.getElementById("estimateCalculatorMount");
+    const inputs=Array.from(mount.querySelectorAll('.estimate-rules input'));
+    const invalid=inputs.find(input=>input.type==="number" && (input.value.trim()==="" || !input.checkValidity()));
+    if(invalid){
+      setSaveState("dirty");
+      invalid.focus();
+      invalid.reportValidity();
+      bridge?.showToast?.(t("Check the highlighted number before saving.","Revisa el número marcado antes de guardar.","Vérifiez le nombre indiqué avant d’enregistrer.","Verifye nimewo ki make a anvan ou sove."));
+      return;
+    }
     const payload=readRules();
-    const original=button?.textContent||"";
+    saving=true;
+    setSaveState("saving");
+    inputs.forEach(input=>input.disabled=true);
     try{
-      if(button){
-        button.disabled=true;
-        button.textContent=t("Saving…","Guardando…","Enregistrement…","Ap sove…");
-      }
-      const {error}=await bridge.supabase
+      const {data,error}=await bridge.supabase
         .from("businesses")
         .update({estimate_settings:payload,updated_at:new Date().toISOString()})
-        .eq("id",state.business.id);
+        .eq("id",business.id)
+        .select("id,estimate_settings")
+        .single();
       if(error) throw error;
-      state.business.estimate_settings=payload;
+      if(!data || data.id!==business.id || !data.estimate_settings ||
+        Object.keys(payload).some(key=>data.estimate_settings[key]!==payload[key])){
+        throw new Error(t("Could not confirm saved rules. Please try again.","No se pudo confirmar el guardado. Intenta otra vez.","Enregistrement non confirmé. Réessayez.","Nou pa ka konfime règ yo sove. Eseye ankò."));
+      }
+      business.estimate_settings=data.estimate_settings;
+      if(appState().business?.id===business.id) appState().business.estimate_settings=data.estimate_settings;
+      inputs.filter(input=>input.type==="number").forEach(input=>input.value=String(Number(input.value)));
+      setSaveState("saved");
       syncStatus();
       updateEstimate();
       bridge?.showToast?.(t("Estimate rules saved","Reglas de estimado guardadas","Règles enregistrées","Règ estimasyon yo sove"));
     }catch(error){
       console.warn("[TLE] estimate rules",error);
+      setSaveState("error");
       bridge?.showToast?.(error?.message||t("Could not save estimate rules","No se pudieron guardar las reglas","Impossible d’enregistrer les règles","Pa t ka sove règ yo"));
     }finally{
-      if(button){
-        button.disabled=false;
-        button.textContent=original;
-      }
+      saving=false;
+      inputs.forEach(input=>input.disabled=false);
     }
   }
 
   function handleInput(event){
     const mount=document.getElementById("estimateCalculatorMount");
     if(!mount || !event.target || !mount.contains(event.target)) return;
+    if(event.target.closest(".estimate-rules") && !saving) setSaveState("dirty");
     if(event.target.id==="estimateService") renderAddonChoices();
     if(event.target.name==="estimate_property_type") syncPropertyMode();
     if(event.target.id==="estimateEnabled") syncStatus();
@@ -395,7 +443,7 @@
     document.addEventListener("input",handleInput);
     document.addEventListener("change",handleInput);
     document.addEventListener("click",event=>{
-      const save=event.target.closest?.("#saveEstimateRules");
+      const save=event.target.closest?.("[data-save-estimate]");
       if(save){
         event.preventDefault();
         saveRules(save);
