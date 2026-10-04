@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261002-ios-root-cause-r26";
+const APP_VERSION = "20261003-estimate-calculator-r28";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2452,7 +2452,7 @@ function openView(id,options={}){
     requestAnimationFrame(()=>renderJobs());
   }
   if(id==="services") renderServices();
-  if(id==="booking") renderPublicLinks();
+  if(id==="booking"){ renderPublicLinks(); renderBookingEstimator(); }
   if(id==="settings") renderSettings();
 
   refreshViewData(id).catch(()=>{});
@@ -3377,7 +3377,8 @@ businessForm.addEventListener("submit", async (e)=>{
       distance_unit:data.distance_unit,temperature_unit:data.temperature_unit,payment_methods:data.payment_methods,
       service_area:data.service_area,default_travel_buffer_minutes:data.default_travel_buffer_minutes,
       trial_ends_at:data.trial_ends_at,trial_days:data.trial_days,trial_promotion:data.trial_promotion,
-      subscription_status:data.subscription_status
+      subscription_status:data.subscription_status,
+      estimate_settings:data.estimate_settings||null
     };
     try{
       const {error:seedError}=await supabase.rpc("seed_default_services",{p_business_id:data.id});
@@ -3871,7 +3872,7 @@ async function initialize(){
   try{
     const {data:companyProfile,error:companyProfileError}=await supabase
       .from("businesses")
-      .select("email,phone,timezone,default_language,customer_email_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,owner_notify_email,owner_notify_push,owner_notify_sms,owner_notification_email,owner_notification_phone")
+      .select("email,phone,timezone,default_language,customer_email_language,service_area,default_travel_buffer_minutes,instagram_url,facebook_url,trial_started_at,trial_ends_at,trial_days,trial_promotion,subscription_status,trial_welcome_sent_at,country_code,locale_code,currency_code,distance_unit,temperature_unit,payment_methods,owner_notify_email,owner_notify_push,owner_notify_sms,owner_notification_email,owner_notification_phone,estimate_settings")
       .eq("id",state.business.id)
       .single();
     if(companyProfileError) throw companyProfileError;
@@ -4762,14 +4763,15 @@ async function loadCoreData(){
   };
 
   // Load in small batches so mobile/PWA does not overwhelm the API connection pool.
-  let [clients,leads,services,addons,discounts,discountRedemptions,availability]=await Promise.all([
+  let [clients,leads,services,addons,discounts,discountRedemptions,availability,estimateProfile]=await Promise.all([
     safe("clients",supabase.from("clients").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.clients),
     safe("leads",supabase.from("leads").select("*").eq("business_id",businessId).is("archived_at",null).order("created_at",{ascending:false}),state.leads),
     safe("services",supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.services),
     safe("service add-ons",supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),state.serviceAddons),
     safe("booking discounts",supabase.from("booking_discounts").select("*").eq("business_id",businessId).order("created_at",{ascending:false}),state.bookingDiscounts),
     safe("discount redemptions",supabase.from("booking_discount_redemptions").select("id,discount_id,customer_email,redeemed_at").eq("business_id",businessId).order("redeemed_at",{ascending:false}),state.discountRedemptions),
-    safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"),state.availabilityRules)
+    safe("availability",supabase.from("availability_rules").select("*").eq("business_id",businessId).order("weekday").order("start_time"),state.availabilityRules),
+    safe("estimate settings",supabase.from("businesses").select("estimate_settings").eq("id",businessId).single(),{estimate_settings:state.business?.estimate_settings||null})
   ]);
 
   if((services||[]).length===0 && ["owner","admin"].includes(String(state.business?.role||""))){
@@ -4793,10 +4795,12 @@ async function loadCoreData(){
   state.bookingDiscounts=discounts||[];
   state.discountRedemptions=discountRedemptions||[];
   state.availabilityRules=availability;
+  if(estimateProfile?.estimate_settings) state.business.estimate_settings=estimateProfile.estimate_settings;
   renderClients();
   renderLeads();
   renderServices();
   renderBookingServices();
+  renderBookingEstimator();
   renderBookingDiscounts();
   renderAvailabilityEditor();
 
@@ -5165,6 +5169,16 @@ function renderBookingServices(){
   const paid=active.filter(serviceIsPaid);
   const quote=active.filter(s=>!serviceIsPaid(s));
   list.innerHTML=renderBookingServiceGroup(paid,"paid")+renderBookingServiceGroup(quote,"quote");
+}
+
+
+const bookingEstimator=window.TLE_BOOKING_ESTIMATOR?.create({
+  state,supabase,$,money,escapeHtml,langPick,modalHeader,formSubmit,showToast,modal,entityForm,serviceIsPaid
+})||null;
+function renderBookingEstimator(){ bookingEstimator?.render(); }
+async function saveEstimateRules(fd){
+  if(!bookingEstimator) throw new Error("Estimate calculator is unavailable.");
+  return bookingEstimator.saveRules(fd);
 }
 
 function discountRedemptionCount(discountId){
@@ -8769,6 +8783,7 @@ entityForm.addEventListener("submit",async e=>{
     if(state.modalType==="payment") paymentResult=await savePayment(fd);
     if(state.modalType==="client") clientResult=await saveClient(fd);
     if(state.modalType==="service") await saveService(fd);
+    if(state.modalType==="estimateRules") await saveEstimateRules(fd);
     if(state.modalType==="discount") await saveDiscount(fd);
     if(state.modalType==="addon") await saveAddon(fd);
     if(state.modalType==="supply") await saveSupply(fd);
@@ -9029,6 +9044,7 @@ async function saveService(fd){
 
     renderServices();
     renderBookingServices();
+    renderBookingEstimator();
   }
 
   return savedService||null;
@@ -10290,6 +10306,7 @@ if(teamMessageForm) teamMessageForm.addEventListener("submit",async e=>{
     setBusy(button,false);
   }
 });
+
 
 $("#refreshTeamMessagesBtn")?.addEventListener("click",async ()=>{
   try{
