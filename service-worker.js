@@ -26,6 +26,7 @@ const CORE=[
   "./app.js?v=20261004-compact-workspace-r29",
   "./welcome-packet-owner.js?v=20261004-compact-workspace-r29",
   "./followups.js?v=20261004-compact-workspace-r29",
+  "./compact-workspace.js?v=20261004-compact-workspace-r29",
   "./i18n-completion.js?v=20261004-compact-workspace-r29",
   "./i18n.js?v=20261004-compact-workspace-r29",
   "./onboarding-copy.js?v=20261004-compact-workspace-r29",
