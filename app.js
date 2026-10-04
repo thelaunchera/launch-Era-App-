@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261004-compact-command-center-r30";
+const APP_VERSION = "20261004-clarity-first-r31";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -285,7 +285,7 @@ document.addEventListener("click",e=>{
 window.__tleAuthUiReady=true;
 
 const pageTitles = {
-  today:"Today", booking:"Booking Center", leads:"Leads", clients:"Clients",
+  today:"Today", booking:"Booking Center", leads:"Leads", clients:"Customers",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices", followups:"Follow-ups",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
   reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
@@ -5497,7 +5497,7 @@ function renderClients(){
   const grid=$("#clientsGrid");
   if(!grid) return;
   if(!state.clients.length){
-    grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No clients yet.","Aún no hay clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add clients automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add client","Añadir cliente","Ajouter un client"))}</button></article>`;
+    grid.innerHTML=`<article class="empty-card"><strong>${escapeHtml(langPick("No customers yet.","Aún no hay clientes.","Aucun client pour le moment."))}</strong><span>${escapeHtml(langPick("Confirmed bookings add customers automatically. You can also add one manually.","Las reservas confirmadas agregan clientes automáticamente. También puedes añadir uno manualmente.","Les réservations confirmées ajoutent automatiquement les clients. Vous pouvez aussi en ajouter un manuellement."))}</span><button class="primary-btn" data-create="client">+ ${escapeHtml(langPick("Add customer","Añadir cliente","Ajouter un client"))}</button></article>`;
     return;
   }
   const now=new Date();
@@ -5529,7 +5529,7 @@ function renderClients(){
           <button data-client-to-quote="${c.id}">${escapeHtml(tr("Quote"))}</button>
           <button data-archive-client="${c.id}">${escapeHtml(tr("Archive"))}</button>
         </span>
-        <button class="record-delete-btn" data-delete-record="client" data-id="${c.id}">${escapeHtml(tr("Delete client"))}</button>
+        <button class="record-delete-btn" data-delete-record="client" data-id="${c.id}">${escapeHtml(langPick("Delete customer","Eliminar cliente","Supprimer le client"))}</button>
       </div>
     </article>`;
   }).join("");
@@ -5647,7 +5647,7 @@ function openClientInfo(clientId){
       <div class="form-footer client-history-footer">
         <button type="button" class="ghost-btn" data-modal-cancel>${escapeHtml(langPick("Close","Cerrar","Fermer"))}</button>
         <button type="button" class="ghost-btn" data-client-to-job="${client.id}">${escapeHtml(langPick("Schedule job","Agendar trabajo","Planifier un travail"))}</button>
-        <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit client","Editar cliente","Modifier le client"))}</button>
+        <button type="button" class="primary-btn" data-edit="client" data-id="${client.id}">${escapeHtml(langPick("Edit customer","Editar cliente","Modifier le client"))}</button>
       </div>
     </div>`;
   modal.hidden=false;
@@ -8422,7 +8422,7 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="client"){
-    modalHeader("CLIENT",record?"Edit client":"Add client","Keep contact, service address and preferences in one place.");
+    modalHeader("CUSTOMER",record?"Edit customer":"Add customer","Keep contact, service address and preferences in one place.");
     entityForm.innerHTML=`
       <div class="form-grid">
         <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
