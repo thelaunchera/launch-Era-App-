@@ -173,6 +173,7 @@
     renderAddonChoices();
     syncPropertyMode();
     updateEstimate();
+    window.TLE_COMPACT_COMMAND_CENTER?.refresh?.();
   }
 
   function renderAddonChoices(){
