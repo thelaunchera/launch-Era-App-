@@ -537,11 +537,14 @@ async function syncAuthPreferredLanguage(language){
 function appIsSpanish(){
   return appLanguage()==="es";
 }
-function langPick(en,es,fr){
+function langPick(en,es,fr,ht){
   const lang=appLanguage();
   if(lang==="es") return es;
   if(lang==="fr") return fr;
-  if(lang==="ht") return window.TLE_I18N?.t?.(en)||en;
+  if(lang==="ht"){
+    if(typeof ht==="string" && ht.trim()) return ht;
+    return window.TLE_I18N?.t?.(en)||en;
+  }
   return en;
 }
 function customerEmailLanguageLabel(code){
