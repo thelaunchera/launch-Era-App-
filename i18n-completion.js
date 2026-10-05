@@ -2115,6 +2115,58 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Remember me":"Sonje mwen"
   });
 
+  // 2026-10-05 — Kreyòl parity for recently added owner/dashboard/auth UI.
+  Object.assign(staticCorrections.ht,{
+    "LEADS":"PWOSPÈ","Lead pipeline":"Lis pwospè","Add lead":"Ajoute pwospè","+ Add lead":"+ Ajoute pwospè",
+    "Source":"Sous","Status":"Estati","Booked":"Rezève","Quote":"Devis","Booking link":"Lyen rezèvasyon","Quote link":"Lyen devis",
+    "CLIENTS":"KLIYAN","Client records":"Dosye kliyan","Add client":"Ajoute kliyan","+ Add client":"+ Ajoute kliyan",
+    "MILEAGE":"KILOMETRAJ","Mileage log":"Rejis kilometraj","Log drive":"Anrejistre deplasman",
+    "TIME TRACKING":"SUIVI TAN","Time worked will appear here.":"Tan travay la ap parèt isit la.",
+    "Current job":"Travay aktyèl","Finish timer":"Fini kronomèt la","Planned":"Planifye","Actual":"Reyèl",
+    "No time entries yet.":"Poko gen okenn tan anrejistre.","No specific job":"Pa gen travay espesifik",
+    "No email":"Pa gen imèl","No address yet":"Poko gen adrès","Address not added":"Adrès poko ajoute",
+    "Client":"Kliyan","No client":"Pa gen kliyan","No due date":"Pa gen dat limit","Amount":"Montan",
+    "Customer chose":"Kliyan an chwazi","Resolve dispute":"Rezoud diskisyon","Send invoice":"Voye fakti",
+    "Add payment":"Ajoute peman","Confirm payment":"Konfime peman","Record payment":"Anrejistre peman",
+    "Delete invoice":"Efase fakti","Delete client":"Efase kliyan","Delete lead":"Efase pwospè",
+    "Send quote":"Voye devis","Resend quote":"Voye devis ankò","Delete quote":"Efase devis",
+    "Edit":"Modifye","Archive":"Achive","Next stop":"Pwochen arè","Extra job":"Travay anplis",
+    "Remove from this list":"Retire nan lis sa a","Business default":"Valè pa defo biznis la",
+    "Current location":"Pozisyon aktyèl","Not viewed yet":"Poko wè","Viewed":"Wè",
+    "Weather unavailable":"Meteyo pa disponib","Updating weather…":"Ap mete meteyo ajou…",
+    "Snow now in your area.":"Nèj ap tonbe kounye a nan zòn ou.","Storms are active now in your area.":"Gen tanpèt kounye a nan zòn ou.",
+    "Rain now in your area.":"Lapli ap tonbe kounye a nan zòn ou.","Snow expected":"Yo prevwa nèj","Storms expected":"Yo prevwa tanpèt","Rain expected":"Yo prevwa lapli",
+    "Check the required fields above and try again.":"Tcheke chan obligatwa yo anlè a epi eseye ankò.",
+    "The email or password doesn’t match. Check them and try again.":"Imèl la oswa modpas la pa koresponn. Tcheke yo epi eseye ankò.",
+    "Confirm your email first, then sign in.":"Konfime imèl ou anvan, apre sa konekte.",
+    "That email already has an account. Sign in instead of creating another one.":"Imèl sa a deja gen yon kont. Konekte olye ou kreye yon lòt.",
+    "Try again":"Eseye ankò","CLEANING WEB APP":"CLEANING WEB APP",
+    "Your cleaning business shouldn’t live in DMs, notes and memory.":"Biznis netwayaj ou pa ta dwe depann de mesaj, nòt ak memwa.",
+    "Keep clients, quotes, bookings, jobs and invoices in one organized place.":"Kenbe kliyan, devis, rezèvasyon, travay ak fakti yo òganize nan yon sèl kote.",
+    "Simple setup":"Konfigirasyon senp","No card required":"Pa bezwen kat","Get 30 days free":"Jwenn 30 jou gratis",
+    "Already have an account?":"Ou deja gen yon kont?","No card required · Then $5.99/month":"Pa bezwen kat · Apre sa $5.99/mwa",
+    "← Back":"← Retounen","Your workspace is ready. Check the calendar and what’s next.":"Espas travay ou pare. Tcheke kalandriye a ak sa k ap vini apre.",
+    "View calendar →":"Gade kalandriye →","Remember username":"Sonje non itilizatè","Hide password":"Kache modpas","Show password":"Montre modpas",
+    "No messages yet.":"Poko gen mesaj.","No conversation yet.":"Poko gen konvèsasyon.",
+    "Messages from your admin will appear here.":"Mesaj admin ou ap parèt isit la.","Write the first message below.":"Ekri premye mesaj la anba a.",
+    "Customer":"Kliyan","Quote accepted":"Devis aksepte","Quote declined":"Devis refize","New quote request":"Nouvo demann devis",
+    "Quote request":"Demann devis","Payment method selected":"Metòd peman chwazi","Payment received":"Peman resevwa",
+    "New dispute":"Nouvo diskisyon","On the way":"Sou wout","Job started":"Travay kòmanse","Job completed":"Travay fini",
+    "Employee":"Anplwaye","New team message":"Nouvo mesaj ekip","Customer email":"Imèl kliyan",
+    "EMAIL DELIVERY ISSUE":"PWOBLÈM LIVREZON IMÈL","Email not delivered":"Imèl la pa rive","Detected":"Detekte","Close":"Fèmen",
+    "Check clients":"Tcheke kliyan","Job details are no longer available.":"Detay travay la pa disponib ankò.",
+    "BOOKING REQUEST":"DEMANN REZÈVASYON","INQUIRY":"DEMANN ENFÒMASYON","SERVICE":"SÈVIS","Address":"Adrès",
+    "Requested date & time":"Dat ak lè mande","Frequency":"Frekans","Open client":"Louvri kliyan","Open lead":"Louvri pwospè",
+    "Follow-ups":"Swivi","+ Add New":"+ Ajoute","FREE ACCESS":"AKSÈ GRATIS","One moment…":"Yon ti moman…",
+    "This week":"Semèn sa a","Completed":"Fini","Work hours":"Lè travay","Distance":"Distans","Reviews":"Revizyon",
+    "Public links":"Lyen piblik","Bookable services":"Sèvis ki ka rezève","Pricing + quotes":"Pri + devis","Availability":"Disponiblite",
+    "Travel buffer":"Tan ant deplasman","No buffer":"Pa gen tan anplis","15 min":"15 min","30 min":"30 min","45 min":"45 min","60 min":"60 min",
+    "2 hours":"2 èdtan","12 hours":"12 èdtan","24 hours":"24 èdtan","48 hours":"48 èdtan",
+    "Calendar + jobs":"Kalandriye + travay","Due now":"Pou fèt kounye a","This month":"Mwa sa a","Time tracking":"Suivi tan",
+    "Contact":"Kontak","Cancel":"Anile","Total":"Total","Actions":"Aksyon","History":"Istwa","Open":"Louvri",
+    "Save changes":"Sove chanjman","Admin":"Admin","Remember me":"Sonje mwen"
+  });
+
   // Final weather advice coverage used by the dynamic dashboard.
   Object.assign(staticCorrections.es,{
     "Check your best route before leaving.":"Revisa la mejor ruta antes de salir."
