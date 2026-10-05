@@ -3,8 +3,8 @@
 (function(){
 const ONBOARDING_COPY={
   welcome:{
-    en:{kicker:"YOU’RE IN",title:"Thanks for choosing The Launch Era Cleaning Web App.",text:"Your account is ready. We’ll stay with you for the first few steps so you can see where everything lives without having to figure it out alone."},
-    es:{kicker:"YA ESTÁS DENTRO",title:"Gracias por usar The Launch Era Cleaning Web App.",text:"Tu cuenta ya está lista. Te acompañaremos en los primeros pasos para que veas dónde está cada cosa sin tener que descubrirlo todo sola."}
+    en:{kicker:"WELCOME",title:"Your cleaning business workspace is ready.",text:"Start by setting up what clients can book and when you’re available. We’ll guide you from there."},
+    es:{kicker:"BIENVENIDA",title:"Tu espacio de trabajo ya está listo.",text:"Empieza configurando qué pueden reservar tus clientes y cuándo estás disponible. Te guiaremos desde ahí."}
   },
   today:{
     en:{title:"Today",text:"Your daily snapshot: today’s jobs, booking requests, open quotes, invoices and follow-through."},
