@@ -86,7 +86,7 @@ const ONBOARDING_COPY={
 
 const ONBOARDING_EXTRA={
   fr:{
-    welcome:{kicker:"BIENVENUE",title:"Merci d’utiliser The Launch Era Cleaning Web App.",text:"Votre compte est prêt. Nous allons vous accompagner dans les premières étapes pour que vous sachiez où tout se trouve sans devoir tout découvrir seul."},
+    welcome:{kicker:"BIENVENUE",title:"Votre espace de travail pour votre entreprise de nettoyage est prêt.",text:"Commencez par configurer ce que vos clients peuvent réserver et vos disponibilités. Nous vous guiderons ensuite."},
     today:{title:"Aujourd’hui",text:"Votre résumé du jour : travaux, demandes de réservation, devis, factures et éléments en attente."},
     booking:{title:"Réservations",text:"Gérez les demandes de réservation, les disponibilités et le lien public utilisé par vos clients."},
     leads:{title:"Prospects",text:"Gardez les clients potentiels ici avant qu’ils deviennent des clients actifs ou des travaux réservés."},
@@ -110,7 +110,7 @@ const ONBOARDING_EXTRA={
 };
 
 ONBOARDING_EXTRA.ht={
-  welcome:{kicker:"BYENVINI",title:"Mèsi paske w ap itilize The Launch Era Cleaning Web App.",text:"Kont ou pare. N ap gide w nan premye etap yo pou ou konnen kote tout bagay ye san ou pa bezwen dekouvri tout poukont ou."},
+  welcome:{kicker:"BYENVINI",title:"Espas travay biznis netwayaj ou a pare.",text:"Kòmanse pa mete sèvis kliyan yo ka rezève ak lè ou disponib. N ap gide w apre sa."},
   today:{title:"Jodi a",text:"Rezime jounen ou: travay, demann rezèvasyon, devis, fakti ak aksyon rapid."},
   booking:{title:"Rezèvasyon",text:"Jere demann rezèvasyon, disponiblite ak lyen piblik kliyan yo itilize."},
   leads:{title:"Pwospè",text:"Kenbe kliyan potansyèl yo isit la anvan yo vin kliyan aktif oswa travay pwograme."},
