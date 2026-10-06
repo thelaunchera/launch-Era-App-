@@ -188,3 +188,6 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="invoices"] :is(.invoice-actions-stable,.invoice-status-meta,.invoice-contact-list){display:flex!important;visibility:visible!important;opacity:1!important}
  body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{position:static!important;width:100%!important;flex-wrap:wrap!important;gap:8px!important}
 }
+
+/* 2026-10-06 — remove obsolete invoice overflow trigger on every viewport */
+body.shell-app #appShell [data-page="invoices"] :is(.invoice-tablet-more,.mobile-more-actions){display:none!important}
