@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-reference-r45";
+const APP_VERSION = "20261006-bento-reference-r46";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -3685,7 +3685,7 @@ async function createWorkerLink(teamMemberId){
   if(error) throw error;
   const token=data?.token;
   if(!token) throw new Error("Could not create worker link");
-  const base=window.location.origin+window.location.pathname;
+  const base=window.location.origin+"/";
   const link=`${base}?worker=${encodeURIComponent(token)}`;
   state.currentWorkerLink=link;
   state.modalType="workerLink";
@@ -8013,7 +8013,7 @@ async function initializePublicRequest(mode,slug){
       ?'<span>'+escapeHtml(tr("No services are available yet. Please contact the cleaning business directly."))+'</span>'
       :'<span>'+escapeHtml(tr("No instant-booking services are available yet. Services without a fixed price require a quote."))+'</span><button type="button" class="primary-btn" id="bookingToQuoteBtn">'+escapeHtml(tr("Request a Quote"))+'</button>';
     $("#bookingToQuoteBtn")?.addEventListener("click",()=>{
-      window.location.href=window.location.origin+window.location.pathname+"?public=quote&slug="+encodeURIComponent(slug);
+      window.location.href=window.location.origin+"/?public=quote&slug="+encodeURIComponent(slug);
     });
   }else{
     serviceSelect.disabled=false;
@@ -10620,7 +10620,7 @@ document.addEventListener("click",e=>{
   const publicOpen=e.target.closest("[data-open-public]");
   if(!publicOpen) return;
   const link=$("#bookingUrl")?.href;
-  if(link) window.open(link,"_blank","noopener");
+  if(link) window.location.assign(link);
 });
 
 function weatherFallbackUrl(){
