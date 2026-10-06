@@ -195,3 +195,7 @@
  .booking-control-row{min-height:62px!important;padding:11px 13px!important}.booking-tool-row{min-height:56px!important;padding:10px 13px!important}
  .booking-detail-panel{border-radius:18px!important}
 }
+.tle-save-toast{position:fixed;left:50%;bottom:max(22px,calc(env(safe-area-inset-bottom) + 14px));z-index:99999;display:flex;align-items:center;gap:8px;min-height:42px;padding:9px 14px;border-radius:999px;background:#191919;color:#fff;box-shadow:0 14px 40px rgba(25,25,25,.22);font-size:12px;transform:translate(-50%,18px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;white-space:nowrap}
+.tle-save-toast.show{opacity:1;transform:translate(-50%,0)}.tle-save-toast>span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);font-size:11px}.tle-save-toast.saved>span{background:#dff3e4;color:#27703a}.tle-save-toast.error>span{background:#ffe1df;color:#a3312b}.tle-save-toast .saving-dot{width:8px;height:8px;background:#fff;animation:tleSavingPulse .8s ease-in-out infinite}
+@keyframes tleSavingPulse{50%{opacity:.35;transform:scale(.7)}}
+@media(max-width:680px){.tle-save-toast{bottom:calc(env(safe-area-inset-bottom) + 82px);max-width:calc(100vw - 28px)}}
