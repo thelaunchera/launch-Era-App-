@@ -37,6 +37,16 @@
         </section>`);
     }
 
+    // Use the existing time-tracking route; never mount a second timer.
+    const quickGrid=document.querySelector(".dashboard-quick-grid");
+    if(document.documentElement.dataset.dashboardPreview==="bento" && quickGrid && !quickGrid.querySelector(".quick-time")){
+      quickGrid.insertAdjacentHTML("beforeend", `
+        <button class="dashboard-quick-card quick-time" type="button" data-jump="time">
+          <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+          <strong>Time Tracking</strong><small>Open your work timer</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
+        </button>`);
+    }
+
     const appShell=document.getElementById("appShell");
     if(appShell && !document.querySelector(".mobile-bottom-nav")){
       appShell.insertAdjacentHTML("beforeend", `
