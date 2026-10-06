@@ -217,12 +217,14 @@
               <div class="public-demo-type-switch" id="publicCleaningTypeSwitch">
                 <button type="button" class="selected" data-property-type="residential"><strong>Residential</strong><small>Homes, apartments, condos</small></button>
                 <button type="button" data-property-type="commercial"><strong>Commercial</strong><small>Offices, storefronts, workspaces</small></button>
+                <button type="button" data-property-type="special"><strong>Special space</strong><small>Large homes, salons, studios & unique jobs</small></button>
               </div>
               <label class="public-hidden-field">Property type
                 <select name="property_type" id="publicPropertyType" required>
                   <option value="">Choose one</option>
                   <option value="residential">Residential</option>
                   <option value="commercial">Commercial</option>
+                  <option value="special">Special space</option>
                 </select>
               </label>
             </div>
@@ -298,6 +300,23 @@
               </label>
               <label id="publicPetDetailsWrap" hidden>Pet details <span class="field-optional">(optional)</span>
                 <input name="pet_details" placeholder="e.g. 2 dogs, 1 cat">
+              </label>
+            </div>
+            <div class="full public-property-details" id="publicSpecialDetails" hidden>
+              <label>Space / job type
+                <select name="special_space_type">
+                  <option value="">Choose one</option>
+                  <option value="large_home">Large / custom home</option>
+                  <option value="salon">Salon / beauty suite</option>
+                  <option value="studio">Studio / creative space</option>
+                  <option value="event">Event / venue cleanup</option>
+                  <option value="post_construction">Post-construction</option>
+                  <option value="vacation_property">Vacation / specialty property</option>
+                  <option value="other">Other special job</option>
+                </select>
+              </label>
+              <label>Tell us what makes this job different
+                <textarea name="special_job_details" placeholder="Size, layout, special surfaces, access, timing, or anything the business should review before pricing."></textarea>
               </label>
             </div>
             <div class="full public-property-details" id="publicCommercialDetails" hidden>
