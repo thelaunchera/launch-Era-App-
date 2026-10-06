@@ -37,6 +37,16 @@
         </section>`);
     }
 
+    // Use the existing time-tracking route; never mount a second timer.
+    const quickGrid=document.querySelector(".dashboard-quick-grid");
+    if(document.documentElement.dataset.dashboardPreview==="bento" && quickGrid && !quickGrid.querySelector(".quick-time")){
+      quickGrid.insertAdjacentHTML("beforeend", `
+        <button class="dashboard-quick-card quick-time" type="button" data-jump="time">
+          <span class="dashboard-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+          <strong>Time Tracking</strong><small>Open your work timer</small><span class="dashboard-quick-arrow" aria-hidden="true">›</span>
+        </button>`);
+    }
+
     const appShell=document.getElementById("appShell");
     if(appShell && !document.querySelector(".mobile-bottom-nav")){
       appShell.insertAdjacentHTML("beforeend", `
@@ -60,6 +70,31 @@
     }
   }
 
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",ensureDashboardHomeV2,{once:true});
-  else ensureDashboardHomeV2();
+  // Move existing dashboard sections, preserving nodes, data and listeners.
+  function alignBentoDashboard(){
+    if(document.documentElement.dataset.dashboardPreview!=="bento") return;
+    const view=document.querySelector('.view[data-page="today"]');
+    if(!view) return;
+    const mobile=window.matchMedia("(max-width:860px)").matches;
+    const common=["#firstWinCard","#todayHeroCard"];
+    const summary=[".money-week-head","#businessPulse",".attention-panel",".growth-grid"];
+    const selectors=mobile
+      ? [...common,...summary,".dashboard-quick-access"]
+      : [...common,".dashboard-quick-access",...summary];
+    selectors.push(".next-move-panel",".growth-lower",".presence-panel");
+    for(const selector of selectors){
+      const node=view.querySelector(':scope > '+selector);
+      if(node) view.appendChild(node);
+    }
+  }
+  function initializeDashboard(){
+    ensureDashboardHomeV2();
+    alignBentoDashboard();
+    if(document.documentElement.dataset.dashboardPreview==="bento"){
+      window.matchMedia("(max-width:860px)").addEventListener("change",alignBentoDashboard);
+    }
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initializeDashboard,{once:true});
+  else initializeDashboard();
 })();

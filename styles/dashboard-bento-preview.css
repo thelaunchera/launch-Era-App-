@@ -1,0 +1,71 @@
+/* Opt-in dashboard preview: existing records, controls, roles and handlers. */
+html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active {
+  display:grid!important; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:16px!important; align-items:start;
+}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > * {min-width:0; margin:0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(#firstWinCard,.money-week-head,#businessPulse,.growth-grid,.next-move-panel,.growth-lower,.presence-panel) {grid-column:1/-1;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard {grid-column:1; order:1; padding:24px!important; border-radius:22px!important; box-shadow:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-access {grid-column:2; order:2; align-self:stretch;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-panel {grid-column:1/-1; order:5;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .money-week-head {order:3;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #businessPulse {order:4; display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important; gap:12px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-grid {order:6; display:grid!important; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important; gap:16px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.panel,.pulse-card,.dashboard-quick-card) {border-radius:20px!important; border:1px solid #DEE4E8!important; box-shadow:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel {padding:20px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.panel-head h3,.dashboard-section-head h3) {font-size:18px!important; line-height:1.25!important; font-weight:600!important; letter-spacing:-.025em!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-grid {display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {padding:14px!important; min-height:106px!important; gap:6px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card strong {font-size:14px!important; line-height:1.25!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card small {font-size:11px!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card {display:flex!important; flex-direction:column; min-height:110px!important; padding:16px!important; overflow-wrap:anywhere;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > span {font-size:12px!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > strong {font-size:30px!important; line-height:1.1!important; margin:8px 0 5px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > small {font-size:11px!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-list.dashboard-attention-grid {grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card {border-radius:14px!important; padding:14px!important; min-height:108px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-card {display:block!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.text-btn,.dashboard-section-link) {min-height:44px; line-height:1.35!important; white-space:normal!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {transition:transform .16s ease!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card:hover {transform:translateY(-2px);}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(button,[role="button"]):focus-visible {outline:3px solid #397FA3!important; outline-offset:3px;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel {order:7;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-lower {order:8;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel {order:9;}
+@media(max-width:860px) {
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active {grid-template-columns:minmax(0,1fr)!important; gap:12px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > * {grid-column:1/-1!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard {padding:20px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayGreeting {font-size:clamp(28px,7.8vw,36px)!important; line-height:1.08!important; letter-spacing:-.035em!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayMomentCopy {font-size:14px!important; line-height:1.5!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayHeroAction {min-height:46px!important; margin-top:12px!important; border-radius:13px!important; font-size:14px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .money-week-head {order:2;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #businessPulse {order:3; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-panel {order:4;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-grid {order:5; grid-template-columns:minmax(0,1fr)!important; gap:12px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-access {order:6;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel {order:7;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-lower {order:8;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel {order:9;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel {padding:16px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card {grid-template-columns:minmax(0,1fr)!important; grid-template-areas:"icon" "title" "count" "copy"!important; gap:6px!important; padding:11px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card strong {font-size:12px!important; line-height:1.3!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card small {font-size:11px!important; line-height:1.4!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-count {font-size:26px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .schedule-panel .panel-head {flex-wrap:wrap!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {min-height:112px!important;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {transition:none!important; transform:none!important;}
+}
+/* Respect permissions and any dynamic hidden state, including capacity for workers. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] [hidden] {display:none!important;}
+/* Quiet canvas like the reference; the night greeting keeps its own palette. */
+html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) {
+  background:#F5F7F8!important; background-image:none!important; animation:none!important;
+}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayGreeting {
+  font-size:clamp(28px,3vw,40px)!important; line-height:1.08!important; letter-spacing:-.035em!important; max-width:100%!important;
+}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats b {
+  color:var(--owner-card-ink,#191919)!important;
+}
