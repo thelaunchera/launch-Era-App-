@@ -1122,9 +1122,10 @@
   }
   [data-page="invoices"] .invoice-client-field>strong,
   [data-page="invoices"] .invoice-client-field>.invoice-due-date{
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
   }
   [data-page="invoices"] .invoice-client-field>strong{font-size:13px!important}
   [data-page="invoices"] .invoice-client-field>.invoice-contact-list,
@@ -1194,9 +1195,10 @@
     overflow:hidden!important;
   }
   [data-page="invoices"] .invoice-tablet-details .invoice-contact-row>span:last-child{
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
   }
   [data-page="invoices"] .invoice-tablet-actions{
     grid-column:1/-1!important;
