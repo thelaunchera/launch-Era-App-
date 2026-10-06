@@ -29,7 +29,7 @@
 .main{padding-left:14px!important;padding-right:14px!important;padding-bottom:92px!important}
 .topbar{padding:12px 0 10px!important;margin-bottom:14px!important;min-height:58px}.topbar-title .eyebrow{display:none}.topbar h1{font-size:22px!important}
 .top-actions{gap:5px!important}.top-actions .top-tool-btn{width:38px!important;height:38px!important;padding:0!important;border-radius:12px!important}.top-actions .top-label{display:none!important}
-#quickAddBtn{width:40px!important;height:40px!important;padding:0!important;font-size:0!important;border-radius:13px!important}#quickAddBtn::after{content:"+";font-size:24px;line-height:1}
+#quickAddBtn{width:40px!important;height:40px!important;padding:0!important;border-radius:13px!important}#quickAddBtn::after{content:none!important;display:none!important}
 .view:not([data-page="today"]) .section-intro{display:flex!important;align-items:flex-end!important;gap:10px!important;margin:2px 0 14px!important}
 .view:not([data-page="today"]) .section-intro h2{font-size:27px!important;letter-spacing:-.035em;margin-bottom:2px!important}
 .view:not([data-page="today"]) .section-intro .eyebrow,.view:not([data-page="today"]) .section-intro>div>p:not(.eyebrow){display:none!important}
