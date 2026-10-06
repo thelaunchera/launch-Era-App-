@@ -110,3 +110,75 @@
    display:grid!important
  }
 }
+
+
+/* 2026-10-06 full-workspace bento direction
+   The reference video uses one visual language everywhere: calm canvas,
+   compact modular cards, clear hierarchy, roomy desktop/tablet grids,
+   and a clean single-column phone flow. */
+body.shell-app #appShell{
+  --workspace-canvas:#f7f8f5;
+  --workspace-card:#fff;
+  --workspace-border:#e7e9e3;
+  --workspace-radius:18px;
+  --workspace-gap:12px;
+}
+body.shell-app #appShell .main{background:var(--workspace-canvas)!important}
+body.shell-app #appShell .view.active{max-width:1440px;margin:0 auto}
+body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+  background:var(--workspace-card)!important;border:1px solid var(--workspace-border)!important;
+  border-radius:var(--workspace-radius)!important;box-shadow:0 5px 18px rgba(25,25,25,.035)!important;
+}
+body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+  min-width:0!important;overflow-wrap:normal!important;word-break:normal!important;
+}
+body.shell-app #appShell .view.active :is(button,.primary-btn,.ghost-btn,.soft-btn){white-space:normal;word-break:normal}
+body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions){
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+}
+body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*{
+  flex:0 1 auto;min-width:max-content;
+}
+
+@media(min-width:861px){
+ body.shell-app #appShell .main{padding:22px 24px 36px!important}
+ body.shell-app #appShell .view.active>.section-intro{margin:2px 0 18px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:start!important
+ }
+ body.shell-app #appShell [data-page="reports"] .report-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}
+ body.shell-app #appShell [data-page="route"] .route-layout{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr)!important;gap:14px!important;align-items:start!important}
+}
+@media(min-width:681px) and (max-width:1100px){
+ body.shell-app #appShell .main{padding:18px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important
+ }
+ body.shell-app #appShell [data-page="reports"] .report-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:680px){
+ body.shell-app #appShell .main{padding-left:10px!important;padding-right:10px!important}
+ body.shell-app #appShell .view.active{width:100%!important;max-width:100%!important;overflow:visible!important}
+ body.shell-app #appShell .view.active>.section-intro{padding:2px 2px 4px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid,.report-grid,.route-layout){
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;width:100%!important
+ }
+ body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+   width:100%!important;max-width:100%!important;min-width:0!important;padding:12px!important;border-radius:15px!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:8px!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*{
+   width:100%!important;min-width:0!important;min-height:44px!important;font-size:13px!important;line-height:1.2!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*:last-child:nth-child(odd){
+   grid-column:1/-1!important
+ }
+ body.shell-app #appShell .view.active :is(.meta-grid,.service-meta,.record-meta,.summary-grid){
+   max-width:100%!important;min-width:0!important;overflow:visible!important
+ }
+ body.shell-app #appShell [data-page="route"] :is(.route-actions,.route-cta,.route-summary){
+   position:static!important;width:100%!important;max-width:100%!important;transform:none!important
+ }
+}
