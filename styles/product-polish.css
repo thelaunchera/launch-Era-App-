@@ -42,3 +42,19 @@
 .notification-popover{position:fixed!important;left:12px!important;right:12px!important;top:max(66px,calc(env(safe-area-inset-top) + 54px))!important;width:auto!important;max-height:calc(100dvh - 86px);border-radius:24px!important}
 .notification-list{max-height:calc(100dvh - 160px)}.notification-list>*{padding:14px 14px 14px 17px!important}
 }
+/* Mobile Home: bottom navigation already exposes the destinations, so do not repeat them as giant cards. */
+@media(max-width:680px){
+  [data-page="today"] .dashboard-shortcuts,
+  [data-page="today"] .quick-access,
+  [data-page="today"] [class*="quick-access"],
+  [data-page="today"] [class*="quick-grid"]{display:none!important}
+  [data-page="today"] .hero-card{margin-bottom:14px!important}
+  [data-page="today"] .hero-weather-panel{border:0!important;background:transparent!important;padding:6px 0!important}
+  [data-page="today"] .weather-business-note{border:0!important;background:rgba(255,255,255,.34)!important;padding:10px 12px!important}
+  [data-page="today"] .attention-panel:has(.empty-inline){display:none!important}
+  [data-page="today"] .business-pulse{display:flex!important;overflow-x:auto!important;gap:8px!important;scrollbar-width:none;padding-bottom:3px}
+  [data-page="today"] .business-pulse::-webkit-scrollbar{display:none}
+  [data-page="today"] .business-pulse>.pulse-card{flex:0 0 150px!important;min-height:104px!important;padding:14px!important}
+  [data-page="today"] .growth-grid,[data-page="today"] .growth-lower{display:block!important}
+  [data-page="today"] .capacity-card,[data-page="today"] .next-move-panel,[data-page="today"] .presence-panel{margin-top:10px!important}
+}
