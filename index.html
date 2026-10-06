@@ -794,84 +794,66 @@
           <div><p class="eyebrow">BOOKING CENTER</p><h2>Booking Page</h2><p>Manage your public link, services, offers, availability and client changes in one place.</p></div>
           <button class="primary-btn" id="copyBooking">Copy booking link</button>
         </div>
-        <div class="booking-grid progressive-booking">
-          <article class="panel full booking-step-panel" data-booking-panel="links">
-            <div class="panel-head"><div><p class="eyebrow">PUBLIC BOOKING LINK</p><h3>Booking link</h3></div></div>
-            <label class="field-label">Share this link with clients</label>
-            <div class="link-box"><a id="bookingUrl" href="#" target="_blank" rel="noopener" aria-label="Open booking link">Booking link</a><button class="link-copy-btn" data-copy-target="bookingUrl">Copy link</button></div>
+        <div class="booking-grid progressive-booking booking-control-center">
+          <article class="panel full booking-command-card">
+            <div class="booking-command-status"><span class="status-dot"></span><span>Booking page</span><strong>Live</strong></div>
+            <div class="booking-command-actions">
+              <a id="bookingUrl" href="#" target="_blank" rel="noopener" class="booking-command-link">View page</a>
+              <button type="button" class="booking-command-link" data-copy-target="bookingUrl">Copy link</button>
+            </div>
           </article>
-          <article class="panel full booking-step-panel booking-requests-always" data-booking-panel="requests">
-            <div class="panel-head"><div><p class="eyebrow">BOOKING REQUESTS</p><h3>Booking requests</h3></div><span class="pill blue" id="bookingRequestCountPill">0 new</span></div>
+
+          <div class="booking-control-list">
+            <button type="button" class="booking-control-row" data-booking-open="requests">
+              <span><strong>Requests</strong><small>Bookings and quote requests</small></span><span class="booking-row-tail"><b id="bookingRequestCountPill">0 new</b><i>›</i></span>
+            </button>
+            <button type="button" class="booking-control-row" data-jump="services">
+              <span><strong>Services</strong><small>Instant booking + quote services</small></span><span class="booking-row-tail"><i>›</i></span>
+            </button>
+            <button type="button" class="booking-control-row" data-booking-open="availability">
+              <span><strong>Availability</strong><small>Hours, notice and client changes</small></span><span class="booking-row-tail"><i>›</i></span>
+            </button>
+            <button type="button" class="booking-control-row" data-booking-open="discounts">
+              <span><strong>Offers</strong><small>Discounts shown on your Booking Page</small></span><span class="booking-row-tail"><i>›</i></span>
+            </button>
+          </div>
+
+          <div class="booking-tools-label">TOOLS</div>
+          <div class="booking-tool-list">
+            <button type="button" class="booking-tool-row" data-booking-open="estimate"><span><strong>Estimate calculator</strong><small>Residential pricing helper</small></span><i>›</i></button>
+            <button type="button" class="booking-tool-row" data-booking-open="preferences"><span><strong>Quote settings</strong><small>Special jobs and custom pricing</small></span><i>›</i></button>
+          </div>
+
+          <article class="panel full booking-detail-panel booking-requests-always" data-booking-detail="requests" hidden>
+            <div class="panel-head"><div><p class="eyebrow">REQUESTS</p><h3>Booking + quote requests</h3></div><button type="button" class="text-btn" data-booking-close>Done</button></div>
             <div id="bookingRequestsList" class="booking-requests-list"></div>
           </article>
-          <div class="booking-section-label"><span>WHAT CLIENTS SEE</span><small>Services and offers shown on your Booking Page</small></div>
-          <article class="panel full booking-step-panel" data-booking-panel="services">
-            <div class="panel-head"><div><p class="eyebrow">SERVICES</p><h3>Booking + quote services</h3></div><button class="text-btn" data-jump="services">Edit services →</button></div>
-            <div id="bookingServicesList" class="booking-services-list"></div>
-          </article>
-          <article class="panel full booking-estimate-panel booking-step-panel" data-booking-panel="estimate">
-            <div id="estimateCalculatorMount"></div>
-          </article>
-          <article class="panel full booking-step-panel booking-discounts-panel" data-booking-panel="discounts">
-            <div class="panel-head">
-              <div><p class="eyebrow">DISCOUNTS</p><h3>Booking Page offers</h3><p class="panel-note">Create limited offers, choose who they apply to, and publish them when you are ready.</p></div>
-              <button class="text-btn" type="button" id="addDiscountBtn">+ New discount</button>
-            </div>
+          <article class="panel full booking-detail-panel booking-estimate-panel" data-booking-detail="estimate" hidden><div class="panel-head"><div><p class="eyebrow">TOOL</p><h3>Estimate calculator</h3></div><button type="button" class="text-btn" data-booking-close>Done</button></div><div id="estimateCalculatorMount"></div></article>
+          <article class="panel full booking-detail-panel booking-discounts-panel" data-booking-detail="discounts" hidden>
+            <div class="panel-head"><div><p class="eyebrow">OFFERS</p><h3>Booking Page offers</h3></div><div><button class="text-btn" type="button" id="addDiscountBtn">+ New</button><button type="button" class="text-btn" data-booking-close>Done</button></div></div>
             <div id="bookingDiscountsList" class="booking-discounts-list"></div>
           </article>
-          <article class="panel full booking-experience-compact booking-step-panel" data-booking-panel="preferences">
-            <div class="panel-head"><div><p class="eyebrow">CUSTOMER EXPERIENCE</p><h3>Pricing + quotes</h3></div><span class="pill blue">No account required</span></div>
-            <div class="flow-row compact-flow">
-              <span>Fixed price</span><b>→</b><span>Book</span><b>→</b><span>Custom job</span><b>→</b><span>Quote</span>
-            </div>
-            <p class="booking-experience-note"><strong>Contact:</strong> Email · Text · WhatsApp <span>•</span> <strong>Payment:</strong> <span id="bookingPaymentMethods">Cash · Check · Zelle</span> <span>•</span> Quotes stay in Quotes until accepted.</p>
+          <article class="panel full booking-detail-panel" data-booking-detail="preferences" hidden>
+            <div class="panel-head"><div><p class="eyebrow">QUOTE SETTINGS</p><h3>Custom pricing</h3></div><button type="button" class="text-btn" data-booking-close>Done</button></div>
+            <p class="booking-experience-note">Fixed-price services can be booked instantly. Special spaces and custom jobs stay in Quotes until the owner reviews and confirms the price.</p>
           </article>
-          <div class="booking-section-label"><span>BOOKING RULES</span><small>Availability and what confirmed clients can change</small></div>
-          <article class="panel full availability-compact booking-step-panel" data-booking-panel="availability">
-            <div class="panel-head">
-              <div><p class="eyebrow">AVAILABILITY</p><h3>Availability</h3></div>
-              <button class="text-btn" id="saveAvailabilityBtn">Save</button>
-            </div>
+          <article class="panel full booking-detail-panel availability-compact" data-booking-detail="availability" hidden>
+            <div class="panel-head"><div><p class="eyebrow">AVAILABILITY</p><h3>Hours + booking rules</h3></div><div><button class="text-btn" id="saveAvailabilityBtn">Save</button><button type="button" class="text-btn" data-booking-close>Done</button></div></div>
             <div class="availability-settings">
-              <label>Travel buffer
-                <select id="bookingTravelBuffer">
-                  <option value="0">No buffer</option>
-                  <option value="15">15 min</option>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60">60 min</option>
-                </select>
-              </label>
-              <label>Minimum notice
-                <select id="bookingNoticeHours">
-                  <option value="0">Same-day allowed</option>
-                  <option value="2">2 hours</option>
-                  <option value="12">12 hours</option>
-                  <option value="24">24 hours</option>
-                  <option value="48">48 hours</option>
-                </select>
-              </label>
+              <label>Travel buffer<select id="bookingTravelBuffer"><option value="0">No buffer</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+              <label>Minimum notice<select id="bookingNoticeHours"><option value="0">Same-day allowed</option><option value="2">2 hours</option><option value="12">12 hours</option><option value="24">24 hours</option><option value="48">48 hours</option></select></label>
             </div>
             <div class="availability-week" id="availabilityWeek"></div>
             <div class="client-change-settings">
-              <div class="client-change-settings-head"><strong>Client changes</strong><small>Let confirmed clients manage their appointment from their private link.</small></div>
-              <label class="client-change-toggle"><span><strong>Reschedule online</strong><small>Clients can choose another available time.</small></span><input type="checkbox" id="bookingAllowReschedule" checked></label>
-              <label class="client-change-toggle"><span><strong>Cancel online</strong><small>Canceling releases the time and assigned workers.</small></span><input type="checkbox" id="bookingAllowCancel" checked></label>
-              <label>Changes allowed until
-                <select id="bookingChangeCutoffHours">
-                  <option value="0">Appointment start time</option>
-                  <option value="12">12 hours before</option>
-                  <option value="24">24 hours before</option>
-                  <option value="48">48 hours before</option>
-                  <option value="72">72 hours before</option>
-                </select>
-              </label>
-              <label>Cancellation note <span class="field-optional">(optional)</span>
-                <input id="bookingCancellationPolicyText" maxlength="500" placeholder="Example: Changes must be made at least 24 hours before your cleaning.">
-              </label>
+              <div class="client-change-settings-head"><strong>Client changes</strong><small>Manage appointments from the private confirmation link.</small></div>
+              <label class="client-change-toggle"><span><strong>Reschedule online</strong><small>Choose another available time.</small></span><input type="checkbox" id="bookingAllowReschedule" checked></label>
+              <label class="client-change-toggle"><span><strong>Cancel online</strong><small>Release the time and assigned workers.</small></span><input type="checkbox" id="bookingAllowCancel" checked></label>
+              <label>Changes allowed until<select id="bookingChangeCutoffHours"><option value="0">Appointment start time</option><option value="12">12 hours before</option><option value="24">24 hours before</option><option value="48">48 hours before</option><option value="72">72 hours before</option></select></label>
+              <label>Cancellation note <span class="field-optional">(optional)</span><input id="bookingCancellationPolicyText" maxlength="500" placeholder="Example: Changes must be made at least 24 hours before your cleaning."></label>
             </div>
-            <p class="helper">Clients only see times that fit your hours, service length, travel buffer and existing bookings.</p>
           </article>
+          <div id="bookingServicesList" class="booking-services-list" hidden></div>
+          <span id="bookingPaymentMethods" hidden>Cash · Check · Zelle</span>
         </div>
       </section>
       <section class="view" data-page="leads" data-admin-only>
