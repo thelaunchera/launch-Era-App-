@@ -41,11 +41,29 @@
     const bridge=window.TLE_APP_BRIDGE;
     if(!slot||bridge?.state.business?.role!=='owner')return;
     const w=labels();
-    slot.innerHTML=`<div class="panel-head"><div><h3>${w[0]}</h3><small class="panel-note">${w[1]}</small></div></div><form id="greetingColorsForm"><div class="greeting-color-grid">${Object.keys(defaults).map((k,i)=>`<label>${w[i+2]}<input type="color" name="${k}" value="${palette[k]}"><span data-color-code="${k}">${palette[k]}</span></label>`).join('')}<div class="greeting-night-swatch"><span>${w[5]}</span><i aria-hidden="true"></i></div></div><div class="greeting-color-preview" aria-label="${w[10]}">${w[10]}</div><div class="greeting-color-actions"><button type="submit" class="primary-btn">${w[6]}</button><button type="button" class="ghost-btn" data-greeting-reset>${w[7]}</button></div><p role="status" aria-live="polite" id="greetingColorsStatus"></p></form>`;
+    const examples={en:['Good morning','Good afternoon','Good evening','Good evening','Your workspace, your colors.','View calendar →'],es:['Buenos días','Buenas tardes','Buenas tardes','Buenas noches','Tu espacio, tus colores.','Ver calendario →'],fr:['Bonjour','Bon après-midi','Bonsoir','Bonsoir','Votre espace, vos couleurs.','Voir le calendrier →'],ht:['Bonjou','Bòn apremidi','Bonswa','Bonswa','Espas ou, koulè ou.','Gade kalandriye a →']};
+    const sample=examples[window.TLE_I18N?.language]||examples.en;
+    let previewMood=openingMood;
+    slot.innerHTML=`<div class="panel-head"><div><h3>${w[0]}</h3><small class="panel-note">${w[1]}</small></div></div><form id="greetingColorsForm"><div class="greeting-color-grid">${Object.keys(defaults).map((k,i)=>`<label>${w[i+2]}<input type="color" name="${k}" value="${palette[k]}"><span data-color-code="${k}">${palette[k]}</span></label>`).join('')}<div class="greeting-night-swatch"><span>${w[5]}</span><i aria-hidden="true"></i></div></div><button type="button" class="ghost-btn greeting-preview-toggle" data-greeting-preview aria-expanded="false" aria-controls="greetingColorPreviewPanel">${w[10]}</button><div id="greetingColorPreviewPanel" class="greeting-preview-panel" hidden><div class="greeting-preview-moods" role="group" aria-label="${w[10]}">${[...Object.keys(defaults),'night'].map((k,i)=>`<button type="button" data-preview-mood="${k}" aria-pressed="false">${w[i+2]}</button>`).join('')}</div><div class="greeting-color-preview" aria-live="polite"><span class="greeting-preview-clock"></span><h4></h4><p>${sample[4]}</p><span class="greeting-preview-calendar">${sample[5]}</span></div></div><div class="greeting-color-actions"><button type="submit" class="primary-btn">${w[6]}</button><button type="button" class="ghost-btn" data-greeting-reset>${w[7]}</button></div><p role="status" aria-live="polite" id="greetingColorsStatus"></p></form>`;
     const form=slot.querySelector('form'),preview=slot.querySelector('.greeting-color-preview');
     const draft=()=>clean(Object.fromEntries(new FormData(form)));
-    const update=()=>{const p=draft();preview.style.background=p[openingMood];preview.style.color=ink(p[openingMood]);for(const k of Object.keys(defaults))slot.querySelector(`[data-color-code="${k}"]`).textContent=p[k];};
-    form.addEventListener('input',update);
+    const update=()=>{
+      const p=draft(),night=previewMood==='night',index=night?3:Object.keys(defaults).indexOf(previewMood);
+      preview.style.background=night?'linear-gradient(145deg,#173E58 0%,#164B67 62%,#15627B 100%)':p[previewMood];
+      preview.style.color=night?'#FFFFFF':ink(p[previewMood]);
+      preview.querySelector('h4').textContent=sample[index];
+      preview.querySelector('.greeting-preview-clock').textContent=['8:00 AM','2:00 PM','6:00 PM','8:00 PM'][index];
+      for(const k of Object.keys(defaults))slot.querySelector(`[data-color-code="${k}"]`).textContent=p[k];
+      slot.querySelectorAll('[data-preview-mood]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.previewMood===previewMood)));
+    };
+    form.addEventListener('input',event=>{if(Object.hasOwn(defaults,event.target.name))previewMood=event.target.name;update();});
+    slot.querySelector('[data-greeting-preview]').onclick=event=>{
+      const panel=slot.querySelector('.greeting-preview-panel');
+      panel.hidden=!panel.hidden;
+      event.currentTarget.setAttribute('aria-expanded',String(!panel.hidden));
+      update();
+    };
+    slot.querySelectorAll('[data-preview-mood]').forEach(b=>b.onclick=()=>{previewMood=b.dataset.previewMood;update();});
     slot.querySelector('[data-greeting-reset]').onclick=()=>{for(const k of Object.keys(defaults))form.elements[k].value=defaults[k];update();};
     form.onsubmit=async event=>{
       event.preventDefault();
