@@ -342,3 +342,43 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-template-columns:minmax(0,1fr)!important}
  body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:stretch!important;width:100%!important}
 }
+
+
+/* 2026-10-06 r60 — iPad + laptop readability. Phone <=680px intentionally untouched. */
+@media(min-width:681px){
+ body.shell-app #appShell .main{font-size:16px!important}
+ body.shell-app #appShell .topbar{min-height:72px!important;padding:14px 20px!important}
+ body.shell-app #appShell .topbar-title h1{font-size:28px!important;line-height:1.05!important}
+ body.shell-app #appShell .top-tool-btn{min-width:46px!important;min-height:46px!important}
+ body.shell-app #appShell .primary-btn,body.shell-app #appShell .dark-btn,body.shell-app #appShell .ghost-btn{min-height:46px!important;font-size:15px!important}
+ body.shell-app #appShell .hero-card{padding:26px!important;border-radius:24px!important}
+ body.shell-app #appShell #todayGreeting{font-size:clamp(34px,4vw,52px)!important;line-height:.98!important}
+ body.shell-app #appShell #todayMomentCopy{font-size:15px!important;line-height:1.45!important}
+ body.shell-app #appShell .today-clock strong{font-size:16px!important}
+ body.shell-app #appShell .today-clock small{font-size:12px!important}
+ body.shell-app #appShell .hero-weather-module{min-width:250px!important;padding:16px!important}
+ body.shell-app #appShell .weather-temp-row strong{font-size:34px!important}
+ body.shell-app #appShell .dashboard-section-head h3,body.shell-app #appShell .panel h3{font-size:24px!important}
+ body.shell-app #appShell .quick-access-grid{gap:14px!important}
+ body.shell-app #appShell .quick-access-card{min-height:118px!important;padding:20px!important;border-radius:20px!important}
+ body.shell-app #appShell .quick-access-card strong{font-size:17px!important}
+ body.shell-app #appShell .quick-access-card small{font-size:13px!important;line-height:1.35!important}
+ body.shell-app #appShell .attention-panel{padding:22px!important}
+ body.shell-app #appShell .attention-list{gap:12px!important}
+ body.shell-app #appShell .attention-list>*{min-height:118px!important;padding:18px!important}
+ body.shell-app #appShell .metric-card{padding:18px!important}
+ body.shell-app #appShell .metric-card span,body.shell-app #appShell .metric-card small{font-size:13px!important}
+ body.shell-app #appShell .metric-card strong{font-size:28px!important}
+ body.shell-app #appShell .bottom-nav{min-height:78px!important}
+ body.shell-app #appShell .bottom-nav button{font-size:12px!important}
+}
+@media(min-width:681px) and (max-width:1180px){
+ body.shell-app #appShell .main{padding-left:18px!important;padding-right:18px!important}
+ body.shell-app #appShell .view{max-width:none!important;width:100%!important}
+ body.shell-app #appShell .hero-card{min-height:285px!important}
+ body.shell-app #appShell .quick-access-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(min-width:1181px){
+ body.shell-app #appShell .main{font-size:16px!important}
+ body.shell-app #appShell .view{max-width:1440px!important}
+}
