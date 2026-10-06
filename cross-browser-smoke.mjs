@@ -424,6 +424,16 @@ try{
           checks.push({kind:"day",value:getComputedStyle(hero).backgroundColor,ok:getComputedStyle(hero).backgroundColor==="rgb(18, 52, 86)"});
           checks.push({kind:"text",value:getComputedStyle(document.querySelector("#todayGreeting")).color,ok:getComputedStyle(document.querySelector("#todayGreeting")).color==="rgb(255, 255, 255)"});
         }
+        const shell=document.querySelector("#appShell");
+        shell.dataset.ownerCardPalette="true";
+        shell.style.setProperty("--owner-card-bg","#123456");
+        shell.style.setProperty("--owner-card-ink","#FFFFFF");
+        shell.dataset.paletteMode="night";
+        shell.classList.add("quarter-color-0");
+        for(const card of document.querySelectorAll(".settings-section,.dashboard-quick-card")){
+          card.style.setProperty("transition","none","important");
+          checks.push({kind:"owner-card",value:getComputedStyle(card).backgroundColor,ok:getComputedStyle(card).backgroundColor==="rgb(18, 52, 86)"});
+        }
         return checks;
       });
       if(paletteChecks.some(result=>!result.ok)) throw new Error(profile.name+": greeting palette priority failed "+JSON.stringify(paletteChecks));

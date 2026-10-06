@@ -796,3 +796,23 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
 .greeting-color-preview p{font-size:14px;font-weight:400;margin:0 0 20px;color:inherit!important}
 .greeting-preview-clock{display:inline-block;padding:7px 10px;border:1px solid currentColor;border-radius:10px;font-size:13px}
 .greeting-preview-calendar{display:block;padding:12px;text-align:center;border-radius:12px;background:#F8FAFF;color:#10264A;font-size:14px}
+
+/* Workspace cards stay in the owner's palette; clock/weather only affect greeting. */
+html body.shell-app #appShell[data-owner-card-palette="true"] :is(.panel,.settings-section,.metric-card,.pulse-card,.dashboard-quick-card,.quick-card,.table-card,.client-card,.service-card,.supply-card,.share-access-card,.timer-card,.empty-card,.mobile-record-card,.review-settings-card,.support-contact-card,.worker-job-card,.trial-card,.inquiry-detail-card,.install-card,.onboarding-help-card,.attention-summary-card):not(#todayHeroCard){
+  background:var(--owner-card-bg,#FFFFFF)!important;
+  color:var(--owner-card-ink,#191919)!important;
+  border-color:#D8DEE5!important;
+}
+html body.shell-app #appShell[data-owner-card-palette="true"] :is(.panel,.metric-card,.pulse-card,.dashboard-quick-card,.client-card,.service-card,.mobile-record-card,.trial-card,.attention-summary-card):not(#todayHeroCard) :is(h2,h3,h4,p,small,label,.eyebrow,.panel-note,.record-field,.dashboard-quick-arrow){color:var(--owner-card-ink,#191919)!important}
+html body.shell-app #appShell[data-owner-card-palette="true"] :is(.metric-card,.pulse-card,.dashboard-quick-card,.attention-summary-card):not(#todayHeroCard)>:is(span,strong,small){color:var(--owner-card-ink,#191919)!important}
+.owner-cards-choice{display:grid;gap:10px;padding-bottom:20px;margin-bottom:18px;border-bottom:1px solid #D8DEE5}
+.owner-cards-choice label{display:grid;gap:8px;font-weight:700}
+.owner-cards-choice input[type="color"]{width:100%;height:48px;padding:4px;border:1px solid #ddd;border-radius:10px}
+.owner-cards-preview{padding:18px;border:1px solid #D8DEE5;border-radius:14px;font-weight:700}
+.business-logo-summary{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 0}
+.business-logo-summary img{width:76px;height:76px;object-fit:contain;background:#fff;border:1px solid #D8DEE5;border-radius:14px;padding:6px}
+.workspace-business-logo{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:10px;padding:3px}
+.business-logo-summary [hidden],.workspace-chip [hidden]{display:none!important}
+.wp-no-logo{font-size:11px;text-align:center;padding:8px;color:#68665f}
+
+#appShell #greetingColorsSettings #greetingColorPreviewPanel .greeting-color-preview :is(h4,p){color:inherit!important}
