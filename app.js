@@ -5123,7 +5123,6 @@ function renderInvoices(){
       </span>
       <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(invoiceClientName)}</strong>${inv.due_at?`<small class="invoice-due-date">${escapeHtml(langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)))}</small>`:""}${invoiceContactHtml?`<span class="invoice-contact-list">${invoiceContactHtml}</span>`:""}</span>
       <span class="record-actions invoice-actions-stable">${invoiceActionsHtml}</span>
-      <button type="button" class="invoice-tablet-more" data-invoice-tablet-more="${inv.id}" aria-expanded="false" aria-controls="${tabletInvoiceDetailsId}" aria-label="${escapeHtml(langPick("More invoice details","Más detalles de la factura","Plus de détails sur la facture"))}">•••</button>
       <div class="invoice-tablet-details" id="${tabletInvoiceDetailsId}" hidden>
         <div class="invoice-tablet-details-grid">
           <div class="invoice-tablet-detail-block">
