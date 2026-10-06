@@ -106,11 +106,19 @@
         panel.dataset.compactAccordionReady="1";
         const info=genericTrigger(panel);
         if(!info) return;
-        info.node.addEventListener("click",event=>{
-          if(isControl(event.target) || !media.matches) return;
+        const togglePanel=event=>{
+          if(!media.matches) return;
+          if(isControl(event.target) && !event.target.closest(".panel-head,h3,.panel-heading-row")) return;
           panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
           syncGenericPanel(panel);
-        });
+        };
+        info.node.addEventListener("click",togglePanel);
+        if(panel.matches('[data-page="admin"] .admin-grid>.panel')){
+          panel.addEventListener("click",event=>{
+            if(event.target.closest("button,a,input,select,textarea,label")) return;
+            if(event.target.closest(".panel-head,h3,.eyebrow")) togglePanel(event);
+          });
+        }
         info.node.addEventListener("keydown",event=>{
           if(event.key!=="Enter"&&event.key!==" ") return;
           if(!media.matches) return;
