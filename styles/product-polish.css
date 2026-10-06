@@ -95,3 +95,34 @@
  [data-page="today"] .schedule-panel{margin-top:0!important}
  [data-page="today"] .next-move-panel{margin-top:10px!important}
 }
+/* Interior product language: quiet lists, contextual detail, touch-first hierarchy. */
+@media(max-width:680px){
+ .view:not([data-page="today"])>.section-intro+*{margin-top:0!important}
+ .view:not([data-page="today"]) .panel:not(.booking-requests-always){box-shadow:none!important}
+ .view:not([data-page="today"]) .panel p.eyebrow{font-size:9px!important;letter-spacing:.13em!important}
+ .view:not([data-page="today"]) .panel-note,.view:not([data-page="today"]) .helper{font-size:12px!important;line-height:1.4!important}
+ .view:not([data-page="today"]) button,.view:not([data-page="today"]) [role="button"]{touch-action:manipulation}
+ [data-page="quotes"] .kanban,[data-page="clients"] .client-grid,[data-page="calendar"] .calendar-layout{display:block!important}
+ [data-page="quotes"] .kanban>*,
+ [data-page="clients"] .client-grid>*{margin-bottom:8px!important}
+ [data-page="booking"] .booking-step-panel:not(.booking-requests-always),
+ [data-page="settings"] .panel,
+ [data-page="admin"] .panel{margin-bottom:8px!important}
+ [data-page="booking"] .booking-step-panel:not(.booking-requests-always)>.panel-head,
+ [data-page="settings"] .panel>.panel-head,
+ [data-page="admin"] .panel>.panel-head{margin-bottom:8px!important}
+ [data-page="followups"] .followup-metrics{display:none!important}
+ [data-page="followups"] .followup-rules-panel{order:2}
+ [data-page="followups"] .followup-layout{display:flex!important;flex-direction:column!important}
+ [data-page="invoices"] .metric-grid.compact{display:none!important}
+ [data-page="invoices"] .table-card{background:#fff!important}
+ [data-page="calendar"] .calendar-panel{padding:12px!important}
+ [data-page="calendar"] .calendar-layout>.panel+ .panel{margin-top:10px!important}
+ .modal-backdrop{align-items:flex-end!important;padding:0!important}
+ .modal{width:100%!important;max-width:none!important;max-height:88dvh!important;border-radius:26px 26px 0 0!important;padding:20px 18px max(20px,env(safe-area-inset-bottom))!important;animation:tleSheetUp .22s cubic-bezier(.2,.8,.2,1)}
+ .modal::before{content:"";display:block;width:38px;height:4px;border-radius:99px;background:#d7d4ce;margin:-8px auto 14px}
+ .modal-close{top:16px!important;right:16px!important;width:36px!important;height:36px!important;border-radius:50%!important;background:#f2f2f2!important}
+ .entity-form{gap:12px!important}
+ .entity-form .primary-btn,.modal .dark-btn{min-height:48px!important;width:100%!important}
+}
+@keyframes tleSheetUp{from{transform:translateY(24px);opacity:.7}to{transform:translateY(0);opacity:1}}
