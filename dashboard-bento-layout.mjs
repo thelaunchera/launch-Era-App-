@@ -34,6 +34,11 @@ try{
     document.querySelector('#todayMomentCopy').textContent='Your cleaning business, at a glance.';
     document.querySelector('#todayClockTime').textContent='9:41 AM';
     document.querySelector('#todayDatePill').textContent='Tue, Oct 6';
+    document.querySelector('#weatherBrief').hidden=false;
+    document.querySelector('#weatherTemp').textContent='78°';
+    document.querySelector('#weatherCondition').textContent='Cloudy';
+    document.querySelector('#weatherBusinessNote').hidden=false;
+    document.querySelector('#weatherBusinessNote').textContent='Rain expected tomorrow around 5:00 PM';
     document.querySelector('#todayHeroAction').disabled=false;
     document.querySelector('#todayHeroAction').textContent='View calendar';
     const counts=[2,4,3,0,3,2,1];const start=new Date('2026-10-05T00:00:00');
@@ -71,9 +76,17 @@ try{
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
    assert.equal(result.columns,width<=860?2:4);assert.equal(result.quickColumns,3);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
-   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<190,`greeting too large: ${result.heroHeight}`);
+   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<250,`greeting too large: ${result.heroHeight}`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
+   assert.equal(await page.locator('#weatherLocation').isVisible(),false);
+   assert.equal(await page.locator('#weatherHighLow').isVisible(),false);
+   assert.equal(await page.locator('#weatherBusinessNote').isVisible(),false);
+   const weather=await page.locator('#weatherBrief').boundingBox();
+   const greeting=await page.locator('.today-greeting-first').boundingBox();
+   const action=await page.locator('#todayHeroAction').boundingBox();
+   assert.ok(weather.y+weather.height<=greeting.y+1,'weather precedes greeting');
+   assert.ok(greeting.y+greeting.height<=action.y+1,'CTA follows greeting');
    // Business weekdays stay correct when the device timezone is UTC.
    await page.evaluate(()=>window.TLE_BENTO_DASHBOARD.render({...window.__bentoFixture,jobs:[{starts_at:'2026-10-11T01:00:00Z'}]}));
    assert.equal(await page.locator('.bento-bar-value').nth(5).textContent(),'1');
