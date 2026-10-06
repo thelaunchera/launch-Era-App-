@@ -37,10 +37,13 @@ function installMobileDrawerFix(){
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sidebar.classList.contains("open"))shut();});
 }
 function installRecordArchitecture(){
- const selectors=["#clientsGrid","#quotesBoard","#invoicesTable","#teamGrid","#suppliesGrid","#jobsList"];
+ const selectors=["#clientsGrid","#quotesBoard","#teamGrid","#suppliesGrid","#jobsList"];
  const normalize=()=>{
+  document.querySelectorAll("#invoicesTable .tle-record-disclosure").forEach(el=>el.remove());
+  document.querySelectorAll("#invoicesTable .record-actions").forEach(actions=>{actions.hidden=false;actions.classList.remove("tle-record-actions");});
+  document.querySelectorAll("#invoicesTable .tle-record-row").forEach(row=>row.classList.remove("tle-record-row","is-open"));
   selectors.forEach(sel=>{const root=document.querySelector(sel);if(root)root.classList.add("tle-record-list");});
-  document.querySelectorAll("#clientsGrid .client-card:not(.add-card),#quotesBoard .quote-growth-card,#invoicesTable .table-row,#teamGrid .client-card:not(.add-card),#suppliesGrid .supply-card,#jobsList .job-block").forEach(card=>{
+  document.querySelectorAll("#clientsGrid .client-card:not(.add-card),#quotesBoard .quote-growth-card,#teamGrid .client-card:not(.add-card),#suppliesGrid .supply-card,#jobsList .job-block").forEach(card=>{
    card.classList.add("tle-record-row");
    if(card.querySelector(".tle-record-disclosure"))return;
    const actions=card.querySelector(".card-actions,.record-actions");
