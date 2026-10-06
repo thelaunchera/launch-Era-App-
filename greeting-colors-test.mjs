@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {JSDOM} from 'jsdom';
+
+const dom=new JSDOM('<article id="todayHeroCard" data-celestial="day"></article><section id="greetingColorsSettings"></section>',{runScripts:'outside-only'});
+const w=dom.window;
+let saved={morning:'#F6EDBF',afternoon:'#E4F2FB',evening:'#ECE9FF'},failSave=false;
+const business={id:'business-a',role:'owner',timezone:'America/New_York'};
+w.TLE_APP_BRIDGE={state:{business},supabase:{from(){
+  let update;
+  const query={select(){return query;},eq(_key,id){assert.equal(id,business.id);return query;},update(value){update=value;return query;},async single(){
+    if(update&&failSave)return {data:null,error:new Error('offline')};
+    if(update)saved=update.greeting_card_colors;
+    return {data:{greeting_card_colors:saved},error:null};
+  }};return query;
+}}};
+w.eval(fs.readFileSync('greeting-colors.js','utf8'));
+const hero=w.document.getElementById('todayHeroCard');
+await w.TLE_GREETING_COLORS.open(9);
+assert.equal(hero.style.getPropertyValue('--greeting-day-color'),'#F6EDBF');
+assert.equal(w.document.querySelectorAll('input[type=color]').length,3);
+const form=w.document.querySelector('form');
+form.elements.morning.value='#000000';
+await form.onsubmit({preventDefault(){}});
+assert.equal(saved.morning,'#000000');
+assert.equal(hero.style.getPropertyValue('--greeting-day-ink'),'#FFFFFF');
+failSave=true;form.elements.morning.value='#ffffff';
+await form.onsubmit({preventDefault(){}});
+assert.equal(saved.morning,'#000000','A failed save must not replace the active palette');
+assert.match(w.document.getElementById('greetingColorsStatus').textContent,/Could not save/);
+await w.TLE_GREETING_COLORS.open(14);
+assert.equal(hero.style.getPropertyValue('--greeting-day-color'),'#E4F2FB');
+await w.TLE_GREETING_COLORS.open(18);
+assert.equal(hero.style.getPropertyValue('--greeting-day-color'),'#ECE9FF');
+saved.morning='invalid';await w.TLE_GREETING_COLORS.open(8);
+assert.equal(hero.style.getPropertyValue('--greeting-day-color'),'#F6EDBF');
+business.role='admin';w.document.getElementById('greetingColorsSettings').innerHTML='';
+w.TLE_GREETING_COLORS.mount();assert.equal(w.document.querySelector('form'),null);
+assert.doesNotMatch(fs.readFileSync('app.js','utf8'),/function scheduleQuarterHourCardColors/);
+dom.window.close();
+console.log('GREETING_COLORS_OK: mood selection, persistent save, failure handling, contrast, validation and owner controls');

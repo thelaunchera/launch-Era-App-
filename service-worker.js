@@ -23,6 +23,7 @@ const CORE=[
   "./styles/compact-workspace.css?v=20261005-night-greeting-r35",
   "./styles/auth-entry-v2.css?v=20261005-night-greeting-r35",
   "./estimate-calculator.js?v=20261005-night-greeting-r35",
+  "./greeting-colors.js?v=20261005-night-greeting-r35",
   "./app.js?v=20261005-night-greeting-r35",
   "./welcome-packet-owner.js?v=20261005-night-greeting-r35",
   "./followups.js?v=20261005-night-greeting-r35",
