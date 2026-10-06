@@ -5163,7 +5163,7 @@ function discountValueLabel(record){
     : money(Number(record.discount_value||0))+" off";
 }
 function renderBookingDiscounts(){
-  const list=$("#bookingDiscountsList");
+  const list=$("#servicesDiscountsList")||$("#bookingDiscountsList");
   if(!list) return;
   const rows=state.bookingDiscounts||[];
   if(!rows.length){
@@ -9606,7 +9606,7 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const addDiscount=e.target.closest("#addDiscountBtn");
+  const addDiscount=e.target.closest("#servicesAddDiscountBtn,#addDiscountBtn");
   const editDiscount=e.target.closest("[data-discount-edit]");
   const publishDiscount=e.target.closest("[data-discount-publish]");
   if(addDiscount){ openDiscountForm(); return; }
