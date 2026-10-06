@@ -197,10 +197,3 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="supplies"] .card-actions{position:static!important;margin-top:10px!important;width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
  body.shell-app #appShell [data-page="supplies"] .card-actions button{position:static!important;width:100%!important;min-width:0!important;min-height:44px!important}
 }
-
-/* r47 — invoice cards never render legacy overflow/ellipsis layers */
-@media(max-width:680px){
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-row :is(.mobile-more-actions,[aria-label="More actions"],[aria-label="Más acciones"],[aria-label="Plus d’actions"]){display:none!important;visibility:hidden!important;width:0!important;height:0!important;position:absolute!important;pointer-events:none!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-row>.invoice-client-field{position:relative!important;z-index:1!important;background:transparent!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-row>.invoice-actions-stable{position:relative!important;z-index:2!important;background:transparent!important}
-}
