@@ -16,6 +16,7 @@ const CORE=[
   "./styles/responsive-shell.css?v=20261006-bento-reference-r39",
   "./styles/customer-documents.css?v=20261006-bento-reference-r39",
   "./styles/public-booking.css?v=20261006-bento-reference-r39",
+  "./styles/public-booking-demo.css?v=20261006-bento-reference-r39",
   "./styles/booking-discounts.css?v=20261006-bento-reference-r39",
   "./styles/estimate-calculator.css?v=20261006-bento-reference-r39",
   "./styles/public-manage.css?v=20261006-bento-reference-r39",
