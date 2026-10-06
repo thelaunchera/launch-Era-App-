@@ -141,7 +141,7 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
 }
 
 @media(min-width:861px){
- body.shell-app #appShell .main{padding:22px 24px 36px!important}
+ body.shell-app #appShell .main{padding:0 24px 36px!important}\n body.shell-app #appShell .topbar{margin-top:0!important}
  body.shell-app #appShell .view.active>.section-intro{margin:2px 0 18px!important}
  body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid){
    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:start!important
