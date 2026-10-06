@@ -58,3 +58,40 @@
   [data-page="today"] .growth-grid,[data-page="today"] .growth-lower{display:block!important}
   [data-page="today"] .capacity-card,[data-page="today"] .next-move-panel,[data-page="today"] .presence-panel{margin-top:10px!important}
 }
+/* Video-reference mobile navigation: app drawer, not a compressed desktop sidebar */
+@media(max-width:680px){
+ #sidebar.sidebar{
+   position:fixed!important;inset:0 auto 0 0!important;
+   width:min(88vw,350px)!important;height:100dvh!important;
+   padding:max(18px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))!important;
+   background:#faf9f6!important;border-right:1px solid rgba(25,25,25,.08)!important;
+   box-shadow:20px 0 60px rgba(25,25,25,.14)!important;
+   overflow:hidden!important;display:flex!important;flex-direction:column!important;
+ }
+ #sidebar .brand-row{margin:2px 2px 14px!important}
+ #sidebar .brand-mark{width:38px!important;height:38px!important;border-radius:12px!important}
+ #sidebar .workspace-chip{margin:0 0 12px!important;padding:10px!important;border-radius:15px!important;background:#fff!important}
+ #sidebar .nav-list{gap:3px!important;padding:4px 0 8px!important}
+ #sidebar .nav-item{min-height:46px!important;padding:10px 12px!important;border-radius:13px!important;font-size:15px!important}
+ #sidebar .nav-item.active{background:#e9f2fd!important;box-shadow:none!important}
+ #sidebar .nav-more-toggle{min-height:44px!important;width:100%!important}
+ #sidebar .trial-card{margin:8px 0!important;padding:11px 12px!important;border-width:1px!important;border-radius:14px!important}
+ #sidebar .trial-card p{display:none!important}
+ #sidebar .sidebar-session-actions{margin-top:auto!important;padding-top:8px!important;background:#faf9f6!important}
+ #sidebar .sidebar-support-actions{display:none!important}
+ #sidebar .sidebar-settings-actions{display:grid!important;grid-template-columns:1fr!important;gap:4px!important}
+ #sidebar .sidebar-support-btn{min-height:42px!important;border-radius:12px!important}
+ #sidebar .sidebar-logout-btn{margin-top:7px!important;min-height:44px!important;border-radius:13px!important}
+ #sidebarScrim{position:fixed!important;inset:0!important;background:rgba(25,25,25,.24)!important;backdrop-filter:blur(2px);z-index:79!important}
+}
+/* The mobile tab bar is the daily navigation; drawer is for everything else. */
+@media(max-width:680px){
+ .mobile-bottom-nav,.bottom-nav,[data-mobile-nav]{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+ [data-page="today"] .money-week-head,
+ [data-page="today"] .business-pulse,
+ [data-page="today"] .growth-lower,
+ [data-page="today"] .presence-panel{display:none!important}
+ [data-page="today"] .growth-grid{margin-top:10px!important}
+ [data-page="today"] .schedule-panel{margin-top:0!important}
+ [data-page="today"] .next-move-panel{margin-top:10px!important}
+}
