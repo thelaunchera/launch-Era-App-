@@ -333,3 +333,19 @@
  body:not(.sidebar-is-open) #sidebarScrim{display:none!important;pointer-events:none!important}
  body:not(.sidebar-is-open){overflow:auto!important}
 }
+
+
+/* 2026-10-06 emergency mobile interaction/layout recovery */
+@media(max-width:860px){
+ .modal-backdrop[hidden],.dialog-backdrop[hidden],[class*="backdrop"][hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ body.shell-app #sidebar.sidebar{filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate!important}
+ body.shell-app #sidebar.sidebar.open{z-index:2147483001!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+ body.shell-app #sidebarScrim:not([hidden]){z-index:2147483000!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ body.shell-app #sidebar.sidebar.open .nav-item,body.shell-app #sidebar.sidebar.open button{pointer-events:auto!important;touch-action:manipulation!important}
+ body.shell-app .modal-backdrop:not([hidden]){position:fixed!important;inset:0!important;z-index:2147483100!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;padding:0!important;overflow:hidden!important;background:rgba(25,25,25,.34)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ body.shell-app .modal-backdrop:not([hidden])>.modal{position:relative!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:88dvh!important;margin:0!important;padding:22px 18px calc(24px + env(safe-area-inset-bottom))!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;background:#FAF8F3!important;border-radius:26px 26px 0 0!important;box-shadow:0 -18px 55px rgba(25,25,25,.18)!important}
+ body.shell-app .modal .entity-form{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;width:100%!important}
+ body.shell-app .modal .entity-form>label,body.shell-app .modal .entity-form>.field,body.shell-app .modal .entity-form input,body.shell-app .modal .entity-form select,body.shell-app .modal .entity-form textarea{min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important}
+ body.shell-app .modal .entity-form label{display:grid!important;gap:7px!important;margin:0!important}
+ body.shell-app .modal .entity-form input,body.shell-app .modal .entity-form select,body.shell-app .modal .entity-form textarea{position:static!important;transform:none!important}
+}
