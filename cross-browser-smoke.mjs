@@ -408,6 +408,7 @@ try{
       await assertLayout(page,profile);
       const paletteChecks=await page.evaluate(()=>{
         const hero=document.querySelector("#todayHeroCard");
+        hero.style.setProperty("transition","none","important");
         hero.dataset.ownerPalette="true";
         hero.style.setProperty("--greeting-day-color","#123456");
         hero.style.setProperty("--greeting-day-ink","#FFFFFF");
@@ -417,15 +418,15 @@ try{
           hero.classList.add("quarter-color-"+quarter);
           hero.dataset.paletteMode="night";
           hero.dataset.celestial="night";
-          checks.push(getComputedStyle(hero).backgroundImage.includes("23, 62, 88"));
+          checks.push({kind:"night",value:getComputedStyle(hero).backgroundImage,ok:getComputedStyle(hero).backgroundImage.includes("23, 62, 88")});
           hero.dataset.paletteMode="day";
           hero.dataset.celestial="day";
-          checks.push(getComputedStyle(hero).backgroundColor==="rgb(18, 52, 86)");
-          checks.push(getComputedStyle(document.querySelector("#todayGreeting")).color==="rgb(255, 255, 255)");
+          checks.push({kind:"day",value:getComputedStyle(hero).backgroundColor,ok:getComputedStyle(hero).backgroundColor==="rgb(18, 52, 86)"});
+          checks.push({kind:"text",value:getComputedStyle(document.querySelector("#todayGreeting")).color,ok:getComputedStyle(document.querySelector("#todayGreeting")).color==="rgb(255, 255, 255)"});
         }
         return checks;
       });
-      if(paletteChecks.some(result=>!result)) throw new Error(profile.name+": greeting palette priority failed");
+      if(paletteChecks.some(result=>!result.ok)) throw new Error(profile.name+": greeting palette priority failed "+JSON.stringify(paletteChecks));
       const serious=errors.filter(e=>/ReferenceError|SyntaxError|Supabase browser library failed/i.test(e));
       if(serious.length) throw new Error(profile.name+": runtime error "+serious.join(" | "));
       console.log("CROSS_BROWSER_OK",profile.name);
