@@ -1,4 +1,4 @@
-const CACHE_NAME="tle-cleaning-app-20261004-estimate-save-r34";
+const CACHE_NAME="tle-cleaning-app-20261005-night-greeting-r35";
 const CORE=[
   "./boot.js?v=20261004-estimate-save-r34",
   "./styles/boot.css?v=20261004-estimate-save-r34",
@@ -19,7 +19,7 @@ const CORE=[
   "./styles/public-manage.css?v=20261004-estimate-save-r34",
   "./styles/invoice-polish.css?v=20261004-estimate-save-r34",
   "./styles/welcome-packet.css?v=20261004-estimate-save-r34",
-  "./styles/dashboard-home-v2.css?v=20261004-estimate-save-r34",
+  "./styles/dashboard-home-v2.css?v=20261005-night-greeting-r35",
   "./styles/compact-workspace.css?v=20261004-estimate-save-r34",
   "./styles/auth-entry-v2.css?v=20261004-estimate-save-r34",
   "./estimate-calculator.js?v=20261004-estimate-save-r34",
