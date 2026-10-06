@@ -22,7 +22,7 @@ const CORE=[
   "./styles/invoice-polish.css?v=20261006-bento-reference-r39",
   "./styles/welcome-packet.css?v=20261006-bento-reference-r39",
   "./styles/dashboard-home-v2.css?v=20261006-bento-reference-r39",
-  "./styles/compact-workspace.css?v=20261006-bento-reference-r39",
+  "./styles/compact-workspace.css?v=20261006-bento-reference-r39",\n  "./styles/mobile-foundation.css?v=20261006-bento-reference-r39",
   "./styles/auth-entry-v2.css?v=20261006-bento-reference-r39",
   "./estimate-calculator.js?v=20261006-bento-reference-r39",
   "./greeting-colors.js?v=20261006-bento-reference-r39",
