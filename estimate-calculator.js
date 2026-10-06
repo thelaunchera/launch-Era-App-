@@ -99,7 +99,7 @@
 
   function render(){
     if(!bridge) return;
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("servicesEstimateCalculatorMount")||document.getElementById("estimateCalculatorMount");
     if(!mount) return;
 
     if(mount.dataset.businessId===String(appState().business?.id||"")){
