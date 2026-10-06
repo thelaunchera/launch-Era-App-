@@ -1912,8 +1912,8 @@ body.platform-owner-no-billing .trial-card{
 
 /* 2026-10-06 — Desktop density + premium workspace pass */
 @media (min-width:1101px){
-  .app-shell{grid-template-columns:230px minmax(0,1fr)!important}
-  .sidebar{width:230px!important;padding:16px 12px!important;overflow-y:auto!important;overflow-x:hidden!important;gap:0!important}
+  .app-shell{grid-template-columns:200px minmax(0,1fr)!important}
+  .sidebar{width:200px!important;padding:14px 10px!important;overflow-y:auto!important;overflow-x:hidden!important;gap:0!important}
   .brand-row{margin-bottom:12px!important}.brand-mark{width:36px!important;height:36px!important;border-radius:11px!important}
   .workspace-chip{padding:8px 9px!important;margin-bottom:9px!important;border-radius:14px!important}.workspace-avatar{width:32px!important;height:32px!important;border-radius:10px!important}
   .nav-list{display:flex!important;flex-direction:column!important;gap:2px!important;overflow:visible!important;flex:0 0 auto!important;padding:0!important}
