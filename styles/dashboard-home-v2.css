@@ -785,3 +785,14 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
 .greeting-color-preview{padding:22px;border-radius:16px;font-size:20px;font-weight:700;margin-bottom:14px}
 .greeting-color-actions{display:flex;flex-wrap:wrap;gap:8px}
 #greetingColorsStatus{font-size:13px;min-height:18px}
+
+/* Interactive draft preview: mood buttons never submit or change saved colors. */
+.greeting-preview-toggle{margin:0 0 14px}
+.greeting-preview-panel[hidden]{display:none!important}
+.greeting-preview-moods{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.greeting-preview-moods button{min-height:40px;padding:8px 12px;border:1px solid #ddd;border-radius:12px;background:#fff;color:#191919;font-size:12px}
+.greeting-preview-moods button[aria-pressed="true"]{background:#191919;color:#fff;border-color:#191919}
+.greeting-color-preview h4{font-size:clamp(26px,5vw,36px);line-height:1.08;margin:18px 0 8px;color:inherit!important}
+.greeting-color-preview p{font-size:14px;font-weight:400;margin:0 0 20px;color:inherit!important}
+.greeting-preview-clock{display:inline-block;padding:7px 10px;border:1px solid currentColor;border-radius:10px;font-size:13px}
+.greeting-preview-calendar{display:block;padding:12px;text-align:center;border-radius:12px;background:#F8FAFF;color:#10264A;font-size:14px}
