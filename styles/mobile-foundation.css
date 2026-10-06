@@ -41,3 +41,99 @@
  body.shell-app #sidebarScrim[hidden]{display:none!important;pointer-events:none!important}
  body.shell-app #sidebarScrim:not([hidden]){pointer-events:auto!important;z-index:1001!important}
 }
+
+/* iPhone invoices — compact summary card + small overflow menu */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable{gap:7px!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row{
+   position:relative!important;
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) auto!important;
+   grid-template-rows:auto auto auto!important;
+   gap:0 8px!important;
+   min-height:0!important;
+   padding:11px 46px 10px 11px!important;
+   border-radius:15px!important;
+   overflow:visible!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-growth-primary{
+   grid-column:1!important;grid-row:1!important;
+   display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
+   column-gap:7px!important;row-gap:2px!important;
+   padding:0!important;margin:0!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-number{grid-column:1/-1!important;font-size:9px!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-growth-amount{font-size:25px!important;line-height:1!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-growth-balance-label{align-self:end!important;margin:0 0 2px!important;font-size:9px!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-status-badge{
+   position:absolute!important;top:10px!important;right:10px!important;
+   margin:0!important;z-index:2!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-status-meta{
+   grid-column:1/-1!important;grid-row:2!important;
+   display:flex!important;flex-wrap:wrap!important;gap:4px 6px!important;
+   margin:7px 0 0!important;padding:6px 0!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-client-field{
+   grid-column:1/-1!important;grid-row:3!important;
+   display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
+   align-items:center!important;gap:3px 8px!important;
+   min-height:0!important;margin:0!important;padding:7px 0 0!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-client-field:before{
+   grid-column:1!important;grid-row:1!important;
+   align-self:center!important;font-size:8px!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-client-field>strong{
+   grid-column:2!important;grid-row:1!important;
+   font-size:14px!important;line-height:1.1!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-due-date{grid-column:2!important;font-size:9px!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-list{
+   grid-column:1/-1!important;
+   display:flex!important;flex-wrap:wrap!important;gap:4px!important;
+   margin:4px 0 0!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-row{
+   display:inline-flex!important;align-items:center!important;gap:5px!important;
+   width:auto!important;max-width:100%!important;min-height:28px!important;
+   padding:4px 7px!important;border-radius:9px!important;font-size:9px!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-row.is-address{flex:1 1 100%!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-icon{width:18px!important;height:18px!important;font-size:5.5px!important}
+ /* The visible card has no permanent Edit/Delete stack. */
+ body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{display:none!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-more{
+   display:grid!important;place-items:center!important;
+   position:absolute!important;right:9px!important;bottom:9px!important;
+   width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;
+   margin:0!important;padding:0 0 6px!important;
+   border:1px solid #E4E0D8!important;border-radius:50%!important;
+   background:#F5F2EC!important;color:#191919!important;
+   font-size:16px!important;line-height:1!important;letter-spacing:1px!important;
+   box-shadow:none!important;z-index:3!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-more[aria-expanded="true"]{background:#191919!important;color:#fff!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details{
+   grid-column:1/-1!important;
+   margin:8px -35px 0 0!important;padding:8px!important;
+   border-top:1px solid #E9E4DB!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details[hidden]{display:none!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details-grid{display:block!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-detail-block{display:none!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions{
+   display:grid!important;grid-template-columns:1fr!important;gap:5px!important;
+   margin:0!important;padding:0!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions .safe-actions{
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions button{
+   width:100%!important;min-height:38px!important;margin:0!important;padding:8px!important;
+   border-radius:10px!important;font-size:10px!important;
+ }
+ body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions>.record-delete-btn{
+   margin-top:1px!important;color:#8B3F35!important;background:#FFF1EE!important;border:1px solid #E8BDB5!important;
+ }
+}
