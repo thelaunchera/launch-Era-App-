@@ -4998,7 +4998,7 @@ function invoicePaidAmount(inv){
 function enhanceMobileRecordActions(){
   if(!window.matchMedia("(max-width: 680px)").matches) return;
   $$(".mobile-record-card .record-actions").forEach(actions=>{
-    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable")) return;
+    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable") || actions.closest(".invoice-growth-row")) return;
     const safe=actions.querySelector(".safe-actions");
     if(!safe) return;
     const buttons=[...safe.querySelectorAll("button")];
