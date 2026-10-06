@@ -112,12 +112,16 @@
           panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
           syncGenericPanel(panel);
         };
-        info.node.addEventListener("click",togglePanel);
         if(panel.matches('[data-page="admin"] .admin-grid>.panel')){
           panel.addEventListener("click",event=>{
-            if(event.target.closest("button,a,input,select,textarea,label")) return;
-            if(event.target.closest(".panel-head,h3,.eyebrow")) togglePanel(event);
+            if(!media.matches) return;
+            if(event.target.closest("button,a,input,select,textarea,label") && !event.target.closest("h3")) return;
+            const trigger=event.target.closest(".panel-head,h3,.eyebrow");
+            if(!trigger) return;
+            togglePanel(event);
           });
+        }else{
+          info.node.addEventListener("click",togglePanel);
         }
         info.node.addEventListener("keydown",event=>{
           if(event.key!=="Enter"&&event.key!==" ") return;
