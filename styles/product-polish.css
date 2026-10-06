@@ -199,3 +199,28 @@
 .tle-save-toast.show{opacity:1;transform:translate(-50%,0)}.tle-save-toast>span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);font-size:11px}.tle-save-toast.saved>span{background:#dff3e4;color:#27703a}.tle-save-toast.error>span{background:#ffe1df;color:#a3312b}.tle-save-toast .saving-dot{width:8px;height:8px;background:#fff;animation:tleSavingPulse .8s ease-in-out infinite}
 @keyframes tleSavingPulse{50%{opacity:.35;transform:scale(.7)}}
 @media(max-width:680px){.tle-save-toast{bottom:calc(env(safe-area-inset-bottom) + 82px);max-width:calc(100vw - 28px)}}
+
+/* Consolidated settings: Owner Admin becomes a compact settings hub; Booking stays operational. */
+@media(max-width:680px){
+ [data-page="admin"] .section-intro{margin-bottom:10px!important}
+ [data-page="admin"] .section-intro .pill{font-size:9px!important;padding:5px 8px!important}
+ [data-page="admin"] .admin-grid{display:block!important;background:#fff;border:1px solid var(--app-line);border-radius:18px;overflow:hidden}
+ [data-page="admin"] .admin-grid>.panel{margin:0!important;padding:0!important;border:0!important;border-bottom:1px solid var(--app-line)!important;border-radius:0!important;background:#fff!important}
+ [data-page="admin"] .admin-grid>.panel:last-child{border-bottom:0!important}
+ [data-page="admin"] .admin-grid>.panel>p.eyebrow{display:none!important}
+ [data-page="admin"] .admin-grid>.panel>h3{font-size:16px!important;margin:0!important;padding:15px 46px 15px 15px!important;position:relative}
+ [data-page="admin"] .admin-grid>.panel>h3::after{content:"›";position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:24px;color:#99948d;font-weight:400}
+ [data-page="admin"] .admin-grid>.panel>.setting-row,
+ [data-page="admin"] .admin-grid>.panel>.role-legend,
+ [data-page="admin"] .admin-grid>.panel>.members-list{display:none!important}
+ [data-page="admin"] .admin-grid>.panel>.panel-head{margin:0!important;padding:12px 15px!important;min-height:58px}
+ [data-page="admin"] .admin-grid>.panel>.panel-head .eyebrow{display:none!important}
+ [data-page="admin"] .admin-grid>.panel>.panel-head h3{font-size:16px!important;margin:0!important}
+ [data-page="admin"] #inviteMemberBtn{font-size:11px!important;min-height:34px!important;padding:7px 10px!important}
+ [data-page="admin"] .admin-grid>.panel[data-account-billing]::before{content:"Plan & billing";display:block;font-size:16px;font-weight:900;padding:15px 46px 15px 15px;position:relative}
+ [data-page="admin"] .admin-grid>.panel[data-account-billing]::after{content:"›";position:absolute}
+ [data-page="admin"] .admin-grid>.panel[data-account-billing]>h3{display:none!important}
+ [data-page="booking"] .booking-control-center{padding-bottom:12px}
+ [data-page="booking"] .booking-command-card{background:transparent!important;border:0!important;padding:4px 0 10px!important}
+ [data-page="booking"] .booking-command-link{background:#fff!important;border:1px solid var(--app-line)!important}
+}
