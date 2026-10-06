@@ -349,3 +349,29 @@
  body.shell-app .modal .entity-form label{display:grid!important;gap:7px!important;margin:0!important}
  body.shell-app .modal .entity-form input,body.shell-app .modal .entity-form select,body.shell-app .modal .entity-form textarea{position:static!important;transform:none!important}
 }
+
+
+/* Safari iPhone modal footer reachability */
+@media(max-width:860px){
+ body.shell-app .modal-backdrop:not([hidden])>.modal{
+   display:flex!important;
+   flex-direction:column!important;
+   max-height:88dvh!important;
+   overflow-y:auto!important;
+   padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+ }
+ body.shell-app .modal-backdrop:not([hidden])>.modal>.entity-form{
+   flex:0 0 auto!important;
+   padding-bottom:6px!important;
+ }
+ body.shell-app .modal-backdrop:not([hidden])>.modal .form-actions,
+ body.shell-app .modal-backdrop:not([hidden])>.modal .modal-actions{
+   position:sticky!important;
+   bottom:calc(-18px - env(safe-area-inset-bottom))!important;
+   z-index:12!important;
+   margin:10px -18px calc(-18px - env(safe-area-inset-bottom))!important;
+   padding:10px 18px calc(12px + env(safe-area-inset-bottom))!important;
+   background:#FAF8F3!important;
+   border-top:1px solid rgba(25,25,25,.08)!important;
+ }
+}
