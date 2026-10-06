@@ -1983,8 +1983,8 @@ function showApp(){
     navHistory[0]="today";
     openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
   }
-  $$("[data-account-billing]").forEach(el=>{
-    el.hidden=state.isPlatformAdmin;
+  $("[data-account-billing]").forEach(el=>{
+    el.hidden=false;
   });
   renderTrialStatus();
   if(state.business?.role==="owner" && state.session?.user?.email){
@@ -2171,7 +2171,14 @@ function renderTrialStatus(){
   const trialCard=pill?.closest(".trial-card");
   const warning=$("#trialExpiryBanner");
   if(state.isPlatformAdmin){
-    if(trialCard) trialCard.hidden=true;
+    if(trialCard){
+      trialCard.hidden=false;
+      const strong=trialCard.querySelector("strong");
+      const copy=trialCard.querySelector("p");
+      if(strong) strong.textContent="$0/month · Owner access";
+      if(copy) copy.textContent="My Free Owner Plan · No renewal charge";
+    }
+    if(pill) pill.textContent="Free owner plan";
     if(warning) warning.hidden=true;
     $("#trialSubscribeBtn")?.remove();
     if(state.modalType==="subscriptionGate"){
@@ -4874,8 +4881,8 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
-  $$("[data-account-billing]").forEach(el=>{
-    el.hidden=state.isPlatformAdmin;
+  $("[data-account-billing]").forEach(el=>{
+    el.hidden=false;
   });
   const [membersRes,invitesRes]=await Promise.all([
     supabase.from("business_members").select("*").eq("business_id",state.business.id).order("created_at"),
@@ -4886,8 +4893,31 @@ async function loadOwnerAdmin(){
   renderMembers();
   const status=$("#adminPlanStatus");
   const trial=$("#adminTrialEnds");
-  if(status) status.textContent=state.business.subscription_status||"Trial";
-  if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+  const badge=$("#adminPlanBadge");
+  const dateLabel=$("#adminPlanDateLabel");
+  const dateMeta=$("#adminPlanDateMeta");
+  const priceLabel=$("#adminPlanPriceLabel");
+  const price=$("#adminPlanPrice");
+  const priceMeta=$("#adminPlanPriceMeta");
+  if(state.isPlatformAdmin){
+    if(status) status.textContent="My Free Owner Plan";
+    if(trial) trial.textContent="No expiration";
+    if(badge) badge.textContent="Free";
+    if(dateLabel) dateLabel.textContent="Access";
+    if(dateMeta) dateMeta.textContent="Owner";
+    if(priceLabel) priceLabel.textContent="Billing";
+    if(price) price.textContent="$0/month";
+    if(priceMeta) priceMeta.textContent="No renewal charge";
+  }else{
+    if(status) status.textContent=state.business.subscription_status||"Trial";
+    if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+    if(badge) badge.textContent="Owner only";
+    if(dateLabel) dateLabel.textContent="Trial ends";
+    if(dateMeta) dateMeta.textContent="30 days";
+    if(priceLabel) priceLabel.textContent="After trial";
+    if(price) price.textContent="$5.99/month";
+    if(priceMeta) priceMeta.textContent="—";
+  }
 }
 
 function renderMembers(){
