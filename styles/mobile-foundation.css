@@ -161,3 +161,6 @@
  body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open>:not(.panel-head):not(h3):not(.eyebrow){display:revert!important}
  body.shell-app #appShell [data-page="admin"] .admin-grid>.panel>:is(.panel-head,h3){min-height:44px!important}
 }
+
+/* invoice duplicate action guard */
+@media(max-width:680px){body.shell-app #appShell [data-page="invoices"] .invoice-growth-row .mobile-more-actions{display:none!important}}
