@@ -8811,12 +8811,13 @@ async function saveInvoice(fd){
   const requestedStatus=String(fd.get("status")||"draft");
   const existing=state.modalId ? state.invoices.find(i=>i.id===state.modalId) : null;
   const shouldSend=requestedStatus==="sent" && existing?.status!=="sent";
+  const isNewInvoice=!state.modalId;
 
   // Never mark a new invoice as sent until the email workflow succeeds.
   const payload={
     business_id:state.business.id,
     client_id:fd.get("client_id"),
-    status:shouldSend?"draft":requestedStatus,
+    status:(shouldSend||isNewInvoice)?"draft":requestedStatus,
     subtotal:amount,total:amount,
     due_at:fd.get("due_date")?new Date(fd.get("due_date")+"T23:59:59").toISOString():null,
     updated_at:new Date().toISOString()
@@ -8849,7 +8850,7 @@ async function saveInvoice(fd){
     if(itemErr) throw itemErr;
   }
 
-  if(shouldSend){
+  if(shouldSend && invoiceId){
     const base=window.location.origin+window.location.pathname;
     const {data,error}=await supabase.rpc("send_invoice_to_client",{
       p_invoice_id:invoiceId,
