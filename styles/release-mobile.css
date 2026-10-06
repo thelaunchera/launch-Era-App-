@@ -223,36 +223,6 @@
   order:-10;
 }
 
-/* Public link actions: remove the blank white mobile row and make Copy unmistakable. */
-@media(max-width:520px){
-  [data-page="booking"] .link-box{
-    grid-template-columns:1fr!important;
-    gap:8px!important;
-  }
-  [data-page="booking"] .link-box>a{
-    grid-column:1!important;
-    width:100%!important;
-  }
-  [data-page="booking"] .link-box button[data-open-public]{
-    display:none!important;
-  }
-  [data-page="booking"] .link-box button[data-copy-target]{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    grid-column:1!important;
-    width:100%!important;
-    min-height:46px!important;
-    padding:10px 14px!important;
-    background:var(--ink)!important;
-    color:#fff!important;
-    border-color:var(--ink)!important;
-    border-radius:12px!important;
-    font-size:12px!important;
-    font-weight:900!important;
-  }
-}
-
 /* Give the current page name priority on phones. */
 @media(max-width:560px){
   body.shell-app .global-search-shell,
