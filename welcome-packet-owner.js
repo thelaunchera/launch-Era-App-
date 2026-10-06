@@ -130,6 +130,16 @@
       const ta=document.createElement("textarea");ta.value=value;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
     }
   }
+  function refreshBusinessLogo(){
+    const logo=appState.business?.brand_logo_data_url||"";
+    for(const id of ["settingsBusinessLogo","workspaceBusinessLogo"]){
+      const img=document.getElementById(id);if(!img)continue;
+      if(logo){if(img.getAttribute("src")!==logo)img.src=logo;img.hidden=false;}else{img.hidden=true;img.removeAttribute("src");}
+    }
+    const empty=document.getElementById("settingsBusinessLogoEmpty");if(empty)empty.hidden=Boolean(logo);
+    const avatar=document.querySelector(".workspace-avatar");if(avatar)avatar.hidden=Boolean(logo);
+  }
+  window.TLE_REFRESH_BUSINESS_LOGO=refreshBusinessLogo;
   async function openBrandingSettings(){
     try{
       const businessId=appState.business?.id;
@@ -161,7 +171,7 @@
         '<header class="wp-owner-head"><div><small>'+esc(u.eyebrow)+'</small><h2>'+esc(u.title)+'</h2><p>'+esc(u.intro)+'</p></div><button type="button" class="wp-close" data-wp-brand-close>×</button></header>'+
         '<form id="welcomePacketBrandingForm" class="wp-owner-form"><div class="wp-owner-layout"><div class="wp-owner-fields">'+
         '<section class="wp-brand-section"><div class="wp-section-title"><strong>'+esc(u.logo)+'</strong><span>'+esc(u.hint)+'</span></div>'+
-        '<div class="wp-logo-row"><div class="wp-logo-current">'+(draftLogo?'<img id="welcomePacketBrandLogoCurrent" src="'+esc(draftLogo)+'" alt="">':'<img id="welcomePacketBrandLogoCurrent" hidden alt="">')+'</div>'+
+        '<div class="wp-logo-row"><div class="wp-logo-current">'+(draftLogo?'<img id="welcomePacketBrandLogoCurrent" src="'+esc(draftLogo)+'" alt="">':'<img id="welcomePacketBrandLogoCurrent" hidden alt=""><span class="wp-no-logo">'+esc(u.logo)+'</span>')+'</div>'+
         '<div class="wp-logo-actions"><label class="wp-file-button">'+esc(u.upload)+'<input type="file" accept="image/png,image/jpeg,image/webp" data-wp-brand-logo-input></label><button type="button" class="wp-link-button" data-wp-brand-remove-logo>'+esc(u.remove)+'</button></div></div>'+
         '<div class="wp-color-grid"><label><span>'+esc(u.primary)+'</span><input type="color" name="primary_color" value="'+esc(hex(data.brand_primary_color,"#2F5F66"))+'"></label><label><span>'+esc(u.accent)+'</span><input type="color" name="accent_color" value="'+esc(hex(data.brand_accent_color,"#DDEFF2"))+'"></label></div></section>'+
         '</div><aside class="wp-owner-preview-wrap"><div id="welcomePacketBrandingPreview" class="wp-owner-preview"></div></aside></div>'+
@@ -201,6 +211,7 @@
           draftLogo=await logoData(f);
           const img=root.querySelector("#welcomePacketBrandLogoCurrent");
           if(img){img.src=draftLogo;img.hidden=false;}
+          root.querySelector(".wp-no-logo")?.remove();
           renderBrandPreview();
         }catch(err){toast(err?.message||t().badLogo);e.target.value="";}
       });
@@ -224,6 +235,7 @@
             appState.business.brand_primary_color=saved?.brand_primary_color||hex(fd.get("primary_color"),"#2F5F66");
             appState.business.brand_accent_color=saved?.brand_accent_color||hex(fd.get("accent_color"),"#DDEFF2");
           }
+          refreshBusinessLogo();
           toast(u.saved);
           renderBrandPreview();
         }catch(err){toast(err?.message||t().saveError);}
@@ -251,7 +263,8 @@
     form.addEventListener("input",e=>{if(e.target.name==="packet_language")loadLanguage(normalizeLang(e.target.value));else renderPreview();});
     form.addEventListener("change",async e=>{
       if(!e.target.matches("[data-wp-logo-input]")) return;
-      try{const f=e.target.files?.[0];if(!f)return;draftLogo=await logoData(f);const img=document.getElementById("welcomePacketLogoCurrent");if(img){img.src=draftLogo;img.hidden=false;}const dl=root.querySelector("[data-wp-download-logo]");if(dl)dl.hidden=false;renderPreview();}catch(err){toast(err?.message||t().badLogo);e.target.value="";}
+      try{const f=e.target.files?.[0];if(!f)return;draftLogo=await logoData(f);const img=document.getElementById("welcomePacketLogoCurrent");if(img){img.src=draftLogo;img.hidden=false;}
+          root.querySelector(".wp-no-logo")?.remove();const dl=root.querySelector("[data-wp-download-logo]");if(dl)dl.hidden=false;renderPreview();}catch(err){toast(err?.message||t().badLogo);e.target.value="";}
     });
     form.addEventListener("submit",async e=>{
       e.preventDefault();const b=e.submitter||form.querySelector('button[type="submit"]'),old=b?.textContent||"";if(b){b.disabled=true;b.textContent="Saving…";}
@@ -297,7 +310,7 @@
     });
   }
   function queue(){
-    if(observerQueued)return;observerQueued=true;requestAnimationFrame(()=>{observerQueued=false;enhanceCards();});
+    if(observerQueued)return;observerQueued=true;requestAnimationFrame(()=>{observerQueued=false;enhanceCards();refreshBusinessLogo();});
   }
   document.addEventListener("click",e=>{
     const info=e.target.closest("[data-client-info]");if(info){setTimeout(()=>injectInfo(info.dataset.clientInfo),40);}

@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261005-greeting-preview-r36";
+const APP_VERSION = "20261005-owner-cards-logo-r37";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1882,11 +1882,13 @@ function applyOpeningCardColors(){
   const mood=hour<12?0:hour<17?1:2;
   const paletteMode=isBusinessNightTime(now)?"night":"day";
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
-  [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
+  [$("#todayHeroCard")].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
     el.classList.add("quarter-color-"+mood);
     el.dataset.paletteMode=paletteMode;
   });
+  appShell?.removeAttribute("data-palette-mode");
+  appShell?.classList.remove(...classes);
   if(window.__tleQuarterColorTimer) clearTimeout(window.__tleQuarterColorTimer);
   window.TLE_GREETING_COLORS?.open(hour);
 }
@@ -2001,7 +2003,7 @@ function showApp(){
         ? tr("Admin")
         : tr("Guest employee");
     chip.innerHTML = `
-      <span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
+      <img id="workspaceBusinessLogo" class="workspace-business-logo" alt="Business logo" hidden><span class="workspace-avatar">${escapeHtml(initials(state.business.name))}</span>
       <span><strong>${escapeHtml(state.business.name)}</strong><small>${roleLabel}</small></span>
     `;
   }
