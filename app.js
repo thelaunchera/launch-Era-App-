@@ -2552,6 +2552,38 @@ function setSidebarOpen(open){
 }
 $("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.contains("open")));
 sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));
+
+let tleSidebarSwipeStartX=0;
+let tleSidebarSwipeStartY=0;
+let tleSidebarSwipeTracking=false;
+
+function tleIsDashboardActive(){
+  return $(".view.active")?.dataset.page==="today";
+}
+
+document.addEventListener("touchstart",e=>{
+  if(window.innerWidth>860 || !tleIsDashboardActive() || !e.touches?.length) return;
+  const t=e.touches[0];
+  tleSidebarSwipeStartX=t.clientX;
+  tleSidebarSwipeStartY=t.clientY;
+  tleSidebarSwipeTracking=true;
+},{passive:true});
+
+document.addEventListener("touchend",e=>{
+  if(!tleSidebarSwipeTracking || window.innerWidth>860 || !tleIsDashboardActive()) return;
+  tleSidebarSwipeTracking=false;
+  const t=e.changedTouches?.[0];
+  if(!t) return;
+  const dx=t.clientX-tleSidebarSwipeStartX;
+  const dy=t.clientY-tleSidebarSwipeStartY;
+  if(Math.abs(dx)<70 || Math.abs(dx)<=Math.abs(dy)*1.15) return;
+
+  if(dx>0 && !sidebar?.classList.contains("open")){
+    setSidebarOpen(true);
+  }else if(dx<0 && sidebar?.classList.contains("open")){
+    setSidebarOpen(false);
+  }
+},{passive:true});
 let tleCalendarWideMode=window.innerWidth>=721;
 window.addEventListener("resize",()=>{
   if(window.innerWidth>860 && sidebar.classList.contains("open")) setSidebarOpen(false);
