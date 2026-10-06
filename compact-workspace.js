@@ -106,11 +106,23 @@
         panel.dataset.compactAccordionReady="1";
         const info=genericTrigger(panel);
         if(!info) return;
-        info.node.addEventListener("click",event=>{
-          if(isControl(event.target) || !media.matches) return;
+        const togglePanel=event=>{
+          if(!media.matches) return;
+          if(isControl(event.target)) return;
           panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
           syncGenericPanel(panel);
-        });
+        };
+        if(panel.matches('[data-page="admin"] .admin-grid>.panel')){
+          panel.addEventListener("click",event=>{
+            if(!media.matches) return;
+            if(event.target.closest("button,a,input,select,textarea,label") && !event.target.closest("h3")) return;
+            const trigger=event.target.closest(".panel-head,h3,.eyebrow");
+            if(!trigger) return;
+            togglePanel(event);
+          });
+        }else{
+          info.node.addEventListener("click",togglePanel);
+        }
         info.node.addEventListener("keydown",event=>{
           if(event.key!=="Enter"&&event.key!==" ") return;
           if(!media.matches) return;

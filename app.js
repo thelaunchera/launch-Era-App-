@@ -4998,7 +4998,7 @@ function invoicePaidAmount(inv){
 function enhanceMobileRecordActions(){
   if(!window.matchMedia("(max-width: 680px)").matches) return;
   $$(".mobile-record-card .record-actions").forEach(actions=>{
-    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable")) return;
+    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable") || actions.closest(".invoice-growth-row")) return;
     const safe=actions.querySelector(".safe-actions");
     if(!safe) return;
     const buttons=[...safe.querySelectorAll("button")];
@@ -5015,39 +5015,6 @@ function enhanceMobileRecordActions(){
 }
 document.addEventListener("click",e=>{
   if(!e.target.closest(".record-actions")) $$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
-});
-
-document.addEventListener("click",e=>{
-  const more=e.target.closest("[data-invoice-tablet-more]");
-  if(more){
-    e.preventDefault();
-    e.stopPropagation();
-    const row=more.closest(".invoice-growth-row");
-    const details=row?.querySelector(".invoice-tablet-details");
-    if(!row||!details) return;
-    const opening=details.hidden;
-    $$(".invoice-growth-row.tablet-details-open").forEach(other=>{
-      if(other===row) return;
-      other.classList.remove("tablet-details-open");
-      const otherDetails=other.querySelector(".invoice-tablet-details");
-      const otherMore=other.querySelector(".invoice-tablet-more");
-      if(otherDetails) otherDetails.hidden=true;
-      if(otherMore) otherMore.setAttribute("aria-expanded","false");
-    });
-    details.hidden=!opening;
-    row.classList.toggle("tablet-details-open",opening);
-    more.setAttribute("aria-expanded",opening?"true":"false");
-    return;
-  }
-  if(!e.target.closest(".invoice-growth-row")){
-    $$(".invoice-growth-row.tablet-details-open").forEach(row=>{
-      row.classList.remove("tablet-details-open");
-      const details=row.querySelector(".invoice-tablet-details");
-      const more=row.querySelector(".invoice-tablet-more");
-      if(details) details.hidden=true;
-      if(more) more.setAttribute("aria-expanded","false");
-    });
-  }
 });
 
 function renderInvoices(){
@@ -5083,7 +5050,6 @@ function renderInvoices(){
       invoiceEmail?`<a class="invoice-contact-row is-email" href="mailto:${escapeHtml(invoiceEmail)}"><span class="invoice-contact-icon" aria-hidden="true">@</span><span>${escapeHtml(invoiceEmail)}</span></a>`:"",
       invoiceAddress?`<span class="invoice-contact-row is-address"><span class="invoice-contact-icon" aria-hidden="true">LOC</span><span>${escapeHtml(invoiceAddress)}</span></span>`:""
     ].filter(Boolean).join("");
-    const tabletInvoiceDetailsId="invoice-tablet-details-"+String(inv.id).replace(/[^a-zA-Z0-9_-]/g,"");
     const openStatus=customerOpenStatus(inv);
     const dispute=state.disputes.find(d=>d.resource_type==="invoice"&&d.invoice_id===inv.id&&d.status==="open");
     const overdue=inv.due_at && new Date(inv.due_at)<new Date() && !["paid","void"].includes(inv.status);
@@ -5123,24 +5089,6 @@ function renderInvoices(){
       </span>
       <span class="record-field invoice-client-field" data-label="${escapeHtml(tr("Client"))}"><strong>${escapeHtml(invoiceClientName)}</strong>${inv.due_at?`<small class="invoice-due-date">${escapeHtml(langPick("Due ","Vence ","Échéance ")+new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(inv.due_at)))}</small>`:""}${invoiceContactHtml?`<span class="invoice-contact-list">${invoiceContactHtml}</span>`:""}</span>
       <span class="record-actions invoice-actions-stable">${invoiceActionsHtml}</span>
-      <button type="button" class="invoice-tablet-more" data-invoice-tablet-more="${inv.id}" aria-expanded="false" aria-controls="${tabletInvoiceDetailsId}" aria-label="${escapeHtml(langPick("More invoice details","Más detalles de la factura","Plus de détails sur la facture"))}">•••</button>
-      <div class="invoice-tablet-details" id="${tabletInvoiceDetailsId}" hidden>
-        <div class="invoice-tablet-details-grid">
-          <div class="invoice-tablet-detail-block">
-            <small>${escapeHtml(langPick("Customer details","Datos del cliente","Détails du client"))}</small>
-            <strong>${escapeHtml(invoiceClientName)}</strong>
-            ${invoiceContactHtml?`<span class="invoice-contact-list">${invoiceContactHtml}</span>`:`<span class="muted-line">${escapeHtml(langPick("No contact details saved","Sin datos de contacto","Aucune coordonnée enregistrée"))}</span>`}
-          </div>
-          <div class="invoice-tablet-detail-block">
-            <small>${escapeHtml(langPick("Payment status","Estado del pago","Statut du paiement"))}</small>
-            <b class="invoice-next-action">${escapeHtml(actionHint)}</b>
-            <span class="customer-open-status ${openStatus.opened?"is-viewed":"is-unviewed"}">${escapeHtml(openStatus.text)}</span>
-            ${methodLabel?`<span class="payment-choice-note">${escapeHtml(tr("Customer chose"))} ${escapeHtml(methodLabel)}</span>`:""}
-            ${dispute?`<span class="dispute-alert">OPEN DISPUTE · ${escapeHtml(dispute.reason)}</span>`:""}
-          </div>
-          <div class="record-actions invoice-tablet-actions">${invoiceActionsHtml}</div>
-        </div>
-      </div>
     </div>`;
   }).join("");
   enhanceMobileRecordActions();

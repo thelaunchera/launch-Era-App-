@@ -368,6 +368,64 @@ async function assertLayout(page,profile){
     await page.waitForFunction(()=>!document.body.classList.contains("modal-open"),null,{timeout:2000});
   }
 
+  // Deep in-app responsive audit: every major workspace must stay usable,
+  // uncompressed and inside the viewport in every supported language.
+  const auditPages=["home","calendar","customers","money","services","booking","quotes","team","reports","admin","settings"];
+  const auditLanguages=["en","es","fr","ht"];
+  for(const lang of auditLanguages){
+    await page.evaluate(language=>{
+      if(window.TLE_I18N?.setLanguage) window.TLE_I18N.setLanguage(language);
+      else localStorage.setItem("tle_language",language);
+    },lang);
+    await page.waitForTimeout(50);
+    for(const pageName of auditPages){
+      const result=await page.evaluate(name=>{
+        const target=document.querySelector('[data-page="'+name+'"]');
+        if(!target) return {missing:true,name};
+        document.querySelectorAll("[data-page]").forEach(node=>{node.hidden=node!==target;});
+        target.hidden=false;
+        const visible=el=>{
+          const s=getComputedStyle(el),r=el.getBoundingClientRect();
+          return s.display!=="none"&&s.visibility!=="hidden"&&r.width>0&&r.height>0;
+        };
+        const bad=[];
+        const candidates=[...target.querySelectorAll("button,a,input,select,textarea,.panel,.card,.service-card,.invoice-card,.record-card")].filter(visible);
+        for(const el of candidates){
+          const r=el.getBoundingClientRect();
+          const label=(el.textContent||el.getAttribute("aria-label")||el.id||el.className||"").trim().replace(/\s+/g," ").slice(0,80);
+          if(r.right>innerWidth+5||r.left<-5) bad.push({type:"outside",label,left:Math.round(r.left),right:Math.round(r.right)});
+          if((el.matches("button,a")||el.getAttribute("role")==="button") && (r.width<40||r.height<40)) bad.push({type:"small-target",label,w:Math.round(r.width),h:Math.round(r.height)});
+          if(el.scrollWidth>el.clientWidth+6 && !["auto","scroll"].includes(getComputedStyle(el).overflowX)) bad.push({type:"clipped",label,client:el.clientWidth,scroll:el.scrollWidth});
+        }
+        return {
+          missing:false,name,
+          documentOverflow:document.documentElement.scrollWidth>innerWidth+4,
+          pageOverflow:target.scrollWidth>target.clientWidth+6,
+          bad:bad.slice(0,12)
+        };
+      },pageName);
+      if(result.missing) continue;
+      if(result.documentOverflow||result.pageOverflow||result.bad.length){
+        throw new Error(profile.name+": deep UI audit failed "+lang+"/"+pageName+" "+JSON.stringify(result));
+      }
+      if(pageName==="admin"){
+        const admin=page.locator('[data-page="admin"]');
+        const heads=admin.locator(".admin-grid>.panel>h3,.admin-grid>.panel>.panel-head");
+        const count=await heads.count();
+        for(let i=0;i<count;i++){
+          const h=heads.nth(i);
+          if(await h.isVisible()){
+            await h.click();
+            await page.waitForTimeout(25);
+            const state=await h.evaluate(el=>({open:el.closest(".panel")?.classList.contains("compact-panel-open"),expanded:el.getAttribute("aria-expanded")}));
+            if(!state.open && state.expanded!=="true") throw new Error(profile.name+": Owner Admin control did not open in "+lang);
+          }
+        }
+      }
+    }
+  }
+  await page.evaluate(()=>{document.querySelectorAll("[data-page]").forEach((node,i)=>node.hidden=i!==0);});
+
   const rotated={width:profile.viewport.height,height:profile.viewport.width};
   if(rotated.width>=320 && rotated.height>=320){
     await page.setViewportSize(rotated);

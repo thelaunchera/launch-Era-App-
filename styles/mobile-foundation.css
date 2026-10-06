@@ -42,98 +42,149 @@
  body.shell-app #sidebarScrim:not([hidden]){pointer-events:auto!important;z-index:1001!important}
 }
 
-/* iPhone invoices — compact summary card + small overflow menu */
+/* iPhone invoices — single stable action system; obsolete overflow version removed */
 @media(max-width:680px){
- body.shell-app #appShell [data-page="invoices"] #invoicesTable{gap:7px!important}
- body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row{
-   position:relative!important;
-   display:grid!important;
-   grid-template-columns:minmax(0,1fr) auto!important;
-   grid-template-rows:auto auto auto!important;
-   gap:0 8px!important;
-   min-height:0!important;
-   padding:11px 46px 10px 11px!important;
-   border-radius:15px!important;
-   overflow:visible!important;
+ body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{display:flex!important;position:static!important;width:100%!important;margin-top:10px!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable .safe-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable button{min-height:38px!important;width:auto!important}
+}
+
+/* customer editor full-screen mobile fix */
+@media(max-width:680px){
+ body.shell-app .modal-backdrop:not([hidden]){
+   display:block!important;position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;padding:0!important;background:#FAF8F3!important;z-index:2000!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-primary{
-   grid-column:1!important;grid-row:1!important;
-   display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
-   column-gap:7px!important;row-gap:2px!important;
-   padding:0!important;margin:0!important;
+ body.shell-app .modal-backdrop .modal{
+   position:relative!important;inset:auto!important;width:100%!important;min-height:100dvh!important;height:auto!important;max-width:none!important;max-height:none!important;
+   margin:0!important;padding:calc(18px + env(safe-area-inset-top)) 18px calc(92px + env(safe-area-inset-bottom))!important;
+   border-radius:0!important;background:#FAF8F3!important;box-shadow:none!important;overflow:visible!important;
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-number{grid-column:1/-1!important;font-size:9px!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-amount{font-size:25px!important;line-height:1!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-growth-balance-label{align-self:end!important;margin:0 0 2px!important;font-size:9px!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-status-badge{
-   position:absolute!important;top:10px!important;right:10px!important;
-   margin:0!important;z-index:2!important;
+ body.shell-app .modal-backdrop .modal::before{display:none!important}
+ body.shell-app .modal-backdrop .modal-close{position:fixed!important;top:calc(14px + env(safe-area-inset-top))!important;right:16px!important;z-index:4!important}
+ body.shell-app .modal-backdrop .entity-form{width:100%!important;max-width:none!important;margin-top:18px!important;padding:0!important}
+ body.shell-app .modal-backdrop .form-grid{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;width:100%!important}
+ body.shell-app .modal-backdrop .form-grid>label,body.shell-app .modal-backdrop .form-grid>.full{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+ body.shell-app .modal-backdrop .form-grid :is(input,select,textarea){width:100%!important;max-width:none!important;box-sizing:border-box!important}
+ body.shell-app .modal-backdrop .form-footer{
+   position:static!important;bottom:auto!important;z-index:auto!important;
+   display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+   margin:20px 0 0!important;
+   padding:12px 0 calc(14px + env(safe-area-inset-bottom))!important;background:#FAF8F3!important;
+   border-top:1px solid #DEDAD2!important;
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-status-meta{
-   grid-column:1/-1!important;grid-row:2!important;
-   display:flex!important;flex-wrap:wrap!important;gap:4px 6px!important;
-   margin:7px 0 0!important;padding:6px 0!important;
+ body.shell-app .modal-backdrop .form-footer>button{width:100%!important;min-width:0!important;min-height:48px!important}
+}
+
+
+/* 2026-10-06 iPhone recovery: services + owner admin */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="services"] .service-card{overflow:visible!important}
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions){
+   display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;width:100%!important;overflow:visible!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-client-field{
-   grid-column:1/-1!important;grid-row:3!important;
-   display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
-   align-items:center!important;gap:3px 8px!important;
-   min-height:0!important;margin:0!important;padding:7px 0 0!important;
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions)>button{
+   width:100%!important;min-width:0!important;min-height:46px!important;padding:10px 12px!important;
+   font-size:14px!important;line-height:1.2!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-client-field:before{
-   grid-column:1!important;grid-row:1!important;
-   align-self:center!important;font-size:8px!important;
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions)>button:last-child:nth-child(odd){
+   grid-column:1/-1!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-client-field>strong{
-   grid-column:2!important;grid-row:1!important;
-   font-size:14px!important;line-height:1.1!important;
+
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel{
+   overflow:visible!important;padding:16px!important;min-height:0!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-due-date{grid-column:2!important;font-size:9px!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-contact-list{
-   grid-column:1/-1!important;
-   display:flex!important;flex-wrap:wrap!important;gap:4px!important;
-   margin:4px 0 0!important;
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-accordion-panel:not(.compact-panel-open){
+   padding:16px!important;min-height:72px!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-contact-row{
-   display:inline-flex!important;align-items:center!important;gap:5px!important;
-   width:auto!important;max-width:100%!important;min-height:28px!important;
-   padding:4px 7px!important;border-radius:9px!important;font-size:9px!important;
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-trigger-h3>h3{
+   display:flex!important;align-items:center!important;min-height:44px!important;margin:0!important;padding:6px 44px 6px 0!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-contact-row.is-address{flex:1 1 100%!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-contact-icon{width:18px!important;height:18px!important;font-size:5.5px!important}
- /* The visible card has no permanent Edit/Delete stack. */
- body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{display:none!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-more{
-   display:grid!important;place-items:center!important;
-   position:absolute!important;right:9px!important;bottom:9px!important;
-   width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;
-   margin:0!important;padding:0 0 6px!important;
-   border:1px solid #E4E0D8!important;border-radius:50%!important;
-   background:#F5F2EC!important;color:#191919!important;
-   font-size:16px!important;line-height:1!important;letter-spacing:1px!important;
-   box-shadow:none!important;z-index:3!important;
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-trigger-h3>h3::after{
+   right:4px!important;font-size:22px!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-more[aria-expanded="true"]{background:#191919!important;color:#fff!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details{
-   grid-column:1/-1!important;
-   margin:8px -35px 0 0!important;padding:8px!important;
-   border-top:1px solid #E9E4DB!important;
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>:not(h3){
+   display:flex!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details[hidden]{display:none!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details-grid{display:block!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-detail-block{display:none!important}
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions{
-   display:grid!important;grid-template-columns:1fr!important;gap:5px!important;
-   margin:0!important;padding:0!important;
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>.role-legend,
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>#membersList{
+   display:grid!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions .safe-actions{
-   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;
+}
+
+
+/* 2026-10-06 full-workspace bento direction
+   The reference video uses one visual language everywhere: calm canvas,
+   compact modular cards, clear hierarchy, roomy desktop/tablet grids,
+   and a clean single-column phone flow. */
+body.shell-app #appShell{
+  --workspace-canvas:#f7f8f5;
+  --workspace-card:#fff;
+  --workspace-border:#e7e9e3;
+  --workspace-radius:18px;
+  --workspace-gap:12px;
+}
+body.shell-app #appShell .main{background:var(--workspace-canvas)!important}
+body.shell-app #appShell .view.active{max-width:1440px;margin:0 auto}
+body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+  background:var(--workspace-card)!important;border:1px solid var(--workspace-border)!important;
+  border-radius:var(--workspace-radius)!important;box-shadow:0 5px 18px rgba(25,25,25,.035)!important;
+}
+body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+  min-width:0!important;overflow-wrap:normal!important;word-break:normal!important;
+}
+body.shell-app #appShell .view.active :is(button,.primary-btn,.ghost-btn,.soft-btn){white-space:normal;word-break:normal}
+body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions){
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+}
+body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*{
+  flex:0 1 auto;min-width:max-content;
+}
+
+@media(min-width:861px){
+ body.shell-app #appShell .main{padding:0 24px 36px!important}\n body.shell-app #appShell .topbar{margin-top:0!important}
+ body.shell-app #appShell .view.active>.section-intro{margin:2px 0 18px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:start!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions button{
-   width:100%!important;min-height:38px!important;margin:0!important;padding:8px!important;
-   border-radius:10px!important;font-size:10px!important;
+ body.shell-app #appShell [data-page="reports"] .report-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}
+ body.shell-app #appShell [data-page="route"] .route-layout{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr)!important;gap:14px!important;align-items:start!important}
+}
+@media(min-width:681px) and (max-width:1100px){
+ body.shell-app #appShell .main{padding:18px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important
  }
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-actions>.record-delete-btn{
-   margin-top:1px!important;color:#8B3F35!important;background:#FFF1EE!important;border:1px solid #E8BDB5!important;
+ body.shell-app #appShell [data-page="reports"] .report-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:680px){
+ body.shell-app #appShell .main{padding-left:10px!important;padding-right:10px!important}
+ body.shell-app #appShell .view.active{width:100%!important;max-width:100%!important;overflow:visible!important}
+ body.shell-app #appShell .view.active>.section-intro{padding:2px 2px 4px!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid,.admin-grid,.settings-grid,.report-grid,.route-layout){
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;width:100%!important
  }
+ body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){
+   width:100%!important;max-width:100%!important;min-width:0!important;padding:12px!important;border-radius:15px!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions){
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:8px!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*{
+   width:100%!important;min-width:0!important;min-height:44px!important;font-size:13px!important;line-height:1.2!important
+ }
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-actions,.followup-card-actions)>*:last-child:nth-child(odd){
+   grid-column:1/-1!important
+ }
+ body.shell-app #appShell .view.active :is(.meta-grid,.service-meta,.record-meta,.summary-grid){
+   max-width:100%!important;min-width:0!important;overflow:visible!important
+ }
+ body.shell-app #appShell [data-page="route"] :is(.route-actions,.route-cta,.route-summary){
+   position:static!important;width:100%!important;max-width:100%!important;transform:none!important
+ }
+}
+
+/* PR review recovery: tablet invoice controls must remain actionable */
+@media(min-width:681px) and (max-width:1100px){
+ body.shell-app #appShell [data-page="invoices"] :is(.invoice-actions-stable,.invoice-status-meta,.invoice-contact-list){display:flex!important;visibility:visible!important;opacity:1!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{position:static!important;width:100%!important;flex-wrap:wrap!important;gap:8px!important}
 }
