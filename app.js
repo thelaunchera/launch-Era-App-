@@ -5131,7 +5131,7 @@ function renderBookingServiceGroup(items,type){
     return `<div class="booking-service-row booking-service-row-${type}">
       <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${paid?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")}</small></span>
       <span class="booking-addon-chips">${paid
-        ? (addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
+        ? (addons.map(a=>`<i>+${escapeHtml(a.name)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
         : `<i class="quote-service-chip">${escapeHtml(serviceGroupCopy("quoteRequired"))}</i>`
       }</span>
     </div>`;
@@ -8461,18 +8461,27 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="addon"){
+    const activeServices=state.services.filter(service=>service.active);
+    const isCommercialService=service=>/commercial|office|store|salon|restaurant|retail|warehouse|school|clinic|church|business/i.test(String(service.name||""));
+    const residentialServices=activeServices.filter(service=>!isCommercialService(service));
+    const commercialServices=activeServices.filter(isCommercialService);
+    const serviceOptions=(items)=>items.map(service=>`<option value="${escapeHtml(service.id)}" ${service.id===record?.service_id?"selected":""}>${escapeHtml(service.name)}</option>`).join("");
     modalHeader(
       langPick("ADD-ON","ADD-ON","OPTION"),
       record?langPick("Edit add-on","Editar add-on","Modifier l’option"):langPick("Add add-on","Añadir add-on","Ajouter une option"),
-      langPick("Assign it to a service to include it automatically. It can still be removed for any individual booking.","Asígnalo a un servicio para incluirlo automáticamente. Aun así se puede quitar en una reserva individual.","Associez-le à un service pour l’inclure automatiquement. Il peut toujours être retiré d’une réservation individuelle.")
+      langPick("Choose the service first. This add-on stays inside that service and can be edited anytime.","Primero elige el servicio. Este add-on queda dentro de ese servicio y se puede editar cuando quieras.","Choisissez d’abord le service. Cette option reste dans ce service et peut être modifiée à tout moment.")
     );
     entityForm.innerHTML=`
-      <div class="form-grid">
-        <label>Service<select name="service_id"><option value="">General / all services</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
-        <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>Extra price<input name="price" type="number" min="0" step="0.01" required value="${record?.price??0}"></label>
-        <label>Extra time (minutes)<input name="extra_duration_minutes" type="number" min="0" step="5" required value="${record?.extra_duration_minutes??0}"></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
+      <div class="form-grid addon-service-form">
+        <label class="full">Service<select name="service_id" required>
+          <option value="">Choose a service</option>
+          ${residentialServices.length?`<optgroup label="Residential">${serviceOptions(residentialServices)}</optgroup>`:""}
+          ${commercialServices.length?`<optgroup label="Commercial">${serviceOptions(commercialServices)}</optgroup>`:""}
+        </select></label>
+        <label class="full">Add-on name<input name="name" required value="${escapeHtml(record?.name||"")}" placeholder="Inside oven, Interior windows…"></label>
+        <input type="hidden" name="price" value="0">
+        <input type="hidden" name="extra_duration_minutes" value="0">
+        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
       </div>${formSubmit(record?"Save changes":"Add add-on")}`;
   }
 
@@ -9024,12 +9033,14 @@ async function saveService(fd){
 }
 
 async function saveAddon(fd){
+  const serviceId=String(fd.get("service_id")||"").trim();
+  if(!serviceId) throw new Error(langPick("Choose a service for this add-on.","Elige un servicio para este add-on.","Choisissez un service pour cette option."));
   const payload={
     business_id:state.business.id,
-    service_id:fd.get("service_id")||null,
+    service_id:serviceId,
     name:String(fd.get("name")).trim(),
-    price:Number(fd.get("price")||0),
-    extra_duration_minutes:Number(fd.get("extra_duration_minutes")||0),
+    price:0,
+    extra_duration_minutes:0,
     active:fd.get("active")==="on",
     updated_at:new Date().toISOString()
   };
