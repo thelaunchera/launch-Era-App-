@@ -26,4 +26,14 @@ function installSpecialQuoteFields(){
  box.innerHTML='<label>Space / job type<select name="special_space_type"><option value="">Choose one</option><option value="large_home">Large / custom home</option><option value="salon">Salon / beauty suite</option><option value="studio">Studio / creative space</option><option value="event">Event / venue cleanup</option><option value="post_construction">Post-construction</option><option value="vacation_property">Vacation / specialty property</option><option value="other">Other special job</option></select></label><label>Tell us what makes this job different<textarea name="special_job_details" placeholder="Size, layout, special surfaces, access, timing, or anything the business should review before pricing."></textarea></label>';
  commercial.before(box);
 }
-function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();installSpecialQuoteFields();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
+function installMobileDrawerFix(){
+ const sidebar=document.getElementById("sidebar"),scrim=document.getElementById("sidebarScrim");
+ if(!sidebar||sidebar.dataset.drawerFix==="1")return; sidebar.dataset.drawerFix="1";
+ let close=sidebar.querySelector(".sidebar-drawer-close");
+ if(!close){close=document.createElement("button");close.type="button";close.className="sidebar-drawer-close";close.setAttribute("aria-label","Close menu");close.textContent="×";sidebar.appendChild(close);}
+ const shut=()=>{sidebar.classList.remove("open");sidebar.style.setProperty("visibility","hidden","important");sidebar.style.setProperty("opacity","0","important");sidebar.style.setProperty("pointer-events","none","important");if(scrim)scrim.hidden=true;document.body.classList.remove("sidebar-is-open");document.getElementById("menuToggle")?.setAttribute("aria-expanded","false");};
+ close.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();shut();});
+ sidebar.addEventListener("click",e=>{const nav=e.target.closest(".nav-item[data-view]");if(nav)setTimeout(shut,0);});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sidebar.classList.contains("open"))shut();});
+}
+function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();installSpecialQuoteFields();installMobileDrawerFix();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
