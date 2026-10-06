@@ -8412,41 +8412,21 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="service"){
-    const pricingChoice=record?.pricing_type==="flat" && Number(record?.base_price)>0 ? "flat" : "quote";
     modalHeader(
       langPick("SERVICE","SERVICIO","SERVICE"),
       record?langPick("Edit service","Editar servicio","Modifier le service"):langPick("Add service","Añadir servicio","Ajouter un service"),
-      langPick("Choose whether customers see a price now or request a custom quote.","Elige si el cliente ve el precio al momento o solicita una cotización personalizada.","Choisissez si le client voit le prix immédiatement ou demande un devis personnalisé.")
+      langPick("Set the service basics. Customer pricing is calculated by the Estimate Calculator.","Define los datos básicos del servicio. El precio para el cliente se calcula con Estimate Calculator.","Définissez les informations du service. Le prix client est calculé par Estimate Calculator.")
     );
     entityForm.innerHTML=`
       <div class="form-grid">
         <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>${escapeHtml(langPick("Customer pricing","Precio para el cliente","Tarification client"))}<select name="pricing_type">
-          <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}</option>
-          <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Devis personnalisé"))}</option>
-        </select></label>
-        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Non requis"):""}"></label>
-        <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <input type="hidden" name="pricing_type" value="quote">
+        <input type="hidden" name="base_price" value="">
+        <label>${escapeHtml(langPick("Estimated duration (minutes)","Duración estimada (minutos)","Durée estimée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
         <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||1))}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
+        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
       </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Enregistrer"):langPick("Add service","Añadir servicio","Ajouter le service"))}`;
-    const pricingSelect=entityForm.querySelector('[name="pricing_type"]');
-    const basePriceInput=entityForm.querySelector('[name="base_price"]');
-    const syncServicePriceField=()=>{
-      if(!pricingSelect||!basePriceInput) return;
-      const upfront=pricingSelect.value==="flat";
-      basePriceInput.disabled=!upfront;
-      basePriceInput.required=upfront;
-      if(!upfront){
-        basePriceInput.value="";
-        basePriceInput.placeholder=langPick("Not needed","No hace falta","Non requis");
-      }else{
-        basePriceInput.placeholder="0.00";
-      }
-    };
-    pricingSelect?.addEventListener("change",syncServicePriceField);
-    syncServicePriceField();
   }
 
   if(type==="addon"){
@@ -8975,20 +8955,13 @@ async function saveClient(fd){
   return {id:created.id,created:true};
 }
 async function saveService(fd){
-  let pricing=fd.get("pricing_type")==="flat"?"flat":"quote";
-  const priceRaw=String(fd.get("base_price")||"").trim();
-  const numericPrice=priceRaw===""?null:Number(priceRaw);
-  if(pricing!=="quote" && (!Number.isFinite(numericPrice) || numericPrice<=0)){
-    pricing="quote";
-    showToast("No price entered — service saved as Quote Required");
-  }
   const workersRequired=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
     description:String(fd.get("description")||"").trim()||null,
-    pricing_type:pricing,
-    base_price:pricing==="quote"?null:numericPrice,
+    pricing_type:"quote",
+    base_price:null,
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
     workers_required:workersRequired,
     active:fd.get("active")==="on"
@@ -9001,23 +8974,18 @@ async function saveService(fd){
   const {data:savedService,error}=await query;
   if(error) throw error;
 
-  // Reflect the server-confirmed service immediately so price changes do not
-  // wait for the full workspace refresh before appearing on screen.
   if(savedService){
     const existingIndex=state.services.findIndex(service=>service.id===savedService.id);
     if(existingIndex>=0) state.services[existingIndex]=savedService;
     else state.services.unshift(savedService);
-
     state.services.sort((a,b)=>{
       if(Boolean(a.active)!==Boolean(b.active)) return a.active?-1:1;
       return String(a.name||"").localeCompare(String(b.name||""),undefined,{sensitivity:"base"});
     });
-
     renderServices();
     renderBookingServices();
     window.TLE_ESTIMATE?.render?.();
   }
-
   return savedService||null;
 }
 
