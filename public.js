@@ -611,7 +611,8 @@
       };
 
       function activePropertyType(){
-        return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
+        const value=String(propertyTypeSelect?.value||"residential").toLowerCase();
+        return ["commercial","special"].includes(value)?value:"residential";
       }
 
       const bookingPropertyPhotos={
@@ -626,6 +627,12 @@
           heroAlt:"Modern commercial office interior with no people",
           summary:"https://images.pexels.com/photos/6794918/pexels-photo-6794918.jpeg?auto=compress&cs=tinysrgb&w=900",
           summaryAlt:"Bright modern commercial office interior"
+        },
+        special:{
+          hero:"https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          heroAlt:"Bright unique interior space",
+          summary:"https://images.pexels.com/photos/271743/pexels-photo-271743.jpeg?auto=compress&cs=tinysrgb&w=900",
+          summaryAlt:"Large bright interior prepared for a custom cleaning quote"
         },
         confirmation:{
           hero:"https://images.pexels.com/photos/7746083/pexels-photo-7746083.jpeg?auto=compress&cs=tinysrgb&w=1400",
@@ -667,11 +674,11 @@
       }
 
       function servicesForRequest(nextMode){
-        const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
+        const pool=(nextMode==="quote"||activePropertyType()==="special")?quoteOnlyServices:fixedPriceServices;
         const property=activePropertyType();
         const scoped=pool.filter(service=>{
           const scope=serviceScope(service);
-          return scope==="both"||scope===property;
+          return property==="special" ? true : (scope==="both"||scope===property);
         });
         return scoped.length?scoped:pool;
       }
@@ -766,7 +773,7 @@
       propertyTypeSelect?.addEventListener("change",()=>{
         addonBox?.querySelectorAll('input[name="addon"]:checked').forEach(input=>{ input.checked=false; });
         syncPropertyDetails();
-        const forceQuote=activePropertyType()==="commercial" && mode==="book";
+        const forceQuote=["commercial","special"].includes(activePropertyType()) && mode==="book";
         renderMode(forceQuote?"quote":mode,{updateUrl:forceQuote});
       });
       frequencyPills?.addEventListener("click",e=>{
