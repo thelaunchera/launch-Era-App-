@@ -354,3 +354,11 @@
     font-size:9px!important;
   }
 }
+
+/* r51: invoices never use the retired mobile overflow control. */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="invoices"] .mobile-more-actions{display:none!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-list{grid-template-columns:1fr!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-row{width:100%!important;grid-template-columns:22px minmax(0,1fr)!important}
+ body.shell-app #appShell [data-page="invoices"] .invoice-contact-row>span:last-child{word-break:normal!important;overflow-wrap:anywhere!important}
+}
