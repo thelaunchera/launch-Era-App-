@@ -108,7 +108,7 @@
         if(!info) return;
         const togglePanel=event=>{
           if(!media.matches) return;
-          if(isControl(event.target) && !event.target.closest(".panel-head,h3,.panel-heading-row")) return;
+          if(isControl(event.target)) return;
           panel.dataset.compactMobileOpen=String(!(panel.dataset.compactMobileOpen==="true"));
           syncGenericPanel(panel);
         };
