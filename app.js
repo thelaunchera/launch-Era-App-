@@ -5131,7 +5131,7 @@ function renderBookingServiceGroup(items,type){
     return `<div class="booking-service-row booking-service-row-${type}">
       <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${paid?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")}</small></span>
       <span class="booking-addon-chips">${paid
-        ? (addons.map(a=>`<i>+${escapeHtml(a.name)} · ${money(a.price)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
+        ? (addons.map(a=>`<i>+${escapeHtml(a.name)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
         : `<i class="quote-service-chip">${escapeHtml(serviceGroupCopy("quoteRequired"))}</i>`
       }</span>
     </div>`;
@@ -5163,7 +5163,7 @@ function discountValueLabel(record){
     : money(Number(record.discount_value||0))+" off";
 }
 function renderBookingDiscounts(){
-  const list=$("#bookingDiscountsList");
+  const list=$("#servicesDiscountsList")||$("#bookingDiscountsList");
   if(!list) return;
   const rows=state.bookingDiscounts||[];
   if(!rows.length){
@@ -5642,14 +5642,18 @@ function renderServiceCatalogCard(s){
   const isQuote=!serviceIsPaid(s);
   const statusLabel=!s.active?langPick("Inactive","Inactivo","Inactif"):isQuote?serviceGroupCopy("quoteRequired"):serviceGroupCopy("instant");
   return `
-    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
-      <div class="service-row-main">
+    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}">
+      <div class="service-row-main" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
         <div class="service-row-copy">
           <span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span>
           <strong>${escapeHtml(s.name)}</strong>
           <small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${Math.max(1,Number(s.workers_required||1))} ${escapeHtml(langPick("worker","trabajador","travailleur"))}${activeAddons?` · ${activeAddons} add-on${activeAddons===1?"":"s"}`:""}</small>
         </div>
         <div class="service-row-side"><b>${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b><span aria-hidden="true">›</span></div>
+      </div>
+      <div class="addon-list service-owned-addons">
+        <div class="addon-list-head"><strong>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</strong><button type="button" data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add","Añadir","Ajouter"))}</button></div>
+        ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong></span><span class="card-actions"><button type="button" data-edit-addon="${a.id}">${escapeHtml(langPick("Edit","Editar","Modifier"))}</button><button type="button" data-toggle-addon="${a.id}">${a.active?langPick("Off","Apagar","Désactiver"):langPick("On","Activar","Activer")}</button></span></div>`).join(""):`<div class="addon-empty">${escapeHtml(langPick("No add-ons yet.","Todavía no hay add-ons.","Aucune option pour le moment."))}</div>`}
       </div>
     </article>`;
 }
@@ -5673,25 +5677,10 @@ function renderServices(){
   grid.classList.add("service-catalog-groups");
   const paid=state.services.filter(serviceIsPaid);
   const quote=state.services.filter(s=>!serviceIsPaid(s));
-  const unassigned=state.serviceAddons.filter(a=>!a.service_id);
-  const globalCard=unassigned.length?`<section class="service-type-group service-type-group-addons">
-    <div class="service-type-heading">
-      <div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GÉNÉRAL"))}</span><h3>${escapeHtml(langPick("General add-ons","Add-ons generales","Options générales"))}</h3></div>
-      <p>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponibles sur plusieurs services"))}</p>
-      <span class="service-type-count">${unassigned.length}</span>
-    </div>
-    <div class="service-type-grid">
-      <article class="service-card service-catalog-card general-addon-card">
-        <div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div>
-      </article>
-    </div>
-  </section>`:"";
-
   grid.innerHTML=
     renderServiceCatalogGroup(paid,"paid")+
     renderServiceCatalogGroup(quote,"quote")+
-    globalCard+
-    `<article class="add-card service-add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
+    `<article class="add-card service-add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set the service first, then manage its add-ons inside it.","Primero define el servicio y después administra sus add-ons dentro de él.","Définissez d’abord le service, puis gérez ses options à l’intérieur."))}</span></article>`;
 }
 function renderSupplies(){
   const grid=$("#suppliesGrid");
@@ -8423,56 +8412,45 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="service"){
-    const pricingChoice=record?.pricing_type==="flat" && Number(record?.base_price)>0 ? "flat" : "quote";
     modalHeader(
       langPick("SERVICE","SERVICIO","SERVICE"),
       record?langPick("Edit service","Editar servicio","Modifier le service"):langPick("Add service","Añadir servicio","Ajouter un service"),
-      langPick("Choose whether customers see a price now or request a custom quote.","Elige si el cliente ve el precio al momento o solicita una cotización personalizada.","Choisissez si le client voit le prix immédiatement ou demande un devis personnalisé.")
+      langPick("Set the service basics. Customer pricing is calculated by the Estimate Calculator.","Define los datos básicos del servicio. El precio para el cliente se calcula con Estimate Calculator.","Définissez les informations du service. Le prix client est calculé par Estimate Calculator.")
     );
     entityForm.innerHTML=`
       <div class="form-grid">
         <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>${escapeHtml(langPick("Customer pricing","Precio para el cliente","Tarification client"))}<select name="pricing_type">
-          <option value="flat" ${pricingChoice==="flat"?"selected":""}>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}</option>
-          <option value="quote" ${pricingChoice==="quote"?"selected":""}>${escapeHtml(langPick("Custom quote","Cotización personalizada","Devis personnalisé"))}</option>
-        </select></label>
-        <label>${escapeHtml(langPick("Upfront price","Precio inmediato","Prix immédiat"))}<input name="base_price" type="number" min="0" step="0.01" value="${pricingChoice==="flat"?(record?.base_price??""):""}" placeholder="${pricingChoice==="quote"?langPick("Not needed","No hace falta","Non requis"):""}"></label>
-        <label>${escapeHtml(langPick("Duration (minutes)","Duración (minutos)","Durée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
+        <input type="hidden" name="pricing_type" value="quote">
+        <input type="hidden" name="base_price" value="">
+        <label>${escapeHtml(langPick("Estimated duration (minutes)","Duración estimada (minutos)","Durée estimée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
         <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||1))}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
+        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active service","Servicio activo","Service actif"))}</label>
       </div>${formSubmit(record?langPick("Save changes","Guardar cambios","Enregistrer"):langPick("Add service","Añadir servicio","Ajouter le service"))}`;
-    const pricingSelect=entityForm.querySelector('[name="pricing_type"]');
-    const basePriceInput=entityForm.querySelector('[name="base_price"]');
-    const syncServicePriceField=()=>{
-      if(!pricingSelect||!basePriceInput) return;
-      const upfront=pricingSelect.value==="flat";
-      basePriceInput.disabled=!upfront;
-      basePriceInput.required=upfront;
-      if(!upfront){
-        basePriceInput.value="";
-        basePriceInput.placeholder=langPick("Not needed","No hace falta","Non requis");
-      }else{
-        basePriceInput.placeholder="0.00";
-      }
-    };
-    pricingSelect?.addEventListener("change",syncServicePriceField);
-    syncServicePriceField();
   }
 
   if(type==="addon"){
+    const activeServices=state.services.filter(service=>service.active);
+    const isCommercialService=service=>/commercial|office|store|salon|restaurant|retail|warehouse|school|clinic|church|business/i.test(String(service.name||""));
+    const residentialServices=activeServices.filter(service=>!isCommercialService(service));
+    const commercialServices=activeServices.filter(isCommercialService);
+    const serviceOptions=(items)=>items.map(service=>`<option value="${escapeHtml(service.id)}" ${service.id===record?.service_id?"selected":""}>${escapeHtml(service.name)}</option>`).join("");
     modalHeader(
       langPick("ADD-ON","ADD-ON","OPTION"),
       record?langPick("Edit add-on","Editar add-on","Modifier l’option"):langPick("Add add-on","Añadir add-on","Ajouter une option"),
-      langPick("Assign it to a service to include it automatically. It can still be removed for any individual booking.","Asígnalo a un servicio para incluirlo automáticamente. Aun así se puede quitar en una reserva individual.","Associez-le à un service pour l’inclure automatiquement. Il peut toujours être retiré d’une réservation individuelle.")
+      langPick("Choose the service first. This add-on stays inside that service and can be edited anytime.","Primero elige el servicio. Este add-on queda dentro de ese servicio y se puede editar cuando quieras.","Choisissez d’abord le service. Cette option reste dans ce service et peut être modifiée à tout moment.")
     );
     entityForm.innerHTML=`
-      <div class="form-grid">
-        <label>Service<select name="service_id"><option value="">General / all services</option>${optionList(state.services.filter(s=>s.active),"id","name",record?.service_id)}</select></label>
-        <label>Name<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <label>Extra price<input name="price" type="number" min="0" step="0.01" required value="${record?.price??0}"></label>
-        <label>Extra time (minutes)<input name="extra_duration_minutes" type="number" min="0" step="5" required value="${record?.extra_duration_minutes??0}"></label>
-        <label class="check-field"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
+      <div class="form-grid addon-service-form">
+        <label class="full">Service<select name="service_id" required>
+          <option value="">Choose a service</option>
+          ${residentialServices.length?`<optgroup label="Residential">${serviceOptions(residentialServices)}</optgroup>`:""}
+          ${commercialServices.length?`<optgroup label="Commercial">${serviceOptions(commercialServices)}</optgroup>`:""}
+        </select></label>
+        <label class="full">Add-on name<input name="name" required value="${escapeHtml(record?.name||"")}" placeholder="Inside oven, Interior windows…"></label>
+        <input type="hidden" name="price" value="0">
+        <input type="hidden" name="extra_duration_minutes" value="0">
+        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
       </div>${formSubmit(record?"Save changes":"Add add-on")}`;
   }
 
@@ -8977,20 +8955,13 @@ async function saveClient(fd){
   return {id:created.id,created:true};
 }
 async function saveService(fd){
-  let pricing=fd.get("pricing_type")==="flat"?"flat":"quote";
-  const priceRaw=String(fd.get("base_price")||"").trim();
-  const numericPrice=priceRaw===""?null:Number(priceRaw);
-  if(pricing!=="quote" && (!Number.isFinite(numericPrice) || numericPrice<=0)){
-    pricing="quote";
-    showToast("No price entered — service saved as Quote Required");
-  }
   const workersRequired=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
     description:String(fd.get("description")||"").trim()||null,
-    pricing_type:pricing,
-    base_price:pricing==="quote"?null:numericPrice,
+    pricing_type:"quote",
+    base_price:null,
     default_duration_minutes:Number(fd.get("default_duration_minutes")),
     workers_required:workersRequired,
     active:fd.get("active")==="on"
@@ -9003,33 +8974,30 @@ async function saveService(fd){
   const {data:savedService,error}=await query;
   if(error) throw error;
 
-  // Reflect the server-confirmed service immediately so price changes do not
-  // wait for the full workspace refresh before appearing on screen.
   if(savedService){
     const existingIndex=state.services.findIndex(service=>service.id===savedService.id);
     if(existingIndex>=0) state.services[existingIndex]=savedService;
     else state.services.unshift(savedService);
-
     state.services.sort((a,b)=>{
       if(Boolean(a.active)!==Boolean(b.active)) return a.active?-1:1;
       return String(a.name||"").localeCompare(String(b.name||""),undefined,{sensitivity:"base"});
     });
-
     renderServices();
     renderBookingServices();
     window.TLE_ESTIMATE?.render?.();
   }
-
   return savedService||null;
 }
 
 async function saveAddon(fd){
+  const serviceId=String(fd.get("service_id")||"").trim();
+  if(!serviceId) throw new Error(langPick("Choose a service for this add-on.","Elige un servicio para este add-on.","Choisissez un service pour cette option."));
   const payload={
     business_id:state.business.id,
-    service_id:fd.get("service_id")||null,
+    service_id:serviceId,
     name:String(fd.get("name")).trim(),
-    price:Number(fd.get("price")||0),
-    extra_duration_minutes:Number(fd.get("extra_duration_minutes")||0),
+    price:0,
+    extra_duration_minutes:0,
     active:fd.get("active")==="on",
     updated_at:new Date().toISOString()
   };
@@ -9638,7 +9606,7 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const addDiscount=e.target.closest("#addDiscountBtn");
+  const addDiscount=e.target.closest("#servicesAddDiscountBtn,#addDiscountBtn");
   const editDiscount=e.target.closest("[data-discount-edit]");
   const publishDiscount=e.target.closest("[data-discount-publish]");
   if(addDiscount){ openDiscountForm(); return; }
