@@ -197,3 +197,27 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="supplies"] .card-actions{position:static!important;margin-top:10px!important;width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
  body.shell-app #appShell [data-page="supplies"] .card-actions button{position:static!important;width:100%!important;min-width:0!important;min-height:44px!important}
 }
+
+
+/* 2026-10-06 r53 — iPhone card containment: route, services, booking center, leads */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="route"] :is(.panel,.route-summary,.route-card,.job-block){overflow:hidden!important;min-width:0!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="route"] :is(.route-actions,.route-cta,.safe-actions,.card-actions){display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;width:100%!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="route"] :is(.route-actions,.route-cta,.safe-actions,.card-actions)>*{position:static!important;transform:none!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
+ body.shell-app #appShell [data-page="services"] :is(.panel,.service-card){width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+ body.shell-app #appShell [data-page="services"] .service-card>*{min-width:0!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="services"] .service-card :is(h3,strong,p,span,small){overflow-wrap:anywhere!important}
+ body.shell-app #appShell [data-page="services"] .service-card :is(.service-price,.price){position:static!important;max-width:100%!important;white-space:normal!important}
+ body.shell-app #appShell [data-page="booking"] :is(.panel,.service-card,.booking-step-panel,.settings-section){width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+ body.shell-app #appShell [data-page="booking"] :is(.service-addons,.addons,.addon-list,.service-meta,.record-meta){display:flex!important;flex-wrap:wrap!important;gap:6px!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ body.shell-app #appShell [data-page="booking"] :is(.service-addons,.addons,.addon-list)>*{flex:0 1 auto!important;max-width:100%!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.shell-app #appShell [data-page="leads"] :is(.panel,.client-card,.mobile-record-card){width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+ body.shell-app #appShell [data-page="leads"] :is(.mobile-record-card,.client-card)>*{min-width:0!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="leads"] .mobile-record-card>.record-primary{display:block!important;width:100%!important}
+ body.shell-app #appShell [data-page="leads"] .mobile-record-card>.record-primary :is(strong,small){display:block!important;width:100%!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+ body.shell-app #appShell [data-page="leads"] .mobile-record-card>.record-field{display:grid!important;grid-template-columns:minmax(72px,28%) minmax(0,1fr)!important;gap:8px!important;width:100%!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="leads"] .mobile-record-card>.record-field>*{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.shell-app #appShell [data-page="leads"] :is(.card-actions,.record-actions,.safe-actions){position:static!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important;max-width:100%!important}
+ body.shell-app #appShell [data-page="leads"] :is(.card-actions,.record-actions,.safe-actions)>*{position:static!important;transform:none!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important}
+ body.shell-app #appShell [data-page="leads"] :is(.card-actions,.record-actions,.safe-actions)>*:last-child:nth-child(odd){grid-column:1/-1!important}
+}
