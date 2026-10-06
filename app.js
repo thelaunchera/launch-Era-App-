@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-reference-r40";
+const APP_VERSION = "20261006-bento-reference-r41";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4838,7 +4838,7 @@ async function loadCoreData(){
   renderJobs();
   renderQuotes();
   renderTeam();
-  if(["owner","admin"].includes(String(state.business?.role||""))) await loadTeamMessageThreads().catch(err=>console.warn("[TLE] team messages",err));
+  if(["owner","admin"].includes(String(state.business?.role||""))) loadTeamMessageThreads().catch(err=>console.warn("[TLE] team messages",err));
   renderSupplies();
 
   const [invoices,bookingRequests,mileageLogs,timeEntries,emailDeliveryIssues]=await Promise.all([
