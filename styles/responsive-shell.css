@@ -347,3 +347,21 @@
     min-width:0!important;
   }
 }
+
+/* 2026-10-06 — Booking Center mobile layout repair */
+@media (max-width:620px){
+  [data-page="booking"] .link-box,#bookingPageLinkBox.link-box{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;padding:12px!important;overflow:hidden!important}
+  [data-page="booking"] .link-box a,#bookingPageLinkBox.link-box a{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:11px!important}
+  [data-page="booking"] .link-box button,#bookingPageLinkBox.link-box button{position:static!important;transform:none!important;max-width:100%!important;white-space:nowrap!important}
+  [data-page="booking"] .booking-service-group{overflow:hidden!important;border-radius:18px!important}
+  [data-page="booking"] .booking-service-group-head{padding:16px 16px 12px!important}
+  [data-page="booking"] .booking-service-group-head h4{font-size:22px!important;line-height:1.05!important;margin:8px 0 4px!important}
+  [data-page="booking"] .booking-service-group-head p{font-size:12px!important;line-height:1.4!important;margin:0!important}
+  [data-page="booking"] .booking-service-group-list{padding:0 10px 10px!important;display:grid!important;gap:8px!important}
+  [data-page="booking"] .booking-service-row{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;padding:14px!important;border:1px solid var(--line)!important;border-radius:16px!important;background:#fff!important;min-width:0!important;overflow:hidden!important}
+  [data-page="booking"] .booking-service-row>span{min-width:0!important;max-width:100%!important}
+  [data-page="booking"] .booking-service-row>span:first-child strong{display:block!important;font-size:18px!important;line-height:1.12!important;overflow-wrap:anywhere!important}
+  [data-page="booking"] .booking-service-row small{display:block!important;margin-top:5px!important;font-size:11px!important}
+  [data-page="booking"] .booking-addon-chips{display:flex!important;flex-wrap:wrap!important;gap:6px!important;min-width:0!important}
+  [data-page="booking"] .booking-addon-chips i{max-width:100%!important;font-size:10px!important;line-height:1.15!important;padding:7px 9px!important;overflow-wrap:anywhere!important}
+}
