@@ -319,3 +319,26 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
 @media(min-width:721px) and (max-width:900px){
  body.shell-app #appShell [data-page="invoices"] .invoice-growth-row{grid-template-columns:minmax(135px,.75fr) minmax(100px,.55fr) minmax(0,1.35fr)!important;grid-template-areas:"primary badge meta" "client client client" "actions actions actions"!important}
 }
+
+
+/* 2026-10-06 r59 — definitive tablet invoice card reflow */
+@media(min-width:681px) and (max-width:1180px){
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"primary badge" "meta meta" "client client" "actions actions"!important;grid-template-rows:auto auto auto auto!important;gap:10px 14px!important;align-items:start!important;height:auto!important;min-height:0!important;overflow:visible!important;padding:16px!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-growth-primary{grid-area:primary!important;position:static!important;min-width:0!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-status-badge{grid-area:badge!important;position:static!important;justify-self:end!important;align-self:start!important;max-width:170px!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-status-meta{grid-area:meta!important;position:static!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important;margin:0!important;padding:9px 0!important;border-top:1px solid var(--app-line)!important;border-bottom:1px solid var(--app-line)!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-client-field{grid-area:client!important;position:static!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:5px!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important;min-width:0!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-row{position:static!important;display:grid!important;grid-template-columns:22px minmax(0,1fr)!important;align-items:center!important;min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;white-space:normal!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-row.is-address{grid-column:1/-1!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-row>span:last-child,body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-row>a{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-area:actions!important;position:static!important;inset:auto!important;transform:none!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:11px 0 0!important;border-top:1px solid var(--app-line)!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-actions-stable .safe-actions{display:flex!important;position:static!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;min-width:0!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-actions-stable button,body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{position:static!important;inset:auto!important;transform:none!important;float:none!important;width:auto!important;max-width:100%!important;min-width:0!important;min-height:40px!important;margin:0!important;padding:9px 12px!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:end!important}
+}
+@media(min-width:681px) and (max-width:820px){
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .invoice-contact-list{grid-template-columns:minmax(0,1fr)!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-template-columns:minmax(0,1fr)!important}
+ body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:stretch!important;width:100%!important}
+}
