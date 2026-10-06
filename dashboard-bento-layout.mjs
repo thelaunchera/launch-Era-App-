@@ -50,6 +50,10 @@ try{
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
    assert.equal(result.columns,width<=860?2:4);assert.equal(result.quickColumns,2);assert.equal(result.pulseCount,4);
+   const domOrder=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].filter(el=>el.matches('#todayHeroCard,.dashboard-quick-access,.money-week-head,#businessPulse,.attention-panel,.growth-grid')).map(el=>el.id||el.classList[0]));
+   assert.deepEqual(domOrder,width<=860
+     ? ['todayHeroCard','dashboard-section-head','businessPulse','panel','dashboard-grid','dashboard-quick-access']
+     : ['todayHeroCard','dashboard-quick-access','dashboard-section-head','businessPulse','panel','dashboard-grid']);
    assert.equal(result.time,'time');assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');
    // Permission gates must still win over display:grid/flex declarations.
    await page.evaluate(()=>document.querySelectorAll('[data-admin-only],[data-owner-only]').forEach(el=>el.hidden=true));

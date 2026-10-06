@@ -28,6 +28,9 @@ html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.tex
 html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {transition:transform .16s ease!important;}
 html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card:hover {transform:translateY(-2px);}
 html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(button,[role="button"]):focus-visible {outline:3px solid #397FA3!important; outline-offset:3px;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel {order:7;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-lower {order:8;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel {order:9;}
 @media(max-width:860px) {
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active {grid-template-columns:minmax(0,1fr)!important; gap:12px!important;}
   html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > * {grid-column:1/-1!important;}
