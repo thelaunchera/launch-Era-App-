@@ -264,3 +264,19 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="route"] .route-command-summary>*{position:static!important;transform:none!important;max-width:100%!important;min-width:0!important;margin:0!important}
  body.shell-app #appShell [data-page="route"] .route-command-summary .route-best-btn{display:block!important;width:min(100%,260px)!important;max-width:100%!important;margin:4px auto 0!important}
 }
+
+
+/* 2026-10-06 r56 — one mobile Services + Pricing control center */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="services"] .section-intro{align-items:stretch!important}
+ body.shell-app #appShell [data-page="services"] .section-actions{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important}
+ body.shell-app #appShell [data-page="services"] .section-actions>*{width:100%!important}
+ body.shell-app #appShell [data-page="services"] .pricing-center-tools{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-top:14px!important}
+ body.shell-app #appShell [data-page="services"] .pricing-center-panel{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;box-sizing:border-box!important}
+ body.shell-app #appShell [data-page="services"] #servicesEstimateCalculatorMount,
+ body.shell-app #appShell [data-page="services"] #servicesDiscountsList{width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+ body.shell-app #appShell [data-page="services"] .service-owned-addons{display:grid!important;gap:7px!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:10px!important;box-sizing:border-box!important;border-top:1px solid var(--app-line)!important}
+ body.shell-app #appShell [data-page="services"] .addon-list-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;width:100%!important;min-width:0!important}
+ body.shell-app #appShell [data-page="services"] .addon-list-head button{width:auto!important;min-width:0!important}
+ body.shell-app #appShell [data-page="services"] .service-owned-addons .addon-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important}
+}
