@@ -5642,14 +5642,18 @@ function renderServiceCatalogCard(s){
   const isQuote=!serviceIsPaid(s);
   const statusLabel=!s.active?langPick("Inactive","Inactivo","Inactif"):isQuote?serviceGroupCopy("quoteRequired"):serviceGroupCopy("instant");
   return `
-    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
-      <div class="service-row-main">
+    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}">
+      <div class="service-row-main" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
         <div class="service-row-copy">
           <span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span>
           <strong>${escapeHtml(s.name)}</strong>
           <small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${Math.max(1,Number(s.workers_required||1))} ${escapeHtml(langPick("worker","trabajador","travailleur"))}${activeAddons?` · ${activeAddons} add-on${activeAddons===1?"":"s"}`:""}</small>
         </div>
         <div class="service-row-side"><b>${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b><span aria-hidden="true">›</span></div>
+      </div>
+      <div class="addon-list service-owned-addons">
+        <div class="addon-list-head"><strong>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</strong><button type="button" data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add","Añadir","Ajouter"))}</button></div>
+        ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong></span><span class="card-actions"><button type="button" data-edit-addon="${a.id}">${escapeHtml(langPick("Edit","Editar","Modifier"))}</button><button type="button" data-toggle-addon="${a.id}">${a.active?langPick("Off","Apagar","Désactiver"):langPick("On","Activar","Activer")}</button></span></div>`).join(""):`<div class="addon-empty">${escapeHtml(langPick("No add-ons yet.","Todavía no hay add-ons.","Aucune option pour le moment."))}</div>`}
       </div>
     </article>`;
 }
@@ -5673,25 +5677,10 @@ function renderServices(){
   grid.classList.add("service-catalog-groups");
   const paid=state.services.filter(serviceIsPaid);
   const quote=state.services.filter(s=>!serviceIsPaid(s));
-  const unassigned=state.serviceAddons.filter(a=>!a.service_id);
-  const globalCard=unassigned.length?`<section class="service-type-group service-type-group-addons">
-    <div class="service-type-heading">
-      <div><span class="service-status-pill bookable">${escapeHtml(langPick("GENERAL","GENERAL","GÉNÉRAL"))}</span><h3>${escapeHtml(langPick("General add-ons","Add-ons generales","Options générales"))}</h3></div>
-      <p>${escapeHtml(langPick("Available across services","Disponibles en varios servicios","Disponibles sur plusieurs services"))}</p>
-      <span class="service-type-count">${unassigned.length}</span>
-    </div>
-    <div class="service-type-grid">
-      <article class="service-card service-catalog-card general-addon-card">
-        <div class="addon-list">${unassigned.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>+${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join("")}</div>
-      </article>
-    </div>
-  </section>`:"";
-
   grid.innerHTML=
     renderServiceCatalogGroup(paid,"paid")+
     renderServiceCatalogGroup(quote,"quote")+
-    globalCard+
-    `<article class="add-card service-add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set price, duration and booking basics.","Define precio, duración y reserva.","Définissez le prix, la durée et la réservation."))}</span></article>`;
+    `<article class="add-card service-add-card" data-create="service"><div>＋</div><strong>${escapeHtml(langPick("Add service","Añadir servicio","Ajouter un service"))}</strong><span>${escapeHtml(langPick("Set the service first, then manage its add-ons inside it.","Primero define el servicio y después administra sus add-ons dentro de él.","Définissez d’abord le service, puis gérez ses options à l’intérieur."))}</span></article>`;
 }
 function renderSupplies(){
   const grid=$("#suppliesGrid");
