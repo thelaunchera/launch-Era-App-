@@ -1984,7 +1984,7 @@ function showApp(){
     openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
   }
   $$("[data-account-billing]").forEach(el=>{
-    el.hidden=state.isPlatformAdmin;
+    el.hidden=false;
   });
   renderTrialStatus();
   if(state.business?.role==="owner" && state.session?.user?.email){
@@ -2171,7 +2171,14 @@ function renderTrialStatus(){
   const trialCard=pill?.closest(".trial-card");
   const warning=$("#trialExpiryBanner");
   if(state.isPlatformAdmin){
-    if(trialCard) trialCard.hidden=true;
+    if(trialCard){
+      trialCard.hidden=false;
+      const strong=trialCard.querySelector("strong");
+      const copy=trialCard.querySelector("p");
+      if(strong) strong.textContent="$0/month · Owner access";
+      if(copy) copy.textContent="My Free Owner Plan · No renewal charge";
+    }
+    if(pill) pill.textContent="Free owner plan";
     if(warning) warning.hidden=true;
     $("#trialSubscribeBtn")?.remove();
     if(state.modalType==="subscriptionGate"){
@@ -4875,7 +4882,7 @@ async function loadCoreData(){
 
 async function loadOwnerAdmin(){
   $$("[data-account-billing]").forEach(el=>{
-    el.hidden=state.isPlatformAdmin;
+    el.hidden=false;
   });
   const [membersRes,invitesRes]=await Promise.all([
     supabase.from("business_members").select("*").eq("business_id",state.business.id).order("created_at"),
@@ -4886,8 +4893,31 @@ async function loadOwnerAdmin(){
   renderMembers();
   const status=$("#adminPlanStatus");
   const trial=$("#adminTrialEnds");
-  if(status) status.textContent=state.business.subscription_status||"Trial";
-  if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+  const badge=$("#adminPlanBadge");
+  const dateLabel=$("#adminPlanDateLabel");
+  const dateMeta=$("#adminPlanDateMeta");
+  const priceLabel=$("#adminPlanPriceLabel");
+  const price=$("#adminPlanPrice");
+  const priceMeta=$("#adminPlanPriceMeta");
+  if(state.isPlatformAdmin){
+    if(status) status.textContent="My Free Owner Plan";
+    if(trial) trial.textContent="No expiration";
+    if(badge) badge.textContent="Free";
+    if(dateLabel) dateLabel.textContent="Access";
+    if(dateMeta) dateMeta.textContent="Owner";
+    if(priceLabel) priceLabel.textContent="Billing";
+    if(price) price.textContent="$0/month";
+    if(priceMeta) priceMeta.textContent="No renewal charge";
+  }else{
+    if(status) status.textContent=state.business.subscription_status||"Trial";
+    if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
+    if(badge) badge.textContent="Owner only";
+    if(dateLabel) dateLabel.textContent="Trial ends";
+    if(dateMeta) dateMeta.textContent="30 days";
+    if(priceLabel) priceLabel.textContent="After trial";
+    if(price) price.textContent="$5.99/month";
+    if(priceMeta) priceMeta.textContent="—";
+  }
 }
 
 function renderMembers(){
@@ -5650,32 +5680,18 @@ function openClientInfo(clientId){
 
 function renderServiceCatalogCard(s){
   const addons=state.serviceAddons.filter(a=>a.service_id===s.id);
+  const activeAddons=addons.filter(a=>a.active).length;
   const isQuote=!serviceIsPaid(s);
-  const statusLabel=!s.active
-    ? langPick("Inactive","Inactivo","Inactif")
-    : isQuote
-      ? serviceGroupCopy("quoteRequired")
-      : serviceGroupCopy("instant");
+  const statusLabel=!s.active?langPick("Inactive","Inactivo","Inactif"):isQuote?serviceGroupCopy("quoteRequired"):serviceGroupCopy("instant");
   return `
-    <article class="service-card service-catalog-card ${s.active?"":"inactive-card"}">
-      <div class="service-catalog-top">
-        <div><span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span><strong>${escapeHtml(s.name)}</strong></div>
-        <b class="service-price">${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b>
-      </div>
-      <div class="service-catalog-meta">
-        <span><small>${escapeHtml(langPick("Duration","Duración","Durée"))}</small><b>${Math.round(s.default_duration_minutes/60*10)/10} hr</b></span>
-        <span><small>${escapeHtml(langPick("Workers","Trabajadores","Travailleurs"))}</small><b>${Math.max(1,Number(s.workers_required||1))}</b></span>
-        <span><small>${escapeHtml(langPick("Pricing","Precio","Tarification"))}</small><b>${escapeHtml(isQuote?langPick("Quote","Cotización","Devis"):langPick("Upfront","Inmediato","Immédiat"))}</b></span>
-        <span><small>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</small><b>${addons.filter(a=>a.active).length}</b></span>
-      </div>
-      ${s.description?`<p class="service-description">${escapeHtml(s.description)}</p>`:""}
-      <div class="addon-list">
-        ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong><small>${escapeHtml(langPick("Included by default","Incluido por defecto","Inclus par défaut"))} · +${money(a.price)} · +${a.extra_duration_minutes} min</small></span><span class="card-actions"><button data-edit-addon="${a.id}">Edit</button><button data-toggle-addon="${a.id}">${a.active?"Off":"On"}</button></span></div>`).join(""):`<small class="muted-line">${escapeHtml(langPick("No add-ons yet","Sin add-ons todavía","Aucune option pour le moment"))}</small>`}
-      </div>
-      <div class="card-actions service-card-actions">
-        <button data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Modifier"))}</button>
-        <button data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add-on","Add-on","Option"))}</button>
-        <button data-toggle-service="${s.id}">${escapeHtml(s.active?langPick("Deactivate","Desactivar","Désactiver"):langPick("Activate","Activar","Activer"))}</button>
+    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
+      <div class="service-row-main">
+        <div class="service-row-copy">
+          <span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span>
+          <strong>${escapeHtml(s.name)}</strong>
+          <small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${Math.max(1,Number(s.workers_required||1))} ${escapeHtml(langPick("worker","trabajador","travailleur"))}${activeAddons?` · ${activeAddons} add-on${activeAddons===1?"":"s"}`:""}</small>
+        </div>
+        <div class="service-row-side"><b>${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b><span aria-hidden="true">›</span></div>
       </div>
     </article>`;
 }
