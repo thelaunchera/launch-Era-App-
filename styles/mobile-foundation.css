@@ -66,10 +66,10 @@
  body.shell-app .modal-backdrop .form-grid>label,body.shell-app .modal-backdrop .form-grid>.full{grid-column:1/-1!important;width:100%!important;min-width:0!important}
  body.shell-app .modal-backdrop .form-grid :is(input,select,textarea){width:100%!important;max-width:none!important;box-sizing:border-box!important}
  body.shell-app .modal-backdrop .form-footer{
-   position:sticky!important;bottom:calc(-92px - env(safe-area-inset-bottom))!important;z-index:3!important;
+   position:static!important;bottom:auto!important;z-index:auto!important;
    display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
-   margin:20px -18px calc(-92px - env(safe-area-inset-bottom))!important;
-   padding:12px 18px calc(14px + env(safe-area-inset-bottom))!important;background:#FAF8F3!important;
+   margin:20px 0 0!important;
+   padding:12px 0 calc(14px + env(safe-area-inset-bottom))!important;background:#FAF8F3!important;
    border-top:1px solid #DEDAD2!important;
  }
  body.shell-app .modal-backdrop .form-footer>button{width:100%!important;min-width:0!important;min-height:48px!important}
