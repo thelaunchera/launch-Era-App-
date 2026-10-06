@@ -317,3 +317,19 @@
  .table-card{border-radius:16px!important;box-shadow:none!important}
  .table-card>.table-head{display:none!important}
 }
+
+/* iOS drawer state fix: closed means physically non-interactive */
+@media(max-width:860px){
+ #sidebar.sidebar:not(.open){
+   visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+   transform:translate3d(-105%,0,0)!important;-webkit-transform:translate3d(-105%,0,0)!important;
+ }
+ #sidebar.sidebar.open{
+   visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+   transform:translate3d(0,0,0)!important;-webkit-transform:translate3d(0,0,0)!important;
+ }
+ #sidebarScrim[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
+ #sidebarScrim:not([hidden]){display:block!important;visibility:visible!important;pointer-events:auto!important}
+ body:not(.sidebar-is-open) #sidebarScrim{display:none!important;pointer-events:none!important}
+ body:not(.sidebar-is-open){overflow:auto!important}
+}
