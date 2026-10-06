@@ -74,3 +74,39 @@
  }
  body.shell-app .modal-backdrop .form-footer>button{width:100%!important;min-width:0!important;min-height:48px!important}
 }
+
+
+/* 2026-10-06 iPhone recovery: services + owner admin */
+@media(max-width:680px){
+ body.shell-app #appShell [data-page="services"] .service-card{overflow:visible!important}
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions){
+   display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;width:100%!important;overflow:visible!important
+ }
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions)>button{
+   width:100%!important;min-width:0!important;min-height:46px!important;padding:10px 12px!important;
+   font-size:14px!important;line-height:1.2!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important
+ }
+ body.shell-app #appShell [data-page="services"] .service-card :is(.card-actions,.record-actions,.safe-actions)>button:last-child:nth-child(odd){
+   grid-column:1/-1!important
+ }
+
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel{
+   overflow:visible!important;padding:16px!important;min-height:0!important
+ }
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-accordion-panel:not(.compact-panel-open){
+   padding:16px!important;min-height:72px!important
+ }
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-trigger-h3>h3{
+   display:flex!important;align-items:center!important;min-height:44px!important;margin:0!important;padding:6px 44px 6px 0!important
+ }
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-trigger-h3>h3::after{
+   right:4px!important;font-size:22px!important
+ }
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>:not(h3){
+   display:flex!important
+ }
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>.role-legend,
+ body.shell-app #appShell [data-page="admin"] .admin-grid>.panel.compact-panel-open.compact-trigger-h3>#membersList{
+   display:grid!important
+ }
+}
