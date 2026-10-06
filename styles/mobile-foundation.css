@@ -44,9 +44,6 @@
 
 /* iPhone invoices — single stable action system; obsolete overflow version removed */
 @media(max-width:680px){
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-more,
- body.shell-app #appShell [data-page="invoices"] .invoice-tablet-details,
- body.shell-app #appShell [data-page="invoices"] .mobile-more-actions{display:none!important}
  body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable{display:flex!important;position:static!important;width:100%!important;margin-top:10px!important}
  body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable .safe-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
  body.shell-app #appShell [data-page="invoices"] .invoice-actions-stable button{min-height:38px!important;width:auto!important}
