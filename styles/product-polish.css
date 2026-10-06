@@ -163,3 +163,13 @@
  .client-card,.supply-card,.quote-card,.invoice-card,.member-card,.lead-card,.followup-card{padding:var(--card-pad-mobile)!important;margin-bottom:7px!important;border:1px solid var(--app-line)!important;background:#fff!important}
  .card-actions{gap:5px!important}.card-actions button{min-height:32px!important;padding:6px 9px!important;border-radius:10px!important;font-size:11px!important}
 }
+@media(max-width:680px){
+ .service-row-card{padding:0!important;overflow:hidden!important}
+ .service-row-main{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:12px 13px!important}
+ .service-row-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;min-width:0!important}
+ .service-row-copy .service-status-pill{display:inline-flex!important;font-size:8px!important;padding:3px 6px!important}
+ .service-row-copy>strong{font-size:16px!important;line-height:1.18!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:64vw!important}
+ .service-row-copy>small{font-size:11px!important;color:#77736d!important;white-space:nowrap!important}
+ .service-row-side{display:flex!important;align-items:center!important;gap:8px!important;white-space:nowrap!important}
+ .service-row-side>b{font-size:17px!important}.service-row-side>span{font-size:24px!important;color:#9a9690!important;font-weight:400!important}
+}
