@@ -52,12 +52,12 @@
 /* customer editor full-screen mobile fix */
 @media(max-width:680px){
  body.shell-app .modal-backdrop:not([hidden]){
-   display:block!important;inset:0!important;padding:0!important;background:#FAF8F3!important;z-index:2000!important;overflow:hidden!important;
+   display:block!important;position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;padding:0!important;background:#FAF8F3!important;z-index:2000!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;
  }
  body.shell-app .modal-backdrop .modal{
-   position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-width:none!important;max-height:100dvh!important;
+   position:relative!important;inset:auto!important;width:100%!important;min-height:100dvh!important;height:auto!important;max-width:none!important;max-height:none!important;
    margin:0!important;padding:calc(18px + env(safe-area-inset-top)) 18px calc(92px + env(safe-area-inset-bottom))!important;
-   border-radius:0!important;background:#FAF8F3!important;box-shadow:none!important;overflow-x:hidden!important;overflow-y:scroll!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important;
+   border-radius:0!important;background:#FAF8F3!important;box-shadow:none!important;overflow:visible!important;
  }
  body.shell-app .modal-backdrop .modal::before{display:none!important}
  body.shell-app .modal-backdrop .modal-close{position:fixed!important;top:calc(14px + env(safe-area-inset-top))!important;right:16px!important;z-index:4!important}
