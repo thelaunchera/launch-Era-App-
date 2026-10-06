@@ -224,3 +224,49 @@
  [data-page="booking"] .booking-command-card{background:transparent!important;border:0!important;padding:4px 0 10px!important}
  [data-page="booking"] .booking-command-link{background:#fff!important;border:1px solid var(--app-line)!important}
 }
+/* Mobile drawer hotfix — reliable iPhone interaction */
+@media(max-width:860px){
+ #sidebar.sidebar{
+   z-index:1001!important;
+   width:min(82vw,320px)!important;
+   max-width:320px!important;
+   overflow:hidden!important;
+   overscroll-behavior:contain!important;
+   -webkit-overflow-scrolling:touch!important;
+ }
+ #sidebarScrim{
+   z-index:1000!important;
+   background:rgba(25,25,25,.18)!important;
+   backdrop-filter:none!important;
+   -webkit-backdrop-filter:none!important;
+   touch-action:manipulation!important;
+ }
+ #sidebar .sidebar-drawer-close{
+   position:absolute!important;
+   top:max(12px,env(safe-area-inset-top))!important;
+   right:12px!important;
+   width:36px!important;height:36px!important;
+   border:0!important;border-radius:50%!important;
+   display:grid!important;place-items:center!important;
+   background:#efeeea!important;color:#191919!important;
+   font-size:22px!important;line-height:1!important;
+   z-index:3!important;
+ }
+ #sidebar .brand-row{padding-right:42px!important}
+ #sidebar .nav-list{
+   flex:1 1 auto!important;
+   min-height:0!important;
+   overflow-y:auto!important;
+   overflow-x:hidden!important;
+   overscroll-behavior:contain!important;
+   -webkit-overflow-scrolling:touch!important;
+   padding-bottom:14px!important;
+ }
+ #sidebar .sidebar-session-actions{
+   flex:0 0 auto!important;
+   margin-top:0!important;
+   padding-top:8px!important;
+ }
+ body.sidebar-is-open{overflow:hidden!important}
+ body.sidebar-is-open #sidebar{touch-action:pan-y!important}
+}
