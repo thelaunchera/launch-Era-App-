@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-reference-r43";
+const APP_VERSION = "20261006-bento-reference-r44";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -8858,6 +8858,7 @@ async function saveInvoice(fd){
   };
 
   let invoiceId=state.modalId;
+  let savedInvoice=null;
   if(invoiceId){
     const {error}=await supabase.from("invoices").update(payload).eq("id",invoiceId);
     if(error) throw error;
@@ -8874,6 +8875,11 @@ async function saveInvoice(fd){
     const {data,error}=await supabase.from("invoices").insert(payload).select("id").single();
     if(error) throw error;
     invoiceId=data.id;
+    savedInvoice={...payload,id:invoiceId,invoice_items:[],payments:[]};
+    // Commit the newly created invoice to app state immediately. The UI should
+    // never depend on a later workspace-wide refresh to know that creation succeeded.
+    state.invoices=[savedInvoice,...(state.invoices||[]).filter(invoice=>invoice.id!==invoiceId)];
+    renderInvoices();
     const {error:itemErr}=await supabase.from("invoice_items").insert({
       invoice_id:invoiceId,
       description:String(fd.get("description")).trim(),
@@ -8882,6 +8888,10 @@ async function saveInvoice(fd){
       line_total:amount
     });
     if(itemErr) throw itemErr;
+    const createdItem={invoice_id:invoiceId,description:String(fd.get("description")).trim(),quantity:1,unit_price:amount,line_total:amount};
+    savedInvoice={...(savedInvoice||payload),id:invoiceId,invoice_items:[createdItem],payments:[]};
+    state.invoices=[savedInvoice,...(state.invoices||[]).filter(invoice=>invoice.id!==invoiceId)];
+    renderInvoices();
   }
 
   if(shouldSend && invoiceId){
