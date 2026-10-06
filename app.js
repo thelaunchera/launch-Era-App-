@@ -1983,7 +1983,7 @@ function showApp(){
     navHistory[0]="today";
     openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
   }
-  $("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=false;
   });
   renderTrialStatus();
@@ -4881,7 +4881,7 @@ async function loadCoreData(){
 }
 
 async function loadOwnerAdmin(){
-  $("[data-account-billing]").forEach(el=>{
+  $$("[data-account-billing]").forEach(el=>{
     el.hidden=false;
   });
   const [membersRes,invitesRes]=await Promise.all([
