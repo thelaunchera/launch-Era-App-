@@ -56,3 +56,13 @@ html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(butt
 }
 /* Respect permissions and any dynamic hidden state, including capacity for workers. */
 html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] [hidden] {display:none!important;}
+/* Quiet canvas like the reference; the night greeting keeps its own palette. */
+html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) {
+  background:#F5F7F8!important; background-image:none!important; animation:none!important;
+}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayGreeting {
+  font-size:clamp(28px,3vw,40px)!important; line-height:1.08!important; letter-spacing:-.035em!important; max-width:100%!important;
+}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats b {
+  color:var(--owner-card-ink,#191919)!important;
+}
