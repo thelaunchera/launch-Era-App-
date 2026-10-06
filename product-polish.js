@@ -19,4 +19,11 @@ function installSaveFeedback(){
  document.addEventListener("click",e=>{const b=e.target.closest("button,input[type=submit]");if(!b||b.disabled)return;const t=((b.textContent||b.value||"")+" "+(b.id||"")).toLowerCase();if(/save|guardar|enregistrer|sove/.test(t)){window.TLESaveFeedback.saving();setTimeout(()=>{const el=document.getElementById("tleSaveToast");if(el?.classList.contains("saving"))window.TLESaveFeedback.saved();},650);}},true);
  document.addEventListener("submit",()=>window.TLESaveFeedback.saving(),true);
 }
-function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
+function installSpecialQuoteFields(){
+ const commercial=document.getElementById("publicCommercialDetails"), form=document.getElementById("publicRequestForm");
+ if(!commercial||!form||document.getElementById("publicSpecialDetails"))return;
+ const box=document.createElement("div");box.className="full public-property-details";box.id="publicSpecialDetails";box.hidden=true;
+ box.innerHTML='<label>Space / job type<select name="special_space_type"><option value="">Choose one</option><option value="large_home">Large / custom home</option><option value="salon">Salon / beauty suite</option><option value="studio">Studio / creative space</option><option value="event">Event / venue cleanup</option><option value="post_construction">Post-construction</option><option value="vacation_property">Vacation / specialty property</option><option value="other">Other special job</option></select></label><label>Tell us what makes this job different<textarea name="special_job_details" placeholder="Size, layout, special surfaces, access, timing, or anything the business should review before pricing."></textarea></label>';
+ commercial.before(box);
+}
+function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();installSpecialQuoteFields();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
