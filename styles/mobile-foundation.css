@@ -342,3 +342,19 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-template-columns:minmax(0,1fr)!important}
  body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:stretch!important;width:100%!important}
 }
+
+
+/* 2026-10-06 r61 — make Calendar + Jobs use the iPad/tablet canvas. Phone untouched. */
+@media(min-width:681px) and (max-width:1180px){
+ body.shell-app #appShell [data-page="calendar"]{width:100%!important;max-width:none!important}
+ body.shell-app #appShell [data-page="calendar"] .section-intro,
+ body.shell-app #appShell [data-page="calendar"] .calendar-layout,
+ body.shell-app #appShell [data-page="calendar"] .calendar-panel,
+ body.shell-app #appShell [data-page="calendar"] #calendarWeekRow.two-week-calendar{max-width:none!important;width:100%!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-layout{grid-template-columns:minmax(0,1fr)!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-panel{padding:24px!important;border-radius:22px!important}
+ body.shell-app #appShell [data-page="calendar"] #calendarWeekRow.two-week-calendar{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:10px!important}
+ body.shell-app #appShell [data-page="calendar"] #calendarWeekRow>[data-calendar-day]{min-height:112px!important;padding:12px 8px!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-range-head{width:100%!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-layout>article:not(.calendar-panel){width:100%!important;max-width:none!important}
+}
