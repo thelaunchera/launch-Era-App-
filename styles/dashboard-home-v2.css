@@ -756,3 +756,10 @@ body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{
     flex:0 0 auto!important;
   }
 }
+
+/* Night sky takes priority over the quarter-hour palette at every viewport. */
+#appShell #todayHeroCard[data-celestial="night"]{
+  background:linear-gradient(145deg,#173E58 0%,#164B67 62%,#15627B 100%)!important;
+  border-color:rgba(255,255,255,.14)!important;
+  color:#F8FAFF!important;
+}
