@@ -79,6 +79,7 @@ try{
    assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<250,`greeting too large: ${result.heroHeight}`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
+   assert.equal(await page.locator('#weatherIcon').isVisible(),true);
    assert.equal(await page.locator('#weatherLocation').isVisible(),false);
    assert.equal(await page.locator('#weatherHighLow').isVisible(),false);
    assert.equal(await page.locator('#weatherBusinessNote').isVisible(),false);

@@ -1,7 +1,7 @@
-const CACHE_NAME="tle-cleaning-app-20261006-bento-reference-r39";
+const CACHE_NAME="tle-cleaning-app-20261006-bento-weather-r40";
 const CORE=[
   "./dashboard-bento.js?v=20261006-bento-reference-r39",
-  "./styles/dashboard-bento-preview.css?v=20261006-bento-reference-r39",
+  "./styles/dashboard-bento-preview.css?v=20261006-bento-weather-r40",
   "./boot.js?v=20261006-bento-reference-r39",
   "./styles/boot.css?v=20261006-bento-reference-r39",
   "./",
