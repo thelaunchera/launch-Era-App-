@@ -4996,26 +4996,11 @@ function invoicePaidAmount(inv){
 }
 
 function enhanceMobileRecordActions(){
-  if(!window.matchMedia("(max-width: 680px)").matches) return;
-  $$(".mobile-record-card .record-actions").forEach(actions=>{
-    if(actions.dataset.compactReady==="1" || actions.classList.contains("invoice-actions-stable") || actions.closest(".invoice-growth-row")) return;
-    const safe=actions.querySelector(".safe-actions");
-    if(!safe) return;
-    const buttons=[...safe.querySelectorAll("button")];
-    if(buttons.length<2) return;
-    actions.dataset.compactReady="1";
-    const primary=buttons.find(b=>b.matches("[data-send-invoice],[data-record-payment],[data-lead-to-quote]"))||buttons[0];
-    primary.classList.add("mobile-primary-action");
-    const more=document.createElement("button");
-    more.type="button"; more.className="mobile-more-actions"; more.textContent="•••";
-    more.setAttribute("aria-label",langPick("More actions","Más acciones","Plus d’actions"));
-    actions.insertBefore(more,actions.querySelector(".record-delete-btn"));
-    more.addEventListener("click",e=>{e.stopPropagation();actions.classList.toggle("mobile-actions-open");});
-  });
+  // Keep all real record actions visible. The old mobile ••• overflow control
+  // caused overlays and covered card content on iPhone.
+  $(".mobile-more-actions").forEach(button=>button.remove());
+  $(".record-actions.mobile-actions-open").forEach(actions=>actions.classList.remove("mobile-actions-open"));
 }
-document.addEventListener("click",e=>{
-  if(!e.target.closest(".record-actions")) $$(".record-actions.mobile-actions-open").forEach(x=>x.classList.remove("mobile-actions-open"));
-});
 
 function renderInvoices(){
   const table=$("#invoicesTable");
