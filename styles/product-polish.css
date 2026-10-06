@@ -29,7 +29,7 @@
 .main{padding-left:14px!important;padding-right:14px!important;padding-bottom:92px!important}
 .topbar{padding:12px 0 10px!important;margin-bottom:14px!important;min-height:58px}.topbar-title .eyebrow{display:none}.topbar h1{font-size:22px!important}
 .top-actions{gap:5px!important}.top-actions .top-tool-btn{width:38px!important;height:38px!important;padding:0!important;border-radius:12px!important}.top-actions .top-label{display:none!important}
-#quickAddBtn{width:40px!important;height:40px!important;padding:0!important;font-size:0!important;border-radius:13px!important}#quickAddBtn::after{content:"+";font-size:24px;line-height:1}
+#quickAddBtn{width:40px!important;height:40px!important;padding:0!important;border-radius:13px!important}#quickAddBtn::after{content:none!important;display:none!important}
 .view:not([data-page="today"]) .section-intro{display:flex!important;align-items:flex-end!important;gap:10px!important;margin:2px 0 14px!important}
 .view:not([data-page="today"]) .section-intro h2{font-size:27px!important;letter-spacing:-.035em;margin-bottom:2px!important}
 .view:not([data-page="today"]) .section-intro .eyebrow,.view:not([data-page="today"]) .section-intro>div>p:not(.eyebrow){display:none!important}
@@ -223,4 +223,97 @@
  [data-page="booking"] .booking-control-center{padding-bottom:12px}
  [data-page="booking"] .booking-command-card{background:transparent!important;border:0!important;padding:4px 0 10px!important}
  [data-page="booking"] .booking-command-link{background:#fff!important;border:1px solid var(--app-line)!important}
+}
+/* Mobile drawer hotfix — reliable iPhone interaction */
+@media(max-width:860px){
+ #sidebar.sidebar{
+   z-index:1001!important;
+   width:min(82vw,320px)!important;
+   max-width:320px!important;
+   overflow:hidden!important;
+   overscroll-behavior:contain!important;
+   -webkit-overflow-scrolling:touch!important;
+ }
+ #sidebarScrim{
+   z-index:1000!important;
+   background:rgba(25,25,25,.18)!important;
+   backdrop-filter:none!important;
+   -webkit-backdrop-filter:none!important;
+   touch-action:manipulation!important;
+ }
+ #sidebar .sidebar-drawer-close{
+   position:absolute!important;
+   top:max(12px,env(safe-area-inset-top))!important;
+   right:12px!important;
+   width:36px!important;height:36px!important;
+   border:0!important;border-radius:50%!important;
+   display:grid!important;place-items:center!important;
+   background:#efeeea!important;color:#191919!important;
+   font-size:22px!important;line-height:1!important;
+   z-index:3!important;
+ }
+ #sidebar .brand-row{padding-right:42px!important}
+ #sidebar .nav-list{
+   flex:1 1 auto!important;
+   min-height:0!important;
+   overflow-y:auto!important;
+   overflow-x:hidden!important;
+   overscroll-behavior:contain!important;
+   -webkit-overflow-scrolling:touch!important;
+   padding-bottom:14px!important;
+ }
+ #sidebar .sidebar-session-actions{
+   flex:0 0 auto!important;
+   margin-top:0!important;
+   padding-top:8px!important;
+ }
+ body.sidebar-is-open{overflow:hidden!important}
+ body.sidebar-is-open #sidebar{touch-action:pan-y!important}
+}
+
+/* Internal app architecture — compact record → detail/action disclosure */
+.tle-record-disclosure{display:none}
+@media(max-width:860px){
+ .tle-record-list{display:flex!important;flex-direction:column!important;gap:8px!important}
+ .tle-record-row{
+  position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  gap:6px 10px!important;min-height:68px!important;padding:12px 48px 12px 12px!important;
+  border:1px solid #e3e0d9!important;border-radius:16px!important;background:#fff!important;
+  box-shadow:none!important;margin:0!important;width:100%!important;
+ }
+ .tle-record-row>*{min-width:0!important}
+ .tle-record-row .client-card-head,.tle-record-row .quote-growth-top,.tle-record-row .supply-head{grid-column:1/-1!important;margin:0!important}
+ .tle-record-row .client-business-snapshot{grid-column:1/-1!important;display:flex!important;gap:16px!important;padding:4px 0 0!important;background:none!important;border:0!important}
+ .tle-record-row .client-business-snapshot span{padding:0!important;border:0!important}
+ .tle-record-row .client-location,.tle-record-row .quote-next-step,.tle-record-row .invoice-status-meta,.tle-record-row .supply-meta{grid-column:1/-1!important}
+ .tle-record-row .tle-record-disclosure{
+  display:grid!important;place-items:center!important;position:absolute!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:34px!important;height:34px!important;border:0!important;border-radius:50%!important;background:#f4f3ef!important;color:#191919!important;
+  font-size:16px!important;letter-spacing:1px!important;padding:0!important;z-index:2!important
+ }
+ .tle-record-row .tle-record-actions[hidden]{display:none!important}
+ .tle-record-row .tle-record-actions:not([hidden]){
+  display:flex!important;grid-column:1/-1!important;gap:7px!important;flex-wrap:wrap!important;
+  padding-top:10px!important;margin-top:4px!important;border-top:1px solid #ece9e2!important
+ }
+ .tle-record-row .tle-record-actions button{min-height:38px!important;padding:8px 11px!important;border-radius:11px!important}
+ #quotesBoard.kanban{display:flex!important;flex-direction:column!important;gap:12px!important}
+ #quotesBoard .kanban-col{width:100%!important;min-width:0!important;padding:0!important;background:transparent!important;border:0!important}
+ #quotesBoard .kanban-col h3{font-size:13px!important;margin:4px 2px 7px!important}
+ #quotesBoard .kanban-empty{padding:10px 12px!important;border-radius:12px!important;font-size:12px!important}
+ .metric-grid.compact{display:flex!important;gap:7px!important;overflow-x:auto!important;scrollbar-width:none!important;padding-bottom:2px!important}
+ .metric-grid.compact::-webkit-scrollbar{display:none!important}
+ .metric-grid.compact .metric-card{flex:0 0 118px!important;min-height:74px!important;padding:10px!important;border-radius:14px!important}
+ .metric-grid.compact .metric-card strong{font-size:22px!important}
+ .tle-progressive-settings{border:1px solid #e3e0d9!important;border-radius:16px!important;background:#fff!important;overflow:hidden!important}
+ .tle-progressive-settings>summary{list-style:none!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:13px 14px!important;cursor:pointer!important}
+ .tle-progressive-settings>summary::-webkit-details-marker{display:none!important}
+ .tle-progressive-settings>summary span{display:grid!important;gap:2px!important}.tle-progressive-settings>summary small{color:#777!important;font-size:11px!important}
+ .tle-progressive-settings>summary b{font-size:22px!important;transition:transform .18s ease!important}.tle-progressive-settings[open]>summary b{transform:rotate(90deg)!important}
+ .tle-progressive-settings>.followup-rules-panel{border:0!important;border-top:1px solid #ece9e2!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
+ .tle-context-card{padding:13px!important;border-radius:16px!important}
+ .view[data-page="team"] .team-message-center{margin-top:10px!important}
+ .view[data-page="team"] .section-intro p,.view[data-page="supplies"] .section-intro p,.view[data-page="quotes"] .section-intro p{display:none!important}
+ .table-card{border-radius:16px!important;box-shadow:none!important}
+ .table-card>.table-head{display:none!important}
 }
