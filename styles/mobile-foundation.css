@@ -1,0 +1,43 @@
+/* The Launch Era — clean iPhone foundation */
+@media(max-width:680px){
+ :root{--m-pad:11px;--m-gap:8px;--m-radius:14px}
+ body.shell-app #appShell>.main{padding-left:10px!important;padding-right:10px!important;padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
+ body.shell-app #appShell .view.active{width:100%!important;max-width:100%!important}
+ body.shell-app #appShell .view.active>.section-intro{margin:4px 0 9px!important}
+ body.shell-app #appShell .view.active>.section-intro h2{margin:0 0 2px!important;font-size:22px!important;line-height:1.05!important}
+ body.shell-app #appShell .view.active>.section-intro p{margin:0!important;font-size:11px!important;line-height:1.3!important}
+ body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card,.settings-section,.timer-card,.share-access-card){min-height:0!important;padding:var(--m-pad)!important;border-radius:var(--m-radius)!important;margin-bottom:var(--m-gap)!important}
+ body.shell-app #appShell .view.active :is(.panel,.client-card,.service-card,.supply-card,.followup-card,.quote-growth-card,.job-block,.mobile-record-card) p{margin:3px 0!important;line-height:1.3!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid){display:grid!important;grid-template-columns:1fr!important;grid-auto-flow:row!important;gap:7px!important;overflow:visible!important;padding:0!important}
+ body.shell-app #appShell :is(#clientsGrid,#servicesGrid,#teamGrid,#suppliesGrid)>*{width:100%!important;min-width:0!important}
+ body.shell-app #appShell .mobile-record-card{gap:3px!important}
+ body.shell-app #appShell .mobile-record-card>.record-primary{padding:0 0 6px!important}
+ body.shell-app #appShell .mobile-record-card>.record-primary strong{font-size:15px!important;line-height:1.15!important}
+ body.shell-app #appShell .mobile-record-card>.record-primary small{font-size:10px!important}
+ body.shell-app #appShell .mobile-record-card>.record-field{min-height:22px!important;display:grid!important;grid-template-columns:minmax(82px,34%) minmax(0,1fr)!important;gap:8px!important;align-items:start!important;padding:2px 0!important;font-size:10.5px!important;line-height:1.25!important}
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.followup-card-actions){gap:5px!important;margin-top:6px!important}
+ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.followup-card-actions) button{min-height:38px!important;padding:8px 10px!important;border-radius:11px!important}
+ body.shell-app #appShell :is(.entity-form,.booking-step-panel,.settings-section) label{font-size:10.5px!important;line-height:1.2!important}
+ body.shell-app #appShell :is(.entity-form,.booking-step-panel,.settings-section) :is(input,select,textarea){width:100%!important;max-width:100%!important;box-sizing:border-box!important;min-height:44px!important;padding:10px 11px!important;border-radius:11px!important;font-size:16px!important}
+ body.shell-app #appShell :is(.entity-form,.booking-step-panel,.settings-section) textarea{min-height:78px!important}
+ body.shell-app #appShell .form-grid{gap:9px!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-layout{gap:7px!important}
+ body.shell-app #appShell [data-page="calendar"] .calendar-panel{padding:9px!important;border-radius:14px!important}
+ body.shell-app #appShell [data-page="calendar"] :is(.day-detail-card,.calendar-detail,.job-detail,.job-block){min-height:0!important;padding:10px!important;border-radius:13px!important;margin:5px 0!important}
+ body.shell-app #appShell [data-page="quotes"] #quotesBoard.kanban{grid-auto-columns:minmax(270px,86vw)!important;gap:8px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important}
+ body.shell-app #appShell [data-page="quotes"] .quote-growth-col{padding:9px!important;border-radius:14px!important}
+ body.shell-app #appShell [data-page="reports"] .report-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}
+ body.shell-app #appShell [data-page="reports"] .report-grid .panel{min-height:100px!important}
+ body.shell-app #appShell [data-page="reports"] .report-grid .panel>strong{font-size:25px!important;margin:5px 0!important}
+ body.shell-app #appShell [data-page="time"] .timer-card>strong{font-size:32px!important;margin:7px 0!important}
+ body.shell-app #appShell [data-page="route"] .route-layout{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}
+ body.shell-app #appShell button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+ body.shell-app #appShell :is(.main,.nav-list,.timeline,.kanban){-webkit-overflow-scrolling:touch}
+}
+@media(max-width:860px){
+ body.shell-app #sidebar.sidebar{filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ body.shell-app #sidebar.sidebar:not(.open){pointer-events:none!important}
+ body.shell-app #sidebar.sidebar.open{pointer-events:auto!important;z-index:1002!important}
+ body.shell-app #sidebarScrim[hidden]{display:none!important;pointer-events:none!important}
+ body.shell-app #sidebarScrim:not([hidden]){pointer-events:auto!important;z-index:1001!important}
+}
