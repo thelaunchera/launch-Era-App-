@@ -1,71 +1,174 @@
-/* Opt-in dashboard preview: existing records, controls, roles and handlers. */
-html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active {
-  display:grid!important; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:16px!important; align-items:start;
+/* Reference-led bento dashboard. Opt-in only; original data and actions remain. */
+html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active){
+  --bento-accent:#417E92; --bento-deep:#173E58; --bento-line:#E0E5E7;
+  background:#F3F5F6!important; background-image:none!important; animation:none!important;
 }
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > * {min-width:0; margin:0!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(#firstWinCard,.money-week-head,#businessPulse,.growth-grid,.next-move-panel,.growth-lower,.presence-panel) {grid-column:1/-1;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard {grid-column:1; order:1; padding:24px!important; border-radius:22px!important; box-shadow:none!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-access {grid-column:2; order:2; align-self:stretch;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-panel {grid-column:1/-1; order:5;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .money-week-head {order:3;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #businessPulse {order:4; display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important; gap:12px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-grid {order:6; display:grid!important; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important; gap:16px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.panel,.pulse-card,.dashboard-quick-card) {border-radius:20px!important; border:1px solid #DEE4E8!important; box-shadow:none!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel {padding:20px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.panel-head h3,.dashboard-section-head h3) {font-size:18px!important; line-height:1.25!important; font-weight:600!important; letter-spacing:-.025em!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-grid {display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {padding:14px!important; min-height:106px!important; gap:6px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card strong {font-size:14px!important; line-height:1.25!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card small {font-size:11px!important; line-height:1.4!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card {display:flex!important; flex-direction:column; min-height:110px!important; padding:16px!important; overflow-wrap:anywhere;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > span {font-size:12px!important; line-height:1.4!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > strong {font-size:30px!important; line-height:1.1!important; margin:8px 0 5px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > small {font-size:11px!important; line-height:1.4!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-list.dashboard-attention-grid {grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:10px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card {border-radius:14px!important; padding:14px!important; min-height:108px!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-card {display:block!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.text-btn,.dashboard-section-link) {min-height:44px; line-height:1.35!important; white-space:normal!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {transition:transform .16s ease!important;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card:hover {transform:translateY(-2px);}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(button,[role="button"]):focus-visible {outline:3px solid #397FA3!important; outline-offset:3px;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel {order:7;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-lower {order:8;}
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel {order:9;}
-@media(max-width:860px) {
-  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active {grid-template-columns:minmax(0,1fr)!important; gap:12px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > * {grid-column:1/-1!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard {padding:20px!important;}
-  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayGreeting {font-size:clamp(28px,7.8vw,36px)!important; line-height:1.08!important; letter-spacing:-.035em!important;}
-  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayMomentCopy {font-size:14px!important; line-height:1.5!important;}
-  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayHeroAction {min-height:46px!important; margin-top:12px!important; border-radius:13px!important; font-size:14px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .money-week-head {order:2;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #businessPulse {order:3; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-panel {order:4;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-grid {order:5; grid-template-columns:minmax(0,1fr)!important; gap:12px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-access {order:6;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel {order:7;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .growth-lower {order:8;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel {order:9;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel {padding:16px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card {grid-template-columns:minmax(0,1fr)!important; grid-template-areas:"icon" "title" "count" "copy"!important; gap:6px!important; padding:11px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card strong {font-size:12px!important; line-height:1.3!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card small {font-size:11px!important; line-height:1.4!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-count {font-size:26px!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .schedule-panel .panel-head {flex-wrap:wrap!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {min-height:112px!important;}
+html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active{
+  display:grid!important; grid-template-columns:repeat(12,minmax(0,1fr))!important;
+  gap:12px!important; align-items:stretch; padding:0!important;
 }
-@media(prefers-reduced-motion:reduce) {
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card {transition:none!important; transform:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > *{min-width:0; margin:0!important; order:0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(#firstWinCard,#todayHeroCard,#businessPulse){grid-column:span 12;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(#bentoActivityCard,.attention-panel,.week-growth-card){grid-column:span 7;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(.next-move-panel,.dashboard-quick-access,.presence-panel){grid-column:span 5;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > .schedule-panel{grid-column:span 6;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(.capacity-card,#bentoTimerCard){grid-column:span 3;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(.money-week-head,.growth-grid,.growth-lower){display:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.panel,.pulse-card,.dashboard-quick-card){
+  border:1px solid var(--bento-line)!important; border-radius:14px!important; box-shadow:0 2px 3px #19191903!important;
 }
-/* Respect permissions and any dynamic hidden state, including capacity for workers. */
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] [hidden] {display:none!important;}
-/* Quiet canvas like the reference; the night greeting keeps its own palette. */
-html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) {
-  background:#F5F7F8!important; background-image:none!important; animation:none!important;
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel{padding:16px!important; background:var(--owner-card-bg,#fff)!important; color:var(--owner-card-ink,#191919)!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(h3,.panel-head h3,.dashboard-section-head h3){font-size:14px!important; line-height:1.35!important; font-weight:600!important; letter-spacing:-.02em!important; margin:0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .eyebrow{font-size:9px!important; font-weight:500!important; letter-spacing:.08em!important; margin:0 0 3px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(button,[role="button"]):focus-visible{outline:3px solid #417E92!important; outline-offset:3px;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.text-btn,.bento-open){min-height:44px!important; padding:6px 10px!important; font-size:11px!important; font-weight:500!important; line-height:1.35!important; white-space:normal!important;}
+/* Compact greeting: the dashboard, not a giant hero, carries the screen. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard{padding:16px 20px!important; border-radius:14px!important; min-height:0!important; box-shadow:none!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-ecosystem{display:block!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-greeting-zone{display:grid!important; grid-template-columns:minmax(0,1fr) auto!important; gap:6px 20px!important; padding:0!important; align-items:center;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-greeting-first{grid-column:1; grid-row:1;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayGreeting{font-size:24px!important; line-height:1.15!important; letter-spacing:-.03em!important; font-weight:600!important; margin:0 0 4px!important; padding:0!important; max-width:100%!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayMomentCopy{font-size:12px!important; line-height:1.5!important; margin:0!important; max-width:100%!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-card-topline{grid-column:2; grid-row:1; display:flex!important; gap:4px!important; margin:0!important; min-height:0!important; justify-content:end;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock{padding:5px 9px!important; min-width:0!important; border-radius:9px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock-copy strong{font-size:15px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock-copy small{font-size:10px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-sky-badge{transform:scale(.5)!important; transform-origin:center; margin:-18px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayHeroAction{grid-column:2; grid-row:2; min-height:44px!important; width:auto!important; padding:10px 14px!important; margin:0!important; border-radius:9px!important; font-size:12px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .weather-brief{grid-column:1; grid-row:2; max-width:310px!important; width:100%!important; margin:0!important; padding:6px 10px!important; border-radius:9px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .weather-icon{width:28px!important; height:28px!important; flex-basis:28px!important; font-size:19px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .weather-temp-row strong{font-size:20px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard .weather-condition-stack span{font-size:10px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard #weatherLocation{font-size:9px!important;}
+html[data-dashboard-preview="bento"] #appShell #todayHeroCard :is(.hero-weather-alert,.hero-route-chip){grid-column:1/-1; font-size:11px!important; margin:0!important;}
+/* Four summary tiles, with one dark featured tile like the reference. */
+html[data-dashboard-preview="bento"] #appShell #businessPulse{display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important; gap:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card{display:flex!important; flex-direction:column; min-width:0!important; min-height:102px!important; padding:13px 15px!important; background:var(--owner-card-bg,#fff)!important; overflow-wrap:anywhere;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > span{font-size:11px!important; font-weight:400!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > strong{font-size:28px!important; font-weight:600!important; line-height:1.1!important; margin:7px 0 5px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > small{font-size:10px!important; font-weight:400!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .pulse-card.pulse-money{background:var(--bento-deep)!important; color:#fff!important; border-color:var(--bento-deep)!important;}
+html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .pulse-card.pulse-money > :is(span,strong,small){color:#fff!important;}
+/* Real weekly activity, grouped by day. */
+.bento-card-head{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+.bento-open{display:grid; place-items:center; border:1px solid #E0E5E7; background:transparent; color:inherit; width:44px; border-radius:50%;}
+.bento-chart-summary{display:flex; align-items:baseline; gap:8px; margin:0 0 10px;}
+.bento-chart-summary strong{font-size:24px; font-weight:600; letter-spacing:-.035em;}
+.bento-chart-summary span{font-size:11px; opacity:.7;}
+.bento-bar-chart{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:14px;}
+.bento-bar-column{display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0;}
+.bento-bar-value{font-size:10px; opacity:.65;}
+.bento-bar-track{position:relative; display:block; width:100%; max-width:34px; height:90px; border-radius:30px; background:repeating-linear-gradient(135deg,#DFE5E7 0 1px,transparent 1px 4px); overflow:hidden;}
+.bento-bar-fill{position:absolute; bottom:0; left:0; width:100%; background:var(--bento-accent); border-radius:30px; transition:height .3s ease;}
+.bento-bar-column:nth-child(3n) .bento-bar-fill{background:var(--bento-deep);}
+.bento-bar-column:nth-child(3n+1) .bento-bar-fill{background:#A6C8D7;}
+.bento-bar-column small{font-size:10px; line-height:1.3; white-space:nowrap;}
+/* The existing capacity percentage becomes the progress dial. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-card{display:flex!important; flex-direction:column; align-items:stretch;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-top{display:block!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-track{display:none!important;}
+.bento-capacity-gauge{position:relative; width:116px; max-width:100%; margin:10px auto 0;}
+.bento-capacity-gauge svg{display:block; width:100%; height:auto; transform:rotate(-90deg); fill:none; stroke-width:11;}
+.bento-gauge-track{stroke:#E8EEF0;}
+.bento-gauge-fill{stroke:var(--bento-accent); stroke-linecap:round; transition:stroke-dasharray .3s ease;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #capacityPercent{position:absolute; inset:0; display:grid; place-items:center; font-size:26px!important; font-weight:600!important; color:var(--owner-card-ink,#191919)!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .capacity-message{font-size:11px!important; line-height:1.5!important; text-align:center; margin:8px 0 4px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #capacityAction{margin:auto auto 0!important;}
+/* A read-only clock for the canonical timer; all actions use Time Tracking. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .bento-timer-card{padding:16px; border-radius:14px; background:var(--bento-deep); color:#fff; display:flex; flex-direction:column; gap:12px;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .bento-timer-card h3{color:#fff!important;}
+.bento-timer-dot{width:7px; height:7px; border-radius:50%; background:#81979E;}
+.is-running .bento-timer-dot{background:#BDE6D0; box-shadow:0 0 0 4px #BDE6D018;}
+html[data-dashboard-preview="bento"] #appShell #bentoTimerJob{font-size:11px; line-height:1.4; margin:0; color:#fff; opacity:.75; overflow-wrap:anywhere;}
+.bento-timer-elapsed{font-variant-numeric:tabular-nums; font-size:clamp(22px,2.8vw,34px); letter-spacing:-.04em; font-weight:500; line-height:1.2; white-space:nowrap;}
+.bento-timer-action{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto; min-height:44px; border:1px solid #ffffff40; border-radius:9px; padding:10px; background:#ffffff0c; color:#fff; font-size:11px;}
+/* Compact task panels, not another stack of giant cards. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel{display:flex!important; flex-direction:column; align-items:start!important; justify-content:center; gap:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel h3{font-size:20px!important; line-height:1.3!important; max-width:24ch;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel p:not(.eyebrow){font-size:12px!important; font-weight:400!important; line-height:1.5!important; margin:7px 0 0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(#nextMoveAction,#weekReportsBtn){min-height:44px!important; padding:10px 15px!important; border-radius:9px!important; font-size:11px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel-head{margin-bottom:10px!important; flex-wrap:wrap; gap:6px!important; align-items:center;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .timeline-item{padding:10px 0!important; gap:9px!important; grid-template-columns:46px minmax(0,1fr)!important; border-bottom:1px solid #E0E5E7;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .timeline-item time{font-size:10px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .timeline-item strong{font-size:12px!important; font-weight:600!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .timeline-item span{font-size:11px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .today-job-actions{grid-column:2; display:flex; flex-wrap:wrap; gap:5px;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .today-job-actions button{min-height:44px!important; font-size:11px!important; padding:8px 10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .empty-inline{padding:14px 0!important; font-size:12px!important; background:transparent!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .empty-inline strong{font-size:12px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .empty-inline span{font-size:11px!important; line-height:1.5!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-list{display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:8px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card{min-width:0!important; min-height:94px!important; padding:10px!important; border-radius:10px!important; border:1px solid #E0E5E7!important; display:grid!important; grid-template-columns:minmax(0,1fr)!important; grid-template-areas:'title' 'count' 'copy'!important; gap:5px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-icon{display:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card strong{font-size:11px!important; font-weight:500!important; line-height:1.35!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-count{font-size:24px!important; font-weight:600!important; line-height:1.1!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .attention-summary-card small{font-size:10px!important; font-weight:400!important; line-height:1.4!important; margin:0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-access{padding:14px; border:1px solid var(--bento-line); border-radius:14px; background:var(--owner-card-bg,#fff);}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-section-head{margin:0 0 10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-grid{display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:6px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card{display:flex!important; flex-direction:column; align-items:center; justify-content:center; min-height:70px!important; padding:9px 5px!important; border-radius:10px!important; gap:6px!important; border:1px solid #E0E5E7!important; box-shadow:none!important; text-align:center; background:var(--owner-card-bg,#fff)!important; transition:background .16s ease!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card:hover{transform:none!important; background:#EDF4F7!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-icon{width:23px!important; height:23px!important; background:transparent!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-icon svg{width:20px!important; height:20px!important; stroke-width:1.6!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-card strong{font-size:11px!important; font-weight:500!important; line-height:1.3!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] :is(.dashboard-quick-card small,.dashboard-quick-arrow){display:none!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-card{display:block!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-card > p:not(.eyebrow){font-size:11px!important; line-height:1.4!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:12px 0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats :is(small,b){color:var(--owner-card-ink,#191919)!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats small{font-size:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats b{font-size:18px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-panel{display:flex!important; flex-direction:column; align-items:stretch!important; gap:10px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-copy p:not(.eyebrow){font-size:11px!important; line-height:1.4!important; margin:7px 0 0!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-actions{display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:6px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-btn{min-width:0; padding:8px!important; min-height:44px!important; border-radius:9px!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-btn strong{font-size:11px!important; font-weight:500!important;}
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presence-btn small{font-size:9px!important;}
+@media(min-width:861px){
+  html[data-dashboard-preview="bento"] body.shell-app #appShell:not([hidden]):has(.view[data-page="today"].active){grid-template-columns:196px minmax(0,1fr)!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar{padding:18px 12px!important; overflow-y:auto!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar .brand-name{font-size:14px!important; font-weight:600!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar .brand-sub{font-size:10px!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar .workspace-chip{padding:9px!important; border-radius:11px!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar .workspace-chip strong{font-size:12px!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .sidebar .nav-item{min-height:36px!important; padding:8px!important; font-size:12px!important; font-weight:500!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) > .main{padding:0 24px 24px!important; max-width:1440px; width:100%;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) .topbar{min-height:64px!important; margin:0 0 14px!important; padding:10px 0!important; background:transparent!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) .topbar-title .eyebrow{font-size:9px!important; font-weight:500!important; letter-spacing:.05em!important;}
+  html[data-dashboard-preview="bento"] #appShell:has(.view[data-page="today"].active) .topbar-title h1{font-size:24px!important; font-weight:600!important; letter-spacing:-.03em!important;}
 }
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayGreeting {
-  font-size:clamp(28px,3vw,40px)!important; line-height:1.08!important; letter-spacing:-.035em!important; max-width:100%!important;
+@media(max-width:860px){
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active{grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > *{grid-column:span 2!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(.capacity-card,#bentoTimerCard){grid-column:span 1!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard{padding:13px 14px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-greeting-zone{gap:6px 9px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayGreeting{font-size:21px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayMomentCopy{font-size:11px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-sky-badge{display:none!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock-mark{display:none!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock{padding:5px 7px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock-copy strong{font-size:12px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .today-clock-copy small{font-size:9px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayHeroAction{font-size:11px!important; padding:8px 10px!important;}
+  html[data-dashboard-preview="bento"] #appShell #todayHeroCard .weather-brief{padding:5px!important;}
+  html[data-dashboard-preview="bento"] #appShell #businessPulse{grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:8px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card{min-height:86px!important; padding:11px 12px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > strong{font-size:24px!important; margin:5px 0 3px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > span{font-size:10px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .pulse-card > small{font-size:9px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .panel{padding:13px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .bento-timer-card{padding:13px; gap:12px;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .bento-timer-card h3{font-size:13px!important;}
+  .bento-timer-elapsed{font-size:clamp(21px,6vw,28px);}
+  .bento-bar-chart{gap:10px;}
+  .bento-bar-track{height:68px; max-width:28px;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel{gap:8px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .next-move-panel h3{font-size:17px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .dashboard-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
 }
-html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .week-growth-stats b {
-  color:var(--owner-card-ink,#191919)!important;
+@media(prefers-reduced-motion:reduce){
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] *{transition:none!important;}
 }
+/* Explicit role and dynamic visibility always win over presentation. */
+html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] [hidden]{display:none!important;}

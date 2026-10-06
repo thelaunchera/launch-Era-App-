@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-preview-r38";
+const APP_VERSION = "20261006-bento-reference-r39";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -6867,6 +6867,11 @@ function renderTodaySummary(wakeAssistant=false){
     ws.textContent=langPick(weekJobs.length+" scheduled job"+(weekJobs.length===1?"":"s")+" · "+newClients+" new client"+(newClients===1?"":"s")+" · "+money(collectedValue)+" collected.",weekJobs.length+" trabajo"+(weekJobs.length===1?"":"s")+" agendado"+(weekJobs.length===1?"":"s")+" · "+newClients+" cliente"+(newClients===1?" nuevo":"s nuevos")+" · "+money(collectedValue)+" cobrado.",weekJobs.length+" prestation"+(weekJobs.length===1?"":"s")+" planifiée"+(weekJobs.length===1?"":"s")+" · "+newClients+" nouveau"+(newClients===1?" client":"x clients")+" · "+money(collectedValue)+" encaissé.");
   }
   const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Voir les rapports →");
+  window.TLE_BENTO_DASHBOARD?.render({
+    weekJobs,weekStart,locale:appLocale(),timeZone:businessTimeZone,capacity,
+    activeTimer:state.timeEntries.find(entry=>!entry.clocked_out_at)||null,
+    copy:{activity:tr("Weekly activity"),jobs:tr("Scheduled jobs"),timer:tr("Time tracker"),manage:tr("Manage timer"),idle:tr("No timer running."),running:tr("Running")}
+  });
 }
 
 function googleMapsDirectionsUrl(addresses){

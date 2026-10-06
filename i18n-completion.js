@@ -2028,6 +2028,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
 
   // Dashboard home v2 copy.
   Object.assign(staticCorrections.es,{
+    "Weekly activity":"Actividad semanal","Scheduled jobs":"Trabajos agendados","Time tracker":"Control de tiempo","Manage timer":"Ver temporizador",
     "Open your work timer":"Abrir el temporizador",
     "Needs attention":"Necesita atención","Weather":"Clima","Current local weather":"Clima local actual","Services":"Servicios","Prices, durations & add-ons":"Precios, duración y extras",
     "Quick access":"Acceso rápido","See all →":"Ver todo →","Calendar":"Calendario",
@@ -2041,6 +2042,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No quotes need attention.":"No hay cotizaciones pendientes.","All caught up on invoices.":"Facturas al día."
   });
   Object.assign(staticCorrections.fr,{
+    "Weekly activity":"Activité de la semaine","Scheduled jobs":"Prestations planifiées","Time tracker":"Suivi du temps","Manage timer":"Gérer le chronomètre",
     "Open your work timer":"Ouvrir le chronomètre",
     "Needs attention":"À surveiller","Weather":"Météo","Current local weather":"Météo locale actuelle","Services":"Services","Prices, durations & add-ons":"Tarifs, durées et options",
     "Quick access":"Accès rapide","See all →":"Tout voir →","Calendar":"Calendrier",
@@ -2054,6 +2056,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "No quotes need attention.":"Aucun devis ne nécessite votre attention.","All caught up on invoices.":"Factures à jour."
   });
   Object.assign(staticCorrections.ht,{
+    "Weekly activity":"Aktivite semèn nan","Scheduled jobs":"Travay pwograme","Time tracker":"Swivi tan","Manage timer":"Jere kwonomèt",
     "Open your work timer":"Louvri kwonomèt travay la",
     "Needs attention":"Bezwen atansyon","Weather":"Meteyo","Current local weather":"Meteyo lokal aktyèl","Services":"Sèvis","Prices, durations & add-ons":"Pri, dire ak opsyon",
     "Quick access":"Aksè rapid","See all →":"Wè tout →","Calendar":"Kalandriye",
