@@ -1908,3 +1908,65 @@ body.platform-owner-no-billing .trial-card{
   #todayHeroCard[data-celestial="night"] .hero-shooting-star{animation:none!important}
 }
 
+
+
+/* 2026-10-06 — Desktop density + premium workspace pass */
+@media (min-width:1101px){
+  .app-shell{grid-template-columns:280px minmax(0,1fr)!important}
+  .sidebar{width:280px!important;padding:14px 12px!important;overflow-y:auto!important;overflow-x:hidden!important;gap:0!important}
+  .brand-row{margin-bottom:12px!important}.brand-mark{width:36px!important;height:36px!important;border-radius:11px!important}
+  .workspace-chip{padding:8px 9px!important;margin-bottom:9px!important;border-radius:14px!important}.workspace-avatar{width:32px!important;height:32px!important;border-radius:10px!important}
+  .nav-list{display:flex!important;flex-direction:column!important;gap:2px!important;overflow:visible!important;flex:0 0 auto!important;padding:0!important}
+  .nav-label{margin:9px 8px 3px!important;font-size:8px!important}.nav-item{padding:8px 9px!important;border-radius:10px!important;font-size:12px!important;min-height:34px!important}.nav-item span{font-size:10px!important}
+  .trial-card{margin-top:10px!important;padding:10px!important;border-radius:14px!important}.trial-card strong{margin:7px 0 3px!important;font-size:12px!important}.trial-card p{font-size:10px!important}
+  .sidebar-session-actions{margin-top:7px!important;padding:7px 0 2px!important}.sidebar-logout-btn{padding:9px 10px!important;border-radius:11px!important;font-size:11px!important}
+  .main{padding:0 24px 42px!important;max-width:1600px!important;width:100%!important}.topbar{padding:15px 0 12px!important;margin-bottom:16px!important}.topbar h1{font-size:24px!important}
+  .section-intro{margin:5px 0 15px!important;gap:16px!important}.section-intro h2{font-size:34px!important;margin-bottom:4px!important}.section-intro p:not(.eyebrow){font-size:13px!important}
+  .panel{padding:17px!important;border-radius:18px!important}.panel-head{margin-bottom:12px!important}.panel h3{font-size:18px!important}
+  .metric-grid{gap:9px!important;margin-bottom:13px!important}.metric-card{padding:14px!important;border-radius:16px!important}.metric-card strong{font-size:24px!important;margin:6px 0 3px!important}.metric-card span{font-size:11px!important}
+  #todayHeroCard{padding:18px 20px!important;border-radius:22px!important;margin-bottom:14px!important}
+  #todayHeroCard .hero-ecosystem{grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr)!important;gap:14px!important}
+  #todayHeroCard .hero-greeting-zone{padding:2px 2px!important}#todayHeroCard h2{font-size:clamp(34px,3vw,46px)!important;line-height:.98!important;margin:8px 0 5px!important}
+  #todayHeroCard #todayMomentCopy{font-size:13px!important;line-height:1.35!important}#todayHeroCard .hero-greeting-zone #todayHeroAction{margin-top:12px!important;padding:9px 14px!important}
+  #todayHeroCard .weather-brief{padding:10px!important;border-radius:16px!important;gap:6px!important}#todayHeroCard .weather-icon{width:36px!important;height:36px!important;flex-basis:36px!important;font-size:19px!important}
+  #todayHeroCard .weather-temp-row strong{font-size:21px!important}#todayHeroCard .weather-business-note{padding:7px 8px!important}#todayHeroCard .weather-day{padding:5px 6px!important}
+  .quick-grid{gap:9px!important}.quick-card{min-height:78px!important;padding:12px!important;border-radius:15px!important;font-size:17px!important}.quick-card span{font-size:11px!important;margin-top:12px!important}
+  .dashboard-grid,.dashboard-grid.lower{gap:13px!important;margin-bottom:13px!important}
+  .client-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+  .client-card{padding:14px!important;border-radius:16px!important;gap:5px!important;min-width:0!important;align-content:start!important}.client-card>*{min-width:0!important;max-width:100%!important}
+  .client-card strong,.client-card span,.client-card small,.client-card a{overflow-wrap:anywhere!important;word-break:break-word!important}
+  .client-avatar{width:36px!important;height:36px!important;border-radius:11px!important;margin-bottom:4px!important}
+  .client-card .card-actions,.client-card .record-actions{display:flex!important;flex-wrap:wrap!important;gap:5px!important;margin-top:7px!important}
+  .client-card .card-actions button,.client-card .record-actions button{padding:6px 8px!important;font-size:9px!important}
+  .service-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}.service-grid article{padding:14px!important;border-radius:16px!important;gap:5px!important;min-height:0!important;height:auto!important}
+  [data-page="services"] .panel{padding:15px!important}[data-page="services"] .setting-row{padding:9px 0!important}[data-page="services"] .settings-summary-grid,[data-page="services"] .mini-settings{gap:8px!important}
+  [data-page="services"] button,[data-page="services"] .control-chip{min-height:0!important}
+  [data-page="invoices"] .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  [data-page="invoices"] .table-row{grid-template-columns:minmax(120px,1.2fr) minmax(90px,.8fr) minmax(130px,1.2fr) minmax(120px,1fr)!important;gap:9px!important;padding:11px 13px!important;font-size:12px!important}
+  [data-page="invoices"] .record-actions{display:flex!important;flex-wrap:wrap!important;justify-content:flex-start!important;gap:5px!important}[data-page="invoices"] .record-actions button{padding:6px 8px!important;font-size:9px!important}
+}
+@media (min-width:861px) and (max-width:1100px){
+  .app-shell{grid-template-columns:210px minmax(0,1fr)!important}.sidebar{width:210px!important;padding:14px 10px!important;overflow-y:auto!important}.main{padding:0 18px 36px!important}
+  #todayHeroCard{padding:17px!important}#todayHeroCard h2{font-size:36px!important}.client-grid,.service-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .client-card,.service-grid article{padding:13px!important;min-width:0!important}.client-card strong,.client-card span,.client-card small,.client-card a{overflow-wrap:anywhere!important}
+  [data-page="invoices"] .table-row{min-width:0!important}
+}
+
+
+/* 2026-10-06 — stable desktop navigation */
+@media (min-width:861px){
+  .sidebar{
+    position:sticky!important;
+    top:0!important;
+    left:auto!important;
+    transform:none!important;
+    visibility:visible!important;
+    opacity:1!important;
+    height:100vh!important;
+    display:flex!important;
+  }
+  .sidebar-scrim,.menu-toggle{display:none!important}
+  .app-shell{align-items:start!important}
+  .sidebar-session-actions::after,
+  .sidebar-logout-btn::after{content:none!important;display:none!important}
+}
