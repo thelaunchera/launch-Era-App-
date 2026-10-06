@@ -39,7 +39,7 @@
   }
   function render(data){
     install();
-    const {weekJobs=[],weekStart,locale='en-US',timeZone,capacity={},activeTimer=null,copy={}}=data||{};
+    const {weekJobs=[],jobs=weekJobs,weekStart,locale='en-US',timeZone,capacity={},activeTimer=null,copy={}}=data||{};
     const text=(id,value)=>{const node=get(id);if(node&&value!=null)node.textContent=value;};
     text('bentoActivityTitle',copy.activity);text('bentoActivityLabel',copy.jobs);text('bentoActivityTotal',weekJobs.length);
     text('bentoTimerTitle',copy.timer);text('bentoTimerActionText',copy.manage);
@@ -52,15 +52,20 @@
     if(arc)arc.setAttribute('stroke-dasharray',`${capacity.available?Math.max(0,Math.min(100,Number(capacity.percent)||0)):0} 100`);
     const chart=get('bentoActivityChart');
     if(!chart || !weekStart)return;
-    const dayFormatter=new Intl.DateTimeFormat(locale,{weekday:'short',timeZone});
+    const dayFormatter=new Intl.DateTimeFormat(locale,{weekday:'short',timeZone:'UTC'});
+    const keyFormatter=new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone});
+    const dateKey=date=>{const parts=Object.fromEntries(keyFormatter.formatToParts(date).map(p=>[p.type,p.value]));return `${parts.year}-${parts.month}-${parts.day}`;};
     const days=[];
     for(let i=0;i<7;i++){
-      const start=new Date(weekStart);start.setDate(start.getDate()+i);
-      const end=new Date(start);end.setDate(end.getDate()+1);
-      const labelDate=new Date(start);labelDate.setHours(12);
-      const count=weekJobs.filter(job=>{const timestamp=Date.parse(job.starts_at);return timestamp>=start.getTime()&&timestamp<end.getTime();}).length;
-      days.push({label:dayFormatter.format(labelDate),count});
+      // weekStart represents the existing calendar week's nominal Monday.
+      // Match jobs by the business date, independent of the device timezone.
+      const anchor=new Date(weekStart);
+      const date=new Date(Date.UTC(anchor.getFullYear(),anchor.getMonth(),anchor.getDate()+i,12));
+      const key=date.toISOString().slice(0,10);
+      const count=jobs.filter(job=>{const d=new Date(job.starts_at);return job.status!=='canceled'&&Number.isFinite(d.getTime())&&dateKey(d)===key;}).length;
+      days.push({label:dayFormatter.format(date),count});
     }
+    text('bentoActivityTotal',days.reduce((sum,day)=>sum+day.count,0));
     const max=Math.max(1,...days.map(day=>day.count));
     chart.replaceChildren();
     for(const day of days){

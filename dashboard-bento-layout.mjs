@@ -74,6 +74,10 @@ try{
    assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<190,`greeting too large: ${result.heroHeight}`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
+   // Business weekdays stay correct when the device timezone is UTC.
+   await page.evaluate(()=>window.TLE_BENTO_DASHBOARD.render({...window.__bentoFixture,jobs:[{starts_at:'2026-10-11T01:00:00Z'}]}));
+   assert.equal(await page.locator('.bento-bar-value').nth(5).textContent(),'1');
+   assert.equal(await page.locator('.bento-bar-value').nth(6).textContent(),'0');
    // A refresh derives elapsed time from the same persisted entry instead of restarting.
    await page.evaluate(()=>window.TLE_BENTO_DASHBOARD.render(window.__bentoFixture));
    assert.match(await page.locator('#bentoTimerElapsed').textContent(),/^01:24:/);

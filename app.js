@@ -6868,7 +6868,7 @@ function renderTodaySummary(wakeAssistant=false){
   }
   const reportsBtn=$("#weekReportsBtn"); if(reportsBtn) reportsBtn.textContent=langPick("See reports →","Ver reportes →","Voir les rapports →");
   window.TLE_BENTO_DASHBOARD?.render({
-    weekJobs,weekStart,locale:appLocale(),timeZone:businessTimeZone,capacity,
+    weekJobs,jobs:state.jobs,weekStart,locale:appLocale(),timeZone:businessTimeZone,capacity,
     activeTimer:state.timeEntries.find(entry=>!entry.clocked_out_at)||null,
     copy:{activity:tr("Weekly activity"),jobs:tr("Scheduled jobs"),timer:tr("Time tracker"),manage:tr("Manage timer"),idle:tr("No timer running."),running:tr("Running")}
   });
