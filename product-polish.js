@@ -36,4 +36,35 @@ function installMobileDrawerFix(){
  sidebar.addEventListener("click",e=>{const nav=e.target.closest(".nav-item[data-view]");if(nav)setTimeout(shut,0);});
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sidebar.classList.contains("open"))shut();});
 }
-function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();installSpecialQuoteFields();installMobileDrawerFix();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
+function installRecordArchitecture(){
+ const selectors=["#clientsGrid","#quotesBoard","#invoicesTable","#teamGrid","#suppliesGrid","#jobsList"];
+ const normalize=()=>{
+  selectors.forEach(sel=>{const root=document.querySelector(sel);if(root)root.classList.add("tle-record-list");});
+  document.querySelectorAll("#clientsGrid .client-card:not(.add-card),#quotesBoard .quote-growth-card,#invoicesTable .table-row,#teamGrid .client-card:not(.add-card),#suppliesGrid .supply-card,#jobsList .job-block").forEach(card=>{
+   card.classList.add("tle-record-row");
+   if(card.querySelector(".tle-record-disclosure"))return;
+   const actions=card.querySelector(".card-actions,.record-actions");
+   if(actions){actions.classList.add("tle-record-actions");actions.hidden=true;}
+   const b=document.createElement("button");b.type="button";b.className="tle-record-disclosure";b.setAttribute("aria-expanded","false");b.setAttribute("aria-label","Show actions");b.textContent="•••";card.appendChild(b);
+  });
+ };
+ const observer=new MutationObserver(normalize);
+ selectors.forEach(sel=>{const root=document.querySelector(sel);if(root)observer.observe(root,{childList:true,subtree:true});});
+ document.addEventListener("click",e=>{
+  const b=e.target.closest(".tle-record-disclosure");if(!b)return;
+  e.preventDefault();e.stopPropagation();
+  const row=b.closest(".tle-record-row"),actions=row?.querySelector(".tle-record-actions");if(!actions)return;
+  const open=actions.hidden;document.querySelectorAll(".tle-record-actions").forEach(x=>x.hidden=true);document.querySelectorAll(".tle-record-disclosure").forEach(x=>x.setAttribute("aria-expanded","false"));
+  actions.hidden=!open;b.setAttribute("aria-expanded",open?"true":"false");row.classList.toggle("is-open",open);
+ });
+ normalize();
+}
+function installSectionArchitecture(){
+ const rules=document.querySelector(".followup-rules-panel");
+ if(rules&&!rules.closest("details.tle-progressive-settings")){
+  const wrap=document.createElement("details");wrap.className="tle-progressive-settings";const summary=document.createElement("summary");summary.innerHTML="<span><strong>Follow-up settings</strong><small>Rules, timing and automatic emails</small></span><b>›</b>";rules.before(wrap);wrap.append(summary,rules);
+ }
+ const share=document.querySelector(".share-access-card");
+ if(share)share.classList.add("tle-context-card");
+}
+function install(){calmNavigation();enrichNotifications();bookingControlCenter();installSaveFeedback();installSpecialQuoteFields();installMobileDrawerFix();installRecordArchitecture();installSectionArchitecture();}document.addEventListener("DOMContentLoaded",install);window.addEventListener("pageshow",install);const shell=document.getElementById("appShell");if(shell&&"MutationObserver"in window)new MutationObserver(()=>setTimeout(install,0)).observe(shell,{childList:true,subtree:true});install();})();
