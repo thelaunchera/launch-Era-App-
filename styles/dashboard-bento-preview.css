@@ -141,7 +141,7 @@ html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] .presenc
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active{grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;}
   html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > *{grid-column:span 2!important;}
   html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] > :is(.capacity-card,#bentoTimerCard){grid-column:span 1!important;}
-  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard{padding:13px 14px!important;}
+  html[data-dashboard-preview="bento"] #appShell .view[data-page="today"] #todayHeroCard{padding:10px 12px!important;}
   html[data-dashboard-preview="bento"] #appShell #todayHeroCard .hero-greeting-zone{gap:6px 9px!important;}
   html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayGreeting{font-size:21px!important;}
   html[data-dashboard-preview="bento"] #appShell #todayHeroCard #todayMomentCopy{font-size:11px!important;}

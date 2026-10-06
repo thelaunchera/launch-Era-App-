@@ -55,6 +55,7 @@ try{
     }
     document.querySelector('#todayTimeline').innerHTML='<div class="timeline-item"><time>9:00 AM</time><div><strong>Maple House</strong><span>Standard cleaning · 2h</span></div></div><div class="timeline-item"><time>1:00 PM</time><div><strong>Oakwood Residence</strong><span>Deep cleaning · 3h</span></div></div>';
    });
+   await page.screenshot({path:`test-results/bento/${engineName}-${width}.png`,fullPage:true});
    const result=await page.evaluate(()=>({
     preview:document.documentElement.dataset.dashboardPreview,
     overflow:document.documentElement.scrollWidth>innerWidth+2||document.querySelector('.main').scrollWidth>document.querySelector('.main').clientWidth+2,
@@ -76,7 +77,6 @@ try{
    // A refresh derives elapsed time from the same persisted entry instead of restarting.
    await page.evaluate(()=>window.TLE_BENTO_DASHBOARD.render(window.__bentoFixture));
    assert.match(await page.locator('#bentoTimerElapsed').textContent(),/^01:24:/);
-   await page.screenshot({path:`test-results/bento/${engineName}-${width}.png`,fullPage:true});
    await page.evaluate(()=>document.querySelectorAll('[data-admin-only],[data-owner-only]').forEach(el=>el.hidden=true));
    assert.equal(await page.locator('.capacity-card').isVisible(),false);assert.equal(await page.locator('.attention-panel').isVisible(),false);assert.equal(await page.locator('#bentoActivityCard').isVisible(),false);
    await page.evaluate(()=>{
