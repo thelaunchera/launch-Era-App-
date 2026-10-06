@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261004-estimate-save-r34";
+const APP_VERSION = "20261005-night-greeting-r35";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -1876,26 +1876,19 @@ function showSetup(){
   suspendAuthPasswordAutofill();
   businessSetup.hidden = false;
 }
-function applyQuarterHourCardColors(){
+function applyOpeningCardColors(){
   const now=new Date();
-  const quarter=Math.floor(now.getMinutes()/15)%4;
+  const hour=businessClockMinuteParts(now).hour;
+  const mood=hour<12?0:hour<17?1:2;
   const paletteMode=isBusinessNightTime(now)?"night":"day";
   const classes=["quarter-color-0","quarter-color-1","quarter-color-2","quarter-color-3"];
   [$("#todayHeroCard"),$(".trial-card"),appShell].filter(Boolean).forEach(el=>{
     el.classList.remove(...classes);
-    el.classList.add("quarter-color-"+quarter);
-    el.dataset.colorQuarter=String(quarter);
+    el.classList.add("quarter-color-"+mood);
     el.dataset.paletteMode=paletteMode;
   });
-}
-
-function scheduleQuarterHourCardColors(){
-  applyQuarterHourCardColors();
   if(window.__tleQuarterColorTimer) clearTimeout(window.__tleQuarterColorTimer);
-  const now=new Date();
-  const minutesToBoundary=15-(now.getMinutes()%15);
-  const ms=(minutesToBoundary*60*1000)-(now.getSeconds()*1000)-now.getMilliseconds()+120;
-  window.__tleQuarterColorTimer=setTimeout(scheduleQuarterHourCardColors,Math.max(1000,ms));
+  window.TLE_GREETING_COLORS?.open(hour);
 }
 
 function ensureDashboardBootResolved(){
@@ -1949,7 +1942,7 @@ function showApp(){
   if(publicShell) publicShell.hidden = true;
   setAuthShellAvailable(false);
   appShell.hidden = false;
-  scheduleQuarterHourCardColors();
+  applyOpeningCardColors();
   installTodayClock();
   removeRetiredGreetingOverlay();
 
