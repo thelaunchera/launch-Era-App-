@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-reference-r44";
+const APP_VERSION = "20261006-bento-reference-r45";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5028,12 +5028,6 @@ function invoicePaidAmount(inv){
   return (inv.payments||[]).filter(p=>p.status==="confirmed").reduce((sum,p)=>sum+Number(p.amount||0),0);
 }
 
-function enhanceMobileRecordActions(){
-  // Keep all real record actions visible. The old mobile ••• overflow control
-  // caused overlays and covered card content on iPhone.
-  $(".mobile-more-actions").forEach(button=>button.remove());
-  $(".record-actions.mobile-actions-open").forEach(actions=>actions.classList.remove("mobile-actions-open"));
-}
 
 function renderInvoices(){
   const table=$("#invoicesTable");
@@ -5109,7 +5103,6 @@ function renderInvoices(){
       <span class="record-actions invoice-actions-stable">${invoiceActionsHtml}</span>
     </div>`;
   }).join("");
-  enhanceMobileRecordActions();
 }
 function serviceIsPaid(s){
   return s?.pricing_type==="flat" && Number(s?.base_price)>0;
@@ -5524,7 +5517,6 @@ function renderClients(){
       </div>
     </article>`;
   }).join("");
-  enhanceMobileRecordActions();
 }
 function openClientInfo(clientId){
   const client=state.clients.find(c=>c.id===clientId);
