@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261006-bento-reference-r42";
+const APP_VERSION = "20261006-bento-reference-r43";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2313,6 +2313,34 @@ function setWorkspaceScrollTop(value=0){
   }
 }
 const viewRefreshInFlight=new Map();
+
+async function loadInvoicesDirect(){
+  if(!state.business?.id) return [];
+  const businessId=state.business.id;
+  const {data:invoices,error}=await supabase.from("invoices").select("*").eq("business_id",businessId).order("created_at",{ascending:false});
+  if(error) throw error;
+  const rows=invoices||[];
+  const ids=rows.map(i=>i.id).filter(Boolean);
+  let items=[],payments=[];
+  if(ids.length){
+    const [itemResult,paymentResult]=await Promise.all([
+      supabase.from("invoice_items").select("*").in("invoice_id",ids),
+      supabase.from("payments").select("id,invoice_id,method,amount,status,paid_at,created_at").eq("business_id",businessId)
+    ]);
+    if(itemResult.error) console.warn("[TLE] invoice items",itemResult.error);
+    else items=itemResult.data||[];
+    if(paymentResult.error) console.warn("[TLE] invoice payments",paymentResult.error);
+    else payments=paymentResult.data||[];
+  }
+  state.invoices=rows.map(invoice=>({
+    ...invoice,
+    invoice_items:items.filter(item=>item.invoice_id===invoice.id),
+    payments:payments.filter(payment=>payment.invoice_id===invoice.id)
+  }));
+  renderInvoices();
+  renderClients();
+  return state.invoices;
+}
 async function refreshViewData(id){
   if(!state.business?.id) return;
   if(viewRefreshInFlight.has(id)) return viewRefreshInFlight.get(id);
@@ -2380,6 +2408,11 @@ async function refreshViewData(id){
             renderPublicLinks();
           }
         }
+        return;
+      }
+
+      if(id==="invoices"){
+        await loadInvoicesDirect();
         return;
       }
 
@@ -8763,7 +8796,8 @@ entityForm.addEventListener("submit",async e=>{
     }
 
     modal.hidden=true;
-    await loadCoreData();
+    if(state.modalType==="invoice") await loadInvoicesDirect();
+    else await loadCoreData();
     showToast(
       invoiceResult?.sent
         ? "Invoice emailed to client"
