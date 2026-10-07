@@ -3759,13 +3759,14 @@ async function initialize(){
   const publicMode=params.get("public");
   const publicSlug=params.get("slug");
   const workerActivation=params.get("worker");
+  const explicitSignup=params.get("entry")==="signup";
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
   // public.js owns all customer-facing public routes (booking, quote,
   // quote review and invoice view). Never let Auth overwrite that shell.
   if(window.__tlePublicHandled) return;
 
-  if(workerActivation || workerDevice){
+  if(workerActivation || (workerDevice && !explicitSignup)){
     await initializeWorkerPortal(workerActivation);
     return;
   }
@@ -3825,8 +3826,19 @@ async function initialize(){
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
-    // New/prospective customers always see the product intro before Create account.
-    // Returning owners with a remembered email may go straight to Sign in.
+    // A website free-trial CTA must always open the owner signup path, even
+    // on a device that previously used employee/guest access.
+    if(explicitSignup){
+      const clean=new URL(window.location.href);
+      clean.searchParams.delete("entry");
+      history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
+      prepareDirectAuth("signup");
+      trackFunnelStep("/funnel/signup-viewed");
+      return;
+    }
+
+    // New/prospective customers start on Sign up. Returning owners with a
+    // remembered email may go straight to Sign in.
     if(ownerEmail) prepareDirectAuth();
     else showAuthWelcome();
     return;
