@@ -171,11 +171,11 @@
       $("#invoiceViewPaid").textContent=money(data?.paid_total);
       $("#invoiceViewBalance").textContent=money(data?.balance_due);
       const methodLabels={cash:"Cash",check:"Check",zelle:"Zelle",etransfer:"E-transfer",bank_transfer:"Bank transfer",other:"Other"};
-      const allowedPaymentMethods=new Set(["cash","check","zelle"]);
+      const allowedPaymentMethods=new Set(["cash","check","zelle","other"]);
       const configuredMethods=Array.isArray(data?.payment_methods)&&data.payment_methods.length
         ? data.payment_methods.map(x=>String(x).toLowerCase()).filter(x=>allowedPaymentMethods.has(x))
-        : ["cash","check","zelle"];
-      const enabledMethods=configuredMethods.length?[...new Set(configuredMethods)]:["cash","check","zelle"];
+        : ["cash","check","zelle","other"];
+      const enabledMethods=configuredMethods.length?[...new Set(configuredMethods)]:["cash","check","zelle","other"];
       $("#invoiceViewMethods").textContent=enabledMethods.map(x=>tt(methodLabels[x]||x)).join(" · ");
 
       const choices=$("#invoicePaymentChoices");
