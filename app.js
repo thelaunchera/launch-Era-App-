@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-payment-other-r66";
+const APP_VERSION = "20261007-booking-promo-copy-r67";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -7779,8 +7779,8 @@ async function loadPlatformAdmin(){
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
         <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking + Lead Automation":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
-          ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 2-month promo</button>`
-          : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant Booking Page 2-month promo</button>`
+          ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 60-day Booking + Lead access</button>`
+          : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant 60-day Booking + Lead access</button>`
         }</div>
         <div><small>Last sign-in</small><strong>${x.last_sign_in_at?formatDateTime(x.last_sign_in_at):"Never"}</strong></div>
         <div><small>${x.status==="active"?"Purchased":"Trial ends"}</small><strong>${x.status==="active"&&x.subscription_activated_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.subscription_activated_at)):x.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric"}).format(new Date(x.trial_ends_at)):"—"}</strong></div>
@@ -9767,7 +9767,7 @@ document.addEventListener("click",async e=>{
   const bookingPagePromo=e.target.closest("[data-booking-page-promo]");
   if(bookingPagePromo){
     const businessId=bookingPagePromo.dataset.bookingPagePromo;
-    if(!window.confirm("Grant this customer the 2-month Booking Page promo?")) return;
+    if(!window.confirm("Grant this customer 60 days of Cleaning Web App access from Booking + Lead Automation?")) return;
     setBusy(bookingPagePromo,true,"Applying…");
     try{
       const {error}=await supabase.rpc("platform_apply_booking_page_trial_promo",{p_business_id:businessId});
@@ -9777,9 +9777,9 @@ document.addEventListener("click",async e=>{
       if(notifyError) throw notifyError;
 
       await loadPlatformAdmin();
-      showToast("Booking Page promo applied · 2 months free");
+      showToast("Booking + Lead access applied · 60 days free");
     }catch(err){
-      showToast(err?.message||"Could not apply the Booking Page 2-month promo");
+      showToast(err?.message||"Could not apply the 60-day Booking + Lead access");
     }finally{
       setBusy(bookingPagePromo,false);
     }
@@ -9789,15 +9789,15 @@ document.addEventListener("click",async e=>{
   const bookingPagePromoRevoke=e.target.closest("[data-booking-page-promo-revoke]");
   if(bookingPagePromoRevoke){
     const businessId=bookingPagePromoRevoke.dataset.bookingPagePromoRevoke;
-    if(!window.confirm("Revoke the 2-month promo and restore the standard 30-day trial?")) return;
+    if(!window.confirm("Revoke the 60-day Booking + Lead access and restore the standard 30-day trial?")) return;
     setBusy(bookingPagePromoRevoke,true,"Revoking…");
     try{
       const {error}=await supabase.rpc("platform_revoke_booking_page_trial_promo",{p_business_id:businessId});
       if(error) throw error;
       await loadPlatformAdmin();
-      showToast("2-month promo revoked · standard 30-day trial restored");
+      showToast("60-day Booking + Lead access revoked · standard 30-day trial restored");
     }catch(err){
-      showToast(err?.message||"Could not revoke the 2-month promo");
+      showToast(err?.message||"Could not revoke the 60-day Booking + Lead access");
     }finally{
       setBusy(bookingPagePromoRevoke,false);
     }
