@@ -1774,7 +1774,6 @@ function prepareDirectAuth(modeOverride=null){
   dismissSessionSplash();
   // Do not carry a stale startup/runtime message into a fresh auth screen.
   setAuthStatus("");
-  trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1788,6 +1787,7 @@ function prepareDirectAuth(modeOverride=null){
   if(back) back.hidden=true;
   const remembered=rememberedOwnerEmail();
   const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
+  trackFunnelStep(nextMode==="signup"?"/funnel/signup-viewed":"/funnel/signin-viewed");
   setAuthMode(nextMode);
   const email=$("#authEmail");
   if(remembered && email && !email.value) email.value=remembered;
@@ -1821,13 +1821,8 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  // The auth entry is now the product screen itself: new visitors start on
-  // Sign up, while devices that have already created/signed into an account
-  // return directly to Sign in.
-  const mode=hasReturningAuthHistory()?"signin":"signup";
-  prepareDirectAuth(mode);
-  if(mode==="signup") trackFunnelStep("/funnel/signup-viewed");
-  else trackFunnelStep("/funnel/signin-viewed");
+  // New visitors start on Sign up; returning owners go to Sign in.
+  prepareDirectAuth(hasReturningAuthHistory()?"signin":"signup");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
@@ -3760,6 +3755,10 @@ async function initialize(){
   const publicSlug=params.get("slug");
   const workerActivation=params.get("worker");
   const explicitSignup=params.get("entry")==="signup";
+  if(explicitSignup){
+    localStorage.removeItem("tle_worker_device_token");
+    localStorage.removeItem("tle_worker_token");
+  }
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
   // public.js owns all customer-facing public routes (booking, quote,
@@ -3826,19 +3825,16 @@ async function initialize(){
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
-    // A website free-trial CTA must always open the owner signup path, even
-    // on a device that previously used employee/guest access.
+    // Website free-trial visitors always enter the owner signup flow.
     if(explicitSignup){
       const clean=new URL(window.location.href);
       clean.searchParams.delete("entry");
       history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
       prepareDirectAuth("signup");
-      trackFunnelStep("/funnel/signup-viewed");
       return;
     }
 
-    // New/prospective customers start on Sign up. Returning owners with a
-    // remembered email may go straight to Sign in.
+    // Returning owners with a remembered email may go straight to Sign in.
     if(ownerEmail) prepareDirectAuth();
     else showAuthWelcome();
     return;
