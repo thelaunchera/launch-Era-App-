@@ -3826,7 +3826,7 @@ async function initialize(){
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
-    // Website free-trial visitors always enter the owner signup flow.
+    // Website free-trial visitors always enter the owner signup flow; any stored worker token was cleared above.
     if(explicitSignup){
       const clean=new URL(window.location.href);
       clean.searchParams.delete("entry");
