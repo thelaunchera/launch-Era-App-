@@ -8199,6 +8199,35 @@ function openJobForClient(clientId){
   });
 }
 
+function openQuoteFromEstimate(estimate){
+  if(!estimate || estimate.customQuote || !estimate.service?.id){
+    openView("quotes");
+    openEntityForm("quote");
+    return;
+  }
+  openView("quotes");
+  openEntityForm("quote");
+  requestAnimationFrame(()=>{
+    const service=entityForm.querySelector('[name="service_id"]');
+    const price=entityForm.querySelector('[name="price"]');
+    const status=entityForm.querySelector('[name="status"]');
+    const notes=entityForm.querySelector('[name="notes"]');
+    if(service) service.value=String(estimate.service.id);
+    if(price) price.value=String(Number(estimate.total||0).toFixed(2));
+    if(status) status.value="draft";
+    const details=[
+      langPick("Estimate Calculator","Calculadora de estimados","Calculateur d’estimation"),
+      estimate.bedrooms!=null ? langPick("Bedrooms","Habitaciones","Chambres")+": "+estimate.bedrooms : "",
+      estimate.bathrooms!=null ? langPick("Bathrooms","Baños","Salles de bain")+": "+estimate.bathrooms : "",
+      estimate.sqft ? langPick("Square feet","Pies cuadrados","Pieds carrés")+": "+estimate.sqft : "",
+      estimate.frequency ? langPick("Frequency","Frecuencia","Fréquence")+": "+String(estimate.frequency).replaceAll("_"," ") : "",
+      Array.isArray(estimate.addons)&&estimate.addons.length ? langPick("Add-ons","Extras","Options")+": "+estimate.addons.map(a=>a.name).filter(Boolean).join(", ") : ""
+    ].filter(Boolean).join("\n");
+    if(notes) notes.value=details;
+    (entityForm.querySelector('[name="client_id"]')||entityForm.querySelector('[name="customer_name"]'))?.focus();
+  });
+}
+
 function recurrencePatternConfig(pattern){
   if(pattern==="weekly") return {frequency:"weekly",interval_count:1};
   if(pattern==="biweekly") return {frequency:"biweekly",interval_count:1};
@@ -10813,7 +10842,8 @@ window.TLE_FOLLOWUPS_BRIDGE={
   langPick,
   escapeHtml,
   appLocale,
-  openClientInfo
+  openClientInfo,
+  openQuoteFromEstimate
 };
 
 window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
