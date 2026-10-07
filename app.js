@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-language-access-r60";
+const APP_VERSION = "20261007-weather-fallback-r61";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -765,9 +765,9 @@ async function geocodeBusinessArea(area){
   return null;
 }
 
-function getDeviceWeatherGeo(timeoutMs=4200){
+function getDeviceWeatherGeo(timeoutMs=4200,retryDenied=false){
   return new Promise(resolve=>{
-    if(!navigator.geolocation||!window.isSecureContext||window.__tleWeatherGeoDenied){
+    if(!navigator.geolocation||!window.isSecureContext||(window.__tleWeatherGeoDenied&&!retryDenied)){
       resolve(null);
       return;
     }
@@ -809,9 +809,14 @@ function getDeviceWeatherGeo(timeoutMs=4200){
   });
 }
 async function resolveWeatherGeo(area,force=false){
-  const deviceGeo=await getDeviceWeatherGeo(force?4500:3000).catch(()=>null);
-  if(deviceGeo) return deviceGeo;
-  return geocodeBusinessArea(area);
+  const deviceGeo=await getDeviceWeatherGeo(force?4500:3000,force).catch(()=>null);
+  if(deviceGeo){
+    window.__tleWeatherGeoDenied=false;
+    return deviceGeo;
+  }
+  const fallbackArea=String(area||"").trim();
+  if(!fallbackArea) return null;
+  return geocodeBusinessArea(fallbackArea);
 }
 function syncCurrentWeatherFromMinutely(weather){
   const series=weather?.minutely_15;
@@ -943,15 +948,14 @@ async function resolveSignupTimeZone(area){
 async function loadBusinessWeather(force=false){
   const area=String(state.business&&state.business.service_area||"").trim();
   const card=$("#weatherBrief");
-  if(!area){
-    state.weather=null;
-    if(card) card.hidden=true;
-    return;
-  }
+
+  // Weather should never disappear just because Service Area is blank.
+  // Try device location first; Service Area is only the fallback location.
+  if(card && !state.weather) renderWeatherPending(false);
 
   const now=Date.now();
-  const cacheKey=weatherCacheKey(area);
-  if(!force){
+  const cacheKey=area?weatherCacheKey(area):null;
+  if(!force&&cacheKey){
     try{
       const cached=JSON.parse(localStorage.getItem(cacheKey)||"null");
       if(cached&&cached.weather&&cached.fetchedAt&&now-cached.fetchedAt<2*60*1000){
@@ -972,6 +976,7 @@ async function loadBusinessWeather(force=false){
   const geo=await resolveWeatherGeo(area,force);
   if(!geo){
     window.__tleWeatherRetryCount=Number(window.__tleWeatherRetryCount||0)+1;
+    state.weather=null;
     renderWeatherPending(window.__tleWeatherRetryCount>2);
     if(window.__tleWeatherRetryCount<=2) scheduleWeatherRetry();
     return;
@@ -998,14 +1003,16 @@ async function loadBusinessWeather(force=false){
     weather.nextPrecip=nextPrecipitationWindow(weather);
     weather.nextRain=weather.nextPrecip?.kind==="rain"?weather.nextPrecip:null;
     state.weather=weather;
-    state.weatherArea=area;
+    state.weatherArea=area||geo.name||langPick("Current location","Ubicación actual","Position actuelle");
     state.weatherFetchedAt=Date.now();
     window.__tleWeatherRetryCount=0;
     if(window.__tleWeatherRetryTimer){
       clearTimeout(window.__tleWeatherRetryTimer);
       window.__tleWeatherRetryTimer=null;
     }
-    try{localStorage.setItem(cacheKey,JSON.stringify({weather:weather,fetchedAt:state.weatherFetchedAt}));}catch(e){}
+    if(cacheKey){
+      try{localStorage.setItem(cacheKey,JSON.stringify({weather:weather,fetchedAt:state.weatherFetchedAt}));}catch(e){}
+    }
     renderWeatherCoreSnapshot(weather);
     try{ renderWeatherBrief(); }catch(err){ console.warn("[TLE] weather detail render",err); }
     try{ renderTodaySummary(); }catch(err){ console.warn("[TLE] dashboard weather render",err); }
