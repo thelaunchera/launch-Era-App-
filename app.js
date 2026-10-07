@@ -5658,20 +5658,31 @@ function renderServiceCatalogCard(s){
   const isQuote=!serviceIsPaid(s);
   const statusLabel=!s.active?langPick("Inactive","Inactivo","Inactif"):isQuote?serviceGroupCopy("quoteRequired"):serviceGroupCopy("instant");
   return `
-    <article class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}">
-      <div class="service-row-main" data-edit="service" data-id="${s.id}" role="button" tabindex="0">
+    <details class="service-card service-catalog-card service-row-card ${s.active?"":"inactive-card"}">
+      <summary class="service-row-main">
         <div class="service-row-copy">
           <span class="service-status-pill ${!s.active?"off":isQuote?"quote":"bookable"}">${escapeHtml(statusLabel)}</span>
           <strong>${escapeHtml(s.name)}</strong>
-          <small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${Math.max(1,Number(s.workers_required||1))} ${escapeHtml(langPick("worker","trabajador","travailleur"))}${activeAddons?` · ${activeAddons} add-on${activeAddons===1?"":"s"}`:""}</small>
+          <small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${Math.max(1,Number(s.workers_required||1))} ${escapeHtml(langPick("worker","trabajador","travailleur"))} · ${activeAddons} add-on${activeAddons===1?"":"s"}</small>
         </div>
-        <div class="service-row-side"><b>${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b><span aria-hidden="true">›</span></div>
+        <div class="service-row-side"><b>${isQuote?langPick("Custom","Personalizado","Sur devis"):money(s.base_price)}</b><span class="service-expand-arrow" aria-hidden="true">⌄</span></div>
+      </summary>
+      <div class="service-card-expanded">
+        <div class="service-card-toolbar">
+          <button type="button" data-edit="service" data-id="${s.id}">${escapeHtml(langPick("Edit service","Editar servicio","Modifier le service"))}</button>
+          <button type="button" class="primary-mini" data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add add-on","Añadir add-on","Ajouter une option"))}</button>
+        </div>
+        <div class="addon-list service-owned-addons">
+          ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}">
+            <button type="button" class="addon-row-main" data-edit-addon="${a.id}">
+              <span><strong>${escapeHtml(a.name)}</strong><small>${money(Number(a.price||0))}${Number(a.extra_duration_minutes||0)>0?" · +"+Number(a.extra_duration_minutes)+" min":""}</small></span>
+              <span aria-hidden="true">›</span>
+            </button>
+            <button type="button" class="addon-toggle-btn" data-toggle-addon="${a.id}">${a.active?langPick("On","Activo","Actif"):langPick("Off","Apagado","Inactif")}</button>
+          </div>`).join(""):`<button type="button" class="addon-empty addon-empty-action" data-add-addon-for="${s.id}">${escapeHtml(langPick("No add-ons yet · add one","Sin add-ons · añade uno","Aucune option · ajoutez-en une"))}</button>`}
+        </div>
       </div>
-      <div class="addon-list service-owned-addons">
-        <div class="addon-list-head"><strong>${escapeHtml(langPick("Add-ons","Add-ons","Options"))}</strong><button type="button" data-add-addon-for="${s.id}">+ ${escapeHtml(langPick("Add","Añadir","Ajouter"))}</button></div>
-        ${addons.length?addons.map(a=>`<div class="addon-row ${a.active?"":"inactive-card"}"><span><strong>${escapeHtml(a.name)}</strong></span><span class="card-actions"><button type="button" data-edit-addon="${a.id}">${escapeHtml(langPick("Edit","Editar","Modifier"))}</button><button type="button" data-toggle-addon="${a.id}">${a.active?langPick("Off","Apagar","Désactiver"):langPick("On","Activar","Activer")}</button></span></div>`).join(""):`<div class="addon-empty">${escapeHtml(langPick("No add-ons yet.","Todavía no hay add-ons.","Aucune option pour le moment."))}</div>`}
-      </div>
-    </article>`;
+    </details>`;
 }
 function renderServiceCatalogGroup(items,type){
   const paid=type==="paid";
@@ -8454,20 +8465,20 @@ function openEntityForm(type,id=null){
     modalHeader(
       langPick("ADD-ON","ADD-ON","OPTION"),
       record?langPick("Edit add-on","Editar add-on","Modifier l’option"):langPick("Add add-on","Añadir add-on","Ajouter une option"),
-      langPick("Choose the service first. This add-on stays inside that service and can be edited anytime.","Primero elige el servicio. Este add-on queda dentro de ese servicio y se puede editar cuando quieras.","Choisissez d’abord le service. Cette option reste dans ce service et peut être modifiée à tout moment.")
+      langPick("Keep it simple: choose the service, name the extra, set the price and optional extra time.","Simple: elige el servicio, nombra el extra, pon el precio y el tiempo adicional si aplica.","Simple : choisissez le service, nommez l’option, fixez le prix et le temps supplémentaire si nécessaire.")
     );
     entityForm.innerHTML=`
       <div class="form-grid addon-service-form">
-        <label class="full">Service<select name="service_id" required>
-          <option value="">Choose a service</option>
+        <label class="full">${escapeHtml(langPick("Service","Servicio","Service"))}<select name="service_id" required>
+          <option value="">${escapeHtml(langPick("Choose a service","Elige un servicio","Choisissez un service"))}</option>
           ${residentialServices.length?`<optgroup label="Residential">${serviceOptions(residentialServices)}</optgroup>`:""}
           ${commercialServices.length?`<optgroup label="Commercial">${serviceOptions(commercialServices)}</optgroup>`:""}
         </select></label>
-        <label class="full">Add-on name<input name="name" required value="${escapeHtml(record?.name||"")}" placeholder="Inside oven, Interior windows…"></label>
-        <input type="hidden" name="price" value="0">
-        <input type="hidden" name="extra_duration_minutes" value="0">
-        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> Active add-on</label>
-      </div>${formSubmit(record?"Save changes":"Add add-on")}`;
+        <label class="full">${escapeHtml(langPick("Add-on name","Nombre del add-on","Nom de l’option"))}<input name="name" required value="${escapeHtml(record?.name||"")}" placeholder="Inside oven, interior windows…"></label>
+        <label>${escapeHtml(langPick("Price","Precio","Prix"))}<input name="price" type="number" min="0" step="0.01" inputmode="decimal" required value="${record?.price??0}" placeholder="0.00"></label>
+        <label>${escapeHtml(langPick("Extra time (minutes)","Tiempo extra (minutos)","Temps supplémentaire (minutes)"))}<input name="extra_duration_minutes" type="number" min="0" step="5" inputmode="numeric" value="${record?.extra_duration_minutes??0}" placeholder="0"></label>
+        <label class="check-field full"><input name="active" type="checkbox" ${record?.active!==false?"checked":""}> ${escapeHtml(langPick("Active add-on","Add-on activo","Option active"))}</label>
+      </div>${formSubmit(record?langPick("Save add-on","Guardar add-on","Enregistrer l’option"):langPick("Add add-on","Añadir add-on","Ajouter l’option"))}`;
   }
 
   if(type==="supply"){
@@ -9008,12 +9019,15 @@ async function saveService(fd){
 async function saveAddon(fd){
   const serviceId=String(fd.get("service_id")||"").trim();
   if(!serviceId) throw new Error(langPick("Choose a service for this add-on.","Elige un servicio para este add-on.","Choisissez un service pour cette option."));
+  const price=Math.max(0,Number(fd.get("price")||0));
+  const extraDuration=Math.max(0,Number.parseInt(String(fd.get("extra_duration_minutes")||"0"),10)||0);
+  if(!Number.isFinite(price)) throw new Error(langPick("Enter a valid add-on price.","Escribe un precio válido para el add-on.","Saisissez un prix valide pour l’option."));
   const payload={
     business_id:state.business.id,
     service_id:serviceId,
     name:String(fd.get("name")).trim(),
-    price:0,
-    extra_duration_minutes:0,
+    price,
+    extra_duration_minutes:extraDuration,
     active:fd.get("active")==="on",
     updated_at:new Date().toISOString()
   };
