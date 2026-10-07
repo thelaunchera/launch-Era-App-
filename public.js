@@ -611,7 +611,8 @@
       };
 
       function activePropertyType(){
-        return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
+        const value=String(propertyTypeSelect?.value||"residential").toLowerCase();
+        return ["residential","commercial","special"].includes(value)?value:"residential";
       }
 
       const bookingPropertyPhotos={
@@ -704,12 +705,20 @@
           btn.classList.toggle("selected",btn.dataset.propertyType===property);
         });
         updateDemoPhotos();
-        if(supportTitle) supportTitle.textContent=tt(property==="commercial"
-          ?"Tell us about the space. We’ll prepare the right cleaning."
-          :"Tell us about your home. We’ll take it from here.");
-        if(supportCopy) supportCopy.textContent=tt(property==="commercial"
-          ?"Choose the service, space details, date, and contact information so the business can prepare the commercial job correctly."
-          :"Choose the service, home details, date, and contact information so the business can prepare the job correctly.");
+        if(supportTitle) supportTitle.textContent=tt(
+          property==="commercial"
+            ?"Tell us about the space. We’ll prepare the right cleaning."
+            :property==="special"
+              ?"Tell us about the special space. We’ll build the right quote."
+              :"Tell us about your home. We’ll take it from here."
+        );
+        if(supportCopy) supportCopy.textContent=tt(
+          property==="commercial"
+            ?"Choose the service, space details, date, and contact information so the business can prepare the commercial job correctly."
+            :property==="special"
+              ?"Share the type of space, approximate size, date, and anything unusual about the job so the business can prepare a custom quote."
+              :"Choose the service, home details, date, and contact information so the business can prepare the job correctly."
+        );
       }
 
       function businessTimeZoneLabel(){
@@ -766,7 +775,7 @@
       propertyTypeSelect?.addEventListener("change",()=>{
         addonBox?.querySelectorAll('input[name="addon"]:checked').forEach(input=>{ input.checked=false; });
         syncPropertyDetails();
-        const forceQuote=activePropertyType()==="commercial" && mode==="book";
+        const forceQuote=["commercial","special"].includes(activePropertyType()) && mode==="book";
         renderMode(forceQuote?"quote":mode,{updateUrl:forceQuote});
       });
       frequencyPills?.addEventListener("click",e=>{
@@ -814,7 +823,9 @@
         const restrooms=form?.querySelector('[name="restrooms"]')?.value;
         const homeLabel=property==="commercial"
           ? [tt("Commercial"),commercialType&&commercialType!==tt("Choose one")?commercialType:"",restrooms?restrooms+" "+tt("restrooms"):""].filter(Boolean).join(" · ")
-          : [tt("Residential"),bedrooms?bedrooms+" "+tt("bedrooms"):"",bathrooms?bathrooms+" "+tt("bathrooms"):""].filter(Boolean).join(" · ");
+          : property==="special"
+            ? [tt("Special space"),propertySizeInput?.value?propertySizeInput.value+" "+(propertySizeUnit?.value==="sqm"?"m²":"sq ft"):""].filter(Boolean).join(" · ")
+            : [tt("Residential"),bedrooms?bedrooms+" "+tt("bedrooms"):"",bathrooms?bathrooms+" "+tt("bathrooms"):""].filter(Boolean).join(" · ");
         const extrasLabel=chosen.length?chosen.map(x=>x.name).join(", "):tt("None");
         summary.innerHTML=
           '<div class="public-demo-summary-top"><div><small>'+esc(tt(mode==="quote"?"Your quote request":"Your booking"))+'</small><h3>'+esc(tt(selected?"Almost done.":"Start your request."))+'</h3></div><span>'+esc(tt(mode==="quote"?"QUOTE":"BOOKING"))+'</span></div>'+
@@ -910,8 +921,9 @@
 
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
-        // Commercial requests stay in the quote flow; direct booking is residential-only.
-        if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
+        // Commercial and special-space requests stay in the quote flow.
+        // Direct online booking is reserved for residential services.
+        if(nextMode==="book" && ["commercial","special"].includes(activePropertyType())) nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
 
