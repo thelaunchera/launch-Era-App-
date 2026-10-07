@@ -216,3 +216,67 @@
     font-size:18px!important;
   }
 }
+
+
+/* r59 — services tablet usability: compact rows + visible creation actions. */
+@media (min-width:681px) and (max-width:1100px){
+  body.shell-app #appShell [data-page="services"] #servicesGrid.service-catalog-groups{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+    align-items:start!important;
+  }
+  body.shell-app #appShell [data-page="services"] .service-type-group{
+    align-self:start!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  body.shell-app #appShell [data-page="services"] .service-type-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-rows:max-content!important;
+    align-content:start!important;
+    gap:9px!important;
+  }
+  body.shell-app #appShell [data-page="services"] details.service-catalog-card{
+    min-height:0!important;
+    height:auto!important;
+    align-self:start!important;
+  }
+  body.shell-app #appShell [data-page="services"] .service-row-main{
+    min-height:76px!important;
+    height:auto!important;
+  }
+  body.shell-app #appShell [data-page="services"] .service-add-card{
+    grid-column:1/-1!important;
+    min-height:72px!important;
+    height:auto!important;
+  }
+  body.shell-app #appShell [data-page="services"]>.section-intro .section-actions{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+    justify-content:flex-end!important;
+  }
+  body.shell-app #appShell [data-page="services"]>.section-intro .section-actions button{
+    min-height:42px!important;
+    padding:9px 13px!important;
+    border-radius:12px!important;
+    font-size:11px!important;
+  }
+}
+body.shell-app .service-editor-form .service-base-price-field{
+  padding:12px!important;
+  border:1px solid rgba(25,25,25,.08)!important;
+  border-radius:14px!important;
+  background:#fbfaf7!important;
+}
+body.shell-app .service-editor-form .service-base-price-field small{
+  color:var(--muted)!important;
+  font-size:10px!important;
+  line-height:1.35!important;
+  font-weight:500!important;
+}
+body.shell-app .service-editor-form [data-service-base-price-wrap][hidden]{
+  display:none!important;
+}
