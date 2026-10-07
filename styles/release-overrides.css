@@ -1083,3 +1083,14 @@ body.shell-app .app-shell [data-page="services"] .addon-row .card-actions button
   .service-type-grid{grid-template-columns:1fr}
   .service-type-group{padding:12px}
 }
+
+
+/* 2026-10-07 — Settings action consistency
+   Cards with an explicit header action (Edit/Open) use that action only.
+   Do not render a second accordion +/− affordance beside the same action. */
+.settings-accordion>.settings-section:has(> .panel-head > .text-btn) > .settings-accordion-trigger::after{
+  content:none!important;
+}
+.settings-accordion>.settings-section:has(> .panel-head > .text-btn) > .settings-accordion-trigger{
+  padding-right:0!important;
+}
