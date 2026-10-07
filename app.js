@@ -2347,6 +2347,22 @@ async function refreshViewData(id){
 
   const task=(async()=>{
     try{
+      if(id==="pricing"){
+        // Pricing is its own workspace: refresh the inputs it depends on, then render.
+        const businessId=state.business?.id;
+        if(businessId){
+          const [{data:services,error:servicesError},{data:addons,error:addonsError}]=await Promise.all([
+            supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
+            supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")
+          ]);
+          if(!servicesError) state.services=services||[];
+          if(!addonsError) state.serviceAddons=addons||[];
+        }
+        // init() is safe to call repeatedly and guarantees the calculator has a bridge.
+        window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
+        window.TLE_ESTIMATE?.render?.();
+        return;
+      }
       const businessId=state.business.id;
 
       if(id==="calendar"){
