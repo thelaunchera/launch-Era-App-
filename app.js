@@ -1822,7 +1822,8 @@ function syncAuthWelcomeCopy(){
 }
 function showAuthWelcome(){
   // New visitors start on Sign up; returning owners go to Sign in.
-  prepareDirectAuth(hasReturningAuthHistory()?"signin":"signup");
+  const mode=hasReturningAuthHistory()?"signin":"signup";
+  prepareDirectAuth(mode);
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
