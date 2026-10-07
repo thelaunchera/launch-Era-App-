@@ -14,13 +14,13 @@
 .estimate-form-grid .full{grid-column:1/-1}
 .estimate-form-grid label,.estimate-rule-grid label{display:grid;gap:6px;font-size:11px;font-weight:900;color:#5D5952}
 .estimate-form-grid input,.estimate-form-grid select,.estimate-rule-grid input{width:100%;border:1px solid var(--line);border-radius:13px;background:#FCFBF8;color:var(--ink);padding:11px 12px;font:inherit}
-.estimate-builder.is-commercial .estimate-form-grid label:not(.full){opacity:.45}
+.estimate-builder.is-commercial .estimate-form-grid label:not(.full){opacity:1}
 .estimate-addons-block{display:grid;gap:9px}
 .estimate-field-head{display:flex;justify-content:space-between;gap:12px;align-items:end}
 .estimate-field-head small{font-size:10px;color:var(--muted);text-align:right;max-width:360px}
 .estimate-addon-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .estimate-addon-choice{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:14px;padding:11px;background:#FCFBF8;cursor:pointer}
-.estimate-addon-choice input{width:18px;height:18px}
+.estimate-addon-choice>input[type="checkbox"],.commercial-addon-toggle input[type="checkbox"]{width:18px;height:18px;min-width:18px;flex:0 0 18px}
 .estimate-addon-choice span{display:grid;gap:2px}
 .estimate-addon-choice strong{font-size:12px}
 .estimate-addon-choice small{font-size:10px;color:var(--muted)}
@@ -83,3 +83,100 @@ html body.shell-app #appShell .estimate-save-bar button{min-height:44px;flex-shr
 .guided-price-block{display:grid;gap:12px;padding:16px;border:1px solid rgba(25,25,25,.07);border-radius:18px;background:#fff;box-shadow:0 10px 28px rgba(25,25,25,.04)}.guided-price-head>div{display:grid;gap:4px}.guided-step{font-size:9px;font-weight:900;letter-spacing:.14em;color:#6e6a62}.guided-price-head strong{font-size:17px;letter-spacing:-.02em}.guided-price-head small,.guided-price-note{font-size:10px;line-height:1.45;color:var(--muted)}.guided-price-note{margin:0}.guided-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.guided-price-grid label,.estimate-final-price{display:grid;gap:6px;font-size:11px;font-weight:900;color:#5D5952}.guided-price-grid input,.guided-price-grid select,.estimate-final-price input{width:100%;border:1px solid var(--line);border-radius:13px;background:#FCFBF8;color:var(--ink);padding:11px 12px;font:inherit}.estimate-range{font-size:13px;font-weight:850;color:#425466}.estimate-guided-why{font-size:11px!important}.estimate-final-price{margin-top:8px}.estimate-create-quote{width:100%;min-height:46px;margin-top:2px}
 @media(max-width:900px){.guided-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.pricing-mode-cards,.guided-price-grid{grid-template-columns:1fr}.pricing-page-intro h2{font-size:30px}.pricing-mode-card{padding:13px}}
+
+
+/* r58 — commercial calculator: visible prices, clean separation from residential. */
+.estimate-service-field[hidden],
+.guided-price-block[hidden]{display:none!important}
+.estimate-live-status{flex:0 0 auto;max-width:150px;text-align:center;line-height:1.15}
+.commercial-addon{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(92px,118px)!important;
+  align-items:center!important;
+  gap:12px!important;
+  cursor:default!important;
+}
+.commercial-addon-toggle{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  cursor:pointer;
+}
+.commercial-addon-toggle>span{min-width:0}
+.commercial-addon-toggle strong{display:block;overflow-wrap:normal;word-break:normal}
+.commercial-addon-price-wrap{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  padding:0 10px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:#fff;
+  color:#777169;
+  font-size:11px;
+  font-weight:900;
+}
+.commercial-addon-price-wrap:focus-within{
+  border-color:#8DB6DC;
+  box-shadow:0 0 0 3px rgba(141,182,220,.14);
+}
+.commercial-addon-price-wrap .commercial-addon-price{
+  width:100%!important;
+  min-width:0!important;
+  height:38px!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:var(--ink)!important;
+  font:inherit!important;
+  font-weight:850!important;
+  text-align:right;
+}
+.commercial-addon-price-wrap .commercial-addon-price::-webkit-inner-spin-button,
+.commercial-addon-price-wrap .commercial-addon-price::-webkit-outer-spin-button{
+  margin:0;
+}
+.estimate-builder.is-commercial .estimate-form-grid{
+  align-items:end;
+}
+.estimate-builder.is-commercial .commercial-base-field input:invalid,
+.commercial-addon-price:invalid{
+  border-color:#C76752!important;
+}
+.estimate-result .estimate-total{
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+.estimate-create-quote:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+@media(min-width:681px) and (max-width:1100px){
+  [data-page="pricing"] .estimate-panel-head{
+    align-items:center;
+    margin-bottom:14px;
+  }
+  [data-page="pricing"] .estimate-panel-head h3{
+    font-size:24px;
+    line-height:1.05;
+  }
+  [data-page="pricing"] .estimate-layout{
+    gap:14px;
+  }
+  [data-page="pricing"] .estimate-result{
+    padding:18px;
+    border-radius:20px;
+  }
+}
+@media(max-width:620px){
+  .commercial-addon{
+    grid-template-columns:minmax(0,1fr) 102px!important;
+  }
+  .commercial-addon-price-wrap{
+    padding:0 8px;
+  }
+}
