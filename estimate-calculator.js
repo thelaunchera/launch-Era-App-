@@ -332,7 +332,9 @@
       '<strong class="estimate-total">'+escapeHtml(money(calc.total))+'</strong>'+
       '<span class="estimate-result-status">'+escapeHtml(status)+'</span>'+
       (calc.rules.show_breakdown!==false?'<div class="estimate-breakdown">'+breakdownRows(calc)+'</div>':"")+
-      '<p class="estimate-result-note">'+escapeHtml(t("Estimate only. It does not create, send or approve a quote.","Solo es un estimado. No crea, envía ni aprueba una cotización.","Estimation uniquement. Elle ne crée, n’envoie ni n’approuve un devis.","Se estimasyon sèlman. Li pa kreye, voye oswa apwouve yon quote."))+'</p>';
+      '<p class="estimate-result-note">'+escapeHtml(t("Review the estimate, then use it as the starting price for a draft quote. You can still adjust the price before saving or sending.","Revisa el estimado y úsalo como precio inicial de una cotización en borrador. Todavía puedes ajustar el precio antes de guardar o enviar.","Vérifiez l’estimation, puis utilisez-la comme prix de départ d’un devis brouillon. Vous pouvez encore modifier le prix avant d’enregistrer ou d’envoyer.","Revize estimasyon an epi sèvi avè l kòm pri depa pou yon quote brouyon. Ou ka toujou ajiste pri a anvan ou sove oswa voye."))+'</p>'+
+      '<button type="button" class="primary-btn estimate-use-quote" data-estimate-use-quote>'+escapeHtml(t("Use in quote →","Usar en cotización →","Utiliser dans le devis →","Sèvi avè l nan quote →"))+'</button>'+
+      '<div class="estimate-next-flow"><span>'+escapeHtml(t("Estimate","Estimado","Estimation","Estimasyon"))+'</span><b>→</b><span>'+escapeHtml(t("Quote","Cotización","Devis","Quote"))+'</span><b>→</b><span>'+escapeHtml(t("Schedule","Agendar","Planifier","Pwograme"))+'</span><b>→</b><span>'+escapeHtml(t("Invoice","Factura","Facture","Fakti"))+'</span></div>';
   }
 
   function syncPropertyMode(){
@@ -447,6 +449,14 @@
       if(save){
         event.preventDefault();
         saveRules(save);
+        return;
+      }
+      const useQuote=event.target.closest?.("[data-estimate-use-quote]");
+      if(useQuote){
+        event.preventDefault();
+        const calc=calculate();
+        if(!calc || calc.empty || calc.customQuote) return;
+        bridge?.openQuoteFromEstimate?.(calc);
         return;
       }
       if(event.target.closest?.("#languageBtn,#sidebarLanguageBtn,[data-language-toggle]")){
