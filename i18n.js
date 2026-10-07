@@ -2213,7 +2213,8 @@
     const rect=anchor.getBoundingClientRect();
     const width=Math.min(340,window.innerWidth-24);
     const left=Math.max(12,Math.min(window.innerWidth-width-12,rect.right-width));
-    const top=Math.min(window.innerHeight-12,rect.bottom+10);
+    const estimatedHeight=Math.min(menu.scrollHeight||310,Math.max(220,window.innerHeight-24));
+    const top=Math.max(12,Math.min(rect.bottom+10,window.innerHeight-estimatedHeight-12));
     menu.style.width=width+"px";
     menu.style.left=left+"px";
     menu.style.top=top+"px";
