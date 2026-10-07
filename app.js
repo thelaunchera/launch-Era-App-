@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-weather-fallback-r63";
+const APP_VERSION = "20261007-public-entry-r64";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -511,6 +511,7 @@ function authEmailRedirectUrl(){
     const url=new URL(window.location.href.split("#")[0]);
     url.search="";
     url.searchParams.set("lang",authPreferredLanguage());
+    if(state.authMode==="signup") url.searchParams.set("entry","signup");
     return url.toString();
   }catch{
     return window.location.href.split("#")[0].split("?")[0];
@@ -1772,9 +1773,7 @@ function markReturningAuthHistory(){
 }
 function prepareDirectAuth(modeOverride=null){
   dismissSessionSplash();
-  // Do not carry a stale startup/runtime message into a fresh auth screen.
   setAuthStatus("");
-  trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1786,11 +1785,17 @@ function prepareDirectAuth(modeOverride=null){
   authShell?.classList.remove("auth-form-open");
   const back=$("#authBackWelcome");
   if(back) back.hidden=true;
-  const remembered=rememberedOwnerEmail();
   const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
   setAuthMode(nextMode);
+  trackFunnelStep(nextMode==="signup"?"/funnel/signup-viewed":"/funnel/signin-viewed");
   const email=$("#authEmail");
-  if(remembered && email && !email.value) email.value=remembered;
+  if(email){
+    if(nextMode==="signup") email.value="";
+    else{
+      const remembered=rememberedOwnerEmail();
+      if(remembered && !email.value) email.value=remembered;
+    }
+  }
   setAuthStatus("");
 }
 
@@ -1821,13 +1826,8 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  // The auth entry is now the product screen itself: new visitors start on
-  // Sign up, while devices that have already created/signed into an account
-  // return directly to Sign in.
   const mode=hasReturningAuthHistory()?"signin":"signup";
   prepareDirectAuth(mode);
-  if(mode==="signup") trackFunnelStep("/funnel/signup-viewed");
-  else trackFunnelStep("/funnel/signin-viewed");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
@@ -3759,13 +3759,16 @@ async function initialize(){
   const publicMode=params.get("public");
   const publicSlug=params.get("slug");
   const workerActivation=params.get("worker");
+  const requestedEntry=String(params.get("entry")||"").toLowerCase();
+  const forceSignup=requestedEntry==="signup";
+  const forceSignin=requestedEntry==="signin";
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
   // public.js owns all customer-facing public routes (booking, quote,
   // quote review and invoice view). Never let Auth overwrite that shell.
   if(window.__tlePublicHandled) return;
 
-  if(workerActivation || workerDevice){
+  if(workerActivation || (workerDevice && !forceSignup && !forceSignin)){
     await initializeWorkerPortal(workerActivation);
     return;
   }
@@ -3823,13 +3826,20 @@ async function initialize(){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
     const emailInput=$("#authEmail");
-    if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
-
-    // New/prospective customers always see the product intro before Create account.
-    // Returning owners with a remembered email may go straight to Sign in.
-    if(ownerEmail) prepareDirectAuth();
+    if(!forceSignup && ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
+    if(forceSignup) prepareDirectAuth("signup");
+    else if(forceSignin) prepareDirectAuth("signin");
+    else if(ownerEmail) prepareDirectAuth();
     else showAuthWelcome();
     return;
+  }
+
+  if(forceSignup || forceSignin){
+    try{
+      const clean=new URL(window.location.href);
+      clean.searchParams.delete("entry");
+      history.replaceState({}, "", clean.pathname+(clean.search||"")+clean.hash);
+    }catch{}
   }
 
   saveOwnerSessionBackup(session);
