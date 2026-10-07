@@ -2598,8 +2598,8 @@ function setSidebarOpen(open){
     // iOS can preserve a stale hidden/zero-width sidebar snapshot after PWA navigation.
     // Re-assert usable drawer geometry whenever More/menu opens.
     sidebar.style.setProperty("display","flex","important");
-    sidebar.style.setProperty("width","min(88vw, 340px)","important");
-    sidebar.style.setProperty("max-width","340px","important");
+    sidebar.style.setProperty("width","min(78vw, 304px)","important");
+    sidebar.style.setProperty("max-width","304px","important");
     sidebar.style.setProperty("height","100dvh","important");
     sidebar.style.setProperty("z-index","1000","important");
   }else if(isMobileNav){
