@@ -511,6 +511,7 @@ function authEmailRedirectUrl(){
     const url=new URL(window.location.href.split("#")[0]);
     url.search="";
     url.searchParams.set("lang",authPreferredLanguage());
+    if(state.authMode==="signup") url.searchParams.set("entry","signup");
     return url.toString();
   }catch{
     return window.location.href.split("#")[0].split("?")[0];
@@ -1774,7 +1775,6 @@ function prepareDirectAuth(modeOverride=null){
   dismissSessionSplash();
   // Do not carry a stale startup/runtime message into a fresh auth screen.
   setAuthStatus("");
-  trackFunnelStep("/funnel/signin-viewed");
   setShellState("auth");
   if(workerShell) workerShell.hidden=true;
   if(publicShell) publicShell.hidden=true;
@@ -1786,11 +1786,17 @@ function prepareDirectAuth(modeOverride=null){
   authShell?.classList.remove("auth-form-open");
   const back=$("#authBackWelcome");
   if(back) back.hidden=true;
-  const remembered=rememberedOwnerEmail();
   const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
   setAuthMode(nextMode);
+  trackFunnelStep(nextMode==="signup"?"/funnel/signup-viewed":"/funnel/signin-viewed");
   const email=$("#authEmail");
-  if(remembered && email && !email.value) email.value=remembered;
+  if(email){
+    if(nextMode==="signup") email.value="";
+    else{
+      const remembered=rememberedOwnerEmail();
+      if(remembered && !email.value) email.value=remembered;
+    }
+  }
   setAuthStatus("");
 }
 
@@ -1826,8 +1832,6 @@ function showAuthWelcome(){
   // return directly to Sign in.
   const mode=hasReturningAuthHistory()?"signin":"signup";
   prepareDirectAuth(mode);
-  if(mode==="signup") trackFunnelStep("/funnel/signup-viewed");
-  else trackFunnelStep("/funnel/signin-viewed");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
@@ -3826,22 +3830,30 @@ async function initialize(){
     localStorage.removeItem(OWNER_REAUTH_REQUIRED_KEY);
     const ownerEmail=rememberedOwnerEmail();
     const emailInput=$("#authEmail");
-    if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
+    if(!forceSignup && ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
     // Explicit website entry links must win over remembered device state.
     // This keeps Start Free Trial on owner signup instead of a saved worker/login path.
     if(forceSignup){
       prepareDirectAuth("signup");
-      trackFunnelStep("/funnel/signup-viewed");
     }else if(forceSignin){
       prepareDirectAuth("signin");
-      trackFunnelStep("/funnel/signin-viewed");
     }else if(ownerEmail){
       prepareDirectAuth();
     }else{
       showAuthWelcome();
     }
     return;
+  }
+
+  // Once verification/session restore succeeds, the owner no longer needs the
+  // entry override in the address bar. Remove it so future sign-outs behave normally.
+  if(forceSignup || forceSignin){
+    try{
+      const clean=new URL(window.location.href);
+      clean.searchParams.delete("entry");
+      history.replaceState({}, "", clean.pathname + (clean.search ? clean.search : "") + clean.hash);
+    }catch{}
   }
 
   saveOwnerSessionBackup(session);
