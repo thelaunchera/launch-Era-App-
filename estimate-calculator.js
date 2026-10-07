@@ -48,6 +48,14 @@
     return Math.min(max,Math.max(min,value));
   }
 
+  function safePriceInput(input,max=1000000){
+    if(!input) return 0;
+    const raw=String(input.value??"").trim();
+    if(!raw) return 0;
+    const value=Number(raw);
+    return Number.isFinite(value) && value>=0 && value<=max ? value : 0;
+  }
+
   function money(value){
     const state=appState();
     const locale=state.business?.locale_code||bridge?.appLocale?.()||"en-US";
@@ -120,8 +128,8 @@
     mount.innerHTML=
       '<div class="estimate-panel-head">'+
         '<div><p class="eyebrow">'+escapeHtml(t("ESTIMATE CALCULATOR","CALCULADORA DE ESTIMADOS","CALCULATEUR D’ESTIMATION","KALKILATÈ ESTIMASYON"))+'</p>'+
-        '<h3>'+escapeHtml(t("Residential estimate calculator","Calculadora de estimados residenciales","Calculateur résidentiel","Kalkilatè rezidansyèl"))+'</h3>'+
-        '<p class="panel-note">'+escapeHtml(t("Price a residential job fast using your own rules. Commercial work stays a custom quote.","Calcula rápido un trabajo residencial usando tus propias reglas. Comercial sigue como cotización personalizada.","Calculez rapidement un service résidentiel avec vos propres règles. Le commercial reste sur devis.","Kalkile yon travay rezidansyèl vit ak règ pa w. Komèsyal rete sou estimasyon pèsonalize."))+'</p></div>'+
+        '<h3 id="estimatePanelTitle">'+escapeHtml(t("Residential estimate calculator","Calculadora de estimados residenciales","Calculateur résidentiel","Kalkilatè rezidansyèl"))+'</h3>'+
+        '<p class="panel-note" id="estimatePanelNote">'+escapeHtml(t("Price a residential job fast using your own rules. Commercial work stays a custom quote.","Calcula rápido un trabajo residencial usando tus propias reglas. Comercial sigue como cotización personalizada.","Calculez rapidement un service résidentiel avec vos propres règles. Le commercial reste sur devis.","Kalkile yon travay rezidansyèl vit ak règ pa w. Komèsyal rete sou estimasyon pèsonalize."))+'</p></div>'+
         '<span class="pill blue estimate-live-status" data-enabled="'+String(Boolean(rules.enabled))+'">'+escapeHtml(enabledLabel)+'</span>'+
       '</div>'+
       '<div class="estimate-layout">'+
@@ -131,7 +139,7 @@
             '<label><input type="radio" name="estimate_property_type" value="commercial"><span>'+escapeHtml(t("Commercial","Comercial","Commercial","Komèsyal"))+'</span></label>'+
           '</div>'+
           '<div class="estimate-form-grid">'+
-            '<label class="full">'+escapeHtml(t("Service","Servicio","Service","Sèvis"))+
+            '<label class="full estimate-service-field">'+escapeHtml(t("Service","Servicio","Service","Sèvis"))+
               '<select id="estimateService">'+(services.length?selectOptions():'<option value="">'+escapeHtml(t("Add a service first","Añade un servicio primero","Ajoutez d’abord un service","Ajoute yon sèvis anvan"))+'</option>')+'</select>'+
             '</label>'+
             '<label>'+escapeHtml(t("Bedrooms","Habitaciones","Chambres","Chanm"))+'<input id="estimateBedrooms" type="number" min="0" max="30" step="1" inputmode="numeric" value="'+escapeHtml(rules.included_bedrooms)+'"></label>'+
@@ -206,13 +214,16 @@
     const wrap=mount.querySelector("#estimateAddons");
     const serviceId=mount.querySelector("#estimateService")?.value||"";
     if(!wrap) return;
-    const selected=new Set(Array.from(wrap.querySelectorAll("input:checked")).map(input=>input.value));
+    const selected=new Set(Array.from(wrap.querySelectorAll('input[type="checkbox"]:checked')).map(input=>input.value));
     if(propertyType()==="commercial"){
-      wrap.innerHTML=commercialExtras.map(([id,en,es])=>
-        '<label class="estimate-addon-choice commercial-addon"><input type="checkbox" value="'+id+'" '+(selected.has(id)?"checked":"")+'>'+
-        '<span><strong>'+escapeHtml(t(en,es,en,en))+'</strong><small>'+escapeHtml(t("Optional","Opcional","Optionnel","Opsyonèl"))+'</small></span>'+
-        '<input class="commercial-addon-price" data-commercial-addon-price="'+id+'" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0"></label>'
-      ).join("");
+      wrap.innerHTML=commercialExtras.map(([id,en,es])=>{
+        const label=t(en,es,en,en);
+        return '<div class="estimate-addon-choice commercial-addon">'+
+          '<label class="commercial-addon-toggle"><input type="checkbox" value="'+id+'" '+(selected.has(id)?"checked":"")+'>'+
+          '<span><strong>'+escapeHtml(label)+'</strong><small>'+escapeHtml(t("Optional","Opcional","Optionnel","Opsyonèl"))+'</small></span></label>'+
+          '<label class="commercial-addon-price-wrap"><span aria-hidden="true">$</span><input class="commercial-addon-price" data-commercial-addon-price="'+id+'" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" placeholder="0" aria-label="'+escapeHtml(t("Price for ","Precio de ","Prix pour ","Pri pou ")+label)+'"></label>'+
+        '</div>';
+      }).join("");
       return;
     }
     const addons=relevantAddons(serviceId);
@@ -289,6 +300,32 @@
     const service=activeServices().find(item=>item.id===serviceId);
     const type=propertyType();
     const mountMode=mount.id==="estimateCalculatorMount"?pricingMode:"rules";
+
+    if(type==="commercial"){
+      const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
+      const restrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
+      const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
+      const base=safePriceInput(mount.querySelector("#estimateCommercialBase"));
+      const selectedCommercial=Array.from(mount.querySelectorAll('#estimateAddons input[type="checkbox"]:checked')).map(input=>input.value);
+      const extras=selectedCommercial.map(id=>{
+        const meta=commercialExtras.find(item=>item[0]===id);
+        const price=safePriceInput(mount.querySelector('[data-commercial-addon-price="'+id+'"]'));
+        return {id,name:meta?t(meta[1],meta[2],meta[1],meta[1]):id,price};
+      });
+      return {
+        customQuote:true,
+        editableCommercial:true,
+        type,
+        service:null,
+        sqft,
+        restrooms,
+        frequency,
+        base,
+        extras,
+        total:base+extras.reduce((sum,item)=>sum+item.price,0)
+      };
+    }
+
     if(mountMode==="guided"){
       const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
       const bedrooms=Math.max(0,num(mount.querySelector("#estimateBedrooms")?.value));
@@ -308,26 +345,12 @@
       const rangeLow=Math.max(0,Math.floor((recommended*.9)/5)*5);
       const rangeHigh=Math.max(rangeLow,Math.ceil((recommended*1.1)/5)*5);
       const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
-      const addonIds=Array.from(mount.querySelectorAll("#estimateAddons input:checked")).map(input=>input.value);
-      const addons=type==="commercial"
-        ?addonIds.map(id=>{const meta=commercialExtras.find(item=>item[0]===id);return {id,name:meta?t(meta[1],meta[2],meta[1],meta[1]):id,price:Math.max(0,num(mount.querySelector('[data-commercial-addon-price="'+id+'"]')?.value))};})
-        :relevantAddons(serviceId).filter(addon=>addonIds.includes(addon.id));
+      const addonIds=Array.from(mount.querySelectorAll('#estimateAddons input[type="checkbox"]:checked')).map(input=>input.value);
+      const addons=relevantAddons(serviceId).filter(addon=>addonIds.includes(addon.id));
       const addonsCharge=addons.reduce((sum,item)=>sum+num(item.price),0);
       return {guided:true,customQuote:false,service,type,sqft,bedrooms,bathrooms,condition,workers,laborCost,expenses,margin,cleanerHours,onSiteHours:cleanerHours/workers,labor,directCost,frequency,addons,addonsCharge,recommended:recommended+addonsCharge,rangeLow:rangeLow+addonsCharge,rangeHigh:rangeHigh+addonsCharge,total:recommended+addonsCharge};
     }
-    if(type==="commercial"){
-      const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
-      const restrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
-      const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
-      const base=Math.max(0,num(mount.querySelector("#estimateCommercialBase")?.value));
-      const selectedCommercial=Array.from(mount.querySelectorAll("#estimateAddons input:checked")).map(input=>input.value);
-      const extras=selectedCommercial.map(id=>{
-        const meta=commercialExtras.find(item=>item[0]===id);
-        const price=Math.max(0,num(mount.querySelector('[data-commercial-addon-price="'+id+'"]')?.value));
-        return {id,name:meta?t(meta[1],meta[2],meta[1],meta[1]):id,price};
-      });
-      return {customQuote:true,editableCommercial:true,service,sqft,restrooms,frequency,base,extras,total:base+extras.reduce((sum,item)=>sum+item.price,0)};
-    }
+
     if(service && !serviceIsPriced(service)){
       return {customQuote:true,service};
     }
@@ -338,7 +361,7 @@
     const bathrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
     const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
     const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
-    const addonIds=Array.from(mount.querySelectorAll("#estimateAddons input:checked")).map(input=>input.value);
+    const addonIds=Array.from(mount.querySelectorAll('#estimateAddons input[type="checkbox"]:checked')).map(input=>input.value);
     const addons=relevantAddons(serviceId).filter(addon=>addonIds.includes(addon.id));
 
     const base=num(service.base_price);
@@ -422,12 +445,17 @@
     if(calc.customQuote){
       if(calc.editableCommercial){
         const extras=calc.extras.filter(item=>item.price>0);
+        const hasPrice=calc.total>0;
         summary.innerHTML=
-          '<span class="estimate-result-kicker">'+escapeHtml(t("COMMERCIAL ESTIMATE","ESTIMADO COMERCIAL","ESTIMATION COMMERCIALE","ESTIMASYON KOMÈSYAL"))+'</span>'+
+          '<span class="estimate-result-kicker">'+escapeHtml(t("COMMERCIAL WORKING ESTIMATE","ESTIMADO COMERCIAL DE TRABAJO","ESTIMATION COMMERCIALE","ESTIMASYON KOMÈSYAL"))+'</span>'+
           '<strong class="estimate-total">'+escapeHtml(money(calc.total))+'</strong>'+
-          '<p>'+escapeHtml(t("Editable working estimate. Adjust the starting price and any commercial add-ons until it fits this job.","Estimado editable. Ajusta el precio inicial y los extras comerciales hasta que encaje con este trabajo.","Estimation modifiable.","Estimasyon ou ka modifye."))+'</p>'+
-          (extras.length?'<div class="estimate-breakdown">'+extras.map(item=>'<div><span>'+escapeHtml(item.name)+'</span><strong>'+escapeHtml(money(item.price))+'</strong></div>').join("")+'</div>':"")+
-          '<span class="estimate-result-note">'+escapeHtml(t("Use this as your working number before creating the quote.","Úsalo como tu número de trabajo antes de crear la cotización.","Utilisez-le avant le devis.","Sèvi avè l anvan quote la."))+'</span>';
+          '<p>'+escapeHtml(hasPrice
+            ?t("Review the starting price and add-ons, then send this number into a quote.","Revisa el precio inicial y los extras, y luego pásalo a una cotización.","Vérifiez le prix de départ et les options.","Tcheke pri kòmanse ak sipleman yo.")
+            :t("Enter a starting price, then add only the commercial extras this job needs.","Escribe un precio inicial y añade solo los extras comerciales que este trabajo necesite.","Saisissez un prix de départ puis les options nécessaires.","Mete yon pri kòmanse epi ajoute sipleman travay la bezwen."))+'</p>'+
+          (extras.length?'<div class="estimate-breakdown">'+extras.map(item=>'<div class="estimate-breakdown-row"><span>'+escapeHtml(item.name)+'</span><strong>'+escapeHtml(money(item.price))+'</strong></div>').join("")+'</div>':"")+
+          '<label class="estimate-final-price">'+escapeHtml(t("Final working price","Precio final de trabajo","Prix final","Pri final"))+'<input id="estimateFinalPrice" type="number" min="0" max="1000000" step="1" inputmode="decimal" value="'+escapeHtml(String(Math.round(calc.total)))+'"></label>'+
+          '<button class="primary-btn estimate-create-quote" type="button" data-estimate-create-quote '+(hasPrice?"":"disabled")+'>'+escapeHtml(t("Create quote with this price","Crear cotización con este precio","Créer le devis avec ce prix","Kreye quote ak pri sa"))+' →</button>'+
+          '<span class="estimate-result-note">'+escapeHtml(t("Commercial pricing stays editable and separate from residential service prices.","El precio comercial se mantiene editable y separado de los precios residenciales.","Le prix commercial reste modifiable et séparé du résidentiel.","Pri komèsyal la rete apa de pri rezidansyèl yo."))+'</span>';
         return;
       }
       summary.innerHTML=
@@ -457,6 +485,18 @@
     const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
     const commercial=propertyType()==="commercial";
+    const title=mount.querySelector("#estimatePanelTitle");
+    const note=mount.querySelector("#estimatePanelNote");
+    if(title) title.textContent=commercial
+      ?t("Commercial estimate builder","Estimador comercial","Estimateur commercial","Estimasyon komèsyal")
+      :t("Residential estimate calculator","Calculadora de estimados residenciales","Calculateur résidentiel","Kalkilatè rezidansyèl");
+    if(note) note.textContent=commercial
+      ?t("Build a custom commercial price from a starting amount, square footage, restrooms and job-specific add-ons.","Crea un precio comercial personalizado con precio inicial, pies cuadrados, baños y extras específicos del trabajo.","Construisez un prix commercial personnalisé.","Bati yon pri komèsyal pèsonalize.")
+      :t("Price a residential job fast using your own rules. Commercial work stays a custom quote.","Calcula rápido un trabajo residencial usando tus propias reglas. Comercial sigue como cotización personalizada.","Calculez rapidement un service résidentiel avec vos propres règles. Le commercial reste sur devis.","Kalkile yon travay rezidansyèl vit ak règ pa w. Komèsyal rete sou estimasyon pèsonalize.");
+
+    const serviceField=mount.querySelector(".estimate-service-field");
+    if(serviceField) serviceField.hidden=commercial;
+
     const bedrooms=mount.querySelector("#estimateBedrooms");
     if(bedrooms) bedrooms.closest("label").hidden=commercial;
     const bathrooms=mount.querySelector("#estimateBathrooms");
@@ -465,16 +505,36 @@
       bathrooms.closest("label").childNodes[0].textContent=commercial?t("Restrooms","Baños comerciales","Toilettes","Twalèt")+" ":"Bathrooms ";
     }
     ["#estimateSqft","#estimateFrequency"].forEach(selector=>{ const input=mount.querySelector(selector); if(input) input.disabled=false; });
+
+    const guided=mount.querySelector(".guided-price-block");
+    if(guided) guided.hidden=commercial;
+
+    const rulesPanel=mount.querySelector(".estimate-rules");
+    if(rulesPanel){
+      rulesPanel.hidden=commercial || (mount.id==="estimateCalculatorMount" && pricingMode==="guided");
+    }
+
     let base=mount.querySelector("#estimateCommercialBase");
     if(commercial && !base){
       const grid=mount.querySelector(".estimate-form-grid");
       const label=document.createElement("label");
       label.className="commercial-base-field";
-      label.innerHTML=escapeHtml(t("Starting price / minimum","Precio inicial / mínimo","Prix de départ","Pri kòmanse"))+'<input id="estimateCommercialBase" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0">';
+      label.innerHTML=escapeHtml(t("Starting price / minimum","Precio inicial / mínimo","Prix de départ","Pri kòmanse"))+'<input id="estimateCommercialBase" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" placeholder="$0">';
       grid?.appendChild(label);
-    }else if(!commercial && base){ base.closest("label")?.remove(); }
+    }else if(!commercial && base){
+      base.closest("label")?.remove();
+    }
+
+    const addonsHead=mount.querySelector(".estimate-field-head strong");
+    const addonsNote=mount.querySelector(".estimate-field-head small");
+    if(addonsHead) addonsHead.textContent=commercial?t("Commercial add-ons","Extras comerciales","Options commerciales","Sipleman komèsyal"):t("Extras","Extras","Options","Sipleman");
+    if(addonsNote) addonsNote.textContent=commercial
+      ?t("Check an add-on, then enter only its price for this job.","Marca un extra y escribe solo su precio para este trabajo.","Cochez une option puis saisissez son prix.","Chwazi yon sipleman epi mete pri li.")
+      :t("Only add-ons available for the selected service appear here.","Solo aparecen extras disponibles para el servicio elegido.","Seules les options du service sélectionné apparaissent ici.","Se sèlman sipleman pou sèvis la ki parèt isit.");
+
     renderAddonChoices();
     mount.querySelector(".estimate-builder")?.classList.toggle("is-commercial",commercial);
+    syncStatus();
   }
 
   function syncStatus(){
@@ -482,6 +542,11 @@
     const status=mount?.querySelector(".estimate-live-status");
     const enabled=Boolean(mount?.querySelector("#estimateEnabled")?.checked);
     if(!status) return;
+    if(propertyType()==="commercial"){
+      status.dataset.enabled="commercial";
+      status.textContent=t("Custom pricing","Precio personalizado","Prix personnalisé","Pri pèsonalize");
+      return;
+    }
     status.dataset.enabled=String(enabled);
     status.textContent=enabled
       ?t("Live estimates ON","Estimados activos","Estimations activées","Estimasyon aktive")
@@ -589,7 +654,8 @@
         const calc=calculate();
         if(!calc || calc.empty){ bridge?.showToast?.(t("Complete the estimate first.","Completa el estimado primero.","Complétez d’abord l’estimation.","Fini estimasyon an anvan.")); return; }
         const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
-        const finalPrice=Math.max(0,num(mount?.querySelector("#estimateFinalPrice")?.value,calc.total||0));
+        const finalInput=mount?.querySelector("#estimateFinalPrice");
+        const finalPrice=finalInput ? safePriceInput(finalInput) : Math.max(0,num(calc.total||0));
         if(finalPrice<=0){ bridge?.showToast?.(t("Enter a final price first.","Escribe un precio final primero.","Saisissez d’abord un prix final.","Mete yon pri final anvan.")); return; }
         bridge?.openQuoteFromEstimate?.({
           price:finalPrice,
