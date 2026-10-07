@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-public-entry-r64";
+const APP_VERSION = "20261007-owner-signup-r65";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -3762,6 +3762,13 @@ async function initialize(){
   const requestedEntry=String(params.get("entry")||"").toLowerCase();
   const forceSignup=requestedEntry==="signup";
   const forceSignin=requestedEntry==="signin";
+  // Choosing owner signup is an intentional role switch on this device.
+  // Retire any stored worker access so verification/refresh cannot route the
+  // prospective owner back into the guest employee portal.
+  if(forceSignup){
+    localStorage.removeItem("tle_worker_device_token");
+    localStorage.removeItem("tle_worker_token");
+  }
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
   // public.js owns all customer-facing public routes (booking, quote,
