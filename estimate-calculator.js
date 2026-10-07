@@ -2,6 +2,7 @@
   let bridge=null;
   let bound=false;
   let saving=false;
+  let pricingMode="guided";
 
   const DEFAULTS={
     enabled:true,
@@ -113,6 +114,8 @@
       ?t("Live estimates ON","Estimados activos","Estimations activées","Estimasyon aktive")
       :t("Live estimates OFF","Estimados pausados","Estimations désactivées","Estimasyon kanpe");
     const canEditRules=String(appState().business?.role||"")==="owner";
+    const isMainPricing=mount.id==="estimateCalculatorMount";
+    const activeMode=isMainPricing?pricingMode:"rules";
 
     mount.innerHTML=
       '<div class="estimate-panel-head">'+
@@ -136,6 +139,18 @@
             '<label>'+escapeHtml(t("Square feet","Pies cuadrados","Pieds carrés","Pye kare"))+'<input id="estimateSqft" type="number" min="0" max="1000000" step="50" inputmode="numeric" value="'+escapeHtml(Math.max(0,num(rules.included_sqft)))+'" placeholder="1500"></label>'+
             '<label>'+escapeHtml(t("Frequency","Frecuencia","Fréquence","Frekans"))+'<select id="estimateFrequency">'+frequencyOptions()+'</select></label>'+
           '</div>'+
+          (activeMode==="guided" ? '<section class="guided-price-block">'+
+            '<div class="guided-price-head"><div><span class="guided-step">GUIDED PRICING</span><strong>'+escapeHtml(t("Build a price from the real cost of this job","Calcula el precio desde el costo real de este trabajo","Construisez un prix à partir du coût réel du travail","Bati pri a apati depans reyèl travay la"))+'</strong><small>'+escapeHtml(t("We estimate cleaner-hours, then use your labor cost, job expenses and target margin. You can edit every number.","Estimamos horas de trabajo y usamos tu costo laboral, gastos del trabajo y margen deseado. Puedes editar cada número.","Nous estimons les heures de travail, puis utilisons vos coûts, dépenses et marge cible.","Nou estime lè travay yo epi nou sèvi ak depans, frè ak maj ou vle a."))+'</small></div></div>'+
+            '<div class="guided-price-grid">'+
+              '<label>'+escapeHtml(t("Condition","Condición","État","Kondisyon"))+'<select id="estimateCondition"><option value="standard">'+escapeHtml(t("Regular upkeep","Mantenimiento regular","Entretien régulier","Netwayaj regilye"))+'</option><option value="extra">'+escapeHtml(t("Needs extra attention","Necesita atención extra","Besoin de plus d’attention","Bezwen plis atansyon"))+'</option><option value="heavy">'+escapeHtml(t("Heavy buildup","Acumulación fuerte","Accumulation importante","Gwo akimilasyon"))+'</option><option value="move">'+escapeHtml(t("Move-in / move-out","Mudanza entrada / salida","Entrée / sortie","Antre / soti"))+'</option></select></label>'+
+              '<label>'+escapeHtml(t("Cleaners on the job","Personas limpiando","Nettoyeurs sur place","Moun k ap netwaye"))+'<input id="estimateWorkers" type="number" min="1" max="20" step="1" inputmode="numeric" value="1"></label>'+
+              '<label>'+escapeHtml(t("Labor cost per cleaner-hour","Costo laboral por hora","Coût horaire par nettoyeur","Pri travay pa èdtan"))+'<input id="estimateLaborCost" type="number" min="0" step="0.5" inputmode="decimal" value="25"></label>'+
+              '<label>'+escapeHtml(t("Supplies + travel for this job","Suministros + viaje","Fournitures + déplacement","Pwodwi + deplasman"))+'<input id="estimateJobExpenses" type="number" min="0" step="1" inputmode="decimal" value="15"></label>'+
+              '<label>'+escapeHtml(t("Target margin %","Margen deseado %","Marge cible %","Maj ou vle %"))+'<input id="estimateMargin" type="number" min="5" max="80" step="1" inputmode="numeric" value="45"></label>'+
+              '<label>'+escapeHtml(t("Cleaner-hours (optional override)","Horas de trabajo (opcional)","Heures de travail (facultatif)","Lè travay (opsyonèl)"))+'<input id="estimateGuidedHours" type="number" min="0" max="1000" step="0.25" inputmode="decimal" placeholder="'+escapeHtml(t("Auto","Auto","Auto","Otomatik"))+'"></label>'+
+            '</div>'+
+            '<p class="guided-price-note">'+escapeHtml(t("The suggestion is a working business estimate, not a market guarantee. Adjust it for your crew, travel and local costs.","La sugerencia es un estimado de trabajo, no una garantía del mercado. Ajústala a tu equipo, viaje y costos locales.","La suggestion est une estimation de travail, pas une garantie de marché.","Sa se yon estimasyon travay, pa yon garanti mache. Ajiste l selon ekip ak depans ou."))+'</p>'+
+          '</section>' : '')+
           '<div class="estimate-addons-block">'+
             '<div class="estimate-field-head"><strong>'+escapeHtml(t("Extras","Extras","Options","Sipleman"))+'</strong><small>'+escapeHtml(t("Only add-ons available for the selected service appear here.","Solo aparecen extras disponibles para el servicio elegido.","Seules les options du service sélectionné apparaissent ici.","Se sèlman sipleman pou sèvis la ki parèt isit."))+'</small></div>'+
             '<div id="estimateAddons" class="estimate-addon-grid"></div>'+
@@ -143,7 +158,7 @@
         '</section>'+
         '<aside class="estimate-result" id="estimateSummary" aria-live="polite"></aside>'+
       '</div>'+
-      '<details class="estimate-rules" '+(rules.enabled?"":"open")+'>'+
+      '<details class="estimate-rules" '+(activeMode==="guided"?'hidden ':"")+(rules.enabled?"":"open")+'>'+
         '<summary><span><strong>'+escapeHtml(t("Pricing rules","Reglas de precio","Règles de tarification","Règ pri"))+'</strong><small>'+escapeHtml(t("Your formula — not a fixed TLE formula.","Tu fórmula — no una fórmula fija de TLE.","Votre formule — pas une formule TLE fixe.","Fòmil pa w — se pa yon fòmil TLE fiks."))+'</small></span><span>⌄</span></summary>'+
         '<div class="estimate-rules-body">'+
           (canEditRules?'<div class="estimate-save-bar"><span class="estimate-save-status" role="status" aria-live="polite"></span><button class="primary-btn" type="button" data-save-estimate>'+escapeHtml(t("Save changes","Guardar cambios","Enregistrer","Sove chanjman"))+'</button></div>':'')+
@@ -246,6 +261,20 @@
     };
   }
 
+  function guidedConditionMultiplier(value){
+    return ({standard:1,extra:1.2,heavy:1.5,move:1.7})[String(value||"standard")]||1;
+  }
+
+  function autoCleanerHours(type,sqft,bedrooms,bathrooms,condition){
+    const size=Math.max(0,num(sqft));
+    const baths=Math.max(0,num(bathrooms));
+    const beds=Math.max(0,num(bedrooms));
+    const base=type==="commercial"
+      ?Math.max(2,(size/1800)+(baths*.35))
+      :Math.max(1.5,(size/850)+(beds*.18)+(baths*.35));
+    return Math.max(1,Math.round(base*guidedConditionMultiplier(condition)*4)/4);
+  }
+
   function frequencyDiscount(rules,frequency){
     if(frequency==="weekly") return num(rules.weekly_discount_percent);
     if(frequency==="biweekly") return num(rules.biweekly_discount_percent);
@@ -259,6 +288,33 @@
     const serviceId=mount.querySelector("#estimateService")?.value||"";
     const service=activeServices().find(item=>item.id===serviceId);
     const type=propertyType();
+    const mountMode=mount.id==="estimateCalculatorMount"?pricingMode:"rules";
+    if(mountMode==="guided"){
+      const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
+      const bedrooms=Math.max(0,num(mount.querySelector("#estimateBedrooms")?.value));
+      const bathrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
+      const condition=mount.querySelector("#estimateCondition")?.value||"standard";
+      const workers=Math.max(1,num(mount.querySelector("#estimateWorkers")?.value,1));
+      const laborCost=Math.max(0,num(mount.querySelector("#estimateLaborCost")?.value,25));
+      const expenses=Math.max(0,num(mount.querySelector("#estimateJobExpenses")?.value,15));
+      const margin=clamp(num(mount.querySelector("#estimateMargin")?.value,45),5,80);
+      const manualHours=Math.max(0,num(mount.querySelector("#estimateGuidedHours")?.value));
+      const cleanerHours=manualHours||autoCleanerHours(type,sqft,bedrooms,bathrooms,condition);
+      const labor=cleanerHours*laborCost;
+      const directCost=labor+expenses;
+      const target=directCost/Math.max(.2,1-(margin/100));
+      const anchored=serviceIsPriced(service)?Math.max(target,num(service.base_price)):target;
+      const recommended=Math.max(0,Math.round(anchored/5)*5);
+      const rangeLow=Math.max(0,Math.floor((recommended*.9)/5)*5);
+      const rangeHigh=Math.max(rangeLow,Math.ceil((recommended*1.1)/5)*5);
+      const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
+      const addonIds=Array.from(mount.querySelectorAll("#estimateAddons input:checked")).map(input=>input.value);
+      const addons=type==="commercial"
+        ?addonIds.map(id=>{const meta=commercialExtras.find(item=>item[0]===id);return {id,name:meta?t(meta[1],meta[2],meta[1],meta[1]):id,price:Math.max(0,num(mount.querySelector('[data-commercial-addon-price="'+id+'"]')?.value))};})
+        :relevantAddons(serviceId).filter(addon=>addonIds.includes(addon.id));
+      const addonsCharge=addons.reduce((sum,item)=>sum+num(item.price),0);
+      return {guided:true,customQuote:false,service,type,sqft,bedrooms,bathrooms,condition,workers,laborCost,expenses,margin,cleanerHours,onSiteHours:cleanerHours/workers,labor,directCost,frequency,addons,addonsCharge,recommended:recommended+addonsCharge,rangeLow:rangeLow+addonsCharge,rangeHigh:rangeHigh+addonsCharge,total:recommended+addonsCharge};
+    }
     if(type==="commercial"){
       const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
       const restrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
@@ -345,6 +401,24 @@
       summary.innerHTML='<div class="estimate-result-empty"><strong>'+escapeHtml(t("Choose a service","Elige un servicio","Choisissez un service","Chwazi yon sèvis"))+'</strong><span>'+escapeHtml(t("Your estimate will appear here.","Tu estimado aparecerá aquí.","Votre estimation apparaîtra ici.","Estimasyon an ap parèt isit."))+'</span></div>';
       return;
     }
+    if(calc.guided){
+      const finalValue=Math.max(0,num(summary.querySelector("#estimateFinalPrice")?.value,calc.total));
+      const addonRows=calc.addons.filter(item=>num(item.price)>0).map(item=>'<div class="estimate-breakdown-row"><span>'+escapeHtml(item.name)+'</span><strong>'+escapeHtml(money(item.price))+'</strong></div>').join("");
+      summary.innerHTML=
+        '<span class="estimate-result-kicker">'+escapeHtml(t("SUGGESTED PRICE","PRECIO SUGERIDO","PRIX SUGGÉRÉ","PRI SIJERE"))+'</span>'+ 
+        '<strong class="estimate-total">'+escapeHtml(money(calc.total))+'</strong>'+ 
+        '<div class="estimate-range">'+escapeHtml(money(calc.rangeLow))+' – '+escapeHtml(money(calc.rangeHigh))+'</div>'+ 
+        '<p class="estimate-guided-why">'+escapeHtml(t("Based on ","Basado en ","Basé sur ","Baze sou "))+escapeHtml(calc.cleanerHours.toFixed(2).replace(/\.00$/,""))+' '+escapeHtml(t("cleaner-hours","horas de trabajo","heures de travail","lè travay"))+' · '+escapeHtml(t("about ","aprox. ","environ ","apeprè "))+escapeHtml(calc.onSiteHours.toFixed(1))+'h '+escapeHtml(t("on site with ","en el lugar con ","sur place avec ","sou plas ak "))+escapeHtml(String(calc.workers))+' '+escapeHtml(t("cleaner(s).","persona(s).","nettoyeur(s).","moun."))+'</p>'+ 
+        '<div class="estimate-breakdown">'+
+          '<div class="estimate-breakdown-row"><span>'+escapeHtml(t("Labor cost","Costo laboral","Coût du travail","Pri travay"))+'</span><strong>'+escapeHtml(money(calc.labor))+'</strong></div>'+ 
+          '<div class="estimate-breakdown-row"><span>'+escapeHtml(t("Supplies + travel","Suministros + viaje","Fournitures + déplacement","Pwodwi + deplasman"))+'</span><strong>'+escapeHtml(money(calc.expenses))+'</strong></div>'+ 
+          '<div class="estimate-breakdown-row"><span>'+escapeHtml(t("Target margin","Margen deseado","Marge cible","Maj ou vle"))+'</span><strong>'+escapeHtml(String(calc.margin))+'%</strong></div>'+addonRows+
+        '</div>'+ 
+        '<label class="estimate-final-price">'+escapeHtml(t("Final price","Precio final","Prix final","Pri final"))+'<input id="estimateFinalPrice" type="number" min="0" step="1" inputmode="decimal" value="'+escapeHtml(String(Math.round(calc.total)))+'"></label>'+ 
+        '<button class="primary-btn estimate-create-quote" type="button" data-estimate-create-quote>'+escapeHtml(t("Create quote with this price","Crear cotización con este precio","Créer le devis avec ce prix","Kreye quote ak pri sa"))+' →</button>'+ 
+        '<span class="estimate-result-note">'+escapeHtml(t("You can still edit the price, client, service, date and notes before saving the quote.","Todavía puedes editar precio, cliente, servicio, fecha y notas antes de guardar la cotización.","Vous pourrez encore modifier le prix, le client, le service, la date et les notes.","Ou ka toujou modifye pri, kliyan, sèvis, dat ak nòt yo."))+'</span>';
+      return;
+    }
     if(calc.customQuote){
       if(calc.editableCommercial){
         const extras=calc.extras.filter(item=>item.price>0);
@@ -374,7 +448,9 @@
       '<strong class="estimate-total">'+escapeHtml(money(calc.total))+'</strong>'+
       '<span class="estimate-result-status">'+escapeHtml(status)+'</span>'+
       (calc.rules.show_breakdown!==false?'<div class="estimate-breakdown">'+breakdownRows(calc)+'</div>':"")+
-      '<p class="estimate-result-note">'+escapeHtml(t("Estimate only. It does not create, send or approve a quote.","Solo es un estimado. No crea, envía ni aprueba una cotización.","Estimation uniquement. Elle ne crée, n’envoie ni n’approuve un devis.","Se estimasyon sèlman. Li pa kreye, voye oswa apwouve yon quote."))+'</p>';
+      '<label class="estimate-final-price">'+escapeHtml(t("Final price","Precio final","Prix final","Pri final"))+'<input id="estimateFinalPrice" type="number" min="0" step="1" inputmode="decimal" value="'+escapeHtml(String(Math.round(calc.total)))+'"></label>'+ 
+      '<button class="primary-btn estimate-create-quote" type="button" data-estimate-create-quote>'+escapeHtml(t("Create quote with this price","Crear cotización con este precio","Créer le devis avec ce prix","Kreye quote ak pri sa"))+' →</button>'+ 
+      '<p class="estimate-result-note">'+escapeHtml(t("Review the final price, then move it straight into a quote.","Revisa el precio final y pásalo directamente a una cotización.","Vérifiez le prix final puis créez directement le devis.","Tcheke pri final la epi kreye quote la dirèk."))+'</p>';
   }
 
   function syncPropertyMode(){
@@ -489,6 +565,7 @@
     if(event.target.id==="estimateService") renderAddonChoices();
     if(event.target.name==="estimate_property_type") syncPropertyMode();
     if(event.target.id==="estimateEnabled") syncStatus();
+    if(event.target.id==="estimateFinalPrice") return;
     updateEstimate();
   }
 
@@ -498,6 +575,37 @@
     document.addEventListener("input",handleInput);
     document.addEventListener("change",handleInput);
     document.addEventListener("click",event=>{
+      const mode=event.target.closest?.("[data-pricing-mode]");
+      if(mode){
+        event.preventDefault();
+        pricingMode=mode.dataset.pricingMode==="rules"?"rules":"guided";
+        document.querySelectorAll("[data-pricing-mode]").forEach(button=>button.classList.toggle("active",button===mode));
+        render();
+        return;
+      }
+      const quoteButton=event.target.closest?.("[data-estimate-create-quote]");
+      if(quoteButton){
+        event.preventDefault();
+        const calc=calculate();
+        if(!calc || calc.empty){ bridge?.showToast?.(t("Complete the estimate first.","Completa el estimado primero.","Complétez d’abord l’estimation.","Fini estimasyon an anvan.")); return; }
+        const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
+        const finalPrice=Math.max(0,num(mount?.querySelector("#estimateFinalPrice")?.value,calc.total||0));
+        if(finalPrice<=0){ bridge?.showToast?.(t("Enter a final price first.","Escribe un precio final primero.","Saisissez d’abord un prix final.","Mete yon pri final anvan.")); return; }
+        bridge?.openQuoteFromEstimate?.({
+          price:finalPrice,
+          serviceId:calc.service?.id||"",
+          serviceName:calc.service?.name||"",
+          propertyType:calc.type||propertyType(),
+          sqft:calc.sqft||0,
+          bedrooms:calc.bedrooms||0,
+          bathrooms:calc.bathrooms||calc.restrooms||0,
+          frequency:calc.frequency||"one_time",
+          cleanerHours:calc.cleanerHours||0,
+          workers:calc.workers||0,
+          notes:calc.guided?t("Built with Guided Pricing","Creado con Precio Guiado","Créé avec Tarification guidée","Kreye ak Pri Gide"):t("Built with saved pricing rules","Creado con reglas de precio guardadas","Créé avec les règles enregistrées","Kreye ak règ pri ki sove")
+        });
+        return;
+      }
       const save=event.target.closest?.("[data-save-estimate]");
       if(save){
         event.preventDefault();
@@ -512,6 +620,7 @@
 
   function init(nextBridge){
     bridge=nextBridge||bridge;
+    pricingMode=document.querySelector(".pricing-mode-card.active")?.dataset?.pricingMode==="rules"?"rules":"guided";
     bind();
     render();
   }
