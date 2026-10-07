@@ -288,7 +288,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Customers",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices", followups:"Follow-ups",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons",pricing:"Pricing Calculator", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
+  reports:"Owner Reports", services:"Services + Add-ons",pricing:"Price My Cleaning", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
 };
 
 
@@ -2449,6 +2449,17 @@ async function refreshViewData(id){
   return task;
 }
 
+function ensurePricingCalculatorRendered(){
+  if(!document.querySelector('.view[data-page="pricing"].active')) return;
+  const mount=document.getElementById("estimateCalculatorMount");
+  if(!mount) return;
+  window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
+  window.TLE_ESTIMATE?.render?.();
+  if(!mount.children.length){
+    setTimeout(()=>{ window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE); window.TLE_ESTIMATE?.render?.(); },120);
+  }
+}
+
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
   if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
@@ -2464,6 +2475,7 @@ function openView(id,options={}){
       setTimeout(()=>v.classList.remove("view-enter"),380);
     }
   });
+  if(id==="pricing") requestAnimationFrame(ensurePricingCalculatorRendered);
   let activeNav=null;
   $$(".nav-item").forEach(n=>{
     const active=n.dataset.view===id;
