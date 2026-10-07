@@ -1821,7 +1821,7 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  // New visitors start on Sign up; returning owners go to Sign in.
+  // New owners start on Sign up; returning owners go to Sign in.
   const mode=hasReturningAuthHistory()?"signin":"signup";
   prepareDirectAuth(mode);
 }
