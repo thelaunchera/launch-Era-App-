@@ -192,6 +192,14 @@
     const serviceId=mount.querySelector("#estimateService")?.value||"";
     if(!wrap) return;
     const selected=new Set(Array.from(wrap.querySelectorAll("input:checked")).map(input=>input.value));
+    if(propertyType()==="commercial"){
+      wrap.innerHTML=commercialExtras.map(([id,en,es])=>
+        '<label class="estimate-addon-choice commercial-addon"><input type="checkbox" value="'+id+'" '+(selected.has(id)?"checked":"")+'>'+
+        '<span><strong>'+escapeHtml(t(en,es,en,en))+'</strong><small>'+escapeHtml(t("Optional","Opcional","Optionnel","Opsyonèl"))+'</small></span>'+
+        '<input class="commercial-addon-price" data-commercial-addon-price="'+id+'" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0"></label>'
+      ).join("");
+      return;
+    }
     const addons=relevantAddons(serviceId);
     if(!addons.length){
       wrap.innerHTML='<div class="estimate-empty">'+escapeHtml(t("No active add-ons for this service.","No hay extras activos para este servicio.","Aucune option active pour ce service.","Pa gen sipleman aktif pou sèvis sa."))+'</div>';
@@ -204,8 +212,19 @@
   }
 
   function propertyType(){
-    return document.querySelector('#estimateCalculatorMount input[name="estimate_property_type"]:checked')?.value||"residential";
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
+    return mount?.querySelector('input[name="estimate_property_type"]:checked')?.value||"residential";
   }
+
+  const commercialExtras=[
+    ["commercial_restroom_deep","Restroom deep clean","Limpieza profunda de baños"],
+    ["commercial_breakroom","Breakroom / kitchen","Cocina / área de descanso"],
+    ["commercial_glass","Interior glass & partitions","Cristales y divisiones interiores"],
+    ["commercial_floorcare","Floor care","Cuidado de pisos"],
+    ["commercial_high_touch","High-touch disinfection","Desinfección de alto contacto"],
+    ["commercial_trash","Extra trash removal","Retiro extra de basura"],
+    ["commercial_afterhours","After-hours service","Servicio fuera de horario"]
+  ];
 
   function readRules(){
     const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
@@ -240,7 +259,20 @@
     const serviceId=mount.querySelector("#estimateService")?.value||"";
     const service=activeServices().find(item=>item.id===serviceId);
     const type=propertyType();
-    if(type==="commercial" || (service && !serviceIsPriced(service))){
+    if(type==="commercial"){
+      const sqft=Math.max(0,num(mount.querySelector("#estimateSqft")?.value));
+      const restrooms=Math.max(0,num(mount.querySelector("#estimateBathrooms")?.value));
+      const frequency=mount.querySelector("#estimateFrequency")?.value||"one_time";
+      const base=Math.max(0,num(mount.querySelector("#estimateCommercialBase")?.value));
+      const selectedCommercial=Array.from(mount.querySelectorAll("#estimateAddons input:checked")).map(input=>input.value);
+      const extras=selectedCommercial.map(id=>{
+        const meta=commercialExtras.find(item=>item[0]===id);
+        const price=Math.max(0,num(mount.querySelector('[data-commercial-addon-price="'+id+'"]')?.value));
+        return {id,name:meta?t(meta[1],meta[2],meta[1],meta[1]):id,price};
+      });
+      return {customQuote:true,editableCommercial:true,service,sqft,restrooms,frequency,base,extras,total:base+extras.reduce((sum,item)=>sum+item.price,0)};
+    }
+    if(service && !serviceIsPriced(service)){
       return {customQuote:true,service};
     }
     if(!service) return {empty:true};
@@ -314,6 +346,16 @@
       return;
     }
     if(calc.customQuote){
+      if(calc.editableCommercial){
+        const extras=calc.extras.filter(item=>item.price>0);
+        summary.innerHTML=
+          '<span class="estimate-result-kicker">'+escapeHtml(t("COMMERCIAL ESTIMATE","ESTIMADO COMERCIAL","ESTIMATION COMMERCIALE","ESTIMASYON KOMÈSYAL"))+'</span>'+
+          '<strong class="estimate-total">'+escapeHtml(money(calc.total))+'</strong>'+
+          '<p>'+escapeHtml(t("Editable working estimate. Adjust the starting price and any commercial add-ons until it fits this job.","Estimado editable. Ajusta el precio inicial y los extras comerciales hasta que encaje con este trabajo.","Estimation modifiable.","Estimasyon ou ka modifye."))+'</p>'+
+          (extras.length?'<div class="estimate-breakdown">'+extras.map(item=>'<div><span>'+escapeHtml(item.name)+'</span><strong>'+escapeHtml(money(item.price))+'</strong></div>').join("")+'</div>':"")+
+          '<span class="estimate-result-note">'+escapeHtml(t("Use this as your working number before creating the quote.","Úsalo como tu número de trabajo antes de crear la cotización.","Utilisez-le avant le devis.","Sèvi avè l anvan quote la."))+'</span>';
+        return;
+      }
       summary.innerHTML=
         '<span class="estimate-result-kicker">'+escapeHtml(t("RESULT","RESULTADO","RÉSULTAT","REZILTA"))+'</span>'+
         '<div class="estimate-custom-quote-mark">↗</div>'+
@@ -339,10 +381,23 @@
     const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
     const commercial=propertyType()==="commercial";
-    ["#estimateBedrooms","#estimateBathrooms","#estimateSqft","#estimateFrequency"].forEach(selector=>{
-      const input=mount.querySelector(selector);
-      if(input) input.disabled=commercial;
-    });
+    const bedrooms=mount.querySelector("#estimateBedrooms");
+    if(bedrooms) bedrooms.closest("label").hidden=commercial;
+    const bathrooms=mount.querySelector("#estimateBathrooms");
+    if(bathrooms){
+      bathrooms.disabled=false;
+      bathrooms.closest("label").childNodes[0].textContent=commercial?t("Restrooms","Baños comerciales","Toilettes","Twalèt")+" ":"Bathrooms ";
+    }
+    ["#estimateSqft","#estimateFrequency"].forEach(selector=>{ const input=mount.querySelector(selector); if(input) input.disabled=false; });
+    let base=mount.querySelector("#estimateCommercialBase");
+    if(commercial && !base){
+      const grid=mount.querySelector(".estimate-form-grid");
+      const label=document.createElement("label");
+      label.className="commercial-base-field";
+      label.innerHTML=escapeHtml(t("Starting price / minimum","Precio inicial / mínimo","Prix de départ","Pri kòmanse"))+'<input id="estimateCommercialBase" type="number" min="0" step="0.01" inputmode="decimal" placeholder="$0">';
+      grid?.appendChild(label);
+    }else if(!commercial && base){ base.closest("label")?.remove(); }
+    renderAddonChoices();
     mount.querySelector(".estimate-builder")?.classList.toggle("is-commercial",commercial);
   }
 
