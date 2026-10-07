@@ -509,6 +509,11 @@
     const guided=mount.querySelector(".guided-price-block");
     if(guided) guided.hidden=commercial;
 
+    const rulesPanel=mount.querySelector(".estimate-rules");
+    if(rulesPanel){
+      rulesPanel.hidden=commercial || (mount.id==="estimateCalculatorMount" && pricingMode==="guided");
+    }
+
     let base=mount.querySelector("#estimateCommercialBase");
     if(commercial && !base){
       const grid=mount.querySelector(".estimate-form-grid");
@@ -529,6 +534,7 @@
 
     renderAddonChoices();
     mount.querySelector(".estimate-builder")?.classList.toggle("is-commercial",commercial);
+    syncStatus();
   }
 
   function syncStatus(){
@@ -536,6 +542,11 @@
     const status=mount?.querySelector(".estimate-live-status");
     const enabled=Boolean(mount?.querySelector("#estimateEnabled")?.checked);
     if(!status) return;
+    if(propertyType()==="commercial"){
+      status.dataset.enabled="commercial";
+      status.textContent=t("Custom pricing","Precio personalizado","Prix personnalisé","Pri pèsonalize");
+      return;
+    }
     status.dataset.enabled=String(enabled);
     status.textContent=enabled
       ?t("Live estimates ON","Estimados activos","Estimations activées","Estimasyon aktive")
