@@ -816,3 +816,49 @@ html body.shell-app #appShell[data-owner-card-palette="true"] :is(.metric-card,.
 .wp-no-logo{font-size:11px;text-align:center;padding:8px;color:#68665f}
 
 #appShell #greetingColorsSettings #greetingColorPreviewPanel .greeting-color-preview :is(h4,p){color:inherit!important}
+
+
+/* 2026-10-07 premium dashboard depth + tablet/desktop r53 */
+@media(min-width:681px){
+ section.view[data-page="today"]{--dline:rgba(25,25,25,.055);--dshadow:0 16px 38px rgba(36,32,26,.065),0 2px 7px rgba(36,32,26,.03),inset 0 1px 0 rgba(255,255,255,.9);max-width:1480px!important;margin-inline:auto!important}
+ #todayHeroCard{position:relative!important;overflow:hidden!important;min-height:0!important;padding:clamp(22px,2.4vw,34px)!important;border:1px solid var(--dline)!important;border-radius:30px!important;box-shadow:0 22px 54px rgba(58,49,24,.09),inset 0 1px 0 rgba(255,255,255,.52)!important}
+ #todayHeroCard::after{content:""!important;position:absolute!important;width:340px!important;height:340px!important;right:-120px!important;top:-190px!important;border-radius:50%!important;background:rgba(255,255,255,.22)!important;pointer-events:none!important}
+ #todayHeroCard .hero-ecosystem{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(250px,.72fr)!important;column-gap:clamp(24px,3vw,46px)!important;row-gap:12px!important;align-items:stretch!important}
+ #todayHeroCard .hero-greeting-zone{min-width:0!important}
+ #todayHeroCard .hero-card-topline{margin-bottom:8px!important}
+ #todayHeroCard .today-clock{border:0!important;background:rgba(255,255,255,.5)!important;box-shadow:inset 0 0 0 1px rgba(25,25,25,.07)!important;border-radius:14px!important}
+ #todayHeroCard #todayGreeting{max-width:760px!important;margin:10px 0 7px!important;font-size:clamp(34px,3.35vw,54px)!important;line-height:.94!important;letter-spacing:-.058em!important;text-wrap:balance!important}
+ #todayHeroCard #todayMomentCopy{max-width:680px!important;font-size:13px!important;line-height:1.45!important;opacity:.72!important}
+ #todayHeroCard #todayHeroAction{width:min(100%,680px)!important;min-height:48px!important;margin-top:18px!important;border:0!important;border-radius:15px!important;box-shadow:0 8px 18px rgba(25,25,25,.12)!important}
+ #todayHeroCard .hero-weather-module{position:relative!important;z-index:1!important;align-self:center!important;min-width:0!important;padding:0!important}
+ #todayHeroCard .weather-brief{min-height:116px!important;padding:18px!important;border:0!important;border-radius:22px!important;background:rgba(255,255,255,.48)!important;box-shadow:inset 0 0 0 1px rgba(25,25,25,.075),0 10px 28px rgba(52,44,25,.045)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}
+ #todayHeroCard .weather-business-note{margin-top:9px!important;border:0!important;border-radius:15px!important;box-shadow:inset 0 0 0 1px rgba(25,25,25,.035)!important}
+ .dashboard-quick-access{margin-top:6px!important;margin-bottom:24px!important}
+ .dashboard-quick-grid{gap:14px!important}
+ .dashboard-quick-card{min-height:128px!important;padding:17px!important;border:1px solid var(--dline)!important;border-radius:24px!important;background:linear-gradient(145deg,#fff 0%,#fbfaf6 100%)!important;box-shadow:var(--dshadow)!important;transform:translateZ(0)!important}
+ .dashboard-quick-card:hover{transform:translateY(-3px)!important;box-shadow:0 22px 42px rgba(36,32,26,.09),0 4px 10px rgba(36,32,26,.04),inset 0 1px 0 #fff!important}
+ .dashboard-quick-icon{width:40px!important;height:40px!important;border:0!important;border-radius:13px!important;background:rgba(255,255,255,.84)!important;box-shadow:0 6px 16px rgba(25,25,25,.055),inset 0 0 0 1px rgba(25,25,25,.045)!important}
+ .dashboard-quick-card strong{font-size:15px!important}.dashboard-quick-card small{font-size:10.5px!important;opacity:.7!important}
+ .dashboard-quick-arrow{right:15px!important;bottom:14px!important;width:28px!important;height:28px!important;display:grid!important;place-items:center!important;border-radius:50%!important;background:rgba(25,25,25,.045)!important;font-size:17px!important}
+ .attention-panel{padding:clamp(18px,2vw,26px)!important;border:0!important;border-radius:28px!important;background:rgba(255,255,255,.62)!important;box-shadow:0 18px 44px rgba(36,32,26,.055),inset 0 0 0 1px rgba(25,25,25,.045)!important}
+ .attention-list.dashboard-attention-grid{gap:12px!important}
+ .attention-list.dashboard-attention-grid .attention-summary-card{min-height:120px!important;padding:15px!important;border:0!important;border-radius:20px!important;background:#fff!important;box-shadow:0 10px 24px rgba(36,32,26,.05),inset 0 0 0 1px rgba(25,25,25,.045)!important}
+ .growth-grid .schedule-panel,#businessPulse .pulse-card,section.view[data-page="today"] .presence-panel{border:0!important;border-radius:24px!important;box-shadow:var(--dshadow)!important}
+}
+@media(min-width:681px) and (max-width:1100px){
+ body.shell-app #appShell>.main{padding-left:20px!important;padding-right:20px!important}
+ #todayHeroCard{padding:22px!important;border-radius:26px!important}
+ #todayHeroCard .hero-ecosystem{grid-template-columns:minmax(0,1.45fr) minmax(220px,.72fr)!important;column-gap:20px!important}
+ #todayHeroCard #todayGreeting{font-size:clamp(34px,4.25vw,44px)!important;max-width:540px!important}
+ #todayHeroCard #todayHeroAction{width:100%!important}
+ #todayHeroCard .weather-brief{min-height:108px!important;padding:15px!important}
+ .dashboard-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+ .dashboard-quick-card{min-height:116px!important;padding:14px!important;border-radius:21px!important}
+ .attention-panel{border-radius:24px!important}.attention-list.dashboard-attention-grid .attention-summary-card{min-height:108px!important}
+}
+@media(min-width:1101px){
+ body.shell-app #appShell>.main{padding-left:clamp(28px,3vw,52px)!important;padding-right:clamp(28px,3vw,52px)!important}
+ .dashboard-quick-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ .dashboard-quick-card{min-height:122px!important}
+ #todayHeroCard{margin-bottom:22px!important}
+}
