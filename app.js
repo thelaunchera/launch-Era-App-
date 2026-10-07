@@ -9020,7 +9020,9 @@ async function saveAddon(fd){
   const serviceId=String(fd.get("service_id")||"").trim();
   if(!serviceId) throw new Error(langPick("Choose a service for this add-on.","Elige un servicio para este add-on.","Choisissez un service pour cette option."));
   const price=Math.max(0,Number(fd.get("price")||0));
-  const extraDurationRaw=Number(fd.get("extra_duration_minutes")||0);\n  if(!Number.isFinite(extraDurationRaw)) throw new Error(langPick("Enter valid extra time.","Escribe un tiempo extra válido.","Saisissez un temps supplémentaire valide."));\n  const extraDuration=Math.max(0,Math.round(extraDurationRaw));
+  const extraDurationRaw=Number(fd.get("extra_duration_minutes")||0);
+  if(!Number.isFinite(extraDurationRaw)) throw new Error(langPick("Enter valid extra time.","Escribe un tiempo extra válido.","Saisissez un temps supplémentaire valide."));
+  const extraDuration=Math.max(0,Math.round(extraDurationRaw));
   if(!Number.isFinite(price)) throw new Error(langPick("Enter a valid add-on price.","Escribe un precio válido para el add-on.","Saisissez un prix valide pour l’option."));
   const payload={
     business_id:state.business.id,
