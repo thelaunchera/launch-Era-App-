@@ -342,3 +342,24 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-template-columns:minmax(0,1fr)!important}
  body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:stretch!important;width:100%!important}
 }
+
+/* Mobile More must open a visible navigation drawer, never a blank workspace. */
+@media(max-width:860px){
+ body.shell-app.sidebar-is-open .sidebar,
+ body.shell-app .sidebar.open{
+  display:flex!important;
+  position:fixed!important;
+  inset:0 auto 0 0!important;
+  width:min(88vw,340px)!important;
+  max-width:340px!important;
+  height:100dvh!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  transform:none!important;
+  z-index:1000!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+ }
+ body.shell-app.sidebar-is-open #sidebarScrim{display:block!important;position:fixed!important;inset:0!important;z-index:999!important;background:rgba(25,25,25,.28)!important}
+}
