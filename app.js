@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-owner-signup-r65";
+const APP_VERSION = "20261007-payment-other-r66";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -861,7 +861,7 @@ function syncCurrentWeatherFromMinutely(weather){
   return weather;
 }
 function paymentMethodsForCountry(){
-  return ["cash","check","zelle"];
+  return ["cash","check","zelle","other"];
 }
 function paymentMethodLabel(method){
   return {
@@ -7488,7 +7488,7 @@ async function openPaymentPreferencesForm(){
       <div class="choice-grid compact">
         ${methods.map(method=>`<label class="check-field"><input type="checkbox" name="payment_method" value="${escapeHtml(method)}" ${record.payment_methods?.includes(method)?"checked":""}> ${escapeHtml(paymentMethodLabel(method))}</label>`).join("")}
       </div>
-      <small>${escapeHtml(langPick("Cash, Check and Zelle are available for client payment records. The app records the choice; it does not process the payment.","Efectivo, Cheque y Zelle están disponibles para registrar pagos de clientes. La app registra la opción; no procesa el pago.","Cash, Check et Zelle sont disponibles pour enregistrer les paiements clients. L’application enregistre le choix; elle ne traite pas le paiement."))}</small>
+      <small>${escapeHtml(langPick("Cash, Check, Zelle and Other are available for client payment records. The app records the choice; it does not process the payment.","Efectivo, Cheque, Zelle y Otro están disponibles para registrar pagos de clientes. La app registra la opción; no procesa el pago.","Cash, Check, Zelle et Autre sont disponibles pour enregistrer les paiements clients. L’application enregistre le choix; elle ne traite pas le paiement."))}</small>
     </fieldset>
     ${formSubmit(langPick("Save payment options","Guardar opciones de pago","Enregistrer les options de paiement"))}`;
   modal.hidden=false;
