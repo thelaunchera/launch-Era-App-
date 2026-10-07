@@ -1,4 +1,4 @@
-const CACHE_NAME="tle-cleaning-app-20261007-services-r55";
+const CACHE_NAME="tle-cleaning-app-20261007-tablet-scale-r56";
 const CORE=[
   "./dashboard-bento.js?v=20261007-services-r55",
   "./styles/dashboard-bento-preview.css?v=20261007-services-r55",
@@ -19,6 +19,7 @@ const CORE=[
   "./styles/booking-discounts.css?v=20261007-services-r55",
   "./styles/estimate-calculator.css?v=20261007-services-r55",
   "./styles/service-pricing-compact.css?v=20261007-services-r55",
+  "./styles/tablet-desktop-scale.css?v=20261007-tablet-scale-r56",
   "./styles/public-manage.css?v=20261007-services-r55",
   "./styles/invoice-polish.css?v=20261007-services-r55",
   "./styles/welcome-packet.css?v=20261007-services-r55",
