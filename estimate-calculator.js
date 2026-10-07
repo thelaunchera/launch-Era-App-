@@ -99,7 +99,7 @@
 
   function render(){
     if(!bridge) return;
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
 
     if(mount.dataset.businessId===String(appState().business?.id||"")){
@@ -186,7 +186,7 @@
   }
 
   function renderAddonChoices(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
     const wrap=mount.querySelector("#estimateAddons");
     const serviceId=mount.querySelector("#estimateService")?.value||"";
@@ -208,7 +208,7 @@
   }
 
   function readRules(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return settingsFromState();
     return {
       enabled:Boolean(mount.querySelector("#estimateEnabled")?.checked),
@@ -235,7 +235,7 @@
   }
 
   function calculate(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return null;
     const serviceId=mount.querySelector("#estimateService")?.value||"";
     const service=activeServices().find(item=>item.id===serviceId);
@@ -305,7 +305,7 @@
   }
 
   function updateEstimate(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     const summary=mount?.querySelector("#estimateSummary");
     if(!summary) return;
     const calc=calculate();
@@ -336,7 +336,7 @@
   }
 
   function syncPropertyMode(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
     const commercial=propertyType()==="commercial";
     ["#estimateBedrooms","#estimateBathrooms","#estimateSqft","#estimateFrequency"].forEach(selector=>{
@@ -347,7 +347,7 @@
   }
 
   function syncStatus(){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     const status=mount?.querySelector(".estimate-live-status");
     const enabled=Boolean(mount?.querySelector("#estimateEnabled")?.checked);
     if(!status) return;
@@ -358,7 +358,7 @@
   }
 
   function setSaveState(status){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount) return;
     mount.dataset.saveState=status;
     const labels={
@@ -384,7 +384,7 @@
       bridge?.showToast?.(t("Owner access required to change pricing rules.","Se requiere acceso de Owner para cambiar las reglas de precio.","Accès Owner requis pour modifier les règles de tarification.","Fòk ou Owner pou chanje règ pri yo."));
       return;
     }
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     const inputs=Array.from(mount.querySelectorAll('.estimate-rules input'));
     const invalid=inputs.find(input=>input.type==="number" && (input.value.trim()==="" || !input.checkValidity()));
     if(invalid){
@@ -428,7 +428,7 @@
   }
 
   function handleInput(event){
-    const mount=document.getElementById("estimateCalculatorMount");
+    const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount || !event.target || !mount.contains(event.target)) return;
     if(event.target.closest(".estimate-rules") && !saving) setSaveState("dirty");
     if(event.target.id==="estimateService") renderAddonChoices();
