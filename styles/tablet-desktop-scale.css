@@ -1,0 +1,68 @@
+/* r56 — tablet/desktop density correction. Phone layout intentionally unchanged. */
+@media (min-width: 681px){
+  /* Dashboard greeting: lower visual weight on tablet/desktop. */
+  body.shell-app #todayHeroCard{
+    min-height:0!important;
+    padding:22px 26px!important;
+    border-radius:24px!important;
+  }
+  body.shell-app #todayHeroCard .hero-ecosystem{
+    min-height:0!important;
+    gap:14px!important;
+  }
+  body.shell-app #todayHeroCard .hero-greeting-zone{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr)!important;
+    grid-template-areas:"top weather" "greeting weather" "action alert"!important;
+    column-gap:28px!important;
+    row-gap:8px!important;
+    align-items:center!important;
+  }
+  body.shell-app #todayHeroCard .hero-card-topline{grid-area:top!important;min-height:0!important;margin:0!important}
+  body.shell-app #todayHeroCard .today-greeting-first{grid-area:greeting!important}
+  body.shell-app #todayHeroCard #todayGreeting{font-size:clamp(30px,3.4vw,44px)!important;line-height:.98!important;margin:2px 0 6px!important;max-width:560px!important}
+  body.shell-app #todayHeroCard #todayMomentCopy{font-size:14px!important;line-height:1.35!important;max-width:560px!important}
+  body.shell-app #todayHeroCard #todayHeroAction{grid-area:action!important;width:min(100%,360px)!important;min-height:48px!important;margin:8px 0 0!important;border-radius:15px!important}
+  body.shell-app #todayHeroCard .weather-brief{grid-area:weather!important;width:100%!important;max-width:390px!important;margin:0!important;padding:14px 16px!important;justify-self:end!important}
+  body.shell-app #todayHeroCard .hero-weather-alert{grid-area:alert!important;width:100%!important;max-width:390px!important;margin:0!important;justify-self:end!important}
+
+  /* Operational pages should use the tablet canvas, not a narrow phone column. */
+  body.shell-app #appShell .view[data-page="supplies"],
+  body.shell-app #appShell .view[data-page="time"],
+  body.shell-app #appShell .view[data-page="route"]{
+    width:min(100%,1080px)!important;
+    max-width:1080px!important;
+    margin-inline:auto!important;
+  }
+  body.shell-app #appShell .view[data-page="supplies"]>.section-intro,
+  body.shell-app #appShell .view[data-page="time"]>.section-intro,
+  body.shell-app #appShell .view[data-page="route"]>.section-intro{
+    width:100%!important;
+    max-width:none!important;
+    margin:0 0 18px!important;
+  }
+  body.shell-app #appShell .view[data-page="supplies"] .metric-grid.compact{
+    width:100%!important;
+    max-width:none!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+  body.shell-app #appShell .view[data-page="supplies"] .metric-card{min-height:122px!important;padding:18px!important}
+  body.shell-app #appShell .view[data-page="supplies"] .supplies-grid{
+    width:100%!important;max-width:none!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+  body.shell-app #appShell .view[data-page="time"] #activeTimerWrap,
+  body.shell-app #appShell .view[data-page="time"] .table-card{width:100%!important;max-width:none!important}
+  body.shell-app #appShell .view[data-page="time"] .table-card{min-height:180px!important}
+  body.shell-app #appShell .view[data-page="route"] .route-layout{
+    width:100%!important;max-width:none!important;
+    grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)!important;
+    gap:16px!important;
+  }
+}
+@media (min-width: 1100px){
+  body.shell-app #todayHeroCard{padding:20px 28px!important}
+  body.shell-app #todayHeroCard #todayGreeting{font-size:38px!important}
+}
