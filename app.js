@@ -8439,16 +8439,26 @@ function openEntityForm(type,id=null){
   }
 
   if(type==="service"){
+    const pricingType=record?.pricing_type==="flat" && Number(record?.base_price)>0 ? "flat" : "quote";
     modalHeader(
       langPick("SERVICE","SERVICIO","SERVICE"),
       record?langPick("Edit service","Editar servicio","Modifier le service"):langPick("Add service","Añadir servicio","Ajouter un service"),
-      langPick("Set the service basics. Customer pricing is calculated by the Estimate Calculator.","Define los datos básicos del servicio. El precio para el cliente se calcula con Estimate Calculator.","Définissez les informations du service. Le prix client est calculé par Estimate Calculator.")
+      langPick("Choose whether clients can book it at a set price or must request a quote first.","Elige si el cliente puede reservarlo con un precio fijo o si primero debe pedir una cotización.","Choisissez si le client peut réserver à prix fixe ou demander un devis.")
     );
     entityForm.innerHTML=`
-      <div class="form-grid">
+      <div class="form-grid service-editor-form">
         <label class="full">${escapeHtml(langPick("Service name","Nombre del servicio","Nom du service"))}<input name="name" required value="${escapeHtml(record?.name||"")}"></label>
-        <input type="hidden" name="pricing_type" value="quote">
-        <input type="hidden" name="base_price" value="">
+        <label class="full">${escapeHtml(langPick("How clients book this service","Cómo reservan este servicio","Comment les clients réservent ce service"))}
+          <select name="pricing_type" data-service-pricing-type required>
+            <option value="flat" ${pricingType==="flat"?"selected":""}>${escapeHtml(langPick("Paid service · instant booking","Servicio con precio · reserva directa","Service payant · réservation directe"))}</option>
+            <option value="quote" ${pricingType==="quote"?"selected":""}>${escapeHtml(langPick("Quote required · custom price","Requiere cotización · precio personalizado","Devis requis · prix personnalisé"))}</option>
+          </select>
+        </label>
+        <label class="full service-base-price-field" data-service-base-price-wrap ${pricingType==="flat"?"":"hidden"}>
+          ${escapeHtml(langPick("Booking price","Precio de reserva","Prix de réservation"))}
+          <input name="base_price" type="number" min="0.01" max="1000000" step="0.01" inputmode="decimal" value="${pricingType==="flat" ? escapeHtml(String(record?.base_price??"")) : ""}" placeholder="0.00">
+          <small>${escapeHtml(langPick("This is the price clients see for instant booking. You can still use the Pricing Calculator for job-specific quotes.","Este es el precio que ve el cliente en reserva directa. Aún puedes usar Pricing Calculator para cotizaciones específicas.","C’est le prix affiché pour la réservation directe."))}</small>
+        </label>
         <label>${escapeHtml(langPick("Estimated duration (minutes)","Duración estimada (minutos)","Durée estimée (minutes)"))}<input name="default_duration_minutes" type="number" min="15" step="15" required value="${record?.default_duration_minutes||120}"></label>
         <label>${escapeHtml(langPick("Workers needed","Trabajadores necesarios","Travailleurs nécessaires"))}<input name="workers_required" type="number" min="1" max="100" step="1" required value="${Math.max(1,Number(record?.workers_required||1))}"></label>
         <label class="full">${escapeHtml(langPick("Description","Descripción","Description"))}<textarea name="description">${escapeHtml(record?.description||"")}</textarea></label>
@@ -8675,6 +8685,19 @@ async function saveFeedback(fd){
 }
 
 entityForm.addEventListener("change",e=>{
+  const servicePricing=e.target.closest?.("[data-service-pricing-type]");
+  if(servicePricing){
+    const priceWrap=entityForm.querySelector("[data-service-base-price-wrap]");
+    const priceInput=entityForm.querySelector('input[name="base_price"]');
+    const isFlat=servicePricing.value==="flat";
+    if(priceWrap) priceWrap.hidden=!isFlat;
+    if(priceInput){
+      priceInput.required=isFlat;
+      if(!isFlat) priceInput.value="";
+    }
+    return;
+  }
+
   const quoteClient=e.target.closest?.("[data-quote-client-picker]");
   if(quoteClient){
     const client=state.clients.find(c=>c.id===quoteClient.value);
@@ -8983,13 +9006,20 @@ async function saveClient(fd){
 }
 async function saveService(fd){
   const workersRequired=Math.max(1,Math.min(100,Number.parseInt(String(fd.get("workers_required")||"1"),10)||1));
+  const pricingType=String(fd.get("pricing_type")||"quote")==="flat" ? "flat" : "quote";
+  const basePriceRaw=String(fd.get("base_price")||"").trim();
+  const basePrice=pricingType==="flat" ? Number(basePriceRaw) : null;
+  if(pricingType==="flat" && (!Number.isFinite(basePrice) || basePrice<=0 || basePrice>1000000)){
+    throw new Error(langPick("Enter a valid booking price greater than $0.","Escribe un precio de reserva válido mayor de $0.","Saisissez un prix de réservation valide supérieur à 0."));
+  }
+  const duration=Math.max(15,Number(fd.get("default_duration_minutes"))||120);
   const payload={
     business_id:state.business.id,
     name:String(fd.get("name")).trim(),
     description:String(fd.get("description")||"").trim()||null,
-    pricing_type:"quote",
-    base_price:null,
-    default_duration_minutes:Number(fd.get("default_duration_minutes")),
+    pricing_type:pricingType,
+    base_price:pricingType==="flat"?basePrice:null,
+    default_duration_minutes:duration,
     workers_required:workersRequired,
     active:fd.get("active")==="on"
   };
@@ -9982,6 +10012,7 @@ document.addEventListener("click",async e=>{
   const toggleAddon=e.target.closest("[data-toggle-addon]");
   if(toggleAddon){
     const addon=state.serviceAddons.find(a=>a.id===toggleAddon.dataset.toggleAddon);
+    if(!addon){ showToast(langPick("Add-on not found. Refresh and try again.","No se encontró el add-on. Actualiza e intenta otra vez.","Option introuvable. Actualisez et réessayez.")); return; }
     const {error}=await supabase.from("service_addons").update({active:!addon.active,updated_at:new Date().toISOString()}).eq("id",addon.id);
     if(error) showToast(error.message); else {await loadCoreData();showToast(addon.active?"Add-on turned off":"Add-on turned on");}
     return;
