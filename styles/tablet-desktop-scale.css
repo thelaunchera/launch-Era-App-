@@ -1,4 +1,4 @@
-/* r56 — tablet/desktop density correction. Phone layout intentionally unchanged. */
+/* r56 — tablet/desktop density correction. Phone layout intentionally unchanged. CI retry after release-version synchronization. */
 @media (min-width: 681px){
   /* Dashboard greeting: lower visual weight on tablet/desktop. */
   body.shell-app #todayHeroCard{
