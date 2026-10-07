@@ -3832,8 +3832,6 @@ async function initialize(){
     const emailInput=$("#authEmail");
     if(!forceSignup && ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
-    // Explicit website entry links must win over remembered device state.
-    // This keeps Start Free Trial on owner signup instead of a saved worker/login path.
     if(forceSignup){
       prepareDirectAuth("signup");
     }else if(forceSignin){
@@ -3846,8 +3844,6 @@ async function initialize(){
     return;
   }
 
-  // Once verification/session restore succeeds, the owner no longer needs the
-  // entry override in the address bar. Remove it so future sign-outs behave normally.
   if(forceSignup || forceSignin){
     try{
       const clean=new URL(window.location.href);
