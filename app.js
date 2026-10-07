@@ -3759,13 +3759,16 @@ async function initialize(){
   const publicMode=params.get("public");
   const publicSlug=params.get("slug");
   const workerActivation=params.get("worker");
+  const requestedEntry=String(params.get("entry")||"").toLowerCase();
+  const forceSignup=requestedEntry==="signup";
+  const forceSignin=requestedEntry==="signin";
   const workerDevice=localStorage.getItem("tle_worker_device_token");
 
   // public.js owns all customer-facing public routes (booking, quote,
   // quote review and invoice view). Never let Auth overwrite that shell.
   if(window.__tlePublicHandled) return;
 
-  if(workerActivation || workerDevice){
+  if(workerActivation || (workerDevice && !forceSignup && !forceSignin)){
     await initializeWorkerPortal(workerActivation);
     return;
   }
@@ -3825,10 +3828,19 @@ async function initialize(){
     const emailInput=$("#authEmail");
     if(ownerEmail && emailInput && !emailInput.value) emailInput.value=ownerEmail;
 
-    // New/prospective customers always see the product intro before Create account.
-    // Returning owners with a remembered email may go straight to Sign in.
-    if(ownerEmail) prepareDirectAuth();
-    else showAuthWelcome();
+    // Explicit website entry links must win over remembered device state.
+    // This keeps Start Free Trial on owner signup instead of a saved worker/login path.
+    if(forceSignup){
+      prepareDirectAuth("signup");
+      trackFunnelStep("/funnel/signup-viewed");
+    }else if(forceSignin){
+      prepareDirectAuth("signin");
+      trackFunnelStep("/funnel/signin-viewed");
+    }else if(ownerEmail){
+      prepareDirectAuth();
+    }else{
+      showAuthWelcome();
+    }
     return;
   }
 
