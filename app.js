@@ -288,7 +288,7 @@ const pageTitles = {
   today:"Today", booking:"Booking Center", leads:"Leads", clients:"Customers",
   calendar:"Calendar + Jobs", quotes:"Quotes", invoices:"Invoices", followups:"Follow-ups",
   route:"Today's Route", mileage:"Mileage", time:"Time Tracking",
-  reports:"Owner Reports", services:"Services + Add-ons", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
+  reports:"Owner Reports", services:"Services + Add-ons",pricing:"Pricing Calculator", supplies:"Supplies", team:"Team", settings:"Settings", admin:"Owner Admin", "platform-admin":"Owner View", help:"Help & FAQ"
 };
 
 
@@ -2363,7 +2363,7 @@ async function refreshViewData(id){
         return;
       }
 
-      if(id==="services" || id==="booking"){
+      if(id==="services" || id==="booking" || id==="pricing"){
         let [{data:services,error:servicesError},{data:addons,error:addonsError}]=await Promise.all([
           supabase.from("services").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name"),
           supabase.from("service_addons").select("*").eq("business_id",businessId).order("active",{ascending:false}).order("name")
