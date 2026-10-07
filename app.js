@@ -4963,7 +4963,8 @@ async function loadOwnerAdmin(){
     if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
     if(badge) badge.textContent="Owner only";
     if(dateLabel) dateLabel.textContent="Trial ends";
-    if(dateMeta) dateMeta.textContent="30 days";
+    const trialDays=Number(state.business.trial_days)||30;
+    if(dateMeta) dateMeta.textContent=appLanguage()==="ht"?`${trialDays} jou`:langPick(`${trialDays} days`,`${trialDays} días`,`${trialDays} jours`);
     if(priceLabel) priceLabel.textContent="After trial";
     if(price) price.textContent="$5.99/month";
     if(priceMeta) priceMeta.textContent="—";
@@ -7753,7 +7754,7 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking Page":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking + Lead Automation":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
           ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 2-month promo</button>`
           : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant Booking Page 2-month promo</button>`
         }</div>
