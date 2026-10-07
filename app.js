@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-weather-fallback-r61";
+const APP_VERSION = "20261007-weather-fallback-r62";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -487,6 +487,7 @@ function syncLegalLinks(){
   const base="https://thelaunchera.com/";
   $$(".legal-privacy-link").forEach(a=>a.href=base+(isEs?"es/privacy.html":"privacy.html"));
   $$(".legal-terms-link").forEach(a=>a.href=base+(isEs?"es/terms.html":"terms.html"));
+  $$(".legal-contact-link").forEach(a=>a.href=base+(isEs?"es#contacto":"help"));
 }
 window.addEventListener("tle:languagechange",syncLegalLinks);
 setTimeout(syncLegalLinks,0);
@@ -4969,7 +4970,8 @@ async function loadOwnerAdmin(){
     if(trial) trial.textContent=state.business.trial_ends_at?new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(state.business.trial_ends_at)):"—";
     if(badge) badge.textContent="Owner only";
     if(dateLabel) dateLabel.textContent="Trial ends";
-    if(dateMeta) dateMeta.textContent="30 days";
+    const trialDays=Number(state.business.trial_days)||30;
+    if(dateMeta) dateMeta.textContent=appLanguage()==="ht"?`${trialDays} jou`:langPick(`${trialDays} days`,`${trialDays} días`,`${trialDays} jours`);
     if(priceLabel) priceLabel.textContent="After trial";
     if(price) price.textContent="$5.99/month";
     if(priceMeta) priceMeta.textContent="—";
@@ -7759,7 +7761,7 @@ async function loadPlatformAdmin(){
     const customers=data?.customers||[];
     table.innerHTML=customers.length?customers.map(x=>`
       <div class="platform-customer-row">
-        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking Page":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
+        <div><strong>${escapeHtml(x.business_name||"Cleaning business")}</strong><small>${escapeHtml(x.email||"")} · Joined ${new Intl.DateTimeFormat(appLocale(),{month:"short",day:"numeric",year:"numeric"}).format(new Date(x.created_at))} · ${x.trial_promotion==="booking_page_setup"?"60 days Cleaning Web App with Booking + Lead Automation":"30-day standard trial"}</small>${x.trial_promotion==="booking_page_setup"
           ? `<button class="ghost-btn" type="button" data-booking-page-promo-revoke="${x.business_id}">Revoke 2-month promo</button>`
           : `<button class="ghost-btn" type="button" data-booking-page-promo="${x.business_id}">Grant Booking Page 2-month promo</button>`
         }</div>
