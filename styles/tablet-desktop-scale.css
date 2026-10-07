@@ -66,3 +66,153 @@
   body.shell-app #todayHeroCard{padding:20px 28px!important}
   body.shell-app #todayHeroCard #todayGreeting{font-size:38px!important}
 }
+
+
+/* r57 — tablet dashboard composition fix.
+   The hero DOM has one ecosystem child, so tablet must not reserve an empty
+   second ecosystem column. Keep phone rules untouched. */
+@media (min-width:681px) and (max-width:1100px){
+  body.shell-app #appShell [data-page="today"] #todayHeroCard .hero-ecosystem{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    gap:0!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard .hero-greeting-zone{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:minmax(0,1.3fr) minmax(220px,.7fr)!important;
+    column-gap:22px!important;
+    row-gap:6px!important;
+    align-items:center!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard{
+    min-height:0!important;
+    padding:18px 20px!important;
+    border-radius:24px!important;
+    margin-bottom:16px!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard #todayGreeting{
+    max-width:520px!important;
+    font-size:clamp(30px,4.2vw,38px)!important;
+    line-height:.96!important;
+    margin:2px 0 5px!important;
+    text-wrap:balance!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard #todayMomentCopy{
+    max-width:500px!important;
+    font-size:12px!important;
+    line-height:1.34!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard #todayHeroAction{
+    width:min(100%,320px)!important;
+    min-height:44px!important;
+    margin:7px 0 0!important;
+    padding:9px 14px!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard .weather-brief{
+    width:100%!important;
+    max-width:280px!important;
+    min-height:94px!important;
+    padding:12px 13px!important;
+    border-radius:18px!important;
+    justify-self:end!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard .hero-weather-alert{
+    width:100%!important;
+    max-width:280px!important;
+    padding:8px 10px!important;
+    border-radius:13px!important;
+    justify-self:end!important;
+    font-size:10px!important;
+    line-height:1.25!important;
+  }
+  body.shell-app #appShell [data-page="today"] #todayHeroCard .today-clock{
+    min-height:42px!important;
+    padding:7px 10px!important;
+  }
+}
+
+@media (min-width:681px) and (max-width:860px){
+  /* Portrait tablet: use the width. No phone-like empty columns or oversized cards. */
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-access{
+    margin:0 0 16px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-section-head{
+    margin:0 2px 8px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-section-head h3{
+    font-size:18px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-grid{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-card{
+    min-height:96px!important;
+    padding:11px!important;
+    border-radius:18px!important;
+    gap:6px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-icon{
+    width:32px!important;
+    height:32px!important;
+    border-radius:10px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-icon svg{
+    width:18px!important;
+    height:18px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-card strong{
+    font-size:12px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-card small{
+    font-size:8.5px!important;
+    line-height:1.2!important;
+  }
+  body.shell-app #appShell [data-page="today"] .dashboard-quick-arrow{
+    right:9px!important;
+    bottom:8px!important;
+    width:24px!important;
+    height:24px!important;
+    font-size:15px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-panel{
+    margin-bottom:16px!important;
+    padding:14px!important;
+    border-radius:20px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-panel .panel-head{
+    margin-bottom:9px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-panel .panel-head h3{
+    font-size:18px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-list.dashboard-attention-grid{
+    gap:8px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-list.dashboard-attention-grid .attention-summary-card{
+    min-height:96px!important;
+    padding:11px!important;
+    border-radius:16px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .attention-summary-count{
+    font-size:23px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .growth-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    gap:0!important;
+    margin-bottom:16px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .growth-grid .schedule-panel{
+    width:100%!important;
+    max-width:none!important;
+    padding:14px!important;
+    border-radius:20px!important;
+  }
+  body.shell-app #appShell [data-page="today"] .growth-grid .schedule-panel .panel-head h3{
+    font-size:18px!important;
+  }
+}
