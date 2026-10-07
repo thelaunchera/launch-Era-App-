@@ -10829,7 +10829,32 @@ window.TLE_FOLLOWUPS_BRIDGE={
   langPick,
   escapeHtml,
   appLocale,
-  openClientInfo
+  openClientInfo,
+  openQuoteFromEstimate:(draft={})=>{
+    openView("quotes");
+    openEntityForm("quote");
+    requestAnimationFrame(()=>{
+      const price=entityForm.querySelector('[name="price"]');
+      const service=entityForm.querySelector('[name="service_id"]');
+      const status=entityForm.querySelector('[name="status"]');
+      const notes=entityForm.querySelector('[name="notes"]');
+      if(price) price.value=String(Number(draft.price||0)||"");
+      if(service && draft.serviceId) service.value=String(draft.serviceId);
+      if(status) status.value="draft";
+      const details=[
+        draft.notes||"",
+        draft.propertyType?("Property: "+draft.propertyType):"",
+        draft.sqft?("Size: "+Number(draft.sqft).toLocaleString()+" sq ft"):"",
+        draft.propertyType==="residential"&&draft.bedrooms?("Bedrooms: "+draft.bedrooms):"",
+        draft.bathrooms?((draft.propertyType==="commercial"?"Restrooms: ":"Bathrooms: ")+draft.bathrooms):"",
+        draft.frequency&&draft.frequency!=="one_time"?("Frequency: "+String(draft.frequency).replaceAll("_"," ")):"",
+        draft.cleanerHours?("Estimated cleaner-hours: "+Number(draft.cleanerHours).toFixed(2).replace(/\\.00$/,"")):"",
+        draft.workers?("Planned cleaners: "+draft.workers):""
+      ].filter(Boolean);
+      if(notes) notes.value=details.join("\n");
+      entityForm.querySelector('[name="customer_name"]')?.focus();
+    });
+  }
 };
 
 window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
