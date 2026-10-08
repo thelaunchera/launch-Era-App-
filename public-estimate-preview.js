@@ -8,7 +8,7 @@
       if(!service)return 0;
       const setting=(key,fallback=0)=>Math.max(0,num(rules?.[key],fallback));
       let serviceCost=Math.max(0,num(service.base_price));
-      if(propertyType==="residential"&&rules?.enabled!==false){
+      if(service.pricing_type!=="flat"&&propertyType==="residential"&&rules?.enabled!==false){
         serviceCost+=Math.max(0,num(bedrooms)-setting("included_bedrooms",2))*setting("extra_bedroom_price");
         serviceCost+=Math.max(0,num(bathrooms)-setting("included_bathrooms",1))*setting("extra_bathroom_price");
         const size=num(propertySize)*(propertyUnit==="sqm"?10.7639:1);
@@ -23,7 +23,7 @@
       }
       const extras=addons.reduce((sum,item)=>sum+Math.max(0,num(item.price)),0);
       let total=round(Math.max(0,serviceCost)+extras);
-      if(propertyType==="residential"&&rules?.enabled!==false){
+      if(service.pricing_type!=="flat"&&propertyType==="residential"&&rules?.enabled!==false){
         total=Math.max(total,setting("minimum_total"));
       }
       return round(total);
