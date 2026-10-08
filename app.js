@@ -1810,7 +1810,7 @@ function syncAuthWelcomeCopy(){
     start:langPick("Get 30 days free","Obtén 30 días gratis","Obtenez 30 jours gratuits"),
     signin:langPick("Sign in","Iniciar sesión","Se connecter"),
     existing:langPick("Already have an account?","¿Ya tienes una cuenta?","Vous avez déjà un compte ?"),
-    note:langPick("No card required · Then $5.99/month","Sin tarjeta · Después $5.99/mes","Sans carte · Puis 5,99 $/mois"),
+    note:langPick("No card required · Then $3.99/month","Sin tarjeta · Después $3.99/mes","Sans carte · Puis 3,99 $/mois"),
     back:langPick("← Back","← Volver","← Retour")
   };
   $("#authWelcomeBadge") && ($("#authWelcomeBadge").textContent=copy.badge);
@@ -2139,13 +2139,13 @@ function showSubscriptionGate(){
       : "This workspace needs an active subscription.",
     owner
       ? (returningCustomer
-          ? "Reactivate for $5.99/month and pick up where you left off."
-          : "Continue your full access for $5.99/month. You can cancel anytime.")
-      : "Ask the business owner to renew the $5.99/month subscription."
+          ? "Reactivate for $3.99/month and pick up where you left off."
+          : "Continue your full access for $3.99/month. You can cancel anytime.")
+      : "Ask the business owner to renew the $3.99/month subscription."
   );
 
   entityForm.innerHTML=owner
-    ? `<div class="empty-inline"><strong>Your business data stays saved.</strong><span>We keep your clients, contacts, jobs, quotes, invoices and settings for 3 months after your subscription ends. Reactivate during that window and continue where you left off.</span></div><div class="form-footer"><button class="ghost-btn" type="button" id="billingGateLogout">Log out</button><button class="primary-btn" type="button" id="billingContinueBtn">Continue for $5.99/month</button></div>`
+    ? `<div class="empty-inline"><strong>Your business data stays saved.</strong><span>We keep your clients, contacts, jobs, quotes, invoices and settings for 3 months after your subscription ends. Reactivate during that window and continue where you left off.</span></div><div class="form-footer"><button class="ghost-btn" type="button" id="billingGateLogout">Log out</button><button class="primary-btn" type="button" id="billingContinueBtn">Continue for $3.99/month</button></div>`
     : `<div class="empty-inline"><strong>Owner action required.</strong><span>Business data is kept for 3 months while the subscription is paused.</span></div><div class="form-footer"><button class="primary-btn" type="button" id="billingGateLogout">Log out</button></div>`;
 
   modal.hidden=false;
@@ -2235,7 +2235,7 @@ function renderTrialStatus(){
       payBtn.id="trialSubscribeBtn";
       payBtn.type="button";
       payBtn.className="primary-btn";
-      payBtn.textContent="Continue for $5.99/month";
+      payBtn.textContent="Continue for $3.99/month";
       payBtn.addEventListener("click",()=>startSubscriptionCheckout(payBtn));
       trialCard.appendChild(payBtn);
     }
@@ -2252,7 +2252,7 @@ function renderTrialStatus(){
           : `Your free access ends in ${days} days`;
       }
       if(warningCopy){
-        warningCopy.textContent="You still have full access. When your free period ends, you can continue for $5.99/month.";
+        warningCopy.textContent="You still have full access. When your free period ends, you can continue for $3.99/month.";
       }
     }else{
       hideWarning();
@@ -4992,7 +4992,7 @@ async function loadOwnerAdmin(){
     const trialDays=Number(state.business.trial_days)||30;
     if(dateMeta) dateMeta.textContent=appLanguage()==="ht"?`${trialDays} jou`:langPick(`${trialDays} days`,`${trialDays} días`,`${trialDays} jours`);
     if(priceLabel) priceLabel.textContent="After trial";
-    if(price) price.textContent="$5.99/month";
+    if(price) price.textContent="$3.99/month";
     if(priceMeta) priceMeta.textContent="—";
   }
 }
@@ -8004,7 +8004,7 @@ async function loadPlatformAdmin(){
           <small>${escapeHtml(v.business_name||"Cleaning business")} · ${escapeHtml(v.status||"active")}</small>
         </span>
         <span class="activity-value">
-          <strong>${money(Number(v.price||5.99))}</strong>
+          <strong>${money(Number(v.price??3.99))}</strong>
           <time>${formatDateTime(v.activated_at||v.created_at)}</time>
         </span>
       </div>`).join(""):`<div class="empty-inline"><strong>No purchases yet.</strong><span>Paid app activations will appear here with the customer email.</span></div>`;
