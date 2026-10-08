@@ -4272,7 +4272,9 @@ function getInquiryNotifications(){
       email:b.customer_email||"",
       phone:b.customer_phone||"",
       address:b.service_address||"",
-      service:b.services?.name||lead?.service_interest||"Cleaning request",
+      service:(b.status==="converted"
+        ?langPick("New booking confirmed · ","Nueva reserva confirmada · ","Nouvelle réservation confirmée · ")
+        :"")+(b.services?.name||lead?.service_interest||"Cleaning request"),
       serviceId:b.service_id||"",
       requestedAt:b.requested_start_at||"",
       notes:b.notes||lead?.notes||"",
