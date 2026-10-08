@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261008-booking-owner-price-review-r68";
+const APP_VERSION = "20261008-booking-quote-workflow-r69";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5153,7 +5153,7 @@ function serviceGroupCopy(key){
   const lang=appLanguage();
   const copy={
     paidTitle:{en:"Paid services",es:"Servicios con precio",fr:"Services avec prix",ht:"Sèvis ak pri"},
-    paidNote:{en:"Customers see an estimate and request a time. You review the final quote before sending it for customer acceptance.",es:"El cliente ve un estimado y solicita un horario. Tú revisas el precio final y envías un quote para que lo acepte.",fr:"Le client voit une estimation. Vous envoyez le devis final pour acceptation.",ht:"Kliyan yo wè estimasyon an. Ou voye devis final la pou li aksepte."},
+    paidNote:{en:"Customers see an estimate. You send a quote for approval.",es:"El cliente ve un estimado. Tú envías el quote para aprobar.",fr:"Estimation d’abord, puis devis à accepter.",ht:"Estimasyon anvan; devis pou aksepte."},
     quoteTitle:{en:"Quote services",es:"Servicios con cotización",fr:"Services sur devis",ht:"Sèvis ki bezwen estimasyon"},
     quoteNote:{en:"These collect the details first, then the request goes to Quotes.",es:"Aquí primero se recopilan los detalles y luego la solicitud pasa a Quotes.",fr:"Les détails sont d’abord recueillis, puis la demande passe dans Quotes.",ht:"Sa yo ranmase detay yo anvan, epi demann lan ale nan Quotes."},
     paidEmpty:{en:"No paid services yet.",es:"Todavía no hay servicios con precio.",fr:"Aucun service avec prix pour le moment.",ht:"Pa gen sèvis ak pri ankò."},
@@ -10177,9 +10177,9 @@ document.addEventListener("click",async e=>{
     }
     const name=container?.querySelector(".booking-request-copy>strong")?.textContent||"";
     const approved=confirm(langPick("Email the final quote to ","Enviar el quote final a ","Envoyer le devis final à ")+name+" · "+money(finalPrice)+"?\n"+
-      langPick("The client will need to accept before a booking and invoice are created.",
-        "La clienta debe aceptarlo antes de crear la reserva y factura.",
-        "Le client doit accepter avant la création de la réservation et facture."));
+      langPick("Booking and invoice follow acceptance.",
+        "La reserva y factura se crean al aceptar.",
+        "Réservation et facture après acceptation."));
     if(!approved)return;
     sendReviewedQuote.disabled=true;
     if(priceField)priceField.disabled=true;
@@ -10190,7 +10190,7 @@ document.addEventListener("click",async e=>{
       });
       if(error)throw error;
       await loadCoreData();
-      showToast(langPick("Final quote sent. Waiting for customer acceptance.","Quote enviado. Esperando aceptación de la clienta.","Devis envoyé. En attente de l’acceptation."));
+      showToast(langPick("Quote sent · awaiting acceptance","Quote enviado · esperando aceptación","Devis envoyé · en attente"));
       trackGoogleEvent("booking_quote_sent",{source:"booking_request"});
     }catch(err){showToast(err?.message||"Quote could not be sent");}
     finally{
