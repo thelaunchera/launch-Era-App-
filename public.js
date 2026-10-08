@@ -494,7 +494,7 @@
 
   async function bootRequest(){
     try{
-      const data=await rpc("get_public_booking_config",{p_slug:slug});
+      const data=await rpc("get_public_booking_config_v2",{p_slug:slug});
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
 
       const allServices=data?.services||[];
@@ -811,7 +811,32 @@
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=addons.filter(a=>chosenIds.includes(a.id));
-        const baseTotal=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        // Mirror the server-side v5 estimate (bedrooms, bathrooms, square footage,
+        // recurring discounts, add-ons and minimum). This is an estimate only.
+        const rules=data?.business?.estimate_settings||{};
+        const getRule=(key,fallback=0)=>{
+          const n=Number(rules[key]);
+          return Number.isFinite(n)&&n>=0?n:fallback;
+        };
+        const extraBeds=Math.max(0,Number(form?.querySelector('[name="bedrooms"]')?.value||0)-getRule("included_bedrooms",2));
+        const extraBaths=Math.max(0,Number(form?.querySelector('[name="bathrooms"]')?.value||0)-getRule("included_bathrooms",1));
+        const rawSize=Number(form?.querySelector('[name="property_size"]')?.value||0);
+        const sizeUnit=String(form?.querySelector('[name="property_size_unit"]')?.value||"sqft");
+        const sqft=rawSize*(sizeUnit==="sqm"?10.7639:1);
+        const step=getRule("sqft_step",500);
+        const sizeExtra=rawSize>0&&step>0?Math.ceil(Math.max(0,sqft-getRule("included_sqft"))/step)*getRule("sqft_step_price"):0;
+        let serviceAdjusted=selected?Number(selected.base_price)||0:0;
+        const usesRules=property==="residential"&&rules.enabled!==false;
+        if(usesRules){
+          serviceAdjusted+=extraBeds*getRule("extra_bedroom_price")+
+            extraBaths*getRule("extra_bathroom_price")+sizeExtra;
+          const freq=String(recurrenceSelect?.value||"one_time");
+          const percent=({weekly:getRule("weekly_discount_percent"),biweekly:getRule("biweekly_discount_percent"),monthly:getRule("monthly_discount_percent")})[freq]||0;
+          serviceAdjusted=Math.max(0,serviceAdjusted-Math.round(serviceAdjusted*Math.min(percent,100))/100);
+        }
+        const addonTotal=chosen.reduce((sum,a)=>sum+Number(a.price||0),0);
+        const minTotal=usesRules?getRule("minimum_total"):0;
+        const baseTotal=selected?Math.max(minTotal,serviceAdjusted+addonTotal):0;
         const discountPrice=discountUi?.price(baseTotal)||{discount:0,final:baseTotal,discountRecord:null};
         const total=discountPrice.final;
         const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
@@ -942,7 +967,7 @@
           ?"Tell us what you need, then pick a day and available time."
           :"Choose what you need, then pick a day and available time.");
         if(submit){
-          submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
+          submit.textContent=tt(mode==="quote"?"Send quote request":"Request my quote");
         }
         if(addWrap) addWrap.hidden=false;
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
@@ -1212,7 +1237,7 @@
                 p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
-              await rpc("submit_public_booking_request_v4",{
+              await rpc("submit_public_booking_request_v5",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),
