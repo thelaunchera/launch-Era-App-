@@ -271,6 +271,16 @@ async function runProfile(profile){
       throw new Error(profile.name+": availability slot cannot be selected");
     }
 
+    const flatRecurring=await page.evaluate(()=>window.TLE_PUBLIC_ESTIMATE.calculate({
+      rules:{enabled:true,included_bedrooms:2,extra_bedroom_price:50,included_bathrooms:1,
+        extra_bathroom_price:40,included_sqft:1000,sqft_step:500,sqft_step_price:20,
+        weekly_discount_percent:10,minimum_total:0},
+      service:{pricing_type:"flat",base_price:129},addons:[],
+      propertyType:"residential",bedrooms:6,bathrooms:4,propertySize:4500,frequency:"weekly"
+    }));
+    if(Math.abs(flatRecurring-116.1)>0.01){
+      throw new Error(profile.name+": flat recurring discount or fixed-base guard failed "+flatRecurring);
+    }
     const fixedPriceLabel=await page.locator("#publicSummary").textContent();
     if(!fixedPriceLabel.includes("Fixed total")){
       throw new Error(profile.name+": flat booking summary is incorrectly presented as an estimate");
