@@ -271,6 +271,10 @@ async function runProfile(profile){
       throw new Error(profile.name+": availability slot cannot be selected");
     }
 
+    const fixedPriceLabel=await page.locator("#publicSummary").textContent();
+    if(!fixedPriceLabel.includes("Fixed total")){
+      throw new Error(profile.name+": flat booking summary is incorrectly presented as an estimate");
+    }
     const residentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
     if(!String(residentialHero||"").includes("37184168")) throw new Error(profile.name+": new residential hero was not loaded");
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
@@ -332,6 +336,7 @@ async function runProfile(profile){
     if(!String(specialHero||"").includes("36777525")){
       throw new Error(profile.name+": special request hero photo is missing");
     }
+    await page.locator("#publicSpecialDetails .public-special-more>summary").click();
     await page.locator('[name="special_space_kind"]').selectOption("salon_studio");
     await page.locator('[name="special_property_size"]').fill("2300");
     await page.locator('[name="special_space_description"]').fill("Salon mirrors, delicate surfaces, evening access required");
@@ -349,6 +354,9 @@ async function runProfile(profile){
     await page.locator("#publicBookTab").click();
     if(!await page.locator("#publicQuoteTab").evaluate(el=>el.classList.contains("active"))){
       throw new Error(profile.name+": special space incorrectly switched to instant booking");
+    }
+    if(!await page.locator("#publicSpecialDetails .public-special-more").evaluate(el=>el.open)){
+      throw new Error(profile.name+": special detail panel did not expand");
     }
     await assertNoOverflow(page,profile,"special space quote");
 
