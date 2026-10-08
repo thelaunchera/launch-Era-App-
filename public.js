@@ -671,7 +671,7 @@
         const code=l.startsWith("es")?"es":l.startsWith("fr")?"fr":l.startsWith("ht")?"ht":"en";
         const content={
           estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
-          note:{en:"This is an estimate, not a fixed price. The cleaning business will review your details and confirm the final price and appointment.",es:"Este precio es aproximado, no definitivo. El negocio revisará los detalles y confirmará el precio final y la cita.",fr:"Ce prix est estimatif, non définitif. L’entreprise vérifiera les détails et confirmera le prix final et le rendez-vous.",ht:"Pri sa a se yon estimasyon, li pa pri final la. Biznis netwayaj la ap verifye detay yo epi konfime pri final la ak randevou a."},
+          note:{en:"This price is an estimate, not a fixed rate. The business will check your home details and send a final quote for you to accept. Your appointment is not confirmed yet.",es:"Este precio es aproximado, no fijo. El negocio revisará los datos de tu casa y te enviará el quote final para que lo aceptes. Tu cita aún no está confirmada.",fr:"Ce prix est estimatif. L’entreprise vérifiera les informations et vous enverra un devis final à accepter. Votre rendez-vous n’est pas encore confirmé.",ht:"Pri sa a se yon estimasyon, li pa fiks. Biznis la ap verifye detay kay ou epi voye pri final la pou ou aksepte. Randevou a poko konfime."},
           request:{en:"Booking request",es:"Solicitud de reserva",fr:"Demande de réservation",ht:"Demann rezèvasyon"}
         };
         return content[key]?.[code]||content[key]?.en||"";
