@@ -494,7 +494,7 @@
 
   async function bootRequest(){
     try{
-      const data=await rpc("get_public_booking_config",{p_slug:slug});
+      const data=await rpc("get_public_booking_config_v2",{p_slug:slug});
       setPublicLocale(data?.business?.locale_code,data?.business?.currency_code,data?.business?.default_language);
 
       const allServices=data?.services||[];
@@ -671,7 +671,7 @@
         const code=l.startsWith("es")?"es":l.startsWith("fr")?"fr":l.startsWith("ht")?"ht":"en";
         const content={
           estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
-          note:{en:"This is an estimate, not a fixed price. The cleaning business will review your details and confirm the final price and appointment.",es:"Este precio es aproximado, no definitivo. El negocio revisará los detalles y confirmará el precio final y la cita.",fr:"Ce prix est estimatif, non définitif. L’entreprise vérifiera les détails et confirmera le prix final et le rendez-vous.",ht:"Pri sa a se yon estimasyon, li pa pri final la. Biznis netwayaj la ap verifye detay yo epi konfime pri final la ak randevou a."},
+          note:{en:"This price is an estimate, not a fixed rate. The business will check your home details and send a final quote for you to accept. Your appointment is not confirmed yet.",es:"Este precio es aproximado, no fijo. El negocio revisará los datos de tu casa y te enviará el quote final para que lo aceptes. Tu cita aún no está confirmada.",fr:"Ce prix est estimatif. L’entreprise vérifiera les informations et vous enverra un devis final à accepter. Votre rendez-vous n’est pas encore confirmé.",ht:"Pri sa a se yon estimasyon, li pa fiks. Biznis la ap verifye detay kay ou epi voye pri final la pou ou aksepte. Randevou a poko konfime."},
           request:{en:"Booking request",es:"Solicitud de reserva",fr:"Demande de réservation",ht:"Demann rezèvasyon"}
         };
         return content[key]?.[code]||content[key]?.en||"";
@@ -811,7 +811,15 @@
         const property=activePropertyType();
         const chosenIds=chosenAddonIds();
         const chosen=addons.filter(a=>chosenIds.includes(a.id));
-        const baseTotal=selected?(Number(selected.base_price)||0)+chosen.reduce((sum,a)=>sum+Number(a.price||0),0):0;
+        const baseTotal=window.TLE_PUBLIC_ESTIMATE?.calculate({
+          rules:data?.business?.estimate_settings||{},
+          service:selected,addons:chosen,propertyType:property,
+          bedrooms:Number(form?.querySelector('[name="bedrooms"]')?.value||0),
+          bathrooms:Number(form?.querySelector('[name="bathrooms"]')?.value||0),
+          propertySize:Number(form?.querySelector('[name="property_size"]')?.value||0),
+          propertyUnit:String(form?.querySelector('[name="property_size_unit"]')?.value||"sqft"),
+          frequency:String(recurrenceSelect?.value||"one_time")
+        })??0;
         const discountPrice=discountUi?.price(baseTotal)||{discount:0,final:baseTotal,discountRecord:null};
         const total=discountPrice.final;
         const recurrenceLabel=recurrenceSelect?.selectedOptions?.[0]?.textContent?.trim()||tt("One time");
@@ -920,7 +928,6 @@
 
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
-        // Commercial requests stay in the quote flow; direct booking is residential-only.
         if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
@@ -942,7 +949,7 @@
           ?"Tell us what you need, then pick a day and available time."
           :"Choose what you need, then pick a day and available time.");
         if(submit){
-          submit.textContent=tt(mode==="quote"?"Send quote request":"Send booking request");
+          submit.textContent=tt(mode==="quote"?"Send quote request":"Request my quote");
         }
         if(addWrap) addWrap.hidden=false;
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
@@ -976,7 +983,6 @@
         syncPropertyDetails();
         renderBusinessTimeZoneNotice();
 
-        // URL syncing is secondary. Never allow an iOS/PWA History API issue
         // to stop the visual mode switch itself.
         if(updateUrl){
           try{
@@ -1212,7 +1218,7 @@
                 p_clean_during_business_hours:propertyType==="commercial"?(cleanDuringBusinessHours||null):null
               });
             }else{
-              await rpc("submit_public_booking_request_v4",{
+              await rpc("submit_public_booking_request_v5",{
                 p_slug:slug,
                 p_service_id:fd.get("service_id"),
                 p_addon_ids:fd.getAll("addon"),

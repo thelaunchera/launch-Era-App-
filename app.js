@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261008-booking-owner-price-review-r68";
+const APP_VERSION = "20261008-booking-quote-calculator-r69";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -7187,7 +7187,7 @@ function renderBookingRequests(){
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
         ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">${escapeHtml(langPick("Open client","Abrir cliente","Ouvrir le client"))}</button>`:""}
         <button class="booking-action" data-check-booking-client="${b.id}">${escapeHtml(b.reviewed_at?langPick("Checked","Revisado","Vérifié"):langPick("Check client","Revisar cliente","Vérifier le client"))}</button>
-        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Confirm price & approve","Confirmar precio y aprobar","Confirmer le prix et approuver"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
+        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-reviewed-quote="${b.id}">${escapeHtml(langPick("Review & send quote","Revisar y enviar quote","Vérifier et envoyer le devis"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
       </div>
     </div>`;
   }).join("");
@@ -10156,33 +10156,35 @@ document.addEventListener("click",async e=>{
     return;
   }
 
-  const approveBooking=e.target.closest("[data-approve-booking]");
-  if(approveBooking){
-    const bookingId=approveBooking.dataset.approveBooking;
-    const row=approveBooking.closest(".booking-request-row");
-    const priceInput=row?.querySelector("[data-booking-final-price]");
-    const raw=String(priceInput?.value??"").trim();
-    const finalPrice=Number(raw);
-    if(!priceInput||!raw||!Number.isFinite(finalPrice)||finalPrice<0||finalPrice>1000000||Math.abs(finalPrice*100-Math.round(finalPrice*100))>0.000001){
-      showToast(langPick("Enter a valid final price before confirming.","Introduce un precio final válido antes de confirmar.","Saisissez un prix final valide avant de confirmer."));
-      priceInput?.focus();
-      return;
+  const reviewedQuoteBtn=e.target.closest("[data-reviewed-quote]");
+  if(reviewedQuoteBtn){
+    const row=reviewedQuoteBtn.closest(".booking-request-row");
+    const finalInput=row?.querySelector("[data-booking-final-price]");
+    const travelInput=row?.querySelector("[data-booking-travel]");
+    const priceRaw=String(finalInput?.value??"").trim(),travelRaw=String(travelInput?.value??"").trim();
+    const finalTotal=Number(priceRaw),travelFee=Number(travelRaw);
+    const validPrice=priceRaw&&Number.isFinite(finalTotal)&&finalTotal>0&&finalTotal<=1000000&&Math.abs(finalTotal*100-Math.round(finalTotal*100))<0.000001;
+    const validTravel=travelRaw&&Number.isFinite(travelFee)&&travelFee>=0&&travelFee<=100000&&Math.abs(travelFee*100-Math.round(travelFee*100))<0.000001;
+    if(!validPrice||!validTravel){
+      showToast(langPick("Review final quote and travel before sending.","Revisa el precio final y el travel antes de enviar.","Vérifiez le prix final et le déplacement."));
+      (!validPrice?finalInput:travelInput)?.focus();return;
     }
-    const name=row?.querySelector(".booking-request-copy>strong")?.textContent||"";
-    const prompt=langPick("Confirm booking for ","Confirmar reserva de ","Confirmer la réservation de ")+name+" · "+money(finalPrice)+"?\n"+
-      langPick("The invoice and confirmation email will use this final price.","La factura y el correo usarán este precio final.","La facture et le courriel utiliseront ce prix final.");
-    if(!confirm(prompt)) return;
-    approveBooking.disabled=true;
-    priceInput.disabled=true;
+    if(!confirm(langPick("Email the reviewed quote for ","Enviar el quote revisado por ","Envoyer le devis révisé pour ")+money(finalTotal)+"?\n"+
+      langPick("The customer must accept it before the booking is confirmed.",
+      "La clienta debe aceptarlo antes de confirmar la cita.",
+      "Le client doit l’accepter avant confirmation.")))return;
+    reviewedQuoteBtn.disabled=true;finalInput.disabled=true;travelInput.disabled=true;
     try{
-      const {error}=await supabase.rpc("approve_booking_request_with_price",{p_request_id:bookingId,p_final_total:finalPrice});
-      if(error) throw error;
-      try{await markBookingReviewed(bookingId);}catch{}
+      const {error}=await supabase.rpc("send_reviewed_booking_quote",{
+        p_request_id:reviewedQuoteBtn.dataset.reviewedQuote,
+        p_final_total:finalTotal,p_travel_fee:travelFee,p_owner_notes:null
+      });
+      if(error)throw error;
       await loadCoreData();
-      showToast(langPick("Booking confirmed · final price saved","Reserva confirmada · precio final guardado","Réservation confirmée · prix enregistré"));
-      trackGoogleEvent("booking_approved",{source:"booking_request"});
-    }catch(err){showToast(err?.message||"Could not confirm booking");}
-    finally{approveBooking.disabled=false;priceInput.disabled=false;}
+      showToast(langPick("Quote emailed for client approval.","Quote enviado para aprobación de la clienta.","Devis envoyé pour acceptation."));
+      trackGoogleEvent("booking_quote_sent",{source:"booking_request"});
+    }catch(err){showToast(err?.message||"Could not send quote");}
+    finally{reviewedQuoteBtn.disabled=false;finalInput.disabled=false;travelInput.disabled=false;}
     return;
   }
 
