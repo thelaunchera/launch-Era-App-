@@ -622,6 +622,8 @@
         const content={
           estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
           note:{en:"This price is an estimate, not a fixed rate. The business will check your home details and send a final quote for you to accept. Your appointment is not confirmed yet.",es:"Este precio es aproximado, no fijo. El negocio revisará los datos de tu casa y te enviará el quote final para que lo aceptes. Tu cita aún no está confirmada.",fr:"Ce prix est estimatif. L’entreprise vérifiera les informations et vous enverra un devis final à accepter. Votre rendez-vous n’est pas encore confirmé.",ht:"Pri sa a se yon estimasyon, li pa fiks. Biznis la ap verifye detay kay ou epi voye pri final la pou ou aksepte. Randevou a poko konfime."},
+          fixed:{en:"Fixed total · instant confirmation",es:"Total fijo · confirmación inmediata",fr:"Total fixe · confirmation immédiate",ht:"Total fiks · konfimasyon touswit"},
+          confirmed:{en:"Your cleaning is confirmed! Check your email for the appointment details.",es:"¡Tu limpieza está confirmada! Revisa tu correo para ver los detalles.",fr:"Votre nettoyage est confirmé ! Vérifiez votre e-mail pour les détails.",ht:"Netwayaj ou konfime! Verifye imel ou pou detay yo."},
           request:{en:"Booking request",es:"Solicitud de reserva",fr:"Demande de réservation",ht:"Demann rezèvasyon"}
         };
         return content[key]?.[code]||content[key]?.en||"";
@@ -795,10 +797,10 @@
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
           (discountPrice.discountRecord?'<div class="public-demo-summary-row discount-row"><span>'+esc(discountUi?.label("discount")||"Discount")+'</span><strong>−'+esc(money(discountPrice.discount))+' · '+esc(discountPrice.discountRecord.name)+'</strong></div>':"")+
-          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>'+ (mode==="book" ? '<p class="booking-estimate-disclaimer">'+esc(bookingEstimateCopy("note"))+'</p>' : '');
+          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Fixed total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>'+ (mode==="book" ? '<p class="booking-estimate-disclaimer">'+esc(bookingEstimateCopy("fixed"))+'</p>' : '');
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
-          :bookingEstimateCopy("note"));
+          :bookingEstimateCopy("fixed"));
       }
 
       function renderAddons(){
@@ -898,9 +900,9 @@
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
         if(intro) intro.textContent=tt(mode==="quote"
           ?"Tell us what you need, then pick a day and available time."
-          :"Choose what you need, then pick a day and available time.");
+          :"Choose your fixed-price service and an available time for instant confirmation.");
         if(submit){
-          submit.textContent=tt(mode==="quote"?"Send quote request":"Request my quote");
+          submit.textContent=tt(mode==="quote"?"Send quote request":"Confirm booking");
         }
         if(addWrap) addWrap.hidden=false;
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
@@ -1207,7 +1209,7 @@
             $("#publicSuccess").hidden=false;
             $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
-              :bookingEstimateCopy("note"));
+              :bookingEstimateCopy("confirmed"));
           }catch(err){
             console.warn("[TLE] public request submit",err); alert(err?.message||tt("Could not send request"));
             submit.disabled=false;
