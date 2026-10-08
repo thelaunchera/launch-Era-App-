@@ -29,6 +29,7 @@ const CORE=[
   "./styles/auth-entry-v2.css?v=20261008-booking-owner-price-review-r68",
   "./estimate-calculator.js?v=20261008-booking-owner-price-review-r68",
   "./greeting-colors.js?v=20261008-booking-owner-price-review-r68",
+  "./booking-price-review.js?v=20261008-booking-owner-price-review-r68",
   "./app.js?v=20261008-booking-owner-price-review-r68",
   "./welcome-packet-owner.js?v=20261008-booking-owner-price-review-r68",
   "./followups.js?v=20261008-booking-owner-price-review-r68",
