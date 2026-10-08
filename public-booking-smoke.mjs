@@ -272,7 +272,7 @@ async function runProfile(profile){
     }
 
     const residentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
-    if(!String(residentialHero||"").includes("10161222")) throw new Error(profile.name+": residential hero is not a no-people home interior");
+    if(!String(residentialHero||"").includes("37184168")) throw new Error(profile.name+": new residential hero was not loaded");
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
     await assertNoOverflow(page,profile,"residential booking");
 
@@ -318,6 +318,39 @@ async function runProfile(profile){
     const quoteCommercialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
     if(quoteCommercialHero!==commercialHero) throw new Error(profile.name+": hero changed when switching Book/Quote instead of staying commercial");
     await assertNoOverflow(page,profile,"commercial quote");
+
+    await page.locator('[data-property-type="special"]').click();
+    await page.waitForFunction(()=>
+      document.querySelector("#publicPropertyType")?.value==="special" &&
+      document.querySelector("#publicQuoteTab")?.classList.contains("active") &&
+      !document.querySelector("#publicSpecialDetails")?.hidden,
+      null,{timeout:3000});
+    if(!await page.locator('[data-property-type="special"]').evaluate(el=>el.classList.contains("selected"))){
+      throw new Error(profile.name+": special request button did not remain selected");
+    }
+    const specialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
+    if(!String(specialHero||"").includes("36777525")){
+      throw new Error(profile.name+": special request hero photo is missing");
+    }
+    await page.locator('[name="special_space_kind"]').selectOption("salon_studio");
+    await page.locator('[name="special_property_size"]').fill("2300");
+    await page.locator('[name="special_space_description"]').fill("Salon mirrors, delicate surfaces, evening access required");
+    const specialPayload=await page.locator("#publicRequestForm").evaluate(form=>{
+      const fd=new FormData(form);
+      return {
+        type:window.TLE_SPECIAL_REQUEST?.backendType(fd),
+        notes:window.TLE_SPECIAL_REQUEST?.note(fd),
+        selected:document.querySelector("#publicPropertyType")?.value
+      };
+    });
+    if(specialPayload.type!=="commercial"||!specialPayload.notes?.includes("2300")||!specialPayload.notes?.includes("Salon mirrors")){
+      throw new Error(profile.name+": special request details were not mapped into the quote "+JSON.stringify(specialPayload));
+    }
+    await page.locator("#publicBookTab").click();
+    if(!await page.locator("#publicQuoteTab").evaluate(el=>el.classList.contains("active"))){
+      throw new Error(profile.name+": special space incorrectly switched to instant booking");
+    }
+    await assertNoOverflow(page,profile,"special space quote");
 
     await page.locator('[data-property-type="residential"]').click();
     const quoteResidentialCards=await page.locator("#publicServiceCards [data-service-card]").allTextContents();
