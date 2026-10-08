@@ -39,6 +39,7 @@ const CORE=[
   "./onboarding-copy.js?v=20261008-booking-quote-workflow-r69",
   "./public-discounts.js?v=20261008-booking-quote-workflow-r69",
   "./public-manage.js?v=20261008-booking-quote-workflow-r69",
+  "./public-estimate.js?v=20261008-booking-quote-workflow-r69",
   "./public.js?v=20261008-booking-quote-workflow-r69",
   "./public-welcome.js?v=20261008-booking-quote-workflow-r69",
   "./dashboard-home-v2.js?v=20261008-booking-quote-workflow-r69",
