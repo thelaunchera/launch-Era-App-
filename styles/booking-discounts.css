@@ -163,3 +163,67 @@
 .entity-form .client-change-toggle>span{display:grid;gap:2px}
 .entity-form .client-change-toggle small{font-size:9px;color:#77736c;font-weight:600}
 .entity-form .client-change-toggle input{width:18px;height:18px;margin:0}
+
+
+/* Booking request: owner review of price before emailing the final quote */
+[data-page="booking"] .booking-request-row{
+  align-items:stretch;
+  gap:14px;
+  border:1px solid rgba(25,25,25,.08);
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(25,25,25,.035);
+}
+[data-page="booking"] .booking-request-copy{min-width:0;flex:1 1 320px}
+[data-page="booking"] .booking-review-panel{
+  display:grid;gap:10px;max-width:560px;width:100%;
+  margin-top:10px;padding:14px;
+  background:#FAF8F3;border:1px solid rgba(25,25,25,.07);
+  border-radius:17px;box-sizing:border-box;
+}
+[data-page="booking"] .booking-price-estimate{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;
+}
+[data-page="booking"] .booking-price-estimate span{font-size:11px!important;font-weight:750;color:#4c535b}
+[data-page="booking"] .booking-price-estimate strong{font-size:17px;color:#191919}
+[data-page="booking"] .booking-price-breakdown{min-width:0}
+[data-page="booking"] .booking-price-breakdown summary{
+  cursor:pointer;color:#191919;font-size:11px;font-weight:800;
+  padding:7px 0;
+}
+[data-page="booking"] .booking-price-breakdown>div{display:grid;gap:6px;padding:8px 0}
+[data-page="booking"] .booking-price-breakdown-row{
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:11px;line-height:1.45;
+}
+[data-page="booking"] .booking-price-breakdown-row span{color:#59606a}
+[data-page="booking"] .booking-price-breakdown-row strong{font-size:11px}
+[data-page="booking"] .booking-review-price-fields{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+}
+[data-page="booking"] .booking-final-price-label{display:grid!important;gap:6px;min-width:0}
+[data-page="booking"] .booking-final-price-label span{
+  font-weight:800;font-size:11px;line-height:1.45;
+}
+[data-page="booking"] .booking-final-price-label input{
+  width:100%;max-width:100%;min-height:42px;
+  box-sizing:border-box;padding:9px 11px;
+  border:1px solid #cdd8e4;border-radius:12px;
+  background:white;font-size:16px;font-weight:750;color:#191919;
+}
+[data-page="booking"] .booking-final-price-label input:focus{
+  outline:2px solid #9cc7e9;outline-offset:1px;
+}
+[data-page="booking"] .booking-price-note{
+  display:block!important;color:#58616b!important;line-height:1.55!important;font-size:10px!important;
+}
+[data-page="booking"] .booking-request-actions{align-self:flex-start}
+[data-page="booking"] [data-send-reviewed-quote]{
+  min-height:40px;padding:9px 15px!important;border-radius:14px!important;
+  background:#191919!important;color:#fff!important;
+}
+@media(max-width:620px){
+  [data-page="booking"] .booking-review-price-fields{grid-template-columns:1fr}
+  [data-page="booking"] .booking-review-panel{padding:12px}
+  [data-page="booking"] .booking-request-actions{width:100%;justify-content:flex-start}
+}
