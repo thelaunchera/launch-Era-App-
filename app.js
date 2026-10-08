@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261007-booking-promo-copy-r67";
+const APP_VERSION = "20261008-booking-owner-price-review-r68";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -5153,12 +5153,12 @@ function serviceGroupCopy(key){
   const lang=appLanguage();
   const copy={
     paidTitle:{en:"Paid services",es:"Servicios con precio",fr:"Services avec prix",ht:"Sèvis ak pri"},
-    paidNote:{en:"Clients can book these instantly at the price you set.",es:"Los clientes pueden reservar estos servicios al instante con el precio que defines.",fr:"Les clients peuvent réserver ces services immédiatement au prix défini.",ht:"Kliyan yo ka rezève sèvis sa yo touswit ak pri ou fikse a."},
+    paidNote:{en:"Clients see an estimate and choose an available time. You edit and confirm the final price before approval.",es:"Los clientes ven un aproximado y eligen un horario. Tú editas y confirmas el precio final antes de aprobar.",fr:"Les clients voient une estimation et choisissent un créneau. Vous vérifiez le prix final avant de confirmer.",ht:"Kliyan yo wè yon estimasyon epi yo chwazi yon lè. Ou konfime pri final la avan ou apwouve."},
     quoteTitle:{en:"Quote services",es:"Servicios con cotización",fr:"Services sur devis",ht:"Sèvis ki bezwen estimasyon"},
     quoteNote:{en:"These collect the details first, then the request goes to Quotes.",es:"Aquí primero se recopilan los detalles y luego la solicitud pasa a Quotes.",fr:"Les détails sont d’abord recueillis, puis la demande passe dans Quotes.",ht:"Sa yo ranmase detay yo anvan, epi demann lan ale nan Quotes."},
     paidEmpty:{en:"No paid services yet.",es:"Todavía no hay servicios con precio.",fr:"Aucun service avec prix pour le moment.",ht:"Pa gen sèvis ak pri ankò."},
     quoteEmpty:{en:"No quote services yet.",es:"Todavía no hay servicios con cotización.",fr:"Aucun service sur devis pour le moment.",ht:"Pa gen sèvis estimasyon ankò."},
-    instant:{en:"Instant booking",es:"Reserva directa",fr:"Réservation directe",ht:"Rezèvasyon dirèk"},
+    instant:{en:"Price estimate · pending approval",es:"Precio aproximado · pendiente",fr:"Estimation · en attente",ht:"Estimasyon · ap tann apwobasyon"},
     quoteRequired:{en:"Quote required",es:"Requiere cotización",fr:"Devis requis",ht:"Estimasyon obligatwa"}
   };
   return copy[key]?.[lang]||copy[key]?.en||"";
@@ -5171,7 +5171,7 @@ function renderBookingServiceGroup(items,type){
   const rows=items.length?items.map(s=>{
     const addons=state.serviceAddons.filter(a=>a.active && (a.service_id===s.id || !a.service_id));
     return `<div class="booking-service-row booking-service-row-${type}">
-      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${paid?money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")}</small></span>
+      <span><strong>${escapeHtml(s.name)}</strong><small>${Math.round(s.default_duration_minutes/60*10)/10} hr · ${paid?langPick("Est. ","Aprox. ","Env. ")+money(s.base_price):langPick("Custom quote","Cotización personalizada","Devis personnalisé")}</small></span>
       <span class="booking-addon-chips">${paid
         ? (addons.map(a=>`<i>+${escapeHtml(a.name)}</i>`).join("")||`<i>${escapeHtml(langPick("No add-ons","Sin add-ons","Aucune option"))}</i>`)
         : `<i class="quote-service-chip">${escapeHtml(serviceGroupCopy("quoteRequired"))}</i>`
@@ -7149,6 +7149,10 @@ function bookingPropertySnapshot(record={}){
   return parts.filter(Boolean).join(" · ");
 }
 
+function renderBookingPricePanel(b){
+  return window.TLE_BOOKING_REVIEW?.(b,money,escapeHtml,langPick)||"";
+}
+
 function renderBookingRequests(){
   const list=$("#bookingRequestsList");
   const pill=$("#bookingRequestCountPill");
@@ -7177,12 +7181,13 @@ function renderBookingRequests(){
         <small>${escapeHtml(b.services?.name||"Cleaning")} · ${formatDateTime(b.requested_start_at)} · ${escapeHtml(bookingRecurrenceLabel(b.recurrence_pattern))} · ${escapeHtml(b.service_address)}</small>
         ${propertySnapshot?`<small class="booking-property-summary">${escapeHtml(propertySnapshot)}</small>`:""}
         ${linkedCopy}
+        ${renderBookingPricePanel(b)}
       </div>
       <div class="record-actions booking-request-actions">
         <span class="status ${b.status==="requested"?"warning":b.status==="converted"?"success":"neutral"}">${escapeHtml(b.status)}</span>
         ${linkedClient?`<button class="booking-action booking-action-client" data-client-info="${linkedClient.id}">${escapeHtml(langPick("Open client","Abrir cliente","Ouvrir le client"))}</button>`:""}
         <button class="booking-action" data-check-booking-client="${b.id}">${escapeHtml(b.reviewed_at?langPick("Checked","Revisado","Vérifié"):langPick("Check client","Revisar cliente","Vérifier le client"))}</button>
-        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Approve booking","Aprobar reserva","Approuver la réservation"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
+        ${b.status==="requested"?`<button class="booking-action booking-action-primary" data-approve-booking="${b.id}">${escapeHtml(langPick("Confirm price & approve","Confirmar precio y aprobar","Confirmer le prix et approuver"))}</button><button class="booking-action danger-link" data-decline-booking="${b.id}">${escapeHtml(langPick("Decline","Rechazar","Refuser"))}</button>`:""}
       </div>
     </div>`;
   }).join("");
@@ -10153,15 +10158,31 @@ document.addEventListener("click",async e=>{
 
   const approveBooking=e.target.closest("[data-approve-booking]");
   if(approveBooking){
-    approveBooking.disabled=true;
-    const {error}=await supabase.rpc("approve_booking_request",{p_request_id:approveBooking.dataset.approveBooking});
-    approveBooking.disabled=false;
-    if(error) showToast(error.message); else {
-      try{await markBookingReviewed(approveBooking.dataset.approveBooking);}catch{}
-      await loadCoreData();
-      showToast("Booking approved · client, job and invoice created");
-      trackGoogleEvent("booking_approved",{source:"booking_request"});
+    const bookingId=approveBooking.dataset.approveBooking;
+    const row=approveBooking.closest(".booking-request-row");
+    const priceInput=row?.querySelector("[data-booking-final-price]");
+    const raw=String(priceInput?.value??"").trim();
+    const finalPrice=Number(raw);
+    if(!priceInput||!raw||!Number.isFinite(finalPrice)||finalPrice<0||finalPrice>1000000||Math.abs(finalPrice*100-Math.round(finalPrice*100))>0.000001){
+      showToast(langPick("Enter a valid final price before confirming.","Introduce un precio final válido antes de confirmar.","Saisissez un prix final valide avant de confirmer."));
+      priceInput?.focus();
+      return;
     }
+    const name=row?.querySelector(".booking-request-copy>strong")?.textContent||"";
+    const prompt=langPick("Confirm booking for ","Confirmar reserva de ","Confirmer la réservation de ")+name+" · "+money(finalPrice)+"?\n"+
+      langPick("The invoice and confirmation email will use this final price.","La factura y el correo usarán este precio final.","La facture et le courriel utiliseront ce prix final.");
+    if(!confirm(prompt)) return;
+    approveBooking.disabled=true;
+    priceInput.disabled=true;
+    try{
+      const {error}=await supabase.rpc("approve_booking_request_with_price",{p_request_id:bookingId,p_final_total:finalPrice});
+      if(error) throw error;
+      try{await markBookingReviewed(bookingId);}catch{}
+      await loadCoreData();
+      showToast(langPick("Booking confirmed · final price saved","Reserva confirmada · precio final guardado","Réservation confirmée · prix enregistré"));
+      trackGoogleEvent("booking_approved",{source:"booking_request"});
+    }catch(err){showToast(err?.message||"Could not confirm booking");}
+    finally{approveBooking.disabled=false;priceInput.disabled=false;}
     return;
   }
 

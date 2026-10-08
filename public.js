@@ -666,6 +666,16 @@
         return "both";
       }
 
+      function bookingEstimateCopy(key){
+        const l=String(publicLocale||"en").toLowerCase();
+        const code=l.startsWith("es")?"es":l.startsWith("fr")?"fr":l.startsWith("ht")?"ht":"en";
+        const content={
+          estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
+          note:{en:"This is an estimate, not a fixed price. The cleaning business will review your details and confirm the final price and appointment.",es:"Este precio es aproximado, no definitivo. El negocio revisará los detalles y confirmará el precio final y la cita.",fr:"Ce prix est estimatif, non définitif. L’entreprise vérifiera les détails et confirmera le prix final et le rendez-vous.",ht:"Pri sa a se yon estimasyon, li pa pri final la. Biznis netwayaj la ap verifye detay yo epi konfime pri final la ak randevou a."},
+          request:{en:"Booking request",es:"Solicitud de reserva",fr:"Demande de réservation",ht:"Demann rezèvasyon"}
+        };
+        return content[key]?.[code]||content[key]?.en||"";
+      }
       function servicesForRequest(nextMode){
         const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
         const property=activePropertyType();
@@ -688,7 +698,7 @@
           const selected=select?.value===service.id;
           const price=mode==="quote"
             ? tt("Custom quote")
-            : service.base_price!=null?money(service.base_price):"";
+            : service.base_price!=null?bookingEstimateCopy("estimated")+" · "+money(service.base_price):"";
           return '<button type="button" class="public-demo-service-card'+(selected?" selected":"")+'" data-service-card="'+esc(service.id)+'">'+
             '<span class="public-demo-service-check">✓</span>'+
             '<strong>'+esc(service.name)+'</strong>'+
@@ -817,7 +827,7 @@
           : [tt("Residential"),bedrooms?bedrooms+" "+tt("bedrooms"):"",bathrooms?bathrooms+" "+tt("bathrooms"):""].filter(Boolean).join(" · ");
         const extrasLabel=chosen.length?chosen.map(x=>x.name).join(", "):tt("None");
         summary.innerHTML=
-          '<div class="public-demo-summary-top"><div><small>'+esc(tt(mode==="quote"?"Your quote request":"Your booking"))+'</small><h3>'+esc(tt(selected?"Almost done.":"Start your request."))+'</h3></div><span>'+esc(tt(mode==="quote"?"QUOTE":"BOOKING"))+'</span></div>'+
+          '<div class="public-demo-summary-top"><div><small>'+esc(tt(mode==="quote"?"Your quote request":bookingEstimateCopy("request")))+'</small><h3>'+esc(tt(selected?"Almost done.":"Start your request."))+'</h3></div><span>'+esc(tt(mode==="quote"?"QUOTE":"BOOKING"))+'</span></div>'+
           '<div class="public-demo-summary-photo"><img src="'+esc(photos.summary)+'" alt="'+esc(photos.summaryAlt)+'"></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Service"))+'</span><strong>'+esc(selected?.name||tt("Choose a service"))+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Property"))+'</span><strong>'+esc(homeLabel||tt(property==="commercial"?"Commercial":"Residential"))+'</strong></div>'+
@@ -826,10 +836,10 @@
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
           (discountPrice.discountRecord?'<div class="public-demo-summary-row discount-row"><span>'+esc(discountUi?.label("discount")||"Discount")+'</span><strong>−'+esc(money(discountPrice.discount))+' · '+esc(discountPrice.discountRecord.name)+'</strong></div>':"")+
-          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>';
+          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>'+ (mode==="book" ? '<p class="booking-estimate-disclaimer">'+esc(bookingEstimateCopy("note"))+'</p>' : '');
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
-          :"No payment is collected here. The business will review and confirm your request.");
+          :bookingEstimateCopy("note"));
       }
 
       function renderAddons(){
@@ -845,7 +855,7 @@
           '<label class="addon-choice">'+
           '<input type="checkbox" name="addon" value="'+esc(a.id)+'">'+
           '<span><strong>'+esc(a.name)+'</strong><small>'+
-          (mode==="quote"?esc(tt("Include in quote")):'+'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min')+
+          (mode==="quote"?esc(tt("Include in quote")):esc(bookingEstimateCopy("estimated"))+' +'+money(a.price)+' · +'+esc(a.extra_duration_minutes)+' min')+
           '</small></span>'+
           '</label>'
         ).join(""):'<span class="muted-line">'+esc(tt("No add-ons for this service."))+'</span>';
@@ -945,7 +955,7 @@
           select.innerHTML=services.length
             ? '<option value="">'+esc(tt(mode==="quote"?"Choose a custom job type":"Choose a service"))+'</option>'+services.map(s=>
                 '<option value="'+esc(s.id)+'">'+esc(s.name)+
-                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+money(s.base_price):"")+
+                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+esc(bookingEstimateCopy("estimated"))+" "+money(s.base_price):"")+
                 '</option>'
               ).join("")
             : '<option value="">'+esc(tt(mode==="quote"
@@ -1239,7 +1249,7 @@
             $("#publicSuccess").hidden=false;
             $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
-              :"Your booking request was sent. The business will review it and confirm the appointment.");
+              :bookingEstimateCopy("note"));
           }catch(err){
             console.warn("[TLE] public request submit",err); alert(err?.message||tt("Could not send request"));
             submit.disabled=false;
