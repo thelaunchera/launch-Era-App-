@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261008-instant-flat-booking-r71";
+const APP_VERSION = "20261008-app-only-inquiries-r72";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4696,7 +4696,7 @@ function renderInquiryNotifications(){
     <button class="notification-item is-new platform-message-notification" type="button" data-platform-message-center>
       <span class="notification-dot" aria-hidden="true"></span>
       <span class="notification-copy">
-        <strong>${escapeHtml(langPick("The Launch Era inquiries","Consultas de The Launch Era","Demandes The Launch Era"))}</strong>
+        <strong>${escapeHtml(langPick("Cleaning App messages","Mensajes de Cleaning App","Messages de Cleaning App"))}</strong>
         <small>${escapeHtml(langPick(
           platformUnread+" unread message"+(platformUnread===1?"":"s"),
           platformUnread+" mensaje"+(platformUnread===1?"":"s")+" sin leer",
@@ -7750,7 +7750,7 @@ async function loadPlatformAdmin(){
   if(inbox){
     const rows=Array.isArray(inboxData?.messages)?inboxData.messages:[];
     inbox.innerHTML=rows.length?rows.slice(0,60).map(v=>{
-      const sourceLabel=v.category||"Inquiry";
+      const sourceLabel=v.category||"Cleaning App message";
       const contact=[v.email,v.phone].filter(Boolean).join(" · ");
       const extra=[v.details,v.preferred_contact?"Prefers "+v.preferred_contact:""].filter(Boolean).join(" · ");
       return `
@@ -7777,7 +7777,7 @@ async function loadPlatformAdmin(){
             </div>
           </div>
         </details>`;
-    }).join(""):`<div class="empty-inline"><strong>No messages yet.</strong><span>Website inquiries and Cleaning App messages will appear here.</span></div>`;
+    }).join(""):`<div class="empty-inline"><strong>No messages yet.</strong><span>Only messages submitted from the Cleaning App appear here. Website inquiries go to Lead Command Center.</span></div>`;
   }
 
   const table=$("#platformCustomersTable");
