@@ -538,6 +538,7 @@
       const timeZoneNotice=$("#publicTimeZoneNotice");
       const serviceCards=$("#publicServiceCards");
       const cleaningTypeSwitch=$("#publicCleaningTypeSwitch");
+      window.TLE_SPECIAL_REQUEST?.init();
       const frequencyPills=$("#publicFrequencyPills");
       const recurrenceSelect=$("#publicRecurrencePattern");
       const heroPhoto=$("#publicHeroPhoto");
@@ -575,66 +576,15 @@
         propertySizeUnit.value=["US","CA","GB"].includes(businessCountry)?"sqft":"sqm";
       }
 
-      const demoPhotos={
-        "book-residential":{
-          hero:"https://images.pexels.com/photos/36729566/pexels-photo-36729566.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          summary:"https://images.pexels.com/photos/9462224/pexels-photo-9462224.jpeg?auto=compress&cs=tinysrgb&w=900",
-          support:"https://images.pexels.com/photos/19889139/pexels-photo-19889139.jpeg?auto=compress&cs=tinysrgb&w=1200",
-          heroAlt:"Professional cleaner in a bright residential home",
-          summaryAlt:"Professional cleaner working in a residential kitchen",
-          supportAlt:"Bright clean residential living room"
-        },
-        "book-commercial":{
-          hero:"https://images.pexels.com/photos/33357392/pexels-photo-33357392.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          summary:"https://images.pexels.com/photos/36303748/pexels-photo-36303748.jpeg?auto=compress&cs=tinysrgb&w=900",
-          support:"https://images.pexels.com/photos/10567236/pexels-photo-10567236.jpeg?auto=compress&cs=tinysrgb&w=1200",
-          heroAlt:"Professional cleaners at a modern commercial building",
-          summaryAlt:"Commercial cleaning cart in a business hallway",
-          supportAlt:"Modern commercial workspace"
-        },
-        "quote-residential":{
-          hero:"https://images.pexels.com/photos/6196692/pexels-photo-6196692.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          summary:"https://images.pexels.com/photos/4239128/pexels-photo-4239128.jpeg?auto=compress&cs=tinysrgb&w=900",
-          support:"https://images.pexels.com/photos/5591909/pexels-photo-5591909.jpeg?auto=compress&cs=tinysrgb&w=1200",
-          heroAlt:"Professional cleaners preparing a residential cleaning",
-          summaryAlt:"Residential cleaner washing a bathroom fixture",
-          supportAlt:"Cleaner wiping a residential kitchen counter"
-        },
-        "quote-commercial":{
-          hero:"https://images.pexels.com/photos/8811390/pexels-photo-8811390.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          summary:"https://images.pexels.com/photos/34516664/pexels-photo-34516664.jpeg?auto=compress&cs=tinysrgb&w=900",
-          support:"https://images.pexels.com/photos/18134199/pexels-photo-18134199.jpeg?auto=compress&cs=tinysrgb&w=1200",
-          heroAlt:"Professional cleaner washing a commercial storefront window",
-          summaryAlt:"Professional janitorial supplies for a commercial space",
-          supportAlt:"Professional cleaners at a modern office building"
-        }
-      };
-
+      const demoPhotos=window.TLE_BOOKING_MEDIA.demoPhotos;
       function activePropertyType(){
-        return String(propertyTypeSelect?.value||"residential").toLowerCase()==="commercial"?"commercial":"residential";
+        const type=String(propertyTypeSelect?.value||"residential").toLowerCase();
+        return type==="commercial"||type==="special"?type:"residential";
       }
 
-      const bookingPropertyPhotos={
-        residential:{
-          hero:"https://images.pexels.com/photos/10161222/pexels-photo-10161222.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          heroAlt:"Bright modern residential living room with no people",
-          summary:"https://images.pexels.com/photos/15242038/pexels-photo-15242038.jpeg?auto=compress&cs=tinysrgb&w=900",
-          summaryAlt:"Modern residential living room interior"
-        },
-        commercial:{
-          hero:"https://images.pexels.com/photos/7534224/pexels-photo-7534224.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          heroAlt:"Modern commercial office interior with no people",
-          summary:"https://images.pexels.com/photos/6794918/pexels-photo-6794918.jpeg?auto=compress&cs=tinysrgb&w=900",
-          summaryAlt:"Bright modern commercial office interior"
-        },
-        confirmation:{
-          hero:"https://images.pexels.com/photos/7746083/pexels-photo-7746083.jpeg?auto=compress&cs=tinysrgb&w=1400",
-          heroAlt:"Neutral clean modern hallway with no people"
-        }
-      };
-
+      const bookingPropertyPhotos=window.TLE_BOOKING_MEDIA.bookingPropertyPhotos;
       function activeDemoPhotos(){
-        return demoPhotos[(mode==="quote"?"quote":"book")+"-"+activePropertyType()]||demoPhotos["book-residential"];
+        return demoPhotos[(mode==="quote"?"quote":"book")+"-"+(activePropertyType()==="special"?"residential":activePropertyType())]||demoPhotos["book-residential"];
       }
 
       function activePropertyPhotos(){
@@ -677,11 +627,11 @@
         return content[key]?.[code]||content[key]?.en||"";
       }
       function servicesForRequest(nextMode){
-        const pool=nextMode==="quote"?quoteOnlyServices:fixedPriceServices;
+        const pool=nextMode==="quote"?(activePropertyType()==="special"&&!quoteOnlyServices.length?allServices:quoteOnlyServices):fixedPriceServices;
         const property=activePropertyType();
         const scoped=pool.filter(service=>{
           const scope=serviceScope(service);
-          return scope==="both"||scope===property;
+          return property==="special"||scope==="both"||scope===property;
         });
         return scoped.length?scoped:pool;
       }
@@ -714,10 +664,10 @@
           btn.classList.toggle("selected",btn.dataset.propertyType===property);
         });
         updateDemoPhotos();
-        if(supportTitle) supportTitle.textContent=tt(property==="commercial"
+        if(supportTitle) supportTitle.textContent=tt(property==="special"?"Tell us about your unique cleaning project.":property==="commercial"
           ?"Tell us about the space. We’ll prepare the right cleaning."
           :"Tell us about your home. We’ll take it from here.");
-        if(supportCopy) supportCopy.textContent=tt(property==="commercial"
+        if(supportCopy) supportCopy.textContent=tt(property==="special"?"Tell us what kind of space it is. We’ll send a custom quote for you to accept.":property==="commercial"
           ?"Choose the service, space details, date, and contact information so the business can prepare the commercial job correctly."
           :"Choose the service, home details, date, and contact information so the business can prepare the job correctly.");
       }
@@ -749,6 +699,7 @@
         const type=activePropertyType();
         if(residentialDetails) residentialDetails.hidden=type!=="residential";
         if(commercialDetails) commercialDetails.hidden=type!=="commercial";
+        window.TLE_SPECIAL_REQUEST?.setVisible(type==="special");
 
         const bedrooms=form?.querySelector('[name="bedrooms"]');
         const bathrooms=form?.querySelector('[name="bathrooms"]');
@@ -776,7 +727,7 @@
       propertyTypeSelect?.addEventListener("change",()=>{
         addonBox?.querySelectorAll('input[name="addon"]:checked').forEach(input=>{ input.checked=false; });
         syncPropertyDetails();
-        const forceQuote=activePropertyType()==="commercial" && mode==="book";
+        const forceQuote=activePropertyType()!=="residential" && mode==="book";
         renderMode(forceQuote?"quote":mode,{updateUrl:forceQuote});
       });
       frequencyPills?.addEventListener("click",e=>{
@@ -928,7 +879,7 @@
 
       function renderMode(nextMode,{updateUrl=true}={}){
         if(nextMode!=="book" && nextMode!=="quote") return;
-        if(nextMode==="book" && activePropertyType()==="commercial") nextMode="quote";
+        if(nextMode==="book" && activePropertyType()!=="residential") nextMode="quote";
         mode=nextMode;
         services=servicesForRequest(mode);
 
@@ -1088,9 +1039,9 @@
           const fd=new FormData(form);
           const preferred=fd.get("preferred_contact");
           const phone=String(fd.get("phone")||"").trim();
-          const propertyType=String(fd.get("property_type")||"").trim().toLowerCase();
-          const propertySize=String(fd.get("property_size")||"").trim();
-          const propertySizeUnit=String(fd.get("property_size_unit")||"").trim()==="sqm"?"m²":"sq ft";
+          const propertyType=window.TLE_SPECIAL_REQUEST?.backendType(fd)||String(fd.get("property_type")||"").trim().toLowerCase();
+          const propertySize=String(fd.get("special_property_size")||fd.get("property_size")||"").trim();
+          const propertySizeUnit=String(fd.get("special_property_size_unit")||fd.get("property_size_unit")||"").trim()==="sqm"?"m²":"sq ft";
           const bedrooms=String(fd.get("bedrooms")||"").trim();
           const bathrooms=String(fd.get("bathrooms")||"").trim();
           const floors=String(fd.get(propertyType==="commercial"?"commercial_floors":"floors")||"").trim();
@@ -1164,6 +1115,7 @@
 
           const requestNotes=[
             "Property type: "+(propertyType==="commercial"?"Commercial":"Residential"),
+            window.TLE_SPECIAL_REQUEST?.note(fd)||"",
             propertySize ? "Approx. size: "+propertySize+" "+propertySizeUnit : "",
             propertyType==="residential" ? "Bedrooms: "+bedrooms : "",
             propertyType==="residential" ? "Bathrooms: "+bathrooms : "",
@@ -1203,7 +1155,7 @@
                 p_language:String(fd.get("preferred_language")||data?.business?.customer_email_language||"en").toLowerCase(),
                 p_property_type:propertyType,
                 p_property_size:propertySize?Number(propertySize):null,
-                p_property_size_unit:String(fd.get("property_size_unit")||"sqft"),
+                p_property_size_unit:String(fd.get("special_property_size_unit")||fd.get("property_size_unit")||"sqft"),
                 p_bedrooms:propertyType==="residential"&&bedrooms!==""?Number(bedrooms):null,
                 p_bathrooms:propertyType==="residential"&&bathrooms!==""?Number(bathrooms):null,
                 p_floors:floors!==""?Number(floors):null,
