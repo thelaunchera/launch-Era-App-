@@ -37,7 +37,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Your cleaning business shouldn’t live in DMs, notes and memory.":"Tu negocio de limpieza no debería vivir en mensajes, notas y tu memoria.",
     "Keep clients, quotes, bookings, jobs and invoices in one organized place.":"Mantén clientes, cotizaciones, reservas, trabajos y facturas en un solo lugar organizado.",
     "Simple setup":"Configuración sencilla","No card required":"No se requiere tarjeta","Get 30 days free":"Obtén 30 días gratis",
-    "Already have an account?":"¿Ya tienes una cuenta?","No card required · Then $5.99/month":"Sin tarjeta · Luego $5.99/mes",
+    "Already have an account?":"¿Ya tienes una cuenta?","No card required · Then $3.99/month":"Sin tarjeta · Luego $3.99/mes",
     "← Back":"← Atrás","Your workspace is ready. Check the calendar and what’s next.":"Tu espacio está listo. Revisa el calendario y lo que sigue.",
     "View calendar →":"Ver calendario →","Remember username":"Recordar usuario","Hide password":"Ocultar contraseña","Show password":"Mostrar contraseña",
     "Check the required fields and try again.":"Revisa los campos obligatorios e inténtalo de nuevo.",
@@ -118,7 +118,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "CLEANING WEB APP":"CLEANING WEB APP","Your cleaning business shouldn’t live in DMs, notes and memory.":"Votre entreprise de nettoyage ne devrait pas vivre dans des messages, notes et votre mémoire.",
     "Keep clients, quotes, bookings, jobs and invoices in one organized place.":"Gardez clients, devis, réservations, travaux et factures dans un seul espace organisé.",
     "Simple setup":"Configuration simple","No card required":"Aucune carte requise","Get 30 days free":"Obtenez 30 jours gratuits",
-    "Already have an account?":"Vous avez déjà un compte ?","No card required · Then $5.99/month":"Aucune carte requise · Puis 5,99 $/mois",
+    "Already have an account?":"Vous avez déjà un compte ?","No card required · Then $3.99/month":"Aucune carte requise · Puis 3,99 $/mois",
     "← Back":"← Retour","Your workspace is ready. Check the calendar and what’s next.":"Votre espace est prêt. Consultez le calendrier et la suite.",
     "View calendar →":"Voir le calendrier →","Remember username":"Mémoriser l’utilisateur","Hide password":"Masquer le mot de passe","Show password":"Afficher le mot de passe",
     "Check the required fields and try again.":"Vérifiez les champs obligatoires et réessayez.","We couldn’t create your workspace. Try again.":"Nous n’avons pas pu créer votre espace. Réessayez.",
@@ -194,7 +194,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "CLEANING WEB APP":"CLEANING WEB APP","Your cleaning business shouldn’t live in DMs, notes and memory.":"Biznis netwayaj ou pa ta dwe rete nan mesaj, nòt ak memwa.",
     "Keep clients, quotes, bookings, jobs and invoices in one organized place.":"Kenbe kliyan, devis, rezèvasyon, travay ak fakti nan yon sèl kote òganize.",
     "Simple setup":"Konfigirasyon senp","No card required":"Pa bezwen kat","Get 30 days free":"Jwenn 30 jou gratis",
-    "Already have an account?":"Ou deja gen yon kont?","No card required · Then $5.99/month":"Pa bezwen kat · Apre sa $5.99/mwa",
+    "Already have an account?":"Ou deja gen yon kont?","No card required · Then $3.99/month":"Pa bezwen kat · Apre sa $3.99/mwa",
     "← Back":"← Retounen","Your workspace is ready. Check the calendar and what’s next.":"Espas travay ou pare. Tcheke kalandriye a ak sa k ap vini.",
     "View calendar →":"Gade kalandriye →","Remember username":"Sonje non itilizatè","Hide password":"Kache modpas","Show password":"Montre modpas",
     "Check the required fields and try again.":"Tcheke chan obligatwa yo epi eseye ankò.","We couldn’t create your workspace. Try again.":"Nou pa t ka kreye espas travay ou. Eseye ankò.",
@@ -323,7 +323,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "One time":"Una vez","Every week":"Cada semana","Every 2 weeks":"Cada 2 semanas","Monthly":"Mensual","Flexible":"Flexible",
     "Cash · Check · Zelle · Other":"Efectivo · Cheque · Zelle · Otro","Other payment method":"Otro método de pago",
     "Customers":"Clientes","Schedule":"Agenda","Booking":"Reservas","Money":"Dinero","More":"Más","Owner View":"Vista del dueño",
-    "30 days left":"Quedan 30 días","$5.99/month after your trial":"$5.99/mes después de la prueba",
+    "30 days left":"Quedan 30 días","$3.99/month after your trial":"$3.99/mes después de la prueba",
     "Full access during the trial. No card required to start.":"Acceso completo durante la prueba. No se requiere tarjeta para empezar.",
     "Language":"Idioma","Search":"Buscar","Search your workspace":"Buscar en tu espacio","Find anything fast.":"Encuentra todo rápido.",
     "Search clients, jobs, quotes and invoices.":"Busca clientes, trabajos, cotizaciones y facturas.","Inquiries":"Consultas","INQUIRIES":"CONSULTAS",
@@ -390,7 +390,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Choose one option, then submit it to the business.":"Choisissez une option, puis envoyez-la à l’entreprise.",
     "The cleaning business received your request and will follow up with you.":"L’entreprise de nettoyage a reçu votre demande et vous contactera.",
     "Loading…":"Chargement…","Customers":"Clients","Follow-ups":"Suivis","Schedule":"Planning","Booking":"Réservations","Money":"Finances","More":"Plus",
-    "Owner View":"Vue propriétaire","30 days left":"30 jours restants","$5.99/month after your trial":"5,99 $/mois après votre essai",
+    "Owner View":"Vue propriétaire","30 days left":"30 jours restants","$3.99/month after your trial":"3,99 $/mois après votre essai",
     "Full access during the trial. No card required to start.":"Accès complet pendant l’essai. Aucune carte requise pour commencer.",
     "Language":"Langue","Search":"Rechercher","Search your workspace":"Rechercher dans votre espace","Find anything fast.":"Trouvez rapidement ce dont vous avez besoin.",
     "Search clients, jobs, quotes and invoices.":"Recherchez des clients, travaux, devis et factures.","Inquiries":"Demandes","INQUIRIES":"DEMANDES",
@@ -459,7 +459,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Choose one option, then submit it to the business.":"Chwazi yon opsyon epi voye li bay biznis la.",
     "The cleaning business received your request and will follow up with you.":"Biznis netwayaj la resevwa demann ou epi l ap kontakte ou.",
     "Loading…":"N ap chaje…","Customers":"Kliyan","Follow-ups":"Swivi","Schedule":"Orè","Booking":"Rezèvasyon","Money":"Lajan","More":"Plis",
-    "Owner View":"Vizyalizasyon pwopriyetè","30 days left":"30 jou rete","$5.99/month after your trial":"$5.99/mwa apre esè ou",
+    "Owner View":"Vizyalizasyon pwopriyetè","30 days left":"30 jou rete","$3.99/month after your trial":"$3.99/mwa apre esè ou",
     "Full access during the trial. No card required to start.":"Aksè konplè pandan esè a. Pa bezwen kat pou kòmanse.",
     "Language":"Lang","Search":"Chèche","Search your workspace":"Chèche nan espas travay ou","Find anything fast.":"Jwenn nenpòt bagay vit.",
     "Search clients, jobs, quotes and invoices.":"Chèche kliyan, travay, devis ak fakti.","Inquiries":"Demann","INQUIRIES":"DEMANN",
@@ -777,7 +777,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   "No card required": "No necesitas tarjeta",
   "Get 30 days free": "Obtén 30 días gratis",
   "Already have an account?": "¿Ya tienes una cuenta?",
-  "No card required · Then $5.99/month": "Sin tarjeta · Luego $5.99/mes",
+  "No card required · Then $3.99/month": "Sin tarjeta · Luego $3.99/mes",
   "← Back": "← Atrás",
   "Your workspace is ready. Check the calendar and what’s next.": "Tu espacio está listo. Revisa el calendario y lo que sigue.",
   "View calendar →": "Ver calendario →",
@@ -1004,7 +1004,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   "No card required": "Aucune carte requise",
   "Get 30 days free": "Obtenez 30 jours gratuits",
   "Already have an account?": "Vous avez déjà un compte ?",
-  "No card required · Then $5.99/month": "Aucune carte requise · Puis 5,99 $/mois",
+  "No card required · Then $3.99/month": "Aucune carte requise · Puis 3,99 $/mois",
   "← Back": "← Retour",
   "Your workspace is ready. Check the calendar and what’s next.": "Votre espace est prêt. Consultez le calendrier et la suite.",
   "View calendar →": "Voir le calendrier →",
@@ -1237,7 +1237,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   "No card required": "Pa bezwen kat",
   "Get 30 days free": "Jwenn 30 jou gratis",
   "Already have an account?": "Ou deja gen yon kont?",
-  "No card required · Then $5.99/month": "Pa bezwen kat · Apre sa $5.99/mwa",
+  "No card required · Then $3.99/month": "Pa bezwen kat · Apre sa $3.99/mwa",
   "← Back": "← Retounen",
   "Your workspace is ready. Check the calendar and what’s next.": "Espas travay ou pare. Tcheke kalandriye a ak sa k ap vini.",
   "View calendar →": "Gade kalandriye →",
@@ -1496,15 +1496,15 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
 
   Object.assign(staticCorrections.es,{
     "Sent":"Enviada","Draft":"Borrador","Outstanding":"Pendiente","outstanding":"pendiente",
-    "Tap":"Toca","Add":"Añadir","or":"o","30 days":"30 días","$5.99/month":"$5.99/mes"
+    "Tap":"Toca","Add":"Añadir","or":"o","30 days":"30 días","$3.99/month":"$3.99/mes"
   });
   Object.assign(staticCorrections.fr,{
     "Sent":"Envoyé","Draft":"Brouillon","Outstanding":"Impayé","outstanding":"impayé",
-    "Tap":"Touchez","Add":"Ajouter","or":"ou","30 days":"30 jours","$5.99/month":"5,99 $/mois"
+    "Tap":"Touchez","Add":"Ajouter","or":"ou","30 days":"30 jours","$3.99/month":"3,99 $/mois"
   });
   Object.assign(staticCorrections.ht,{
     "Sent":"Voye","Draft":"Bouyon","Outstanding":"Poko peye","outstanding":"poko peye",
-    "Tap":"Peze","Add":"Ajoute","or":"oswa","30 days":"30 jou","$5.99/month":"$5.99/mwa",
+    "Tap":"Peze","Add":"Ajoute","or":"oswa","30 days":"30 jou","$3.99/month":"$3.99/mwa",
     "The error is still happening. Support has been alerted. Check the fields and try again.":"Erè a toujou ap rive. Tcheke chan yo epi eseye ankò."
   });
 
@@ -1532,7 +1532,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   Object.assign(staticCorrections.es,{
   "FIRST TIME TIP": "CONSEJO INICIAL",
   "Your business data stays saved.": "Los datos de tu negocio permanecen guardados.",
-  "Continue for $5.99/month": "Continuar por $5.99/mes",
+  "Continue for $3.99/month": "Continuar por $3.99/mes",
   "Owner action required.": "Se requiere una acción del dueño.",
   "Business data is kept for 3 months while the subscription is paused.": "Los datos del negocio se conservan durante 3 meses mientras la suscripción está pausada.",
   "Coworker": "Colaborador",
@@ -1636,7 +1636,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   Object.assign(staticCorrections.fr,{
   "FIRST TIME TIP": "CONSEIL DE DÉPART",
   "Your business data stays saved.": "Les données de votre entreprise restent enregistrées.",
-  "Continue for $5.99/month": "Continuer pour 5,99 $/mois",
+  "Continue for $3.99/month": "Continuer pour 3,99 $/mois",
   "Owner action required.": "Action du propriétaire requise.",
   "Business data is kept for 3 months while the subscription is paused.": "Les données de l’entreprise sont conservées pendant 3 mois lorsque l’abonnement est en pause.",
   "Coworker": "Collaborateur",
@@ -1740,7 +1740,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
   Object.assign(staticCorrections.ht,{
   "FIRST TIME TIP": "PREMYE KONSÈY",
   "Your business data stays saved.": "Done biznis ou rete anrejistre.",
-  "Continue for $5.99/month": "Kontinye pou $5.99/mwa",
+  "Continue for $3.99/month": "Kontinye pou $3.99/mwa",
   "Owner action required.": "Aksyon pwopriyetè obligatwa.",
   "Business data is kept for 3 months while the subscription is paused.": "Done biznis la konsève pandan 3 mwa lè abònman an an poz.",
   "Coworker": "Kolaboratè",
@@ -2078,7 +2078,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Welcome back":"Bienvenido de nuevo",
     "Sign in to manage your cleaning business.":"Inicia sesión para administrar tu negocio de limpieza.",
     "Don’t have an account? Sign up":"¿No tienes una cuenta? Crear cuenta",
-    "No card required · 30 days free · Then $5.99/month":"Sin tarjeta · 30 días gratis · Después $5.99/mes",
+    "No card required · 30 days free · Then $3.99/month":"Sin tarjeta · 30 días gratis · Después $3.99/mes",
     "Get bookings":"Recibe reservas",
     "Manage clients":"Administra clientes",
     "Track jobs":"Controla trabajos",
@@ -2094,7 +2094,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Welcome back":"Bon retour",
     "Sign in to manage your cleaning business.":"Connectez-vous pour gérer votre entreprise de nettoyage.",
     "Don’t have an account? Sign up":"Pas encore de compte ? Créer un compte",
-    "No card required · 30 days free · Then $5.99/month":"Aucune carte requise · 30 jours gratuits · Puis 5,99 $/mois",
+    "No card required · 30 days free · Then $3.99/month":"Aucune carte requise · 30 jours gratuits · Puis 3,99 $/mois",
     "Get bookings":"Recevoir des réservations",
     "Manage clients":"Gérer les clients",
     "Track jobs":"Suivre les interventions",
@@ -2110,7 +2110,7 @@ window.TLE_APPLY_I18N_COMPLETION=function(context){
     "Welcome back":"Byenvini ankò",
     "Sign in to manage your cleaning business.":"Konekte pou jere biznis netwayaj ou.",
     "Don’t have an account? Sign up":"Ou poko gen kont? Kreye kont",
-    "No card required · 30 days free · Then $5.99/month":"Pa bezwen kat · 30 jou gratis · Apre sa $5.99/mwa",
+    "No card required · 30 days free · Then $3.99/month":"Pa bezwen kat · 30 jou gratis · Apre sa $3.99/mwa",
     "Get bookings":"Resevwa rezèvasyon",
     "Manage clients":"Jere kliyan",
     "Track jobs":"Swiv travay",
