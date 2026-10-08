@@ -1206,6 +1206,8 @@
             form.hidden=true;
             const confirmationPhoto=bookingPropertyPhotos.confirmation;
             if(heroPhoto){ heroPhoto.src=confirmationPhoto.hero; heroPhoto.alt=confirmationPhoto.heroAlt; }
+            const confirmationHeading=$("#publicSuccess h2");
+            if(confirmationHeading) confirmationHeading.textContent=tt(mode==="book"?"Booking confirmed!":"Request received");
             $("#publicSuccess").hidden=false;
             $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
