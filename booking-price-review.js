@@ -1,32 +1,58 @@
-/* Booking estimate review UI isolated from main bundle. */
+/* Owner-facing review of the booking estimate, travel and final quote. */
 (()=>{
-window.TLE_BOOKING_REVIEW=function(b,money,escapeHtml,langPick){
-  const snap=b.price_snapshot||{};
-  const service=snap.service||{};
-  const addons=Array.isArray(snap.addons)?snap.addons:[];
-  const discount=b.discount_snapshot||{};
-  const raw=b.status==="requested" ? (b.quoted_total??snap.total) : (snap.owner_review?.estimated_total??snap.total??b.quoted_total);
-  const estimated=raw===null||raw===undefined||raw===""?null:Number(raw);
-  const valid=estimated!==null&&Number.isFinite(estimated)&&estimated>=0;
-  const finalRaw=snap.owner_review?.final_total??b.quoted_total??snap.total;
-  const finalPrice=finalRaw===null||finalRaw===undefined?null:Number(finalRaw);
-  const rows=[];
-  const base=Number(service.price);
-  if(service.price!==null&&service.price!==undefined&&Number.isFinite(base)) rows.push([service.name||b.services?.name||"Service",money(base)]);
-  addons.forEach(a=>rows.push([a.name||"Add-on","+"+money(Number(a.price||0))]));
-  const discountAmount=Number(discount.discount_amount||0);
-  if(discountAmount>0) rows.push([discount.name||langPick("Discount","Descuento","Remise"),"−"+money(discountAmount)]);
-  const details=rows.length ? '<details class="booking-price-breakdown"><summary>'+escapeHtml(langPick("View estimate details","Ver detalles del estimado","Voir le détail de l’estimation"))+'</summary><div>'+rows.map(row=>'<div class="booking-price-breakdown-row"><span>'+escapeHtml(row[0])+'</span><strong>'+escapeHtml(row[1])+'</strong></div>').join("")+'</div></details>' : "";
-  const price=valid?money(estimated):langPick("Needs review","Por revisar","À vérifier");
-  const estimateHtml='<div class="booking-price-estimate"><span>'+escapeHtml(langPick("Estimated total · not final","Total aproximado · no definitivo","Total estimé · non définitif"))+'</span><strong>'+escapeHtml(price)+'</strong></div>';
-  if(b.status!=="requested"){
-    const amount=finalPrice!==null&&Number.isFinite(finalPrice)?money(finalPrice):"—";
-    return '<div class="booking-review-panel">'+estimateHtml+'<div class="booking-price-estimate"><span>'+escapeHtml(langPick("Confirmed price","Precio confirmado","Prix confirmé"))+'</span><strong>'+escapeHtml(amount)+'</strong></div>'+details+'</div>';
-  }
-  const value=valid?estimated.toFixed(2):"";
-  return '<div class="booking-review-panel">'+estimateHtml+details+
-    '<label class="booking-final-price-label" for="booking-price-'+escapeHtml(b.id)+'"><span>'+escapeHtml(langPick("Final price (editable)","Precio final (editable)","Prix final (modifiable)"))+'</span>'+
-    '<input id="booking-price-'+escapeHtml(b.id)+'" data-booking-final-price="'+escapeHtml(b.id)+'" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" required value="'+escapeHtml(value)+'" placeholder="0.00"></label>'+
-    '<small class="booking-price-note">'+escapeHtml(langPick("Adjust before approval. Your final price will be used in the invoice and confirmation email.","Modifícalo antes de aprobar. Este precio final se usará en la factura y confirmación.","Modifiez avant d’approuver. Ce prix final sera utilisé sur la facture et le courriel."))+'</small></div>';
-};
+  window.TLE_BOOKING_REVIEW=function(b,money,esc,langPick){
+    const snap=b.price_snapshot||{},calc=snap.estimate||{},service=snap.service||{},discount=b.discount_snapshot||{};
+    const addonRows=Array.isArray(snap.addons)?snap.addons:[];
+    const original=snap.owner_review?.original_estimate??b.quoted_total??snap.total;
+    const est=original===null||original===undefined?null:Number(original);
+    const valid=est!==null&&Number.isFinite(est);
+    const final=Number(snap.owner_review?.final_total);
+    const amount=valid?money(est):"—";
+    const entries=[];
+    const add=(name,n)=>{
+      if(n===undefined||n===null||n==="")return;
+      const numeric=Number(n);if(!Number.isFinite(numeric)||!numeric)return;
+      entries.push('<div class="booking-price-breakdown-row"><span>'+esc(name)+'</span><strong>'+esc(money(numeric))+'</strong></div>');
+    };
+    if(calc.service_base!==undefined){
+      add(service.name||b.services?.name||"Service",calc.service_base);
+      add(langPick("Extra bedrooms","Habitaciones adicionales","Chambres supplémentaires"),calc.bedroom_adjustment);
+      add(langPick("Extra bathrooms","Baños adicionales","Salles de bain supplémentaires"),calc.bathroom_adjustment);
+      add(langPick("Home size","Tamaño de la casa","Surface"),calc.sqft_adjustment);
+      add(langPick("Frequency discount","Descuento por frecuencia","Remise récurrence"),-Number(calc.recurring_discount||0));
+    }else add(service.name||b.services?.name||"Service",service.price);
+    addonRows.forEach(a=>add(a.name||"Add-on",a.price));
+    add(discount.name||langPick("Discount","Descuento","Remise"),-Number(discount.discount_amount||0));
+    const details=entries.length?'<details class="booking-price-breakdown"><summary>'+esc(langPick("View estimated breakdown","Ver desglose del estimado","Voir le détail du devis"))+'</summary><div>'+entries.join("")+'</div></details>':"";
+    const header='<div class="booking-price-estimate"><span>'+esc(langPick("Automatic estimate · not final","Estimado automático · no definitivo","Estimation automatique · non définitive"))+'</span><strong>'+esc(amount)+'</strong></div>';
+    if(b.status!=="requested"){
+      const label=b.status==="quote_sent"?langPick("Quote sent · awaiting acceptance","Quote enviado · esperando aceptación","Devis envoyé · en attente"):
+        b.status==="converted"?langPick("Quote accepted · confirmed","Quote aceptado · confirmado","Devis accepté · confirmé"):
+        langPick("Request reviewed","Solicitud revisada","Demande examinée");
+      return '<div class="booking-review-panel">'+header+details+'<div class="booking-price-estimate"><span>'+esc(label)+'</span><strong>'+esc(Number.isFinite(final)&&snap.owner_review?.final_total!=null?money(final):"—")+'</strong></div></div>';
+    }
+    const fromData=Number(calc.travel_fee||0);
+    const travel=Number.isFinite(fromData)&&fromData>=0?fromData:0;
+    return '<div class="booking-review-panel" data-review-booking="'+esc(b.id)+'">'+header+details+
+      '<div class="booking-review-price-fields">'+
+      '<label class="booking-final-price-label"><span>'+esc(langPick("Travel · verify distance","Travel · verificar distancia","Déplacement · vérifier distance"))+'</span>'+
+      '<input type="number" inputmode="decimal" min="0" max="100000" step="0.01" data-booking-travel="'+esc(b.id)+'" value="'+esc(travel.toFixed(2))+'"></label>'+
+      '<label class="booking-final-price-label"><span>'+esc(langPick("Final quote amount · editable","Precio final del quote · editable","Montant du devis · modifiable"))+'</span>'+
+      '<input type="number" inputmode="decimal" min="0.01" max="1000000" step="0.01" data-booking-final-price="'+esc(b.id)+'" value="'+esc(valid?(est+travel).toFixed(2):"")+'" required></label></div>'+
+      '<small class="booking-price-note">'+esc(langPick("Review bedrooms, size, add-ons, travel and discounts. The quote is emailed only after you approve its final amount. The client must accept before booking confirmation.",
+        "Revisa habitaciones, tamaño, add-ons, travel y descuentos. El quote se envía solo cuando apruebes el precio final. La clienta debe aceptarlo antes de confirmar la cita.",
+        "Vérifiez les détails et le déplacement. Le client doit accepter le devis."))+'</small></div>';
+  };
+  document.addEventListener("change",event=>{
+    const field=event.target.closest?.("[data-booking-travel]");
+    if(!field)return;
+    const group=field.closest("[data-review-booking]");
+    const price=group?.querySelector("[data-booking-final-price]");
+    if(!price)return;
+    const initial=Number(field.dataset.lastTravel||0),now=Number(field.value),old=Number(price.value);
+    if(!Number.isFinite(now)||!Number.isFinite(old))return;
+    const updated=Math.round((old+now-initial)*100)/100;
+    if(Number.isFinite(updated)&&updated>=0)price.value=updated.toFixed(2);
+    field.dataset.lastTravel=String(now);
+  });
 })();
