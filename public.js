@@ -807,33 +807,15 @@
 
 
       function localEstimatedTotal(selected,chosen){
-        if(!selected)return 0;
-        const number=(val,fallback=0)=>{const n=Number(val);return Number.isFinite(n)?n:fallback;};
-        const nonneg=(val)=>Math.max(0,number(val));
-        const settings=estimateRules;
-        const enabled=String(settings.enabled??true)!=="false";
-        let subtotal=nonneg(selected.base_price);
-        let recurringDiscount=0;
-        if(enabled&&activePropertyType()==="residential"){
-          const bedrooms=nonneg(form?.querySelector('[name="bedrooms"]')?.value);
-          const bathrooms=nonneg(form?.querySelector('[name="bathrooms"]')?.value);
-          let size=nonneg(form?.querySelector('[name="property_size"]')?.value);
-          if(String(form?.querySelector('[name="property_size_unit"]')?.value||"sqft")==="sqm")size*=10.7639;
-          subtotal+=Math.max(0,bedrooms-nonneg(settings.included_bedrooms))*nonneg(settings.extra_bedroom_price);
-          subtotal+=Math.max(0,bathrooms-nonneg(settings.included_bathrooms))*nonneg(settings.extra_bathroom_price);
-          const step=nonneg(settings.sqft_step);
-          if(size>0&&step>0)subtotal+=Math.ceil(Math.max(0,size-nonneg(settings.included_sqft))/step)*nonneg(settings.sqft_step_price);
-          const frequency=String(recurrenceSelect?.value||"one_time");
-          const rate=frequency==="weekly"?nonneg(settings.weekly_discount_percent):
-            frequency==="biweekly"?nonneg(settings.biweekly_discount_percent):
-            frequency==="monthly"?nonneg(settings.monthly_discount_percent):0;
-          recurringDiscount=Math.round(subtotal*Math.min(100,rate))/100;
-        }
-        subtotal=Math.round(subtotal*100)/100;
-        let amount=Math.max(0,subtotal-recurringDiscount);
-        amount+=chosen.reduce((sum,a)=>sum+nonneg(a.price),0);
-        if(enabled&&activePropertyType()==="residential")amount=Math.max(amount,nonneg(settings.minimum_total));
-        return Math.round(amount*100)/100;
+        return window.TLE_PUBLIC_ESTIMATE_PRICE({
+          service:selected,addons:chosen,settings:estimateRules,
+          propertyType:activePropertyType(),
+          bedrooms:form?.querySelector('[name="bedrooms"]')?.value,
+          bathrooms:form?.querySelector('[name="bathrooms"]')?.value,
+          size:form?.querySelector('[name="property_size"]')?.value,
+          unit:form?.querySelector('[name="property_size_unit"]')?.value,
+          frequency:recurrenceSelect?.value
+        });
       }
 
       function updateSummary(){
