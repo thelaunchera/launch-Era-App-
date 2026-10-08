@@ -2536,7 +2536,15 @@ document.addEventListener("click",e=>{
   const mobileMore=e.target.closest("[data-mobile-more]");
   if(mobileMore){
     e.preventDefault();
+    // Mobile More is a navigation hub, not an empty workspace view.
+    // Always reveal the real sidebar over the current page.
     setSidebarOpen(true);
+    requestAnimationFrame(()=>{
+      if(sidebar){
+        sidebar.scrollTop=0;
+        sidebar.focus?.({preventScroll:true});
+      }
+    });
     return;
   }
   const nav=e.target.closest(".nav-item[data-view]");
@@ -2609,7 +2617,22 @@ function setSidebarOpen(open){
     sidebar.style.removeProperty("pointer-events");
   }
 
-  if(shouldOpen) syncMobileNavGroups();
+  if(shouldOpen){
+    syncMobileNavGroups();
+    // iOS can preserve a stale hidden/zero-width sidebar snapshot after PWA navigation.
+    // Re-assert usable drawer geometry whenever More/menu opens.
+    sidebar.style.setProperty("display","flex","important");
+    sidebar.style.setProperty("width","min(78vw, 304px)","important");
+    sidebar.style.setProperty("max-width","304px","important");
+    sidebar.style.setProperty("height","100dvh","important");
+    sidebar.style.setProperty("z-index","1000","important");
+  }else if(isMobileNav){
+    sidebar.style.removeProperty("display");
+    sidebar.style.removeProperty("width");
+    sidebar.style.removeProperty("max-width");
+    sidebar.style.removeProperty("height");
+    sidebar.style.removeProperty("z-index");
+  }
   if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
   document.body.classList.toggle("sidebar-is-open",shouldOpen);
   $("#menuToggle")?.setAttribute("aria-expanded",shouldOpen?"true":"false");
