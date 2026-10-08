@@ -621,6 +621,7 @@
         const code=l.startsWith("es")?"es":l.startsWith("fr")?"fr":l.startsWith("ht")?"ht":"en";
         const content={
           estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
+          fixedShort:{en:"Fixed",es:"Fijo",fr:"Fixe",ht:"Fiks"},
           note:{en:"This price is an estimate, not a fixed rate. The business will check your home details and send a final quote for you to accept. Your appointment is not confirmed yet.",es:"Este precio es aproximado, no fijo. El negocio revisará los datos de tu casa y te enviará el quote final para que lo aceptes. Tu cita aún no está confirmada.",fr:"Ce prix est estimatif. L’entreprise vérifiera les informations et vous enverra un devis final à accepter. Votre rendez-vous n’est pas encore confirmé.",ht:"Pri sa a se yon estimasyon, li pa fiks. Biznis la ap verifye detay kay ou epi voye pri final la pou ou aksepte. Randevou a poko konfime."},
           fixed:{en:"Fixed total · instant confirmation",es:"Total fijo · confirmación inmediata",fr:"Total fixe · confirmation immédiate",ht:"Total fiks · konfimasyon touswit"},
           confirmed:{en:"Your cleaning is confirmed! Check your email for the appointment details.",es:"¡Tu limpieza está confirmada! Revisa tu correo para ver los detalles.",fr:"Votre nettoyage est confirmé ! Vérifiez votre e-mail pour les détails.",ht:"Netwayaj ou konfime! Verifye imel ou pou detay yo."},
@@ -650,7 +651,7 @@
           const selected=select?.value===service.id;
           const price=mode==="quote"
             ? tt("Custom quote")
-            : service.base_price!=null?bookingEstimateCopy("estimated")+" · "+money(service.base_price):"";
+            : service.base_price!=null?bookingEstimateCopy("fixedShort")+" · "+money(service.base_price):"";
           return '<button type="button" class="public-demo-service-card'+(selected?" selected":"")+'" data-service-card="'+esc(service.id)+'">'+
             '<span class="public-demo-service-check">✓</span>'+
             '<strong>'+esc(service.name)+'</strong>'+
@@ -915,7 +916,7 @@
           select.innerHTML=services.length
             ? '<option value="">'+esc(tt(mode==="quote"?"Choose a custom job type":"Choose a service"))+'</option>'+services.map(s=>
                 '<option value="'+esc(s.id)+'">'+esc(s.name)+
-                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+esc(bookingEstimateCopy("estimated"))+" "+money(s.base_price):"")+
+                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+esc(bookingEstimateCopy("fixedShort"))+" "+money(s.base_price):"")+
                 '</option>'
               ).join("")
             : '<option value="">'+esc(tt(mode==="quote"
