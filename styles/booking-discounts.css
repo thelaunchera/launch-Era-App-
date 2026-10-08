@@ -163,3 +163,30 @@
 .entity-form .client-change-toggle>span{display:grid;gap:2px}
 .entity-form .client-change-toggle small{font-size:9px;color:#77736c;font-weight:600}
 .entity-form .client-change-toggle input{width:18px;height:18px;margin:0}
+
+/* Clean, readable special-space request on phone, tablet and desktop */
+#publicShell .public-special-request-details{
+  display:grid;gap:13px;margin:4px 0 10px;padding:20px;
+  border:1px solid rgba(77,144,197,.21);border-radius:22px;
+  background:linear-gradient(145deg,#f0f7ff,#FAF8F3);
+  box-shadow:0 12px 30px rgba(25,25,25,.04);
+}
+#publicShell .public-special-request-details[hidden]{display:none!important}
+#publicShell .public-special-heading strong{display:block;font-size:17px;color:#191919;font-weight:850}
+#publicShell .public-special-heading p{margin:5px 0 0;font-size:12px;line-height:1.5;color:#5b6168}
+#publicShell .public-special-fields{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+#publicShell .public-special-fields label{display:grid;gap:7px;min-width:0;font-size:11px;font-weight:750;color:#191919}
+#publicShell .public-special-fields .full{grid-column:1/-1}
+#publicShell .public-special-fields input,#publicShell .public-special-fields select,#publicShell .public-special-fields textarea{
+  min-width:0;width:100%;box-sizing:border-box;min-height:42px;padding:10px 12px;
+  border:1px solid #d0dae5;border-radius:13px;background:#fff;color:#191919;font:inherit;font-size:14px;
+}
+#publicShell .public-special-fields textarea{min-height:100px;resize:vertical}
+#publicShell .public-special-fields input:focus,#publicShell .public-special-fields select:focus,#publicShell .public-special-fields textarea:focus{
+  outline:2px solid #a9cbef;outline-offset:1px
+}
+@media(max-width:620px){
+  #publicShell .public-special-request-details{padding:15px;border-radius:19px}
+  #publicShell .public-special-fields{grid-template-columns:1fr}
+  #publicShell .public-special-fields .full{grid-column:1}
+}
