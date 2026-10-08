@@ -271,6 +271,20 @@ async function runProfile(profile){
       throw new Error(profile.name+": availability slot cannot be selected");
     }
 
+    const flatRecurring=await page.evaluate(()=>window.TLE_PUBLIC_ESTIMATE.calculate({
+      rules:{enabled:true,included_bedrooms:2,extra_bedroom_price:50,included_bathrooms:1,
+        extra_bathroom_price:40,included_sqft:1000,sqft_step:500,sqft_step_price:20,
+        weekly_discount_percent:10,minimum_total:0},
+      service:{pricing_type:"flat",base_price:129},addons:[],
+      propertyType:"residential",bedrooms:6,bathrooms:4,propertySize:4500,frequency:"weekly"
+    }));
+    if(Math.abs(flatRecurring-116.1)>0.01){
+      throw new Error(profile.name+": flat recurring discount or fixed-base guard failed "+flatRecurring);
+    }
+    const fixedPriceLabel=await page.locator("#publicSummary").textContent();
+    if(!fixedPriceLabel.includes("Fixed total")){
+      throw new Error(profile.name+": flat booking summary is incorrectly presented as an estimate");
+    }
     const residentialHero=await page.locator("#publicHeroPhoto").getAttribute("src");
     if(!String(residentialHero||"").includes("37184168")) throw new Error(profile.name+": new residential hero was not loaded");
     const residentialSummary=await page.locator("#publicSummary img").getAttribute("src");
@@ -332,6 +346,7 @@ async function runProfile(profile){
     if(!String(specialHero||"").includes("36777525")){
       throw new Error(profile.name+": special request hero photo is missing");
     }
+    await page.locator("#publicSpecialDetails .public-special-more>summary").click();
     await page.locator('[name="special_space_kind"]').selectOption("salon_studio");
     await page.locator('[name="special_property_size"]').fill("2300");
     await page.locator('[name="special_space_description"]').fill("Salon mirrors, delicate surfaces, evening access required");
@@ -349,6 +364,9 @@ async function runProfile(profile){
     await page.locator("#publicBookTab").click();
     if(!await page.locator("#publicQuoteTab").evaluate(el=>el.classList.contains("active"))){
       throw new Error(profile.name+": special space incorrectly switched to instant booking");
+    }
+    if(!await page.locator("#publicSpecialDetails .public-special-more").evaluate(el=>el.open)){
+      throw new Error(profile.name+": special detail panel did not expand");
     }
     await assertNoOverflow(page,profile,"special space quote");
 

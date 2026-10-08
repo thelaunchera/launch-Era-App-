@@ -17,6 +17,11 @@
     block.querySelectorAll("[data-special-text]").forEach(el=>{
       el.textContent=words[Number(el.dataset.specialText)]||"";
     });
+    const toggle=block.querySelector(".public-special-more>summary");
+    if(toggle)toggle.textContent={
+      en:"+ Add space details (optional)",es:"+ Agregar detalles (opcional)",
+      fr:"+ Ajouter des détails (facultatif)",ht:"+ Ajoute detay (si ou vle)"
+    }[String(window.TLE_I18N?.language||"en").toLowerCase()]||"+ Add space details (optional)";
     const text=block.querySelector('[name="special_space_description"]');
     if(text)text.placeholder=words[12];
   }
@@ -30,19 +35,22 @@
     block.className="full public-special-request-details";
     block.hidden=true;
     block.innerHTML=[
-      '<header class="public-special-heading"><strong data-special-text="0"></strong><p data-special-text="1"></p></header>',
+      '<div class="public-special-fields">',
+      '<label class="public-special-size"><span data-special-text="7"></span>',
+      '<input name="special_property_size" type="number" inputmode="numeric" min="1" step="1" placeholder="1500"></label>',
+      '<label class="public-special-unit"><span data-special-text="8"></span><select name="special_property_size_unit">',
+      '<option value="sqft" data-special-text="9"></option><option value="sqm" data-special-text="10"></option></select></label>',
+      '</div>',
+      '<details class="public-special-more"><summary>+ Add space details (optional)</summary>',
       '<div class="public-special-fields">',
       '<label class="full"><span data-special-text="2"></span>',
       '<select name="special_space_kind"><option value="large_home" data-special-text="3"></option>',
       '<option value="salon_studio" data-special-text="4"></option>',
       '<option value="other_residential" data-special-text="5"></option>',
       '<option value="other_commercial" data-special-text="6"></option></select></label>',
-      '<label><span data-special-text="7"></span>',
-      '<input name="special_property_size" type="number" inputmode="numeric" min="1" step="1" placeholder="1500"></label>',
-      '<label><span data-special-text="8"></span><select name="special_property_size_unit">',
-      '<option value="sqft" data-special-text="9"></option><option value="sqm" data-special-text="10"></option></select></label>',
       '<label class="full"><span data-special-text="11"></span>',
-      '<textarea name="special_space_description" maxlength="1800" rows="3"></textarea></label></div>'
+      '<textarea name="special_space_description" maxlength="1800" rows="3"></textarea></label>',
+      '</div></details>'
     ].join("");
     anchor.insertAdjacentElement("afterend",block);
     translate();
@@ -55,7 +63,7 @@
     block.hidden=!visible;
     for(const key of ["special_space_kind","special_space_description"]){
       const el=block.querySelector('[name="'+key+'"]');
-      if(el)el.required=Boolean(visible);
+      if(el)el.required=false;
     }
   }
   function backendType(fd){

@@ -621,7 +621,14 @@
         const code=l.startsWith("es")?"es":l.startsWith("fr")?"fr":l.startsWith("ht")?"ht":"en";
         const content={
           estimated:{en:"Estimated",es:"Aproximado",fr:"Estimation",ht:"Estimasyon"},
+          fixedShort:{en:"Fixed",es:"Fijo",fr:"Fixe",ht:"Fiks"},
+          fixedTotal:{en:"Fixed total",es:"Total fijo",fr:"Total fixe",ht:"Total fiks"},
+          instantIntro:{en:"Choose your fixed-price service and an available time for instant confirmation.",es:"Elige un servicio de precio fijo y un horario disponible para confirmar al momento.",fr:"Choisissez un service à prix fixe et un créneau disponible pour une confirmation immédiate.",ht:"Chwazi sèvis ak pri fiks la ak yon lè ki disponib pou konfime touswit."},
+          confirmBooking:{en:"Confirm booking",es:"Confirmar reserva",fr:"Confirmer la réservation",ht:"Konfime rezèvasyon"},
+          confirmedTitle:{en:"Booking confirmed!",es:"¡Reserva confirmada!",fr:"Réservation confirmée !",ht:"Rezèvasyon konfime!"},
           note:{en:"This price is an estimate, not a fixed rate. The business will check your home details and send a final quote for you to accept. Your appointment is not confirmed yet.",es:"Este precio es aproximado, no fijo. El negocio revisará los datos de tu casa y te enviará el quote final para que lo aceptes. Tu cita aún no está confirmada.",fr:"Ce prix est estimatif. L’entreprise vérifiera les informations et vous enverra un devis final à accepter. Votre rendez-vous n’est pas encore confirmé.",ht:"Pri sa a se yon estimasyon, li pa fiks. Biznis la ap verifye detay kay ou epi voye pri final la pou ou aksepte. Randevou a poko konfime."},
+          fixed:{en:"Fixed total · instant confirmation",es:"Total fijo · confirmación inmediata",fr:"Total fixe · confirmation immédiate",ht:"Total fiks · konfimasyon touswit"},
+          confirmed:{en:"Your cleaning is confirmed! Check your email for the appointment details.",es:"¡Tu limpieza está confirmada! Revisa tu correo para ver los detalles.",fr:"Votre nettoyage est confirmé ! Vérifiez votre e-mail pour les détails.",ht:"Netwayaj ou konfime! Verifye imel ou pou detay yo."},
           request:{en:"Booking request",es:"Solicitud de reserva",fr:"Demande de réservation",ht:"Demann rezèvasyon"}
         };
         return content[key]?.[code]||content[key]?.en||"";
@@ -648,7 +655,7 @@
           const selected=select?.value===service.id;
           const price=mode==="quote"
             ? tt("Custom quote")
-            : service.base_price!=null?bookingEstimateCopy("estimated")+" · "+money(service.base_price):"";
+            : service.base_price!=null?bookingEstimateCopy("fixedShort")+" · "+money(service.base_price):"";
           return '<button type="button" class="public-demo-service-card'+(selected?" selected":"")+'" data-service-card="'+esc(service.id)+'">'+
             '<span class="public-demo-service-check">✓</span>'+
             '<strong>'+esc(service.name)+'</strong>'+
@@ -795,10 +802,10 @@
           '<div class="public-demo-summary-row"><span>'+esc(tt("Time"))+'</span><strong>'+esc(timeLabel)+'</strong></div>'+
           '<div class="public-demo-summary-row"><span>'+esc(tt("Add-ons"))+'</span><strong>'+esc(extrasLabel)+'</strong></div>'+
           (discountPrice.discountRecord?'<div class="public-demo-summary-row discount-row"><span>'+esc(discountUi?.label("discount")||"Discount")+'</span><strong>−'+esc(money(discountPrice.discount))+' · '+esc(discountPrice.discountRecord.name)+'</strong></div>':"")+
-          '<div class="public-demo-summary-total"><span>'+esc(tt(mode==="quote"?"Pricing":"Estimated total"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>'+ (mode==="book" ? '<p class="booking-estimate-disclaimer">'+esc(bookingEstimateCopy("note"))+'</p>' : '');
+          '<div class="public-demo-summary-total"><span>'+esc(mode==="quote"?tt("Pricing"):bookingEstimateCopy("fixedTotal"))+'</span><strong>'+esc(mode==="quote"?tt("Custom quote"):selected?money(total):"—")+'</strong></div>'+ (mode==="book" ? '<p class="booking-estimate-disclaimer">'+esc(bookingEstimateCopy("fixed"))+'</p>' : '');
         if(summaryMicro) summaryMicro.textContent=tt(mode==="quote"
           ?"No payment is collected here. The business will review your details and prepare the quote."
-          :bookingEstimateCopy("note"));
+          :bookingEstimateCopy("fixed"));
       }
 
       function renderAddons(){
@@ -896,11 +903,11 @@
 
         if(serviceLabel) serviceLabel.textContent=tt(mode==="quote"?"Custom job type":"Service");
         if(label) label.textContent=tt(mode==="quote"?"REQUEST A QUOTE":"BOOK A CLEANING");
-        if(intro) intro.textContent=tt(mode==="quote"
-          ?"Tell us what you need, then pick a day and available time."
-          :"Choose what you need, then pick a day and available time.");
+        if(intro) intro.textContent=mode==="quote"
+          ?tt("Tell us what you need, then pick a day and available time.")
+          :bookingEstimateCopy("instantIntro");
         if(submit){
-          submit.textContent=tt(mode==="quote"?"Send quote request":"Request my quote");
+          submit.textContent=mode==="quote"?tt("Send quote request"):bookingEstimateCopy("confirmBooking");
         }
         if(addWrap) addWrap.hidden=false;
         if(quoteTimeWrap) quoteTimeWrap.hidden=true;
@@ -913,7 +920,7 @@
           select.innerHTML=services.length
             ? '<option value="">'+esc(tt(mode==="quote"?"Choose a custom job type":"Choose a service"))+'</option>'+services.map(s=>
                 '<option value="'+esc(s.id)+'">'+esc(s.name)+
-                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+esc(bookingEstimateCopy("estimated"))+" "+money(s.base_price):"")+
+                (mode==="quote"?" · "+esc(tt("Custom quote")):s.base_price!=null?" · "+esc(bookingEstimateCopy("fixedShort"))+" "+money(s.base_price):"")+
                 '</option>'
               ).join("")
             : '<option value="">'+esc(tt(mode==="quote"
@@ -1039,6 +1046,7 @@
           const fd=new FormData(form);
           const preferred=fd.get("preferred_contact");
           const phone=String(fd.get("phone")||"").trim();
+          const isSpecialSpace=String(fd.get("property_type")||"").trim().toLowerCase()==="special";
           const propertyType=window.TLE_SPECIAL_REQUEST?.backendType(fd)||String(fd.get("property_type")||"").trim().toLowerCase();
           const propertySize=String(fd.get("special_property_size")||fd.get("property_size")||"").trim();
           const propertySizeUnit=String(fd.get("special_property_size_unit")||fd.get("property_size_unit")||"").trim()==="sqm"?"m²":"sq ft";
@@ -1073,7 +1081,7 @@
             alert(tt("Property size must be greater than 0."));
             return;
           }
-          if(propertyType==="residential"){
+          if(propertyType==="residential"&&!isSpecialSpace){
             if(!/^\d+$/.test(bedrooms) || Number(bedrooms)<0){
               alert(tt("Enter the number of bedrooms."));
               return;
@@ -1083,7 +1091,7 @@
               return;
             }
           }
-          if(propertyType==="commercial" && !commercialSpaceType){
+          if(propertyType==="commercial" && !isSpecialSpace && !commercialSpaceType){
             alert(tt("Choose the commercial space type."));
             return;
           }
@@ -1204,10 +1212,12 @@
             form.hidden=true;
             const confirmationPhoto=bookingPropertyPhotos.confirmation;
             if(heroPhoto){ heroPhoto.src=confirmationPhoto.hero; heroPhoto.alt=confirmationPhoto.heroAlt; }
+            const confirmationHeading=$("#publicSuccess h2");
+            if(confirmationHeading) confirmationHeading.textContent=mode==="book"?bookingEstimateCopy("confirmedTitle"):tt("Request received");
             $("#publicSuccess").hidden=false;
             $("#publicSuccessCopy").textContent=tt(mode==="quote"
               ?"Your quote request was sent. The business will review it and contact you."
-              :bookingEstimateCopy("note"));
+              :bookingEstimateCopy("confirmed"));
           }catch(err){
             console.warn("[TLE] public request submit",err); alert(err?.message||tt("Could not send request"));
             submit.disabled=false;

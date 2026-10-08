@@ -190,3 +190,12 @@
   #publicShell .public-special-fields{grid-template-columns:1fr}
   #publicShell .public-special-fields .full{grid-column:1}
 }
+
+/* Compact special space: size visible, details behind a tap */
+#publicShell .public-special-request-details{padding:13px 15px!important;gap:8px!important;margin:0 0 8px!important;box-shadow:none!important}
+#publicShell .public-special-request-details>.public-special-fields{grid-template-columns:minmax(0,1fr) 126px!important;gap:10px!important}
+#publicShell .public-special-more{border-top:1px solid rgba(25,25,25,.08);padding-top:7px}
+#publicShell .public-special-more summary{cursor:pointer;font-size:12px;font-weight:800;color:#191919;list-style:none;padding:5px 0}
+#publicShell .public-special-more summary::-webkit-details-marker{display:none}
+#publicShell .public-special-more .public-special-fields{margin-top:10px;display:grid;gap:10px;grid-template-columns:1fr}
+@media(max-width:620px){#publicShell .public-special-request-details>.public-special-fields{grid-template-columns:minmax(0,1fr) 114px!important}}

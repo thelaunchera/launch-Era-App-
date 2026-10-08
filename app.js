@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261008-special-space-hero-r70";
+const APP_VERSION = "20261008-instant-flat-booking-r71";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -4272,7 +4272,9 @@ function getInquiryNotifications(){
       email:b.customer_email||"",
       phone:b.customer_phone||"",
       address:b.service_address||"",
-      service:b.services?.name||lead?.service_interest||"Cleaning request",
+      service:(b.status==="converted"
+        ?langPick("New booking confirmed · ","Nueva reserva confirmada · ","Nouvelle réservation confirmée · ")
+        :"")+(b.services?.name||lead?.service_interest||"Cleaning request"),
       serviceId:b.service_id||"",
       requestedAt:b.requested_start_at||"",
       notes:b.notes||lead?.notes||"",
@@ -5153,12 +5155,12 @@ function serviceGroupCopy(key){
   const lang=appLanguage();
   const copy={
     paidTitle:{en:"Paid services",es:"Servicios con precio",fr:"Services avec prix",ht:"Sèvis ak pri"},
-    paidNote:{en:"Clients see an estimate and choose an available time. You edit and confirm the final price before approval.",es:"Los clientes ven un aproximado y eligen un horario. Tú editas y confirmas el precio final antes de aprobar.",fr:"Les clients voient une estimation et choisissent un créneau. Vous vérifiez le prix final avant de confirmer.",ht:"Kliyan yo wè yon estimasyon epi yo chwazi yon lè. Ou konfime pri final la avan ou apwouve."},
+    paidNote:{en:"Active flat-price services confirm instantly. The owner gets a new booking alert.",es:"Los servicios con precio fijo activo se confirman al instante. La dueña recibe un aviso.",fr:"Les services à prix fixe actifs sont confirmés immédiatement avec une alerte.",ht:"Sèvis pri fiks aktif yo konfime touswit ak yon avi."},
     quoteTitle:{en:"Quote services",es:"Servicios con cotización",fr:"Services sur devis",ht:"Sèvis ki bezwen estimasyon"},
     quoteNote:{en:"These collect the details first, then the request goes to Quotes.",es:"Aquí primero se recopilan los detalles y luego la solicitud pasa a Quotes.",fr:"Les détails sont d’abord recueillis, puis la demande passe dans Quotes.",ht:"Sa yo ranmase detay yo anvan, epi demann lan ale nan Quotes."},
     paidEmpty:{en:"No paid services yet.",es:"Todavía no hay servicios con precio.",fr:"Aucun service avec prix pour le moment.",ht:"Pa gen sèvis ak pri ankò."},
     quoteEmpty:{en:"No quote services yet.",es:"Todavía no hay servicios con cotización.",fr:"Aucun service sur devis pour le moment.",ht:"Pa gen sèvis estimasyon ankò."},
-    instant:{en:"Price estimate · pending approval",es:"Precio aproximado · pendiente",fr:"Estimation · en attente",ht:"Estimasyon · ap tann apwobasyon"},
+    instant:{en:"Instant confirmation",es:"Confirmación inmediata",fr:"Confirmation immédiate",ht:"Konfimasyon touswit"},
     quoteRequired:{en:"Quote required",es:"Requiere cotización",fr:"Devis requis",ht:"Estimasyon obligatwa"}
   };
   return copy[key]?.[lang]||copy[key]?.en||"";
