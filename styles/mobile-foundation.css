@@ -342,3 +342,17 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
  body.shell-app #appShell [data-page="invoices"] #invoicesTable>.invoice-growth-row>.invoice-actions-stable{grid-template-columns:minmax(0,1fr)!important}
  body.shell-app #appShell [data-page="invoices"] #invoicesTable .record-delete-btn{justify-self:stretch!important;width:100%!important}
 }
+
+/* Keep native iPhone fields and team choices inside the editor. */
+@media(max-width:680px){
+ body.shell-app .modal-backdrop .modal,
+ body.shell-app .modal-backdrop .form-grid,
+ body.shell-app .modal-backdrop .form-grid :is(label,.full){box-sizing:border-box!important;min-width:0!important}
+ body.shell-app .modal-backdrop .form-grid{grid-template-columns:minmax(0,1fr)!important}
+ body.shell-app .modal-backdrop .form-grid :is(input,select,textarea){min-width:0!important;max-width:100%!important}
+ body.shell-app .modal-backdrop .form-grid :is(input[type="date"],input[type="time"]){display:block!important;inline-size:100%!important;min-inline-size:0!important}
+ body.shell-app .modal-backdrop .form-grid :is(input[type="date"],input[type="time"])::-webkit-date-and-time-value{min-width:0;text-align:left}
+ body.shell-app .modal-backdrop .form-grid .job-team-option{display:grid!important;grid-template-columns:24px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;width:100%!important;max-width:100%!important}
+ body.shell-app .modal-backdrop .form-grid .job-team-option>span{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body.shell-app .modal-backdrop .form-grid input:is([type="checkbox"],[type="radio"]){width:24px!important;min-width:24px!important;max-width:24px!important;height:24px!important;min-height:24px!important;margin:0!important;padding:0!important;flex:0 0 24px!important}
+}
