@@ -2600,15 +2600,6 @@ function setSidebarOpen(open){
   sidebar.classList.toggle("open",shouldOpen);
 
   if(isMobileNav){
-    // A PWA restore can leave the drawer with display:none/zero width.
-    // Apply geometry only while open, then remove it to preserve closed-state CSS.
-    for(const [property,value] of [
-      ["display","flex"],["position","fixed"],["width","min(78vw, 304px)"],
-      ["max-width","304px"],["height","100dvh"],["z-index","1000"]
-    ]){
-      if(shouldOpen) sidebar.style.setProperty(property,value,"important");
-      else sidebar.style.removeProperty(property);
-    }
     sidebar.style.setProperty("left","0px","important");
     sidebar.style.setProperty("right","auto","important");
     sidebar.style.setProperty("transform","none","important");
