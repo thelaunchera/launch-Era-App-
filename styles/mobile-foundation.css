@@ -366,6 +366,5 @@ body.shell-app #appShell .view.active :is(.card-actions,.record-actions,.safe-ac
     width:min(78vw,304px)!important;
     max-width:304px!important;
     height:100dvh!important;
-    z-index:1000!important;
   }
 }
