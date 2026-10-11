@@ -112,7 +112,7 @@
     if(!mount) return;
 
     if(mount.dataset.businessId===String(appState().business?.id||"")){
-      if(saving || mount.dataset.saveState==="dirty" || mount.dataset.saveState==="error") return;
+      if(saving || mount.dataset.saveState==="dirty" || mount.dataset.saveState==="error" || (mount.id==="estimateCalculatorMount" && mount.dataset.userEdited==="true")) return;
     }
     mount.dataset.businessId=String(appState().business?.id||"");
     const rules=settingsFromState();
@@ -626,6 +626,8 @@
   function handleInput(event){
     const mount=document.getElementById("estimateCalculatorMount")||document.getElementById("servicesEstimateCalculatorMount");
     if(!mount || !event.target || !mount.contains(event.target)) return;
+    // Preserve estimates during a delayed service/pricing refresh.
+    if(mount.id==="estimateCalculatorMount") mount.dataset.userEdited="true";
     if(event.target.closest(".estimate-rules") && !saving) setSaveState("dirty");
     if(event.target.id==="estimateService") renderAddonChoices();
     if(event.target.name==="estimate_property_type") syncPropertyMode();
@@ -645,6 +647,7 @@
         event.preventDefault();
         pricingMode=mode.dataset.pricingMode==="rules"?"rules":"guided";
         document.querySelectorAll("[data-pricing-mode]").forEach(button=>button.classList.toggle("active",button===mode));
+        document.getElementById("estimateCalculatorMount")?.removeAttribute("data-user-edited");
         render();
         return;
       }
@@ -679,6 +682,7 @@
         return;
       }
       if(event.target.closest?.("#languageBtn,#sidebarLanguageBtn,[data-language-toggle]")){
+        document.getElementById("estimateCalculatorMount")?.removeAttribute("data-user-edited");
         setTimeout(render,40);
       }
     });
