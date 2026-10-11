@@ -288,10 +288,16 @@ async function assertLayout(page,profile){
       openQuoteFromEstimate:draft=>drafts.push(draft),
       appLocale:()=>"en-US"
     });
+    const bedroom=mount.querySelector("#estimateBedrooms");
+    bedroom.value="5";
+    bedroom.dispatchEvent(new Event("input",{bubbles:true}));
+    module.render(); // A delayed service refresh cannot erase the in-progress estimate.
+    const preserved=mount.querySelector("#estimateBedrooms")===bedroom&&bedroom.value==="5";
     const button=mount.querySelector("[data-estimate-create-quote]");
     const visible=Boolean(mount.querySelector("#estimateService")&&mount.querySelector("#estimateSummary")?.textContent.trim());
     button?.click();
     const result={
+      preserved,
       ready:true,
       rendered:visible,
       hasService:mount.querySelector("#estimateService")?.value==="qa-service",
@@ -304,7 +310,7 @@ async function assertLayout(page,profile){
     module.init(window.TLE_FOLLOWUPS_BRIDGE);
     return result;
   });
-  if(!pricingSmoke.ready||!pricingSmoke.rendered||!pricingSmoke.hasService||!pricingSmoke.quoteButton||!pricingSmoke.createdDraft||!pricingSmoke.draftOnly){
+  if(!pricingSmoke.ready||!pricingSmoke.rendered||!pricingSmoke.hasService||!pricingSmoke.preserved||!pricingSmoke.quoteButton||!pricingSmoke.createdDraft||!pricingSmoke.draftOnly){
     throw new Error(profile.name+": Pricing Calculator / draft quote regression "+JSON.stringify(pricingSmoke));
   }
 
@@ -386,9 +392,13 @@ async function assertLayout(page,profile){
         const bounds=node.getBoundingClientRect();
         return computed.display!=="none"&&computed.visibility!=="hidden"&&bounds.width>0&&bounds.height>0;
       });
-      return {display:style.display,opacity:style.opacity,pointerEvents:style.pointerEvents,width:rect.width,visibleLinks:links.length};
+      const target=links.find(link=>{const r=link.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;})||links[0];
+      const box=target?.getBoundingClientRect();
+      const hit=box?document.elementFromPoint(box.left+box.width/2,box.top+box.height/2):null;
+      const interactive=Boolean(hit&&target&&(hit===target||target.contains(hit)));
+      return {display:style.display,opacity:style.opacity,pointerEvents:style.pointerEvents,width:rect.width,visibleLinks:links.length,interactive};
     });
-    if(moreDrawer.display==="none"||moreDrawer.opacity==="0"||moreDrawer.pointerEvents==="none"||moreDrawer.width<150||moreDrawer.visibleLinks===0){
+    if(moreDrawer.display==="none"||moreDrawer.opacity==="0"||moreDrawer.pointerEvents==="none"||moreDrawer.width<150||moreDrawer.visibleLinks===0||!moreDrawer.interactive){
       throw new Error(profile.name+": More opens a blank navigation drawer "+JSON.stringify(moreDrawer));
     }
     const scrim=page.locator("#sidebarScrim");
