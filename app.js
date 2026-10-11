@@ -2356,7 +2356,8 @@ async function refreshViewData(id){
   const task=(async()=>{
     try{
       if(id==="pricing"){
-        // Pricing is its own workspace: refresh the inputs it depends on, then render.
+        // Show cached pricing immediately; refresh its service data afterward.
+        window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
         const businessId=state.business?.id;
         if(businessId){
           const [{data:services,error:servicesError},{data:addons,error:addonsError}]=await Promise.all([
@@ -2515,14 +2516,6 @@ function openView(id,options={}){
   if(id==="booking") renderPublicLinks();
   if(id==="settings") renderSettings();
 
-  // Render the calculator immediately from cached account data; the async refresh
-  // below updates its inputs afterward. Prevents an empty Pricing screen on slow iOS.
-  if(id==="pricing" && state.business?.id){
-    requestAnimationFrame(()=>{
-      if(!document.querySelector('.view[data-page="pricing"].active')) return;
-      window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
-    });
-  }
   refreshViewData(id).catch(()=>{});
 
   if(id==="team"){
