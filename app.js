@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261008-app-399-r73";
+const APP_VERSION = "20261011-app-399-safe-r75";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2356,7 +2356,8 @@ async function refreshViewData(id){
   const task=(async()=>{
     try{
       if(id==="pricing"){
-        // Pricing is its own workspace: refresh the inputs it depends on, then render.
+        // Render before fetching.
+        window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
         const businessId=state.business?.id;
         if(businessId){
           const [{data:services,error:servicesError},{data:addons,error:addonsError}]=await Promise.all([
@@ -2459,6 +2460,7 @@ async function refreshViewData(id){
 
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
+  if(current==="pricing"&&id!=="pricing") $("#estimateCalculatorMount")?.removeAttribute("data-user-edited");
   if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
@@ -2502,8 +2504,7 @@ function openView(id,options={}){
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
   requestAnimationFrame(()=>{
     setWorkspaceScrollTop(targetTop);
-    // A second frame keeps Back anchored to the same place even when the
-    // returning view finishes its first layout pass on iPhone.
+    // Preserve Back scroll position after iPhone's next layout frame.
     if(options.fromBack) requestAnimationFrame(()=>setWorkspaceScrollTop(targetTop));
   });
   if(!options.skipTrack) trackVisit("/app/"+id).catch(()=>{});
@@ -2524,8 +2525,7 @@ function openView(id,options={}){
   }
   if(!options.skipIntro) setTimeout(()=>maybeShowFeatureIntro(id),220);
 }
-// Delegated navigation keeps dashboard links working even when cards/lists
-// are re-rendered after data loads or iOS restores an older DOM snapshot.
+// Delegated navigation survives rerenders and iOS page restore.
 document.addEventListener("click",e=>{
   const weatherFocus=e.target.closest("[data-weather-focus]");
   if(weatherFocus){

@@ -266,6 +266,54 @@ async function assertLayout(page,profile){
     throw new Error(profile.name+": dashboard horizontal overflow "+JSON.stringify(dashboard));
   }
 
+  // Test actual calculator rendering and the editable quote handoff with isolated
+  // sample data: no login, database writes or real customer details are involved.
+  const pricingSmoke=await page.evaluate(()=>{
+    const pricing=document.querySelector('.view[data-page="pricing"]');
+    const mount=document.getElementById("estimateCalculatorMount");
+    const module=window.TLE_ESTIMATE;
+    if(!pricing||!mount||!module?.init) return {ready:false};
+    const today=document.querySelector('.view[data-page="today"]');
+    today?.classList.remove("active");
+    pricing.classList.add("active");
+    const drafts=[];
+    const data={
+      business:{id:"qa-only-business",role:"owner",currency_code:"USD",locale_code:"en-US"},
+      services:[{id:"qa-service",name:"Example residential cleaning",active:true,pricing_type:"flat",base_price:150}],
+      serviceAddons:[]
+    };
+    module.init({
+      getState:()=>data,
+      showToast:()=>{},
+      openQuoteFromEstimate:draft=>drafts.push(draft),
+      appLocale:()=>"en-US"
+    });
+    const bedroom=mount.querySelector("#estimateBedrooms");
+    bedroom.value="5";
+    bedroom.dispatchEvent(new Event("input",{bubbles:true}));
+    module.render(); // A delayed service refresh cannot erase the in-progress estimate.
+    const preserved=mount.querySelector("#estimateBedrooms")===bedroom&&bedroom.value==="5";
+    const button=mount.querySelector("[data-estimate-create-quote]");
+    const visible=Boolean(mount.querySelector("#estimateService")&&mount.querySelector("#estimateSummary")?.textContent.trim());
+    button?.click();
+    const result={
+      preserved,
+      ready:true,
+      rendered:visible,
+      hasService:mount.querySelector("#estimateService")?.value==="qa-service",
+      quoteButton:Boolean(button&&!button.disabled),
+      createdDraft:drafts.length===1&&Number(drafts[0].price)>0,
+      draftOnly:drafts.length===1&&!drafts[0].status
+    };
+    pricing.classList.remove("active");
+    today?.classList.add("active");
+    module.init(window.TLE_FOLLOWUPS_BRIDGE);
+    return result;
+  });
+  if(!pricingSmoke.ready||!pricingSmoke.rendered||!pricingSmoke.hasService||!pricingSmoke.preserved||!pricingSmoke.quoteButton||!pricingSmoke.createdDraft||!pricingSmoke.draftOnly){
+    throw new Error(profile.name+": Pricing Calculator / draft quote regression "+JSON.stringify(pricingSmoke));
+  }
+
   // iOS/PWA resume regression: a pageshow event (for example after returning
   // from Weather or a password-manager surface) must not force-scroll to top.
   const resumeScroll=await page.evaluate(async()=>{
@@ -328,6 +376,31 @@ async function assertLayout(page,profile){
     if(Math.abs(nav.left)>3) throw new Error(profile.name+": open sidebar is off-screen "+JSON.stringify(nav));
     if(nav.width>Math.min(nav.innerWidth*.86,305)) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
     if(nav.mainWidth<nav.innerWidth-36) throw new Error(profile.name+": sidebar compressed dashboard "+JSON.stringify(nav));
+    await page.waitForFunction(()=>{
+      const sidebar=document.querySelector("#sidebar");
+      if(!sidebar) return false;
+      const style=getComputedStyle(sidebar);
+      return style.display!=="none"&&style.visibility==="visible"&&
+        Number(style.opacity)>.95&&style.pointerEvents!=="none";
+    },null,{timeout:2200});
+    const moreDrawer=await page.evaluate(()=>{
+      const sidebar=document.querySelector("#sidebar");
+      const style=getComputedStyle(sidebar);
+      const rect=sidebar.getBoundingClientRect();
+      const links=[...sidebar.querySelectorAll(".nav-item")].filter(node=>{
+        const computed=getComputedStyle(node);
+        const bounds=node.getBoundingClientRect();
+        return computed.display!=="none"&&computed.visibility!=="hidden"&&bounds.width>0&&bounds.height>0;
+      });
+      const target=links.find(link=>{const r=link.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;})||links[0];
+      const box=target?.getBoundingClientRect();
+      const hit=box?document.elementFromPoint(box.left+box.width/2,box.top+box.height/2):null;
+      const interactive=Boolean(hit&&target&&(hit===target||target.contains(hit)));
+      return {display:style.display,opacity:style.opacity,pointerEvents:style.pointerEvents,width:rect.width,visibleLinks:links.length,interactive};
+    });
+    if(moreDrawer.display==="none"||moreDrawer.opacity==="0"||moreDrawer.pointerEvents==="none"||moreDrawer.width<150||moreDrawer.visibleLinks===0||!moreDrawer.interactive){
+      throw new Error(profile.name+": More opens a blank navigation drawer "+JSON.stringify(moreDrawer));
+    }
     const scrim=page.locator("#sidebarScrim");
     await scrim.click({position:{x:Math.max(10,profile.viewport.width-20),y:Math.floor(profile.viewport.height/2)}});
     await page.waitForFunction(()=>!document.querySelector(".sidebar")?.classList.contains("open"),null,{timeout:2000});
