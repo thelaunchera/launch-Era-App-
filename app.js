@@ -2460,6 +2460,7 @@ async function refreshViewData(id){
 
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
+  if(current==="pricing" && id!=="pricing") document.getElementById("estimateCalculatorMount")?.removeAttribute("data-user-edited");
   if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
