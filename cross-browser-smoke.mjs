@@ -370,6 +370,13 @@ async function assertLayout(page,profile){
     if(Math.abs(nav.left)>3) throw new Error(profile.name+": open sidebar is off-screen "+JSON.stringify(nav));
     if(nav.width>Math.min(nav.innerWidth*.86,305)) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
     if(nav.mainWidth<nav.innerWidth-36) throw new Error(profile.name+": sidebar compressed dashboard "+JSON.stringify(nav));
+    await page.waitForFunction(()=>{
+      const sidebar=document.querySelector("#sidebar");
+      if(!sidebar) return false;
+      const style=getComputedStyle(sidebar);
+      return style.display!=="none"&&style.visibility==="visible"&&
+        Number(style.opacity)>.95&&style.pointerEvents!=="none";
+    },null,{timeout:2200});
     const moreDrawer=await page.evaluate(()=>{
       const sidebar=document.querySelector("#sidebar");
       const style=getComputedStyle(sidebar);
