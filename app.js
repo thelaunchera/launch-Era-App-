@@ -2356,7 +2356,7 @@ async function refreshViewData(id){
   const task=(async()=>{
     try{
       if(id==="pricing"){
-        // Show cached pricing immediately; refresh its service data afterward.
+        // Render before fetching.
         window.TLE_ESTIMATE?.init?.(window.TLE_FOLLOWUPS_BRIDGE);
         const businessId=state.business?.id;
         if(businessId){
@@ -2460,7 +2460,7 @@ async function refreshViewData(id){
 
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
-  if(current==="pricing" && id!=="pricing") document.getElementById("estimateCalculatorMount")?.removeAttribute("data-user-edited");
+  if(current==="pricing"&&id!=="pricing") $("#estimateCalculatorMount")?.removeAttribute("data-user-edited");
   if(current && current!==id) workspaceScrollPositions[current]=workspaceScrollTop();
   if(!options.fromBack && !options.fromRestore && current && current!==id){
     if(navHistory[navHistory.length-1]!==current) navHistory.push(current);
