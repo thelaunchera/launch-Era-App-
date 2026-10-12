@@ -1,0 +1,6 @@
+/* TLE-only login identity; keeps all business workspace and tenant screens unchanged. */
+body.shell-auth .auth-brand .brand-mark{display:none!important}
+body.shell-auth .auth-brand .brand-name{display:flex!important;align-items:center!important;line-height:1!important;min-height:34px!important}
+body.shell-auth .auth-brand .tle-auth-wordmark{display:block!important;width:clamp(138px,37vw,172px)!important;height:auto!important;max-width:100%!important;object-fit:contain!important}
+body.shell-auth .auth-brand{gap:0!important;align-items:center!important}
+body.shell-auth .auth-brand .brand-sub{font-size:11px!important;letter-spacing:.06em!important;margin-top:5px!important}
