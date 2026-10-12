@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261012-app-400-desktop-r77";
+const APP_VERSION = "20261012-app-400-desktop-r78";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2600,13 +2600,10 @@ function setSidebarOpen(open){
     sidebar.style.setProperty("opacity",shouldOpen?"1":"0","important");
     sidebar.style.setProperty("pointer-events",shouldOpen?"auto":"none","important");
   }else{
-    sidebar.style.removeProperty("left");
-    sidebar.style.removeProperty("right");
-    sidebar.style.removeProperty("transform");
-    sidebar.style.removeProperty("-webkit-transform");
-    sidebar.style.removeProperty("visibility");
-    sidebar.style.removeProperty("opacity");
-    sidebar.style.removeProperty("pointer-events");
+    ["left","right"].forEach(key=>sidebar.style.removeProperty(key));
+    for(const [key,value] of Object.entries({display:"flex",transform:"none","-webkit-transform":"none",visibility:"visible",opacity:"1","pointer-events":"auto"})){
+      sidebar.style.setProperty(key,value,"important");
+    }
   }
 
   if(shouldOpen) syncMobileNavGroups();
@@ -2618,7 +2615,7 @@ $("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.
 sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));
 let tleCalendarWideMode=window.innerWidth>=721;
 window.addEventListener("resize",()=>{
-  if(window.innerWidth>860 && sidebar.classList.contains("open")) setSidebarOpen(false);
+  if(window.innerWidth>860) setSidebarOpen(false);
   const nextCalendarWideMode=window.innerWidth>=721;
   if(nextCalendarWideMode!==tleCalendarWideMode){
     tleCalendarWideMode=nextCalendarWideMode;
