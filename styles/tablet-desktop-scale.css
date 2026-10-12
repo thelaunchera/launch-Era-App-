@@ -376,3 +376,30 @@ body.shell-app .service-editor-form [data-service-base-price-wrap][hidden]{
 
 }
 @media(prefers-reduced-motion:reduce){html:not([data-dashboard-preview="bento"]) body.shell-app #appShell [data-page="today"] :is(.dashboard-quick-card,.attention-summary-card,.pulse-card){transition:none!important}}
+
+/* r78 — Every internal workspace view keeps the desktop navigation.
+   A responsive drawer must not leave its hidden state behind on wider screens. */
+@media (min-width:861px){
+  html body.shell-app #appShell:not([hidden])>#sidebar.sidebar{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:auto!important;
+    bottom:auto!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    transform:none!important;
+    -webkit-transform:none!important;
+    translate:none!important;
+    z-index:45!important;
+    width:var(--tle-fixed-sidebar-width)!important;
+    min-width:var(--tle-fixed-sidebar-width)!important;
+    max-width:var(--tle-fixed-sidebar-width)!important;
+  }
+  html body.shell-app #appShell:not([hidden])>.main{
+    grid-column:2!important;
+    min-width:0!important;
+  }
+}
