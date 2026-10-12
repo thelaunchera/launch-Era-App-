@@ -43,7 +43,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261011-app-399-safe-r75";
+window.__tleShellVersion="20261012-app-399-ipad-r76";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
