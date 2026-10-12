@@ -2600,16 +2600,10 @@ function setSidebarOpen(open){
     sidebar.style.setProperty("opacity",shouldOpen?"1":"0","important");
     sidebar.style.setProperty("pointer-events",shouldOpen?"auto":"none","important");
   }else{
-    // Desktop navigation is persistent on all workspace views. Explicitly
-    // recover from mobile drawer state left by a viewport or device change.
-    sidebar.style.removeProperty("left");
-    sidebar.style.removeProperty("right");
-    sidebar.style.setProperty("display","flex","important");
-    sidebar.style.setProperty("transform","none","important");
-    sidebar.style.setProperty("-webkit-transform","none","important");
-    sidebar.style.setProperty("visibility","visible","important");
-    sidebar.style.setProperty("opacity","1","important");
-    sidebar.style.setProperty("pointer-events","auto","important");
+    ["left","right"].forEach(key=>sidebar.style.removeProperty(key));
+    for(const [key,value] of Object.entries({display:"flex",transform:"none","-webkit-transform":"none",visibility:"visible",opacity:"1","pointer-events":"auto"})){
+      sidebar.style.setProperty(key,value,"important");
+    }
   }
 
   if(shouldOpen) syncMobileNavGroups();
@@ -2621,7 +2615,6 @@ $("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.
 sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));
 let tleCalendarWideMode=window.innerWidth>=721;
 window.addEventListener("resize",()=>{
-  // Reconcile the desktop navigation even if it was already closed.
   if(window.innerWidth>860) setSidebarOpen(false);
   const nextCalendarWideMode=window.innerWidth>=721;
   if(nextCalendarWideMode!==tleCalendarWideMode){
