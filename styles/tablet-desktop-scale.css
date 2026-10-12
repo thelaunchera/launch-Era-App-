@@ -294,3 +294,40 @@ body.shell-app .service-editor-form [data-service-base-price-wrap][hidden]{
   body.shell-app #languageBtn .top-label{display:none!important;}
   body.shell-app #languageBtn .top-icon{font-size:11px!important;font-weight:900!important;}
 }
+
+/* r76 — Keep tablet/laptop navigation anchored while the workspace scrolls.
+   The 1101–1199px desktop rule previously gave the sidebar 280px but its
+   grid track only 220px. Match the track and the sidebar at every width.
+   Phones (<=860px) retain their existing slide-out drawer. */
+@media (min-width:861px){
+  body.shell-app #appShell{
+    --tle-fixed-sidebar-width:220px;
+    grid-template-columns:var(--tle-fixed-sidebar-width) minmax(0,1fr)!important;
+  }
+  body.shell-app #appShell>#sidebar.sidebar{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:var(--tle-fixed-sidebar-width)!important;
+    min-width:var(--tle-fixed-sidebar-width)!important;
+    max-width:var(--tle-fixed-sidebar-width)!important;
+    height:100vh!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    transform:none!important;
+  }
+  body.shell-app #appShell>.main{
+    grid-column:2!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+}
+@media (min-width:1200px){
+  body.shell-app #appShell{--tle-fixed-sidebar-width:280px;}
+}

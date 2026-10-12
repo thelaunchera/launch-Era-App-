@@ -266,6 +266,45 @@ async function assertLayout(page,profile){
     throw new Error(profile.name+": dashboard horizontal overflow "+JSON.stringify(dashboard));
   }
 
+  // Regression: iPad landscape's navigation must remain pinned and must not
+  // overlap the workspace at either common iPad landscape viewport width.
+  if(profile.name==="Safari iPad"){
+    for(const width of [1024,1194]){
+      await page.setViewportSize({width,height:834});
+      const pinned=await page.evaluate(async()=>{
+        const main=document.querySelector("#appShell>.main");
+        const spacer=document.createElement("div");
+        spacer.style.height="1800px";
+        spacer.dataset.sidebarRegression="true";
+        main.appendChild(spacer);
+        window.scrollTo(0,360);
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+        const side=document.querySelector("#sidebar").getBoundingClientRect();
+        const content=main.getBoundingClientRect();
+        const result={
+          scrollY:window.scrollY,
+          sideTop:side.top,
+          sideLeft:side.left,
+          sideRight:side.right,
+          sideWidth:side.width,
+          mainLeft:content.left,
+          viewportWidth:window.innerWidth,
+          scrollWidth:document.documentElement.scrollWidth
+        };
+        window.scrollTo(0,0);
+        spacer.remove();
+        return result;
+      });
+      if(pinned.scrollY<180||Math.abs(pinned.sideTop)>3||Math.abs(pinned.sideLeft)>3
+        ||Math.abs(pinned.sideWidth-220)>3||pinned.sideRight>pinned.mainLeft+3
+        ||pinned.scrollWidth>pinned.viewportWidth+4){
+        throw new Error(profile.name+" landscape "+width+": sidebar shifted or overlaps main "+JSON.stringify(pinned));
+      }
+    }
+    await page.setViewportSize(profile.viewport);
+    await page.evaluate(()=>window.scrollTo(0,0));
+  }
+
   // Test actual calculator rendering and the editable quote handoff with isolated
   // sample data: no login, database writes or real customer details are involved.
   const pricingSmoke=await page.evaluate(()=>{
