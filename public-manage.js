@@ -103,6 +103,8 @@
   }
 
   function showShell(){
+    document.body.classList.remove("shell-auth","shell-app","shell-worker");
+    document.body.classList.add("shell-public");
     $("#sessionSplash") && ($("#sessionSplash").hidden=true);
     $("#authShell") && ($("#authShell").hidden=true);
     $("#appShell") && ($("#appShell").hidden=true);
