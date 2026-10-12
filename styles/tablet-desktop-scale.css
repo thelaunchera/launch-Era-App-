@@ -334,7 +334,7 @@ body.shell-app .service-editor-form [data-service-base-price-wrap][hidden]{
 
 /* Desktop workspace: centered welcome, actionable compact overview. */
 @media(min-width:1101px){
- html:not([data-dashboard-preview="bento"]) body.shell-app #appShell>.main{padding:24px 30px 32px!important}
+ html:not([data-dashboard-preview="bento"]) body.shell-app #appShell>.main{padding:0 30px 32px!important}
  html:not([data-dashboard-preview="bento"]) body.shell-app #appShell .view[data-page="today"].active{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr)!important;gap:18px!important;max-width:1500px!important;margin-inline:auto!important;align-items:start!important}
  html:not([data-dashboard-preview="bento"]) body.shell-app #appShell .view[data-page="today"]> *{min-width:0!important;margin-bottom:0!important}
  html:not([data-dashboard-preview="bento"]) body.shell-app #appShell .view[data-page="today"]>:is(#firstWinCard,#todayHeroCard,.dashboard-quick-access,.money-week-head,#businessPulse,.growth-lower,.presence-panel){grid-column:1/-1!important}
