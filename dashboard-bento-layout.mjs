@@ -60,7 +60,11 @@ try{
     preview:document.documentElement.dataset.dashboardPreview,
     overflow:document.documentElement.scrollWidth>innerWidth+2||document.querySelector('.main').scrollWidth>document.querySelector('.main').clientWidth+2,
     columns:getComputedStyle(document.querySelector('#businessPulse')).gridTemplateColumns.split(' ').length,
-    quickColumns:getComputedStyle(document.querySelector('.dashboard-quick-grid')).gridTemplateColumns.split(' ').length,
+    quickColumns:(()=>{
+      const value=getComputedStyle(document.querySelector('.dashboard-quick-grid')).gridTemplateColumns.trim();
+      const repeat=value.match(/^repeat\(\s*(\d+)\s*,/i);
+      return repeat?Number(repeat[1]):value.split(/\s+/).length;
+    })(),
     pulseCount:[...document.querySelectorAll('.pulse-card')].filter(el=>getComputedStyle(el).display!=='none').length,
     ids:[...document.querySelectorAll('[id]')].map(el=>el.id),
     chartTotal:[...document.querySelectorAll('.bento-bar-value')].reduce((sum,el)=>sum+Number(el.textContent),0),
@@ -69,24 +73,7 @@ try{
     heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
-   const diagnostic=await page.evaluate(()=>{
-     const element=document.querySelector('.dashboard-quick-grid');
-     const matched=[];
-     for(const sheet of document.styleSheets){
-       try{
-         const traverse=(rules,media='')=>{
-           for(const rule of rules){
-             if(rule.cssRules){traverse(rule.cssRules,rule.conditionText||media);}
-             else if(rule.selectorText?.includes('dashboard-quick-grid') && element.matches(rule.selectorText)){
-               matched.push({source:sheet.href?.split('/').pop(),media,columns:rule.style.getPropertyValue('grid-template-columns'),important:rule.style.getPropertyPriority('grid-template-columns')});
-             }
-           }
-         };traverse(sheet.cssRules);
-       }catch{}
-     }
-     return {innerWidth,match520:matchMedia('(max-width: 520px)').matches,computed:getComputedStyle(element).gridTemplateColumns,quickParent:element.parentElement?.className,matched:matched.slice(-15)};
-   });
-   assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick columns ${JSON.stringify(diagnostic)}`);assert.equal(result.pulseCount,4);
+   assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick access columns`);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
    assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
