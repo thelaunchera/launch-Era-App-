@@ -190,7 +190,7 @@ html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="t
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayHeroAction {grid-row:4!important;width:100%!important;min-height:46px!important;margin:0!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayGreeting {font-size:clamp(23px,6vw,29px)!important;line-height:1.13!important;overflow-wrap:break-word;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayMomentCopy {font-size:13px!important;line-height:1.45!important;}
-  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active .dashboard-quick-access .dashboard-quick-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-columns:minmax(0,1fr)!important;gap:9px!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-card {min-height:82px!important;padding:12px 9px!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-card strong {font-size:12px!important;overflow-wrap:anywhere;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .attention-list {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
