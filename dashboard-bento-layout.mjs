@@ -20,7 +20,7 @@ try{
  for(const [engineName,engine] of Object.entries({chromium,webkit})){
  const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  try{
-  for(const width of [320,390,768,1366]){
+  for(const width of [320,375,390,430,520,768,1024,1366,1600]){
    const page=await browser.newPage({viewport:{width,height:900}});
    await page.goto('http://127.0.0.1:4176/?dashboard-preview=bento');
    await page.evaluate(()=>{
@@ -69,9 +69,9 @@ try{
     heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
-   assert.equal(result.columns,width<=860?2:4);assert.equal(result.quickColumns,3);assert.equal(result.pulseCount,4);
+   assert.equal(result.columns,width<=860?2:4);assert.equal(result.quickColumns,width<=520?2:3);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
-   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<190,`greeting too large: ${result.heroHeight}`);
+   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
    // Business weekdays stay correct when the device timezone is UTC.
