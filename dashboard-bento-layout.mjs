@@ -20,9 +20,13 @@ try{
  for(const [engineName,engine] of Object.entries({chromium,webkit})){
  const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  try{
+  const fallbackPage=await browser.newPage({viewport:{width:390,height:900}});
+  await fallbackPage.goto('http://127.0.0.1:4176/?dashboard-preview=classic');
+  assert.notEqual(await fallbackPage.evaluate(()=>document.documentElement.dataset.dashboardPreview),'bento','classic rollback route must remain available');
+  await fallbackPage.close();
   for(const width of [320,375,390,430,520,768,1024,1366,1600]){
    const page=await browser.newPage({viewport:{width,height:900}});
-   await page.goto('http://127.0.0.1:4176/?dashboard-preview=bento');
+   await page.goto('http://127.0.0.1:4176/');
    await page.evaluate(()=>{
     document.body.className='shell-app';
     document.querySelectorAll('body > :not(#appShell)').forEach(el=>el.hidden=true);
