@@ -3084,6 +3084,36 @@ function toggleAuthPasswordVisibility(){
   try{input.focus({preventScroll:true});}catch{try{input.focus();}catch{}}
   if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
 }
+/* Editorial identity text is separate from authentication logic. */
+function syncAuthEditorialCopy(){
+ const phrases={
+  authStoryKicker:["THE LAUNCH ERA / CLEANING APP","THE LAUNCH ERA / CLEANING APP","THE LAUNCH ERA / CLEANING APP"],
+  authStoryCopy:["Bookings, clients, quotes, jobs and invoices — finally in one organized workspace built for cleaning business owners.","Reservas, clientes, cotizaciones, trabajos y facturas, por fin organizados en un espacio para tu negocio de limpieza.","Réservations, clients, devis, missions et factures enfin réunis dans un seul espace de travail."],
+  authTagOne:["Bookings + calendar","Reservas + calendario","Réservations + calendrier"],
+  authTagTwo:["Clients + jobs","Clientes + trabajos","Clients + missions"],
+  authTagThree:["Quotes + invoices","Cotizaciones + facturas","Devis + factures"],
+  authPreviewLabel:["SAMPLE WORKSPACE","ESPACIO DE EJEMPLO","ESPACE D’EXEMPLE"],
+  authPreviewSample:["Fictional data only","Solo datos ficticios","Données fictives uniquement"],
+  authPreviewGreeting:["A clear view of your day.","Tu día de un vistazo.","Votre journée en un coup d’œil."],
+  authPreviewSub:["Your operations, easier to see.","Tus operaciones, más claras.","Vos opérations en un clin d’œil."],
+  authPreviewJobs:["Upcoming jobs","Próximos trabajos","Missions à venir"],
+  authPreviewClients:["Sample clients","Clientes de ejemplo","Clients fictifs"],
+  authPreviewQuotes:["Open quotes","Cotizaciones abiertas","Devis ouverts"],
+  authPreviewLineOne:["Recurring cleaning · 9:30 AM","Limpieza recurrente · 9:30 AM","Nettoyage récurrent · 9 h 30"],
+  authPreviewScheduled:["Scheduled","Agendado","Planifié"],
+  authPreviewLineTwo:["Deep cleaning · 1:00 PM","Limpieza profunda · 1:00 PM","Grand nettoyage · 13 h"],
+  authPreviewQuote:["Quote ready","Cotización lista","Devis prêt"],
+ };
+ for(const [id,values] of Object.entries(phrases)){
+  const node=document.getElementById(id);
+  if(node) node.textContent=langPick(...values);
+ }
+ const heading=document.getElementById("authStoryHeading");
+ if(heading) heading.innerHTML=langPick("Run the day.<br><span>Not the chaos.</span>","Organiza tu día.<br><span>Sin el caos.</span>","Gérez vos journées.<br><span>Sans le chaos.</span>");
+ const eyebrow=document.getElementById("authEditorialEyebrow");
+ if(eyebrow) eyebrow.textContent=langPick("YOUR CLEANING WORKSPACE","TU ESPACIO DE LIMPIEZA","VOTRE ESPACE DE NETTOYAGE");
+}
+
 function setAuthMode(mode,options={}){
   state.authMode=mode;
   authShell?.classList.toggle("auth-mode-signup",mode==="signup");
@@ -3113,8 +3143,8 @@ function setAuthMode(mode,options={}){
   syncAuthPasswordToggle();
 
   if(mode==="signup"){
-    title.textContent="Start organizing your cleaning business today.";
-    copy.textContent="Bookings, clients, jobs, quotes and invoices — all in one place.";
+    title.textContent=langPick("Your business. Beautifully organized.","Tu negocio. Todo en orden.","Votre entreprise. Parfaitement organisée.");
+    copy.textContent=langPick("Everything you need to run your cleaning days, all in one place.","Todo lo que necesitas para organizar las limpiezas, en un solo lugar.","Tout pour organiser vos journées de nettoyage, au même endroit.");
     submit.textContent="Sign up";
     submit.hidden=false;
     switchBtn.textContent="Already have an account? Sign in";
@@ -3144,8 +3174,8 @@ function setAuthMode(mode,options={}){
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
   }else{
-    title.textContent="Welcome back";
-    copy.textContent="Sign in to manage your cleaning business.";
+    title.textContent=langPick("Welcome back to your workspace.","Qué bueno tenerte de vuelta.","Heureux de vous retrouver.");
+    copy.textContent=langPick("Pick up right where you left off.","Continúa donde lo dejaste.","Reprenez là où vous en étiez.");
     submit.textContent="Sign in";
     submit.hidden=false;
     switchBtn.textContent="Don’t have an account? Sign up";
@@ -3164,6 +3194,7 @@ function setAuthMode(mode,options={}){
   }
 
   syncRememberUsernameControl();
+  syncAuthEditorialCopy();
   prepareAdminShortcut();
 }
 
