@@ -1,6 +1,11 @@
 /* Cosmetic text only: synthetic preview of Cleaning App workspace.
    No auth, customer or tenant data read or written. */
 (function(){
+ const MODE={
+  en:{signup:["Your business. Beautifully organized.","Everything for your cleaning days, all in one place."],signin:["Welcome back to your workspace.","Pick up right where you left off."]},
+  es:{signup:["Tu negocio. Todo en orden.","Todo lo que necesitas para organizar las limpiezas, en un solo lugar."],signin:["Qué bueno tenerte de vuelta.","Continúa donde lo dejaste."]},
+  fr:{signup:["Votre entreprise. Parfaitement organisée.","Tout pour organiser vos journées de nettoyage, au même endroit."],signin:["Heureux de vous retrouver.","Reprenez là où vous en étiez."]}
+ };
  const T={
  en:{
  authStoryKicker:"THE LAUNCH ERA / CLEANING APP",
@@ -41,6 +46,14 @@
  };
  window.TLE_AUTH_EDITORIAL_TRANSLATE=function(language){
   const copy=T[language]||T.en;
+  const shell=document.getElementById("authShell");
+  if(shell && !shell.classList.contains("auth-mode-recovery")){
+   const mode=shell.classList.contains("auth-mode-signin")?"signin":"signup";
+   const words=(MODE[language]||MODE.en)[mode];
+   const title=document.getElementById("authTitle"),description=document.getElementById("authCopy");
+   if(title)title.textContent=words[0];
+   if(description)description.textContent=words[1];
+  }
   for(const [id,value] of Object.entries(copy)){
    const node=document.getElementById(id);
    if(!node)continue;
