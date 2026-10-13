@@ -3113,8 +3113,8 @@ function setAuthMode(mode,options={}){
   syncAuthPasswordToggle();
 
   if(mode==="signup"){
-    title.textContent=langPick("Your business. Beautifully organized.","Tu negocio. Todo en orden.","Votre entreprise. Parfaitement organisée.");
-    copy.textContent=langPick("Everything you need to run your cleaning days, all in one place.","Todo lo que necesitas para organizar las limpiezas, en un solo lugar.","Tout pour organiser vos journées de nettoyage, au même endroit.");
+    title.textContent="Your business. Beautifully organized.";
+    copy.textContent="Everything for your cleaning days, all in one place.";
     submit.textContent="Sign up";
     submit.hidden=false;
     switchBtn.textContent="Already have an account? Sign in";
@@ -3144,8 +3144,8 @@ function setAuthMode(mode,options={}){
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
   }else{
-    title.textContent=langPick("Welcome back to your workspace.","Qué bueno tenerte de vuelta.","Heureux de vous retrouver.");
-    copy.textContent=langPick("Pick up right where you left off.","Continúa donde lo dejaste.","Reprenez là où vous en étiez.");
+    title.textContent="Welcome back to your workspace.";
+    copy.textContent="Pick up right where you left off.";
     submit.textContent="Sign in";
     submit.hidden=false;
     switchBtn.textContent="Don’t have an account? Sign up";
