@@ -37,7 +37,11 @@ function installMobileDrawerFix(){
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sidebar.classList.contains("open"))shut();});
 }
 function installRecordArchitecture(){
+ // This function runs on load, DOMContentLoaded and pageshow: attach only one observer and click listener.
+ if(document.documentElement.dataset.tleRecordArchitectureInstalled==="1")return;
  const selectors=["#clientsGrid","#quotesBoard","#teamGrid","#suppliesGrid","#jobsList"];
+ if(!document.querySelector("#suppliesGrid"))return;
+ document.documentElement.dataset.tleRecordArchitectureInstalled="1";
  const normalize=()=>{
   document.querySelectorAll("#invoicesTable .tle-record-disclosure").forEach(el=>el.remove());
   document.querySelectorAll("#invoicesTable .record-actions").forEach(actions=>{actions.hidden=false;actions.classList.remove("tle-record-actions");});
