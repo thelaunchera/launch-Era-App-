@@ -6,6 +6,18 @@
   es:{signup:["Tu negocio. Todo en orden.","Todo lo que necesitas para organizar las limpiezas, en un solo lugar."],signin:["Qué bueno tenerte de vuelta.","Continúa donde lo dejaste."]},
   fr:{signup:["Votre entreprise. Parfaitement organisée.","Tout pour organiser vos journées de nettoyage, au même endroit."],signin:["Heureux de vous retrouver.","Reprenez là où vous en étiez."]}
  };
+ const T_HT={
+  authStoryKicker:"THE LAUNCH ERA / CLEANING APP",
+  authStoryCopy:"Rezèvasyon, kliyan, devis, travay ak fakti — tout òganize nan yon sèl espas pou biznis netwayaj ou.",
+  authTagOne:"Rezèvasyon + kalandriye",authTagTwo:"Kliyan + travay",authTagThree:"Devis + fakti",
+  authPreviewLabel:"ESPAS EGZANP",authPreviewSample:"Done envante sèlman",
+  authPreviewGreeting:"Wè jounen ou pi klè.",authPreviewSub:"Tout operasyon yo nan yon sèl kote.",
+  authPreviewJobs:"Travay k ap vini",authPreviewClients:"Kliyan egzanp",authPreviewQuotes:"Devis ouvè",
+  authPreviewLineOne:"Netwayaj regilye · 9:30 AM",authPreviewScheduled:"Pwograme",
+  authPreviewLineTwo:"Gwo netwayaj · 1:00 PM",authPreviewQuote:"Devis pare",
+  authEditorialEyebrow:"ESPAS NETWAYAJ OU",
+  authStoryHeading:'Òganize jounen an.<br><span>San dezòd.</span>'
+ };
  const T={
  en:{
  authStoryKicker:"THE LAUNCH ERA / CLEANING APP",
@@ -45,11 +57,11 @@
  }
  };
  window.TLE_AUTH_EDITORIAL_TRANSLATE=function(language){
-  const copy=T[language]||T.en;
+  const copy=language==="ht"?T_HT:(T[language]||T.en);
   const shell=document.getElementById("authShell");
   if(shell && !shell.classList.contains("auth-mode-recovery")){
    const mode=shell.classList.contains("auth-mode-signin")?"signin":"signup";
-   const words=(MODE[language]||MODE.en)[mode];
+   const words=(language==="ht"?{signup:["Biznis ou. Byen òganize.","Tout sa ou bezwen pou jounen netwayaj ou, nan yon sèl kote."],signin:["Byenveni tounen nan espas ou.","Kontinye kote ou te rete a."]}:MODE[language]||MODE.en)[mode];
    const title=document.getElementById("authTitle"),description=document.getElementById("authCopy");
    if(title)title.textContent=words[0];
    if(description)description.textContent=words[1];
@@ -62,8 +74,9 @@
   }
  };
  document.addEventListener("DOMContentLoaded",function(){
-  const getLang=()=>window.TLE_I18N?.getLanguage?.()||document.documentElement.lang||"en";
+  const getLang=()=>String(window.TLE_I18N?.language||document.documentElement.lang||"en").toLowerCase();
   window.TLE_AUTH_EDITORIAL_TRANSLATE(getLang());
+  window.addEventListener("tle:languagechange",()=>window.TLE_AUTH_EDITORIAL_TRANSLATE(getLang()));
   document.querySelectorAll("[data-language-toggle]").forEach(button=>{
    button.addEventListener("click",function(){
     requestAnimationFrame(()=>window.TLE_AUTH_EDITORIAL_TRANSLATE(getLang()));
