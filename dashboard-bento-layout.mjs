@@ -74,9 +74,12 @@ try{
     chartTotal:[...document.querySelectorAll('.bento-bar-value')].reduce((sum,el)=>sum+Number(el.textContent),0),
     elapsed:document.querySelector('#bentoTimerElapsed').textContent,
     arc:document.querySelector('#bentoCapacityArc').getAttribute('stroke-dasharray'),
-    heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height
+    heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height,
+    sidebarRight:document.querySelector('#sidebar').getBoundingClientRect().right,
+    mainLeft:document.querySelector('#appShell>.main').getBoundingClientRect().left
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
+   if(width>=861) assert.ok(result.sidebarRight<=result.mainLeft+1,`${engineName} ${width}: sidebar overlaps dashboard (${result.sidebarRight}px versus ${result.mainLeft}px)`);
    assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick access columns`);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
    assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
