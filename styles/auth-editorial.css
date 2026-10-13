@@ -1,0 +1,75 @@
+/* The Launch Era Cleaning App | editorial entry, 2026-10-13.
+   Auth only. Never display live tenant/customer data here. */
+body.shell-auth #authShell[hidden]{display:none!important}
+body.shell-auth #authShell.auth-shell{display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(350px,440px)!important;gap:clamp(24px,5vw,84px)!important;align-items:center!important;justify-content:center!important;max-width:none!important;min-height:100dvh;padding:clamp(30px,5vw,70px) max(34px,calc((100vw - 1330px)/2))!important;background:#FAF8F3!important;overflow-x:clip}
+body.shell-auth #authShell.auth-shell:before{inset:0!important;filter:none!important;transform:none!important;animation:none!important;background:linear-gradient(125deg,#FAF8F3 5%,#f4fafc 60%,#D7EFFF 100%)!important}
+body.shell-auth #authShell.auth-shell:after{background:radial-gradient(ellipse at 23% 78%,rgba(199,229,249,.55),transparent 46%)!important}
+body.shell-auth #authShell .auth-story{position:relative;z-index:2;min-width:0;max-width:670px;color:#191919}
+body.shell-auth #authShell .auth-story-kicker{display:flex;align-items:center;gap:10px;font:700 11px/1.3 Futura,Arial,sans-serif;letter-spacing:.13em;color:#3c667d;margin:0 0 23px}
+body.shell-auth #authShell .auth-story-kicker:before{content:"";width:24px;height:6px;background:#7cbee8;border-radius:20px}
+body.shell-auth #authShell .auth-story h2{font:600 clamp(46px,5.65vw,80px)/1.02 Prompt,"Avenir Next",Arial,sans-serif;letter-spacing:-.06em;max-width:660px;margin:0 0 20px;text-wrap:balance}
+body.shell-auth #authShell .auth-story h2 span{color:#488ab9}
+body.shell-auth #authShell .auth-story>p{max-width:460px;margin:0 0 23px;font:400 16px/1.58 Futura,Arial,sans-serif;color:#526878}
+body.shell-auth #authShell .auth-story-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+body.shell-auth #authShell .auth-story-tags span{font:700 11px/1.2 Futura,Arial,sans-serif;padding:9px 12px;border:1px solid #c9dfe9;border-radius:100px;color:#31586e;background:#ffffffae}
+body.shell-auth #authShell .auth-story-preview{max-width:535px;padding:18px;border:1px solid #dbe9f1;border-radius:22px;background:white;box-shadow:0 20px 58px rgba(32,69,90,.10);transform:rotate(-1deg)}
+body.shell-auth #authShell .auth-story-preview-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #e3edf3;font:700 10px/1.4 Futura,Arial,sans-serif;letter-spacing:.12em;color:#526d80}
+body.shell-auth #authShell .auth-story-preview-top small{letter-spacing:0;font-weight:600;color:#698397}
+body.shell-auth #authShell .auth-story-preview h3{font:600 20px/1.3 Prompt,Arial,sans-serif;margin:15px 0 4px;letter-spacing:-.04em}
+body.shell-auth #authShell .auth-story-preview>p{font:500 11px Futura,Arial,sans-serif;color:#638090;margin:0 0 13px}
+body.shell-auth #authShell .auth-story-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+body.shell-auth #authShell .auth-story-metrics div{background:#eaf5fc;border-radius:11px;padding:12px 10px}
+body.shell-auth #authShell .auth-story-metrics strong{display:block;font:600 23px Prompt,Arial,sans-serif;letter-spacing:-.04em}
+body.shell-auth #authShell .auth-story-metrics small{font:500 10px/1.35 Arial,sans-serif;color:#668092}
+body.shell-auth #authShell .auth-story-line{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-top:1px solid #eef2f5;font:600 11px/1.3 Arial,sans-serif;color:#304e61}
+body.shell-auth #authShell .auth-story-line small{color:#668596;font-size:10px;white-space:nowrap}
+body.shell-auth #authShell .auth-card,
+body.shell-auth #authShell.auth-mode-signup .auth-card,
+body.shell-auth #authShell.auth-mode-signin .auth-card{position:relative;z-index:3;box-sizing:border-box;width:100%!important;max-width:440px!important;min-width:0;margin:0!important;justify-self:center;padding:clamp(23px,3vw,36px)!important;background:#fff!important;border:1px solid #dce9f1!important;border-radius:24px!important;box-shadow:0 22px 65px rgba(39,73,95,.10)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform:none!important}
+body.shell-auth #authShell .auth-card:before{display:none!important}
+body.shell-auth #authShell .auth-language-toggle{top:18px!important;right:18px!important;min-width:46px!important;height:38px!important;border:1px solid #d4e5f0!important;background:#edf7fc!important;border-radius:30px!important;backdrop-filter:none!important;color:#274f67!important}
+body.shell-auth #authShell .auth-brand{display:flex!important;align-items:center!important;justify-content:flex-start!important;margin:0 55px 27px 0!important;text-align:left!important}
+body.shell-auth #authShell .auth-brand .brand-sub{display:block!important;margin-top:4px!important;font:700 10px/1.4 Futura,Arial,sans-serif!important;letter-spacing:.09em!important;color:#69889a!important;text-transform:uppercase}
+body.shell-auth #authShell .auth-brand .tle-auth-wordmark{width:clamp(128px,12vw,162px)!important;height:auto!important;object-fit:contain!important}
+body.shell-auth #authShell #authPanel .eyebrow{display:block!important;font:700 10px Futura,Arial,sans-serif!important;letter-spacing:.16em!important;color:#5b8ba8!important;margin:0 0 12px!important}
+body.shell-auth #authShell #authTitle,
+body.shell-auth #authShell.auth-mode-signup #authTitle,
+body.shell-auth #authShell.auth-mode-signin #authTitle{font:600 clamp(29px,2.5vw,37px)/1.13 Prompt,"Avenir Next",Arial,sans-serif!important;letter-spacing:-.05em!important;color:#191919!important;max-width:390px!important;text-align:left!important;margin:0 0 12px!important}
+body.shell-auth #authShell #authCopy{font:400 14px/1.55 Futura,Arial,sans-serif!important;color:#5b7280!important;max-width:380px!important;text-align:left!important;margin:0 0 23px!important}
+body.shell-auth #authShell .auth-form{gap:13px!important}
+body.shell-auth #authShell .auth-form label:not(.remember-username-row){font:600 12px/1.3 Futura,Arial,sans-serif!important;display:block!important;color:#394d59!important}
+body.shell-auth #authShell .auth-form input:not([type=checkbox]){box-sizing:border-box;width:100%!important;min-height:51px!important;margin-top:6px!important;padding:0 15px!important;font-size:16px!important;font-weight:500!important;background:#fbfdff!important;border:1px solid #ccdae4!important;border-radius:12px!important;box-shadow:none!important;backdrop-filter:none!important;transform:none!important;color:#191919!important}
+body.shell-auth #authShell .auth-form input:focus{border-color:#73b3dd!important;box-shadow:0 0 0 3px rgba(112,176,221,.16)!important}
+body.shell-auth #authShell .password-input-wrap input{padding-right:57px!important}
+body.shell-auth #authShell .password-toggle{width:40px!important;height:40px!important;right:7px!important}
+body.shell-auth #authShell #authSubmit{box-sizing:border-box;width:100%!important;min-height:52px!important;margin-top:5px!important;background:#191919!important;color:#fff!important;border:1px solid #191919!important;border-radius:12px!important;box-shadow:none!important;font:700 15px Futura,Arial,sans-serif!important}
+body.shell-auth #authShell #authSubmit:hover{background:#333!important}
+body.shell-auth #authShell .auth-links button{font:700 12px Futura,Arial,sans-serif!important;color:#27678b!important}
+body.shell-auth #authShell .auth-plan-note{font-size:11px!important;color:#61798a!important}
+body.shell-auth #authShell .auth-feature-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:17px!important;padding-top:14px!important}
+body.shell-auth #authShell .auth-feature-strip span{background:#ecf6fc!important;padding:9px 7px!important;color:#496b80!important;border-radius:10px!important;font-size:10px!important}
+body.shell-auth #authShell .auth-legal-links{display:flex!important;justify-content:center!important;gap:14px!important;flex-wrap:wrap!important}
+body.shell-auth #authShell .auth-legal-links a{color:#647c8b!important;font-size:11px!important}
+body.shell-auth #authShell.auth-mode-signin .auth-feature-strip,body.shell-auth #authShell.auth-mode-signin .auth-plan-note{display:none!important}
+@media(max-width:950px){
+ body.shell-auth #authShell.auth-shell{grid-template-columns:1fr!important;gap:18px!important;align-content:center!important;justify-items:center!important;padding:24px 18px 38px!important}
+ body.shell-auth #authShell .auth-story{max-width:440px;text-align:center}
+ body.shell-auth #authShell .auth-story-kicker{justify-content:center;margin-bottom:9px}
+ body.shell-auth #authShell .auth-story h2{font-size:clamp(27px,4.5vw,36px)!important;line-height:1.1;margin:0 0 6px}
+ body.shell-auth #authShell .auth-story>p{font-size:13px;line-height:1.4;margin:0 auto 7px}
+ body.shell-auth #authShell .auth-story-tags,body.shell-auth #authShell .auth-story-preview{display:none!important}
+ body.shell-auth #authShell .auth-card{max-width:440px!important;width:100%!important}
+}
+@media(max-width:480px){
+ body.shell-auth #authShell.auth-shell{padding:16px 13px 30px!important;gap:13px!important;align-content:start!important}
+ body.shell-auth #authShell .auth-story h2{font-size:clamp(26px,7vw,32px)!important;max-width:330px}
+ body.shell-auth #authShell .auth-story>p{font-size:12px!important;max-width:300px}
+ body.shell-auth #authShell .auth-card,
+ body.shell-auth #authShell.auth-mode-signup .auth-card,
+ body.shell-auth #authShell.auth-mode-signin .auth-card{width:100%!important;max-width:430px!important;padding:21px 18px!important;border-radius:20px!important}
+ body.shell-auth #authShell #authTitle,body.shell-auth #authShell.auth-mode-signin #authTitle{font-size:29px!important}
+ body.shell-auth #authShell #authCopy{font-size:13px!important;margin-bottom:17px!important}
+ body.shell-auth #authShell .auth-brand{margin-bottom:18px!important}
+}
+@media(max-width:350px){body.shell-auth #authShell .auth-story>p{display:none}body.shell-auth #authShell .auth-story h2{font-size:25px!important}body.shell-auth #authShell .auth-card{padding:17px 13px!important}}
+@media(prefers-reduced-motion:reduce){body.shell-auth #authShell *,body.shell-auth #authShell:before{animation:none!important;transition:none!important}}
