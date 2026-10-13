@@ -131,7 +131,7 @@ html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="t
 html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .presence-btn strong{font-size:11px!important; font-weight:500!important;}
 html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .presence-btn small{font-size:9px!important;}
 @media(min-width:861px){
-  html[data-dashboard-preview="bento"] body.shell-app #appShell:not([hidden]):has(.view[data-page="today"].active){grid-template-columns:196px minmax(0,1fr)!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell:not([hidden]):has(.view[data-page="today"].active){--tle-fixed-sidebar-width:220px!important;grid-template-columns:var(--tle-fixed-sidebar-width) minmax(0,1fr)!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) > .sidebar{padding:18px 12px!important; overflow-y:auto!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) > .sidebar .brand-name{font-size:14px!important; font-weight:600!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell:has(.view[data-page="today"].active) > .sidebar .brand-sub{font-size:10px!important;}
@@ -172,6 +172,35 @@ html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="t
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .next-move-panel{gap:8px!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .next-move-panel h3{font-size:17px!important;}
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+/* Responsive refinement — preview only, no changes to customer records. */
+@media (min-width:861px) and (max-width:1180px) {
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] > :is(#bentoActivityCard,.next-move-panel,.attention-panel,.dashboard-quick-access,.week-growth-card,.presence-panel) {grid-column:span 6;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] > .schedule-panel {grid-column:span 12;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] > :is(.capacity-card,#bentoTimerCard) {grid-column:span 6;}
+}
+@media (max-width:520px) {
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] > :is(.capacity-card,#bentoTimerCard) {grid-column:span 2!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard {padding:15px!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-greeting-zone {display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:11px!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-greeting-zone > * {grid-column:1!important;min-width:0!important;max-width:100%!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-card-topline {grid-row:1!important;justify-content:flex-start!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard .today-greeting-first {grid-row:2!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard .weather-brief {grid-row:3!important;width:100%!important;max-width:none!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayHeroAction {grid-row:4!important;width:100%!important;min-height:46px!important;margin:0!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayGreeting {font-size:clamp(23px,6vw,29px)!important;line-height:1.13!important;overflow-wrap:break-word;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayMomentCopy {font-size:13px!important;line-height:1.45!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"].active .dashboard-quick-access .dashboard-quick-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-columns:minmax(0,1fr)!important;gap:9px!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-card {min-height:82px!important;padding:12px 9px!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .dashboard-quick-card strong {font-size:12px!important;overflow-wrap:anywhere;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .attention-list {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .attention-summary-card:last-child:nth-child(odd) {grid-column:span 2;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .week-growth-stats {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .pulse-card > strong {overflow-wrap:anywhere;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .bento-timer-elapsed {font-size:clamp(25px,7vw,32px);white-space:normal;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .today-job-actions {grid-column:1/-1!important;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] :is(button,[role="button"]) {max-width:100%;overflow-wrap:anywhere;}
+  html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] .bento-bar-chart {gap:clamp(3px,1.4vw,9px);}
 }
 @media(prefers-reduced-motion:reduce){
   html[data-dashboard-preview="bento"] body.shell-app #appShell .view[data-page="today"] *{transition:none!important;}

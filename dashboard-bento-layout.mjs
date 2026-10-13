@@ -20,9 +20,13 @@ try{
  for(const [engineName,engine] of Object.entries({chromium,webkit})){
  const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  try{
-  for(const width of [320,390,768,1366]){
+  const fallbackPage=await browser.newPage({viewport:{width:390,height:900}});
+  await fallbackPage.goto('http://127.0.0.1:4176/?dashboard-preview=classic');
+  assert.notEqual(await fallbackPage.evaluate(()=>document.documentElement.dataset.dashboardPreview),'bento','classic rollback route must remain available');
+  await fallbackPage.close();
+  for(const width of [320,375,390,430,520,768,1024,1366,1600]){
    const page=await browser.newPage({viewport:{width,height:900}});
-   await page.goto('http://127.0.0.1:4176/?dashboard-preview=bento');
+   await page.goto('http://127.0.0.1:4176/');
    await page.evaluate(()=>{
     document.body.className='shell-app';
     document.querySelectorAll('body > :not(#appShell)').forEach(el=>el.hidden=true);
@@ -60,18 +64,25 @@ try{
     preview:document.documentElement.dataset.dashboardPreview,
     overflow:document.documentElement.scrollWidth>innerWidth+2||document.querySelector('.main').scrollWidth>document.querySelector('.main').clientWidth+2,
     columns:getComputedStyle(document.querySelector('#businessPulse')).gridTemplateColumns.split(' ').length,
-    quickColumns:getComputedStyle(document.querySelector('.dashboard-quick-grid')).gridTemplateColumns.split(' ').length,
+    quickColumns:(()=>{
+      const value=getComputedStyle(document.querySelector('.dashboard-quick-grid')).gridTemplateColumns.trim();
+      const repeat=value.match(/^repeat\(\s*(\d+)\s*,/i);
+      return repeat?Number(repeat[1]):value.split(/\s+/).length;
+    })(),
     pulseCount:[...document.querySelectorAll('.pulse-card')].filter(el=>getComputedStyle(el).display!=='none').length,
     ids:[...document.querySelectorAll('[id]')].map(el=>el.id),
     chartTotal:[...document.querySelectorAll('.bento-bar-value')].reduce((sum,el)=>sum+Number(el.textContent),0),
     elapsed:document.querySelector('#bentoTimerElapsed').textContent,
     arc:document.querySelector('#bentoCapacityArc').getAttribute('stroke-dasharray'),
-    heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height
+    heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height,
+    sidebarRight:document.querySelector('#sidebar').getBoundingClientRect().right,
+    mainLeft:document.querySelector('#appShell>.main').getBoundingClientRect().left
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
-   assert.equal(result.columns,width<=860?2:4);assert.equal(result.quickColumns,3);assert.equal(result.pulseCount,4);
+   if(width>=861) assert.ok(result.sidebarRight<=result.mainLeft+1,`${engineName} ${width}: sidebar overlaps dashboard (${result.sidebarRight}px versus ${result.mainLeft}px)`);
+   assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick access columns`);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
-   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<190,`greeting too large: ${result.heroHeight}`);
+   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
    // Business weekdays stay correct when the device timezone is UTC.
@@ -93,10 +104,10 @@ try{
    assert.equal(await page.locator('.pulse-collected').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(231, 240, 255)');
    assert.equal(await page.locator('#bentoTimerElapsed').textContent(),'00:00:00');
    assert.equal(await page.locator('#bentoActivityTotal').textContent(),'0');
-   await page.goto('http://127.0.0.1:4176/');
+   await page.goto('http://127.0.0.1:4176/?dashboard-preview=classic');
    assert.equal(await page.evaluate(()=>document.documentElement.dataset.dashboardPreview),undefined);
    assert.equal(await page.locator('#bentoActivityCard').count(),0);assert.equal(await page.locator('#bentoTimerCard').count(),0);
-   console.log(`BENTO_REFERENCE_OK ${engineName} ${width}: density, chart data, persisted timer, permissions, palette, opt-in isolation`);
+   console.log(`BENTO_REFERENCE_OK ${engineName} ${width}: density, chart data, persisted timer, permissions, palette, classic fallback`);
    await page.close();
   }
  }finally{await browser.close();}
