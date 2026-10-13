@@ -101,10 +101,10 @@ try{
    assert.equal(await page.locator('.pulse-collected').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(231, 240, 255)');
    assert.equal(await page.locator('#bentoTimerElapsed').textContent(),'00:00:00');
    assert.equal(await page.locator('#bentoActivityTotal').textContent(),'0');
-   await page.goto('http://127.0.0.1:4176/');
+   await page.goto('http://127.0.0.1:4176/?dashboard-preview=classic');
    assert.equal(await page.evaluate(()=>document.documentElement.dataset.dashboardPreview),undefined);
    assert.equal(await page.locator('#bentoActivityCard').count(),0);assert.equal(await page.locator('#bentoTimerCard').count(),0);
-   console.log(`BENTO_REFERENCE_OK ${engineName} ${width}: density, chart data, persisted timer, permissions, palette, opt-in isolation`);
+   console.log(`BENTO_REFERENCE_OK ${engineName} ${width}: density, chart data, persisted timer, permissions, palette, classic fallback`);
    await page.close();
   }
  }finally{await browser.close();}
