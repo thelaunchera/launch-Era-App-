@@ -69,7 +69,8 @@ try{
     heroHeight:document.querySelector('#todayHeroCard').getBoundingClientRect().height
    }));
    assert.equal(result.preview,'bento');assert.equal(result.overflow,false,`${engineName} ${width}: overflow`);
-   assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick columns (innerWidth=${await page.evaluate(()=>innerWidth)}, query520=${await page.evaluate(()=>matchMedia('(max-width:520px)').matches)}, css=${await page.evaluate(()=>[...document.styleSheets].some(s=>s.href?.includes('dashboard-bento-preview.css'))})})`);assert.equal(result.pulseCount,4);
+   const diagnostic=await page.evaluate(()=>({innerWidth,match520:matchMedia('(max-width: 520px)').matches,previewCSS:[...document.styleSheets].some(sheet=>sheet.href?.includes('dashboard-bento-preview.css'))}));
+   assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick columns ${JSON.stringify(diagnostic)}`);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
    assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
