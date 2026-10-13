@@ -576,6 +576,64 @@ try{
       });
       await page.waitForSelector("#authShell",{state:"visible",timeout:10000});
       await assertLayout(page,profile);
+
+      // Regression: Supplies disclosure must not cover cost on phone/tablet.
+      // Synthetic fixture, no Supabase records or mutations.
+      const originalViewport=page.viewportSize();
+      await page.evaluate(()=>{
+        const today=document.querySelector('.view[data-page="today"]');
+        const supplies=document.querySelector('.view[data-page="supplies"]');
+        today.classList.remove('active');today.hidden=true;
+        supplies.hidden=false;supplies.classList.add('active');
+        document.querySelector('#suppliesGrid').innerHTML=`<article class="supply-card">
+          <div class="supply-head"><span><strong>Bleach</strong><small>Chemical</small></span><span class="status success">In stock</span></div>
+          <div class="supply-qty"><strong>6</strong><span>item</span></div>
+          <div class="supply-meta"><span>Reorder at <b>1</b></span><span>Cost <b>$2,345.67</b></span></div>
+          <small class="muted-line">Vendor: Walmart</small>
+          <div class="card-actions"><button>- Used</button><button>+ Restock</button><button>Edit</button><button>Archive</button></div>
+        </article>`;
+      });
+      await page.waitForFunction(()=>document.querySelector('#suppliesGrid .tle-record-disclosure'),null,{timeout:2500});
+      for(const width of [320,390,430,768,820,1024,1366]){
+        await page.setViewportSize({width,height:900});
+        const dims=await page.evaluate(()=>{
+          const card=document.querySelector('#suppliesGrid .supply-card');
+          const price=card.querySelector('.supply-meta>span:last-child');
+          const dots=card.querySelector('.tle-record-disclosure');
+          const priceRect=price.getBoundingClientRect();
+          const dotsRect=dots.getBoundingClientRect();
+          const overlap=Math.max(0,Math.min(priceRect.right,dotsRect.right)-Math.max(priceRect.left,dotsRect.left))*
+                        Math.max(0,Math.min(priceRect.bottom,dotsRect.bottom)-Math.max(priceRect.top,dotsRect.top));
+          return {menuShown:getComputedStyle(dots).display!=='none',menuInHeader:dots.parentElement.classList.contains('supply-head'),
+            overlap,priceWidth:priceRect.width,priceHeight:priceRect.height,priceText:price.textContent,
+            scrollWidth:card.scrollWidth,clientWidth:card.clientWidth};
+        });
+        if(dims.priceWidth<45||dims.priceHeight<12||!dims.priceText.includes('$2,345.67')||
+           dims.scrollWidth>dims.clientWidth+3 ||
+           (width<=860&&(!dims.menuShown||!dims.menuInHeader||dims.overlap>0.25)) ||
+           (width>860&&dims.menuShown)){
+          throw new Error(profile.name+' Supplies cost hidden at '+width+'px '+JSON.stringify(dims));
+        }
+        if(width===390){
+          await page.locator('#suppliesGrid .tle-record-disclosure').click();
+          const expanded=await page.evaluate(()=>({
+            menuOpen:document.querySelector('#suppliesGrid .tle-record-disclosure').getAttribute('aria-expanded'),
+            actionsVisible:!document.querySelector('#suppliesGrid .card-actions').hidden,
+            text:document.querySelector('#suppliesGrid .supply-meta>span:last-child').textContent
+          }));
+          if(expanded.menuOpen!=='true'||!expanded.actionsVisible||!expanded.text.includes('$2,345.67')){
+            throw new Error(profile.name+' Supplies actions obscured price '+JSON.stringify(expanded));
+          }
+        }
+      }
+      await page.setViewportSize(originalViewport);
+      await page.evaluate(()=>{
+        const today=document.querySelector('.view[data-page="today"]');
+        const supplies=document.querySelector('.view[data-page="supplies"]');
+        supplies.classList.remove('active');supplies.hidden=true;
+        today.hidden=false;today.classList.add('active');
+        document.querySelector('#suppliesGrid').innerHTML='';
+      });
       const paletteChecks=await page.evaluate(()=>{
         const hero=document.querySelector("#todayHeroCard");
         hero.style.setProperty("transition","none","important");

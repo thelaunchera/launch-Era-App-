@@ -37,7 +37,11 @@ function installMobileDrawerFix(){
  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sidebar.classList.contains("open"))shut();});
 }
 function installRecordArchitecture(){
+ // This function runs on load, DOMContentLoaded and pageshow: attach only one observer and click listener.
+ if(document.documentElement.dataset.tleRecordArchitectureInstalled==="1")return;
  const selectors=["#clientsGrid","#quotesBoard","#teamGrid","#suppliesGrid","#jobsList"];
+ if(!document.querySelector("#suppliesGrid"))return;
+ document.documentElement.dataset.tleRecordArchitectureInstalled="1";
  const normalize=()=>{
   document.querySelectorAll("#invoicesTable .tle-record-disclosure").forEach(el=>el.remove());
   document.querySelectorAll("#invoicesTable .record-actions").forEach(actions=>{actions.hidden=false;actions.classList.remove("tle-record-actions");});
@@ -48,7 +52,10 @@ function installRecordArchitecture(){
    if(card.querySelector(".tle-record-disclosure"))return;
    const actions=card.querySelector(".card-actions,.record-actions");
    if(actions){actions.classList.add("tle-record-actions");actions.hidden=true;}
-   const b=document.createElement("button");b.type="button";b.className="tle-record-disclosure";b.setAttribute("aria-expanded","false");b.setAttribute("aria-label","Show actions");b.textContent="•••";card.appendChild(b);
+   const b=document.createElement("button");b.type="button";b.className="tle-record-disclosure";b.setAttribute("aria-expanded","false");b.setAttribute("aria-label","Show actions");b.textContent="•••";
+   // Supplies: keep the actions trigger inside the header, never over the unit cost.
+   const supplyHead=card.matches("#suppliesGrid .supply-card")?card.querySelector(".supply-head"):null;
+   (supplyHead||card).appendChild(b);
   });
  };
  const observer=new MutationObserver(normalize);
