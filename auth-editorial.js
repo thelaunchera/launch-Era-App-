@@ -29,7 +29,7 @@
  authPreviewLineOne:"Recurring cleaning · 9:30 AM",authPreviewScheduled:"Scheduled",
  authPreviewLineTwo:"Deep cleaning · 1:00 PM",authPreviewQuote:"Quote ready",
  authEditorialEyebrow:"YOUR CLEANING WORKSPACE",
- authStoryHeading:'Running a cleaning business is a lot.<br><span>Keeping track shouldn't be.</span>'
+ authStoryHeading:"Running a cleaning business is a lot.<br><span>Keeping track shouldn't be.</span>"
  },
  es:{
  authStoryKicker:"THE LAUNCH ERA / CLEANING APP",
@@ -53,7 +53,7 @@
  authPreviewLineOne:"Nettoyage récurrent · 9 h 30",authPreviewScheduled:"Planifié",
  authPreviewLineTwo:"Grand nettoyage · 13 h",authPreviewQuote:"Devis prêt",
  authEditorialEyebrow:"VOTRE ESPACE DE NETTOYAGE",
- authStoryHeading:'Gérer une entreprise de nettoyage, c'est beaucoup.<br><span>Tout suivre peut être plus simple.</span>'
+ authStoryHeading:"Gérer une entreprise de nettoyage, c'est beaucoup.<br><span>Tout suivre peut être plus simple.</span>"
  }
  };
  window.TLE_AUTH_EDITORIAL_TRANSLATE=function(language){
