@@ -140,7 +140,7 @@ async function assertLayout(page,profile){
   if(await welcome.isVisible()) throw new Error(profile.name+": legacy welcome screen should stay hidden");
   if(!(await authPanel.isVisible())) throw new Error(profile.name+": signup form is not visible");
   await page.waitForFunction(
-    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Your business. Beautifully organized.",
+    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",
     null,
     {timeout:3000}
   );
@@ -159,7 +159,7 @@ async function assertLayout(page,profile){
     throw new Error(profile.name+": sign-in switch is not usable");
   }
   await authSwitchInitial.click();
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Welcome back to your workspace.",null,{timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Hey, welcome back!",null,{timeout:3000});
 
   // Returning-user regression: remembered username must survive a natural
   // reload without storing a password or bouncing back to the welcome screen.
@@ -171,7 +171,7 @@ async function assertLayout(page,profile){
   await page.reload({waitUntil:"domcontentloaded",timeout:20000});
   await page.waitForFunction(()=>window.__tleAuthUiReady===true,null,{timeout:10000});
   await page.waitForSelector("#authPanel",{state:"visible",timeout:3000});
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Welcome back to your workspace.",null,{timeout:3000});
+  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Hey, welcome back!",null,{timeout:3000});
   const remembered=await page.evaluate(()=>({
     email:document.querySelector("#authEmail")?.value||"",
     checked:Boolean(document.querySelector("#rememberUsername")?.checked),
@@ -211,7 +211,7 @@ async function assertLayout(page,profile){
   }
   await authSwitch.click();
   await page.waitForFunction(
-    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Your business. Beautifully organized.",
+    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",
     null,
     {timeout:3000}
   );
