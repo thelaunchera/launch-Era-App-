@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261014-app-402-auth-photo-r80";
+const APP_VERSION = "20261014-app-403-auth-copy-blue-r81";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -3113,8 +3113,8 @@ function setAuthMode(mode,options={}){
   syncAuthPasswordToggle();
 
   if(mode==="signup"){
-    title.textContent="Your business. Beautifully organized.";
-    copy.textContent="Everything for your cleaning days, all in one place.";
+    title.textContent="Let's get your business organized.";
+    copy.textContent="Your bookings, clients and quotes, all in one easy place.";
     submit.textContent="Sign up";
     submit.hidden=false;
     switchBtn.textContent="Already have an account? Sign in";
@@ -3144,8 +3144,8 @@ function setAuthMode(mode,options={}){
     forgot.hidden=true;
     if(signupLegalNote) signupLegalNote.hidden=true;
   }else{
-    title.textContent="Welcome back to your workspace.";
-    copy.textContent="Pick up right where you left off.";
+    title.textContent="Hey, welcome back!";
+    copy.textContent="Your cleaning schedule is ready when you are.";
     submit.textContent="Sign in";
     submit.hidden=false;
     switchBtn.textContent="Don’t have an account? Sign up";
