@@ -1,8 +1,8 @@
-const CACHE_NAME="tle-cleaning-app-20261013-app-401-auth-r79";
+const CACHE_NAME="tle-cleaning-app-20261014-app-402-auth-photo-r80";
 const CORE=[
   "./dashboard-bento.js?v=20261013-app-401-auth-r79",
   "./styles/dashboard-bento-preview.css?v=20261013-app-401-auth-r79",
-  "./boot.js?v=20261013-app-401-auth-r79",
+  "./boot.js?v=20261014-app-402-auth-photo-r80",
   "./styles/boot.css?v=20261013-app-401-auth-r79",
   "./",
   "./index.html",
@@ -32,7 +32,7 @@ const CORE=[
   "./booking-price-review.js?v=20261013-app-401-auth-r79",
   "./app.js?v=20261013-app-401-auth-r79",
   "./auth-editorial.js?v=20261013-app-401-auth-r79",
-  "./styles/auth-editorial.css?v=20261013-app-401-auth-r79",
+  "./styles/auth-editorial.css?v=20261014-app-402-auth-photo-r80",
   "./styles/tle-brand.css?v=20261013-app-401-auth-r79",
   "./welcome-packet-owner.js?v=20261013-app-401-auth-r79",
   "./followups.js?v=20261013-app-401-auth-r79",
