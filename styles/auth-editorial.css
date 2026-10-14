@@ -237,3 +237,6 @@ body.shell-auth #authShell .signup-legal-note{font-size:10px!important;line-heig
   body.shell-auth #authShell::before,
   body.shell-auth #authShell .auth-card{animation:none!important;transition:none!important}
 }
+
+/* Hidden while restoring an existing signed-in PWA session. */
+body.shell-auth #authShell.auth-shell[hidden]{display:none!important}
