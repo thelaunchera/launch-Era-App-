@@ -118,7 +118,7 @@ const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,ca
 
 if(!$("#authWelcome")?.hidden) throw new Error("Legacy welcome marketing screen should stay hidden");
 if($("#authPanel")?.hidden) throw new Error("Signup form should be visible on first visit");
-if($("#authTitle")?.textContent!=="Your business. Beautifully organized.") throw new Error("Signup-first auth title is wrong");
+if($("#authTitle")?.textContent!=="Let's get your business organized.") throw new Error("Signup-first auth title is wrong");
 if($("#authSubmit")?.textContent!=="Sign up") throw new Error("Signup-first submit label is wrong");
 if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
 if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
@@ -128,7 +128,7 @@ if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 
 click("#authSwitch");
 await new Promise(r=>setTimeout(r,240));
-if($("#authTitle")?.textContent!=="Welcome back to your workspace.") throw new Error("Existing-user sign-in switch failed");
+if($("#authTitle")?.textContent!=="Hey, welcome back!") throw new Error("Existing-user sign-in switch failed");
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
@@ -143,7 +143,7 @@ if(signInCalls!==1) throw new Error("Sign in submit handler did not call auth");
 console.log("SIGNIN_SUBMIT_OK");
 
 click("#authSwitch");
-if($("#authTitle")?.textContent!=="Your business. Beautifully organized.") throw new Error("Return to sign-up failed");
+if($("#authTitle")?.textContent!=="Let's get your business organized.") throw new Error("Return to sign-up failed");
 $("#authEmail").value="new@example.invalid";
 $("#authPassword").value="CreateAccount123!";
 $("#authForm").dispatchEvent(new window.Event("submit",{bubbles:true,cancelable:true}));

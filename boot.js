@@ -43,7 +43,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261014-app-402-auth-photo-r80";
+window.__tleShellVersion="20261014-app-403-auth-copy-blue-r81";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
