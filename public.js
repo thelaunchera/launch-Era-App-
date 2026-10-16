@@ -321,15 +321,16 @@
           invoiceDisputeStatus.textContent=tt("Please explain what you would like reviewed.");
           return;
         }
-        submit.disabled=true;
+        if(window.TLESubmitMotion)window.TLESubmitMotion.start(submit);else submit.disabled=true;
         invoiceDisputeStatus.textContent=tt("Sending dispute…");
         try{
           await rpc("submit_invoice_dispute",{p_token:token,p_reason:reason});
+          window.TLESubmitMotion?.done(submit);await window.TLESubmitMotion?.pause(780);
           invoiceDisputeForm.hidden=true;
           invoiceDisputeBtn.hidden=true;
           invoiceDisputeStatus.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
-          console.warn("[TLE] invoice dispute",err); invoiceDisputeStatus.textContent=tt("Could not send dispute.");
+          console.warn("[TLE] invoice dispute",err);window.TLESubmitMotion?.error(submit); invoiceDisputeStatus.textContent=tt("Could not send dispute.");
           submit.disabled=false;
         }
       });
@@ -426,19 +427,20 @@
       submitQuoteBtn?.addEventListener("click",async()=>{
         if(!selectedQuoteResponse) return;
         const action=selectedQuoteResponse;
-        submitQuoteBtn.disabled=true;
+        if(window.TLESubmitMotion)window.TLESubmitMotion.start(submitQuoteBtn);else submitQuoteBtn.disabled=true;
         if(acceptBtn) acceptBtn.disabled=true;
         if(declineBtn) declineBtn.disabled=true;
         statusEl.textContent=action==="accept"?tt("Submitting your acceptance…"):tt("Submitting your decline…");
         try{
           await rpc("respond_public_quote",{p_token:token,p_action:action});
+          window.TLESubmitMotion?.done(submitQuoteBtn);await window.TLESubmitMotion?.pause(780);
           if(actions) actions.hidden=true;
           submitQuoteBtn.hidden=true;
           statusEl.textContent=action==="accept"
             ?"Accepted. Your service is confirmed and a confirmation email is on the way."
             :"Quote declined. The cleaning business can now follow up with you.";
         }catch(err){
-          statusEl.textContent=err.message||tt("Could not submit quote.");
+          window.TLESubmitMotion?.error(submitQuoteBtn);statusEl.textContent=err.message||tt("Could not submit quote.");
           submitQuoteBtn.disabled=false;
           if(acceptBtn) acceptBtn.disabled=false;
           if(declineBtn) declineBtn.disabled=false;
@@ -472,16 +474,17 @@
           statusEl.textContent=tt("Please explain what you would like reviewed.");
           return;
         }
-        submit.disabled=true;
+        if(window.TLESubmitMotion)window.TLESubmitMotion.start(submit);else submit.disabled=true;
         statusEl.textContent=tt("Sending dispute…");
         try{
           await rpc("submit_quote_dispute",{p_token:token,p_reason:reason});
+          window.TLESubmitMotion?.done(submit);await window.TLESubmitMotion?.pause(780);
           quoteDisputeForm.hidden=true;
           if(actions) actions.hidden=true;
           if(submitQuoteBtn) submitQuoteBtn.hidden=true;
           statusEl.textContent=tt("Dispute sent. The cleaning business can now review your message.");
         }catch(err){
-          console.warn("[TLE] quote dispute",err); statusEl.textContent=tt("Could not send dispute.");
+          console.warn("[TLE] quote dispute",err);window.TLESubmitMotion?.error(submit);statusEl.textContent=tt("Could not send dispute.");
           submit.disabled=false;
         }
       });
@@ -1142,8 +1145,7 @@
             customerNotes ? "Special requests: "+customerNotes : ""
           ].filter(Boolean).join("\n");
           const old=submit.textContent;
-          submit.disabled=true;
-          submit.textContent=tt("Sending…");
+          if(window.TLESubmitMotion)window.TLESubmitMotion.start(submit);else{submit.disabled=true;submit.textContent=tt("Sending…")}
           try{
             const selectedSlot=String(fd.get("slot_start")||"").trim();
             if(!selectedSlot) throw new Error(tt("Choose one of the available times."));
@@ -1209,6 +1211,7 @@
                 p_discount_id:discountUi?.selectedId()||null
               });
             }
+            window.TLESubmitMotion?.done(submit);await window.TLESubmitMotion?.pause(780);
             form.hidden=true;
             const confirmationPhoto=bookingPropertyPhotos.confirmation;
             if(heroPhoto){ heroPhoto.src=confirmationPhoto.hero; heroPhoto.alt=confirmationPhoto.heroAlt; }
@@ -1219,9 +1222,8 @@
               ?"Your quote request was sent. The business will review it and contact you."
               :bookingEstimateCopy("confirmed"));
           }catch(err){
-            console.warn("[TLE] public request submit",err); alert(err?.message||tt("Could not send request"));
-            submit.disabled=false;
-            submit.textContent=old;
+            console.warn("[TLE] public request submit",err);window.TLESubmitMotion?.error(submit);alert(err?.message||tt("Could not send request"));
+            if(!window.TLESubmitMotion){submit.disabled=false;submit.textContent=old;}
           }
         });
       }
