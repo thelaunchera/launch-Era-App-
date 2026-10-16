@@ -1,0 +1,20 @@
+/* Cleaning App · one quiet attention treatment for the free-trial call to action.
+   No extra glow, no spinner, no change to forms or authentication. */
+body.shell-auth .tle-trial-pulse-shell{position:relative;isolation:isolate;display:block;width:100%;max-width:100%;min-width:0;border-radius:16px;z-index:0}
+body.shell-auth .auth-welcome-actions .tle-trial-pulse-shell{border-radius:999px}
+body.shell-auth .auth-form .tle-trial-pulse-shell{margin-top:5px}
+body.shell-auth .tle-trial-pulse-shell>.tle-trial-pulse-ring{position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:#79B8DB;opacity:0;transform:scale(1);animation:tle-trial-quiet-pulse 2.8s cubic-bezier(.32,.72,0,1) infinite}
+body.shell-auth .tle-trial-pulse-shell>.tle-trial-pulse-ring:nth-child(2){animation-delay:450ms}
+body.shell-auth .tle-trial-pulse-shell>button{position:relative;z-index:1;display:block;width:100%;max-width:100%}
+body.shell-auth #authShell #authSubmit{margin-top:0!important}
+/* Sign-in and password recovery do not advertise the trial. */
+body.shell-auth .auth-shell:not(.auth-mode-signup) .tle-trial-pulse-shell[data-pulse="signup"]>.tle-trial-pulse-ring{display:none;animation:none}
+body.shell-auth .tle-trial-pulse-shell:is(:hover,:focus-within)>.tle-trial-pulse-ring,
+body.shell-auth .tle-trial-pulse-shell:has(>button:disabled)>.tle-trial-pulse-ring{animation-play-state:paused;opacity:0}
+@keyframes tle-trial-quiet-pulse{0%{transform:scale(1);opacity:.30}55%,100%{transform:scale(1.34,1.7);opacity:0}}
+/* Mobile: preserve the same soft rhythm without extending the viewport. */
+@media(max-width:767px){
+ body.shell-auth .tle-trial-pulse-shell>.tle-trial-pulse-ring{animation-name:tle-trial-quiet-pulse-mobile}
+ @keyframes tle-trial-quiet-pulse-mobile{0%{transform:scale(1);opacity:.20}55%,100%{transform:scale(1.055,1.13);opacity:0}}
+}
+@media(prefers-reduced-motion:reduce){body.shell-auth .tle-trial-pulse-shell>.tle-trial-pulse-ring{display:none!important;animation:none!important}}
