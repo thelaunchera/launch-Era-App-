@@ -358,6 +358,7 @@
       current.followUpSettings=preferences;
       current.followUpCandidates=candidates;
       render();
+      window.TLE_AUTOMATION_STUDIO?.refresh?.();
     }catch(err){
       console.warn("[TLE] follow-ups",err);
       if(list){
