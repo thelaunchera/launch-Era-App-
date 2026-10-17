@@ -198,6 +198,11 @@ body.shell-app #appShell .view[data-page="route"] .tle-route-toast{
   box-shadow:0 7px 21px rgba(18,62,92,.22);
   transition:transform 470ms linear(0,.26,.68,1.07,1),opacity 270ms ease;
 }
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-car,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-path-driven,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-pickup,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-startpin,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-path-base{display:none!important}
 body.shell-app #appShell .view[data-page="route"] .tle-route-toast-on{
   transform:translate(-50%,0);opacity:1;
 }
