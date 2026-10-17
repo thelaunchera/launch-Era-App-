@@ -61,8 +61,8 @@ if(!hasLegacyFourArgLangPick('langPick("A", flag ? "B" : "C", flag ? "P" : "Q", 
 const appVersion=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 const shellVersion=(boot.match(/window.__tleShellVersion="([^"]+)"/)||[])[1];
 const swVersion=(sw.match(/CACHE_NAME="tle-cleaning-app-([^"]+)"/)||[])[1];
-const htmlVersions=[...html.matchAll(/\?v=(202609\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
-const swVersions=[...sw.matchAll(/\?v=(202609\d{2}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
+const htmlVersions=[...html.matchAll(/\?v=(20\d{6}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
+const swVersions=[...sw.matchAll(/\?v=(20\d{6}-[A-Za-z0-9_-]+)/g)].map(m=>m[1]);
 const versions=[appVersion,shellVersion,swVersion,...htmlVersions,...swVersions].filter(Boolean);
 if(!appVersion || !shellVersion || !swVersion || versions.some(v=>v!==appVersion)){
   fail("runtime, shell, service worker, or asset versions are out of sync");
