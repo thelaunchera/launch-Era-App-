@@ -1,4 +1,4 @@
-const CACHE_NAME="tle-cleaning-app-20261017-desktop-r82";
+const CACHE_NAME="tle-cleaning-app-20261014-app-403-auth-copy-blue-r81";
 const CORE=[
   "./dashboard-bento.js?v=20261014-app-403-auth-copy-blue-r81",
   "./styles/dashboard-bento-preview.css?v=20261014-app-403-auth-copy-blue-r81",
