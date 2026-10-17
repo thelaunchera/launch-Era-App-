@@ -1,0 +1,267 @@
+/* TLE Today's Route r85: abstract map + illustrative progress on all screens.
+   No map tiles, live tracking claims, backend writes or changes to existing GPS links. */
+body.shell-app #appShell .view[data-page="route"]{
+  --tle-route-bg:#d7e8f2;--tle-route-ink:#1b3549;--tle-route-line:rgba(19,75,119,.13);
+  min-width:0!important;
+}
+body.shell-app #appShell .view[data-page="route"] .section-intro{
+  min-width:0!important;
+}
+body.shell-app #appShell .view[data-page="route"] .route-layout{
+  display:grid!important;grid-template-columns:minmax(0,1.34fr) minmax(275px,.66fr)!important;
+  align-items:start!important;gap:18px!important;min-width:0!important;max-width:1500px!important;
+  width:100%!important;margin-inline:auto!important;
+}
+body.shell-app #appShell .view[data-page="route"] .route-map-empty:has(.tle-route-screen){
+  position:relative!important;display:block!important;min-width:0!important;max-width:none!important;
+  min-height:0!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:24px!important;background:var(--tle-route-bg)!important;
+  overflow:hidden!important;box-shadow:0 15px 38px rgba(38,85,118,.10)!important;
+}
+body.shell-app #appShell .view[data-page="route"] .route-map-empty:has(.tle-route-screen)>.map-label{
+  display:none!important;
+}
+body.shell-app #appShell .view[data-page="route"] #routeVisual.tle-route-screen{
+  display:block!important;position:relative!important;min-width:0!important;
+  width:100%!important;height:min(790px,calc(100dvh - 170px))!important;
+  min-height:610px!important;max-width:none!important;text-align:left!important;
+  color:var(--tle-route-ink)!important;font-family:"Avenir Next",Inter,system-ui,sans-serif!important;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-canvas{
+  position:relative;isolation:isolate;width:100%;height:100%;overflow:hidden;
+  background:var(--tle-route-bg);
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-map-svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;pointer-events:none;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-map-svg .tle-route-pulse{
+  transform-box:fill-box;transform-origin:center;animation:tle-route-pin-pulse 2400ms ease-out infinite;
+}
+@keyframes tle-route-pin-pulse{
+  0%{transform:scale(.6);opacity:.35}
+  100%{transform:scale(2.6);opacity:0}
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-top-controls{
+  position:absolute;top:20px;left:20px;right:20px;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-back{
+  width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+  border-radius:50%!important;border:1px solid rgba(26,80,115,.12)!important;
+  background:rgba(255,255,255,.94)!important;color:#1b5278!important;
+  font-size:30px!important;font-weight:450!important;display:grid!important;place-items:center!important;
+  padding:0!important;box-shadow:0 4px 16px rgba(41,88,120,.09)!important;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-share{
+  min-height:44px!important;padding:9px 17px!important;border-radius:999px!important;
+  border:1px solid rgba(26,80,115,.12)!important;background:rgba(255,255,255,.95)!important;
+  color:#1b5278!important;box-shadow:0 4px 16px rgba(41,88,120,.09)!important;
+  font-size:13px!important;font-weight:700!important;white-space:nowrap;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-share:disabled{
+  opacity:.53;cursor:not-allowed;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-map-caption{
+  position:absolute;top:77px;left:20px;z-index:1;
+  padding:7px 10px;border-radius:999px;background:rgba(250,254,255,.91);
+  color:#467b9e;font-size:11px;font-weight:700;
+  border:1px solid rgba(36,115,170,.10);
+  max-width:calc(100% - 40px);
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-sheet{
+  position:absolute;z-index:2;bottom:0;left:0;right:0;
+  width:100%;max-width:430px;margin:0 auto;
+  border-radius:30px 30px 0 0;
+  padding:9px 22px 20px;background:#fff;
+  color:#172e40;box-shadow:0 -7px 30px rgba(32,81,112,.16);
+  border:1px solid rgba(36,92,127,.075);
+  overflow:hidden;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-grab{
+  width:40px;height:5px;margin:0 auto 16px;border-radius:999px;
+  background:#d4e1e9;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-sheet-heading{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-overline{
+  display:block;text-transform:uppercase;letter-spacing:.045em;
+  color:#658295;font-size:11px;font-weight:700;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-eta{
+  display:flex;align-items:baseline;gap:8px;margin:4px 0 2px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-eta-value{
+  font-size:40px!important;line-height:1.08!important;color:#143852!important;
+  font-weight:750!important;letter-spacing:-.055em!important;font-variant-numeric:tabular-nums!important;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-min-unit{
+  font-size:15px;color:#688193;font-weight:550;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-time-note{
+  display:block;font-size:10px;color:#8395a1;line-height:1.4;max-width:220px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-sheet-badge{
+  padding:9px 11px;background:#eff6fa;border:1px solid #dcecf5;
+  color:#2876aa;border-radius:999px;font-size:12px;font-weight:700;
+  white-space:nowrap;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-animated-bar{
+  height:4px;background:#e5f0f6;border-radius:999px;overflow:hidden;margin:14px 0;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-animated-bar>span{
+  display:block;width:100%;height:100%;background:#338fc7;border-radius:999px;
+  transform:scaleX(0);transform-origin:left center;will-change:transform;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-row{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;min-width:0;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-avatar{
+  display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;
+  border-radius:14px;background:linear-gradient(135deg,#a5cde7,#448dbe);
+  color:#fff;font-size:14px;font-weight:800;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-info{
+  display:flex;flex:1;min-width:0;flex-direction:column;gap:4px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-info strong{
+  color:#243f52;font-size:14px!important;font-weight:750!important;
+  overflow-wrap:anywhere;line-height:1.25;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-info small{
+  color:#8696a0;font-size:11px!important;line-height:1.3!important;
+  overflow-wrap:anywhere;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-actions{display:flex;gap:6px;align-items:center}
+body.shell-app #appShell .view[data-page="route"] .tle-route-contact-actions button{
+  display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;
+  padding:0!important;border-radius:50%!important;color:#2979ab!important;
+  background:#edf6fb!important;border:1px solid #daeaf3!important;
+  font-size:18px!important;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary{
+  display:grid;gap:0;margin:0 0 12px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary>div{
+  position:relative;min-height:42px;display:grid;
+  grid-template-columns:17px minmax(0,1fr);grid-template-rows:auto auto;
+  gap:2px 9px;align-content:start;padding:0 0 8px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary>div:first-child::after{
+  content:"";position:absolute;top:14px;bottom:-4px;left:7px;
+  border-left:1px dashed #93bbd4;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary i{
+  width:15px;height:15px;border:4px solid #448fc1;border-radius:50%;
+  background:white;grid-row:span 2;z-index:1;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary>div:nth-child(2) i{
+  background:#448fc1;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary span{
+  font-size:12px;font-weight:750;color:#304a5b;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary small{
+  font-size:11px;line-height:1.35;color:#8695a0;overflow-wrap:anywhere;
+  max-height:40px;overflow:hidden;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-open-maps{
+  display:block!important;min-height:46px!important;width:100%!important;
+  padding:11px 15px!important;border-radius:14px!important;
+  border:0!important;color:white!important;background:#277bb7!important;
+  box-shadow:0 6px 16px rgba(35,123,178,.17)!important;
+  font-size:14px!important;font-weight:750!important;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-advisory{
+  margin:9px 0 0!important;font-size:10px!important;line-height:1.4!important;
+  color:#8597a5;text-align:center;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-empty{
+  border-radius:12px;padding:10px 12px;background:#f4f9fc;
+  color:#678091;font-size:12px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-empty strong{
+  display:block;color:#325d78;font-size:13px;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-empty p{margin:3px 0 0!important;font-size:11px;line-height:1.4}
+body.shell-app #appShell .view[data-page="route"] .tle-route-status{
+  display:block;text-align:center;font-size:10px;margin:4px auto 0;
+  color:#6d91a6;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-toast{
+  position:absolute;top:105px;left:50%;z-index:5;
+  width:max-content;max-width:calc(100% - 35px);
+  padding:12px 16px;border-radius:999px;background:#193e58;
+  color:#fff;font-size:13px;font-weight:700;line-height:1.3;
+  transform:translate(-50%,-160%);opacity:0;pointer-events:none;
+  box-shadow:0 7px 21px rgba(18,62,92,.22);
+  transition:transform 470ms linear(0,.26,.68,1.07,1),opacity 270ms ease;
+}
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-car,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-path-driven,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-pickup,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-startpin,
+body.shell-app #appShell .view[data-page="route"] .tle-route-is-empty .tle-route-path-base{display:none!important}
+body.shell-app #appShell .view[data-page="route"] .tle-route-toast-on{
+  transform:translate(-50%,0);opacity:1;
+}
+body.shell-app #appShell .view[data-page="route"] #routeStops{
+  min-width:0!important;max-width:none!important;overflow-wrap:anywhere!important;
+  padding:18px!important;border-radius:22px!important;
+}
+body.shell-app #appShell .view[data-page="route"] .route-stop{
+  min-width:0;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;
+}
+body.shell-app #appShell .view[data-page="route"] .route-stop>div{min-width:0}
+body.shell-app #appShell .view[data-page="route"] .route-stop small{overflow-wrap:anywhere}
+@media(max-width:1100px){
+  body.shell-app #appShell .view[data-page="route"] .route-layout{
+    grid-template-columns:minmax(0,1fr)!important;max-width:760px!important;
+    gap:15px!important;
+  }
+  body.shell-app #appShell .view[data-page="route"] #routeVisual.tle-route-screen{
+    height:min(760px,calc(100dvh - 180px))!important;min-height:610px!important;
+  }
+}
+@media(max-width:680px){
+  body.shell-app #appShell .view[data-page="route"] .route-layout{
+    width:100%!important;max-width:430px!important;gap:10px!important;
+  }
+  body.shell-app #appShell .view[data-page="route"] .route-map-empty:has(.tle-route-screen){
+    border-radius:22px!important;
+  }
+  body.shell-app #appShell .view[data-page="route"] #routeVisual.tle-route-screen{
+    min-height:610px!important;height:calc(100dvh - 145px)!important;max-height:780px!important;
+  }
+  body.shell-app #appShell .view[data-page="route"] .tle-route-top-controls{
+    top:13px;left:13px;right:13px;
+  }
+  body.shell-app #appShell .view[data-page="route"] .tle-route-map-caption{
+    top:68px;left:13px;font-size:10px;
+  }
+  body.shell-app #appShell .view[data-page="route"] .tle-route-sheet{
+    padding:8px 16px 16px;border-radius:27px 27px 0 0;
+  }
+  body.shell-app #appShell .view[data-page="route"] .tle-route-grab{margin-bottom:11px}
+  body.shell-app #appShell .view[data-page="route"] .tle-route-animated-bar{margin:10px 0}
+  body.shell-app #appShell .view[data-page="route"] .tle-route-contact-row{margin-bottom:10px}
+  body.shell-app #appShell .view[data-page="route"] .tle-route-stops-summary>div{min-height:36px}
+}
+@media(max-width:385px){
+  body.shell-app #appShell .view[data-page="route"] .tle-route-contact-actions button{
+    width:40px;min-width:40px;height:40px;min-height:40px;
+  }
+  body.shell-app #appShell .view[data-page="route"] .tle-route-sheet{
+    padding-inline:12px;
+  }
+}
+body.shell-app #appShell .view[data-page="route"] :is(.tle-route-back,.tle-route-share,.tle-route-open-maps,.tle-route-contact-actions button):focus-visible{
+  outline:3px solid #174970!important;outline-offset:2px!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body.shell-app #appShell .view[data-page="route"] .tle-route-pulse{animation:none!important;opacity:0!important}
+  body.shell-app #appShell .view[data-page="route"] :is(.tle-route-toast,.tle-route-animated-bar>span){
+    transition-duration:.01ms!important;
+  }
+}
