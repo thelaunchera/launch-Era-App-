@@ -56,6 +56,7 @@ jobs:
       - run: node cross-browser-smoke.mjs
       - run: node public-booking-smoke.mjs
       - run: node dashboard-bento-layout.mjs
+      - run: node settings-screen-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
