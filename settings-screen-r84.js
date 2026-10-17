@@ -133,7 +133,7 @@ const target=document.querySelector('#appShell .view[data-page="settings"]');
 if(target){
   if(target.classList.contains('active'))mountSettings();
   else {
-    const onOpen=new MutationObserver(observer=>{
+    const onOpen=new MutationObserver((records,observer)=>{
       if(target.classList.contains('active')){
         observer.disconnect();
         mountSettings();
