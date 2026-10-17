@@ -1,0 +1,269 @@
+/* TLE Settings r84 — responsive, accessible inset grouped list system. */
+body.shell-app #appShell .view[data-page="settings"].tle-settings-screen{
+  --settings-ink:#191919;--settings-muted:#67747e;--settings-line:rgba(36,59,72,.10);
+  --settings-canvas:#edf2f5;--settings-white:#fff;--settings-focus:#287fbd;
+  max-width:none!important;width:100%!important;min-width:0!important;
+  margin:0!important;padding:0!important;
+  background:var(--settings-canvas)!important;color:var(--settings-ink)!important;
+}
+body.shell-app #appShell .view[data-page="settings"].tle-settings-screen>.settings-intro[data-tle-replaced]{
+  display:none!important;
+}
+body.shell-app #appShell .tle-settings-frame{
+  width:min(100%,430px);max-width:430px;margin:0 auto;
+  padding:0;overflow:hidden;min-width:0;
+  font-family:"Avenir Next",Inter,system-ui,-apple-system,sans-serif;
+  color:var(--settings-ink);
+}
+body.shell-app #appShell .tle-settings-stage{
+  position:relative;overflow:hidden;isolation:isolate;
+  height:min(800px,calc(100dvh - 120px));min-height:430px;
+  background:var(--settings-canvas);
+  border-radius:0;
+}
+body.shell-app #appShell .tle-settings-list{
+  position:relative;z-index:1;overflow-x:hidden;overflow-y:auto;
+  height:100%;padding:18px 14px 28px;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  transform:translateX(0);
+  transition:transform 590ms linear(0,.09,.29,.58,.82,.98,1.025,1);
+}
+body.shell-app #appShell .tle-settings-header{margin:4px 2px 18px!important}
+body.shell-app #appShell .tle-settings-header h2{
+  margin:0!important;padding:0!important;font-family:Prompt,"Avenir Next",sans-serif!important;
+  font-size:32px!important;font-weight:650!important;
+  line-height:1.22!important;letter-spacing:-.035em!important;color:#19252d!important;
+}
+body.shell-app #appShell .tle-settings-search{
+  min-height:42px!important;height:42px!important;
+  display:flex!important;align-items:center!important;
+  gap:9px!important;background:#fff!important;color:#566976!important;
+  padding:0 13px!important;border-radius:13px!important;border:1px solid var(--settings-line)!important;
+  box-shadow:0 1px 2px rgba(27,44,58,.025);margin:0 0 15px!important;
+}
+body.shell-app #appShell .tle-settings-search>span{
+  font-size:23px;line-height:1;color:#718795;
+}
+body.shell-app #appShell .tle-settings-search input{
+  appearance:none!important;-webkit-appearance:none!important;
+  width:100%!important;min-width:0!important;border:0!important;outline:0!important;
+  box-shadow:none!important;background:transparent!important;color:#191919!important;
+  font:400 15px/1.3 "Avenir Next",Inter,system-ui,sans-serif!important;
+}
+body.shell-app #appShell .tle-settings-search input::placeholder{color:#798790!important;opacity:1}
+body.shell-app #appShell .tle-settings-profile{
+  width:100%!important;min-height:88px!important;display:flex!important;
+  align-items:center!important;gap:12px!important;text-align:left!important;
+  padding:12px!important;margin:0 0 22px!important;
+  border:1px solid var(--settings-line)!important;border-radius:18px!important;
+  background:#fff!important;box-shadow:0 3px 12px rgba(34,50,60,.026)!important;
+  color:#191919!important;cursor:pointer;
+}
+body.shell-app #appShell .tle-settings-avatar{
+  width:56px;height:56px;flex:0 0 56px;display:grid;place-items:center;
+  border-radius:17px;background:linear-gradient(135deg,#417fae,#93c0e5);
+  color:white;font-size:16px;font-weight:750;letter-spacing:-.025em;
+}
+body.shell-app #appShell .tle-settings-profile-copy{
+  display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;
+}
+body.shell-app #appShell .tle-settings-profile-copy strong{
+  font-size:17px!important;line-height:1.28!important;color:#1b2830!important;
+  font-weight:700!important;overflow-wrap:anywhere;
+}
+body.shell-app #appShell .tle-settings-profile-copy small{
+  font-size:12px!important;color:#78838c!important;font-weight:450!important;
+}
+body.shell-app #appShell .tle-settings-chevron{
+  font-size:24px;line-height:1;color:#9aa8b2;flex:0 0 auto;font-weight:350;
+}
+body.shell-app #appShell .tle-settings-group{margin:0 0 21px!important;padding:0!important;min-width:0}
+body.shell-app #appShell .tle-settings-group>h3{
+  margin:0 8px 8px!important;padding:0!important;
+  font-size:12px!important;font-weight:650!important;letter-spacing:.065em!important;
+  text-transform:uppercase!important;color:#72808b!important;line-height:1.4!important;
+}
+body.shell-app #appShell .tle-settings-group-card{
+  background:var(--settings-white)!important;border:1px solid var(--settings-line)!important;
+  border-radius:18px!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(33,53,71,.027);
+}
+body.shell-app #appShell .tle-settings-row{
+  position:relative;display:flex!important;align-items:center!important;gap:13px!important;
+  width:100%!important;min-height:53px!important;margin:0!important;padding:9px 12px!important;
+  background:transparent!important;border:0!important;border-radius:0!important;
+  color:#1d2931!important;text-align:left!important;font-size:17px!important;
+  line-height:1.3!important;cursor:pointer;box-shadow:none!important;
+}
+body.shell-app #appShell .tle-settings-row::after{
+  content:"";position:absolute;bottom:0;left:57px;right:0;
+  border-bottom:1px solid var(--settings-line);pointer-events:none;
+}
+body.shell-app #appShell .tle-settings-row:last-child::after{display:none}
+body.shell-app #appShell .tle-settings-row-name{
+  min-width:0;flex:1;font:550 16px/1.35 "Avenir Next",Inter,system-ui,sans-serif!important;
+  letter-spacing:-.012em;overflow-wrap:break-word;
+}
+body.shell-app #appShell .tle-settings-row-value{
+  flex:0 1 auto;min-width:0;max-width:40%;text-align:right;
+  font-size:11px!important;line-height:1.35!important;color:#7d8992!important;
+}
+body.shell-app #appShell .tle-settings-row:not(:disabled):hover{background:#f7fbff!important}
+body.shell-app #appShell .tle-settings-row:disabled{cursor:not-allowed;opacity:.7}
+body.shell-app #appShell .tle-settings-icon{
+  width:31px;height:31px;flex:0 0 31px;border-radius:10px;
+  display:grid;place-items:center;font-size:17px;line-height:1;color:#fff;
+  font-family:system-ui,sans-serif;font-weight:650;
+}
+body.shell-app #appShell .tle-settings-icon-1{background:#266ca4}
+body.shell-app #appShell .tle-settings-icon-2{background:#4285b8}
+body.shell-app #appShell .tle-settings-icon-3{background:#6a9fcb}
+body.shell-app #appShell .tle-settings-icon-4{background:#8cb3d7}
+body.shell-app #appShell .tle-settings-switch-row{
+  cursor:pointer!important;position:relative;
+}
+body.shell-app #appShell .tle-settings-switch-track{
+  position:relative;width:51px;height:31px;flex:0 0 51px;
+  display:block;border-radius:999px;background:#d4dde3;
+  transition:background 280ms ease;
+}
+body.shell-app #appShell .tle-settings-switch-track>span{
+  position:absolute;left:2px;top:2px;width:27px;height:27px;
+  background:white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.15);
+  transition:transform 590ms linear(0,.16,.55,.93,1.05,1);
+}
+body.shell-app #appShell input.tle-settings-switch-input{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  margin:0!important;opacity:0!important;cursor:pointer!important;z-index:3;
+}
+body.shell-app #appShell .tle-settings-switch-row:has(input:checked) .tle-settings-switch-track{
+  background:#307dad;
+}
+body.shell-app #appShell .tle-settings-switch-row:has(input:checked) .tle-settings-switch-track>span{
+  transform:translateX(20px);
+}
+body.shell-app #appShell :is(.tle-settings-row,.tle-settings-profile,.tle-settings-back,.tle-settings-detail-button):focus-visible,
+body.shell-app #appShell .tle-settings-switch-row:has(input:focus-visible),
+body.shell-app #appShell .tle-settings-search:focus-within{
+  outline:3px solid var(--settings-focus)!important;outline-offset:-3px!important;
+}
+body.shell-app #appShell .tle-settings-row[hidden],
+body.shell-app #appShell .tle-settings-group[hidden],
+body.shell-app #appShell .tle-settings-profile[hidden],
+body.shell-app #appShell .tle-settings-empty[hidden]{display:none!important}
+body.shell-app #appShell .tle-settings-empty{
+  margin:20px 6px;color:var(--settings-muted);font-size:14px;
+}
+body.shell-app #appShell .tle-settings-dim{
+  position:absolute;inset:0;z-index:2;background:rgba(16,37,52,.12);
+  opacity:0;pointer-events:none;transition:opacity 590ms ease;
+}
+body.shell-app #appShell .tle-settings-detail{
+  position:absolute;inset:0;z-index:3;
+  height:100%;width:100%;background:var(--settings-canvas);
+  display:flex;flex-direction:column;overflow:hidden;
+  visibility:hidden;pointer-events:none;transform:translateX(100%);
+  transition:transform 590ms linear(0,.11,.33,.68,.9,1.02,1),visibility 0s linear 590ms;
+}
+body.shell-app #appShell .tle-settings-detail-open .tle-settings-list{transform:translateX(-26%)}
+body.shell-app #appShell .tle-settings-detail-open .tle-settings-dim{opacity:1}
+body.shell-app #appShell .tle-settings-detail-open .tle-settings-detail{
+  visibility:visible;pointer-events:auto;transform:translateX(0);
+  transition:transform 590ms linear(0,.11,.33,.68,.9,1.02,1),visibility 0s linear 0s;
+}
+body.shell-app #appShell .tle-settings-detail-header{
+  display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,1.2fr) minmax(12px,1fr);
+  align-items:center;gap:6px;min-height:58px;padding:8px 11px;
+  border-bottom:1px solid var(--settings-line);background:rgba(255,255,255,.84);
+}
+body.shell-app #appShell .tle-settings-back{
+  display:flex;gap:4px;align-items:center;justify-content:flex-start;
+  padding:8px 3px!important;background:none!important;border:0!important;
+  color:#2873aa!important;font-size:16px!important;font-weight:550!important;
+  min-width:0;text-align:left;
+}
+body.shell-app #appShell .tle-settings-back span{font-size:13px;white-space:normal}
+body.shell-app #appShell #tleSettingsDetailTitle{
+  text-align:center;font-size:16px;font-weight:700;color:#25323d;line-height:1.25;
+}
+body.shell-app #appShell .tle-settings-detail-scroll{
+  min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:16px 13px 28px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid.settings-simple-grid{
+  display:block!important;width:100%!important;max-width:none!important;
+  padding:0!important;margin:0!important;gap:0!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid.settings-simple-grid>.settings-section{
+  display:none!important;min-width:0!important;margin:0!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid.settings-simple-grid>.settings-section.tle-current-panel:not([hidden]){
+  display:block!important;
+  border:1px solid var(--settings-line)!important;border-radius:18px!important;
+  padding:13px!important;background:#fff!important;box-shadow:none!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid .panel-head{
+  padding:4px 2px 12px!important;margin:0 0 12px!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid .panel-head h3{
+  font-size:19px!important;line-height:1.3!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid .panel-note{
+  display:block!important;font-size:12px!important;line-height:1.4!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid .settings-summary-grid{
+  width:100%!important;grid-template-columns:1fr!important;gap:8px!important;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid :is(input,select,button){
+  max-width:100%;
+}
+body.shell-app #appShell .tle-settings-detail-scroll .settings-grid .settings-section.settings-open>:not(.panel-head){
+  margin-left:0!important;margin-right:0!important;
+}
+body.shell-app #appShell .tle-settings-explainer{
+  display:block;margin:0 0 16px;padding:15px 16px;border-radius:14px;
+  background:#fff;border:1px solid var(--settings-line);
+  color:#465866;font-size:13px;line-height:1.6;
+}
+body.shell-app #appShell .tle-settings-aux-group{margin-top:18px!important}
+body.shell-app #appShell .tle-settings-static-row{cursor:default!important}
+body.shell-app #appShell .tle-settings-static-row:hover{background:transparent!important}
+body.shell-app #appShell .tle-settings-static-row .tle-settings-row-name{font-size:14px!important}
+body.shell-app #appShell .tle-settings-static-row .tle-settings-row-value{max-width:46%}
+body.shell-app #appShell .tle-settings-link-group{
+  display:grid;gap:7px;padding:12px;background:white;border-radius:14px;border:1px solid var(--settings-line)
+}
+body.shell-app #appShell .tle-settings-link-group a{
+  padding:12px 7px;color:#2372a6!important;font-size:15px;text-decoration:none;
+}
+body.shell-app #appShell .tle-settings-detail-button{
+  width:100%;min-height:50px;background:white;color:#2372a6;border:1px solid var(--settings-line);
+  border-radius:14px;text-align:left;padding:12px 15px;font-size:16px;
+}
+body.shell-app #appShell .tle-settings-system-readout{
+  background:#fff;border:1px solid var(--settings-line);padding:18px;border-radius:14px;
+  font-size:13px;line-height:1.6;overflow-wrap:anywhere;
+}
+@media(max-width:860px){
+  body.shell-app #appShell .view[data-page="settings"].tle-settings-screen{min-height:100%!important}
+  body.shell-app #appShell .tle-settings-stage{
+    height:calc(100dvh - 175px);min-height:380px;
+  }
+}
+@media(min-width:681px) and (max-width:1100px){
+  body.shell-app #appShell .tle-settings-frame{max-width:430px!important}
+  body.shell-app #appShell .tle-settings-stage{height:calc(100dvh - 178px);min-height:460px}
+}
+@media(min-width:1101px){
+  body.shell-app #appShell .view[data-page="settings"].tle-settings-screen{
+    border-radius:24px!important;min-height:calc(100dvh - 125px)!important;padding:25px 0!important;
+  }
+  body.shell-app #appShell .tle-settings-stage{
+    border-radius:22px!important;height:min(800px,calc(100dvh - 190px));min-height:450px;
+    box-shadow:0 12px 40px rgba(35,58,74,.065);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.shell-app #appShell :is(.tle-settings-list,.tle-settings-detail,.tle-settings-dim,.tle-settings-switch-track,.tle-settings-switch-track>span){
+    transition-duration:.01ms!important;transition-delay:0ms!important;
+  }
+}
