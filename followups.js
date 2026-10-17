@@ -416,6 +416,7 @@
     try{
       await setMode(field,select.value);
       render();
+      window.TLE_AUTOMATION_STUDIO?.refresh?.();
       if(select.value==="auto"){
         showToast(langPick("Auto email enabled · due follow-ups send within an hour.","Email automático activado · los seguimientos vencidos se envían dentro de una hora.","E-mail automatique activé · les suivis dus sont envoyés dans l’heure."));
       }else{
