@@ -132,11 +132,12 @@
   if(source==="enabled"&&toggle.checked&&!previous.enabled){
    if(mode(kind)!=="auto"||!confirm(text("Enable this additional email stage? It can email eligible real customers after the previous follow-up and selected delay.","¿Activar este correo adicional? Podrá enviarse a clientes reales que sigan pendientes después de la etapa anterior y el plazo seleccionado."))){sync();return;}
   }
+  const requestedEnabled=!!toggle.checked;
   state.busy=true;sync();
   try{
-   const r=await bridge.supabase.rpc("save_follow_up_sequence_rule",{p_business_id:state.business,p_follow_up_type:kind,p_stage:stage,p_delay_days:delay,p_enabled:!!toggle.checked});
+   const r=await bridge.supabase.rpc("save_follow_up_sequence_rule",{p_business_id:state.business,p_follow_up_type:kind,p_stage:stage,p_delay_days:delay,p_enabled:requestedEnabled});
    if(r.error)throw r.error;
-   state.rules.set(kind+":"+stage,{follow_up_type:kind,stage,delay_days:delay,enabled:!!toggle.checked});
+   state.rules.set(kind+":"+stage,{follow_up_type:kind,stage,delay_days:delay,enabled:requestedEnabled});
    notice(text("Automation stage saved.","Etapa de automatización guardada."));
   }catch(err){notice(text("Couldn't save: ","No se pudo guardar: ")+(err?.message||"Error"));}
   finally{state.busy=false;sync();}
