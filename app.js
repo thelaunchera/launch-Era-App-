@@ -7034,7 +7034,13 @@ function renderOperations(){
       ${i<todayJobs.length-1?`<div class="route-drive">${escapeHtml(tr("Next stop"))}</div>`:""}
     `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
   }
-  if(routeVisual){
+  if(routeVisual && window.TLE_ROUTE_R85?.render){
+    window.TLE_ROUTE_R85.render(todayJobs,{
+      todayMiles,
+      businessName:state.business?.name||"The Launch Era",
+      contacts:Object.fromEntries((state.clients||[]).map(c=>[String(c.id),{phone:c.phone||"",email:c.email||""}]))
+    });
+  }else if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     const count=routable.length;
     const gpsLabel=langPick(count===1?"GPS stop ready":"GPS stops ready",count===1?"parada lista para GPS":"paradas listas para GPS",count===1?"arrêt GPS prêt":"arrêts GPS prêts");
