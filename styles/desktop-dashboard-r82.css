@@ -112,3 +112,44 @@
     grid-column:2!important;grid-row:1!important;width:100%!important;min-width:0!important;max-width:100%!important;
   }
 }
+
+
+/* Final two-row desktop composition; keeps the greeting under the bento density gate. */
+@media (min-width:1101px){
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard{
+    padding:14px clamp(22px,2.2vw,32px)!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-greeting-zone{
+    grid-template-rows:auto auto auto auto!important;
+    grid-template-areas:"greeting top" "action weather" "alert alert" "route route"!important;
+    row-gap:7px!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-card-topline{
+    grid-area:top!important;grid-column:2!important;grid-row:1!important;
+    justify-content:flex-end!important;align-self:center!important;margin:0!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .today-greeting-first{
+    grid-area:greeting!important;grid-column:1!important;grid-row:1!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayGreeting{
+    font-size:clamp(27px,2.1vw,32px)!important;margin:0 0 5px!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayMomentCopy{
+    font-size:13px!important;line-height:1.4!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard #todayHeroAction{
+    grid-area:action!important;grid-column:1!important;grid-row:2!important;
+    align-self:center!important;min-height:41px!important;margin:0!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .weather-brief{
+    grid-area:weather!important;grid-column:2!important;grid-row:2!important;
+    padding:9px 12px!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-weather-alert{
+    grid-area:alert!important;grid-column:1/-1!important;grid-row:3!important;
+    max-width:none!important;
+  }
+  html:is([data-dashboard-preview="bento"],:not([data-dashboard-preview="bento"])) body.shell-app #appShell .view[data-page="today"] #todayHeroCard .hero-route-chip{
+    grid-area:route!important;grid-column:1/-1!important;grid-row:4!important;
+  }
+}
