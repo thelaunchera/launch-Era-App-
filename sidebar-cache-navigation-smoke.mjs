@@ -34,6 +34,9 @@ try{
           document.querySelector('#authShell').hidden=true;
           document.body.classList.add('shell-app');
           document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.page==='today'));
+          // This is an unauthenticated fixture: grant test-only visibility of owner navigation.
+          // Production retains its normal role-based restrictions.
+          document.querySelectorAll('#sidebar .nav-item[data-view]').forEach(nav=>{ nav.hidden=false; });
         });
         if(width<=860){
           const drawer=await page.evaluate(()=>{
