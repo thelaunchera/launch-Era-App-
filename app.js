@@ -7035,11 +7035,7 @@ function renderOperations(){
     `).join(""):`<div class="empty-inline"><strong>No route today.</strong><span>Schedule jobs to build today’s stop list.</span></div>`;
   }
   if(routeVisual && window.TLE_ROUTE_R85?.render){
-    window.TLE_ROUTE_R85.render(todayJobs,{
-      todayMiles,
-      businessName:state.business?.name||"The Launch Era",
-      contacts:Object.fromEntries((state.clients||[]).map(c=>[String(c.id),{phone:c.phone||"",email:c.email||""}]))
-    });
+    window.TLE_ROUTE_R85.render(todayJobs,{todayMiles,contacts:Object.fromEntries(state.clients.map(c=>[c.id,c]))});
   }else if(routeVisual){
     const routable=todayJobs.filter(j=>String(j.service_address||"").trim());
     const count=routable.length;
