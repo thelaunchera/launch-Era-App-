@@ -36,7 +36,7 @@ try{
           document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.page==='today'));
           // This is an unauthenticated fixture: grant test-only visibility of owner navigation.
           // Production retains its normal role-based restrictions.
-          document.querySelectorAll('#sidebar .nav-item[data-view]').forEach(nav=>{ nav.hidden=false; });
+          document.querySelectorAll('#sidebar .nav-item[data-view],#sidebar [data-jump]').forEach(nav=>{ nav.hidden=false; });
         });
         if(width<=860){
           const drawer=await page.evaluate(()=>{
@@ -47,11 +47,17 @@ try{
           assert.ok(drawer.open,name+' '+width+' sidebar not opening '+JSON.stringify(drawer));
         }
         for(const section of ['calendar','route','settings','today']){
-          await page.evaluate(id=>document.querySelector('#sidebar .nav-item[data-view="'+id+'"]')?.click(),section);
+          await page.evaluate(id=>{
+            const control=id==='settings'?document.querySelector('#sidebar [data-jump="settings"]'):document.querySelector('#sidebar .nav-item[data-view="'+id+'"]');
+            if(!control)throw new Error('Missing nav control for '+id);
+            control.click();
+          },section);
           const active=await page.evaluate(()=>document.querySelector('.view.active')?.dataset.page);
           assert.equal(active,section,name+' '+width+' sidebar '+section+' did not navigate; active='+active);
-          const selected=await page.evaluate(id=>document.querySelector('#sidebar .nav-item[data-view="'+id+'"]')?.classList.contains('active'),section);
-          assert.equal(selected,true,name+' '+width+' missing active nav highlight');
+          if(section!=='settings'){
+            const selected=await page.evaluate(id=>document.querySelector('#sidebar .nav-item[data-view="'+id+'"]')?.classList.contains('active'),section);
+            assert.equal(selected,true,name+' '+width+' missing active nav highlight');
+          }
         }
         assert.ok(!errors.some(e=>/SyntaxError|ReferenceError|TypeError/.test(e)),name+' '+width+' JS errors '+JSON.stringify(errors));
         await page.close();
