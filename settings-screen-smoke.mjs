@@ -31,7 +31,9 @@ try{
           const app=document.querySelector('#appShell');app.hidden=false;
           document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.dataset.page==='settings'));
         });
-        await page.locator('.tle-settings-frame').waitFor();
+        await page.waitForTimeout(150);
+        const diag=await page.evaluate(()=>({view:!!document.querySelector('#appShell .view[data-page="settings"]'),active:document.querySelector('#appShell .view[data-page="settings"]')?.classList.contains('active'),panels:document.querySelector('#appShell .view[data-page="settings"] .settings-grid')?.children.length,ready:document.querySelector('#appShell .view[data-page="settings"]')?.dataset.tleGroupedSettings,source:[...document.scripts].filter(s=>s.src.includes('settings-screen-r84')).map(s=>s.src),frame:!!document.querySelector('.tle-settings-frame')}));
+        assert.ok(diag.frame,engineName+' '+width+' settings did not mount '+JSON.stringify(diag)+' errors='+JSON.stringify(errors));
         await page.screenshot({path:'test-results/settings/'+engineName+'-'+width+'.png'});
         assert.deepEqual(errors,[],engineName+' '+width+' JS errors');
         const shape=await page.evaluate(()=>{
