@@ -53,10 +53,10 @@ jobs:
           node-version: "22"
       - run: npm ci --no-audit --no-fund
       - run: npm install --no-save playwright@1.55.0
+      - run: node settings-screen-smoke.mjs
       - run: node cross-browser-smoke.mjs
       - run: node public-booking-smoke.mjs
       - run: node dashboard-bento-layout.mjs
-      - run: node settings-screen-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
