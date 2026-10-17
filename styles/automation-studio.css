@@ -1,0 +1,38 @@
+/* The Launch Era automation studio — scoped, accessible, responsive. */
+.followup-layout:has(#automationStudio){grid-template-columns:minmax(0,1fr)!important}
+.followup-layout:has(#automationStudio) .followup-rules-panel{min-width:0}
+#automationStudio{width:100%;min-width:0;color:#191919;font:400 14px/1.55 Futura,"Avenir Next",Arial,sans-serif}
+#automationStudio .tle-automation-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:18px}
+#automationStudio .tle-automation-head h3{margin:3px 0 7px;color:#191919;font:750 clamp(20px,2.5vw,26px)/1.2 Prompt,Arial,sans-serif}
+#automationStudio .tle-automation-kicker{font-size:10px;letter-spacing:.16em;font-weight:800;color:#34749a;margin:0}
+#automationStudio .tle-automation-caption{margin:0;color:#52687a;font-size:13px}
+#automationStudio .tle-automation-safe{font-size:11px;background:#e9f5fc;color:#24546f;border:1px solid #b9ddf1;padding:8px 12px;border-radius:999px;flex-shrink:0}
+#automationStudio .tle-automation-tabs{display:flex;gap:5px;background:#edf3f7;border-radius:15px;padding:5px;margin:16px 0}
+#automationStudio .tle-automation-tab{flex:1 1 0;min-width:0;padding:12px 9px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#52697a!important;font-weight:750;cursor:pointer}
+#automationStudio .tle-automation-tab[aria-selected=true]{background:#fff!important;color:#191919!important;box-shadow:0 2px 8px #22465b14}
+#automationStudio .tle-automation-panel[hidden]{display:none!important}
+#automationStudio .tle-automation-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:13px}
+#automationStudio .tle-automation-rule{display:flex;flex-direction:column;gap:12px;min-width:0;margin:0!important;border:1px solid #d9e6ef!important;background:#fff!important;border-radius:18px!important;padding:17px!important;box-shadow:0 4px 16px #17456808}
+#automationStudio .tle-automation-rule>span:first-child{display:grid;gap:4px;min-width:0}
+#automationStudio .tle-automation-rule>span:first-child strong{font-size:16px}
+#automationStudio .tle-automation-rule>span:first-child small{font-size:12px;color:#687d89}
+#automationStudio .followup-rule-controls{display:flex;flex-wrap:wrap;gap:9px;min-width:0}
+#automationStudio .followup-rule-controls select{flex:1 1 125px;min-width:0;min-height:40px}
+#automationStudio .followup-rule-controls button{font-size:12px}
+#automationStudio .tle-automation-stages{border-top:1px solid #e5edf2;padding-top:10px;display:grid;gap:9px}
+#automationStudio .tle-stage{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0;padding:9px 0;border-bottom:1px solid #f0f3f6}
+#automationStudio .tle-stage:last-child{border:0}
+#automationStudio .tle-stage-name{display:grid;gap:2px;min-width:0}
+#automationStudio .tle-stage-name strong{font-size:12px}
+#automationStudio .tle-stage-name small{color:#718594;font-size:11px}
+#automationStudio .tle-stage-toggle{display:flex;align-items:center;gap:9px;min-width:0;cursor:pointer}
+#automationStudio .tle-stage-switch{width:19px;height:19px;accent-color:#308fe3;flex:0 0 auto}
+#automationStudio .tle-stage-switch-label{font-size:12px;font-weight:650;line-height:1.35}
+#automationStudio .tle-stage-day-control{display:flex;align-items:center;gap:5px;flex:0 0 auto;font-size:11px;color:#657989}
+#automationStudio .tle-stage-days{width:56px;max-width:56px;min-height:38px;text-align:center;padding:5px!important;border:1px solid #c8dce9;border-radius:10px;background:#f7fbff;font-size:14px;color:#191919}
+#automationStudio input:disabled{opacity:.55;cursor:not-allowed}
+#automationStudio .tle-automation-foot{font-size:12px;line-height:1.55;color:#687e8e;margin:13px 0 0}
+#automationStudio .tle-automation-status{font-size:12px;color:#2d688b;padding:10px 0;margin:4px 0}
+#automationStudio :is(button,input,select):focus-visible{outline:3px solid #267cc0;outline-offset:2px}
+@media(max-width:620px){#automationStudio .tle-automation-head{flex-direction:column;gap:8px}#automationStudio .tle-automation-safe{align-self:flex-start}#automationStudio .tle-automation-panel{grid-template-columns:minmax(0,1fr)}#automationStudio .tle-automation-rule{padding:14px!important}#automationStudio .tle-automation-tab{font-size:12px;padding:11px 5px!important}#automationStudio .tle-stage-day-control{font-size:10px}}
+@media(prefers-reduced-motion:no-preference){#automationStudio .tle-automation-rule{transition:box-shadow .24s,border-color .24s}#automationStudio .tle-automation-rule:hover{box-shadow:0 7px 23px #17456812;border-color:#abd3ec!important}}
