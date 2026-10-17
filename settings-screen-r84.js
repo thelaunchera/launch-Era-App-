@@ -1,6 +1,7 @@
 /* TLE responsive Settings: keep the real existing panels/forms and saved data. */
 (()=>{
 'use strict';
+function mountSettings(){
 const view=document.querySelector('#appShell .view[data-page="settings"]');
 const legacy=view?.querySelector('.settings-grid.settings-simple-grid');
 if(!view||!legacy||view.dataset.tleGroupedSettings||legacy.children.length!==9)return;
@@ -127,4 +128,18 @@ panels.forEach(p=>new MutationObserver(()=>{if(!active)render();}).observe(p,{at
 new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 view.addEventListener('click',e=>{const head=e.target.closest('.tle-current-panel .panel-head.settings-accordion-trigger');if(head&&!e.target.closest('button,input,a,select'))e.stopImmediatePropagation();},true);
 render();
+}
+const target=document.querySelector('#appShell .view[data-page="settings"]');
+if(target){
+  if(target.classList.contains('active'))mountSettings();
+  else {
+    const onOpen=new MutationObserver(observer=>{
+      if(target.classList.contains('active')){
+        observer.disconnect();
+        mountSettings();
+      }
+    });
+    onOpen.observe(target,{attributes:true,attributeFilter:['class']});
+  }
+}
 })();
