@@ -39,6 +39,7 @@ const CORE=[
   "./automation-studio.js?v=20261017-1",
   "./styles/automation-studio.css?v=20261017-1",
   "./styles/desktop-dashboard-r82.css?v=20261017-r82",
+  "./styles/tablet-dashboard-r83.css?v=20261017-r83",
   "./desktop-sidebar-r82.js?v=20261017-r82",
   "./compact-workspace.js?v=20261014-app-403-auth-copy-blue-r81",
   "./i18n-completion.js?v=20261014-app-403-auth-copy-blue-r81",

@@ -59,6 +59,40 @@ try{
     }
     document.querySelector('#todayTimeline').innerHTML='<div class="timeline-item"><time>9:00 AM</time><div><strong>Maple House</strong><span>Standard cleaning · 2h</span></div></div><div class="timeline-item"><time>1:00 PM</time><div><strong>Oakwood Residence</strong><span>Deep cleaning · 3h</span></div></div>';
    });
+   if(width===768||width===1024){
+     // Match the real iPad state: live weather and advisory both visible.
+     await page.evaluate(()=>{
+       const weather=document.querySelector('#weatherBrief');
+       weather.hidden=false;
+       document.querySelector('#weatherTemp').textContent='85°';
+       document.querySelector('#weatherLocation').textContent='LOCAL WEATHER';
+       document.querySelector('#weatherCondition').textContent='Partly cloudy';
+       document.querySelector('#weatherHighLow').textContent='H:86° · L:73°';
+       const rain=document.querySelector('#weatherBusinessNote');
+       rain.textContent='Rain expected around 6:00 PM · 66%';
+       rain.hidden=false;
+       // The shell uses the actual long greeting shown on the owner dashboard.
+       document.querySelector('#todayGreeting').textContent='Good afternoon · here’s where things stand';
+     });
+     const tablet=await page.evaluate(()=>{
+       const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width};};
+       const greeting=rect('#todayGreeting'),clock=rect('#todayClockTime'),action=rect('#todayHeroAction'),weather=rect('#weatherBrief');
+       const css=selector=>getComputedStyle(document.querySelector(selector));
+       const labelSize=parseFloat(css('.pulse-card>span').fontSize);
+       return {greeting,clock,action,weather,labelSize,
+         headingSize:parseFloat(css('#todayGreeting').fontSize),
+         heroWidth:document.querySelector('.hero-greeting-zone').clientWidth,
+         heroScrollWidth:document.querySelector('.hero-greeting-zone').scrollWidth};
+     });
+     assert.ok(tablet.greeting.right<=tablet.clock.left+4,
+       `${engineName} ${width}: tablet greeting and clock should form separate columns ${JSON.stringify(tablet)}`);
+     assert.ok(tablet.action.right<=tablet.weather.left+4,
+       `${engineName} ${width}: tablet calendar action overlaps weather ${JSON.stringify(tablet)}`);
+     assert.ok(tablet.headingSize>=23 && tablet.labelSize>=11,
+       `${engineName} ${width}: tablet labels are too small ${JSON.stringify(tablet)}`);
+     assert.ok(tablet.heroScrollWidth<=tablet.heroWidth+3,
+       `${engineName} ${width}: tablet greeting has horizontal overflow ${JSON.stringify(tablet)}`);
+   }
    await page.screenshot({path:`test-results/bento/${engineName}-${width}.png`,fullPage:true});
    const result=await page.evaluate(()=>({
     preview:document.documentElement.dataset.dashboardPreview,
@@ -82,7 +116,7 @@ try{
    if(width>=861) assert.ok(result.sidebarRight<=result.mainLeft+1,`${engineName} ${width}: sidebar overlaps dashboard (${result.sidebarRight}px versus ${result.mainLeft}px)`);
    assert.equal(result.columns,width<=860?2:4,`${engineName} ${width}: business pulse columns`);assert.equal(result.quickColumns,width<=520?2:3,`${engineName} ${width}: quick access columns`);assert.equal(result.pulseCount,4);
    assert.equal(new Set(result.ids).size,result.ids.length,'duplicate ids');assert.equal(result.chartTotal,15);
-   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:190),`greeting too large: ${result.heroHeight} at ${width}px`);
+   assert.match(result.elapsed,/^01:24:/);assert.equal(result.arc,'41 100');assert.ok(result.heroHeight<(width<=520?320:(width===768||width===1024)?235:190),`greeting too large: ${result.heroHeight} at ${width}px`);
    const dom=await page.evaluate(()=>[...document.querySelector('.view[data-page="today"]').children].map(el=>el.id||el.classList[0]));
    assert.ok(dom.indexOf('todayHeroCard')<dom.indexOf('businessPulse'));assert.ok(dom.indexOf('businessPulse')<dom.indexOf('bentoActivityCard'));
    // Business weekdays stay correct when the device timezone is UTC.
