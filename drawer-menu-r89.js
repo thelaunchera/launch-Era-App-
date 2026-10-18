@@ -68,9 +68,15 @@
     putStyle(main,"overflow-y",previous.mainOverflow);
     putStyle(document.documentElement,"overflow",previous.htmlOverflow);
     putStyle(document.body,"overflow",previous.bodyOverflow);
-    main.scrollTop=previous.mainTop;
-    if(window.scrollY!==previous.windowTop)window.scrollTo({top:previous.windowTop,behavior:"instant"});
     lenis?.start();
+    // Restoring after start avoids Lenis/browser resetting the desktop offset.
+    if(lenis && !mobile())lenis.scrollTo(previous.windowTop,{immediate:true,force:true});
+    const restore=()=>{
+      main.scrollTop=previous.mainTop;
+      if(Math.abs(window.scrollY-previous.windowTop)>1)window.scrollTo({top:previous.windowTop,behavior:"instant"});
+    };
+    restore();
+    requestAnimationFrame(restore);
   }
   function visible(node){
     return node&&!node.hidden&&getComputedStyle(node).display!=="none"&&!node.inert;
