@@ -37,6 +37,8 @@ try{
         await page.evaluate(()=>{
           document.getElementById("appShell").hidden=false;
           document.getElementById("authShell").hidden=true;
+          // Signed-in test fixture: the unauthenticated loading overlay must not intercept input.
+          document.getElementById("sessionSplash")?.remove();
           document.body.classList.add("shell-app");
           const spacer=document.createElement("div");
           spacer.style.height="1800px";
