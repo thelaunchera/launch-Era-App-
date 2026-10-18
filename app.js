@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261017-app-404-nav-cache-r87";
+const APP_VERSION = "20261018-app-right-drawer-r89";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2586,30 +2586,12 @@ $$("details.nav-group").forEach(group=>{
   });
 });
 function setSidebarOpen(open){
-  const isMobileNav=window.innerWidth<=860 || window.matchMedia("(max-width: 860px)").matches;
-  const shouldOpen=!!open && isMobileNav;
-  if(!sidebar) return;
-  sidebar.classList.toggle("open",shouldOpen);
-
-  if(isMobileNav){
-    sidebar.style.setProperty("left","0px","important");
-    sidebar.style.setProperty("right","auto","important");
-    sidebar.style.setProperty("transform","none","important");
-    sidebar.style.setProperty("-webkit-transform","none","important");
-    sidebar.style.setProperty("visibility",shouldOpen?"visible":"hidden","important");
-    sidebar.style.setProperty("opacity",shouldOpen?"1":"0","important");
-    sidebar.style.setProperty("pointer-events",shouldOpen?"auto":"none","important");
-  }else{
-    ["left","right"].forEach(key=>sidebar.style.removeProperty(key));
-    for(const [key,value] of Object.entries({display:"flex",transform:"none","-webkit-transform":"none",visibility:"visible",opacity:"1","pointer-events":"auto"})){
-      sidebar.style.setProperty(key,value,"important");
-    }
-  }
-
-  if(shouldOpen) syncMobileNavGroups();
-  if(sidebarScrim) sidebarScrim.hidden=!shouldOpen;
-  document.body.classList.toggle("sidebar-is-open",shouldOpen);
-  $("#menuToggle")?.setAttribute("aria-expanded",shouldOpen?"true":"false");
+  if(window.TLEDrawer?.setOpen)return window.TLEDrawer.setOpen(open);
+  const show=!!open && window.innerWidth<=860;
+  sidebar?.classList.toggle("open",show);
+  if(sidebarScrim)sidebarScrim.hidden=!show;
+  document.body.classList.toggle("sidebar-is-open",show);
+  $("#menuToggle")?.setAttribute("aria-expanded",String(show));
 }
 $("#menuToggle").addEventListener("click",()=>setSidebarOpen(!sidebar.classList.contains("open")));
 sidebarScrim?.addEventListener("click",()=>setSidebarOpen(false));

@@ -7,7 +7,7 @@
     frame=0;
     const shell=document.getElementById("appShell");
     const rail=document.getElementById("sidebar");
-    if(!desktop.matches||!shell||shell.hidden||!rail||!document.body.classList.contains("shell-app"))return;
+    if(!desktop.matches||!shell||shell.hidden||!rail||!document.body.classList.contains("shell-app")||document.body.classList.contains("tle-drawer-open"))return;
     const required={
       display:"flex",visibility:"visible",opacity:"1",
       "pointer-events":"auto",transform:"none","-webkit-transform":"none",

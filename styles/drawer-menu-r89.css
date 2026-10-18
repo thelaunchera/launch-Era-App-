@@ -1,0 +1,165 @@
+/* r89 — right-side, scroll-locked navigation for the existing Cleaning App shell. */
+body.shell-app #appShell #sidebar.sidebar{
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+body.shell-app #appShell #sidebar.sidebar [data-lenis-prevent]{
+  overscroll-behavior:contain;
+}
+body.shell-app #drawerMenuButton,
+body.shell-app #drawerCloseButton{
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:none!important;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  padding:0!important;
+  border-radius:50%!important;
+  border:1px solid #DEDCD6!important;
+  background:#fff!important;
+  color:#191919!important;
+  box-shadow:0 2px 8px rgba(25,25,25,.04)!important;
+  cursor:pointer;
+}
+body.shell-app #drawerMenuButton .drawer-bars,
+body.shell-app #menuToggle .drawer-bars,
+body.shell-app #drawerCloseButton .drawer-bars{
+  position:relative;
+  display:block;
+  width:17px;height:14px;
+  margin:auto;
+}
+body.shell-app :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::before,
+body.shell-app :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::after{
+  content:""!important;
+  position:absolute!important;
+  top:4px;left:0;
+  width:17px;height:2px;
+  background:#191919!important;
+  border-radius:4px;
+  transition:transform 600ms linear(0,.32,.64,.83,.96,1.025,1.015,1),top 420ms cubic-bezier(.22,.68,0,1.06);
+  transform-origin:center;
+}
+body.shell-app :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::after{top:10px}
+body.shell-app.tle-drawer-open :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::before,
+body.shell-app :is(#drawerCloseButton) .drawer-bars::before{top:7px;transform:rotate(45deg)}
+body.shell-app.tle-drawer-open :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::after,
+body.shell-app :is(#drawerCloseButton) .drawer-bars::after{top:7px;transform:rotate(-45deg)}
+body.shell-app #drawerCloseButton[hidden]{display:none!important}
+body.shell-app #drawerCloseButton{
+  position:sticky!important;
+  top:0!important;
+  align-self:flex-end!important;
+  z-index:2!important;
+  margin:0 0 8px auto!important;
+}
+body.shell-app #drawerScrollState{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  align-self:flex-start;
+  margin:0 0 12px;
+  padding:6px 11px;
+  border-radius:100px;
+  background:#EDF5EF;
+  color:#34694A;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.02em;
+}
+body.shell-app #drawerScrollState::before{
+  content:"";width:7px;height:7px;border-radius:50%;background:#62A46F;
+}
+body.shell-app #drawerScrollState.is-locked{background:#EAF2FC;color:#315D9C}
+body.shell-app #drawerScrollState.is-locked::before{background:#6195D4}
+body.shell-app #sidebarScrim[hidden]{display:none!important}
+@keyframes tleDrawerScrimIn{from{opacity:0}to{opacity:1}}
+body.shell-app.tle-drawer-open #sidebarScrim:not([hidden]){
+  animation:tleDrawerScrimIn 300ms ease both!important;
+  display:block!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;height:100dvh!important;
+  border:0!important;padding:0!important;
+  background:rgba(25,25,25,.30)!important;
+  backdrop-filter:blur(2px)!important;
+  -webkit-backdrop-filter:blur(2px)!important;
+  z-index:1101!important;
+  opacity:1!important;
+  transition:opacity 300ms ease!important;
+}
+body.shell-app.tle-drawer-open #appShell #sidebar.sidebar.open{
+  position:fixed!important;
+  display:flex!important;
+  flex-direction:column!important;
+  inset:0 0 0 auto!important;
+  top:0!important;left:auto!important;right:0!important;bottom:0!important;
+  width:min(86vw,368px)!important;min-width:0!important;max-width:min(86vw,368px)!important;
+  height:100dvh!important;max-height:100dvh!important;
+  padding:calc(env(safe-area-inset-top) + 15px) 20px calc(env(safe-area-inset-bottom) + 18px)!important;
+  border-radius:24px 0 0 24px!important;
+  background:#FFFFFF!important;
+  box-shadow:-22px 0 55px rgba(25,25,25,.16)!important;
+  z-index:1102!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  transform:translate3d(0,0,0)!important;
+  -webkit-transform:translate3d(0,0,0)!important;
+  translate:none!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  transition:transform 600ms linear(0,.08,.22,.46,.7,.86,.955,1.012,1)!important;
+  will-change:transform;
+}
+body.shell-app.tle-drawer-open #appShell>.main{isolation:auto}
+body.shell-app.tle-drawer-open .topbar{z-index:35!important}
+@media(max-width:860px){
+  body.shell-app #appShell #sidebar.sidebar:not(.open){
+    display:flex!important;
+    position:fixed!important;
+    top:0!important;left:auto!important;right:0!important;
+    width:min(86vw,368px)!important;max-width:min(86vw,368px)!important;
+    height:100dvh!important;
+    transform:translate3d(104%,0,0)!important;
+    -webkit-transform:translate3d(104%,0,0)!important;
+    translate:none!important;
+    opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+    transition:transform 600ms linear(0,.08,.22,.46,.7,.86,.955,1.012,1),visibility 0s linear 600ms!important;
+  }
+  /* The existing Home hamburger stays on the left. On inner screens Back
+     stays on the left and a separate menu trigger appears in top actions. */
+  body.shell-app .topbar:has(#backBtn:not([hidden])) #drawerMenuButton{display:inline-grid!important}
+  body.shell-app .topbar:has(#backBtn[hidden]) #drawerMenuButton{display:none!important}
+  body.shell-app .topbar #menuToggle::before{content:none!important;display:none!important}
+  body.shell-app .topbar #menuToggle{
+    font-size:0!important;line-height:1!important;
+    display:inline-grid!important;place-items:center!important;
+  }
+  body.shell-app .topbar:has(#backBtn:not([hidden])) #menuToggle{display:none!important}
+  body.shell-app .topbar .top-actions #drawerMenuButton{
+    position:static!important;
+    inset:auto!important;transform:none!important;
+    grid-column:auto!important;
+    width:34px!important;min-width:34px!important;
+    height:34px!important;min-height:34px!important;
+    margin:0!important;
+    z-index:2!important;
+  }
+  body.shell-app .topbar .top-actions{gap:4px!important}
+}
+@media(max-width:390px){
+  body.shell-app .topbar .top-actions #drawerMenuButton{
+    width:30px!important;min-width:30px!important;height:32px!important;min-height:32px!important;
+  }
+  body.shell-app .topbar:has(#backBtn:not([hidden])) .topbar-title h1{font-size:15px!important}
+}
+@media(min-width:861px){
+  body.shell-app #drawerMenuButton{display:inline-grid!important}
+  body.shell-app #menuToggle{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.shell-app :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::before,
+  body.shell-app :is(#drawerMenuButton,#menuToggle,#drawerCloseButton) .drawer-bars::after,
+  body.shell-app #appShell #sidebar.sidebar,
+  body.shell-app #sidebarScrim{transition:none!important;animation:none!important}
+}
