@@ -2586,6 +2586,7 @@ $$("details.nav-group").forEach(group=>{
   });
 });
 function setSidebarOpen(open){
+  if(window.TLEDrawer?.setOpen){ window.TLEDrawer.setOpen(open); return; }
   const isMobileNav=window.innerWidth<=860 || window.matchMedia("(max-width: 860px)").matches;
   const shouldOpen=!!open && isMobileNav;
   if(!sidebar) return;
