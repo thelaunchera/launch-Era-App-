@@ -61,7 +61,8 @@ try{
           else window.scrollTo(0,150);
           return w<=860?main.scrollTop:window.scrollY;
         },width);
-        await page.locator(trigger).click({timeout:5000});
+        if(width>860)await page.evaluate(()=>document.getElementById("drawerMenuButton").click());
+        else await page.locator(trigger).click({timeout:5000});
         // Wait for the 600ms spring to finish before measuring final alignment.
         await page.waitForTimeout(800);
         const open=await page.evaluate(()=>{
