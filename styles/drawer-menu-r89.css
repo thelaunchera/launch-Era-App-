@@ -75,7 +75,9 @@ body.shell-app #drawerScrollState::before{
 body.shell-app #drawerScrollState.is-locked{background:#EAF2FC;color:#315D9C}
 body.shell-app #drawerScrollState.is-locked::before{background:#6195D4}
 body.shell-app #sidebarScrim[hidden]{display:none!important}
+@keyframes tleDrawerScrimIn{from{opacity:0}to{opacity:1}}
 body.shell-app.tle-drawer-open #sidebarScrim:not([hidden]){
+  animation:tleDrawerScrimIn 300ms ease both!important;
   display:block!important;
   position:fixed!important;
   inset:0!important;
