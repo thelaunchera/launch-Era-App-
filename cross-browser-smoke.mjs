@@ -379,7 +379,7 @@ async function assertLayout(page,profile){
       await page.waitForFunction(()=>{
         const sidebar=document.querySelector(".sidebar");
         if(!sidebar) return false;
-        return sidebar.classList.contains("open") && Math.abs(sidebar.getBoundingClientRect().left)<=3;
+        return sidebar.classList.contains("open") && Math.abs(sidebar.getBoundingClientRect().right-innerWidth)<=3;
       },null,{timeout:2000});
     }catch(err){
       const sidebarDiag=await page.evaluate(()=>{
@@ -412,8 +412,8 @@ async function assertLayout(page,profile){
       const main=document.querySelector(".main").getBoundingClientRect();
       return {left:sidebar.left,width:sidebar.width,mainWidth:main.width,innerWidth:innerWidth};
     });
-    if(Math.abs(nav.left)>3) throw new Error(profile.name+": open sidebar is off-screen "+JSON.stringify(nav));
-    if(nav.width>Math.min(nav.innerWidth*.86,305)) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
+    if(Math.abs(nav.left+nav.width-nav.innerWidth)>3) throw new Error(profile.name+": open drawer is not right-aligned "+JSON.stringify(nav));
+    if(nav.width>Math.min(nav.innerWidth*.86,368)+3) throw new Error(profile.name+": sidebar too wide "+JSON.stringify(nav));
     if(nav.mainWidth<nav.innerWidth-36) throw new Error(profile.name+": sidebar compressed dashboard "+JSON.stringify(nav));
     await page.waitForFunction(()=>{
       const sidebar=document.querySelector("#sidebar");
@@ -441,7 +441,7 @@ async function assertLayout(page,profile){
       throw new Error(profile.name+": More opens a blank navigation drawer "+JSON.stringify(moreDrawer));
     }
     const scrim=page.locator("#sidebarScrim");
-    await scrim.click({position:{x:Math.max(10,profile.viewport.width-20),y:Math.floor(profile.viewport.height/2)}});
+    await scrim.click({position:{x:12,y:Math.floor(profile.viewport.height/2)}});
     await page.waitForFunction(()=>!document.querySelector(".sidebar")?.classList.contains("open"),null,{timeout:2000});
 
     // Regression guard: long modals must scroll inside the backdrop without
