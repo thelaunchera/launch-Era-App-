@@ -42,7 +42,7 @@ try{
           document.body.classList.add("shell-app");
           // Keep the synthetic owner shell visible while auth bootstrap runs in the background.
           const appShell=document.getElementById("appShell");
-          const enforce=()=>{appShell.hidden=false;document.getElementById("authShell").hidden=true;document.body.classList.add("shell-app");};
+          const enforce=()=>{if(appShell.hidden)appShell.hidden=false;const auth=document.getElementById("authShell");if(!auth.hidden)auth.hidden=true;if(!document.body.classList.contains("shell-app"))document.body.classList.add("shell-app");};
           new MutationObserver(enforce).observe(appShell,{attributes:true,attributeFilter:["hidden"]});
           new MutationObserver(enforce).observe(document.body,{attributes:true,attributeFilter:["class"]});
           const spacer=document.createElement("div");
