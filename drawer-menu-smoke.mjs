@@ -82,6 +82,7 @@ try{
         assert.equal(open.overflow,"hidden");
         await page.waitForFunction(()=>document.activeElement===document.getElementById("drawerCloseButton"),{timeout:1500});
         await page.keyboard.press("Escape");
+        await page.waitForTimeout(85); // Allow focus and scroll restoration across two frames.
         const closed=await page.evaluate(w=>({
           open:window.TLEDrawer.isOpen,
           scroll:w<=860?document.querySelector("#appShell>.main").scrollTop:window.scrollY,
