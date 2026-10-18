@@ -40,6 +40,11 @@ try{
           // Signed-in test fixture: the unauthenticated loading overlay must not intercept input.
           document.getElementById("sessionSplash")?.remove();
           document.body.classList.add("shell-app");
+          // Keep the synthetic owner shell visible while auth bootstrap runs in the background.
+          const appShell=document.getElementById("appShell");
+          const enforce=()=>{appShell.hidden=false;document.getElementById("authShell").hidden=true;document.body.classList.add("shell-app");};
+          new MutationObserver(enforce).observe(appShell,{attributes:true,attributeFilter:["hidden"]});
+          new MutationObserver(enforce).observe(document.body,{attributes:true,attributeFilter:["class"]});
           const spacer=document.createElement("div");
           spacer.style.height="1800px";
           spacer.dataset.testSpacer="true";
@@ -67,7 +72,7 @@ try{
             ariaHidden:p.getAttribute("aria-hidden"),locked:window.TLEDrawer.isStopped,
             scrim:!document.getElementById("sidebarScrim").hidden,
             focused:document.activeElement===b,
-            right:Math.abs(rect.right-innerWidth)<2, rightPx:rect.right, viewport:innerWidth, leftPx:rect.left, transform:getComputedStyle(p).transform,
+            right:Math.abs(rect.right-innerWidth)<2, rightPx:rect.right, viewport:innerWidth, leftPx:rect.left, transform:getComputedStyle(p).transform, shellHidden:document.getElementById("appShell").hidden, bodyClass:document.body.className, cssDisplay:getComputedStyle(p).display,
             width:rect.width,
             overflow:document.documentElement.style.overflow
           };
