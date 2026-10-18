@@ -171,5 +171,5 @@
   });
   clearLegacyInline();
   syncControls();
-  window.TLEDrawer={open:()=>setOpen(true),close:()=>setOpen(false),get isOpen(){return isOpen;},get isStopped(){return Boolean(lenis?.isStopped)||isOpen;}};
+  window.TLEDrawer={setOpen,open:()=>setOpen(true),close:()=>setOpen(false),get isOpen(){return isOpen;},get isStopped(){return Boolean(lenis?.isStopped)||isOpen;}};
 })();
