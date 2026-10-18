@@ -58,7 +58,7 @@ try{
         },width);
         await page.locator(trigger).click({timeout:5000});
         // Wait for the 600ms spring to finish before measuring final alignment.
-        await page.waitForFunction(()=>Math.abs(document.getElementById("sidebar").getBoundingClientRect().right-innerWidth)<2,{timeout:2500});
+        await page.waitForTimeout(800);
         const open=await page.evaluate(()=>{
           const p=document.getElementById("sidebar"),b=document.getElementById("drawerCloseButton");
           const rect=p.getBoundingClientRect();
@@ -67,7 +67,7 @@ try{
             ariaHidden:p.getAttribute("aria-hidden"),locked:window.TLEDrawer.isStopped,
             scrim:!document.getElementById("sidebarScrim").hidden,
             focused:document.activeElement===b,
-            right:Math.abs(rect.right-innerWidth)<2,
+            right:Math.abs(rect.right-innerWidth)<2, rightPx:rect.right, viewport:innerWidth, leftPx:rect.left, transform:getComputedStyle(p).transform,
             width:rect.width,
             overflow:document.documentElement.style.overflow
           };
