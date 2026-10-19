@@ -12,6 +12,12 @@ assert.ok(sw.includes('const CACHE_NAME="tle-cleaning-app-'+version+'"'),'Servic
 assert.ok(boot.includes('window.__tleShellVersion="'+version+'"'),'Shell worker registration version mismatch');
 assert.ok(html.includes('./app.js?v='+version),'Main JS file must have matching cache-busting URL');
 assert.ok(sw.includes('./app.js?v='+version),'Main JS precache must have matching cache-busting URL');
+for(const asset of ["settings-screen-r84.js","styles/settings-screen-r84.css"]){
+ const tag="./"+asset+"?v=20261019-settings-r90";
+ assert.ok(html.includes(tag),"Missing Settings asset from current HTML: "+tag);
+ assert.ok(sw.includes(tag),"Missing Settings offline precache asset: "+tag);
+ assert.ok(fs.existsSync(asset),"Missing Settings file: "+asset);
+}
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://127.0.0.1');
  const file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));
