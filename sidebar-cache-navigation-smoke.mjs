@@ -39,8 +39,8 @@ try{
         stage=name+' '+width+' new page';const page=await browser.newPage({viewport:{width,height:880}});console.log('SIDEBAR_QA_START '+name+' '+width);
         const errors=[];page.on('pageerror',e=>errors.push(e.message));
         console.log("SIDEBAR_STEP goto "+name+" "+width);
-        stage=name+' '+width+' navigation';await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'domcontentloaded',timeout:15000});
-        console.log("SIDEBAR_STEP loaded "+name+" "+width);
+        stage=name+' '+width+' navigation';await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'commit',timeout:15000});
+        console.log("SIDEBAR_STEP document committed "+name+" "+width);
         stage=name+' '+width+' auth ready';await page.waitForFunction(()=>window.__tleAuthUiReady===true,{timeout:8000});
         console.log("SIDEBAR_STEP authReady "+name+" "+width);
         stage=name+' '+width+' fixture DOM';await page.evaluate(()=>{
