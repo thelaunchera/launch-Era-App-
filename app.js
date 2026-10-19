@@ -10314,7 +10314,7 @@ const editBusinessProfileBtn=$("#editBusinessProfileBtn");
 if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openBusinessProfileForm);
 $$("[data-edit-app-preferences]").forEach(btn=>btn.addEventListener("click",openAppPreferencesForm));
 $$("[data-edit-notification-preferences]").forEach(btn=>btn.addEventListener("click",openNotificationPreferencesForm));
-$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
+$$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
 
 // Grouped Settings uses the same owner-checked editors as the original forms.
 const TLE_SETTINGS_EDITORS=Object.freeze({
