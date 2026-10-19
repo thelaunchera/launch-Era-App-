@@ -28,7 +28,7 @@ shell.querySelector('#tleSettingsPanelHost').appendChild(legacy);
 const list=shell.querySelector('.tle-settings-list'),detail=shell.querySelector('#tleSettingsDetail');
 const groups=shell.querySelector('#tleSettingsGroups'),search=shell.querySelector('#tleSettingsSearch');
 const supplement=shell.querySelector('#tleSettingsSupplement');
-let active=null,opener=null,haptics=false;
+let active=null,opener=null,haptics=false,lastRenderedGroups=null;
 try{haptics=localStorage.getItem('tle_settings_haptics_v1')==='true';}catch{}
 const vibrate=typeof navigator.vibrate==='function';
 function buzz(){if(haptics&&vibrate)navigator.vibrate(8);}
@@ -68,7 +68,10 @@ function render(){
  shell.querySelector('#tleSettingsBackText').textContent=t('settings');
  shell.querySelector('#tleSettingsBack').setAttribute('aria-label',t('back'));
  shell.querySelector('#tleSettingsBusinessName').textContent=document.querySelector('#settingsBusinessName')?.textContent?.trim().replace(/^—$/,'')||t('profile');
- groups.innerHTML=defs.map((group,i)=>{let rows=group.items.map(key=>row(key,i)).join('');return rows?'<section class="tle-settings-group"><h3>'+esc(t(group.group))+'</h3><div class="tle-settings-group-card">'+rows+'</div></section>':'';}).join('');
+ const markup=defs.map((group,i)=>{let rows=group.items.map(key=>row(key,i)).join('');return rows?'<section class="tle-settings-group"><h3>'+esc(t(group.group))+'</h3><div class="tle-settings-group-card">'+rows+'</div></section>':'';}).join('');
+ // Preserve the very same buttons while async business data and role checks update.
+ // Replacing innerHTML on every render detached live targets during iPhone taps.
+ if(markup!==lastRenderedGroups){groups.innerHTML=markup;lastRenderedGroups=markup;}
  filter();if(active)shell.querySelector('#tleSettingsDetailTitle').textContent=t(active);
 }
 function extras(key){
