@@ -31,10 +31,14 @@ try{
     const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
     try{
       for(const width of [390,768,1024,1366]){
+        console.log("SIDEBAR_STEP launch "+name+" "+width);
         const page=await browser.newPage({viewport:{width,height:880}});
         const errors=[];page.on('pageerror',e=>errors.push(e.message));
-        await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'domcontentloaded',timeout:30000});
-        await page.waitForFunction(()=>window.__tleAuthUiReady===true,{timeout:15000});
+        console.log("SIDEBAR_STEP goto "+name+" "+width);
+        await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'domcontentloaded',timeout:15000});
+        console.log("SIDEBAR_STEP loaded "+name+" "+width);
+        await page.waitForFunction(()=>window.__tleAuthUiReady===true,{timeout:8000});
+        console.log("SIDEBAR_STEP authReady "+name+" "+width);
         await page.evaluate(()=>{
           const app=document.querySelector('#appShell');app.hidden=false;
           document.querySelector('#authShell').hidden=true;
@@ -53,6 +57,7 @@ try{
           assert.ok(drawer.open,name+' '+width+' sidebar not opening '+JSON.stringify(drawer));
         }
         for(const section of ['calendar','route','settings','today']){
+          console.log("SIDEBAR_STEP nav "+name+" "+width+" "+section);
           await page.evaluate(id=>{
             const control=id==='settings'?document.querySelector('#sidebar [data-jump="settings"]'):document.querySelector('#sidebar .nav-item[data-view="'+id+'"]');
             if(!control)throw new Error('Missing nav control for '+id);
