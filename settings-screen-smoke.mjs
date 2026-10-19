@@ -5,6 +5,19 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
 const root=process.cwd();
+const editorSource=fs.readFileSync('app.js','utf8');
+const settingsSource=fs.readFileSync('settings-screen-r84.js','utf8');
+assert.ok(editorSource.includes('const TLE_SETTINGS_EDITORS=Object.freeze({'),'Missing live owner editor dispatch');
+for(const [key,editor] of Object.entries({
+  business:'openBusinessProfileForm',
+  notifications:'openNotificationPreferencesForm',
+  payments:'openPaymentPreferencesForm',
+  app:'openAppPreferencesForm'
+})){
+ assert.ok(editorSource.includes(key+':'+editor),'Missing protected owner editor '+key);
+}
+assert.ok(editorSource.includes('if(!state.business || state.business.role!=="owner")'),'Owner-guarded editor flow missing');
+assert.ok(settingsSource.includes('data-tle-settings-action'),'Settings detail has no real editable action');
 const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://127.0.0.1');
   const file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));
@@ -63,6 +76,35 @@ try{
         await page.locator('.tle-settings-row[data-setting="payments"]').click();
         assert.ok(await page.locator('.tle-current-panel [data-edit-payment-preferences]').count()===1);
         await page.locator('#tleSettingsBack').click();
+        // Every editable grouped setting must expose a real owner-only editor action.
+        // The isolated fixture does not authenticate or save customer data.
+        const actionLog=await page.evaluate(()=>{
+          window.__settingsActionEvents=[];
+          document.addEventListener('click',event=>{
+            const btn=event.target.closest('[data-tle-settings-action]');
+            if(btn)window.__settingsActionEvents.push(btn.dataset.tleSettingsAction);
+          });
+          return window.__settingsActionEvents.length;
+        });
+        assert.equal(actionLog,0);
+        for(const [setting,action] of Object.entries({
+          business:'business',notifications:'notifications',payments:'payments',language:'app'
+        })){
+          await page.locator('.tle-settings-row[data-setting="'+setting+'"]').click();
+          assert.equal(await page.locator('#tleSettingsDetail').getAttribute('aria-hidden'),'false');
+          const edit=page.locator('[data-tle-settings-action="'+action+'"]');
+          assert.equal(await edit.count(),1,engineName+' '+width+' '+setting+' has no real edit route');
+          await edit.click();
+          assert.equal((await page.evaluate(()=>window.__settingsActionEvents)).at(-1),action);
+          await page.locator('#tleSettingsBack').click();
+        }
+        // Informational device-managed options must not present fake save controls.
+        for(const setting of ['face','lock','storage']){
+          await page.locator('.tle-settings-row[data-setting="'+setting+'"]').click();
+          assert.equal(await page.locator('#tleSettingsDetail').getAttribute('aria-hidden'),'false');
+          assert.equal(await page.locator('#tleSettingsDetail [data-tle-settings-action]').count(),0);
+          await page.locator('#tleSettingsBack').click();
+        }
         await page.locator('#tleSettingsSearch').fill('notific');
         assert.ok(await page.locator('.tle-settings-row[data-setting="notifications"]').isVisible());
         assert.equal(await page.locator('.tle-settings-row[data-setting="booking"]').isVisible(),false);

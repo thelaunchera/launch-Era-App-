@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261019-app-settings-r90";
+const APP_VERSION = "20261019-app-settings-r91";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -10315,6 +10315,23 @@ if(editBusinessProfileBtn) editBusinessProfileBtn.addEventListener("click",openB
 $$("[data-edit-app-preferences]").forEach(btn=>btn.addEventListener("click",openAppPreferencesForm));
 $$("[data-edit-notification-preferences]").forEach(btn=>btn.addEventListener("click",openNotificationPreferencesForm));
 $$("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
+
+// Grouped Settings uses the same owner-checked editors as the original forms.
+const TLE_SETTINGS_EDITORS=Object.freeze({
+  business:openBusinessProfileForm,notifications:openNotificationPreferencesForm,
+  payments:openPaymentPreferencesForm,app:openAppPreferencesForm
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest('.tle-settings-detail [data-tle-settings-action]');
+  if(!b||b.disabled)return;
+  const run=TLE_SETTINGS_EDITORS[b.dataset.tleSettingsAction];
+  if(!run)return;
+  e.preventDefault();b.disabled=true;
+  Promise.resolve().then(run).catch(error=>{
+    console.warn("[TLE] Settings editor",error);
+    showToast(langPick("Could not open settings.","No se pudo abrir la configuración.","Impossible d’ouvrir les paramètres."));
+  }).finally(()=>{b.disabled=false});
+});
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{

@@ -17,7 +17,7 @@ assert.ok(boot.includes('window.__tleShellVersion="'+version+'"'),'Shell worker 
 assert.ok(html.includes('./app.js?v='+version),'Main JS file must have matching cache-busting URL');
 assert.ok(sw.includes('./app.js?v='+version),'Main JS precache must have matching cache-busting URL');
 for(const asset of ["settings-screen-r84.js","styles/settings-screen-r84.css"]){
- const tag="./"+asset+"?v=20261019-settings-r90";
+ const tag="./"+asset+"?v=20261019-settings-r91";
  assert.ok(html.includes(tag),"Missing Settings asset from current HTML: "+tag);
  assert.ok(sw.includes(tag),"Missing Settings offline precache asset: "+tag);
  assert.ok(fs.existsSync(asset),"Missing Settings file: "+asset);
@@ -69,7 +69,63 @@ try{
           },section);
           const active=await page.evaluate(()=>document.querySelector('.view.active')?.dataset.page);
           assert.equal(active,section,name+' '+width+' sidebar '+section+' did not navigate; active='+active);
-          if(section!=='settings'){
+          if(section==='settings'){
+            // Full app.js and the new Settings module are both loaded in this test.
+            // Test owner editing through a synthetic in-memory owner; no writes are sent.
+            await page.evaluate(()=>{
+              const bridge=window.TLE_APP_BRIDGE;
+              if(!bridge?.state||!bridge?.supabase)throw new Error('App bridge missing');
+              bridge.state.business={
+                id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',role:'owner',
+                name:'Synthetic QA Workspace',email:'qa@example.invalid',
+                country_code:'US',default_language:'en',currency_code:'USD',
+                distance_unit:'mi',temperature_unit:'fahrenheit'
+              };
+              const original=bridge.supabase.from.bind(bridge.supabase);
+              bridge.supabase.from=table=>{
+                if(table!=='businesses')return original(table);
+                return {select:()=>({eq:()=>({single:async()=>({
+                  data:{name:'Synthetic QA Workspace',email:'qa@example.invalid',
+                   default_language:'en',currency_code:'USD',country_code:'US'},
+                  error:null
+                })})})};
+              };
+              window.__settingsQAReset=()=>{
+                bridge.state.business=null;
+                bridge.supabase.from=original;
+              };
+            });
+            for(const [key,action] of [['language','app'],['business','business'],['notifications','notifications'],['payments','payments']]){
+              // app.js auth startup may hide the shell when this test has no actual
+              // login. Use synthetic DOM dispatch for the integration contract;
+              // the separate Settings visual test covers real pointer taps.
+              const proof=await page.evaluate(async ({key,action})=>{
+                const app=document.querySelector('#appShell'),view=app.querySelector('.view[data-page="settings"]');
+                app.hidden=false;
+                document.body.classList.add('shell-app');
+                document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v===view));
+                const row=app.querySelector('.tle-settings-row[data-setting="'+key+'"]');
+                if(!row)return {error:'Missing settings row'};
+                row.click();
+                const editor=app.querySelector('.tle-settings-detail [data-tle-settings-action="'+action+'"]');
+                if(!editor)return {error:'Missing owner editor '+action};
+                editor.click();
+                for(let n=0;n<25;n++){
+                  if(!document.querySelector('#modalBackdrop')?.hidden)break;
+                  await new Promise(resolve=>setTimeout(resolve,100));
+                }
+                const shown=!document.querySelector('#modalBackdrop')?.hidden;
+                const selector=action==='app'?'select[name="default_language"]':action==='business'?'input[name="name"]':action==='notifications'?'input[name="notification_email"]':'input[name="payment_method"]';
+                const form=Boolean(document.querySelector('#modalBackdrop '+selector));
+                document.querySelector('#modalBackdrop').hidden=true;
+                app.querySelector('#tleSettingsBack')?.click();
+                return {shown,form};
+              },{key,action});
+              assert.ok(proof.shown&&proof.form,name+' '+width+' '+action+' no owner editor '+JSON.stringify(proof));
+            }
+            await page.evaluate(()=>window.__settingsQAReset?.());
+            console.log('SETTINGS_OWNER_EDITOR_OK '+name+' '+width+' all 4 owner editors via synthetic data');
+          }else{
             const selected=await page.evaluate(id=>document.querySelector('#sidebar .nav-item[data-view="'+id+'"]')?.classList.contains('active'),section);
             assert.equal(selected,true,name+' '+width+' missing active nav highlight');
           }
