@@ -6,12 +6,22 @@ import http from 'node:http';
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
 const root=process.cwd(), html=fs.readFileSync('index.html','utf8'), sw=fs.readFileSync('service-worker.js','utf8'),app=fs.readFileSync('app.js','utf8'),boot=fs.readFileSync('boot.js','utf8');
+let stage="initializing";
+const safetyTimeout=setTimeout(()=>{console.error("SIDEBAR_QA_TIMEOUT at "+stage);process.exit(1)},180000);
+safetyTimeout.unref();
+
 const version=(app.match(/const APP_VERSION = "([^"]+)"/)||[])[1];
 assert.ok(version && version!=='20261014-app-403-auth-copy-blue-r81','Previous navigation cache must be invalidated');
 assert.ok(sw.includes('const CACHE_NAME="tle-cleaning-app-'+version+'"'),'Service worker cache version mismatch');
 assert.ok(boot.includes('window.__tleShellVersion="'+version+'"'),'Shell worker registration version mismatch');
 assert.ok(html.includes('./app.js?v='+version),'Main JS file must have matching cache-busting URL');
 assert.ok(sw.includes('./app.js?v='+version),'Main JS precache must have matching cache-busting URL');
+for(const asset of ["settings-screen-r84.js","styles/settings-screen-r84.css"]){
+ const tag="./"+asset+"?v=20261019-settings-r90";
+ assert.ok(html.includes(tag),"Missing Settings asset from current HTML: "+tag);
+ assert.ok(sw.includes(tag),"Missing Settings offline precache asset: "+tag);
+ assert.ok(fs.existsSync(asset),"Missing Settings file: "+asset);
+}
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://127.0.0.1');
  const file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));
@@ -22,14 +32,18 @@ const server=http.createServer((req,res)=>{
 await new Promise(resolve=>server.listen(4198,'127.0.0.1',resolve));
 try{
   for(const [name,engine] of Object.entries({chromium,webkit})){
-    const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
+    stage=name+' launch';const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
     try{
       for(const width of [390,768,1024,1366]){
-        const page=await browser.newPage({viewport:{width,height:880}});
+        console.log("SIDEBAR_STEP launch "+name+" "+width);
+        stage=name+' '+width+' new page';const page=await browser.newPage({viewport:{width,height:880}});console.log('SIDEBAR_QA_START '+name+' '+width);
         const errors=[];page.on('pageerror',e=>errors.push(e.message));
-        await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'domcontentloaded',timeout:30000});
-        await page.waitForFunction(()=>window.__tleAuthUiReady===true,{timeout:15000});
-        await page.evaluate(()=>{
+        console.log("SIDEBAR_STEP goto "+name+" "+width);
+        stage=name+' '+width+' navigation';await page.goto('http://127.0.0.1:4198/?browser-smoke=1',{waitUntil:'commit',timeout:15000});
+        console.log("SIDEBAR_STEP document committed "+name+" "+width);
+        stage=name+' '+width+' auth ready';await page.waitForFunction(()=>window.__tleAuthUiReady===true,{timeout:8000});
+        console.log("SIDEBAR_STEP authReady "+name+" "+width);
+        stage=name+' '+width+' fixture DOM';await page.evaluate(()=>{
           const app=document.querySelector('#appShell');app.hidden=false;
           document.querySelector('#authShell').hidden=true;
           document.body.classList.add('shell-app');
@@ -39,7 +53,7 @@ try{
           document.querySelectorAll('#sidebar .nav-item[data-view],#sidebar [data-jump]').forEach(nav=>{ nav.hidden=false; });
         });
         if(width<=860){
-          const drawer=await page.evaluate(()=>{
+          stage=name+' '+width+' drawer';const drawer=await page.evaluate(()=>{
             const button=document.querySelector('#menuToggle');button.hidden=false;
             button.click();
             return {open:document.querySelector('#sidebar')?.classList.contains('open'),visible:document.querySelector('#sidebar')?.style.pointerEvents};
@@ -47,6 +61,7 @@ try{
           assert.ok(drawer.open,name+' '+width+' sidebar not opening '+JSON.stringify(drawer));
         }
         for(const section of ['calendar','route','settings','today']){
+          console.log("SIDEBAR_STEP nav "+name+" "+width+" "+section);
           await page.evaluate(id=>{
             const control=id==='settings'?document.querySelector('#sidebar [data-jump="settings"]'):document.querySelector('#sidebar .nav-item[data-view="'+id+'"]');
             if(!control)throw new Error('Missing nav control for '+id);
