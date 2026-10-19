@@ -10316,38 +10316,22 @@ $$("[data-edit-app-preferences]").forEach(btn=>btn.addEventListener("click",open
 $$("[data-edit-notification-preferences]").forEach(btn=>btn.addEventListener("click",openNotificationPreferencesForm));
 $("[data-edit-payment-preferences]").forEach(btn=>btn.addEventListener("click",openPaymentPreferencesForm));
 
-// r91: the grouped Settings UI must open the real secured editors.
-// A synthetic detail test alone cannot prove forms are connected; delegate here,
-// because the grouped rows are created after app.js initializes.
+// Grouped Settings uses the same owner-checked editors as the original forms.
 const TLE_SETTINGS_EDITORS=Object.freeze({
-  business:openBusinessProfileForm,
-  notifications:openNotificationPreferencesForm,
-  payments:openPaymentPreferencesForm,
-  app:openAppPreferencesForm
+  business:openBusinessProfileForm,notifications:openNotificationPreferencesForm,
+  payments:openPaymentPreferencesForm,app:openAppPreferencesForm
 });
-document.addEventListener("click",event=>{
-  const button=event.target.closest('#appShell .view[data-page="settings"] [data-tle-settings-action]');
-  if(!button) return;
-  const action=button.dataset.tleSettingsAction;
-  const editor=Object.hasOwn(TLE_SETTINGS_EDITORS,action)?TLE_SETTINGS_EDITORS[action]:null;
-  if(!editor) return;
-  event.preventDefault();
-  // The existing editor also checks this on invocation. Never weaken tenant roles.
-  if(!state.business || state.business.role!=="owner"){
-    showToast(langPick("Owner access required.","Se requiere acceso del dueño.","Accès propriétaire requis."));
-    return;
-  }
-  if(button.disabled) return;
-  button.disabled=true;
-  button.setAttribute("aria-busy","true");
-  Promise.resolve().then(()=>editor()).catch(error=>{
-    console.warn("[TLE] Settings editor could not open",action,error);
-    showToast(langPick("Could not open this setting. Please try again.","No se pudo abrir esta opción. Intenta otra vez.","Impossible d’ouvrir ce paramètre."));
-  }).finally(()=>{
-    if(button.isConnected){button.disabled=false;button.removeAttribute("aria-busy");}
-  });
+document.addEventListener("click",e=>{
+  const b=e.target.closest('.tle-settings-detail [data-tle-settings-action]');
+  if(!b||b.disabled)return;
+  const run=TLE_SETTINGS_EDITORS[b.dataset.tleSettingsAction];
+  if(!run)return;
+  e.preventDefault();b.disabled=true;
+  Promise.resolve().then(run).catch(error=>{
+    console.warn("[TLE] Settings editor",error);
+    showToast(langPick("Could not open settings.","No se pudo abrir la configuración.","Impossible d’ouvrir les paramètres."));
+  }).finally(()=>{b.disabled=false});
 });
-
 
 const saveCustomerEmailLanguageBtn=$("#saveCustomerEmailLanguageBtn");
 if(saveCustomerEmailLanguageBtn) saveCustomerEmailLanguageBtn.addEventListener("click",async()=>{
