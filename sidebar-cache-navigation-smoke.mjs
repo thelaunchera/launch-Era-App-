@@ -69,7 +69,46 @@ try{
           },section);
           const active=await page.evaluate(()=>document.querySelector('.view.active')?.dataset.page);
           assert.equal(active,section,name+' '+width+' sidebar '+section+' did not navigate; active='+active);
-          if(section!=='settings'){
+          if(section==='settings'){
+            // Full app.js and the new Settings module are both loaded in this test.
+            // Test owner editing through a synthetic in-memory owner; no writes are sent.
+            await page.evaluate(()=>{
+              const bridge=window.TLE_APP_BRIDGE;
+              if(!bridge?.state||!bridge?.supabase)throw new Error('App bridge missing');
+              bridge.state.business={
+                id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',role:'owner',
+                name:'Synthetic QA Workspace',email:'qa@example.invalid',
+                country_code:'US',default_language:'en',currency_code:'USD',
+                distance_unit:'mi',temperature_unit:'fahrenheit'
+              };
+              const original=bridge.supabase.from.bind(bridge.supabase);
+              bridge.supabase.from=table=>{
+                if(table!=='businesses')return original(table);
+                return {select:()=>({eq:()=>({single:async()=>({
+                  data:{name:'Synthetic QA Workspace',email:'qa@example.invalid',
+                   default_language:'en',currency_code:'USD',country_code:'US'},
+                  error:null
+                })})})};
+              };
+              window.__settingsQAReset=()=>{
+                bridge.state.business=null;
+                bridge.supabase.from=original;
+              };
+            });
+            for(const [key,action] of [['language','app'],['business','business'],['notifications','notifications'],['payments','payments']]){
+              await page.locator('.tle-settings-row[data-setting="'+key+'"]').click({timeout:6000});
+              const editor=page.locator('[data-tle-settings-action="'+action+'"]');
+              assert.equal(await editor.count(),1,name+' '+width+' '+action+' editor not connected');
+              await editor.click({timeout:6000});
+              await page.waitForFunction(()=>!document.querySelector('#modalBackdrop')?.hidden,{timeout:7000});
+              const field=action==='app'?'select[name="default_language"]':action==='business'?'input[name="name"]':action==='notifications'?'input[name="notification_email"]':'input[name="payment_method"]';
+              assert.ok(await page.locator('#modalBackdrop '+field).count(),name+' '+width+' '+action+' did not open real persisted editor');
+              await page.evaluate(()=>{document.querySelector('#modalBackdrop').hidden=true;});
+              await page.locator('#tleSettingsBack').click({timeout:6000});
+            }
+            await page.evaluate(()=>window.__settingsQAReset?.());
+            console.log('SETTINGS_OWNER_EDITOR_OK '+name+' '+width+' all 4 owner editors via synthetic data');
+          }else{
             const selected=await page.evaluate(id=>document.querySelector('#sidebar .nav-item[data-view="'+id+'"]')?.classList.contains('active'),section);
             assert.equal(selected,true,name+' '+width+' missing active nav highlight');
           }
