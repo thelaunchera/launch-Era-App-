@@ -120,12 +120,20 @@ shell.addEventListener('click',e=>{if(e.target.closest('#tleSettingsChooseLangua
 search.addEventListener('input',filter);
 document.addEventListener('keydown',e=>{if(active&&view.classList.contains('active')&&e.key==='Escape'&&document.querySelector('#modalBackdrop')?.hidden){e.preventDefault();close();}});
 document.addEventListener('click',e=>{if(active&&view.classList.contains('active')&&e.target.closest('#appShell #backBtn')){e.preventDefault();e.stopImmediatePropagation();close();}},true);
-const watch=new MutationObserver(()=>{if(!view.classList.contains('active')&&active)close();if(view.classList.contains('active'))render();});
+// Do not rebuild the entire Settings group on the same navigation class mutation.
+// The initial mount renders once; explicit language changes trigger a separate refresh.
+const watch=new MutationObserver(()=>{if(!view.classList.contains('active')&&active)close();});
 watch.observe(view,{attributes:true,attributeFilter:['class']});
 const biz=document.querySelector('#settingsBusinessName');
 if(biz)new MutationObserver(()=>{shell.querySelector('#tleSettingsBusinessName').textContent=biz.textContent?.trim().replace(/^—$/,'')||t('profile');}).observe(biz,{childList:true,subtree:true,characterData:true});
-panels.forEach(p=>new MutationObserver(()=>{if(!active)render();}).observe(p,{attributes:true,attributeFilter:['hidden','inert']}));
-new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+let scheduledRender=false;
+function scheduleSettingsRender(){
+ if(scheduledRender)return;
+ scheduledRender=true;
+ requestAnimationFrame(()=>{scheduledRender=false;if(view.isConnected)render();});
+}
+panels.forEach(p=>new MutationObserver(()=>{if(!active)scheduleSettingsRender();}).observe(p,{attributes:true,attributeFilter:['hidden','inert']}));
+new MutationObserver(()=>scheduleSettingsRender()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 view.addEventListener('click',e=>{const head=e.target.closest('.tle-current-panel .panel-head.settings-accordion-trigger');if(head&&!e.target.closest('button,input,a,select'))e.stopImmediatePropagation();},true);
 render();
 }
