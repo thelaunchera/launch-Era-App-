@@ -205,6 +205,7 @@ async function runProfile(profile){
       waitUntil:"domcontentloaded",
       timeout:20000
     });
+    await page.locator(".privacy-notice [data-reject]").click({timeout:10000});
     await page.waitForSelector("#publicShell",{state:"visible",timeout:10000});
     await page.waitForFunction(()=>document.querySelectorAll("#publicServiceCards [data-service-card]").length>0,null,{timeout:10000});
 

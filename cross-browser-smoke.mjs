@@ -574,6 +574,8 @@ try{
         waitUntil:"domcontentloaded",
         timeout:20000
       });
+      await page.locator(".privacy-notice [data-reject]").click({timeout:10000});
+      if(await page.locator(".privacy-notice").isVisible())throw new Error("Privacy rejection did not dismiss notice");
       await page.waitForSelector("#authShell",{state:"visible",timeout:10000});
       await assertLayout(page,profile);
 
