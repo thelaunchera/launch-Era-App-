@@ -15,7 +15,7 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261019-app-settings-r91";
+const APP_VERSION = "20261026-app-privacy-r92";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -2704,15 +2704,15 @@ function trackAuthLandingOnHumanInteraction(){
   ["pointerdown","touchstart","keydown"].forEach(type=>window.addEventListener(type,fire,{capture:true,passive:true}));
 }
 async function trackVisit(page=window.location.pathname+window.location.search){
-  if(isAutomationTestSession()) return;
+  if(isAutomationTestSession()||!window.TLEPrivacy?.allowed())return;
   trackGooglePage(page);
   try{
     if(localStorage.getItem("tle_internal_admin_device")==="1" || state.isPlatformAdmin) return;
     await supabase.functions.invoke("track-app-visit",{
       body:{
         visitor_id:getVisitorId(),
-        page,
-        referrer:document.referrer||null,
+        page:String(page).split(/[?#]/)[0],
+        referrer:document.referrer ? new URL(document.referrer).origin : null,
         user_agent:navigator.userAgent||null
       }
     });
