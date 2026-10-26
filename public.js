@@ -72,6 +72,7 @@
   }
 
   async function track(){
+    if(!window.TLEPrivacy?.allowed())return;
     try{
       await fetch(URL+"/functions/v1/track-app-visit",{
         method:"POST",
@@ -79,12 +80,14 @@
         body:JSON.stringify({
           visitor_id:visitorId(),
           page:"/public/"+mode,
-          referrer:document.referrer||null,
+          referrer:document.referrer?new window.URL(document.referrer).origin:null,
           user_agent:navigator.userAgent||null
         })
       });
     }catch{}
   }
+
+  window.addEventListener("tle:privacy-change",()=>{if(window.TLEPrivacy?.allowed())track();});
 
   function showPublicShell(){
     const splash=$("#sessionSplash");

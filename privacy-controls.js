@@ -120,7 +120,7 @@
     panel.querySelector('[data-reject]').addEventListener('click', () => save(false));
     panel.querySelector('[data-accept]').addEventListener('click', () => save(true));
     document.body.appendChild(panel);
-    if (!document.querySelector('[data-privacy-settings]')) {
+    if (site === 'cleaning' || !document.querySelector('[data-privacy-settings]')) {
       opener = document.createElement('button');
       opener.type = 'button';
       opener.className = 'privacy-settings privacy-settings-float';

@@ -10,6 +10,29 @@
   update();window.addEventListener("tle:privacy-change",update);
 })();
 
+window.TLEAppPageEvent=function(page,base){
+  try{
+    if(typeof window.gtag!=="function") return;
+    const raw=String(page||"/").replace(/^https?:\/\/[^/]+/,"");
+    const clean=raw.startsWith("/app/")
+      ? "/cleaning-app/"+raw.slice(5)
+      : raw.startsWith("/public/")
+        ? "/cleaning-app"+raw
+        : raw==="/login"
+          ? "/cleaning-app/login"
+          : "/cleaning-app"+(raw.startsWith("/")?raw:"/"+raw);
+    const pageLocation=window.location.origin+window.location.pathname+"#"+clean.replace(/^\//,"");
+    const leaf=clean.split("/").filter(Boolean).slice(-1)[0]||"home";
+    window.gtag("event","page_view",{
+      ...base,
+      page_path:clean,
+      page_location:pageLocation,
+      page_title:"Cleaning Web App · "+leaf
+    });
+  }catch{}
+}
+;
+
 window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
       if(window.__tleAppReady) return;
