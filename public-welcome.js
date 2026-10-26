@@ -142,8 +142,10 @@
     document.getElementById("welcomePacketPrintBtn")?.addEventListener("click",()=>window.print());
   }
   async function track(){
-    try{await fetch(SUPABASE_URL+"/functions/v1/track-app-visit",{method:"POST",headers:{"apikey":KEY,"Content-Type":"application/json"},body:JSON.stringify({visitor_id:localStorage.getItem("tle_visitor_id")||crypto.randomUUID?.()||"welcome-"+Date.now(),page:"/public/welcome",referrer:document.referrer||null,user_agent:navigator.userAgent||null})});}catch{}
+    if(!window.TLEPrivacy?.allowed())return;
+    try{await fetch(SUPABASE_URL+"/functions/v1/track-app-visit",{method:"POST",headers:{"apikey":KEY,"Content-Type":"application/json"},body:JSON.stringify({visitor_id:localStorage.getItem("tle_visitor_id")||crypto.randomUUID?.()||"welcome-"+Date.now(),page:"/public/welcome",referrer:document.referrer?new URL(document.referrer).origin:null,user_agent:navigator.userAgent||null})});}catch{}
   }
+  window.addEventListener("tle:privacy-change",()=>{if(window.TLEPrivacy?.allowed()&&packet)track();});
   async function boot(){
     showShell();
     try{

@@ -1,30 +1,37 @@
 // The Launch Era Cleaning Web App — lightweight shell bootstrap.
 // Keep this file UI-agnostic: analytics gating, boot errors, and service-worker registration only.
+// Google Analytics is loaded by privacy-controls.js only after optional consent.
 (function(){
-      try{
-        var host=String(location.hostname||"").toLowerCase();
-        var ua=String(navigator.userAgent||"");
-        var params=new URLSearchParams(location.search);
-        var automation=Boolean(
-          navigator.webdriver ||
-          /HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed/i.test(ua) ||
-          params.has("browser-smoke") ||
-          params.has("cross-browser-smoke") ||
-          params.has("ci-smoke") ||
-          params.has("token")
-        );
-        window.__tleAnalyticsEnabled=host==="app.thelaunchera.com"&&!automation;
-        if(!window.__tleAnalyticsEnabled) return;
-        window.dataLayer=window.dataLayer||[];
-        window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
-        var script=document.createElement("script");
-        script.async=true;
-        script.src="https://www.googletagmanager.com/gtag/js?id=G-N5BHMC432Q";
-        document.head.appendChild(script);
-        window.gtag("js",new Date());
-        window.gtag("config","G-N5BHMC432Q",{send_page_view:false});
-      }catch(e){window.__tleAnalyticsEnabled=false;}
-    })();
+  var host=String(location.hostname||"").toLowerCase();
+  var ua=String(navigator.userAgent||"");
+  var params=new URLSearchParams(location.search);
+  var automation=Boolean(navigator.webdriver || /HeadlessChrome|PhantomJS|Google-InspectionTool|Lighthouse|PageSpeed/i.test(ua) || params.has("browser-smoke") || params.has("cross-browser-smoke") || params.has("ci-smoke") || params.has("token"));
+  function update(){window.__tleAnalyticsEnabled=host==="app.thelaunchera.com"&&!automation&&window.TLEPrivacy?.allowed()===true;}
+  update();window.addEventListener("tle:privacy-change",update);
+})();
+
+window.TLEAppPageEvent=function(page,base){
+  try{
+    if(typeof window.gtag!=="function") return;
+    const raw=String(page||"/").replace(/^https?:\/\/[^/]+/,"");
+    const clean=raw.startsWith("/app/")
+      ? "/cleaning-app/"+raw.slice(5)
+      : raw.startsWith("/public/")
+        ? "/cleaning-app"+raw
+        : raw==="/login"
+          ? "/cleaning-app/login"
+          : "/cleaning-app"+(raw.startsWith("/")?raw:"/"+raw);
+    const pageLocation=window.location.origin+window.location.pathname+"#"+clean.replace(/^\//,"");
+    const leaf=clean.split("/").filter(Boolean).slice(-1)[0]||"home";
+    window.gtag("event","page_view",{
+      ...base,
+      page_path:clean,
+      page_location:pageLocation,
+      page_title:"Cleaning Web App · "+leaf
+    });
+  }catch{}
+}
+;
 
 window.__tleBootErrorHandler = true;
     window.addEventListener("error", function(event){
@@ -43,7 +50,7 @@ window.__tleBootErrorHandler = true;
       }
     });
 
-window.__tleShellVersion="20261019-app-settings-r91";
+window.__tleShellVersion="20261026-app-privacy-r92";
     if ("serviceWorker" in navigator && location.hostname!=="127.0.0.1" && location.hostname!=="localhost") {
       window.addEventListener("load",function(){
         navigator.serviceWorker.register("./service-worker.js?v="+window.__tleShellVersion,{updateViaCache:"none"})
