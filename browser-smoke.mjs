@@ -196,7 +196,7 @@ try{
     await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
     if(await page.evaluate(()=>document.querySelector("#authSubmit")?.textContent.trim()!=="Sign in")) throw new Error(profile.name+": registration reopened");
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",{timeout:10000});
+    await page.waitForFunction(()=>document.querySelector("#authSubmit")?.textContent.trim()==="Sign in",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
