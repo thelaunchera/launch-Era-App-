@@ -134,32 +134,21 @@ async function assertLayout(page,profile){
   await page.keyboard.press("Escape");
   await page.waitForSelector("#tleLanguageMenu",{state:"hidden",timeout:2000});
 
-  // Signup-first auth is release-blocking on mobile and in-app browsers.
+  // The retired product must offer existing-customer sign-in, never signup.
   const welcome=page.locator("#authWelcome");
   const authPanel=page.locator("#authPanel");
-  if(await welcome.isVisible()) throw new Error(profile.name+": legacy welcome screen should stay hidden");
-  if(!(await authPanel.isVisible())) throw new Error(profile.name+": signup form is not visible");
-  await page.waitForFunction(
-    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",
-    null,
-    {timeout:3000}
-  );
+  if(await welcome.isVisible()) throw new Error(profile.name+": retired app cannot show the trial welcome screen");
+  if(!(await authPanel.isVisible())) throw new Error(profile.name+": existing-customer sign-in must be visible");
+  await page.waitForFunction(()=>document.querySelector("#authSubmit")?.textContent.trim()==="Sign in",null,{timeout:3000});
   const firstAuth=await page.evaluate(()=>({
-    title:document.querySelector("#authTitle")?.textContent.trim(),
     submit:document.querySelector("#authSubmit")?.textContent.trim(),
     signupClass:document.querySelector("#authShell")?.classList.contains("auth-mode-signup"),
     featureCount:document.querySelectorAll(".auth-feature-strip span").length
   }));
-  if(firstAuth.submit!=="Sign up" || !firstAuth.signupClass || firstAuth.featureCount!==4){
-    throw new Error(profile.name+": signup-first product screen is incomplete "+JSON.stringify(firstAuth));
+  if(firstAuth.signupClass || firstAuth.submit!=="Sign in" || firstAuth.featureCount!==4){
+    throw new Error(profile.name+": retired app sign-in screen is incomplete "+JSON.stringify(firstAuth));
   }
-
-  const authSwitchInitial=page.locator("#authSwitch");
-  if(!(await authSwitchInitial.isVisible()) || !(await authSwitchInitial.isEnabled())){
-    throw new Error(profile.name+": sign-in switch is not usable");
-  }
-  await authSwitchInitial.click();
-  await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Hey, welcome back!",null,{timeout:3000});
+  if(await page.locator("#authSwitch").isVisible()) throw new Error(profile.name+": retired app still offers signup toggle");
 
   // Returning-user regression: remembered username must survive a natural
   // reload without storing a password or bouncing back to the welcome screen.
@@ -205,16 +194,7 @@ async function assertLayout(page,profile){
   });
   await authSubmit.click();
   await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,null,{timeout:3000});
-  const authSwitch=page.locator("#authSwitch");
-  if(!(await authSwitch.isVisible()) || !(await authSwitch.isEnabled())){
-    throw new Error(profile.name+": auth mode switch is not usable");
-  }
-  await authSwitch.click();
-  await page.waitForFunction(
-    ()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",
-    null,
-    {timeout:3000}
-  );
+  if(await page.locator("#authSwitch").isVisible()) throw new Error(profile.name+": retired app must hide account registration");
 
   await page.evaluate(()=>{
     document.body.classList.remove("shell-auth","shell-worker","shell-public");

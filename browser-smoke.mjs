@@ -85,8 +85,8 @@ try{
       submit:document.querySelector("#authSubmit")?.textContent.trim(),
       modeSignup:document.querySelector("#authShell")?.classList.contains("auth-mode-signup")
     }));
-    if(!authEntry.welcomeHidden||!authEntry.panelVisible||authEntry.title!=="Let's get your business organized."||authEntry.submit!=="Sign up"||!authEntry.modeSignup){
-      throw new Error(profile.name+": signup-first auth screen failed: "+JSON.stringify(authEntry));
+    if(!authEntry.welcomeHidden||!authEntry.panelVisible||authEntry.submit!=="Sign in"||authEntry.modeSignup){
+      throw new Error(profile.name+": retired app sign-in screen failed: "+JSON.stringify(authEntry));
     }
 
     await page.waitForSelector("#authEmail",{visible:true,timeout:10000});
@@ -97,8 +97,8 @@ try{
       trialClose:!!document.querySelector("#trialExpiryClose"),
       staticThreeDay:document.body.textContent.includes("Your free access ends in 3 days")
     }));
-    if(signup.button.text!=="Sign up"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
-      throw new Error(profile.name+": Sign up form is not usable");
+    if(signup.button.text!=="Sign in"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
+      throw new Error(profile.name+": existing-client sign-in is not usable");
     }
     await page.waitForSelector("#authPassword",{visible:true,timeout:10000});
     const authInputSizes=await page.evaluate(()=>({
@@ -141,8 +141,8 @@ try{
     // The auth panel animates on mobile. Follow the real switch path and let
     // Puppeteer perform an actual clickable-point tap; it scrolls the target
     // into view exactly as a user agent would instead of guessing coordinates.
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Hey, welcome back!",{timeout:10000});
+    if(await page.evaluate(()=>getComputedStyle(document.querySelector("#authSwitch")).display!=="none")) throw new Error(profile.name+": signup switch must be hidden");
+    await page.waitForFunction(()=>document.querySelector("#authSubmit")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
       window.__tleSmokeAuthSubmitClicked=false;
       const btn=document.querySelector("#authSubmit");
@@ -195,8 +195,8 @@ try{
     // depending on Puppeteer's mobile clickablePoint heuristics.
     await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",{timeout:10000});
+    if(await page.evaluate(()=>document.querySelector("#authSubmit")?.textContent.trim()!=="Sign in")) throw new Error(profile.name+": registration reopened");
+    await page.waitForFunction(()=>document.querySelector("#authSubmit")?.textContent.trim()==="Sign in",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
     }
