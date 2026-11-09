@@ -85,8 +85,8 @@ try{
       submit:document.querySelector("#authSubmit")?.textContent.trim(),
       modeSignup:document.querySelector("#authShell")?.classList.contains("auth-mode-signup")
     }));
-    if(!authEntry.welcomeHidden||!authEntry.panelVisible||authEntry.title!=="Let's get your business organized."||authEntry.submit!=="Sign up"||!authEntry.modeSignup){
-      throw new Error(profile.name+": signup-first auth screen failed: "+JSON.stringify(authEntry));
+    if(!authEntry.welcomeHidden||!authEntry.panelVisible||authEntry.submit!=="Sign in"||authEntry.modeSignup){
+      throw new Error(profile.name+": retired app sign-in screen failed: "+JSON.stringify(authEntry));
     }
 
     await page.waitForSelector("#authEmail",{visible:true,timeout:10000});
@@ -97,8 +97,8 @@ try{
       trialClose:!!document.querySelector("#trialExpiryClose"),
       staticThreeDay:document.body.textContent.includes("Your free access ends in 3 days")
     }));
-    if(signup.button.text!=="Sign up"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
-      throw new Error(profile.name+": Sign up form is not usable");
+    if(signup.button.text!=="Sign in"||signup.button.hidden||signup.button.disabled||!signup.emailVisible||signup.emailType!=="email"){
+      throw new Error(profile.name+": existing-client sign-in is not usable");
     }
     await page.waitForSelector("#authPassword",{visible:true,timeout:10000});
     const authInputSizes=await page.evaluate(()=>({
