@@ -128,6 +128,7 @@ if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 
 if(!app.includes('if(mode==="signup") mode="signin"')) throw new Error("Retired product must block new registrations");
 if(!app.includes("New Cleaning App subscriptions are closed")) throw new Error("Old checkout may not open");
+click("#authSwitch"); // Synthetic legacy mode toggle initializes the lazily mounted sign-in fields; signup stays blocked.
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
