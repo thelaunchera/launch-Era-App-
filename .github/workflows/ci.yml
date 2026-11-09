@@ -32,6 +32,7 @@ jobs:
             exit 1
           fi
       - run: npm run check
+      - run: node retirement-qa.mjs
       - run: npm run verify-local-supabase
       - run: npm run repo-health
       - run: npm run smoke
