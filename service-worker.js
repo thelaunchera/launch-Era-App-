@@ -1,4 +1,4 @@
-const CACHE_NAME="tle-cleaning-app-20261026-app-privacy-r92";
+const CACHE_NAME="tle-cleaning-app-retired-offer-20261108-r1";
 const CORE=[
   "./privacy-controls.js?v=20261026-app-privacy-r92",
   "./drawer-menu-r89.js?v=20261026-app-privacy-r92",
@@ -35,7 +35,7 @@ const CORE=[
   "./estimate-calculator.js?v=20261026-app-privacy-r92",
   "./greeting-colors.js?v=20261026-app-privacy-r92",
   "./booking-price-review.js?v=20261026-app-privacy-r92",
-  "./app.js?v=20261026-app-privacy-r92",
+  "./app.js?v=20261108-retired-offer-r1",
   "./auth-editorial.js?v=20261026-app-privacy-r92",
   "./styles/auth-editorial.css?v=20261026-app-privacy-r92",
   "./styles/tle-brand.css?v=20261026-app-privacy-r92",
