@@ -117,18 +117,17 @@ const $=s=>window.document.querySelector(s);
 const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,cancelable:true}));
 
 if(!$("#authWelcome")?.hidden) throw new Error("Legacy welcome marketing screen should stay hidden");
-if($("#authPanel")?.hidden) throw new Error("Signup form should be visible on first visit");
-if($("#authTitle")?.textContent!=="Let's get your business organized.") throw new Error("Signup-first auth title is wrong");
-if($("#authSubmit")?.textContent!=="Sign up") throw new Error("Signup-first submit label is wrong");
+if($("#authPanel")?.hidden) throw new Error("Existing-client sign-in must remain available");
+if($("#authTitle")?.textContent!=="Hey, welcome back!") throw new Error("Retired product must open existing-client sign-in");
+if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Retired product cannot advertise sign-up");
 if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
 if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
 if($("#emailField")?.hidden) throw new Error("Create account email field is hidden");
 if($("#passwordField")?.hidden) throw new Error("Create account password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Create account submit is hidden");
 
-click("#authSwitch");
-await new Promise(r=>setTimeout(r,240));
-if($("#authTitle")?.textContent!=="Hey, welcome back!") throw new Error("Existing-user sign-in switch failed");
+if(!app.includes('if(mode==="signup") mode="signin"')) throw new Error("Retired product must block new registrations");
+if(!app.includes("New Cleaning App subscriptions are closed")) throw new Error("Old checkout may not open");
 if($("#passwordField")?.hidden) throw new Error("Sign in password field is hidden");
 if($("#authSubmit")?.hidden) throw new Error("Sign in submit is hidden");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Sign in submit label is wrong");
@@ -143,14 +142,9 @@ if(signInCalls!==1) throw new Error("Sign in submit handler did not call auth");
 console.log("SIGNIN_SUBMIT_OK");
 
 click("#authSwitch");
-if($("#authTitle")?.textContent!=="Let's get your business organized.") throw new Error("Return to sign-up failed");
-$("#authEmail").value="new@example.invalid";
-$("#authPassword").value="CreateAccount123!";
-$("#authForm").dispatchEvent(new window.Event("submit",{bubbles:true,cancelable:true}));
-await new Promise(r=>setTimeout(r,20));
-if(signUpCalls!==1) throw new Error("Create account submit handler did not call auth");
-console.log("SIGNUP_SUBMIT_OK");
-
+if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Registration toggle must not reopen new accounts");
+if(signUpCalls!==0) throw new Error("Retired product invoked new-account endpoint");
+console.log("RETIRED_SIGNUP_BLOCKED_OK");
 
 if(!app.includes('name="from_location"') || !app.includes('name="to_location"') || !app.includes("data-mileage-job")){
   throw new Error("Mileage regression: separate From/To workflow is missing");
