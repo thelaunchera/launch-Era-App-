@@ -141,8 +141,8 @@ try{
     // The auth panel animates on mobile. Follow the real switch path and let
     // Puppeteer perform an actual clickable-point tap; it scrolls the target
     // into view exactly as a user agent would instead of guessing coordinates.
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
-    await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Hey, welcome back!",{timeout:10000});
+    if(await page.evaluate(()=>getComputedStyle(document.querySelector("#authSwitch")).display!=="none")) throw new Error(profile.name+": signup switch must be hidden");
+    await page.waitForFunction(()=>document.querySelector("#authSubmit")?.textContent.trim()==="Sign in",{timeout:10000});
     await page.evaluate(()=>{
       window.__tleSmokeAuthSubmitClicked=false;
       const btn=document.querySelector("#authSubmit");
@@ -195,7 +195,7 @@ try{
     // depending on Puppeteer's mobile clickablePoint heuristics.
     await page.evaluate(()=>document.querySelector("#authSubmit")?.click());
     await page.waitForFunction(()=>window.__tleSmokeAuthSubmitClicked===true,{timeout:3000});
-    await page.evaluate(()=>document.querySelector("#authSwitch")?.click());
+    if(await page.evaluate(()=>document.querySelector("#authSubmit")?.textContent.trim()!=="Sign in")) throw new Error(profile.name+": registration reopened");
     await page.waitForFunction(()=>document.querySelector("#authTitle")?.textContent.trim()==="Let's get your business organized.",{timeout:10000});
     if(errors.some(e=>/Supabase browser library failed|ReferenceError|SyntaxError/i.test(e))){
       throw new Error(profile.name+": runtime error: "+errors.join(" | "));
