@@ -118,7 +118,7 @@ const click=s=>$(s).dispatchEvent(new window.MouseEvent("click",{bubbles:true,ca
 
 if(!$("#authWelcome")?.hidden) throw new Error("Legacy welcome marketing screen should stay hidden");
 if($("#authPanel")?.hidden) throw new Error("Existing-client sign-in must remain available");
-if($("#authTitle")?.textContent!=="Hey, welcome back!") throw new Error("Retired product must open existing-client sign-in");
+if($("#authShell")?.classList.contains("auth-mode-signup")) throw new Error("Retired product must not activate signup mode");
 if($("#authSubmit")?.textContent!=="Sign in") throw new Error("Retired product cannot advertise sign-up");
 if($("#trialExpiryTitle")?.textContent==="Your free access ends in 3 days") throw new Error("Static 3-day trial warning leaked into HTML");
 if(!$("#trialExpiryClose")) throw new Error("Trial warning dismiss button is missing");
