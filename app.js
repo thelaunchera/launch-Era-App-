@@ -15,7 +15,10 @@ const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261026-app-privacy-r92";
+const APP_VERSION = "20261108-retired-offer-r1";
+// Product retired: preserve authenticated historical access, but do not create
+// new accounts/workspaces or initiate new subscriptions from this legacy app.
+const CLEANING_APP_NEW_SALES_CLOSED = true;
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -263,7 +266,7 @@ const navHistory=["today"];
 // Auth controls must be interactive immediately, even while session/network boot continues.
 document.addEventListener("click",e=>{
   const start=e.target.closest?.("#authWelcomeStart");
-  if(start){ e.preventDefault(); openAuthFromWelcome("signup"); return; }
+  if(start){ e.preventDefault(); openAuthFromWelcome(CLEANING_APP_NEW_SALES_CLOSED?"signin":"signup"); return; }
   const signIn=e.target.closest?.("#authWelcomeSignIn");
   if(signIn){ e.preventDefault(); openAuthFromWelcome("signin"); return; }
   const back=e.target.closest?.("#authBackWelcome");
@@ -1785,7 +1788,7 @@ function prepareDirectAuth(modeOverride=null){
   authShell?.classList.remove("auth-form-open");
   const back=$("#authBackWelcome");
   if(back) back.hidden=true;
-  const nextMode=modeOverride || (hasReturningAuthHistory()?"signin":"signup");
+  const nextMode=CLEANING_APP_NEW_SALES_CLOSED ? (modeOverride==="recovery"?"recovery":"signin") : (modeOverride || (hasReturningAuthHistory()?"signin":"signup"));
   setAuthMode(nextMode);
   trackFunnelStep(nextMode==="signup"?"/funnel/signup-viewed":"/funnel/signin-viewed");
   const email=$("#authEmail");
@@ -2036,6 +2039,10 @@ function subscriptionNeedsPayment(){
 }
 
 async function startSubscriptionCheckout(button){
+  if(CLEANING_APP_NEW_SALES_CLOSED){
+    showToast("New Cleaning App subscriptions are closed. Contact support for existing account assistance.");
+    return;
+  }
   setBusy(button,true,"Opening secure checkout…");
   try{
     const {data,error}=await supabase.functions.invoke("create-stripe-checkout",{body:{}});
@@ -2230,7 +2237,9 @@ function renderTrialStatus(){
   if(subscriptionNeedsPayment()){
     pill.textContent=status==="past_due" ? "Payment needed" : "Trial ended";
     hideWarning();
-    if(state.business.role==="owner" && trialCard && !payBtn){
+    if(CLEANING_APP_NEW_SALES_CLOSED){
+      if(payBtn) payBtn.remove();
+    } else if(state.business.role==="owner" && trialCard && !payBtn){
       payBtn=document.createElement("button");
       payBtn.id="trialSubscribeBtn";
       payBtn.type="button";
@@ -3056,6 +3065,7 @@ function toggleAuthPasswordVisibility(){
   if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
 }
 function setAuthMode(mode,options={}){
+  if(CLEANING_APP_NEW_SALES_CLOSED && mode==="signup") mode="signin";
   state.authMode=mode;
   authShell?.classList.toggle("auth-mode-signup",mode==="signup");
   authShell?.classList.toggle("auth-mode-signin",mode==="signin");
@@ -3119,8 +3129,8 @@ function setAuthMode(mode,options={}){
     copy.textContent="Your cleaning schedule is ready when you are.";
     submit.textContent="Sign in";
     submit.hidden=false;
-    switchBtn.textContent="Don’t have an account? Sign up";
-    switchBtn.hidden=false;
+    switchBtn.textContent="New registrations closed";
+    switchBtn.hidden=CLEANING_APP_NEW_SALES_CLOSED;
     passwordField.hidden=false;
     password.required=true;
     lockAuthPasswordInput(password,"current-password");
@@ -3147,7 +3157,7 @@ $("#authRetryButton")?.addEventListener("click",()=>{
 
 $("#authSwitch").addEventListener("click",()=>{
   window.__tleAuthModeTouched=true;
-  const enteringSignup=state.authMode!=="signup";
+  const enteringSignup=state.authMode!=="signup" && !CLEANING_APP_NEW_SALES_CLOSED;
   setAuthStatus("");
   const retry=$("#authRetryButton"); if(retry) retry.hidden=true;
   setAuthMode(enteringSignup?"signup":"signin");
@@ -3189,6 +3199,11 @@ $("#authSwitch").addEventListener("click",()=>{
 
 authForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  if(CLEANING_APP_NEW_SALES_CLOSED && state.authMode==="signup"){
+    setAuthMode("signin");
+    setAuthStatus("New registrations are closed. Existing account holders can sign in.", "error");
+    return;
+  }
   const button = $("#authSubmit");
   setBusy(button,true);
   try{
@@ -3363,6 +3378,10 @@ $("#businessSetupRetryButton")?.addEventListener("click",()=>{
 
 businessForm.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  if(CLEANING_APP_NEW_SALES_CLOSED){
+    setBusinessSetupStatus("New Cleaning App workspaces are no longer available. Contact The Launch Era for account support.", "error");
+    return;
+  }
   trackFunnelStep("/funnel/business-setup-submitted",{repeat:true});
   const button = e.submitter;
   const setupRetry=$("#businessSetupRetryButton");
