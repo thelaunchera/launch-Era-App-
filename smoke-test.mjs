@@ -468,7 +468,7 @@ if(
   !app.includes("function showApp(){\n  dismissSessionSplash();") ||
   !app.includes("function prepareDirectAuth(modeOverride=null){\n  dismissSessionSplash();") ||
   !app.includes("function showAuthWelcome(){") ||
-  !app.includes("prepareDirectAuth(mode);")
+  !app.includes('prepareDirectAuth("signin");')
 ){
   throw new Error("Session splash regression: splash must resolve only after auth/session routing decides the next screen");
 }
