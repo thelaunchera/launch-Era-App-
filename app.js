@@ -67,7 +67,7 @@ const state = {
   teamMessages: [],
   activeTeamMessageMemberId: null,
   currentWorkerLink: null,
-  authMode: "signup",
+  authMode: "signin",
   modalType: null,
   modalId: null,
   coreDataLoadedFor: null
