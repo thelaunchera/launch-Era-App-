@@ -1826,8 +1826,7 @@ function syncAuthWelcomeCopy(){
   $("#authBackWelcome") && ($("#authBackWelcome").textContent=copy.back);
 }
 function showAuthWelcome(){
-  const mode=hasReturningAuthHistory()?"signin":"signup";
-  prepareDirectAuth(mode);
+  prepareDirectAuth("signin");
 }
 function openAuthFromWelcome(mode){
   window.__tleAuthModeTouched=true;
@@ -2036,6 +2035,9 @@ function subscriptionNeedsPayment(){
 }
 
 async function startSubscriptionCheckout(button){
+  // No new purchase links or checkout sessions for the retired Cleaning App.
+  showToast("New Cleaning App subscriptions are closed. For existing-account assistance, email hello@thelaunchera.com");
+  return;
   setBusy(button,true,"Opening secure checkout…");
   try{
     const {data,error}=await supabase.functions.invoke("create-stripe-checkout",{body:{}});
@@ -3056,6 +3058,8 @@ function toggleAuthPasswordVisibility(){
   if(start!=null&&end!=null){try{input.setSelectionRange(start,end);}catch{}}
 }
 function setAuthMode(mode,options={}){
+  // Standalone app retired from sale; existing sign-in and password recovery remain available.
+  if(mode==="signup") mode="signin";
   state.authMode=mode;
   authShell?.classList.toggle("auth-mode-signup",mode==="signup");
   authShell?.classList.toggle("auth-mode-signin",mode==="signin");
