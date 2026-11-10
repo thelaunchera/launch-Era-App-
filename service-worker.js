@@ -35,6 +35,7 @@ const CORE=[
   "./estimate-calculator.js?v=20261110-nav-resume-r1",
   "./greeting-colors.js?v=20261110-nav-resume-r1",
   "./booking-price-review.js?v=20261110-nav-resume-r1",
+  "./workspace-resume.js?v=20261110-nav-resume-r1",
   "./app.js?v=20261110-nav-resume-r1",
   "./auth-editorial.js?v=20261110-nav-resume-r1",
   "./styles/auth-editorial.css?v=20261110-nav-resume-r1",
