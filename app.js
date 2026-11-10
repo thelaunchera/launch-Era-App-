@@ -8,7 +8,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
-const OWNER_HOME_IDLE_MS = 2 * 60 * 1000;
+const OWNER_HOME_IDLE_MS = 2 * 60 * 60 * 1000;
+const WORKSPACE_RESUME_MS = 2 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_HOME_ACTIVITY_KEY = "tle_owner_home_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
@@ -1977,13 +1978,8 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",state.isPlatformAdmin);
   applyRolePermissions();
-  // A fresh app entry always starts on Today/Home. A true browser refresh
-  // keeps the current workspace section so Refresh does not interrupt work.
-  let isTrueReload=false;
-  try{
-    isTrueReload=performance.getEntriesByType?.("navigation")?.[0]?.type==="reload";
-  }catch{}
-  if(isTrueReload && !ownerHomeIdleExpired()){
+  // Signed-in workspaces reopen where they were for up to two hours on iPhone.
+  if(readWorkspaceResume()){
     restoreWorkspaceView();
   }else{
     navHistory.length=1;
@@ -2282,6 +2278,36 @@ function workspaceViewStorageKey(){
   const userId=String(state.session?.user?.id||state.session?.user?.email||"user");
   return "tle_last_workspace_view_v1:"+businessId+":"+userId;
 }
+function workspaceResumeStorageKey(){
+  return "tle_workspace_resume_v2:"+String(state.business?.id||"")+":"+String(state.session?.user?.id||"");
+}
+function readWorkspaceResume(){
+  if(!state.business?.id || !state.session?.user?.id) return null;
+  try{
+    const key=workspaceResumeStorageKey();
+    const saved=JSON.parse(localStorage.getItem(key)||"null");
+    const age=Date.now()-Number(saved?.savedAt||0);
+    if(!saved || !Number.isFinite(age) || age<0 || age>=WORKSPACE_RESUME_MS){
+      localStorage.removeItem(key);
+      return null;
+    }
+    if(!canRestoreWorkspaceView(saved.view)) return null;
+    return {
+      view:saved.view,
+      scrollTop:Math.max(0,Math.min(200000,Number(saved.scrollTop)||0)),
+      history:Array.isArray(saved.history)?saved.history.filter(canRestoreWorkspaceView).slice(-35):[]
+    };
+  }catch{return null;}
+}
+function persistWorkspaceResume(id,scrollTop){
+  if(!state.business?.id || !state.session?.user?.id || !canRestoreWorkspaceView(id)) return;
+  try{
+    localStorage.setItem(workspaceResumeStorageKey(),JSON.stringify({
+      view:id,savedAt:Date.now(),scrollTop:Math.max(0,Number(scrollTop)||0),
+      history:navHistory.filter(canRestoreWorkspaceView).slice(-35)
+    }));
+  }catch{}
+}
 function canRestoreWorkspaceView(id){
   if(!id) return false;
   const view=$$(".view").find(v=>v.dataset.page===id);
@@ -2292,12 +2318,16 @@ function canRestoreWorkspaceView(id){
 function saveWorkspaceView(id){
   if(!canRestoreWorkspaceView(id)) return;
   try{ localStorage.setItem(workspaceViewStorageKey(),id); }catch{}
+  persistWorkspaceResume(id,workspaceScrollPositions[id]??workspaceScrollTop());
 }
 function restoreWorkspaceView(){
-  let id="";
-  try{ id=String(localStorage.getItem(workspaceViewStorageKey())||""); }catch{}
-  if(!canRestoreWorkspaceView(id)){
-    id="today";
+  const saved=readWorkspaceResume();
+  const id=saved?.view||"today";
+  navHistory.length=0;
+  if(saved) navHistory.push(...saved.history);
+  if(!navHistory.length) navHistory.push("today");
+  if(saved) workspaceScrollPositions[id]=saved.scrollTop;
+  else {
     try{ localStorage.removeItem(workspaceViewStorageKey()); }catch{}
   }
   openView(id,{fromRestore:true,skipTrack:true,skipIntro:true});
@@ -2305,6 +2335,21 @@ function restoreWorkspaceView(){
 }
 
 const workspaceScrollPositions={};
+function rememberWorkspacePosition(){
+  if(!state.business?.id || !state.session?.user?.id) return;
+  const view=$(".view.active")?.dataset.page;
+  if(!canRestoreWorkspaceView(view)) return;
+  workspaceScrollPositions[view]=workspaceScrollTop();
+  persistWorkspaceResume(view,workspaceScrollPositions[view]);
+}
+let workspaceScrollSaveTimer=null;
+function scheduleWorkspaceScrollSave(){
+  if(!state.session?.user?.id || !state.business?.id) return;
+  clearTimeout(workspaceScrollSaveTimer);
+  workspaceScrollSaveTimer=setTimeout(rememberWorkspacePosition,650);
+}
+window.addEventListener("scroll",scheduleWorkspaceScrollSave,{passive:true});
+document.querySelector("#appShell>.main")?.addEventListener("scroll",scheduleWorkspaceScrollSave,{passive:true});
 function workspaceScrollOwner(){
   const main=$("#appShell>.main");
   return (window.innerWidth<=860 && main)?main:window;
@@ -2502,8 +2547,9 @@ function openView(id,options={}){
     else item.removeAttribute("aria-current");
   });
   if(typeof setSidebarOpen==="function") setSidebarOpen(false); else sidebar.classList.remove("open");
-  saveWorkspaceView(id);
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
+  workspaceScrollPositions[id]=targetTop;
+  saveWorkspaceView(id);
   requestAnimationFrame(()=>{
     setWorkspaceScrollTop(targetTop);
     // Preserve Back scroll position after iPhone's next layout frame.
@@ -2891,7 +2937,7 @@ function markOwnerHomeActivity(){
 function returnOwnerToHomeAfterIdle(){
   if(!state.session || state.business?.role!=="owner" || !ownerHomeIdleExpired()) return false;
   // Do not discard an unfinished modal form. The next normal activity will
-  // restart the two-minute clock, while regular workspace screens return Home.
+  // restart the two-hour clock, while regular workspace screens return Home.
   if(typeof modal!=="undefined" && modal && !modal.hidden){
     markOwnerHomeActivity();
     return false;
@@ -2961,12 +3007,14 @@ window.addEventListener("tle:languagechange",()=>{
   }
 });
 window.addEventListener("pagehide",()=>{
+  rememberWorkspacePosition();
   if(state.session){
     saveOwnerSessionBackup(state.session);
     if(state.business?.role==="owner") markOwnerActivity();
   }
 });
 document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden") rememberWorkspacePosition();
   if(document.visibilityState==="hidden" && state.session){
     saveOwnerSessionBackup(state.session);
     if(state.business?.role==="owner") markOwnerActivity();
