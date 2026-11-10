@@ -259,6 +259,7 @@ const toastEl = $("#toast");
 const sidebar = $("#sidebar");
 const pageTitle = $("#pageTitle");
 const backBtn = $("#backBtn");
+const workspaceCloseBtn = $("#workspaceCloseBtn");
 const navHistory=["today"];
 
 // Auth controls must be interactive immediately, even while session/network boot continues.
@@ -2505,6 +2506,31 @@ async function refreshViewData(id){
   return task;
 }
 
+function syncWorkspaceBrowserHistory(id,options={}){
+  if(!state.session?.user?.id || !state.business?.id || appShell?.hidden) return;
+  try{
+    const current=(history.state && typeof history.state==="object")?history.state:{};
+    const key=workspaceResumeStorageKey();
+    const ownsHistory=current.__tleWorkspaceKey===key;
+    const depth=ownsHistory?Math.max(0,Number(current.__tleWorkspaceDepth)||0):0;
+    const next={...current,__tleWorkspaceKey:key,__tleWorkspaceView:id,__tleWorkspaceDepth:depth};
+    if(options.fromRestore || options.fromBack || !ownsHistory){
+      history.replaceState(next,"");
+    }else if(current.__tleWorkspaceView!==id){
+      history.pushState({...next,__tleWorkspaceDepth:depth+1},"");
+    }
+  }catch{}
+}
+window.addEventListener("popstate",event=>{
+  if(!state.session?.user?.id || !state.business?.id || appShell?.hidden) return;
+  const next=event.state?.__tleWorkspaceView;
+  if(event.state?.__tleWorkspaceKey!==workspaceResumeStorageKey() || !canRestoreWorkspaceView(next)) return;
+  const current=$(".view.active")?.dataset.page;
+  if(current===next) return;
+  if(navHistory[navHistory.length-1]===next) navHistory.pop();
+  else if(current && canRestoreWorkspaceView(current)) navHistory.push(current);
+  openView(next,{fromBack:true,skipIntro:true});
+});
 function openView(id,options={}){
   const current=$(".view.active")?.dataset.page;
   if(current==="pricing"&&id!=="pricing") $("#estimateCalculatorMount")?.removeAttribute("data-user-edited");
@@ -2538,6 +2564,7 @@ function openView(id,options={}){
     :["invoices","reports"].includes(id)?"money":"more";
   const isHomeView=id==="today";
   if(backBtn) backBtn.hidden=isHomeView;
+  if(workspaceCloseBtn) workspaceCloseBtn.hidden=isHomeView;
   const menuButton=$("#menuToggle");
   if(menuButton) menuButton.hidden=!isHomeView;
   document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
@@ -2550,6 +2577,7 @@ function openView(id,options={}){
   const targetTop=(options.fromRestore||options.fromBack) ? Number(workspaceScrollPositions[id]||0) : 0;
   workspaceScrollPositions[id]=targetTop;
   saveWorkspaceView(id);
+  syncWorkspaceBrowserHistory(id,options);
   requestAnimationFrame(()=>{
     setWorkspaceScrollTop(targetTop);
     // Preserve Back scroll position after iPhone's next layout frame.
@@ -2653,6 +2681,12 @@ window.addEventListener("resize",()=>{
   }
 });
 
+if(workspaceCloseBtn) workspaceCloseBtn.addEventListener("click",()=>{
+  if(modal && !modal.hidden){closeEntityModal();return;}
+  navHistory.length=1;navHistory[0]="today";
+  openView("today",{fromRestore:true,skipIntro:true});
+  try{history.replaceState({...history.state,__tleWorkspaceDepth:0},"");}catch{}
+});
 if(backBtn) backBtn.addEventListener("click",()=>{
   if(modal && !modal.hidden){
     closeEntityModal();
@@ -2660,6 +2694,12 @@ if(backBtn) backBtn.addEventListener("click",()=>{
   }
   const current=$(".view.active")?.dataset.page||"today";
   if(current==="today") return;
+  // Use the actual browser stack when available, so Safari swipe and Back agree.
+  const browserDepth=Number(history.state?.__tleWorkspaceDepth||0);
+  if(history.state?.__tleWorkspaceKey===workspaceResumeStorageKey() && browserDepth>0){
+    history.back();
+    return;
+  }
 
   // Move back one workspace level instead of jumping straight Home.
   // Example: Today → Settings → Booking gives:
@@ -3365,6 +3405,7 @@ async function signOutCurrentUser(event){
     const {error}=await supabase.auth.signOut({scope:"local"});
     if(error) throw error;
 
+    try{localStorage.removeItem(workspaceResumeStorageKey());}catch{}
     state.session=null;
     state.business=null;
     clearOwnerSessionBackup();
