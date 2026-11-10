@@ -10,6 +10,7 @@ let captured;
 const auth={getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})};
 w.supabase={createClient:()=>({auth,from:table=>({insert:payload=>{assert.equal(table,'businesses');captured=payload;return {select:()=>({single:async()=>({error:{message:'Test stopped after capturing payload'}})})};}})})};
 const source=fs.readFileSync('app.js','utf8').replace('window.__tleAppReady=true;','window.__testState=state;window.__tleAppReady=true;');
+w.eval(fs.readFileSync('workspace-resume.js','utf8'));
 w.eval(source);
 await new Promise(r=>setTimeout(r,30));
 w.__testState.session={user:{id:'test-owner',email:'owner@example.com'}};
