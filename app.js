@@ -3401,11 +3401,12 @@ async function signOutCurrentUser(event){
 
   const wasOwner=state.business?.role==="owner";
   const ownerEmail=String(state.session?.user?.email||rememberedOwnerEmail()).trim().toLowerCase();
+  const workspaceKeyToClear=workspaceResumeStorageKey();
   try{
     const {error}=await supabase.auth.signOut({scope:"local"});
     if(error) throw error;
 
-    try{localStorage.removeItem(workspaceResumeStorageKey());}catch{}
+    try{localStorage.removeItem(workspaceKeyToClear);}catch{}
     state.session=null;
     state.business=null;
     clearOwnerSessionBackup();
