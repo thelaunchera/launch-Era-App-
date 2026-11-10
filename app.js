@@ -2267,7 +2267,6 @@ function applyRolePermissions(){
   }
 }
 
-const WORKSPACE_RESUME_MS=2*60*60*1000;
 function workspaceViewStorageKey(){
   const businessId=String(state.business?.id||"workspace");
   const userId=String(state.session?.user?.id||state.session?.user?.email||"user");
@@ -2275,39 +2274,20 @@ function workspaceViewStorageKey(){
 }
 function canRestoreWorkspaceView(id){
   if(!id) return false;
-  const view=$(".view").find(v=>v.dataset.page===id);
+  const view=$$(".view").find(v=>v.dataset.page===id);
   if(!view) return false;
-  const nav=$(".nav-item[data-view]").find(n=>n.dataset.view===id);
+  const nav=$$(".nav-item[data-view]").find(n=>n.dataset.view===id);
   return !nav || !nav.hidden;
 }
 const workspaceScrollPositions={};
-function saveWorkspaceView(id){
-  if(!state.session||!state.business||!canRestoreWorkspaceView(id)) return;
-  const positions=Object.fromEntries(Object.entries(workspaceScrollPositions).filter(([key,pos])=>canRestoreWorkspaceView(key)&&Number.isFinite(pos)).slice(-24));
-  try{localStorage.setItem(workspaceViewStorageKey(),JSON.stringify({id,at:Date.now(),stack:navHistory.slice(-24),positions}));}catch{}
-}
-function restoreWorkspaceView(){
-  let saved=null;
-  try{saved=JSON.parse(localStorage.getItem(workspaceViewStorageKey())||"null");}catch{}
-  const age=Date.now()-Number(saved?.at||0);
-  if(!saved||age<0||age>WORKSPACE_RESUME_MS||!canRestoreWorkspaceView(saved.id)){
-    navHistory.splice(0,navHistory.length,"today");
-    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
-    return "today";
-  }
-  navHistory.splice(0,navHistory.length,...(Array.isArray(saved.stack)?saved.stack.filter(canRestoreWorkspaceView).slice(-24):["today"]));
-  if(!navHistory.length)navHistory.push("today");
-  Object.assign(workspaceScrollPositions,Object.fromEntries(Object.entries(saved.positions||{}).filter(([key,pos])=>canRestoreWorkspaceView(key)&&Number.isFinite(pos))));
-  openView(saved.id,{fromRestore:true,skipTrack:true,skipIntro:true});
-  return saved.id;
-}
-function rememberWorkspacePosition(){
-  if(!state.session||!state.business||appShell?.hidden)return;
-  const id=$(".view.active")?.dataset.page;
-  if(id){workspaceScrollPositions[id]=workspaceScrollTop();saveWorkspaceView(id);}
-}
-window.addEventListener("pagehide",rememberWorkspacePosition);
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")rememberWorkspacePosition();});
+const workspaceResume=window.TLE_WORKSPACE_RESUME({
+  key:workspaceViewStorageKey,allows:canRestoreWorkspaceView,
+  history:navHistory,positions:workspaceScrollPositions,
+  active:()=>!!(state.session&&state.business&&!appShell.hidden),
+  view:()=>$(".view.active")?.dataset.page,top:workspaceScrollTop,
+  open:id=>openView(id,{fromRestore:true,skipTrack:true,skipIntro:true})
+});
+const saveWorkspaceView=workspaceResume.save,restoreWorkspaceView=workspaceResume.restore;
 
 function workspaceScrollOwner(){
   const main=$("#appShell>.main");
