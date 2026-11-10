@@ -4,6 +4,8 @@ import { JSDOM } from "jsdom";
 const html=fs.readFileSync("index.html","utf8");
 const boot=fs.readFileSync("boot.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
+const workspaceResume=fs.readFileSync("workspace-resume.js","utf8");
+const workspaceResumeScript=fs.readFileSync("workspace-resume.js","utf8");
 const authStorage=fs.readFileSync("auth-storage.js","utf8");
 const publicJs=fs.readFileSync("public.js","utf8");
 const followups=fs.readFileSync("followups.js","utf8");
@@ -110,6 +112,8 @@ const auth={
 };
 window.supabase={createClient:()=>({auth})};
 
+window.eval(workspaceResumeScript);
+window.eval(workspaceResume);
 window.eval(app);
 await new Promise(r=>setTimeout(r,20));
 

@@ -8,14 +8,14 @@ const { createClient } = window.supabase;
 const SUPABASE_URL = "https://bowacxhmjvrqixtwaikv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_0TueitFYiRF3rAEMLMT8-w_FvbvY0rB";
 const OWNER_IDLE_MS = 12 * 60 * 60 * 1000;
-const OWNER_HOME_IDLE_MS = 2 * 60 * 1000;
+const OWNER_HOME_IDLE_MS = 2 * 60 * 60 * 1000;
 const OWNER_ACTIVITY_KEY = "tle_owner_last_activity";
 const OWNER_HOME_ACTIVITY_KEY = "tle_owner_home_last_activity";
 const OWNER_EMAIL_KEY = "tle_owner_email";
 const REMEMBER_USERNAME_KEY = "tle_remember_username_v1";
 const OWNER_REAUTH_REQUIRED_KEY = "tle_owner_reauth_required";
 const OWNER_SESSION_BACKUP_KEY = "tle_owner_session_backup_v1";
-const APP_VERSION = "20261108-retired-sales-r1";
+const APP_VERSION = "20261110-nav-resume-r1";
 const OWNER_VAPID_PUBLIC_KEY = "BB9XfHdmXh6AvKzGhjUEDjDWZQwoTmrYedFcQHNpQWxqGsmiuat_5p3IEGrhpWN-nvTHd2ti_tYVPPZxq9fPIuM";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,{
@@ -258,6 +258,7 @@ const toastEl = $("#toast");
 const sidebar = $("#sidebar");
 const pageTitle = $("#pageTitle");
 const backBtn = $("#backBtn");
+const workspaceCloseBtn = $("#workspaceCloseBtn");
 const navHistory=["today"];
 
 // Auth controls must be interactive immediately, even while session/network boot continues.
@@ -1977,19 +1978,8 @@ function showApp(){
   $("#topFeedbackBtn")?.remove();
   document.body.classList.toggle("platform-owner-no-billing",state.isPlatformAdmin);
   applyRolePermissions();
-  // A fresh app entry always starts on Today/Home. A true browser refresh
-  // keeps the current workspace section so Refresh does not interrupt work.
-  let isTrueReload=false;
-  try{
-    isTrueReload=performance.getEntriesByType?.("navigation")?.[0]?.type==="reload";
-  }catch{}
-  if(isTrueReload && !ownerHomeIdleExpired()){
-    restoreWorkspaceView();
-  }else{
-    navHistory.length=1;
-    navHistory[0]="today";
-    openView("today",{fromRestore:true,skipTrack:true,skipIntro:true});
-  }
+  // Resume on cold PWA launch as well as reload, but only within two hours.
+  restoreWorkspaceView();
   $$("[data-account-billing]").forEach(el=>{
     el.hidden=false;
   });
@@ -2280,7 +2270,7 @@ function applyRolePermissions(){
 function workspaceViewStorageKey(){
   const businessId=String(state.business?.id||"workspace");
   const userId=String(state.session?.user?.id||state.session?.user?.email||"user");
-  return "tle_last_workspace_view_v1:"+businessId+":"+userId;
+  return "tle_last_workspace_view_v2:"+businessId+":"+userId;
 }
 function canRestoreWorkspaceView(id){
   if(!id) return false;
@@ -2289,22 +2279,16 @@ function canRestoreWorkspaceView(id){
   const nav=$$(".nav-item[data-view]").find(n=>n.dataset.view===id);
   return !nav || !nav.hidden;
 }
-function saveWorkspaceView(id){
-  if(!canRestoreWorkspaceView(id)) return;
-  try{ localStorage.setItem(workspaceViewStorageKey(),id); }catch{}
-}
-function restoreWorkspaceView(){
-  let id="";
-  try{ id=String(localStorage.getItem(workspaceViewStorageKey())||""); }catch{}
-  if(!canRestoreWorkspaceView(id)){
-    id="today";
-    try{ localStorage.removeItem(workspaceViewStorageKey()); }catch{}
-  }
-  openView(id,{fromRestore:true,skipTrack:true,skipIntro:true});
-  return id;
-}
-
 const workspaceScrollPositions={};
+const workspaceResume=window.TLE_WORKSPACE_RESUME({
+  key:workspaceViewStorageKey,allows:canRestoreWorkspaceView,
+  history:navHistory,positions:workspaceScrollPositions,
+  active:()=>!!(state.session&&state.business&&!appShell.hidden),
+  view:()=>$(".view.active")?.dataset.page,top:workspaceScrollTop,
+  open:id=>openView(id,{fromRestore:true,skipTrack:true,skipIntro:true})
+});
+const saveWorkspaceView=workspaceResume.save,restoreWorkspaceView=workspaceResume.restore;
+
 function workspaceScrollOwner(){
   const main=$("#appShell>.main");
   return (window.innerWidth<=860 && main)?main:window;
@@ -2493,6 +2477,7 @@ function openView(id,options={}){
     :["invoices","reports"].includes(id)?"money":"more";
   const isHomeView=id==="today";
   if(backBtn) backBtn.hidden=isHomeView;
+  if(workspaceCloseBtn) workspaceCloseBtn.hidden=isHomeView;
   const menuButton=$("#menuToggle");
   if(menuButton) menuButton.hidden=!isHomeView;
   document.querySelectorAll(".mobile-bottom-item[data-mobile-root]").forEach(item=>{
@@ -2607,6 +2592,10 @@ window.addEventListener("resize",()=>{
   }
 });
 
+workspaceCloseBtn?.addEventListener("click",()=>{
+  navHistory.splice(0,navHistory.length,"today");
+  openView("today",{fromRestore:true,skipIntro:true});
+});
 if(backBtn) backBtn.addEventListener("click",()=>{
   if(modal && !modal.hidden){
     closeEntityModal();
@@ -2929,7 +2918,7 @@ function returnOwnerToHomeOnResume(){
     if(main) main.scrollTo({top:0,behavior:"auto"});
     try{ window.scrollTo({top:0,behavior:"auto"}); }catch{}
   }
-  try{ localStorage.setItem(workspaceViewStorageKey(),"today"); }catch{}
+  saveWorkspaceView("today");
   return true;
 }
 
@@ -4034,6 +4023,9 @@ supabase.auth.onAuthStateChange((event, session)=>{
     // the user is already using. Only react here when a real app session was
     // previously active (or an explicit sign-out/idle-lock flow owns it).
     if(!state.session && authShell && !authShell.hidden && !window.__tleSigningOut && !window.__tleOwnerLocking) return;
+    if(state.session && state.business){
+      try{localStorage.removeItem(workspaceViewStorageKey());}catch{}
+    }
     state.session=null;
     state.business=null;
     if(window.__tleSigningOut || window.__tleOwnerLocking) return;
