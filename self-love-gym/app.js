@@ -87,7 +87,7 @@
   function toggleTimer(){if(!session)return;if(session.running){stopTimer();render();return;}if(session.remaining===0)session.remaining=timeline(program(session.id))[session.index].seconds;session.running=true;const end=Date.now()+session.remaining*1000;tick=setInterval(()=>{if(!session)return;session.remaining=Math.max(0,Math.ceil((end-Date.now())/1000));const display=document.getElementById('time-display');if(display)display.textContent=secondsText(session.remaining);if(!session.remaining){stopTimer();const label=document.getElementById('timer-label');if(label)label.textContent=t('timeUp');const btn=document.querySelector('[data-timer]');if(btn)btn.textContent=t('startTimer');}},250);render();}
   document.addEventListener('click',e=>{const target=e.target.closest('button');if(!target)return;
     if(target.dataset.lang){state.lang=target.dataset.lang;persist();render();return;}
-    if(target.dataset.page){goPage(target.dataset.page);return;}
+    if(target.dataset.page){if(session&&!session.finished&&!confirm(t('sessionExit')))return;goPage(target.dataset.page);return;}
     if(target.dataset.filter){state.filter=target.dataset.filter;render();return;}
     if(target.dataset.open){openSession(target.dataset.open);return;}
     if(target.dataset.favorite){const id=target.dataset.favorite;state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):[...state.favorites,id];persist();render();showToast(t(state.favorites.includes(id)?'favoriteToast':'unsaveToast'));return;}
@@ -98,7 +98,7 @@
     if(target.hasAttribute('data-exit')){if(confirm(t('sessionExit')))goPage('workouts');return;}
     if(target.hasAttribute('data-finish-home')){goPage('home');return;}
     if(target.hasAttribute('data-install')){if(installPrompt){installPrompt.prompt();installPrompt=null;}else document.getElementById('install-help').hidden=false;return;}
-    if(target.hasAttribute('data-reset')){if(confirm(t('resetConfirm'))){stopTimer();Object.assign(state,{...defaultState,lang:state.lang});localStorage.removeItem(KEY);render();showToast(t('resetDone'));}return;}
+    if(target.hasAttribute('data-reset')){if(confirm(t('resetConfirm'))){stopTimer();Object.assign(state,{...defaultState,lang:state.lang,logs:[],favorites:[]});localStorage.removeItem(KEY);render();showToast(t('resetDone'));}return;}
   });
   document.addEventListener('submit',e=>{if(e.target.id==='welcome-form'){e.preventDefault();state.name=e.target.elements.name.value.trim().slice(0,40);state.started=true;persist();render();}if(e.target.id==='name-form'){e.preventDefault();state.name=e.target.elements.name.value.trim().slice(0,40);persist();render();showToast(t('saved'));}});
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});
