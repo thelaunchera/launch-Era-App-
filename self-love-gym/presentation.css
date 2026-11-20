@@ -1,0 +1,73 @@
+:root{
+  --plum:#24182b;
+  --plum-deep:#140f18;
+  --lilac:#c7a4df;
+  --blush:#f1bfd5;
+  --ivory:#fbf9f6;
+}
+
+body{background:linear-gradient(145deg,#f8f4f8,#eee6f2)}
+
+.welcome{background:var(--ivory);grid-template-columns:minmax(360px,.88fr) minmax(440px,1.12fr);gap:0}
+.welcome-left{padding:clamp(32px,5vw,72px);position:relative;z-index:2}
+.welcome-left .brand{font-size:1.12rem;letter-spacing:-.055em}
+.welcome-left .brand-mark{background:var(--plum);color:var(--blush);box-shadow:0 8px 22px #2b173326}
+.welcome-body{max-width:560px}
+.welcome .eyebrow{color:#7e4da0;letter-spacing:.22em}
+.welcome h1{max-width:650px;font-size:clamp(3.35rem,6vw,6.4rem);line-height:.91;letter-spacing:-.075em}
+.welcome h1 em{color:#9a65bd}
+.welcome p{max-width:465px;font-size:1rem;line-height:1.7;color:#716676}
+.welcome-setup{max-width:430px;margin-top:28px}
+.welcome .field input{background:#fff;border:1px solid #ded4e2;border-radius:18px;padding:16px 17px;box-shadow:0 8px 30px #31163e0a}
+.welcome .btn{min-width:215px;border-radius:999px;padding:15px 24px;background:var(--plum);box-shadow:0 5px 0 #100b13,0 16px 30px #24102e24}
+.lang-inline{gap:12px}
+.lang-inline button{padding:7px 0}
+.welcome-footer{line-height:1.65}
+
+.welcome-art{min-height:calc(100vh - 36px);margin:18px 18px 18px 0;border-radius:34px;background:radial-gradient(circle at 74% 20%,#c69fe3 0,transparent 34%),radial-gradient(circle at 15% 78%,#9b5f9a 0,transparent 31%),linear-gradient(145deg,#3a2745 0%,#201625 56%,#120e16 100%);isolation:isolate;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff1c,0 30px 65px #25112e2e}
+.welcome-art:before{content:"";position:absolute;inset:9% 10%;border-radius:50%;background:radial-gradient(circle,#efcae449 0,transparent 68%);filter:blur(12px);z-index:0}
+.welcome-art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,#130e19c9 100%);z-index:1;pointer-events:none}
+.welcome-figure{position:absolute;z-index:1;left:50%;bottom:-8%;transform:translateX(-50%);width:min(88%,660px);height:108%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 26px 32px #10091675)}
+.welcome-art .art-caption{z-index:3;left:34px;bottom:32px;color:#fff;font-size:1.25rem;text-shadow:0 2px 16px #100916}
+.welcome-art .art-caption span{color:#decfe3}
+
+.hero{min-height:350px;border-radius:32px;background:radial-gradient(circle at 85% 18%,#9a6db455 0,transparent 35%),linear-gradient(135deg,#2f2037 0%,#1b141f 72%);box-shadow:0 22px 50px #2a143019,inset 0 0 0 1px #ffffff12;padding:42px}
+.hero:before{width:420px;height:420px;right:-80px;top:-165px;background:radial-gradient(circle,#d4a9e057 0,transparent 68%)}
+.hero:after{display:none}
+.hero-content{max-width:52%}
+.hero .eyebrow{color:#d9b7ea}
+.hero h1{font-size:clamp(3rem,5vw,4.8rem)}
+.hero p{color:#e6dce9;font-size:.96rem}
+.hero-art{width:49%;height:118%;right:0;bottom:-24%;align-items:flex-end}
+.hero-art img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 22px 28px #0d071177)}
+.hero .btn span{display:none}
+.metric .symbol{display:none}
+.metric strong{margin-top:0}
+.metric{box-shadow:0 12px 30px #32143e0a}
+
+@media(max-width:820px){
+  .welcome{display:flex;flex-direction:column;min-height:100vh}
+  .welcome-left{min-height:auto;padding:26px 23px 34px}
+  .welcome-left .brand{margin-bottom:42px}
+  .welcome h1{font-size:clamp(3.35rem,14vw,5.3rem)}
+  .welcome p{font-size:.95rem}
+  .welcome-footer{margin-top:34px}
+  .welcome-art{margin:0 13px 13px;min-height:430px;border-radius:30px}
+  .welcome-figure{width:min(105%,520px);height:110%;bottom:-13%}
+  .welcome-art .art-caption{left:24px;bottom:22px}
+  .hero{min-height:380px;padding:28px 24px;align-items:flex-start}
+  .hero-content{max-width:62%;z-index:3}
+  .hero h1{font-size:3.25rem}
+  .hero p{max-width:260px}
+  .hero-art{width:58%;height:84%;right:-12%;bottom:-11%;opacity:1}
+}
+
+@media(max-width:430px){
+  .welcome h1{font-size:3.55rem}
+  .welcome-art{min-height:395px}
+  .welcome-figure{width:118%;height:113%;bottom:-17%}
+  .hero{min-height:405px}
+  .hero-content{max-width:66%}
+  .hero h1{font-size:3rem}
+  .hero-art{width:64%;right:-18%;opacity:.92}
+}
