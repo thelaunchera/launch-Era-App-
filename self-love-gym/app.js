@@ -231,7 +231,7 @@
     if(target.dataset.toggle){const key=target.dataset.toggle;if(['voice','haptics','largeText','reduceMotion'].includes(key)){state[key]=!state[key];if(key==='voice'&&!state.voice)cancelSpeech();persist();render();}return;}
     if(target.dataset.open){document.querySelector('.workout-preview')?.close();openSession(target.dataset.open);return;}
     if(target.dataset.favorite){const id=target.dataset.favorite;state.favorites=state.favorites.includes(id)?state.favorites.filter(x=>x!==id):[...state.favorites,id];persist();render();showToast(t(state.favorites.includes(id)?'favoriteToast':'unsaveToast'));return;}
-    if(target.dataset.day!==undefined){state.selectedDay=Number(target.dataset.day);render();return;}
+    if(target.dataset.day!==undefined){const before=document.querySelector('.week-grid');const savedScroll=before?.scrollLeft||0;state.selectedDay=Number(target.dataset.day);render();const updated=document.querySelector('.week-grid');if(updated)updated.scrollLeft=savedScroll;return;}
     if(target.hasAttribute('data-alternative')){session.gentle=!session.gentle;persistSession();render();announceMove();return;}
     if(target.hasAttribute('data-prev')){nextMove(-1);return;}
     if(target.hasAttribute('data-next')){nextMove(1);return;}
