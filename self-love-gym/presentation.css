@@ -51,7 +51,7 @@ body{background:linear-gradient(145deg,#f8f4f8,#eee6f2)}
 .program-art{height:168px;isolation:isolate}
 .program-art.dark{background:radial-gradient(circle at 70% 24%,#f3e8f8 0,transparent 34%),linear-gradient(135deg,#eadcf2 0%,#c8a7db 100%)}
 .mini-art.dark{background:#eee2f4;color:#674779}
-.program-art img{position:absolute;z-index:1;left:50%;bottom:-29%;transform:translateX(-50%);width:96%;height:137%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 15px #32143e25)}
+/* The full-figure image placement is defined once below for both card layouts. */
 .program-art .duration{z-index:3}
 .mini-art{overflow:hidden;position:relative;isolation:isolate}
 .mini-art img{width:120%;height:120%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 12px #32143e24)}
@@ -128,7 +128,7 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
   .hero p{max-width:260px}
   .hero-art{width:58%;height:84%;right:-12%;bottom:-11%;opacity:1}
   .program-art{height:144px}
-  .program-art img{width:108%;height:145%;bottom:-34%}
+  /* No separate mobile image zoom. Keep the whole exercise figure visible. */
   .movement-art{height:300px}
   .session-hero{min-height:245px;padding:24px}
   .session-hero-content{max-width:64%}
@@ -241,19 +241,24 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
 @media(prefers-reduced-motion:reduce){.workout-preview::backdrop{backdrop-filter:none}}
 
 
-/* SELF LOVE GYM — cover artwork framing v2.
-   Existing 3D portraits were anchored 29–34% BELOW each image panel, hiding
-   almost the entire figure and leaving a tall blank gradient (especially iOS). */
+/* Self Love Gym: full-figure framing v3.
+   Each original image has its own transparent 700x700 canvas.
+   Home and Workouts show ALL of the subject, head to toe. */
+.program-art{position:relative;overflow:hidden}
 .program-art img{
-  width:132%;
-  height:150%;
-  bottom:2%;
-  left:50%;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
   object-fit:contain;
   object-position:center bottom;
-  transform:translateX(-50%);
-  filter:drop-shadow(0 13px 19px #32143e26);
+  transform:none;
+  z-index:1;
+  filter:drop-shadow(0 8px 12px #32143e22);
 }
+.programs:not(.catalog-grid) .program-art{height:180px}
+.programs:not(.catalog-grid) .program-art img{width:100%;height:100%;object-fit:contain;object-position:center bottom}
 .program-art.category-strength{background:linear-gradient(155deg,#F1E4F9 0%,#C5A1E6 100%)}
 .program-art.category-cardio,
 .program-art.category-cardio.dark{background:linear-gradient(155deg,#FFDDEB 0%,#E69BCE 100%)}
@@ -262,11 +267,7 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
 .program-art.category-balance{background:linear-gradient(155deg,#E9E8FC 0%,#B9C0ED 100%)}
 .program-art.level-expert:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(145deg,#4c245712,transparent 55%);z-index:0}
 .catalog-grid .program-art:before{opacity:.3}
-.catalog-grid .program-art img{
-  width:142%;
-  height:152%;
-  bottom:2%;
-}
+.catalog-grid .program-art img{width:100%;height:100%;inset:0;transform:none;object-fit:contain;object-position:center bottom}
 @media(max-width:720px){
   /* Give the portrait more width on a small phone; still leave room for the title and actions. */
   .catalog-grid .program-card .program-art,
@@ -281,10 +282,10 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
     flex:1 1 61%;
     min-width:0;
   }
-  .catalog-grid .program-card .program-art img{
-    width:150%;
-    height:150%;
-    bottom:3%;
+  .programs:not(.catalog-grid) .program-art{height:clamp(158px,43vw,190px)}
+  .catalog-grid .program-card .program-art img,
+  .catalog-grid .program-card:last-child .program-art img{
+    width:100%;height:100%;inset:0;object-fit:contain;object-position:center bottom;
   }
   .catalog-grid .program-card .program-art .duration{
     top:10px;right:8px;
