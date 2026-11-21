@@ -1,10 +1,12 @@
 # Self Love Gym
 
-A free, mobile-first workout web app for beginners. Built as a standalone GitHub Pages site for The Launch Era's Self Love Gym community.
+A free, mobile-first workout web app with three difficulty levels for Self Love Gym. Built as a standalone GitHub Pages site for The Launch Era's Self Love Gym community.
 
 ## What is included
 
-- Three home workouts: gentle full-body strength, mobility, and low-impact cardio.
+- **15 original guided workouts**: five per level (Beginner, Intermediate, Expert), across Strength, Cardio, Mobility, Core and Balance.
+- 66 additional movement descriptions in English and Spanish, alongside the original movements. Each workout uses its own exercise order; there are no automatically repeated rounds.
+- Filter by level and category, preview every exercise and its safety cues, then start, pause or save the workout.
 - Guided exercise cues, a pause/resume timer, and an adaptable weekly schedule.
 - Recent sessions, streaks, favorites, English and Latin American Spanish.
 - Installable PWA with cached app files for offline access after first visit.
@@ -18,6 +20,6 @@ For local review, run `python3 -m http.server 8000` from this directory and visi
 
 ## Content and privacy
 
-Sessions are general beginner fitness suggestions. The plan includes two strength days, a mobility day and a low-impact cardio day, plus optional easy walks and rest. It does not claim to meet weekly activity guidelines on its own. Exercise guidance is general; adapt movement to your ability and stop if painful. No exercise videos, accounts, bank connections, or email messaging are included in this version.
+Sessions are general fitness suggestions for different ability levels, not personal medical prescriptions. The weekly planner uses distinct workouts for the selected level, with rest days and gentler alternatives. It does not claim to meet weekly activity guidelines on its own. Exercise guidance is general; adapt movement to your ability and stop if painful. No exercise videos, accounts, bank connections, or email messaging are included in this version.
 
 The user’s name and workout history remain in their browser. Clearing site data removes progress. Switching devices does not sync progress.
