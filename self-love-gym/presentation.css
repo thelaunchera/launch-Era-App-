@@ -49,6 +49,8 @@ body{background:linear-gradient(145deg,#f8f4f8,#eee6f2)}
 
 /* 3D movement system */
 .program-art{height:168px;isolation:isolate}
+.program-art.dark{background:radial-gradient(circle at 70% 24%,#f3e8f8 0,transparent 34%),linear-gradient(135deg,#eadcf2 0%,#c8a7db 100%)}
+.mini-art.dark{background:#eee2f4;color:#674779}
 .program-art img{position:absolute;z-index:1;left:50%;bottom:-29%;transform:translateX(-50%);width:96%;height:137%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 12px 15px #32143e25)}
 .program-art .duration{z-index:3}
 .mini-art{overflow:hidden;position:relative;isolation:isolate}
@@ -159,3 +161,4 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
   .finish-actions{display:grid}
   .finish-actions .btn{width:100%}
 }
+

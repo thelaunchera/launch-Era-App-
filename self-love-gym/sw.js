@@ -1,5 +1,5 @@
 const CACHE_PREFIX='self-love-gym-';
-const CACHE=CACHE_PREFIX+'v4';
+const CACHE=CACHE_PREFIX+'v5';
 const ASSETS=[
   './','./index.html','./style.css','./presentation.css','./app.js','./manifest.webmanifest',
   './icon.svg','./icon-192.png','./icon-512.png','./greeting-3d.webp',
