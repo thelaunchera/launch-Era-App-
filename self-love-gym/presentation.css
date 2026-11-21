@@ -162,3 +162,80 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
   .finish-actions .btn{width:100%}
 }
 
+
+
+/* Workout library v2 — distinct levels and movement-preview catalog. */
+.catalog-section{margin:20px 0 12px;padding:19px;border:1px solid #e9deeb;border-radius:24px;background:#fff}
+.catalog-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;color:#624b70}
+.catalog-heading .eyebrow{letter-spacing:.13em;font-size:.69rem;font-weight:800}
+.catalog-heading strong{font:700 .75rem Outfit,sans-serif;color:#b29cbf}
+.catalog-type-heading{margin-top:22px}
+.level-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.level-tabs button{border:1px solid #e6dce9;background:#faf8fb;color:#65546b;padding:13px 9px;min-height:48px;border-radius:14px;font-weight:800;font-size:.78rem;cursor:pointer}
+.level-tabs button.active{background:#27192e;color:#fff;border-color:#27192e;box-shadow:0 4px 0 #bd9bc9}
+.level-tabs button:hover:not(.active){background:#f5e7f0}
+.type-tabs{padding:0 0 6px;scrollbar-width:none}
+.type-tabs button{border:1px solid #eddfec;background:#faf6f9}
+.type-tabs button.active{background:#95527f;color:white;border-color:#95527f}
+.catalog-count{margin:16px 1px 14px;color:#6c6070;font-size:.81rem;font-weight:800}
+.catalog-count strong{font:800 1.6rem Outfit,sans-serif;color:#392240}
+.catalog-count span{font-weight:500;color:#b19faf}
+.catalog-grid{gap:17px}
+.catalog-grid .program-card{border-radius:22px;box-shadow:0 8px 26px #27152909}
+.workout-info{display:flex;align-items:center;gap:6px;color:#806e83;font-size:.73rem;font-weight:700;margin:-3px 0 14px}
+.program-info .card-row{display:flex;align-items:center;gap:8px;margin-top:auto}
+.program-info .card-row button{margin-top:0}
+.card-row .preview-link{font-size:.74rem;color:#824d92;text-decoration:underline;text-underline-offset:3px;white-space:normal;text-align:left;flex:1}
+.card-row .card-start{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:13px;padding:10px 13px;background:#31233a;color:#fff;font-size:.76rem;font-weight:800;min-height:38px;cursor:pointer}
+.card-row .card-start:hover{background:#8956a2}
+.card-row .round-arrow{flex:none;width:35px;height:35px}
+.catalog-empty{padding:35px 22px;background:#fff;border:1px solid #ece1ed;border-radius:22px;text-align:center}
+.catalog-empty p{color:#665969;margin-bottom:18px}
+.catalog-disclaimer{line-height:1.65;margin-top:19px}
+.expert-note{margin:14px 0 0;color:#684d65;background:#f7e7f1;border-left:3px solid #b86c9c}
+.workout-preview{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:min(660px,calc(100vw - 20px));height:min(790px,92dvh);max-width:none;max-height:none;border:0;border-radius:24px;overflow:hidden;padding:0;background:#fdfbfc;color:#2b2230;box-shadow:0 24px 90px #130c1bd0}
+.workout-preview[open]{display:flex;flex-direction:column}
+.workout-preview::backdrop{background:rgba(17,10,22,.77);backdrop-filter:blur(3px)}
+.workout-preview-top{display:flex;justify-content:space-between;align-items:start;gap:20px;padding:25px 26px 20px;background:linear-gradient(110deg,#ead5e7,#f9edf0)}
+.workout-preview-top .eyebrow{color:#774c83;font-size:.65rem}
+.workout-preview-top h2{font-size:clamp(1.65rem,4vw,2.5rem);line-height:1.08;margin:10px 0 9px}
+.workout-preview-top p{font-size:.85rem;line-height:1.5;color:#675771}
+.preview-stats{font-weight:800;margin-top:13px;font-size:.79rem}
+.preview-close{flex:none;border:0;background:#fff;border-radius:50%;width:39px;height:39px;font-size:1.5rem;color:#402c46;cursor:pointer}
+.preview-scroller{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:22px 26px;flex:1}
+.preview-eyebrow{color:#7a597f;margin-bottom:12px}
+.preview-moves{list-style:none;margin:0;padding:0}
+.preview-moves li{display:grid;grid-template-columns:32px minmax(0,1fr) 36px;gap:13px;align-items:start;border-bottom:1px solid #f0e8ed;padding:13px 0}
+.preview-number{font:800 .8rem Outfit,sans-serif;color:#af88b6}
+.preview-moves strong{font-size:.9rem;font-weight:800;display:block;line-height:1.25}
+.preview-moves small{display:block;color:#7c6d7d;font-size:.75rem;line-height:1.55;margin-top:6px}
+.preview-moves time{font-weight:800;font-size:.74rem;color:#936799;text-align:right}
+.preview-bottom{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 26px calc(16px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #eee1ef}
+.preview-bottom span{max-width:330px;line-height:1.45}
+.preview-bottom button{min-width:140px}
+@media(max-width:980px){.level-tabs button{font-size:.72rem}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){
+ .catalog-section{padding:14px 13px;border-radius:18px}
+ .level-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .level-tabs button{padding:12px 8px;font-size:.73rem}
+ .catalog-type-heading{margin-top:18px}
+ .catalog-grid{grid-template-columns:1fr;gap:13px}
+ .catalog-grid .program-card,.catalog-grid .program-card:last-child{grid-column:auto;flex-direction:row;min-height:146px}
+ .catalog-grid .program-card .program-art,.catalog-grid .program-card:last-child .program-art{width:34%;height:auto;min-height:146px;flex:none}
+ .catalog-grid .program-card .program-info,.catalog-grid .program-card:last-child .program-info{width:66%;padding:14px 12px}
+ .catalog-grid .program-card h3{font-size:1.06rem;line-height:1.2}
+ .catalog-grid .program-card .eyebrow{font-size:.59rem}
+ .catalog-grid .program-card p{font-size:.71rem;margin:5px 0 10px}
+ .catalog-grid .program-card .card-row{gap:6px;flex-wrap:wrap}
+ .catalog-grid .program-card .card-start{min-height:34px;padding:8px 10px}
+ .catalog-grid .program-card .preview-link{flex-basis:80px}
+ .catalog-grid .program-card .round-arrow{height:31px;width:31px}
+ .workout-preview{width:100vw;height:100dvh;border-radius:0}
+ .workout-preview-top{padding:calc(22px + env(safe-area-inset-top,0px)) 20px 17px}
+ .preview-scroller{padding:12px 20px}
+ .preview-bottom{padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+ .preview-bottom span{font-size:.67rem}
+ .preview-bottom button{min-width:112px}
+}
+@media(max-width:390px){.catalog-grid .program-card .program-art{width:31%}.catalog-grid .program-card .program-info{width:69%}}
+@media(prefers-reduced-motion:reduce){.workout-preview::backdrop{backdrop-filter:none}}
