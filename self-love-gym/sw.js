@@ -1,7 +1,7 @@
 const CACHE_PREFIX='self-love-gym-';
-const CACHE=CACHE_PREFIX+'v7';
+const CACHE=CACHE_PREFIX+'v8';
 const ASSETS=[
-  './','./index.html','./style.css?v=7','./presentation.css?v=5','./app.js','./manifest.webmanifest',
+  './','./index.html','./style.css?v=7','./presentation.css?v=6','./app.js?v=8','./manifest.webmanifest',
   './icon.svg','./icon-192.png','./icon-512.png','./greeting-3d.webp',
   './assets/moves/march.webp','./assets/moves/chair-stand.webp','./assets/moves/wall-pushup.webp','./assets/moves/side-step.webp',
   './assets/moves/calf-raise.webp','./assets/moves/knee-lift.webp','./assets/moves/breathing.webp','./assets/moves/shoulder-roll.webp',
