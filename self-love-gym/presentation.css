@@ -239,3 +239,63 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
 }
 @media(max-width:390px){.catalog-grid .program-card .program-art{width:31%}.catalog-grid .program-card .program-info{width:69%}}
 @media(prefers-reduced-motion:reduce){.workout-preview::backdrop{backdrop-filter:none}}
+
+
+/* SELF LOVE GYM — cover artwork framing v2.
+   Existing 3D portraits were anchored 29–34% BELOW each image panel, hiding
+   almost the entire figure and leaving a tall blank gradient (especially iOS). */
+.program-art img{
+  width:132%;
+  height:150%;
+  bottom:2%;
+  left:50%;
+  object-fit:contain;
+  object-position:center bottom;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 13px 19px #32143e26);
+}
+.program-art.category-strength{background:linear-gradient(155deg,#F1E4F9 0%,#C5A1E6 100%)}
+.program-art.category-cardio,
+.program-art.category-cardio.dark{background:linear-gradient(155deg,#FFDDEB 0%,#E69BCE 100%)}
+.program-art.category-mobility{background:linear-gradient(155deg,#FFF1EB 0%,#F6BFD9 100%)}
+.program-art.category-core{background:linear-gradient(155deg,#EDE0F9 0%,#BFA4DF 100%)}
+.program-art.category-balance{background:linear-gradient(155deg,#E9E8FC 0%,#B9C0ED 100%)}
+.program-art.level-expert:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(145deg,#4c245712,transparent 55%);z-index:0}
+.catalog-grid .program-art:before{opacity:.3}
+.catalog-grid .program-art img{
+  width:142%;
+  height:152%;
+  bottom:2%;
+}
+@media(max-width:720px){
+  /* Give the portrait more width on a small phone; still leave room for the title and actions. */
+  .catalog-grid .program-card .program-art,
+  .catalog-grid .program-card:last-child .program-art{
+    width:39%;
+    flex:0 0 39%;
+    min-height:160px;
+  }
+  .catalog-grid .program-card .program-info,
+  .catalog-grid .program-card:last-child .program-info{
+    width:61%;
+    flex:1 1 61%;
+    min-width:0;
+  }
+  .catalog-grid .program-card .program-art img{
+    width:150%;
+    height:150%;
+    bottom:3%;
+  }
+  .catalog-grid .program-card .program-art .duration{
+    top:10px;right:8px;
+    padding:5px 9px;
+    font-size:.65rem;
+  }
+  .catalog-grid .program-art:before{opacity:.2}
+}
+@media(max-width:390px){
+  .catalog-grid .program-card .program-art,
+  .catalog-grid .program-card:last-child .program-art{width:37%;flex-basis:37%}
+  .catalog-grid .program-card .program-info,
+  .catalog-grid .program-card:last-child .program-info{width:63%;flex-basis:63%}
+}
