@@ -300,3 +300,152 @@ html.reduce-motion *,html.reduce-motion *:before,html.reduce-motion *:after{anim
   .catalog-grid .program-card .program-info,
   .catalog-grid .program-card:last-child .program-info{width:63%;flex-basis:63%}
 }
+
+
+/* Self Love Gym iPhone UX polish / November 2026.
+   Clean Home, readable actions, swipeable weekly calendar, accessible navigation.
+   Does not change workout figures, assets, data or application routes. */
+.day[aria-pressed="true"]{
+  border-color:#9f65be;
+  background:#f3e9f8;
+  box-shadow:inset 0 0 0 1px #a477c6;
+}
+.progress-empty{
+  padding:29px 22px;
+  border:1px solid #e7d8e8;
+  border-radius:22px;
+  background:linear-gradient(135deg,#fff,#faf1f9);
+  display:flex;
+  gap:16px;
+  align-items:center;
+  justify-content:space-between;
+}
+.progress-empty p{margin:0;color:#6f5a76;line-height:1.6;font-size:.92rem}
+.progress-empty .btn{flex:none;min-height:46px}
+@media(max-width:720px){
+  /* Home shows three alternate workouts instead of a five-card repeat. */
+  .programs.home-featured{
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+  .home-featured .program-card,
+  .home-featured .program-card:last-child{
+    grid-column:auto;
+    flex-direction:row;
+    min-height:170px;
+  }
+  .home-featured .program-card .program-art,
+  .home-featured .program-card:last-child .program-art{
+    width:38%;
+    flex:0 0 38%;
+    height:auto;
+    min-height:170px;
+  }
+  .home-featured .program-card .program-info,
+  .home-featured .program-card:last-child .program-info{
+    width:62%;
+    flex:1 1 62%;
+    min-width:0;
+    padding:14px 13px;
+  }
+  .home-featured .program-info h3{font-size:1.08rem;line-height:1.19}
+  .home-featured .program-info p{font-size:.8rem;line-height:1.45;margin:6px 0 10px}
+  .home-featured .program-info .eyebrow{font-size:.65rem;line-height:1.35}
+  /* Two orderly rows of actions, rather than tiny overlapping controls. */
+  .home-featured .card-row,.catalog-grid .program-info .card-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 44px;
+    gap:6px;
+    align-items:center;
+    margin-top:auto;
+  }
+  .home-featured .card-row .preview-link,.catalog-grid .card-row .preview-link{
+    grid-column:1 / -1;
+    grid-row:1;
+    justify-self:start;
+    font-size:.84rem;
+    line-height:1.25;
+    min-height:38px;
+    display:flex;
+    align-items:center;
+    text-align:left;
+    padding:7px 1px;
+  }
+  .home-featured .card-row .card-start,.catalog-grid .card-row .card-start{
+    grid-column:1;
+    grid-row:2;
+    min-width:0;
+    min-height:44px;
+    font-size:.76rem;
+    line-height:1.22;
+    padding:10px 7px;
+    border-radius:12px;
+    white-space:normal;
+  }
+  .home-featured .card-row .round-arrow,.catalog-grid .card-row .round-arrow{
+    grid-column:2;
+    grid-row:2;
+    width:44px;
+    height:44px;
+    min-width:44px;
+    min-height:44px;
+  }
+  .home-featured .workout-info,.catalog-grid .workout-info{
+    font-size:.75rem;
+    flex-wrap:wrap;
+    gap:4px;
+    margin:0 0 11px;
+  }
+  .catalog-grid .program-info .eyebrow{font-size:.66rem;line-height:1.4}
+  .catalog-grid .program-info p{font-size:.78rem;line-height:1.5}
+  .catalog-grid .program-card h3{line-height:1.18}
+  .catalog-grid .program-card .program-info{padding:15px 13px}
+  .section-head .text-link{font-size:.86rem;min-height:44px;padding:11px 4px}
+  /* Scrollable 7-day schedule; no awkward 4 + 3 wrapping. */
+  .week-grid{
+    display:grid;
+    grid-template-columns:none;
+    grid-auto-flow:column;
+    grid-auto-columns:minmax(107px,29%);
+    gap:9px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:3px 2px 12px;
+    scrollbar-width:none;
+  }
+  .week-grid::-webkit-scrollbar{display:none}
+  .week-grid .day{
+    scroll-snap-align:start;
+    min-height:132px;
+    padding:12px 10px;
+  }
+  .week-grid .day .label{font-size:.72rem}
+  .week-grid .day .day-workout{font-size:.73rem;line-height:1.28}
+  /* Safe touch areas and legible nav labels at 320–430px. */
+  .bottom-nav{
+    padding:7px 8px calc(9px + env(safe-area-inset-bottom,0px));
+    gap:1px;
+  }
+  .bottom-nav button{
+    flex:1 1 0;
+    width:20%;
+    min-width:0;
+    min-height:52px;
+    padding:5px 1px;
+    font-size:clamp(11px,2.9vw,12px);
+    line-height:1.25;
+    gap:5px;
+  }
+  .bottom-nav svg{width:22px;height:22px}
+  .progress-empty{display:grid;gap:13px;text-align:center}
+  .progress-empty .btn{justify-self:center;min-width:150px}
+}
+@media(max-width:390px){
+  .home-featured .program-card .program-art,
+  .home-featured .program-card:last-child .program-art{width:37%;flex-basis:37%}
+  .home-featured .program-card .program-info,
+  .home-featured .program-card:last-child .program-info{width:63%;flex-basis:63%}
+  .week-grid{grid-auto-columns:112px}
+}
