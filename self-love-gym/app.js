@@ -132,7 +132,7 @@
   const heroArt=`<img src="./greeting-3d.webp" alt="" width="900" height="1350" loading="eager">`;
   const moveImage=(asset,alt='',eager=false)=>`<img src="./assets/moves/${asset}.webp" alt="${text(alt)}" width="700" height="700" loading="${eager?'eager':'lazy'}">`;
   const card=(p)=>`<article class="program-card">
-    <div class="program-art ${p.kind}">${moveImage(p.cover)}<span class="duration">${p.min} ${t('minutes')}</span></div>
+    <div class="program-art ${p.kind} category-${p.category} level-${p.level}">${moveImage(p.cover)}<span class="duration">${p.min} ${t('minutes')}</span></div>
     <div class="program-info"><span class="eyebrow">${t(p.level)} · ${t(p.category)}</span>
     <h3>${text(p.name[state.lang])}</h3><p>${text(p.desc[state.lang])}</p>
     <div class="workout-info"><span>${p.moves.length} ${t('movements')}</span><span>·</span><span>${t('noEquipment')}</span></div>
